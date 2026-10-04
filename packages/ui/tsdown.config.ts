@@ -1,0 +1,21 @@
+import { defineConfig } from "tsdown";
+
+export default defineConfig({
+  entry: ["src/index.ts", "src/components/*/index.ts"],
+  format: ["esm", "cjs"],
+  platform: "neutral",
+  target: "es2022",
+  dts: true,
+  // One output file per source file. A bundled chunk can't carry a
+  // per-file "use client" directive, so this is what keeps them intact.
+  unbundle: true,
+  clean: true,
+  inputOptions: {
+    // Rolldown warns that "use client" may not survive bundling. With
+    // unbundle it does, and scripts/check-dist.mjs fails the build if not.
+    onLog(level, log, defaultHandler) {
+      if (log.code === "MODULE_LEVEL_DIRECTIVE") return;
+      defaultHandler(level, log);
+    },
+  },
+});

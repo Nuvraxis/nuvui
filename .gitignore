@@ -1,0 +1,17 @@
+node_modules/
+dist/
+.next/
+out/
+.turbo/
+coverage/
+*.tsbuildinfo
+next-env.d.ts
+.env*.local
+.DS_Store
+
+# Playwright and Vitest browser mode
+playwright-report/
+test-results/
+blob-report/
+__screenshots__/
+.vitest-attachments/

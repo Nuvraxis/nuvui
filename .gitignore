@@ -15,3 +15,6 @@ test-results/
 blob-report/
 __screenshots__/
 .vitest/
+
+# Fumadocs content index, regenerated on every dev and build run
+.source/

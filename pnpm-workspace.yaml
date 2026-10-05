@@ -2,10 +2,13 @@ packages:
   - apps/*
   - packages/*
 
-# Comes in through sass-embedded for the Sass CLI's --watch flag, which we
-# don't use. Its install script only compiles a fallback binary.
+# Install scripts are off unless listed as true. Neither of these needs its
+# script: both ship a prebuilt binary as an optional dependency, and the
+# script only exists to fetch or compile one when that's missing.
+# @parcel/watcher comes in through sass-embedded, esbuild through fumadocs-mdx.
 allowBuilds:
   "@parcel/watcher": false
+  esbuild: false
 
 catalog:
   "@playwright/test": 1.63.0

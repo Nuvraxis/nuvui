@@ -1,0 +1,101 @@
+@use "../../styles/layers";
+@use "../../styles/mixins";
+
+// The track is 44px wide on touch screens and a bit smaller with a mouse.
+$gap: 2px;
+$touch-width: 2.75rem;
+$touch-height: 1.5rem;
+$fine-width: 2.25rem;
+$fine-height: 1.25rem;
+
+@mixin track($width, $height) {
+  inline-size: var(--nuv-switch-width, #{$width});
+  block-size: var(--nuv-switch-height, #{$height});
+}
+
+// How far the thumb travels: the track's inner width less the thumb's own
+// width, which equals the track's inner height. Done with a margin and not a
+// transform so it goes the right way in right-to-left layouts too.
+@mixin thumb-on($height) {
+  margin-inline-start: calc(
+    100% - (var(--nuv-switch-height, #{$height}) - #{$gap * 2})
+  );
+}
+
+@layer components {
+  .nuv-switch {
+    position: relative;
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    padding: $gap;
+    border: 0;
+    border-radius: var(--radius-full);
+
+    // Off has to be visible as a control too, so it's the 3:1 border color
+    // and not a pale gray.
+    background-color: var(--nuv-switch-bg, var(--color-border-strong));
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+
+    @include track($touch-width, $touch-height);
+    @include mixins.touch-area;
+    @include mixins.focus-ring;
+
+    @include mixins.motion-safe {
+      transition: background-color var(--nuv-duration-base) var(--ease-out);
+    }
+
+    @include mixins.fine-pointer {
+      @include track($fine-width, $fine-height);
+    }
+
+    // Where the browser forces its own colors, as Windows high contrast
+    // does, backgrounds aren't drawn, and a switch is made of nothing else.
+    // There it gets an outline, and the thumb below gets a system color.
+    @media (forced-colors: active) {
+      outline: 1px solid buttontext;
+      outline-offset: -1px;
+    }
+
+    &[data-state="checked"] {
+      background-color: var(--nuv-switch-checked-bg, var(--color-primary));
+    }
+
+    &[data-disabled] {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  .nuv-switch__thumb {
+    display: block;
+    block-size: 100%;
+    aspect-ratio: 1;
+    margin-inline-start: 0;
+    border-radius: var(--radius-full);
+    background-color: var(--nuv-switch-thumb, var(--color-background));
+    box-shadow: var(--shadow-sm);
+
+    @include mixins.motion-safe {
+      transition: margin-inline-start var(--nuv-duration-base) var(--ease-out);
+    }
+
+    @media (forced-colors: active) {
+      background-color: buttontext;
+      forced-color-adjust: none;
+    }
+
+    &[data-state="checked"] {
+      @include thumb-on($touch-height);
+
+      @media (forced-colors: active) {
+        background-color: highlight;
+      }
+
+      @include mixins.fine-pointer {
+        @include thumb-on($fine-height);
+      }
+    }
+  }
+}

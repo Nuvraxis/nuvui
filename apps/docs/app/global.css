@@ -1,0 +1,32 @@
+/*
+ * The library's token names match Tailwind's on purpose, so both declare
+ * things like --radius-md on :root. Naming the layers here, before anything
+ * else loads, decides who wins: `tokens` comes after Tailwind's `theme`, so
+ * the previews on this site show the library's own values. Tailwind's
+ * `utilities` still come last, so a utility class can override a component.
+ */
+@layer theme, tokens, base, components, utilities;
+
+@import "tailwindcss";
+@import "fumadocs-ui/css/neutral.css";
+@import "fumadocs-ui/css/preset.css";
+
+/* Fumadocs' light theme puts #737373 text on a #f5f5f5 page, which is 4.3:1.
+   AA needs 4.5:1. The dark theme already passes, so it's left alone. */
+:root:not(.dark) {
+  --color-fd-muted-foreground: #5c5c5c;
+}
+
+html {
+  scrollbar-gutter: stable;
+}
+
+/* Radix pads the body while a dialog locks scrolling, to make up for the
+   scrollbar going away. With a stable gutter it never goes away. Radix sets
+   these with !important itself, so that's what it takes to undo them. */
+html > body[data-scroll-locked] {
+  /* biome-ignore lint/complexity/noImportantStyles: see above */
+  margin-right: 0 !important;
+  /* biome-ignore lint/complexity/noImportantStyles: see above */
+  --removed-body-scroll-bar-size: 0px !important;
+}

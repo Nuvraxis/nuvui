@@ -1,0 +1,143 @@
+---
+title: Switch
+description: An on and off control for a setting that takes effect right away.
+---
+
+Use a switch for a setting that applies as soon as it's flipped, such as turning notifications on. In a form that's saved with a button, use a [checkbox](/docs/components/checkbox).
+
+<Preview name="switch/basic" />
+
+## Install
+
+```sh
+pnpm add @nuvui/react
+```
+
+## Import
+
+```tsx
+import { Switch } from "@nuvui/react";
+```
+
+The styles come from `@nuvui/react/styles.css`, which you load once for the whole app. [Getting started](/docs) covers that, and how to load only this component's CSS.
+
+## Try it
+
+<SwitchPlayground />
+
+## Props
+
+<PropsTable
+  component="switch"
+  name="SwitchProps"
+  props={{
+    checked:
+      "Whether it's on, when you control it yourself. Use it with `onCheckedChange`.",
+    defaultChecked: "Whether it starts on, when you don't control it.",
+    onCheckedChange: "Called with the new state when someone flips it.",
+    disabled: "Stops it from being focused or flipped.",
+    required:
+      "Marks it as required. Inside a form, the browser won't submit until it's on.",
+    name: "The name it's submitted under in a form.",
+    value:
+      "The value submitted when it's on. It's `\"on\"` if you don't set one.",
+  }}
+/>
+
+Everything else is passed to the `<button>` that Radix renders, including `ref`, `id`, `className` and `aria-label`. The [Radix Switch reference](https://www.radix-ui.com/primitives/docs/components/switch#api-reference) has the full list.
+
+## States
+
+<Preview name="switch/states" />
+
+## Size
+
+On a touch screen the track is 44 pixels wide and 24 tall, and the area that responds to a tap is 44 by 44. When a mouse or trackpad is the main input, the track is 36 by 20.
+
+The thumb is sized from the track's height, so setting `--nuv-switch-height` and `--nuv-switch-width` is enough to resize the whole control.
+
+## In a form
+
+Give the switch a `name` and it's submitted like a native checkbox. Inside a `<form>`, Radix renders a hidden `<input type="checkbox">` next to the button.
+
+## Accessibility
+
+### Keyboard
+
+| Key | What it does |
+| --- | --- |
+| <kbd>Tab</kbd> | Moves focus to the switch. Disabled ones are skipped. |
+| <kbd>Space</kbd> | Turns it on or off. |
+| <kbd>Enter</kbd> | Turns it on or off. |
+
+### What the component handles
+
+- It renders a `<button>` with `role="switch"` and `aria-checked`. This part is Radix.
+- A click on a `<label>` that points at it flips it.
+- On and off differ by where the thumb sits as well as by color, so the state doesn't depend on telling two colors apart.
+- The track while off uses `--color-border-strong`, which has at least 3:1 contrast with the page in light and dark.
+- The thumb moves toward the end of the line, so in a right-to-left layout it travels the other way.
+- Keyboard focus shows a 2 pixel ring in `--color-ring`.
+- The thumb only slides when the visitor hasn't asked for reduced motion. Otherwise it jumps.
+- Where the browser forces its own colors, as Windows high contrast does, backgrounds aren't drawn. The track gets an outline there, and the thumb a system color that changes when the switch is on.
+
+### What you need to handle
+
+- Give it a name. Use a `<label>` whose `htmlFor` matches the switch's `id`, or `aria-label` when there's no visible text.
+- Name the setting, not the state. "Email updates" stays true whether it's on or off. "On" doesn't.
+- Apply the change straight away. If it can fail, put the switch back and say why.
+
+## CSS variables
+
+Set any of these on the switch, or on anything around it.
+
+```css
+.settings {
+  --nuv-switch-checked-bg: var(--color-success);
+}
+```
+
+<CssVariables
+  component="switch"
+  descriptions={{
+    "--nuv-switch-bg": "Track color while off.",
+    "--nuv-switch-width":
+      "Width of the track. The default differs between touch screens and a mouse.",
+    "--nuv-switch-height":
+      "Height of the track. The thumb takes its size from it.",
+    "--nuv-switch-checked-bg": "Track color while on.",
+    "--nuv-switch-thumb": "Color of the thumb.",
+  }}
+/>
+
+## Classes
+
+<BemClasses
+  component="switch"
+  descriptions={{
+    "nuv-switch": "The track, which is the button itself.",
+    "nuv-switch__thumb": "The circle that moves.",
+  }}
+/>
+
+Radix sets `data-state` to `checked` or `unchecked` on both elements, and `data-disabled` when the switch is disabled. Style those, not a modifier class.
+
+## Server components
+
+Switch is a client component. It carries `"use client"`, and the build checks that the directive is still there in the published files.
+
+You can render it from a server component, as the first example on this page does. It needs a client component of your own once you pass `onCheckedChange` or control `checked`, which is most real uses, since a switch is there to do something when it's flipped.
+
+## Do and don't
+
+**Do**
+
+- Put the label next to the switch and link the two with `htmlFor`.
+- Keep the label the same in both states.
+- Use it for one setting at a time.
+
+**Don't**
+
+- Don't use a switch in a form that needs a save button. People expect a switch to have already happened.
+- Don't use one to pick between two unrelated options, such as "List" and "Grid". Use [tabs](/docs/components/tabs) or two buttons.
+- Don't shrink the track on pages people use on phones.

@@ -1,0 +1,170 @@
+---
+title: Dialog
+description: A modal window that takes over the page until it's closed. A sheet on phones, centered on larger screens.
+---
+
+Use a dialog when someone has to answer or finish something before going on: confirming a delete, filling in a short form. It blocks the rest of the page, so don't use it for information people may want to keep open while they work.
+
+<Preview name="dialog/basic" />
+
+## Install
+
+```sh
+pnpm add @nuvui/react
+```
+
+## Import
+
+```tsx
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogTitle,
+  DialogTrigger,
+} from "@nuvui/react";
+```
+
+The styles come from `@nuvui/react/styles.css`, which you load once for the whole app. [Getting started](/docs) covers that.
+
+## Parts
+
+| Part | What it is |
+| --- | --- |
+| `Dialog` | Holds the open state. Renders nothing itself. |
+| `DialogTrigger` | The button that opens the dialog. |
+| `DialogContent` | The panel. It also renders the overlay behind it and the close button in its corner. |
+| `DialogTitle` | The heading. Required, because it's the dialog's accessible name. |
+| `DialogDescription` | A sentence or two under the title, announced when the dialog opens. |
+| `DialogFooter` | A row for the action buttons. |
+| `DialogClose` | Closes the dialog when pressed. Wrap your own button with `asChild`. |
+
+These are separate exports, not properties of `Dialog`. `Dialog.Content` isn't available, because property access on a client component doesn't work from a server component.
+
+## Try it
+
+<DialogPlayground />
+
+## Props
+
+`DialogContent` adds these to what Radix provides:
+
+<PropsTable component="dialog" name="DialogContentOwnProps" />
+
+`Dialog`, `DialogTrigger`, `DialogClose`, `DialogTitle` and `DialogDescription` take the same props as the Radix parts they wrap, including `open`, `defaultOpen`, `onOpenChange`, `modal` and `asChild`. The [Radix Dialog reference](https://www.radix-ui.com/primitives/docs/components/dialog#api-reference) lists them.
+
+## Sizes
+
+<Preview name="dialog/sizes" />
+
+`size` sets the maximum width once the screen is at least 40rem wide: 24rem for `sm`, 32rem for `md` and 48rem for `lg`. Below that, the dialog is a sheet across the bottom of the screen whatever the size.
+
+It's never taller than the screen. If the content is longer, the panel scrolls.
+
+## Controlling it yourself
+
+Pass `open` and `onOpenChange` when something else decides when the dialog closes, such as a save that has to finish first.
+
+<Preview name="dialog/controlled" />
+
+## Accessibility
+
+### Keyboard
+
+| Key | What it does |
+| --- | --- |
+| <kbd>Enter</kbd> or <kbd>Space</kbd> | On the trigger, opens the dialog. |
+| <kbd>Tab</kbd> | Moves to the next control inside the dialog. From the last one it goes back to the first. |
+| <kbd>Shift</kbd> + <kbd>Tab</kbd> | Moves to the previous control, and from the first to the last. |
+| <kbd>Esc</kbd> | Closes the dialog. |
+
+### What the component handles
+
+Most of this is Radix. The library doesn't change it.
+
+- The panel has `role="dialog"`, named by `DialogTitle` and described by `DialogDescription`.
+- Opening moves focus to the first control in the content. Closing returns it to the trigger.
+- Focus can't leave the dialog while it's open, and the rest of the page is hidden from screen readers.
+- The trigger gets `aria-haspopup="dialog"` and `aria-expanded`.
+- The close button is a real button with an accessible name, and is at least 44 pixels on touch screens. This matters on phones, where there's no <kbd>Esc</kbd> key.
+- The open and close animations only run when the visitor hasn't asked for reduced motion.
+
+### What you need to handle
+
+- Always include a `DialogTitle`. If the design has no visible heading, hide it visually but keep it.
+- If you leave out `DialogDescription`, pass `aria-describedby={undefined}` to `DialogContent`, or Radix logs a warning.
+- Translate `closeLabel` along with the rest of your interface.
+
+## CSS variables
+
+Dialogs render at the end of `<body>`, so set these on `:root` or `body`, not on the element around the trigger.
+
+```css
+:root {
+  --nuv-dialog-radius: var(--radius-md);
+}
+```
+
+<CssVariables
+  component="dialog"
+  descriptions={{
+    "--nuv-dialog-overlay-bg": "Color of the layer that dims the page.",
+    "--nuv-dialog-padding": "Padding inside the panel.",
+    "--nuv-dialog-border": "Border color of the panel.",
+    "--nuv-dialog-radius":
+      "Corner radius. As a sheet on phones, only the top corners are rounded.",
+    "--nuv-dialog-bg": "Background color of the panel.",
+    "--nuv-dialog-shadow": "Shadow under the panel.",
+    "--nuv-dialog-fg": "Text color.",
+    "--nuv-dialog-width":
+      "Maximum width once the dialog is centered. Differs by size.",
+  }}
+/>
+
+## Classes
+
+The overlay and the panel sit next to each other in the page, not one inside the other. That's why the overlay is its own flat class.
+
+<BemClasses
+  component="dialog"
+  descriptions={{
+    "nuv-dialog": "The panel.",
+    "nuv-dialog--sm": "The panel with size=\"sm\".",
+    "nuv-dialog--lg": "The panel with size=\"lg\".",
+    "nuv-dialog__overlay": "The layer behind the panel.",
+    "nuv-dialog__title": "DialogTitle.",
+    "nuv-dialog__description": "DialogDescription.",
+    "nuv-dialog__footer": "DialogFooter.",
+    "nuv-dialog__close": "The close button in the corner.",
+  }}
+/>
+
+The panel also gets `nuv-dialog--md` at the default size. No styles are attached to it, since medium is the base.
+
+Radix sets `data-state="open"` or `data-state="closed"` on the overlay and the panel. The animations hang off those.
+
+## Server components
+
+The dialog parts are client components. They carry `"use client"`, and the build checks that the directive is still there in the published files.
+
+You can still put a dialog together inside a server component, as in the first example on this page. It only needs a client component of its own when you add state or handlers, as in the controlled example.
+
+## Themed sections
+
+A dialog opened from inside a `data-theme="dark"` section doesn't inherit that theme, because it isn't rendered inside the section. Pass the section's element as `container` and it will be.
+
+## Do and don't
+
+**Do**
+
+- Name the buttons after what they do. "Delete project" and "Cancel", not "Yes" and "No".
+- Keep it short. If it needs its own navigation, it should be a page.
+- Leave the close button in, unless there's another visible way out.
+
+**Don't**
+
+- Don't open a dialog from inside a dialog.
+- Don't open one without the person doing something to ask for it.
+- Don't put the only copy of important information in one. It's gone once it's closed.

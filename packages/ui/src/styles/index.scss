@@ -4,3 +4,14 @@
 @forward "mixins";
 @use "tokens";
 @use "base";
+@use "../components/accordion/accordion";
+@use "../components/button/button";
+@use "../components/checkbox/checkbox";
+@use "../components/dialog/dialog";
+@use "../components/dropdown-menu/dropdown-menu";
+@use "../components/popover/popover";
+@use "../components/select/select";
+@use "../components/switch/switch";
+@use "../components/tabs/tabs";
+@use "../components/toast/toast";
+@use "../components/tooltip/tooltip";

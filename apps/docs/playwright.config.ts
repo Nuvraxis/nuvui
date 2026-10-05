@@ -13,15 +13,17 @@ export default defineConfig({
   use: {
     baseURL: `http://localhost:${port}`,
     trace: "on-first-retry",
+    // For the test that presses a code block's copy button.
+    permissions: ["clipboard-read", "clipboard-write"],
   },
   projects: [
     { name: "desktop", use: { ...devices["Desktop Chrome"] } },
     { name: "mobile", use: { ...devices["Pixel 7"] } },
   ],
-  // Runs against the production build, so `pnpm build` has to come first.
-  // The turbo task takes care of that.
+  // Serves the exported site in `out`, the same files a host would serve, so
+  // `pnpm build` has to come first. The turbo task takes care of that.
   webServer: {
-    command: `pnpm exec next start --port ${port}`,
+    command: `pnpm exec serve out --listen ${port} --no-request-logging --no-clipboard`,
     url: `http://localhost:${port}`,
     reuseExistingServer: !isCI,
   },

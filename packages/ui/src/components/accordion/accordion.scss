@@ -1,0 +1,108 @@
+@use "../../styles/layers";
+@use "../../styles/mixins";
+
+@layer components {
+  .nuv-accordion {
+    border-block-start: 1px solid
+      var(--nuv-accordion-border, var(--color-border));
+  }
+
+  .nuv-accordion__item {
+    border-block-end: 1px solid var(--nuv-accordion-border, var(--color-border));
+  }
+
+  // The heading is only there for the page outline. It shouldn't bring a
+  // heading's size or margins with it.
+  .nuv-accordion__header {
+    display: flex;
+    margin: 0;
+    font: inherit;
+  }
+
+  .nuv-accordion__trigger {
+    display: flex;
+    flex: 1;
+    gap: calc(var(--spacing) * 4);
+    align-items: center;
+    justify-content: space-between;
+    padding-block: var(--nuv-accordion-padding-block, calc(var(--spacing) * 3));
+    padding-inline: 0;
+    border: 0;
+    background-color: transparent;
+    color: var(--nuv-accordion-fg, var(--color-foreground));
+    font-family: inherit;
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--text-base--line-height);
+    text-align: start;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+
+    @include mixins.touch-target;
+    @include mixins.focus-ring;
+
+    &[data-disabled] {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  .nuv-accordion__chevron {
+    flex: none;
+    color: var(--color-muted-foreground);
+
+    @include mixins.motion-safe {
+      transition: transform var(--nuv-duration-base) var(--ease-out);
+    }
+  }
+
+  .nuv-accordion__trigger[data-state="open"] .nuv-accordion__chevron {
+    transform: rotate(180deg);
+  }
+
+  .nuv-accordion__content {
+    overflow: hidden;
+    color: var(--nuv-accordion-content-fg, var(--color-muted-foreground));
+    font-size: var(--text-sm);
+    line-height: var(--leading-relaxed);
+
+    @include mixins.motion-safe {
+      &[data-state="open"] {
+        animation: nuv-accordion-down var(--nuv-duration-slow) var(--ease-out);
+      }
+
+      &[data-state="closed"] {
+        animation: nuv-accordion-up var(--nuv-duration-base) var(--ease-in);
+      }
+    }
+  }
+
+  .nuv-accordion__body {
+    padding-block-end: var(
+      --nuv-accordion-padding-block,
+      calc(var(--spacing) * 3)
+    );
+  }
+
+  // Radix measures the panel and exposes its height as a variable, which is
+  // what makes animating to "auto" possible.
+  @keyframes nuv-accordion-down {
+    from {
+      block-size: 0;
+    }
+
+    to {
+      block-size: var(--radix-accordion-content-height);
+    }
+  }
+
+  @keyframes nuv-accordion-up {
+    from {
+      block-size: var(--radix-accordion-content-height);
+    }
+
+    to {
+      block-size: 0;
+    }
+  }
+}

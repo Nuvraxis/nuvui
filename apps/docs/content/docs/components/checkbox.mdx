@@ -1,0 +1,145 @@
+---
+title: Checkbox
+description: A box that's checked, unchecked or partly checked. It works with a label and submits with a form.
+---
+
+Use a checkbox for a choice that's saved along with the rest of a form, or for picking several things from a list. If the change applies the moment it's made, a [switch](/docs/components/switch) says that better.
+
+<Preview name="checkbox/basic" />
+
+## Install
+
+```sh
+pnpm add @nuvui/react
+```
+
+## Import
+
+```tsx
+import { Checkbox } from "@nuvui/react";
+```
+
+The styles come from `@nuvui/react/styles.css`, which you load once for the whole app. [Getting started](/docs) covers that, and how to load only this component's CSS.
+
+## Try it
+
+<CheckboxPlayground />
+
+## Props
+
+<PropsTable
+  component="checkbox"
+  name="CheckboxProps"
+  props={{
+    checked:
+      "The state, when you control it yourself. Use it with `onCheckedChange`.",
+    defaultChecked: "The state it starts in, when you don't control it.",
+    onCheckedChange: "Called with the new state when someone toggles it.",
+    disabled: "Stops it from being focused or toggled.",
+    required:
+      "Marks it as required. Inside a form, the browser won't submit until it's checked.",
+    name: "The name it's submitted under in a form.",
+    value:
+      "The value submitted when it's checked. It's `\"on\"` if you don't set one.",
+  }}
+/>
+
+Everything else is passed to the `<button>` that Radix renders, including `ref`, `id`, `className` and `aria-label`. The [Radix Checkbox reference](https://www.radix-ui.com/primitives/docs/components/checkbox#api-reference) has the full list.
+
+## States
+
+<Preview name="checkbox/states" />
+
+## Indeterminate
+
+A click only ever checks or unchecks the box. The third state is one you set, with `checked="indeterminate"`, usually on a checkbox that stands for a group where some items are selected and some aren't.
+
+<Preview name="checkbox/select-all" />
+
+## In a form
+
+Give the checkbox a `name` and it's submitted like a native one. Inside a `<form>`, Radix renders a hidden `<input type="checkbox">` next to the button, so `FormData`, `required` and form resets all work.
+
+## Accessibility
+
+### Keyboard
+
+| Key | What it does |
+| --- | --- |
+| <kbd>Tab</kbd> | Moves focus to the checkbox. Disabled ones are skipped. |
+| <kbd>Space</kbd> | Checks or unchecks it. |
+
+<kbd>Enter</kbd> does nothing, the same as on a native checkbox.
+
+### What the component handles
+
+- It renders a `<button>` with `role="checkbox"` and `aria-checked`, which is `mixed` while indeterminate. This part is Radix.
+- A click on a `<label>` that points at it toggles it.
+- The box is 20 pixels, which is too small for a finger. On a touch screen the area that responds to a tap is 44 by 44 pixels, centered on the box. With a mouse it's the box alone.
+- The edge of the box uses `--color-border-strong`, which has at least 3:1 contrast with the page in light and dark, so an empty box is still visible as a control.
+- Keyboard focus shows a 2 pixel ring in `--color-ring`.
+- The color change is only animated when the visitor hasn't asked for reduced motion.
+
+### What you need to handle
+
+- Give it a name. Use a `<label>` whose `htmlFor` matches the checkbox's `id`, or `aria-label` when there's no visible text.
+- Leave room around it on phones. If two checkboxes are less than 44 pixels apart from center to center, their tap areas overlap and the one later in the page wins the overlap.
+
+## CSS variables
+
+Set any of these on the checkbox, or on anything around it.
+
+```css
+.settings {
+  --nuv-checkbox-radius: var(--radius-full);
+}
+```
+
+<CssVariables
+  component="checkbox"
+  descriptions={{
+    "--nuv-checkbox-size": "Width and height of the box.",
+    "--nuv-checkbox-border": "Border color while unchecked.",
+    "--nuv-checkbox-radius": "Corner radius.",
+    "--nuv-checkbox-bg": "Background color while unchecked.",
+    "--nuv-checkbox-fg": "Color of the check mark and the dash.",
+    "--nuv-checkbox-checked-bg":
+      "Background and border color while checked or indeterminate.",
+  }}
+/>
+
+## Classes
+
+<BemClasses
+  component="checkbox"
+  descriptions={{
+    "nuv-checkbox": "The box, which is the button itself.",
+    "nuv-checkbox__indicator":
+      "The wrapper around the mark. Radix only renders it while the box is checked or indeterminate.",
+    "nuv-checkbox__icon": "The SVG that holds both marks.",
+    "nuv-checkbox__check": "The check mark.",
+    "nuv-checkbox__dash": "The dash shown while indeterminate.",
+  }}
+/>
+
+Radix sets `data-state` on the box to `checked`, `unchecked` or `indeterminate`, and `data-disabled` when it's disabled. Style those, not a modifier class.
+
+## Server components
+
+Checkbox is a client component. It carries `"use client"`, and the build checks that the directive is still there in the published files.
+
+You can render it from a server component, as the first example on this page does. It needs a client component of your own once you pass `onCheckedChange` or control `checked`.
+
+## Do and don't
+
+**Do**
+
+- Make the label clickable by linking it with `htmlFor`. It's a much bigger target than the box.
+- Word the label so that checked means yes. "Email me updates", not "Don't email me".
+- Use the indeterminate state for a parent whose children are partly selected.
+
+**Don't**
+
+- Don't use a checkbox for something that takes effect right away. That's a switch.
+- Don't use checkboxes for a choice where only one option can be picked.
+- Don't check a box for someone when it signs them up for something.

@@ -1,0 +1,37 @@
+@use "../../styles/layers";
+@use "../../styles/floating";
+
+@layer components {
+  // The colors are the page's, swapped. That keeps the tooltip readable in
+  // either theme without tokens of its own.
+  .nuv-tooltip {
+    z-index: var(--nuv-z-popover);
+    max-inline-size: min(
+      var(--nuv-tooltip-width, 16rem),
+      var(--radix-tooltip-content-available-width)
+    );
+    padding-block: calc(var(--spacing) * 1.5);
+    padding-inline: calc(var(--spacing) * 2.5);
+    border-radius: var(--nuv-tooltip-radius, var(--radius-md));
+    background-color: var(--nuv-tooltip-bg, var(--color-foreground));
+    color: var(--nuv-tooltip-fg, var(--color-background));
+    font-size: var(--text-xs);
+    line-height: var(--text-xs--line-height);
+
+    // Only seen where the browser forces its own colors and drops the
+    // background, as Windows high contrast does. Without it nothing would
+    // mark where the tooltip ends and the page begins.
+    outline: 1px solid transparent;
+    outline-offset: -1px;
+
+    // Only a tooltip that waited for the pointer fades in. One opened by
+    // keyboard focus, or right after another, shows at once.
+    @include floating.pop("tooltip", "tooltip", '[data-state="delayed-open"]');
+  }
+
+  .nuv-tooltip__arrow {
+    fill: var(--nuv-tooltip-bg, var(--color-foreground));
+  }
+
+  @include floating.pop-keyframes("tooltip");
+}

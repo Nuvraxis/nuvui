@@ -1,0 +1,82 @@
+---
+title: Getting started
+description: Install nuvui, load its stylesheet once, and render your first component.
+---
+
+nuvui is a set of React components that wrap [Radix UI](https://www.radix-ui.com/primitives) primitives. Radix handles the behavior: focus, keyboard support, ARIA. nuvui adds the styles, written in SCSS with BEM class names and themed through CSS custom properties.
+
+<Callout type="warn" title="Not published yet">
+  `@nuvui/react` isn't on the registry yet, so the install command below won't find it. There are eleven components so far, listed under Components in the menu.
+</Callout>
+
+## Install
+
+```sh
+pnpm add @nuvui/react
+```
+
+npm, yarn and bun work the same way. You also need `react` and `react-dom`, version 18.2 or newer.
+
+## Load the styles
+
+Import the stylesheet once, somewhere that runs for every page. In a Next.js app that's the root layout:
+
+```tsx title="app/layout.tsx"
+import "@nuvui/react/styles.css";
+```
+
+It's a plain CSS file. The components never import CSS themselves, so there's no loader or build plugin to set up, and it works the same with server components.
+
+## Use a component
+
+```tsx
+import { Button } from "@nuvui/react";
+
+export default function Page() {
+  return <Button>Save changes</Button>;
+}
+```
+
+## Dark mode
+
+Components are light unless you ask for something else. Set `data-theme` on `<html>`, or on any element to theme just that part of the page:
+
+| Value | Result |
+| --- | --- |
+| `data-theme="light"` | Light |
+| `data-theme="dark"` | Dark |
+| `data-theme="system"` | Follows the visitor's operating system |
+
+```html
+<html lang="en" data-theme="system">
+```
+
+`system` is handled in CSS, so there's no script and no flash of the wrong theme on load.
+
+We don't switch to dark automatically. If we did, a site with only a light design would show light text on its white background to everyone whose system is set to dark.
+
+## Loading less
+
+`styles.css` contains every component. If you only use a few, import their stylesheets one by one. Each needs the tokens and the base styles loaded as well:
+
+```tsx
+import "@nuvui/react/tokens.css";
+import "@nuvui/react/base.css";
+import "@nuvui/react/css/button.css";
+```
+
+The JavaScript has an entry per component too. Bundlers tree-shake the main entry, so this mostly matters if yours doesn't:
+
+```tsx
+import { Button } from "@nuvui/react/button";
+```
+
+## Browser support
+
+The styles use cascade layers, `oklch()` colors, `color-mix()` and `dvh` units. That means Chrome and Edge 111, Firefox 113 and Safari 16.4, or newer. There's no fallback for older browsers.
+
+## What isn't here yet
+
+- Most of the components. Popover, Tooltip, DropdownMenu, Select, Checkbox, Switch, Tabs, Accordion and Toast are planned.
+- Guides for theming, for using the tokens with Tailwind, and for using the SCSS source.
+- A released version.

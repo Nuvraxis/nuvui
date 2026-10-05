@@ -1,4 +1,5 @@
 {
+  "profile": "node16",
   "excludeEntrypoints": [
     "styles.css",
     "tokens.css",

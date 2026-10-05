@@ -13,6 +13,27 @@ export function axe(
   return axeCore.run(element, options);
 }
 
+// Radix renders tooltips, menus and select lists at the end of <body>, which
+// is outside every landmark, and axe's "region" best-practice rule objects
+// to that. A tooltip reaches screen readers through aria-describedby on its
+// trigger, not by being found where it's rendered.
+export const outsideLandmarks: RunOptions = {
+  rules: { region: { enabled: false } },
+};
+
+// For an open menu or select list. On top of the rule above, this leaves out
+// "aria-hidden-focus", which objects to the trigger: it's still focusable in
+// principle while Radix hides the page behind the open list. Nothing can
+// actually move focus to it, because Radix blocks Tab and pointer events
+// outside the list until it closes. axe makes this allowance for dialogs and
+// has no way to know it applies here.
+export const behindOpenList: RunOptions = {
+  rules: {
+    region: { enabled: false },
+    "aria-hidden-focus": { enabled: false },
+  },
+};
+
 function describeViolation(violation: Result): string {
   const targets = violation.nodes.map((node) => `    ${node.target.join(" ")}`);
   return [

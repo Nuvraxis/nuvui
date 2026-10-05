@@ -1,0 +1,17 @@
+{
+  "title": "Components",
+  "defaultOpen": true,
+  "pages": [
+    "accordion",
+    "button",
+    "checkbox",
+    "dialog",
+    "dropdown-menu",
+    "popover",
+    "select",
+    "switch",
+    "tabs",
+    "toast",
+    "tooltip"
+  ]
+}

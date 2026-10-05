@@ -1,0 +1,204 @@
+@use "../../styles/layers";
+@use "../../styles/mixins";
+
+@layer components {
+  // Radix renders the overlay and the panel next to each other at the end of
+  // <body>, so nothing here can depend on a parent selector.
+
+  .nuv-dialog__overlay {
+    position: fixed;
+    z-index: var(--nuv-z-overlay);
+    inset: 0;
+    background-color: var(--nuv-dialog-overlay-bg, var(--color-overlay));
+
+    @include mixins.motion-safe {
+      &[data-state="open"] {
+        animation: nuv-dialog-fade-in var(--nuv-duration-base) var(--ease-out);
+      }
+
+      &[data-state="closed"] {
+        animation: nuv-dialog-fade-out var(--nuv-duration-fast) var(--ease-in);
+      }
+    }
+  }
+
+  // On a phone the dialog is a sheet attached to the bottom edge, where a
+  // thumb can reach it.
+  .nuv-dialog {
+    position: fixed;
+    z-index: var(--nuv-z-overlay);
+    inset-block-end: 0;
+    inset-inline: 0;
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 2);
+    max-block-size: calc(100dvh - var(--spacing) * 8);
+    padding: var(--nuv-dialog-padding, calc(var(--spacing) * 6));
+
+    // Keeps the last row clear of the home indicator on phones.
+    padding-block-end: max(
+      var(--nuv-dialog-padding, calc(var(--spacing) * 6)),
+      env(safe-area-inset-bottom)
+    );
+    overflow-y: auto;
+    border: 1px solid var(--nuv-dialog-border, var(--color-border));
+    border-radius: var(--nuv-dialog-radius, var(--radius-xl));
+    border-end-start-radius: 0;
+    border-end-end-radius: 0;
+    background-color: var(--nuv-dialog-bg, var(--color-surface));
+    box-shadow: var(--nuv-dialog-shadow, var(--shadow-xl));
+    color: var(--nuv-dialog-fg, var(--color-surface-foreground));
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+
+    // Radix moves focus to the panel itself when nothing inside can take it.
+    // That's a container, not a control, so it gets no ring.
+    &:focus {
+      outline: none;
+    }
+
+    @include mixins.motion-safe {
+      &[data-state="open"] {
+        animation: nuv-dialog-sheet-in var(--nuv-duration-slow) var(--ease-out);
+      }
+
+      &[data-state="closed"] {
+        animation: nuv-dialog-sheet-out var(--nuv-duration-base) var(--ease-in);
+      }
+    }
+
+    @include mixins.breakpoint("sm") {
+      inset: 0;
+      inline-size: min(
+        100% - var(--spacing) * 8,
+        var(--nuv-dialog-width, 32rem)
+      );
+      block-size: fit-content;
+      margin: auto;
+      border-radius: var(--nuv-dialog-radius, var(--radius-xl));
+
+      @include mixins.motion-safe {
+        &[data-state="open"] {
+          animation: nuv-dialog-pop-in var(--nuv-duration-base) var(--ease-out);
+        }
+
+        &[data-state="closed"] {
+          animation: nuv-dialog-pop-out var(--nuv-duration-fast) var(--ease-in);
+        }
+      }
+    }
+  }
+
+  .nuv-dialog--sm {
+    @include mixins.breakpoint("sm") {
+      inline-size: min(
+        100% - var(--spacing) * 8,
+        var(--nuv-dialog-width, 24rem)
+      );
+    }
+  }
+
+  .nuv-dialog--lg {
+    @include mixins.breakpoint("sm") {
+      inline-size: min(
+        100% - var(--spacing) * 8,
+        var(--nuv-dialog-width, 48rem)
+      );
+    }
+  }
+
+  .nuv-dialog__title {
+    margin: 0;
+
+    // Leaves room for the close button in the corner.
+    padding-inline-end: calc(var(--spacing) * 10);
+    font-size: var(--text-lg);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--text-lg--line-height);
+  }
+
+  .nuv-dialog__description {
+    margin: 0;
+    color: var(--color-muted-foreground);
+  }
+
+  // Stacked on a phone with the main action on top, in a row from sm up.
+  .nuv-dialog__footer {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: calc(var(--spacing) * 2);
+    margin-block-start: calc(var(--spacing) * 4);
+
+    @include mixins.breakpoint("sm") {
+      flex-direction: row;
+      justify-content: flex-end;
+    }
+  }
+
+  .nuv-dialog__close {
+    position: absolute;
+    inset-block-start: calc(var(--spacing) * 2);
+    inset-inline-end: calc(var(--spacing) * 2);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-md);
+    background-color: transparent;
+    color: var(--color-muted-foreground);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+
+    @include mixins.touch-target;
+    @include mixins.focus-ring;
+
+    @include mixins.hover {
+      background-color: var(--color-muted);
+      color: var(--color-foreground);
+    }
+
+    @include mixins.fine-pointer {
+      min-block-size: 2rem;
+      min-inline-size: 2rem;
+    }
+  }
+
+  @keyframes nuv-dialog-fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes nuv-dialog-fade-out {
+    to {
+      opacity: 0;
+    }
+  }
+
+  @keyframes nuv-dialog-sheet-in {
+    from {
+      transform: translateY(100%);
+    }
+  }
+
+  @keyframes nuv-dialog-sheet-out {
+    to {
+      transform: translateY(100%);
+    }
+  }
+
+  @keyframes nuv-dialog-pop-in {
+    from {
+      transform: scale(0.96);
+      opacity: 0;
+    }
+  }
+
+  @keyframes nuv-dialog-pop-out {
+    to {
+      transform: scale(0.96);
+      opacity: 0;
+    }
+  }
+}

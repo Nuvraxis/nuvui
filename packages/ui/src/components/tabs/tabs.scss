@@ -1,0 +1,118 @@
+@use "../../styles/layers";
+@use "../../styles/mixins";
+
+@layer components {
+  .nuv-tabs {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nuv-tabs-gap, calc(var(--spacing) * 4));
+
+    &[data-orientation="vertical"] {
+      flex-direction: row;
+    }
+  }
+
+  // More tabs than fit a phone scroll sideways. The scrollbar is hidden
+  // because the cut-off tab already shows there's more.
+  .nuv-tabs__list {
+    display: flex;
+    flex: none;
+    overflow-x: auto;
+    border-block-end: 1px solid var(--nuv-tabs-border, var(--color-border));
+    scrollbar-width: none;
+
+    &[data-orientation="vertical"] {
+      flex-direction: column;
+      overflow-x: visible;
+      border-block-end: 0;
+      border-inline-end: 1px solid var(--nuv-tabs-border, var(--color-border));
+    }
+  }
+
+  .nuv-tabs__trigger {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+
+    // Pulled over the list's border so the active line replaces it.
+    margin-block-end: -1px;
+    padding-block: 0;
+    padding-inline: calc(var(--spacing) * 4);
+    border: 0;
+    border-block-end: 2px solid transparent;
+    background-color: transparent;
+    color: var(--nuv-tabs-fg, var(--color-muted-foreground));
+    font-family: inherit;
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--text-sm--line-height);
+    white-space: nowrap;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+
+    @include mixins.touch-target;
+
+    // Inset, because the list clips anything drawn outside it.
+    @include mixins.focus-ring(-2px);
+
+    @include mixins.motion-safe {
+      transition:
+        border-color var(--nuv-duration-fast) var(--ease-out),
+        color var(--nuv-duration-fast) var(--ease-out);
+    }
+
+    @include mixins.hover {
+      color: var(--nuv-tabs-active-fg, var(--color-foreground));
+    }
+
+    @include mixins.fine-pointer {
+      min-block-size: 2.5rem;
+    }
+
+    // Where the browser forces its own colors, a transparent border is
+    // drawn, which would put the line under every tab. The page's own
+    // background color keeps it out of sight there.
+    @media (forced-colors: active) {
+      border-color: canvas;
+    }
+
+    &[data-state="active"] {
+      border-color: var(--nuv-tabs-indicator, var(--color-primary));
+      color: var(--nuv-tabs-active-fg, var(--color-foreground));
+
+      @media (forced-colors: active) {
+        border-color: highlight;
+      }
+    }
+
+    &[data-disabled] {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    &[data-orientation="vertical"] {
+      justify-content: flex-start;
+      margin-block-end: 0;
+      margin-inline-end: -1px;
+      border-block-end: 0;
+      border-inline-end: 2px solid transparent;
+    }
+
+    &[data-orientation="vertical"][data-state="active"] {
+      border-color: var(--nuv-tabs-indicator, var(--color-primary));
+
+      @media (forced-colors: active) {
+        border-color: highlight;
+      }
+    }
+  }
+
+  .nuv-tabs__content {
+    flex: 1;
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+
+    @include mixins.focus-ring;
+  }
+}

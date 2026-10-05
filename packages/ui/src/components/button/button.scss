@@ -1,0 +1,116 @@
+@use "../../styles/layers";
+@use "../../styles/mixins";
+
+@layer components {
+  .nuv-button {
+    display: inline-flex;
+    gap: var(--nuv-button-gap, calc(var(--spacing) * 2));
+    align-items: center;
+    justify-content: center;
+    padding-block: 0;
+    padding-inline: var(--nuv-button-padding-inline, calc(var(--spacing) * 4));
+    border: 1px solid var(--nuv-button-border, transparent);
+    border-radius: var(--nuv-button-radius, var(--radius-md));
+    font-family: inherit;
+    font-size: var(--nuv-button-font-size, var(--text-sm));
+    font-weight: var(--font-weight-medium);
+    line-height: var(--text-sm--line-height);
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+
+    // The base size is the touch size. Sizes only get smaller where a mouse
+    // or trackpad is the main input, further down.
+    @include mixins.touch-target(var(--nuv-button-height, 2.75rem));
+    @include mixins.focus-ring;
+
+    @include mixins.motion-safe {
+      transition:
+        background-color var(--nuv-duration-fast) var(--ease-out),
+        border-color var(--nuv-duration-fast) var(--ease-out),
+        color var(--nuv-duration-fast) var(--ease-out);
+    }
+
+    &[data-disabled] {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+  }
+
+  // Intents. Each one reads the same --nuv-button-* variables, so setting one
+  // on a button or a wrapper overrides whichever intent is in use.
+
+  .nuv-button--primary {
+    background-color: var(--nuv-button-bg, var(--color-primary));
+    color: var(--nuv-button-fg, var(--color-primary-foreground));
+
+    @include mixins.hover {
+      background-color: var(
+        --nuv-button-bg-hover,
+        color-mix(in oklab, var(--color-primary) 88%, var(--color-foreground))
+      );
+    }
+  }
+
+  .nuv-button--secondary {
+    border-color: var(--nuv-button-border, var(--color-border));
+    background-color: var(--nuv-button-bg, var(--color-muted));
+    color: var(--nuv-button-fg, var(--color-foreground));
+
+    @include mixins.hover {
+      background-color: var(
+        --nuv-button-bg-hover,
+        color-mix(in oklab, var(--color-muted) 88%, var(--color-foreground))
+      );
+    }
+  }
+
+  .nuv-button--ghost {
+    background-color: var(--nuv-button-bg, transparent);
+    color: var(--nuv-button-fg, var(--color-foreground));
+
+    @include mixins.hover {
+      background-color: var(--nuv-button-bg-hover, var(--color-muted));
+    }
+  }
+
+  .nuv-button--danger {
+    background-color: var(--nuv-button-bg, var(--color-danger));
+    color: var(--nuv-button-fg, var(--color-danger-foreground));
+
+    @include mixins.hover {
+      background-color: var(
+        --nuv-button-bg-hover,
+        color-mix(in oklab, var(--color-danger) 88%, var(--color-foreground))
+      );
+    }
+  }
+
+  // Sizes
+
+  .nuv-button--sm {
+    padding-inline: var(--nuv-button-padding-inline, calc(var(--spacing) * 3));
+
+    @include mixins.fine-pointer {
+      min-block-size: var(--nuv-button-height, 2rem);
+      min-inline-size: var(--nuv-button-height, 2rem);
+    }
+  }
+
+  .nuv-button--md {
+    @include mixins.fine-pointer {
+      min-block-size: var(--nuv-button-height, 2.5rem);
+      min-inline-size: var(--nuv-button-height, 2.5rem);
+    }
+  }
+
+  .nuv-button--lg {
+    padding-inline: var(--nuv-button-padding-inline, calc(var(--spacing) * 6));
+    font-size: var(--nuv-button-font-size, var(--text-base));
+    line-height: var(--text-base--line-height);
+
+    @include mixins.touch-target(var(--nuv-button-height, 3rem));
+  }
+}

@@ -44,6 +44,24 @@
   }
 }
 
+// On a touch screen :hover sticks after a tap until the next one, so hover
+// styles are limited to devices that can actually hover.
+@mixin hover {
+  @media (hover: hover) {
+    &:hover {
+      @content;
+    }
+  }
+}
+
+// For the denser sizes that only suit a mouse or trackpad. Anything outside
+// this keeps its touch size.
+@mixin fine-pointer {
+  @media (pointer: fine) {
+    @content;
+  }
+}
+
 @mixin focus-ring($offset: 2px) {
   &:focus-visible {
     outline: var(--nuv-focus-ring-width, 2px) solid
@@ -57,4 +75,26 @@
 @mixin touch-target($size: 2.75rem) {
   min-block-size: $size;
   min-inline-size: $size;
+}
+
+// For controls that have to look smaller than a finger, such as a checkbox.
+// It widens the area that responds to a tap without changing what's drawn.
+// The element needs to be positioned. Dropped again with a mouse, where a
+// larger invisible target would only make neighbours overlap.
+@mixin touch-area($size: 2.75rem) {
+  &::after {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    inline-size: max(100%, #{$size});
+    block-size: max(100%, #{$size});
+    transform: translate(-50%, -50%);
+    content: "";
+  }
+
+  @include fine-pointer {
+    &::after {
+      content: none;
+    }
+  }
 }

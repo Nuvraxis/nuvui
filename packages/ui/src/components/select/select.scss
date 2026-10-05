@@ -1,0 +1,160 @@
+@use "../../styles/layers";
+@use "../../styles/mixins";
+@use "../../styles/floating";
+
+@layer components {
+  // The trigger. It's the part that sits in the page, so it's the block.
+  .nuv-select {
+    display: inline-flex;
+    gap: calc(var(--spacing) * 2);
+    align-items: center;
+    justify-content: space-between;
+    min-inline-size: var(--nuv-select-width, 12rem);
+    max-inline-size: 100%;
+
+    // 44px on a touch screen, a little less with a mouse.
+    min-block-size: var(--nuv-select-height, 2.75rem);
+    padding-block: 0;
+    padding-inline: calc(var(--spacing) * 3);
+
+    // The edge is what tells you this is a control, so it uses the border
+    // color that's held to 3:1.
+    border: 1px solid var(--nuv-select-border, var(--color-border-strong));
+    border-radius: var(--nuv-select-radius, var(--radius-md));
+    background-color: var(--nuv-select-bg, var(--color-surface));
+    color: var(--nuv-select-fg, var(--color-foreground));
+    font-family: inherit;
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+    text-align: start;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+
+    @include mixins.focus-ring;
+
+    @include mixins.fine-pointer {
+      min-block-size: var(--nuv-select-height, 2.5rem);
+    }
+
+    &[data-placeholder] {
+      color: var(--color-muted-foreground);
+    }
+
+    &[aria-invalid="true"] {
+      border-color: var(--color-danger);
+    }
+
+    &[data-disabled] {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  // A long option is cut short in the trigger instead of stretching it.
+  .nuv-select__value {
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .nuv-select__icon {
+    display: inline-flex;
+    flex: none;
+    color: var(--color-muted-foreground);
+  }
+
+  // The list. Radix renders it at the end of <body>.
+  .nuv-select__content {
+    // At least as wide as the trigger, and never past the room Radix says
+    // is free. Both variables only exist with position="popper".
+    min-inline-size: var(--radix-select-trigger-width);
+    max-inline-size: var(--radix-select-content-available-width);
+    max-block-size: var(--radix-select-content-available-height);
+    overflow: hidden;
+
+    @include floating.panel("select-content");
+    @include floating.pop("select-content", "select");
+  }
+
+  .nuv-select__viewport {
+    padding: var(--spacing);
+  }
+
+  .nuv-select__item {
+    display: flex;
+    gap: calc(var(--spacing) * 2);
+    align-items: center;
+
+    // Rows are 44px on a touch screen and tighter with a mouse.
+    min-block-size: var(--nuv-select-item-height, 2.75rem);
+    padding-block: var(--spacing);
+    padding-inline: calc(var(--spacing) * 3);
+    border-radius: var(--radius-sm);
+    cursor: default;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+
+    @include mixins.fine-pointer {
+      min-block-size: var(--nuv-select-item-height, 2rem);
+    }
+
+    // Radix moves focus to the row under the pointer as well as the one the
+    // arrow keys are on, and marks it with data-highlighted. The browser
+    // can't tell those two apart, so a ring here would follow the mouse
+    // around. Filling the row works as the focus indicator for both.
+    &[data-highlighted] {
+      // Only seen where the browser forces its own colors and drops the
+      // fill, as Windows high contrast does.
+      outline: 2px solid transparent;
+      outline-offset: -2px;
+      background-color: var(--nuv-select-highlight-bg, var(--color-primary));
+      color: var(
+        --nuv-select-highlight-fg,
+        var(--color-primary-foreground)
+      );
+    }
+
+    &[data-disabled] {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+  }
+
+  // The check sits at the far end of the row, so the options' text lines up
+  // whether or not one of them is selected.
+  .nuv-select__indicator {
+    display: inline-flex;
+    flex: none;
+    margin-inline-start: auto;
+  }
+
+  .nuv-select__label {
+    padding-block: calc(var(--spacing) * 1.5);
+    padding-inline: calc(var(--spacing) * 3);
+    color: var(--color-muted-foreground);
+    font-size: var(--text-xs);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--text-xs--line-height);
+  }
+
+  .nuv-select__separator {
+    block-size: 1px;
+    margin-block: var(--spacing);
+
+    // Reaches the panel's edges, past its padding.
+    margin-inline: calc(var(--spacing) * -1);
+    background-color: var(--nuv-select-content-border, var(--color-border));
+  }
+
+  .nuv-select__scroll-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    block-size: calc(var(--spacing) * 6);
+    color: var(--color-muted-foreground);
+    cursor: default;
+  }
+
+  @include floating.pop-keyframes("select-content");
+}

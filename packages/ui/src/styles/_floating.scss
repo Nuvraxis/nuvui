@@ -1,0 +1,52 @@
+@use "mixins";
+
+// Shared by everything Radix positions next to a trigger: popover, tooltip,
+// dropdown menu and select. It's internal, so the public mixins don't forward
+// it, but it ships with the SCSS source because the components need it.
+
+// The look of a floating panel. $name is the component, and becomes part of
+// each variable's name so one kind of panel can be restyled on its own.
+@mixin panel($name) {
+  z-index: var(--nuv-z-popover);
+  border: 1px solid var(--nuv-#{$name}-border, var(--color-border));
+  border-radius: var(--nuv-#{$name}-radius, var(--radius-lg));
+  background-color: var(--nuv-#{$name}-bg, var(--color-surface));
+  box-shadow: var(--nuv-#{$name}-shadow, var(--shadow-lg));
+  color: var(--nuv-#{$name}-fg, var(--color-surface-foreground));
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+// Scales the panel up from the side that faces its trigger. Radix works out
+// where that is and puts it in a variable named after its own primitive,
+// which isn't always the component's name here.
+@mixin pop($name, $primitive: $name, $open: '[data-state="open"]') {
+  transform-origin: var(--radix-#{$primitive}-content-transform-origin);
+
+  @include mixins.motion-safe {
+    &#{$open} {
+      animation: nuv-#{$name}-in var(--nuv-duration-base) var(--ease-out);
+    }
+
+    &[data-state="closed"] {
+      animation: nuv-#{$name}-out var(--nuv-duration-fast) var(--ease-in);
+    }
+  }
+}
+
+// Keyframes can't sit inside a rule, so they're a separate include.
+@mixin pop-keyframes($name) {
+  @keyframes nuv-#{$name}-in {
+    from {
+      transform: scale(0.96);
+      opacity: 0;
+    }
+  }
+
+  @keyframes nuv-#{$name}-out {
+    to {
+      transform: scale(0.96);
+      opacity: 0;
+    }
+  }
+}

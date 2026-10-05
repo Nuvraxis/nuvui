@@ -1,0 +1,184 @@
+---
+title: Popover
+description: A small panel that opens next to a button and stays until it's dismissed.
+---
+
+Use a popover for a few controls or a bit of detail that belongs to one button: sharing options, a short form, a filter. It doesn't block the page, so it suits things people are free to ignore. For something they have to answer, use a [dialog](/docs/components/dialog). For a hint on hover, use a [tooltip](/docs/components/tooltip).
+
+<Preview name="popover/basic" />
+
+## Install
+
+```sh
+pnpm add @nuvui/react
+```
+
+## Import
+
+```tsx
+import {
+  Popover,
+  PopoverAnchor,
+  PopoverClose,
+  PopoverContent,
+  PopoverTrigger,
+} from "@nuvui/react";
+```
+
+The styles come from `@nuvui/react/styles.css`, which you load once for the whole app. [Getting started](/docs) covers that, and how to load only this component's CSS.
+
+## Parts
+
+| Part | What it is |
+| --- | --- |
+| `Popover` | Holds the open state. Renders nothing itself. |
+| `PopoverTrigger` | The button that opens the popover. |
+| `PopoverContent` | The panel. It places itself next to the trigger. |
+| `PopoverClose` | Closes the popover when pressed. Wrap your own button with `asChild`. |
+| `PopoverAnchor` | Optional. Wrap another element in it to place the panel against that instead of the trigger. |
+
+These are separate exports, not properties of `Popover`. `Popover.Content` isn't available, because property access on a client component doesn't work from a server component.
+
+## Try it
+
+<PopoverPlayground />
+
+## Props
+
+### PopoverContent
+
+<PropsTable component="popover" name="PopoverContentOwnProps" />
+
+These come from Radix and are the ones you're most likely to set:
+
+<PropsTable
+  component="popover"
+  name="PopoverContentProps"
+  props={{
+    side: "The side of the trigger the panel opens on. It's `\"bottom\"` unless you say otherwise, and it flips to the opposite side when there isn't room.",
+    align: "How the panel lines up with the trigger along that side. It's `\"center\"` unless you say otherwise.",
+    avoidCollisions:
+      "Pass `false` to keep the panel on the side you chose even when it doesn't fit there.",
+    onOpenAutoFocus:
+      "Called when focus is about to move into the panel. Call `event.preventDefault()` to move it somewhere yourself.",
+  }}
+/>
+
+### Popover
+
+<PropsTable
+  component="popover"
+  name="PopoverProps"
+  props={{
+    open: "Whether it's open, when you control it yourself. Use it with `onOpenChange`.",
+    defaultOpen: "Whether it starts open, when you don't control it.",
+    onOpenChange: "Called when it opens or closes.",
+    modal:
+      "With `true`, the rest of the page can't be clicked, and screen readers can't reach it, while the popover is open.",
+  }}
+/>
+
+The other parts take the same props as the Radix parts they wrap, including `asChild`. The [Radix Popover reference](https://www.radix-ui.com/primitives/docs/components/popover#api-reference) lists them.
+
+## Placement
+
+<Preview name="popover/placement" />
+
+`side` is a preference, not a promise. On a phone there's rarely room to the left or right of a button, so those two usually end up above or below it.
+
+## With a form
+
+Opening a popover moves focus to the first control inside it, so a field is ready to type in.
+
+<Preview name="popover/form" />
+
+## On small screens
+
+The panel is 18rem wide. It's never wider or taller than the room Radix finds around the trigger, so on a narrow screen it shrinks to fit, and content that's too tall scrolls inside it. The page itself never scrolls sideways because of a popover.
+
+## Accessibility
+
+### Keyboard
+
+| Key | What it does |
+| --- | --- |
+| <kbd>Enter</kbd> or <kbd>Space</kbd> | On the trigger, opens the popover and moves focus into it. |
+| <kbd>Tab</kbd> | Moves to the next control inside the popover. From the last one it goes back to the first. |
+| <kbd>Shift</kbd> + <kbd>Tab</kbd> | Moves to the previous control, and from the first to the last. |
+| <kbd>Esc</kbd> | Closes the popover and returns focus to the trigger. |
+
+### What the component handles
+
+Most of this is Radix. The library doesn't change it.
+
+- The panel has `role="dialog"`. The trigger gets `aria-haspopup="dialog"`, `aria-expanded` and `aria-controls`.
+- Opening moves focus to the first control in the panel, or to the panel itself if it has none. Closing returns focus to the trigger.
+- A click or tap outside the panel closes it.
+- The panel stays inside the screen, with 8 pixels to spare, and flips to the other side of the trigger when it has to.
+- The open and close animations only run when the visitor hasn't asked for reduced motion.
+
+### What you need to handle
+
+- Give `PopoverContent` a name with `aria-label`, or `aria-labelledby` pointing at a heading inside it. Without one, a screen reader only says "dialog".
+- <kbd>Tab</kbd> goes round inside an open popover and doesn't carry on down the page. People leave with <kbd>Esc</kbd> or a click outside. If the panel holds more than a line or two, add a visible way out with `PopoverClose`.
+
+## CSS variables
+
+Popovers render at the end of `<body>`, so set these on `:root` or `body`, or straight on `PopoverContent` with `style` or a class. Setting them on the element around the trigger has no effect.
+
+```css
+:root {
+  --nuv-popover-width: 22rem;
+}
+```
+
+<CssVariables
+  component="popover"
+  descriptions={{
+    "--nuv-popover-width":
+      "Width of the panel. It still shrinks to fit a narrow screen.",
+    "--nuv-popover-padding": "Padding inside the panel.",
+    "--nuv-popover-border": "Border color.",
+    "--nuv-popover-radius": "Corner radius.",
+    "--nuv-popover-bg": "Background color.",
+    "--nuv-popover-shadow": "Shadow under the panel.",
+    "--nuv-popover-fg": "Text color.",
+  }}
+/>
+
+## Classes
+
+<BemClasses
+  component="popover"
+  descriptions={{
+    "nuv-popover": "PopoverContent.",
+  }}
+/>
+
+The trigger is your own element, so it has no class from this component.
+
+Radix sets `data-state="open"` or `data-state="closed"` on the panel, along with `data-side` and `data-align` for where it ended up. The animation hangs off `data-state`.
+
+## Server components
+
+The popover parts are client components. They carry `"use client"`, and the build checks that the directive is still there in the published files.
+
+You can put a popover together inside a server component, as the examples on this page do. It only needs a client component of your own when you control `open` or add handlers.
+
+## Themed sections
+
+A popover opened from inside a `data-theme="dark"` section doesn't inherit that theme, because it isn't rendered inside the section. Pass the section's element as `container` and it will be.
+
+## Do and don't
+
+**Do**
+
+- Keep it small. A popover that needs scrolling on a desktop should probably be a dialog.
+- Open it from a button that says what's inside.
+- Put the control people came for first, since that's where focus lands.
+
+**Don't**
+
+- Don't open a popover on hover. Touch screens have no hover, and it's easy to trigger by accident with a mouse.
+- Don't put the only copy of important information in one. It's gone once it's closed.
+- Don't open a popover from inside a popover.

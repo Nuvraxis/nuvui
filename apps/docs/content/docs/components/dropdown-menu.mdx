@@ -1,0 +1,267 @@
+---
+title: Dropdown menu
+description: A menu of actions that opens from a button, with keyboard navigation, checkable items and submenus.
+---
+
+Use a dropdown menu for a list of actions on one thing: rename, duplicate, delete. For picking a value in a form, use a [select](/docs/components/select).
+
+<Preview name="dropdown-menu/basic" />
+
+## Install
+
+```sh
+pnpm add @nuvui/react
+```
+
+## Import
+
+```tsx
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@nuvui/react";
+```
+
+The styles come from `@nuvui/react/styles.css`, which you load once for the whole app. [Getting started](/docs) covers that, and how to load only this component's CSS.
+
+## Parts
+
+| Part | What it is |
+| --- | --- |
+| `DropdownMenu` | Holds the open state. Renders nothing itself. |
+| `DropdownMenuTrigger` | The button that opens the menu. Wrap your own with `asChild`. |
+| `DropdownMenuContent` | The panel with the items. |
+| `DropdownMenuItem` | One action. |
+| `DropdownMenuCheckboxItem` | An item that's on or off. |
+| `DropdownMenuRadioGroup` | Wraps radio items and holds which one is chosen. |
+| `DropdownMenuRadioItem` | One choice in a radio group. |
+| `DropdownMenuLabel` | A heading for the items under it. It can't be focused. |
+| `DropdownMenuSeparator` | A line between groups of items. |
+| `DropdownMenuGroup` | Groups items for screen readers. It has no look of its own. |
+| `DropdownMenuSub` | Holds the open state of a submenu. |
+| `DropdownMenuSubTrigger` | The item that opens the submenu. |
+| `DropdownMenuSubContent` | The submenu's panel. |
+
+These are separate exports, not properties of `DropdownMenu`. `DropdownMenu.Item` isn't available, because property access on a client component doesn't work from a server component.
+
+## Try it
+
+<DropdownMenuPlayground />
+
+## Props
+
+### DropdownMenuContent
+
+<PropsTable component="dropdown-menu" name="DropdownMenuContentOwnProps" />
+
+One more from Radix that's often useful:
+
+<PropsTable
+  component="dropdown-menu"
+  name="DropdownMenuContentProps"
+  props={{
+    side: "The side of the trigger the menu opens on. It's `\"bottom\"` unless you say otherwise, and it flips to the opposite side when there isn't room.",
+  }}
+/>
+
+### DropdownMenuItem
+
+<PropsTable component="dropdown-menu" name="DropdownMenuItemOwnProps" />
+
+<PropsTable
+  component="dropdown-menu"
+  name="DropdownMenuItemProps"
+  props={{
+    onSelect:
+      "Called when the item is chosen, by click or by keyboard. Call `event.preventDefault()` in it to keep the menu open.",
+    disabled: "Stops the item from being chosen. The arrow keys skip it.",
+    textValue:
+      "The text that typing a letter matches against. Only needed when the item's content isn't plain text.",
+  }}
+/>
+
+### DropdownMenuCheckboxItem
+
+<PropsTable
+  component="dropdown-menu"
+  name="DropdownMenuCheckboxItemProps"
+  props={{
+    checked: "Whether the item is on. `\"indeterminate\"` shows a dash.",
+    onCheckedChange: "Called with the new state when the item is chosen.",
+  }}
+/>
+
+### DropdownMenuRadioGroup
+
+<PropsTable
+  component="dropdown-menu"
+  name="DropdownMenuRadioGroupProps"
+  props={{
+    value: "The `value` of the radio item that's chosen.",
+    onValueChange: "Called with an item's `value` when it's chosen.",
+  }}
+/>
+
+### DropdownMenu
+
+<PropsTable
+  component="dropdown-menu"
+  name="DropdownMenuProps"
+  props={{
+    open: "Whether it's open, when you control it yourself. Use it with `onOpenChange`.",
+    defaultOpen: "Whether it starts open, when you don't control it.",
+    onOpenChange: "Called when it opens or closes.",
+    modal:
+      "On unless you pass `false`. While a modal menu is open, the rest of the page can't be clicked or scrolled, and screen readers can't reach it.",
+    dir: "The reading direction. With `\"rtl\"`, submenus open to the left and the left and right arrow keys swap.",
+  }}
+/>
+
+### DropdownMenuSubContent
+
+<PropsTable component="dropdown-menu" name="DropdownMenuSubContentOwnProps" />
+
+The other parts take the same props as the Radix parts they wrap. The [Radix Dropdown Menu reference](https://www.radix-ui.com/primitives/docs/components/dropdown-menu#api-reference) lists them.
+
+## Doing something
+
+Give each item an `onSelect`. It runs for a click, a tap, <kbd>Enter</kbd> and <kbd>Space</kbd> alike, and the menu closes afterwards.
+
+<Preview name="dropdown-menu/actions" />
+
+## Checkable items
+
+A checked item shows a check at the end of its row. Putting it there keeps every label lined up, whether or not the menu has checkable items.
+
+<Preview name="dropdown-menu/checkable" />
+
+## Submenus
+
+<Preview name="dropdown-menu/submenu" />
+
+A submenu opens beside its parent, and on a phone there's little room beside anything. It stays on the screen by opening on whichever side has more room and getting narrower to fit, which can leave it cramped. A flat menu is easier to use there. Keep submenus for places you know have the width.
+
+## On small screens
+
+Rows are 44 pixels tall on a touch screen and 32 when a mouse or trackpad is the main input.
+
+A menu is never taller than the room around its trigger. A long one scrolls inside itself.
+
+## Accessibility
+
+### Keyboard
+
+| Key | What it does |
+| --- | --- |
+| <kbd>Enter</kbd>, <kbd>Space</kbd> or <kbd>↓</kbd> | On the trigger, opens the menu and moves focus to its first item. |
+| <kbd>↓</kbd> and <kbd>↑</kbd> | Move to the next or previous item. Disabled items are skipped. |
+| <kbd>Home</kbd> and <kbd>End</kbd> | Move to the first or last item. |
+| A letter | Moves to the next item that starts with it. |
+| <kbd>Enter</kbd> or <kbd>Space</kbd> | Chooses the focused item. |
+| <kbd>→</kbd> | On a submenu's trigger, opens the submenu. |
+| <kbd>←</kbd> | Inside a submenu, closes it and goes back to its trigger. |
+| <kbd>Esc</kbd> | Closes the menu and returns focus to the trigger. |
+
+### What the component handles
+
+Most of this is Radix. The library doesn't change it.
+
+- The panel has `role="menu"` and is named by its trigger. Items have `menuitem`, `menuitemcheckbox` or `menuitemradio`, and the checkable ones have `aria-checked`.
+- The trigger gets `aria-haspopup="menu"` and `aria-expanded`.
+- Focus moves into the menu when it opens and back to the trigger when it closes.
+- The row that has focus is filled with the primary color. That fill is the focus indicator: it has at least 3:1 contrast with the panel, and the text on it keeps 4.5:1. Radix moves focus to the row under the pointer too, so hovering and arrowing look the same.
+- A `danger` item is filled with the danger color instead.
+- Where the browser forces its own colors, as Windows high contrast does, the fill isn't drawn. The focused row has an outline there instead.
+- The open and close animations only run when the visitor hasn't asked for reduced motion.
+
+### What you need to handle
+
+- Give the trigger a name. An icon-only button needs `aria-label`.
+- Ask before doing something that can't be undone. A menu item is easy to hit by mistake, so a `danger` item should open a [dialog](/docs/components/dialog) that confirms it.
+- In a right-to-left layout, pass `dir="rtl"`.
+
+### A note on automated checks
+
+While a menu is open, Radix hides the rest of the page from screen readers. If you run axe on a page in that state, it reports the trigger under its `aria-hidden-focus` rule, because the trigger is a focusable element inside the hidden part.
+
+Focus can't actually get there. <kbd>Tab</kbd> and clicks outside the menu are blocked until it closes. The library's own tests leave that rule out for open menus for this reason. Passing `modal={false}` avoids the report, and leaves the page reachable behind the menu.
+
+## CSS variables
+
+Menus render at the end of `<body>`, so set these on `:root` or `body`, or straight on `DropdownMenuContent` with `style` or a class.
+
+```css
+:root {
+  --nuv-dropdown-menu-width: 14rem;
+}
+```
+
+<CssVariables
+  component="dropdown-menu"
+  descriptions={{
+    "--nuv-dropdown-menu-width":
+      "The narrowest the menu gets. It grows to fit its longest item.",
+    "--nuv-dropdown-menu-border":
+      "Border color of the panel, and the color of the separators.",
+    "--nuv-dropdown-menu-radius": "Corner radius of the panel.",
+    "--nuv-dropdown-menu-bg": "Background color of the panel.",
+    "--nuv-dropdown-menu-shadow": "Shadow under the panel.",
+    "--nuv-dropdown-menu-fg": "Text color.",
+    "--nuv-dropdown-menu-item-height":
+      "Minimum height of a row. The default differs between touch screens and a mouse.",
+    "--nuv-dropdown-menu-highlight-bg":
+      "Background of the row that has focus, from the pointer or the arrow keys. Keep it at 3:1 against the panel.",
+    "--nuv-dropdown-menu-highlight-fg": "Text color of that row.",
+  }}
+/>
+
+## Classes
+
+<BemClasses
+  component="dropdown-menu"
+  descriptions={{
+    "nuv-dropdown-menu": "DropdownMenuContent and DropdownMenuSubContent.",
+    "nuv-dropdown-menu__item":
+      "Every kind of item, and DropdownMenuSubTrigger.",
+    "nuv-dropdown-menu__item--danger": "An item with intent=\"danger\".",
+    "nuv-dropdown-menu__indicator":
+      "The mark at the end of a checked item. Radix only renders it while the item is checked or indeterminate.",
+    "nuv-dropdown-menu__check": "The check mark inside it.",
+    "nuv-dropdown-menu__dash":
+      "The dash shown while a checkbox item is indeterminate.",
+    "nuv-dropdown-menu__chevron":
+      "The arrow at the end of DropdownMenuSubTrigger.",
+    "nuv-dropdown-menu__label": "DropdownMenuLabel.",
+    "nuv-dropdown-menu__separator": "DropdownMenuSeparator.",
+  }}
+/>
+
+Radix sets `data-highlighted` on the row that has focus, `data-disabled` on a disabled one, and `data-state` on the panels, the submenu triggers and the checkable items. The fill and the animation hang off those.
+
+## Server components
+
+The menu parts are client components. They carry `"use client"`, and the build checks that the directive is still there in the published files.
+
+You can put a menu together inside a server component, as the first example on this page does. An `onSelect` handler is the usual reason to need a client component of your own. That's a React rule about passing functions from the server, not something specific to this library.
+
+## Themed sections
+
+A menu opened from inside a `data-theme="dark"` section doesn't inherit that theme, because it isn't rendered inside the section. Pass the section's element as `container` to `DropdownMenuContent`, and to `DropdownMenuSubContent` if there is one.
+
+## Do and don't
+
+**Do**
+
+- Start each item with a verb: "Rename", "Duplicate", "Delete".
+- Put the destructive item last, after a separator, with `intent="danger"`.
+- Leave an unavailable item in place and disable it, so the menu doesn't change shape.
+
+**Don't**
+
+- Don't use a menu for navigation between pages. Those are links.
+- Don't hide the main action of a screen in a menu. Give it a button.
+- Don't go more than one submenu deep.

@@ -1,0 +1,142 @@
+---
+title: Button
+description: A button with four intents and three sizes. It can also lend its styles to a link.
+---
+
+Use a button for an action: saving a form, opening a dialog, deleting something. If clicking it takes you to another page, it's a link, and [it should stay one](#as-a-link).
+
+<Preview name="button/basic" />
+
+## Install
+
+```sh
+pnpm add @nuvui/react
+```
+
+## Import
+
+```tsx
+import { Button } from "@nuvui/react";
+```
+
+The styles come from `@nuvui/react/styles.css`, which you load once for the whole app. [Getting started](/docs) covers that, and how to load only this component's CSS.
+
+## Try it
+
+<ButtonPlayground />
+
+## Props
+
+<PropsTable component="button" name="ButtonOwnProps" />
+
+Everything else is passed to the `<button>` element, including `ref`, `className`, `disabled` and event handlers.
+
+One default differs from HTML. `type` is `"button"`, not `"submit"`, so a button inside a form doesn't submit it by accident. Pass `type="submit"` on the one that should.
+
+## Intents
+
+`intent` says how much weight the action carries. A view should have one `primary` button at most.
+
+<Preview name="button/intents" />
+
+## Sizes
+
+<Preview name="button/sizes" />
+
+On a touch screen every size is at least 44 pixels tall and wide, and `lg` is 48. The smaller heights (32, 40 and 48 pixels) only apply when a mouse or trackpad is the main input. Sizes still differ in padding and font size on touch.
+
+## As a link
+
+`asChild` renders the element you pass in and gives it the button's classes. Use it for navigation, so the result is still a real link that people can open in a new tab.
+
+<Preview name="button/as-child" />
+
+## Disabled
+
+<Preview name="button/disabled" />
+
+A disabled button can't be focused, so a keyboard user can't find out why it's disabled. If the reason isn't obvious from the page, leave the button enabled and explain what's missing when it's pressed.
+
+## Accessibility
+
+### Keyboard
+
+| Key | What it does |
+| --- | --- |
+| <kbd>Tab</kbd> | Moves focus to the button. Disabled buttons are skipped. |
+| <kbd>Enter</kbd> | Presses the button. |
+| <kbd>Space</kbd> | Presses the button. |
+
+### What the component handles
+
+- It renders a native `<button>`, so the role and keyboard behavior come from the browser.
+- Keyboard focus shows a 2 pixel ring in `--color-ring`. A mouse click doesn't.
+- Every intent meets WCAG AA contrast in light and dark. The test suite checks this with axe.
+- With `asChild` and `disabled`, the child gets `aria-disabled="true"` and is taken out of the tab order, because a link has no `disabled` attribute.
+
+### What you need to handle
+
+- An icon-only button needs a name. Add `aria-label`.
+- Say what the button does. "Delete project" is better than "OK".
+
+## CSS variables
+
+Set any of these on the button, or on anything around it. They aren't declared by the library, so there's nothing to out-specify.
+
+```css
+.toolbar {
+  --nuv-button-radius: var(--radius-full);
+}
+```
+
+<CssVariables
+  component="button"
+  descriptions={{
+    "--nuv-button-gap": "Space between an icon and the label.",
+    "--nuv-button-padding-inline": "Padding left and right. Differs by size.",
+    "--nuv-button-border": "Border color. Only the secondary intent shows one by default.",
+    "--nuv-button-radius": "Corner radius.",
+    "--nuv-button-font-size": "Font size. Larger on the lg size.",
+    "--nuv-button-height":
+      "Minimum height, and minimum width. Differs by size and by whether the device is touch.",
+    "--nuv-button-bg": "Background color. Differs by intent.",
+    "--nuv-button-fg": "Text color. Differs by intent.",
+    "--nuv-button-bg-hover": "Background color while hovered. Differs by intent.",
+  }}
+/>
+
+## Classes
+
+<BemClasses
+  component="button"
+  descriptions={{
+    "nuv-button": "Every button.",
+    "nuv-button--primary": "intent=\"primary\"",
+    "nuv-button--secondary": "intent=\"secondary\"",
+    "nuv-button--ghost": "intent=\"ghost\"",
+    "nuv-button--danger": "intent=\"danger\"",
+    "nuv-button--sm": "size=\"sm\"",
+    "nuv-button--md": "size=\"md\"",
+    "nuv-button--lg": "size=\"lg\"",
+  }}
+/>
+
+A disabled button has the `data-disabled` attribute. Style that, not a modifier class.
+
+## Server components
+
+Button has no `"use client"` directive and uses no state, so it renders in a server component as it is. An `onClick` handler is the usual reason to need a client component around it. That's a React rule about passing functions from the server, not something specific to this library.
+
+## Do and don't
+
+**Do**
+
+- Keep one primary button per view.
+- Use `danger` for actions that destroy something, and ask for confirmation first.
+- Use `asChild` with a link when the action is navigation.
+
+**Don't**
+
+- Don't put a click handler on a `<div>` and style it as a button. It won't be focusable.
+- Don't disable a button without telling people why somewhere on the page.
+- Don't shrink the touch size with `--nuv-button-height` on pages people use on phones.

@@ -1,0 +1,191 @@
+---
+title: Tooltip
+description: A short line of text that appears when a control is hovered or focused. It doesn't appear on touch screens.
+---
+
+Use a tooltip to add a few words to a control that already makes sense without them: what a button will do, or its keyboard shortcut.
+
+Tooltips don't show on touch screens, where there's no hover. Never put anything in one that people need.
+
+<Preview name="tooltip/basic" />
+
+## Install
+
+```sh
+pnpm add @nuvui/react
+```
+
+## Import
+
+```tsx
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@nuvui/react";
+```
+
+The styles come from `@nuvui/react/styles.css`, which you load once for the whole app. [Getting started](/docs) covers that, and how to load only this component's CSS.
+
+## Parts
+
+| Part | What it is |
+| --- | --- |
+| `Tooltip` | Holds the open state for one tooltip. Renders nothing itself. |
+| `TooltipTrigger` | The control the tooltip belongs to. Wrap your own button or link with `asChild`. |
+| `TooltipContent` | The bubble with the text. |
+| `TooltipProvider` | Optional. Put it around a group of tooltips so they share their timing. |
+
+These are separate exports, not properties of `Tooltip`. `Tooltip.Content` isn't available, because property access on a client component doesn't work from a server component.
+
+## Try it
+
+<TooltipPlayground />
+
+## Props
+
+### TooltipContent
+
+<PropsTable component="tooltip" name="TooltipContentOwnProps" />
+
+These come from Radix and are the ones you're most likely to set:
+
+<PropsTable
+  component="tooltip"
+  name="TooltipContentProps"
+  props={{
+    side: "The side of the trigger the tooltip opens on. It's `\"top\"` unless you say otherwise, and it flips to the opposite side when there isn't room.",
+    align: "How the tooltip lines up with the trigger along that side. It's `\"center\"` unless you say otherwise.",
+  }}
+/>
+
+### Tooltip
+
+<PropsTable
+  component="tooltip"
+  name="TooltipProps"
+  props={{
+    delayDuration:
+      "How long the pointer has to rest on the trigger before the tooltip shows, in milliseconds. Keyboard focus doesn't wait.",
+    open: "Whether it's showing, when you control it yourself. Use it with `onOpenChange`.",
+    defaultOpen: "Whether it starts out showing, when you don't control it.",
+    onOpenChange: "Called when it shows or hides.",
+    disableHoverableContent:
+      "With `true`, the tooltip hides as soon as the pointer leaves the trigger, even if it's heading for the tooltip.",
+  }}
+/>
+
+### TooltipProvider
+
+<PropsTable
+  component="tooltip"
+  name="TooltipProviderProps"
+  props={{
+    delayDuration:
+      "The delay for every tooltip inside, in milliseconds, unless one sets its own.",
+    skipDelayDuration:
+      "After one tooltip hides, how long the next one can show without waiting, in milliseconds.",
+    disableHoverableContent:
+      "The same as on `Tooltip`, for every tooltip inside.",
+  }}
+/>
+
+## Several tooltips
+
+On its own, each tooltip waits out its delay. Put a group inside one `TooltipProvider` and only the first one waits. Moving on to the next within a moment shows it at once, which is what you want in a toolbar.
+
+<Preview name="tooltip/toolbar" />
+
+Outside a provider, a tooltip still works. It brings its own.
+
+## Sides
+
+<Preview name="tooltip/sides" />
+
+## On touch screens
+
+A tap on the trigger doesn't open the tooltip. The trigger just does what it does. That's how Radix handles touch, and this library doesn't change it.
+
+So treat a tooltip as extra. The control needs a visible label or an `aria-label` that makes sense alone, and anything people need to know has to be on the page.
+
+## Accessibility
+
+### Keyboard
+
+| Key | What it does |
+| --- | --- |
+| <kbd>Tab</kbd> | Moves focus to the trigger, which shows the tooltip at once. Moving on hides it. |
+| <kbd>Esc</kbd> | Hides the tooltip. Focus stays on the trigger. |
+| <kbd>Enter</kbd> or <kbd>Space</kbd> | Presses the trigger, and hides the tooltip. |
+
+### What the component handles
+
+- While it's showing, the tooltip's text is tied to the trigger with `aria-describedby`, so a screen reader reads it after the control's name. This part is Radix.
+- It shows on keyboard focus as well as on hover.
+- It stays while the pointer moves from the trigger onto the tooltip itself, and <kbd>Esc</kbd> hides it without moving the pointer. WCAG 1.4.13 asks for both.
+- Its colors are the page's text and background colors swapped, so the contrast is the same as the page's body text in light and dark.
+- It never runs off the screen. Long text wraps at 16rem.
+- Where the browser forces its own colors, as Windows high contrast does, the bubble loses its background. It has an outline there so it still reads as separate from the page.
+- It only fades in when the visitor hasn't asked for reduced motion.
+
+### What you need to handle
+
+- Put it on something that can take focus, such as a button or a link. With `asChild`, that's the element you pass in. A tooltip on plain text can't be reached by keyboard.
+- A disabled `Button` ignores the pointer and can't take focus, so a tooltip on it never shows. If you need to explain why something is unavailable, say so on the page.
+- An icon-only button still needs its own name through `aria-label`. The tooltip is a description, read after the name. When both would say the same words, use the tooltip for something extra, as the toolbar example does with shortcuts.
+- Keep links and buttons out of the tooltip. People can't get to them.
+
+## CSS variables
+
+Tooltips render at the end of `<body>`, so set these on `:root` or `body`, or straight on `TooltipContent` with `style` or a class.
+
+```css
+:root {
+  --nuv-tooltip-radius: var(--radius-sm);
+}
+```
+
+<CssVariables
+  component="tooltip"
+  descriptions={{
+    "--nuv-tooltip-width": "The widest the tooltip gets before its text wraps.",
+    "--nuv-tooltip-radius": "Corner radius.",
+    "--nuv-tooltip-bg":
+      "Background color of the bubble and the arrow. The page's text color unless you set it.",
+    "--nuv-tooltip-fg":
+      "Text color. The page's background color unless you set it.",
+  }}
+/>
+
+## Classes
+
+<BemClasses
+  component="tooltip"
+  descriptions={{
+    "nuv-tooltip": "TooltipContent.",
+    "nuv-tooltip__arrow": "The arrow that points at the trigger.",
+  }}
+/>
+
+Radix sets `data-state` on the bubble to `delayed-open` after a hover, `instant-open` after keyboard focus or when the delay was skipped, and `closed` on the way out. Only `delayed-open` is animated. It also sets `data-side` for where the bubble ended up.
+
+## Server components
+
+The tooltip parts are client components. They carry `"use client"`, and the build checks that the directive is still there in the published files.
+
+You can put a tooltip together inside a server component, as the examples on this page do.
+
+## Do and don't
+
+**Do**
+
+- Keep it to a few words. If it needs a second sentence, it belongs on the page.
+- Use it for keyboard shortcuts, and for naming what an icon button does.
+- Wrap a toolbar's tooltips in one `TooltipProvider`.
+
+**Don't**
+
+- Don't put anything essential in a tooltip. On a phone nobody will see it.
+- Don't repeat the button's visible label in it.
+- Don't put a tooltip on something that already opens a menu or a popover on click. The two fight for the same spot.

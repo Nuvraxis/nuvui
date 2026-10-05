@@ -1,0 +1,198 @@
+---
+title: Accordion
+description: A stack of headings that each open a panel of content below them.
+---
+
+Use an accordion for content that people scan by heading and then read one or two parts of, such as frequently asked questions. If most people need all of it, plain headings and text are easier to read.
+
+<Preview name="accordion/basic" />
+
+## Install
+
+```sh
+pnpm add @nuvui/react
+```
+
+## Import
+
+```tsx
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@nuvui/react";
+```
+
+The styles come from `@nuvui/react/styles.css`, which you load once for the whole app. [Getting started](/docs) covers that, and how to load only this component's CSS.
+
+## Parts
+
+| Part | What it is |
+| --- | --- |
+| `Accordion` | Holds which items are open. |
+| `AccordionItem` | One heading together with its panel. |
+| `AccordionTrigger` | The button that opens and closes the panel. It renders the heading element around itself, and the chevron. |
+| `AccordionContent` | The panel. |
+
+These are separate exports, not properties of `Accordion`. `Accordion.Item` isn't available, because property access on a client component doesn't work from a server component.
+
+## Try it
+
+<AccordionPlayground />
+
+## Props
+
+### Accordion
+
+<PropsTable
+  component="accordion"
+  name="AccordionProps"
+  props={{
+    type: "Whether one item can be open at a time or any number. Required.",
+    value:
+      "The open item, when you control it yourself. A string for `\"single\"`, an array of strings for `\"multiple\"`.",
+    defaultValue: "What's open at first, when you don't control it.",
+    onValueChange: "Called with the new value when an item opens or closes.",
+    disabled: "Stops every item from being opened or closed.",
+  }}
+/>
+
+One more prop exists only with `type="single"`:
+
+<PropsTable
+  component="accordion"
+  name="AccordionSingleProps"
+  type='Extract<AccordionProps, { type: "single" }>'
+  props={{
+    collapsible:
+      "Lets the open item be closed again by pressing its trigger. Without it, one item always stays open once any has been opened.",
+  }}
+/>
+
+### AccordionItem
+
+<PropsTable
+  component="accordion"
+  name="AccordionItemProps"
+  props={{
+    value: "Identifies the item. It has to be unique within the accordion.",
+    disabled: "Stops this item from being opened or closed.",
+  }}
+/>
+
+### AccordionTrigger
+
+<PropsTable component="accordion" name="AccordionTriggerOwnProps" />
+
+Every part also takes what its element takes, including `ref` and `className`. The [Radix Accordion reference](https://www.radix-ui.com/primitives/docs/components/accordion#api-reference) has the full list.
+
+## Several open at once
+
+With `type="multiple"`, opening an item leaves the others as they are.
+
+<Preview name="accordion/multiple" />
+
+## Heading level
+
+Each trigger sits inside a real heading, so the accordion shows up in the page's outline and in a screen reader's list of headings. It's an `<h3>` unless you say otherwise. Pick the level that follows the heading above the accordion:
+
+```tsx
+<h2>Questions</h2>
+<Accordion type="single" collapsible>
+  <AccordionItem value="shipping">
+    <AccordionTrigger headingLevel={3}>How long does shipping take?</AccordionTrigger>
+    <AccordionContent>Three to five working days.</AccordionContent>
+  </AccordionItem>
+</Accordion>
+```
+
+The heading takes its size and weight from the trigger, not from its level, so changing the level doesn't change how it looks.
+
+## Accessibility
+
+### Keyboard
+
+| Key | What it does |
+| --- | --- |
+| <kbd>Tab</kbd> | Moves to the next trigger, or into an open panel if it has something focusable. |
+| <kbd>Enter</kbd> or <kbd>Space</kbd> | Opens or closes the focused item. |
+| <kbd>↓</kbd> and <kbd>↑</kbd> | Move to the next or previous trigger. From the last one it goes to the first. Disabled items are skipped. |
+| <kbd>Home</kbd> | Moves to the first trigger. |
+| <kbd>End</kbd> | Moves to the last trigger. |
+
+### What the component handles
+
+- Each trigger is a `<button>` inside a heading, with `aria-expanded`. An open panel has `role="region"` and is named by its trigger. This part is Radix.
+- A closed panel's content isn't rendered, so it can't be reached with <kbd>Tab</kbd> or read by a screen reader.
+- Triggers are at least 44 pixels tall.
+- The chevron is hidden from screen readers. `aria-expanded` already says whether the item is open.
+- The panel slides open and the chevron turns only when the visitor hasn't asked for reduced motion. Otherwise both change at once.
+
+### What you need to handle
+
+- Set `headingLevel` to fit the page's outline.
+- Keep links and buttons out of the trigger. It's a button, and HTML doesn't allow a control inside a button. Browsers and screen readers each handle that differently.
+- Pass `collapsible` with `type="single"` unless one item really has to stay open. Without it, the open item's trigger is marked `aria-disabled` and pressing it does nothing.
+
+## CSS variables
+
+Set any of these on `Accordion`, or on anything around it.
+
+```css
+.faq {
+  --nuv-accordion-padding-block: calc(var(--spacing) * 5);
+}
+```
+
+<CssVariables
+  component="accordion"
+  descriptions={{
+    "--nuv-accordion-border": "Color of the lines between items.",
+    "--nuv-accordion-padding-block":
+      "Padding above and below each trigger's label, and below each panel's content.",
+    "--nuv-accordion-fg": "Text color of the triggers.",
+    "--nuv-accordion-content-fg": "Text color of the panels.",
+  }}
+/>
+
+## Classes
+
+<BemClasses
+  component="accordion"
+  descriptions={{
+    "nuv-accordion": "Accordion.",
+    "nuv-accordion__item": "AccordionItem.",
+    "nuv-accordion__header": "The heading around each trigger.",
+    "nuv-accordion__trigger": "AccordionTrigger.",
+    "nuv-accordion__chevron": "The arrow at the end of each trigger.",
+    "nuv-accordion__content":
+      "AccordionContent. This is the element whose height is animated.",
+    "nuv-accordion__body":
+      "The element inside the panel that holds your content and its padding.",
+  }}
+/>
+
+Radix sets `data-state="open"` or `data-state="closed"` on the item, the heading, the trigger and the panel, and `data-disabled` on a disabled item's parts. The chevron and the animation hang off those.
+
+## Server components
+
+The accordion parts are client components. They carry `"use client"`, and the build checks that the directive is still there in the published files.
+
+You can put an accordion together inside a server component, as both examples on this page do. It only needs a client component of your own when you control `value`.
+
+A closed panel's content isn't in the HTML the server sends. That matters for a page of questions and answers that search engines should read. Either start with the items open through `defaultValue`, or pass `forceMount` to each `AccordionContent` and hide the ones with `data-state="closed"` in your own CSS.
+
+## Do and don't
+
+**Do**
+
+- Write each heading so it makes sense without opening it.
+- Use `type="multiple"` when people may want to compare two panels.
+- Keep the panels short. A long one pushes the next heading off the screen.
+
+**Don't**
+
+- Don't hide content that everyone needs behind a click.
+- Don't put an accordion inside an accordion.
+- Don't use one for navigation. Opening a panel shouldn't take anyone to another page.

@@ -4,17 +4,48 @@ React components built on [Radix UI](https://www.radix-ui.com/primitives) primit
 
 ## Status
 
-Not usable yet. Nothing is published.
+Early, and not published. You can't install it from the registry yet.
 
-What exists today is the scaffolding (the monorepo, the package build, linting, the test setup and the CI config) and the design tokens: color scales, semantic colors for light and dark, type, spacing, radius, shadow and motion. They build to CSS custom properties, and the SCSS source ships alongside. There are no components yet, so there's nothing to render. The docs site is a single placeholder page.
+What exists today:
 
-The order of work from here:
+- Eleven components: Accordion, Button, Checkbox, Dialog, DropdownMenu, Popover, Select, Switch, Tabs, Toast and Tooltip. Each has tests for rendering, keyboard behavior, touch sizing and accessibility in light and dark.
+- A `toast()` function for showing toasts from anywhere, with a `Toaster` to render them.
+- The design tokens: color scales, semantic colors for both themes, type, spacing, radius, shadow and motion. They build to CSS custom properties, and the SCSS source ships alongside.
+- A docs site with a page for each component, a getting started page, and search that runs in the browser.
 
-1. Button and Dialog, with tests and docs pages
-2. Popover, Tooltip, DropdownMenu, Select, Checkbox, Switch, Tabs, Accordion and Toast
-3. The guides: theming, using it with Tailwind, using it with SCSS
+What's missing:
 
-This section gets updated as those land.
+- The guides: theming, using the tokens with Tailwind, using the SCSS source.
+- Full coverage of forced-colors mode, which is what Windows high contrast turns on. Button, Checkbox, Switch, Tabs, Tooltip and the rows in DropdownMenu and Select are tested there. Accordion, Dialog, Popover and Toast haven't been checked.
+- A CONTRIBUTING guide.
+- A release. The docs site isn't deployed either, so to read the docs you run them locally.
+
+Tests only run in Chromium so far. Firefox and Safari haven't been checked.
+
+This section gets updated as things land.
+
+## Quick look
+
+```tsx
+import "@nuvui/react/styles.css";
+import { Button } from "@nuvui/react";
+
+export default function Page() {
+  return <Button intent="secondary">Save changes</Button>;
+}
+```
+
+The stylesheet is a plain CSS file that you import once. Nothing in the JavaScript imports CSS, so there's no loader to configure and it works with server components.
+
+To restyle a component, set its CSS variables. They aren't declared by the library, so any rule of yours wins:
+
+```css
+:root {
+  --nuv-button-radius: var(--radius-full);
+}
+```
+
+Dark mode is opt-in. Put `data-theme="dark"` on `<html>`, or `data-theme="system"` to follow the visitor's operating system.
 
 ## Working on it
 
@@ -36,6 +67,8 @@ pnpm test:e2e    # Playwright against the built docs site
 pnpm dev         # package in watch mode plus the docs site
 ```
 
+`pnpm dev` serves the docs at http://localhost:3000.
+
 ## Layout
 
 - `packages/ui` is the library that gets published.
@@ -48,7 +81,7 @@ Component tests run in Chromium through Vitest's browser mode, with Playwright d
 
 ## Contributing
 
-A CONTRIBUTING guide comes once there's a component to use as the worked example. Until then, bug reports and ideas are welcome in the [issue tracker](https://github.com/Nuvraxis/nuvui/issues). Please read the [code of conduct](CODE_OF_CONDUCT.md) first.
+A CONTRIBUTING guide is still to be written. Until then, bug reports and ideas are welcome in the [issue tracker](https://github.com/Nuvraxis/nuvui/issues). Please read the [code of conduct](CODE_OF_CONDUCT.md) first.
 
 Security problems go through the process in [SECURITY.md](SECURITY.md), not the public tracker.
 

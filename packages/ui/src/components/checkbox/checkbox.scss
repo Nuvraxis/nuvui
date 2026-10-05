@@ -1,0 +1,69 @@
+@use "../../styles/layers";
+@use "../../styles/mixins";
+
+@layer components {
+  .nuv-checkbox {
+    position: relative;
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--nuv-checkbox-size, 1.25rem);
+    block-size: var(--nuv-checkbox-size, 1.25rem);
+    padding: 0;
+
+    // The edge is what tells you this is a control, so it uses the border
+    // color that's held to 3:1.
+    border: 1px solid var(--nuv-checkbox-border, var(--color-border-strong));
+    border-radius: var(--nuv-checkbox-radius, var(--radius-sm));
+    background-color: var(--nuv-checkbox-bg, var(--color-surface));
+    color: var(--nuv-checkbox-fg, var(--color-primary-foreground));
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+
+    @include mixins.touch-area;
+    @include mixins.focus-ring;
+
+    @include mixins.motion-safe {
+      transition:
+        background-color var(--nuv-duration-fast) var(--ease-out),
+        border-color var(--nuv-duration-fast) var(--ease-out);
+    }
+
+    &[data-state="checked"],
+    &[data-state="indeterminate"] {
+      border-color: var(--nuv-checkbox-checked-bg, var(--color-primary));
+      background-color: var(--nuv-checkbox-checked-bg, var(--color-primary));
+    }
+
+    &[data-disabled] {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  .nuv-checkbox__indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 100%;
+    block-size: 100%;
+  }
+
+  .nuv-checkbox__icon {
+    inline-size: 80%;
+    block-size: 80%;
+  }
+
+  .nuv-checkbox__dash {
+    display: none;
+  }
+
+  .nuv-checkbox[data-state="indeterminate"] .nuv-checkbox__check {
+    display: none;
+  }
+
+  .nuv-checkbox[data-state="indeterminate"] .nuv-checkbox__dash {
+    display: inline;
+  }
+}

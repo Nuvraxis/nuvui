@@ -1,0 +1,224 @@
+@use "../../styles/layers";
+@use "../../styles/mixins";
+
+@layer components {
+  // The list that every toast is rendered into. On a phone it runs along the
+  // bottom of the screen. From sm up it's a column in one corner.
+  .nuv-toaster {
+    position: fixed;
+    z-index: var(--nuv-z-toast);
+    inset-block-end: 0;
+    inset-inline: 0;
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 2);
+    margin: 0;
+    padding: calc(var(--spacing) * 4);
+
+    // Keeps the last toast clear of the home indicator on phones.
+    padding-block-end: max(
+      calc(var(--spacing) * 4),
+      env(safe-area-inset-bottom)
+    );
+    list-style: none;
+
+    // It covers a strip of the page even when it's empty. Clicks go through
+    // it, and only the toasts themselves take them.
+    pointer-events: none;
+
+    // F8 moves focus here, so that Tab can go on into the toasts.
+    @include mixins.focus-ring(-2px);
+
+    @include mixins.breakpoint("sm") {
+      inline-size: calc(var(--nuv-toast-width, 22rem) + var(--spacing) * 8);
+      max-inline-size: 100%;
+    }
+  }
+
+  // Newest first, so the latest toast is the one nearest the edge.
+  .nuv-toaster--top {
+    inset-block: 0 auto;
+    flex-direction: column-reverse;
+    padding-block: max(calc(var(--spacing) * 4), env(safe-area-inset-top))
+      calc(var(--spacing) * 4);
+  }
+
+  .nuv-toaster--start {
+    @include mixins.breakpoint("sm") {
+      inset-inline: 0 auto;
+    }
+  }
+
+  .nuv-toaster--center {
+    @include mixins.breakpoint("sm") {
+      margin-inline: auto;
+    }
+  }
+
+  .nuv-toaster--end {
+    @include mixins.breakpoint("sm") {
+      inset-inline: auto 0;
+    }
+  }
+
+  .nuv-toast {
+    display: flex;
+    gap: calc(var(--spacing) * 2);
+    align-items: center;
+    padding-block: calc(var(--spacing) * 2);
+    padding-inline: calc(var(--spacing) * 4) calc(var(--spacing) * 2);
+    border: 1px solid var(--nuv-toast-border, var(--color-border));
+    border-radius: var(--nuv-toast-radius, var(--radius-lg));
+    background-color: var(--nuv-toast-bg, var(--color-surface));
+    box-shadow: var(--nuv-toast-shadow, var(--shadow-lg));
+    color: var(--nuv-toast-fg, var(--color-surface-foreground));
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+    pointer-events: auto;
+
+    @include mixins.focus-ring;
+
+    @include mixins.motion-safe {
+      &[data-state="open"] {
+        animation: nuv-toast-in var(--nuv-duration-base) var(--ease-out);
+      }
+
+      &[data-state="closed"] {
+        animation: nuv-toast-out var(--nuv-duration-fast) var(--ease-in);
+      }
+
+      // Let go before the threshold: slide back to where it was.
+      &[data-swipe="cancel"] {
+        transition: transform var(--nuv-duration-base) var(--ease-out);
+      }
+
+      // Let go past it: fade out from wherever the finger left it.
+      &[data-swipe="end"] {
+        animation: nuv-toast-swipe-out var(--nuv-duration-fast) var(--ease-out);
+      }
+    }
+
+    // Radix reports how far the toast has been dragged in these variables.
+    &[data-swipe="move"] {
+      transform: translate(
+        var(--radix-toast-swipe-move-x),
+        var(--radix-toast-swipe-move-y)
+      );
+    }
+
+    &[data-swipe="end"] {
+      transform: translate(
+        var(--radix-toast-swipe-end-x),
+        var(--radix-toast-swipe-end-y)
+      );
+    }
+  }
+
+  // The edge is 3px thicker than the border it replaces. The padding gives
+  // those back, so titles line up whatever the intent.
+  .nuv-toast--success {
+    padding-inline-start: calc(var(--spacing) * 4 - 3px);
+    border-inline-start: 4px solid
+      var(--nuv-toast-accent, var(--color-success));
+  }
+
+  .nuv-toast--danger {
+    padding-inline-start: calc(var(--spacing) * 4 - 3px);
+    border-inline-start: 4px solid var(--nuv-toast-accent, var(--color-danger));
+  }
+
+  .nuv-toast__content {
+    display: grid;
+    flex: 1;
+    gap: calc(var(--spacing) * 0.5);
+    min-inline-size: 0;
+    padding-block: var(--spacing);
+  }
+
+  .nuv-toast__title {
+    font-weight: var(--font-weight-medium);
+  }
+
+  .nuv-toast__description {
+    color: var(--color-muted-foreground);
+  }
+
+  .nuv-toast__action {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    padding-block: 0;
+    padding-inline: calc(var(--spacing) * 3);
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-md);
+    background-color: transparent;
+    color: inherit;
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: var(--font-weight-medium);
+    line-height: inherit;
+    white-space: nowrap;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+
+    @include mixins.touch-target;
+    @include mixins.focus-ring;
+
+    @include mixins.hover {
+      background-color: var(--color-muted);
+    }
+
+    @include mixins.fine-pointer {
+      min-block-size: 2rem;
+      min-inline-size: 2rem;
+    }
+  }
+
+  .nuv-toast__close {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-md);
+    background-color: transparent;
+    color: var(--color-muted-foreground);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+
+    @include mixins.touch-target;
+    @include mixins.focus-ring;
+
+    @include mixins.hover {
+      background-color: var(--color-muted);
+      color: var(--color-foreground);
+    }
+
+    @include mixins.fine-pointer {
+      min-block-size: 2rem;
+      min-inline-size: 2rem;
+    }
+  }
+
+  @keyframes nuv-toast-in {
+    from {
+      transform: scale(0.96);
+      opacity: 0;
+    }
+  }
+
+  @keyframes nuv-toast-out {
+    to {
+      transform: scale(0.96);
+      opacity: 0;
+    }
+  }
+
+  @keyframes nuv-toast-swipe-out {
+    to {
+      opacity: 0;
+    }
+  }
+}

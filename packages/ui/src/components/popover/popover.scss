@@ -1,0 +1,26 @@
+@use "../../styles/layers";
+@use "../../styles/floating";
+
+@layer components {
+  .nuv-popover {
+    inline-size: var(--nuv-popover-width, 18rem);
+
+    // Radix measures the room left on each side of the trigger. Staying
+    // inside it is what keeps the popover on a phone's screen.
+    max-inline-size: var(--radix-popover-content-available-width);
+    max-block-size: var(--radix-popover-content-available-height);
+    padding: var(--nuv-popover-padding, calc(var(--spacing) * 4));
+    overflow-y: auto;
+
+    @include floating.panel("popover");
+    @include floating.pop("popover");
+
+    // Radix moves focus to the panel itself when nothing inside can take it.
+    // That's a container, not a control, so it gets no ring.
+    &:focus {
+      outline: none;
+    }
+  }
+
+  @include floating.pop-keyframes("popover");
+}

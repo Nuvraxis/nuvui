@@ -78,8 +78,35 @@ for (const file of stylesheets) {
   }
 }
 
-// The SCSS copy has to compile from where it sits in dist, and give the same
-// CSS as the precompiled file. A broken relative @use would fail here.
+// 3. A component has to be wired up in four places. Missing one gives a
+// component that passes its own tests and is absent for some consumers.
+const pkg = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
+const barrel = readFileSync(join(srcDir, "index.ts"), "utf8");
+const allStyles = readFileSync(join(srcDir, "styles", "index.scss"), "utf8");
+const componentsDir = join(srcDir, "components");
+const components = existsSync(componentsDir)
+  ? readdirSync(componentsDir, { withFileTypes: true })
+      .filter((entry) => entry.isDirectory())
+      .map((entry) => entry.name)
+  : [];
+
+for (const name of components) {
+  if (!pkg.exports[`./${name}`]) {
+    problems.push(`package.json has no "./${name}" export`);
+  }
+  if (!barrel.includes(`"./components/${name}"`)) {
+    problems.push(`src/index.ts doesn't export ${name}`);
+  }
+  if (!allStyles.includes(`"../components/${name}/${name}"`)) {
+    problems.push(`src/styles/index.scss doesn't @use ${name}`);
+  }
+  if (!existsSync(join(cssDir, `${name}.css`))) {
+    problems.push(`dist/css/${name}.css is missing`);
+  }
+}
+
+// 4. The SCSS copy has to compile from where it sits in dist, and give the
+// same CSS as the precompiled file. A broken relative @use would fail here.
 const shippedScss = join(distDir, "scss", "styles", "index.scss");
 const shippedCss = join(distDir, "styles.css");
 if (!existsSync(shippedScss)) {
@@ -105,5 +132,5 @@ if (problems.length > 0) {
 }
 
 console.log(
-  `check-dist: "use client" matches src in ${scripts} scripts, ${stylesheets.length} stylesheets start with the layer order, shipped SCSS compiles to styles.css`,
+  `check-dist: "use client" matches src in ${scripts} scripts, ${stylesheets.length} stylesheets start with the layer order, ${components.length} components are fully wired up, shipped SCSS compiles to styles.css`,
 );

@@ -6,12 +6,16 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "serve out",
     "typecheck": "next typegen && tsc --noEmit",
     "test:e2e": "playwright test"
   },
   "dependencies": {
     "@nuvui/react": "workspace:*",
+    "fumadocs-core": "16.16.0",
+    "fumadocs-mdx": "15.4.6",
+    "fumadocs-typescript": "^5.4.1",
+    "fumadocs-ui": "16.16.0",
     "next": "^16.3.8",
     "react": "catalog:",
     "react-dom": "catalog:"
@@ -20,9 +24,14 @@
     "@axe-core/playwright": "^4.13.0",
     "@nuvui/typescript-config": "workspace:*",
     "@playwright/test": "catalog:",
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/mdx": "^2.0.14",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
+    "postcss": "^8.5.28",
+    "serve": "^14.2.6",
+    "tailwindcss": "^4.3.3",
     "typescript": "catalog:"
   }
 }

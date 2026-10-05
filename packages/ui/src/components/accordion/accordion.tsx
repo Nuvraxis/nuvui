@@ -3,7 +3,7 @@
 import * as AccordionPrimitive from "@radix-ui/react-accordion";
 import {
   type ComponentPropsWithoutRef,
-  type ElementRef,
+  type ComponentRef,
   forwardRef,
 } from "react";
 import { cx } from "../../utils/cx";
@@ -13,7 +13,7 @@ export type AccordionProps = ComponentPropsWithoutRef<
 >;
 
 export const Accordion = forwardRef<
-  ElementRef<typeof AccordionPrimitive.Root>,
+  ComponentRef<typeof AccordionPrimitive.Root>,
   AccordionProps
 >(function Accordion({ className, ...props }, ref) {
   return (
@@ -30,7 +30,7 @@ export type AccordionItemProps = ComponentPropsWithoutRef<
 >;
 
 export const AccordionItem = forwardRef<
-  ElementRef<typeof AccordionPrimitive.Item>,
+  ComponentRef<typeof AccordionPrimitive.Item>,
   AccordionItemProps
 >(function AccordionItem({ className, ...props }, ref) {
   return (
@@ -56,7 +56,7 @@ export interface AccordionTriggerProps
     ComponentPropsWithoutRef<typeof AccordionPrimitive.Trigger> {}
 
 export const AccordionTrigger = forwardRef<
-  ElementRef<typeof AccordionPrimitive.Trigger>,
+  ComponentRef<typeof AccordionPrimitive.Trigger>,
   AccordionTriggerProps
 >(function AccordionTrigger(
   { headingLevel = 3, className, children, ...props },
@@ -98,7 +98,7 @@ export type AccordionContentProps = ComponentPropsWithoutRef<
 >;
 
 export const AccordionContent = forwardRef<
-  ElementRef<typeof AccordionPrimitive.Content>,
+  ComponentRef<typeof AccordionPrimitive.Content>,
   AccordionContentProps
 >(function AccordionContent({ className, children, ...props }, ref) {
   return (

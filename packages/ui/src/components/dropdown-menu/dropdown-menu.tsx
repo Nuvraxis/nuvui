@@ -3,7 +3,7 @@
 import * as MenuPrimitive from "@radix-ui/react-dropdown-menu";
 import {
   type ComponentPropsWithoutRef,
-  type ElementRef,
+  type ComponentRef,
   forwardRef,
 } from "react";
 import { cx } from "../../utils/cx";
@@ -54,7 +54,7 @@ export interface DropdownMenuContentProps
     Omit<ContentProps, keyof DropdownMenuContentOwnProps> {}
 
 export const DropdownMenuContent = forwardRef<
-  ElementRef<typeof MenuPrimitive.Content>,
+  ComponentRef<typeof MenuPrimitive.Content>,
   DropdownMenuContentProps
 >(function DropdownMenuContent(
   {
@@ -94,7 +94,7 @@ export interface DropdownMenuItemProps
     ComponentPropsWithoutRef<typeof MenuPrimitive.Item> {}
 
 export const DropdownMenuItem = forwardRef<
-  ElementRef<typeof MenuPrimitive.Item>,
+  ComponentRef<typeof MenuPrimitive.Item>,
   DropdownMenuItemProps
 >(function DropdownMenuItem({ intent = "default", className, ...props }, ref) {
   return (
@@ -138,7 +138,7 @@ export type DropdownMenuCheckboxItemProps = ComponentPropsWithoutRef<
 >;
 
 export const DropdownMenuCheckboxItem = forwardRef<
-  ElementRef<typeof MenuPrimitive.CheckboxItem>,
+  ComponentRef<typeof MenuPrimitive.CheckboxItem>,
   DropdownMenuCheckboxItemProps
 >(function DropdownMenuCheckboxItem({ className, children, ...props }, ref) {
   return (
@@ -158,7 +158,7 @@ export type DropdownMenuRadioItemProps = ComponentPropsWithoutRef<
 >;
 
 export const DropdownMenuRadioItem = forwardRef<
-  ElementRef<typeof MenuPrimitive.RadioItem>,
+  ComponentRef<typeof MenuPrimitive.RadioItem>,
   DropdownMenuRadioItemProps
 >(function DropdownMenuRadioItem({ className, children, ...props }, ref) {
   return (
@@ -178,7 +178,7 @@ export type DropdownMenuLabelProps = ComponentPropsWithoutRef<
 >;
 
 export const DropdownMenuLabel = forwardRef<
-  ElementRef<typeof MenuPrimitive.Label>,
+  ComponentRef<typeof MenuPrimitive.Label>,
   DropdownMenuLabelProps
 >(function DropdownMenuLabel({ className, ...props }, ref) {
   return (
@@ -195,7 +195,7 @@ export type DropdownMenuSeparatorProps = ComponentPropsWithoutRef<
 >;
 
 export const DropdownMenuSeparator = forwardRef<
-  ElementRef<typeof MenuPrimitive.Separator>,
+  ComponentRef<typeof MenuPrimitive.Separator>,
   DropdownMenuSeparatorProps
 >(function DropdownMenuSeparator({ className, ...props }, ref) {
   return (
@@ -212,7 +212,7 @@ export type DropdownMenuSubTriggerProps = ComponentPropsWithoutRef<
 >;
 
 export const DropdownMenuSubTrigger = forwardRef<
-  ElementRef<typeof MenuPrimitive.SubTrigger>,
+  ComponentRef<typeof MenuPrimitive.SubTrigger>,
   DropdownMenuSubTriggerProps
 >(function DropdownMenuSubTrigger({ className, children, ...props }, ref) {
   return (
@@ -263,7 +263,7 @@ export interface DropdownMenuSubContentProps
     Omit<SubContentProps, keyof DropdownMenuSubContentOwnProps> {}
 
 export const DropdownMenuSubContent = forwardRef<
-  ElementRef<typeof MenuPrimitive.SubContent>,
+  ComponentRef<typeof MenuPrimitive.SubContent>,
   DropdownMenuSubContentProps
 >(function DropdownMenuSubContent(
   { collisionPadding = 8, container, className, ...props },

@@ -3,8 +3,8 @@
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import {
   type ComponentPropsWithoutRef,
+  type ComponentRef,
   createContext,
-  type ElementRef,
   forwardRef,
   useContext,
 } from "react";
@@ -70,7 +70,7 @@ export interface TooltipContentProps
     Omit<ContentProps, keyof TooltipContentOwnProps> {}
 
 export const TooltipContent = forwardRef<
-  ElementRef<typeof TooltipPrimitive.Content>,
+  ComponentRef<typeof TooltipPrimitive.Content>,
   TooltipContentProps
 >(function TooltipContent(
   {

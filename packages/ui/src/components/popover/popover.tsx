@@ -3,7 +3,7 @@
 import * as PopoverPrimitive from "@radix-ui/react-popover";
 import {
   type ComponentPropsWithoutRef,
-  type ElementRef,
+  type ComponentRef,
   forwardRef,
 } from "react";
 import { cx } from "../../utils/cx";
@@ -45,7 +45,7 @@ export interface PopoverContentProps
     Omit<ContentProps, keyof PopoverContentOwnProps> {}
 
 export const PopoverContent = forwardRef<
-  ElementRef<typeof PopoverPrimitive.Content>,
+  ComponentRef<typeof PopoverPrimitive.Content>,
   PopoverContentProps
 >(function PopoverContent(
   { sideOffset = 8, collisionPadding = 8, container, className, ...props },

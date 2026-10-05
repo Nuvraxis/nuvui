@@ -3,7 +3,7 @@
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import {
   type ComponentPropsWithoutRef,
-  type ElementRef,
+  type ComponentRef,
   forwardRef,
   type HTMLAttributes,
 } from "react";
@@ -49,7 +49,7 @@ export interface DialogContentProps
     ComponentPropsWithoutRef<typeof DialogPrimitive.Content> {}
 
 export const DialogContent = forwardRef<
-  ElementRef<typeof DialogPrimitive.Content>,
+  ComponentRef<typeof DialogPrimitive.Content>,
   DialogContentProps
 >(function DialogContent(
   {
@@ -101,7 +101,7 @@ export type DialogTitleProps = ComponentPropsWithoutRef<
 >;
 
 export const DialogTitle = forwardRef<
-  ElementRef<typeof DialogPrimitive.Title>,
+  ComponentRef<typeof DialogPrimitive.Title>,
   DialogTitleProps
 >(function DialogTitle({ className, ...props }, ref) {
   return (
@@ -118,7 +118,7 @@ export type DialogDescriptionProps = ComponentPropsWithoutRef<
 >;
 
 export const DialogDescription = forwardRef<
-  ElementRef<typeof DialogPrimitive.Description>,
+  ComponentRef<typeof DialogPrimitive.Description>,
   DialogDescriptionProps
 >(function DialogDescription({ className, ...props }, ref) {
   return (

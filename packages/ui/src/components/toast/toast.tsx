@@ -3,7 +3,7 @@
 import * as ToastPrimitive from "@radix-ui/react-toast";
 import {
   type ComponentPropsWithoutRef,
-  type ElementRef,
+  type ComponentRef,
   forwardRef,
   type ReactNode,
   useSyncExternalStore,
@@ -193,7 +193,7 @@ export interface ToasterOwnProps {
 export interface ToasterProps extends ToasterOwnProps, ViewportProps {}
 
 export const Toaster = forwardRef<
-  ElementRef<typeof ToastPrimitive.Viewport>,
+  ComponentRef<typeof ToastPrimitive.Viewport>,
   ToasterProps
 >(function Toaster(
   {

@@ -1,5 +1,5 @@
-// Checks the built package for two things that break consumers quietly and
-// that nothing else in the toolchain would catch.
+// Checks the built package for things that break consumers quietly and that
+// nothing else in the toolchain would catch.
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, relative, sep } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -124,6 +124,24 @@ if (!existsSync(shippedScss)) {
   }
 }
 
+// 5. The mixins file has to stand alone. It's the one people load from the
+// package into their own Sass, and on Windows, Next.js with Turbopack fails
+// on any file loaded that way that loads another by a relative path.
+const shippedMixins = join(distDir, "scss", "styles", "_mixins.scss");
+if (!existsSync(shippedMixins)) {
+  problems.push(`${display(shippedMixins)} is missing`);
+} else {
+  const loads = readFileSync(shippedMixins, "utf8")
+    .split("\n")
+    .filter((line) => /^\s*@(use|forward|import)\s/.test(line))
+    .filter((line) => !/^\s*@use\s+["']sass:/.test(line));
+  if (loads.length > 0) {
+    problems.push(
+      `${display(shippedMixins)} loads other files: ${loads.map((line) => line.trim()).join(" ")}`,
+    );
+  }
+}
+
 if (problems.length > 0) {
   console.error(
     `check-dist failed:\n${problems.map((p) => `  - ${p}`).join("\n")}`,
@@ -132,5 +150,5 @@ if (problems.length > 0) {
 }
 
 console.log(
-  `check-dist: "use client" matches src in ${scripts} scripts, ${stylesheets.length} stylesheets start with the layer order, ${components.length} components are fully wired up, shipped SCSS compiles to styles.css`,
+  `check-dist: "use client" matches src in ${scripts} scripts, ${stylesheets.length} stylesheets start with the layer order, ${components.length} components are fully wired up, shipped SCSS compiles to styles.css, the mixins file loads nothing else`,
 );

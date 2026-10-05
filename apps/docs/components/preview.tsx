@@ -7,14 +7,24 @@ import { codeHighlight } from "@/lib/code-themes";
 interface PreviewProps {
   /** Path of the example under `examples/`, without the extension. */
   name: string;
+  /**
+   * A stylesheet the example imports, by file name. It's printed above the
+   * example's own source, and both blocks get a title.
+   */
+  stylesheet?: string;
 }
+
+const examplesDir = path.join(process.cwd(), "examples");
 
 // Renders an example and prints the file it came from. The code on the page
 // is the code that's running, because it's the same file.
-export async function Preview({ name }: PreviewProps) {
-  const [module, code] = await Promise.all([
+export async function Preview({ name, stylesheet }: PreviewProps) {
+  const [module, code, styles] = await Promise.all([
     import(`@/examples/${name}.tsx`) as Promise<{ default: ComponentType }>,
-    readFile(path.join(process.cwd(), "examples", `${name}.tsx`), "utf8"),
+    readFile(path.join(examplesDir, `${name}.tsx`), "utf8"),
+    stylesheet
+      ? readFile(path.join(examplesDir, path.dirname(name), stylesheet), "utf8")
+      : undefined,
   ]);
   const Example = module.default;
 
@@ -31,11 +41,25 @@ export async function Preview({ name }: PreviewProps) {
       >
         <Example />
       </div>
+      {stylesheet && styles !== undefined && (
+        <ServerCodeBlock
+          code={styles.trim()}
+          lang={path.extname(stylesheet).slice(1)}
+          {...codeHighlight}
+          codeblock={{
+            title: stylesheet,
+            className: "my-0 rounded-none border-b-0",
+          }}
+        />
+      )}
       <ServerCodeBlock
         code={code.trim()}
         lang="tsx"
         {...codeHighlight}
-        codeblock={{ className: "my-0 rounded-t-none" }}
+        codeblock={{
+          title: stylesheet ? `${path.basename(name)}.tsx` : undefined,
+          className: "my-0 rounded-t-none",
+        }}
       />
     </figure>
   );

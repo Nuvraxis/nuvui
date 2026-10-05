@@ -1,5 +1,6 @@
 import defaultMdxComponents from "fumadocs-ui/mdx";
 import type { MDXComponents } from "mdx/types";
+import { Changelog } from "@/components/changelog";
 import { AccordionPlayground } from "@/components/playground/accordion";
 import { ButtonPlayground } from "@/components/playground/button";
 import { CheckboxPlayground } from "@/components/playground/checkbox";
@@ -13,7 +14,15 @@ import { ToastPlayground } from "@/components/playground/toast";
 import { TooltipPlayground } from "@/components/playground/tooltip";
 import { Preview } from "@/components/preview";
 import { PropsTable } from "@/components/props-table";
+import { ScssBreakpoints, ScssMixins } from "@/components/scss-reference";
 import { BemClasses, CssVariables } from "@/components/style-reference";
+import { TailwindTheme } from "@/components/tailwind-theme";
+import { TokenEditor } from "@/components/token-editor";
+import {
+  ColorScales,
+  SemanticColors,
+  TokenList,
+} from "@/components/token-reference";
 
 export function getMDXComponents(components?: MDXComponents) {
   return {
@@ -22,6 +31,14 @@ export function getMDXComponents(components?: MDXComponents) {
     PropsTable,
     CssVariables,
     BemClasses,
+    TokenEditor,
+    SemanticColors,
+    ColorScales,
+    TokenList,
+    TailwindTheme,
+    ScssMixins,
+    ScssBreakpoints,
+    Changelog,
     AccordionPlayground,
     ButtonPlayground,
     CheckboxPlayground,

@@ -1,8 +1,8 @@
 name: CI
 
+# Pull requests only. A merge to main doesn't run this again, so the checks
+# on the pull request are the only ones a change gets.
 on:
-  push:
-    branches: [main]
   pull_request:
 
 concurrency:

@@ -1,0 +1,135 @@
+---
+title: Using with SCSS
+description: Load nuvui's Sass mixins into your own stylesheets, change the breakpoints, and see which build tools resolve the package's SCSS entry.
+---
+
+The package ships its SCSS source next to the compiled CSS. You don't need it to use the components. Reach for it when you want the library's mixins in your own styles, or when you want different breakpoints.
+
+## Use the mixins
+
+```scss
+@use "@nuvui/react/scss/mixins" as nuv;
+```
+
+That file produces no CSS on its own. It gives you the mixins and the breakpoints map, and you keep loading `@nuvui/react/styles.css` for the components as before.
+
+Here's a stylesheet written with them. It's compiled as part of this site.
+
+<Preview name="scss/notice" stylesheet="notice.scss" />
+
+Write your declarations first and `breakpoint` after them. Sass keeps the output in the order you wrote it, so a declaration that follows a `breakpoint` block comes out after the media query and wins over it.
+
+## The mixins
+
+<ScssMixins
+  descriptions={{
+    breakpoint:
+      "Wraps its content in a min-width media query for a named breakpoint. An unknown name stops the compile with a list of the ones that exist.",
+    dark:
+      "For setting tokens. Use it at the top level of a file: it writes its content for data-theme=\"dark\", and again for data-theme=\"system\" when the system is dark.",
+    "motion-safe":
+      "Wraps its content in prefers-reduced-motion: no-preference. Put transitions and animations in here and they don't exist for people who asked for less motion.",
+    "reduced-motion": "The opposite query, for when less motion needs a style of its own.",
+    hover: "A :hover rule that only applies on devices that can hover. On a touch screen, hover styles stick after a tap.",
+    "fine-pointer": "For the denser sizes that suit a mouse or trackpad. Everything outside it keeps its touch size.",
+    "focus-ring": "The library's focus ring, on :focus-visible. The argument is the gap between the element and the ring.",
+    "touch-target": "A minimum width and height of 44 pixels.",
+    "touch-area":
+      "Widens the area that responds to a tap to 44 pixels without changing what's drawn, for controls that have to look small. The element needs position: relative.",
+  }}
+/>
+
+There's no `max-width` version of `breakpoint`, on purpose. The library is written smallest screen first, and one direction keeps overrides predictable.
+
+## Breakpoints
+
+This is the map, as it ships:
+
+<ScssBreakpoints />
+
+`breakpoint("md")` reads it, and the `--breakpoint-*` custom properties in [the token reference](/docs/theming#breakpoints) are generated from it.
+
+### Why it's a Sass map
+
+You can't write this:
+
+```css
+/* Doesn't work. */
+@media (width >= var(--breakpoint-md)) {
+}
+```
+
+A custom property belongs to an element and can differ from one element to the next. A media query isn't evaluated on any element, so there's nothing to look the value up on, and browsers ignore the rule. The breakpoints have to be known when the CSS is compiled, which is the job of a Sass variable.
+
+The custom properties are still there for reading, with `getComputedStyle` in JavaScript for example.
+
+### Changing them
+
+Pass your own map the first time the module is loaded. For your own styles, that's the mixins:
+
+```scss title="styles/_nuv.scss"
+@forward "@nuvui/react/scss/mixins" with (
+  $breakpoints: (
+    "sm": 36rem,
+    "md": 48rem,
+    "lg": 62rem,
+  )
+);
+```
+
+Then load that file wherever you would have loaded the package's, with `@use "nuv";` and the right relative path. Sass only lets a module be configured once per compile, and a file of your own that forwards it keeps the map in one place.
+
+This changes what `breakpoint()` does in your stylesheets. It doesn't change the library's components, because their CSS was compiled before it reached you. For that, compile the library with the same map and load the result instead of `styles.css`:
+
+```scss
+@use "@nuvui/react/scss" with (
+  $breakpoints: (
+    "sm": 36rem,
+    "md": 48rem,
+    "lg": 62rem,
+  )
+);
+```
+
+Keep `sm` in the map. Dialog and Toast use it, and the compile fails without it.
+
+`@use "@nuvui/react/scss"` forwards the mixins too, so a file that loads it can call `breakpoint()` without a second `@use`.
+
+## What your build tool needs
+
+`@use "@nuvui/react/scss/mixins"` is a path through the package's `exports` map. Sass can't follow that by itself, so whether it works depends on what runs Sass for you. This is what we've run, all of it on Windows:
+
+| Tool | `scss/mixins` | `scss` (the whole library) |
+| --- | --- | --- |
+| Next.js 16 with Turbopack | Works | Fails on Windows |
+| Next.js 16 with webpack | Works | Works |
+| Vite 8 | Works | Works |
+| Sass 1.105, command line or API | Works with `pkg:` | Works with `pkg:` |
+
+### Next.js with Turbopack on Windows
+
+Compiling the whole library fails with "Can't find stylesheet to import". Turbopack finds the file in the package, then can't follow that file's own relative `@use` lines. We traced it to the code that passes paths from Sass to Turbopack, which builds them with backslashes on Windows. We haven't run the same build on macOS or Linux, so we can't say for certain that it works there.
+
+The mixins file is one file that loads nothing else, which is why it isn't affected.
+
+If you need to compile the whole library in a Next.js app on Windows, run Next with webpack (`next dev --webpack` and `next build --webpack`).
+
+### Sass on its own
+
+Without a bundler, use Sass's package importer and the `pkg:` prefix:
+
+```scss
+@use "pkg:@nuvui/react/scss/mixins" as nuv;
+```
+
+```sh
+sass --pkg-importer=node styles.scss styles.css
+```
+
+From JavaScript, the equivalent is `importers: [new NodePackageImporter()]`.
+
+## What isn't in the package
+
+- There's no SCSS entry per component. To load only some components, use the [per-component CSS files](/docs#loading-less).
+- `scss/tokens` and `scss/base` exist and compile to the same thing as `tokens.css` and `base.css`. They're only worth using if you're compiling everything yourself anyway.
+- The partials the components share between themselves aren't part of the public API. If a file isn't in the list above, it can change without notice.

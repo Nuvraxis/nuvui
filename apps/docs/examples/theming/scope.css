@@ -1,0 +1,6 @@
+.checkout {
+  --color-primary: var(--color-green-700);
+  --color-primary-foreground: var(--color-white);
+  --color-ring: var(--color-green-700);
+  --radius-md: var(--radius-full);
+}

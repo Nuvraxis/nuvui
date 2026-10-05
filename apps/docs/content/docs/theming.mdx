@@ -1,0 +1,208 @@
+---
+title: Theming and tokens
+description: How nuvui's design tokens are layered, how to override them for a site, a section or one component, and a live editor to try changes in.
+---
+
+Every color, radius and size in nuvui comes from a CSS custom property. There's no theme object to pass around and no provider to wrap your app in. To change how the components look, you set variables in a stylesheet.
+
+## Try it
+
+Change a value and the components in the box follow. The editor sets the variables on that box only, so the rest of the page keeps its own look. The CSS underneath is what you'd paste into your own stylesheet to get the same result.
+
+<TokenEditor />
+
+Colors are kept apart for light and dark. Switch the site's theme with the toggle in the navigation and you're editing the other set.
+
+The editor will let you pick colors nobody can read. The contrast figures are there to catch that. Text needs 4.5:1 against what's behind it, and the edge of a control or a focus ring needs 3:1.
+
+## How the tokens are layered
+
+There are three levels, and each one reads from the one before it.
+
+**Raw scales** are plain values with no meaning attached: `--color-blue-600`, `--radius-md`, `--text-sm`. The names and values are the ones in Tailwind v4's default theme.
+
+**Semantic tokens** say what a value is for: `--color-primary`, `--color-background`, `--color-border`. Each points at a raw color, and has one value for light and another for dark. For color, the components only ever read these.
+
+**Component variables** belong to one component: `--nuv-button-radius`, `--nuv-dialog-width`. The library never declares them. Each component reads its own, with a token as the fallback:
+
+```css
+.nuv-button {
+  border-radius: var(--nuv-button-radius, var(--radius-md));
+}
+```
+
+So changing `--radius-md` rounds everything that uses it, and setting `--nuv-button-radius` changes buttons alone.
+
+## Changing tokens
+
+### For the whole site
+
+```css
+:root {
+  --color-primary: var(--color-green-700);
+  --color-ring: var(--color-green-700);
+  --radius-md: 0.5rem;
+}
+```
+
+You don't need `!important` or a heavier selector. The library declares its tokens inside a cascade layer named `tokens`, and a rule outside any layer beats every rule inside one. It doesn't matter which stylesheet loads first.
+
+If your own CSS is in layers too, the layer that holds your overrides has to come after `tokens`.
+
+### Give dark its own values
+
+The semantic colors have a second set of values for dark. Those are in the `tokens` layer as well, so with `data-theme` on `<html>`, a color you set on `:root` replaces both. The green above would be the primary color in dark too, where a button's near-black text is hard to read on it.
+
+Set the dark value next to the light one:
+
+```css
+:root {
+  --color-primary: var(--color-green-700);
+}
+
+[data-theme="dark"] {
+  --color-primary: var(--color-green-400);
+}
+
+/* Only if you use data-theme="system". */
+@media (prefers-color-scheme: dark) {
+  [data-theme="system"] {
+    --color-primary: var(--color-green-400);
+  }
+}
+```
+
+With SCSS, the [`dark` mixin](/docs/scss#the-mixins) writes the last two blocks from one.
+
+Colors come in pairs. If you change `--color-primary`, check that `--color-primary-foreground` still reads on top of it.
+
+### For one section
+
+Tokens are inherited like any other custom property, so setting one on an element changes everything inside it.
+
+<Preview name="theming/scope" stylesheet="scope.css" />
+
+Override the semantic token, not the raw color it points at. `--color-primary` is worked out once, on `:root`, as whatever `--color-blue-600` is there. Setting `--color-blue-600` on a section further down the page doesn't change it.
+
+### For one component
+
+Each component page lists the variables that component reads. Set them on the component or on anything around it:
+
+```css
+.toolbar {
+  --nuv-button-radius: var(--radius-full);
+  --nuv-button-padding-inline: calc(var(--spacing) * 6);
+}
+```
+
+## Dark mode for part of a page
+
+`data-theme` works on any element, not only `<html>`. Everything inside takes that theme. [Getting started](/docs#dark-mode) covers the three values it accepts.
+
+<Preview name="theming/subtree" />
+
+The select in that example passes `container` to `SelectContent`. Dialog, Popover, Tooltip, DropdownMenu and Select add their floating part to the end of `<body>`. That's outside your section, so left alone the list would get the page's theme. `container` takes the element to render into instead. You need it for the same reason when you've set tokens on a section.
+
+Toast is the exception. Toasts appear inside `<Toaster />`, wherever you rendered it.
+
+## Fonts
+
+The components inherit the page's font. None of them picks one, so whatever your `<body>` uses is what they use.
+
+`--font-sans` and `--font-mono` are defined, with the same system font stacks as Tailwind, but nothing in the library reads them. They're there for you:
+
+```css
+body {
+  font-family: var(--font-sans);
+}
+```
+
+## The focus ring
+
+Every component draws the same ring on keyboard focus. Three variables change it everywhere at once.
+
+<CssVariables
+  component="focus-ring"
+  shared
+  descriptions={{
+    "--nuv-focus-ring-width": "Thickness of the ring.",
+    "--nuv-focus-ring-color": "Its color. Keep it at 3:1 or better against whatever is behind it.",
+    "--nuv-focus-ring-offset":
+      "Gap between the element and the ring. Tabs and the toast region draw theirs inside the edge, which is the negative default.",
+  }}
+/>
+
+The rows in a menu or a select list are filled in when focused, not ringed. The [DropdownMenu](/docs/components/dropdown-menu) page explains why.
+
+## Token reference
+
+These tables are read from the `tokens.css` that the package ships.
+
+### Semantic colors
+
+<SemanticColors
+  descriptions={{
+    "--color-background": "The page. Also the thumb of a switch.",
+    "--color-foreground": "Text on the page.",
+    "--color-surface": "Things that sit above the page: dialogs, popovers, menus, select lists and toasts.",
+    "--color-surface-foreground": "Text on a surface.",
+    "--color-muted": "Quiet fills, such as a secondary button or the hover state of a close button.",
+    "--color-muted-foreground": "Text that matters less: descriptions, placeholders, group labels.",
+    "--color-primary":
+      "The main action: a primary button, a checked checkbox or switch, the selected tab, the focused row in a menu.",
+    "--color-primary-foreground": "Text and icons on top of primary.",
+    "--color-danger": "Destructive actions and errors.",
+    "--color-danger-foreground": "Text on top of danger.",
+    "--color-success": "The edge of a success toast.",
+    "--color-warning": "No component reads it yet. It's defined so your own warnings can match.",
+    "--color-border": "Dividers and the edges of panels.",
+    "--color-border-strong":
+      "The edge of a control you have to be able to find: a checkbox, a switch, a select. It keeps 3:1 against the page.",
+    "--color-ring": "The focus ring.",
+    "--color-overlay": "The dimmed layer behind a dialog.",
+  }}
+/>
+
+### Color scales
+
+Five of Tailwind's scales, plus black and white. The values are in `oklch()`.
+
+<ColorScales />
+
+### Spacing
+
+<TokenList group="spacing" />
+
+One unit. Sizes are written as multiples of it, so `calc(var(--spacing) * 4)` is `1rem`. Change it and every padding and gap in the library scales together.
+
+### Type
+
+<TokenList group="type" />
+
+Each `--text-*` size has a line height to go with it, named like `--text-sm--line-height`.
+
+### Radius
+
+<TokenList group="radius" />
+
+### Shadows
+
+<TokenList group="shadow" />
+
+### Motion
+
+<TokenList group="motion" />
+
+Transitions and animations are only declared under `prefers-reduced-motion: no-preference`. Someone who has asked their system for less motion gets none, and there's nothing for you to switch off.
+
+### Breakpoints
+
+<TokenList group="breakpoint" />
+
+These are for reading in your own CSS or JavaScript. A custom property can't be used in a media query, so changing one here doesn't move the point where a dialog stops being a sheet. [Using with SCSS](/docs/scss#breakpoints) covers how to do that.
+
+### Stacking order
+
+<TokenList group="stacking" />
+
+Popovers sit above dialogs because a menu or a select can open from inside one. If something of yours has to sit above or between them, move these rather than raising your own `z-index` until it works.

@@ -9,6 +9,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { JsonLd } from "@/components/json-ld";
 import { getMDXComponents } from "@/components/mdx";
+import { changelogToc } from "@/lib/changelog";
 import { absoluteUrl, site } from "@/lib/site";
 import { getPageImage, source } from "@/lib/source";
 
@@ -18,6 +19,12 @@ export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
   if (!page) notFound();
 
   const MDX = page.data.body;
+  // The changelog's headings are rendered from a file, not written in its
+  // MDX, so they have to be added to the table of contents by hand.
+  const toc =
+    page.url === "/docs/changelog"
+      ? [...(await changelogToc()), ...page.data.toc]
+      : page.data.toc;
 
   // One breadcrumb per URL segment: Docs, then Components, then Button.
   const crumbs = ["docs", ...page.slugs].map((_, index, all) => {
@@ -32,7 +39,7 @@ export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
   });
 
   return (
-    <DocsPage toc={page.data.toc} full={page.data.full}>
+    <DocsPage toc={toc} full={page.data.full}>
       <JsonLd
         data={{
           "@context": "https://schema.org",

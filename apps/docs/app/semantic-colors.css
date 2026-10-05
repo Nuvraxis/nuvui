@@ -1,0 +1,30 @@
+/*
+ * Turns the library's semantic colors into utilities such as bg-primary.
+ * `inline` writes var(--color-primary) straight into the utility.
+ * `reference` stops Tailwind from also declaring --color-primary on :root,
+ * which here would be a variable set to itself.
+ *
+ * The Tailwind guide prints this block from the library's token list, and
+ * the build fails if a line is missing here.
+ *
+ * It has a file to itself because Biome 2.5 can't parse two options after
+ * @theme. biome.json leaves this one file out.
+ */
+@theme inline reference {
+  --color-background: var(--color-background);
+  --color-foreground: var(--color-foreground);
+  --color-surface: var(--color-surface);
+  --color-surface-foreground: var(--color-surface-foreground);
+  --color-muted: var(--color-muted);
+  --color-muted-foreground: var(--color-muted-foreground);
+  --color-primary: var(--color-primary);
+  --color-primary-foreground: var(--color-primary-foreground);
+  --color-danger: var(--color-danger);
+  --color-danger-foreground: var(--color-danger-foreground);
+  --color-success: var(--color-success);
+  --color-warning: var(--color-warning);
+  --color-border: var(--color-border);
+  --color-border-strong: var(--color-border-strong);
+  --color-ring: var(--color-ring);
+  --color-overlay: var(--color-overlay);
+}

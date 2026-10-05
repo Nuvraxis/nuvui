@@ -1,0 +1,97 @@
+---
+title: Using with Tailwind
+description: Run nuvui next to Tailwind CSS v4. Set the cascade layer order, turn the semantic colors into utilities, and decide whose theme values win.
+---
+
+nuvui doesn't depend on Tailwind and doesn't generate utility classes. What the two share is names. nuvui's tokens are named after Tailwind v4's theme variables, so both read `--radius-md`, `--color-blue-600` and `--spacing`. This page is about getting them to agree.
+
+Everything here was run against Tailwind 4.3. None of it applies to Tailwind 3, which doesn't keep its theme in CSS variables.
+
+## Set the layer order
+
+Both put their CSS in cascade layers. Tailwind's are `theme`, `base`, `components` and `utilities`. nuvui's are `tokens`, `base` and `components`. Layers with the same name merge, and layers apply in the order they were first named.
+
+So name all five yourself, at the top of your main stylesheet, before anything is imported:
+
+```css title="app/globals.css"
+@layer tokens, theme, base, components, utilities;
+
+@import "tailwindcss";
+@import "@nuvui/react/styles.css";
+```
+
+If you leave that first line out, the order depends on which import happens to come first, and the two give different results.
+
+Here's what the order buys you.
+
+`components` comes before `utilities`, so a utility class on a component wins over the component's own styles:
+
+<Preview name="tailwind/utilities" />
+
+`base` comes before `components`. Tailwind's Preflight lives in `base` and resets every `<button>` to a transparent background. A nuvui button keeps its color because its styles are in the later layer.
+
+`tokens` comes before `theme`, which decides whose values win. That's the next section.
+
+## Whose values win
+
+99 of nuvui's tokens have a twin in Tailwind's default theme, with the same name and the same value: the gray, blue, red, green and amber scales, the radii, the text sizes, weights, shadows, easings, breakpoints and `--spacing`. Until you change one, it makes no difference which copy wins.
+
+Then you customise your theme:
+
+```css
+@theme {
+  --radius-md: 0.75rem;
+}
+```
+
+With `tokens` before `theme`, as above, Tailwind's value is the one on `:root`. `rounded-md` uses it, and so does every nuvui component that reads `--radius-md`. One line changes both.
+
+With the order the other way round, `theme, tokens`, nuvui's `0.375rem` wins. The components don't change, and neither does `rounded-md`, with no warning that your `@theme` line was ignored. Only choose that order if you want the library's defaults whatever your Tailwind theme says. This site does, because its job is to show them.
+
+### Import the stylesheet through Tailwind
+
+Tailwind only writes out the theme variables it sees being used. Importing `styles.css` from your CSS file, as in the snippet at the top, runs it through Tailwind, which then sees that the components read `--radius-md` and emits your value.
+
+If you import the stylesheet from JavaScript instead, Tailwind never sees it. A theme variable that none of your own utilities use isn't written out, and the components quietly keep nuvui's value. Marking the block `@theme static` forces every variable in it out and fixes that too.
+
+## Use the semantic colors as utilities
+
+Tailwind has never heard of `--color-primary` or `--color-muted-foreground`, so there's no `bg-primary`. This block adds a utility for each semantic color:
+
+<TailwindTheme />
+
+`inline` makes each utility use `var(--color-primary)` directly. `reference` stops Tailwind from also declaring `--color-primary` on `:root`. Don't leave it off: you'd get `--color-primary: var(--color-primary)`, a variable defined as itself, and with `tokens` before `theme` it replaces the real one. Primary buttons lose their background.
+
+With the block in place you can write `bg-primary`, `text-muted-foreground`, `border-border` or `ring-ring`, and opacity modifiers such as `bg-primary/50` work.
+
+<Preview name="tailwind/tokens" />
+
+The values still come from nuvui. To change them, override the variables the way [Theming and tokens](/docs/theming#changing-tokens) describes. They switch between light and dark by themselves, so `bg-surface` doesn't need a `dark:` twin.
+
+## The dark variant
+
+Tailwind's `dark:` follows the operating system unless you tell it otherwise. nuvui follows `data-theme`. This makes `dark:` follow the attribute too, including `data-theme="system"`:
+
+```css title="app/globals.css"
+@custom-variant dark {
+  &:where([data-theme="dark"], [data-theme="dark"] *) {
+    @slot;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    &:where([data-theme="system"], [data-theme="system"] *) {
+      @slot;
+    }
+  }
+}
+```
+
+One thing it gets wrong: a `data-theme="light"` section nested inside a dark one still counts as dark.
+
+You'll need `dark:` less than you'd think. Anything colored with the semantic utilities already follows the theme.
+
+## What this site does
+
+This site runs both. Tailwind is here for the page layout, through Fumadocs, and the previews are nuvui. It uses the `@theme` block above as it's printed, and the two previews on this page are rendered with it. The layer order is `theme, tokens, base, components, utilities`, for the reason given earlier.
+
+The claims about layer order on this page are checked by the site's own test suite, which compiles each setup with Tailwind and measures the result in a browser.

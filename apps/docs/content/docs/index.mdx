@@ -55,6 +55,8 @@ Components are light unless you ask for something else. Set `data-theme` on `<ht
 
 We don't switch to dark automatically. If we did, a site with only a light design would show light text on its white background to everyone whose system is set to dark.
 
+Colors, radii and spacing are all CSS custom properties. [Theming and tokens](/docs/theming) covers changing them, and has an editor to try it in.
+
 ## Loading less
 
 `styles.css` contains every component. If you only use a few, import their stylesheets one by one. Each needs the tokens and the base styles loaded as well:
@@ -75,8 +77,15 @@ import { Button } from "@nuvui/react/button";
 
 The styles use cascade layers, `oklch()` colors, `color-mix()` and `dvh` units. That means Chrome and Edge 111, Firefox 113 and Safari 16.4, or newer. There's no fallback for older browsers.
 
+## With Tailwind or Sass
+
+Neither is needed. If your app already uses one, there's a guide for each:
+
+- [Using with Tailwind](/docs/tailwind) covers the layer order and how to get utilities such as `bg-primary`.
+- [Using with SCSS](/docs/scss) covers the mixins and changing the breakpoints.
+
 ## What isn't here yet
 
-- Most of the components. Popover, Tooltip, DropdownMenu, Select, Checkbox, Switch, Tabs, Accordion and Toast are planned.
-- Guides for theming, for using the tokens with Tailwind, and for using the SCSS source.
-- A released version.
+- A released version. The [changelog](/docs/changelog) lists what the first one will contain.
+- Testing outside Chromium. Nothing has been run in Firefox or Safari yet.
+- More components. There are eleven, and no date for the next ones.

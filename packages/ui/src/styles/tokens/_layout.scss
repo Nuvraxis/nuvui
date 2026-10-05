@@ -1,4 +1,4 @@
-@use "../config";
+@use "../mixins";
 
 @layer tokens {
   :root {
@@ -6,7 +6,7 @@
     // calc(var(--spacing) * 4) for 1rem.
     --spacing: 0.25rem;
 
-    @each $name, $width in config.$breakpoints {
+    @each $name, $width in mixins.$breakpoints {
       --breakpoint-#{$name}: #{$width};
     }
 

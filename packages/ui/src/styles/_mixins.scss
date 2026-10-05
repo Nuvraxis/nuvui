@@ -1,15 +1,27 @@
 @use "sass:map";
-@forward "config";
-@use "config";
+
+// The --breakpoint-* custom properties are generated from this map. Custom
+// properties can't be read inside a media query, so the breakpoint mixin
+// uses the map directly. The map is in this file, not a partial of its own,
+// so that this file loads no other. On Windows, Next.js with Turbopack can't
+// follow a relative @use out of a Sass file it loaded from a package, and
+// this is the file people load from the package to get the mixins.
+$breakpoints: (
+  "sm": 40rem,
+  "md": 48rem,
+  "lg": 64rem,
+  "xl": 80rem,
+  "2xl": 96rem,
+) !default;
 
 // Mobile first: base styles target the smallest screen and this layers on
 // larger ones. There's deliberately no max-width variant.
 @mixin breakpoint($name) {
-  @if not map.has-key(config.$breakpoints, $name) {
-    @error "Unknown breakpoint `#{$name}`. Known breakpoints: #{map.keys(config.$breakpoints)}.";
+  @if not map.has-key($breakpoints, $name) {
+    @error "Unknown breakpoint `#{$name}`. Known breakpoints: #{map.keys($breakpoints)}.";
   }
 
-  @media (width >= #{map.get(config.$breakpoints, $name)}) {
+  @media (width >= #{map.get($breakpoints, $name)}) {
     @content;
   }
 }

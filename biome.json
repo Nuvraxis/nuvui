@@ -6,7 +6,8 @@
     "useIgnoreFile": true
   },
   "files": {
-    "ignoreUnknown": true
+    "ignoreUnknown": true,
+    "includes": ["**", "!apps/docs/app/semantic-colors.css"]
   },
   "formatter": {
     "indentStyle": "space"

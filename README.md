@@ -12,10 +12,11 @@ What exists today:
 - A `toast()` function for showing toasts from anywhere, with a `Toaster` to render them.
 - The design tokens: color scales, semantic colors for both themes, type, spacing, radius, shadow and motion. They build to CSS custom properties, and the SCSS source ships alongside.
 - A docs site with a page for each component, a getting started page, and search that runs in the browser.
+- Guides for theming, for using the tokens with Tailwind v4, and for using the SCSS source. The theming page has an editor that changes tokens in the browser and prints the CSS for what you changed.
 
 What's missing:
 
-- The guides: theming, using the tokens with Tailwind, using the SCSS source.
+- Compiling the whole library from its SCSS source fails in Next.js with Turbopack on Windows. Loading only the mixins works there, and so does everything under webpack and Vite. The SCSS guide has the details.
 - Full coverage of forced-colors mode, which is what Windows high contrast turns on. Button, Checkbox, Switch, Tabs, Tooltip and the rows in DropdownMenu and Select are tested there. Accordion, Dialog, Popover and Toast haven't been checked.
 - A CONTRIBUTING guide.
 - A release. The docs site isn't deployed either, so to read the docs you run them locally.

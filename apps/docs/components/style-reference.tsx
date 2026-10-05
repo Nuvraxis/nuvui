@@ -5,7 +5,7 @@ import { library } from "@/lib/library";
 // exactly what ships. The descriptions are written by hand in the MDX, and
 // the build fails if one is missing or describes something that's gone.
 
-function checkDescriptions(
+export function checkDescriptions(
   kind: string,
   component: string,
   found: string[],
@@ -19,9 +19,10 @@ function checkDescriptions(
 
   throw new Error(
     [
-      `The ${kind} documented for "${component}" don't match its CSS.`,
+      `The ${kind} documented for "${component}" don't match the library.`,
       missing.length > 0 && `Not described: ${missing.join(", ")}`,
-      stale.length > 0 && `Described but not in the CSS: ${stale.join(", ")}`,
+      stale.length > 0 &&
+        `Described but not in the library: ${stale.join(", ")}`,
     ]
       .filter(Boolean)
       .join("\n"),
@@ -70,11 +71,23 @@ interface ReferenceProps {
   descriptions: Record<string, string>;
 }
 
+interface CssVariablesProps extends ReferenceProps {
+  /**
+   * Look in the whole stylesheet instead of one component's. For variables
+   * that several components read, where `component` is their shared prefix.
+   */
+  shared?: boolean;
+}
+
 export async function CssVariables({
   component,
   descriptions,
-}: ReferenceProps) {
-  const css = await readFile(library.css(component), "utf8");
+  shared = false,
+}: CssVariablesProps) {
+  const css = await readFile(
+    shared ? library.styles : library.css(component),
+    "utf8",
+  );
   const variables = findVariables(css, component);
   checkDescriptions(
     "CSS variables",

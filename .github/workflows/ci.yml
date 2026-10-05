@@ -48,6 +48,6 @@ jobs:
           path: |
             apps/docs/playwright-report
             apps/docs/test-results
-            packages/ui/**/__screenshots__
+            packages/ui/.vitest
           if-no-files-found: ignore
           retention-days: 7

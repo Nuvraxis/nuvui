@@ -6,14 +6,13 @@ React components built on [Radix UI](https://www.radix-ui.com/primitives) primit
 
 Not usable yet. Nothing is published.
 
-What exists today is the scaffolding: the monorepo, the build for the package, linting, the test setup and the CI config. There are no components and no design tokens. The docs site is a single placeholder page.
+What exists today is the scaffolding (the monorepo, the package build, linting, the test setup and the CI config) and the design tokens: color scales, semantic colors for light and dark, type, spacing, radius, shadow and motion. They build to CSS custom properties, and the SCSS source ships alongside. There are no components yet, so there's nothing to render. The docs site is a single placeholder page.
 
 The order of work from here:
 
-1. Design tokens and base styles
-2. Button and Dialog, with tests and docs pages
-3. Popover, Tooltip, DropdownMenu, Select, Checkbox, Switch, Tabs, Accordion and Toast
-4. The guides: theming, using it with Tailwind, using it with SCSS
+1. Button and Dialog, with tests and docs pages
+2. Popover, Tooltip, DropdownMenu, Select, Checkbox, Switch, Tabs, Accordion and Toast
+3. The guides: theming, using it with Tailwind, using it with SCSS
 
 This section gets updated as those land.
 

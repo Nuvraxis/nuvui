@@ -1,0 +1,11 @@
+{
+  "excludeEntrypoints": [
+    "styles.css",
+    "tokens.css",
+    "base.css",
+    "scss",
+    "scss/mixins",
+    "scss/tokens",
+    "scss/base"
+  ]
+}

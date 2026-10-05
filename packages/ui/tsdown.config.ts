@@ -10,6 +10,9 @@ export default defineConfig({
   // per-file "use client" directive, so this is what keeps them intact.
   unbundle: true,
   clean: true,
+  // CSS is built here rather than as a separate script step so that watch
+  // mode rebuilds it too, after tsdown has emptied dist.
+  onSuccess: "node scripts/build-css.mjs",
   inputOptions: {
     // Rolldown warns that "use client" may not survive bundling. With
     // unbundle it does, and scripts/check-dist.mjs fails the build if not.

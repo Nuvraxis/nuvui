@@ -2,6 +2,11 @@ packages:
   - apps/*
   - packages/*
 
+# Comes in through sass-embedded for the Sass CLI's --watch flag, which we
+# don't use. Its install script only compiles a fallback binary.
+allowBuilds:
+  "@parcel/watcher": false
+
 catalog:
   "@playwright/test": 1.63.0
   "@types/node": ^24.0.0

@@ -1,0 +1,6 @@
+// Everything: tokens, base styles and every component. The mixins and the
+// breakpoints map are forwarded so `@use "@nuvui/react/scss"` gives access to
+// them as well.
+@forward "mixins";
+@use "tokens";
+@use "base";

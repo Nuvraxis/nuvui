@@ -1,0 +1,63 @@
+@use "../mixins";
+
+// Components only ever read these, never the raw scales, so retheming means
+// overriding this list.
+@layer tokens {
+  :root,
+  [data-theme="light"],
+  [data-theme="system"] {
+    --color-background: var(--color-white);
+    --color-foreground: var(--color-gray-950);
+    --color-surface: var(--color-white);
+    --color-surface-foreground: var(--color-gray-950);
+    --color-muted: var(--color-gray-100);
+    --color-muted-foreground: var(--color-gray-600);
+    --color-primary: var(--color-blue-600);
+    --color-primary-foreground: var(--color-white);
+    --color-danger: var(--color-red-600);
+    --color-danger-foreground: var(--color-white);
+    --color-success: var(--color-green-700);
+    --color-warning: var(--color-amber-700);
+
+    // border is for dividers and card edges. border-strong is for the edge
+    // of a control such as a checkbox, which has to reach 3:1 to be seen.
+    --color-border: var(--color-gray-200);
+    --color-border-strong: var(--color-gray-500);
+    --color-ring: var(--color-blue-600);
+    --color-overlay: rgb(0 0 0 / 0.5);
+  }
+
+  @include mixins.dark {
+    --color-background: var(--color-gray-950);
+    --color-foreground: var(--color-gray-50);
+    --color-surface: var(--color-gray-900);
+    --color-surface-foreground: var(--color-gray-50);
+    --color-muted: var(--color-gray-800);
+    --color-muted-foreground: var(--color-gray-400);
+    --color-primary: var(--color-blue-400);
+    --color-primary-foreground: var(--color-gray-950);
+    --color-danger: var(--color-red-400);
+    --color-danger-foreground: var(--color-gray-950);
+    --color-success: var(--color-green-400);
+    --color-warning: var(--color-amber-400);
+    --color-border: var(--color-gray-800);
+    --color-border-strong: var(--color-gray-500);
+    --color-ring: var(--color-blue-400);
+    --color-overlay: rgb(0 0 0 / 0.7);
+  }
+
+  // Native scrollbars and form controls follow the theme, but only where the
+  // page has asked for one. A bare :root is left alone, so a page's own
+  // color-scheme setting isn't overridden.
+  [data-theme="light"] {
+    color-scheme: light;
+  }
+
+  [data-theme="dark"] {
+    color-scheme: dark;
+  }
+
+  [data-theme="system"] {
+    color-scheme: light dark;
+  }
+}

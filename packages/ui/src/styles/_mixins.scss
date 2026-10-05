@@ -1,0 +1,60 @@
+@use "sass:map";
+@forward "config";
+@use "config";
+
+// Mobile first: base styles target the smallest screen and this layers on
+// larger ones. There's deliberately no max-width variant.
+@mixin breakpoint($name) {
+  @if not map.has-key(config.$breakpoints, $name) {
+    @error "Unknown breakpoint `#{$name}`. Known breakpoints: #{map.keys(config.$breakpoints)}.";
+  }
+
+  @media (width >= #{map.get(config.$breakpoints, $name)}) {
+    @content;
+  }
+}
+
+// Emits its content twice: for data-theme="dark", and for data-theme="system"
+// when the visitor's OS is set to dark. A page with no data-theme stays
+// light. Following the OS by default would put light text on the white
+// background of any site that only has a light design.
+@mixin dark {
+  @media (prefers-color-scheme: dark) {
+    [data-theme="system"] {
+      @content;
+    }
+  }
+
+  [data-theme="dark"] {
+    @content;
+  }
+}
+
+// Put animations and transitions inside this. Declaring them only when motion
+// is fine avoids having to out-specify them again in a reduce query.
+@mixin motion-safe {
+  @media (prefers-reduced-motion: no-preference) {
+    @content;
+  }
+}
+
+@mixin reduced-motion {
+  @media (prefers-reduced-motion: reduce) {
+    @content;
+  }
+}
+
+@mixin focus-ring($offset: 2px) {
+  &:focus-visible {
+    outline: var(--nuv-focus-ring-width, 2px) solid
+      var(--nuv-focus-ring-color, var(--color-ring));
+    outline-offset: var(--nuv-focus-ring-offset, #{$offset});
+  }
+}
+
+// 2.75rem is 44px at the default font size, the WCAG 2.5.5 target size. Set as
+// a minimum so longer content can still grow the element.
+@mixin touch-target($size: 2.75rem) {
+  min-block-size: $size;
+  min-inline-size: $size;
+}

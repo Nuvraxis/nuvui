@@ -1,5 +1,17 @@
 import { playwright } from "@vitest/browser-playwright";
+import type { Page } from "playwright";
 import { defineConfig } from "vitest/config";
+import type { BrowserCommand } from "vitest/node";
+
+type Media = Parameters<Page["emulateMedia"]>[0];
+
+// Called from tests through test/media.ts.
+const emulateMedia: BrowserCommand<[media: Media]> = async (
+  { page },
+  media,
+) => {
+  await page.emulateMedia(media);
+};
 
 export default defineConfig({
   test: {
@@ -13,6 +25,7 @@ export default defineConfig({
       provider: playwright(),
       headless: true,
       instances: [{ browser: "chromium" }],
+      commands: { emulateMedia },
     },
   },
 });

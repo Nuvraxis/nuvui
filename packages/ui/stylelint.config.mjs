@@ -1,4 +1,6 @@
-// Keep in sync with $prefix in src/styles/_config.scss.
+// The class prefix. It's written out literally in the SCSS and in the
+// components rather than interpolated from a variable, because Stylelint
+// can't check a selector that contains #{...}.
 const prefix = "nuv";
 
 const word = "[a-z0-9]+(?:-[a-z0-9]+)*";
@@ -33,5 +35,12 @@ export default {
       `^${word}(?:--${word})?$`,
       { message: "Expected custom property name to be kebab-case" },
     ],
+    // Token values are copied from Tailwind's theme. Keeping its notation
+    // means they can be compared against the source character for character.
+    "hue-degree-notation": "number",
+    "alpha-value-notation": "number",
+    "value-keyword-case": ["lower", { ignoreProperties: ["/^--font-/"] }],
+    // Blank lines group related tokens.
+    "custom-property-empty-line-before": null,
   },
 };

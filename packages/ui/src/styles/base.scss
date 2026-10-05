@@ -1,0 +1,9 @@
+@use "layers";
+
+@layer base {
+  // Matches every element the library renders, wherever a portal puts it.
+  // :where() keeps the specificity at zero.
+  :where([class^="nuv-"], [class*=" nuv-"]) {
+    box-sizing: border-box;
+  }
+}

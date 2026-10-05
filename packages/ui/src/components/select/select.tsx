@@ -3,7 +3,7 @@
 import * as SelectPrimitive from "@radix-ui/react-select";
 import {
   type ComponentPropsWithoutRef,
-  type ElementRef,
+  type ComponentRef,
   forwardRef,
 } from "react";
 import { cx } from "../../utils/cx";
@@ -40,7 +40,7 @@ export type SelectTriggerProps = ComponentPropsWithoutRef<
 >;
 
 export const SelectTrigger = forwardRef<
-  ElementRef<typeof SelectPrimitive.Trigger>,
+  ComponentRef<typeof SelectPrimitive.Trigger>,
   SelectTriggerProps
 >(function SelectTrigger({ className, children, ...props }, ref) {
   return (
@@ -62,7 +62,7 @@ export type SelectValueProps = ComponentPropsWithoutRef<
 >;
 
 export const SelectValue = forwardRef<
-  ElementRef<typeof SelectPrimitive.Value>,
+  ComponentRef<typeof SelectPrimitive.Value>,
   SelectValueProps
 >(function SelectValue({ className, ...props }, ref) {
   return (
@@ -109,7 +109,7 @@ export interface SelectContentProps
     Omit<ContentProps, keyof SelectContentOwnProps> {}
 
 export const SelectContent = forwardRef<
-  ElementRef<typeof SelectPrimitive.Content>,
+  ComponentRef<typeof SelectPrimitive.Content>,
   SelectContentProps
 >(function SelectContent(
   {
@@ -154,7 +154,7 @@ export type SelectItemProps = ComponentPropsWithoutRef<
 >;
 
 export const SelectItem = forwardRef<
-  ElementRef<typeof SelectPrimitive.Item>,
+  ComponentRef<typeof SelectPrimitive.Item>,
   SelectItemProps
 >(function SelectItem({ className, children, ...props }, ref) {
   return (
@@ -190,7 +190,7 @@ export type SelectLabelProps = ComponentPropsWithoutRef<
 >;
 
 export const SelectLabel = forwardRef<
-  ElementRef<typeof SelectPrimitive.Label>,
+  ComponentRef<typeof SelectPrimitive.Label>,
   SelectLabelProps
 >(function SelectLabel({ className, ...props }, ref) {
   return (
@@ -207,7 +207,7 @@ export type SelectSeparatorProps = ComponentPropsWithoutRef<
 >;
 
 export const SelectSeparator = forwardRef<
-  ElementRef<typeof SelectPrimitive.Separator>,
+  ComponentRef<typeof SelectPrimitive.Separator>,
   SelectSeparatorProps
 >(function SelectSeparator({ className, ...props }, ref) {
   return (

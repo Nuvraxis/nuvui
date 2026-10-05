@@ -3,7 +3,7 @@
 import * as CheckboxPrimitive from "@radix-ui/react-checkbox";
 import {
   type ComponentPropsWithoutRef,
-  type ElementRef,
+  type ComponentRef,
   forwardRef,
 } from "react";
 import { cx } from "../../utils/cx";
@@ -13,7 +13,7 @@ export type CheckboxProps = ComponentPropsWithoutRef<
 >;
 
 export const Checkbox = forwardRef<
-  ElementRef<typeof CheckboxPrimitive.Root>,
+  ComponentRef<typeof CheckboxPrimitive.Root>,
   CheckboxProps
 >(function Checkbox({ className, ...props }, ref) {
   return (

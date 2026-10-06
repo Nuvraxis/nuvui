@@ -150,6 +150,18 @@ export interface ToastFunction {
 
 export const toast: ToastFunction = Object.assign(show, { dismiss });
 
+// The toasts to render when only so many may show at once. The rest stay in
+// the list and wait. A toast that's closing is kept for its exit animation
+// but no longer counts, so the next one in line shows straight away.
+function upTo(limit: number, toasts: readonly ToastEntry[]) {
+  let open = 0;
+  return toasts.filter((item) => {
+    if (!item.open) return true;
+    open += 1;
+    return open <= limit;
+  });
+}
+
 type ViewportProps = ComponentPropsWithoutRef<typeof ToastPrimitive.Viewport>;
 
 export interface ToasterOwnProps {
@@ -171,6 +183,12 @@ export interface ToasterOwnProps {
    * @default 5000
    */
   duration?: number;
+  /**
+   * The most toasts shown at once. Any others wait, and each shows when one
+   * before it closes. A waiting toast's `duration` starts when it shows.
+   * @default 3
+   */
+  limit?: number;
   /**
    * Accessible name of the close button on each toast. Translate it with
    * the rest of your interface.
@@ -199,6 +217,7 @@ export const Toaster = forwardRef<
   {
     position = "bottom-end",
     duration = 5000,
+    limit = 3,
     closeLabel = "Close",
     toastLabel = "Notification",
     swipeDirection = "right",
@@ -220,57 +239,59 @@ export const Toaster = forwardRef<
       label={toastLabel}
       swipeDirection={swipeDirection}
     >
-      {toasts.map(({ id, title, description, intent, action, ...item }) => (
-        <ToastPrimitive.Root
-          key={id}
-          className={cx("nuv-toast", `nuv-toast--${intent ?? "neutral"}`)}
-          open={item.open}
-          duration={item.duration}
-          // Radix reads a "foreground" toast out at once and leaves a
-          // "background" one until the screen reader is idle.
-          type={intent === "danger" ? "foreground" : "background"}
-          onOpenChange={(open) => {
-            if (!open) close(id);
-          }}
-        >
-          <div className="nuv-toast__content">
-            <ToastPrimitive.Title className="nuv-toast__title">
-              {title}
-            </ToastPrimitive.Title>
-            {description ? (
-              <ToastPrimitive.Description className="nuv-toast__description">
-                {description}
-              </ToastPrimitive.Description>
-            ) : null}
-          </div>
-          {action ? (
-            <ToastPrimitive.Action
-              className="nuv-toast__action"
-              altText={action.altText}
-              onClick={action.onClick}
-            >
-              {action.label}
-            </ToastPrimitive.Action>
-          ) : null}
-          <ToastPrimitive.Close
-            className="nuv-toast__close"
-            aria-label={closeLabel}
+      {upTo(limit, toasts).map(
+        ({ id, title, description, intent, action, ...item }) => (
+          <ToastPrimitive.Root
+            key={id}
+            className={cx("nuv-toast", `nuv-toast--${intent ?? "neutral"}`)}
+            open={item.open}
+            duration={item.duration}
+            // Radix reads a "foreground" toast out at once and leaves a
+            // "background" one until the screen reader is idle.
+            type={intent === "danger" ? "foreground" : "background"}
+            onOpenChange={(open) => {
+              if (!open) close(id);
+            }}
           >
-            <svg
-              aria-hidden="true"
-              viewBox="0 0 16 16"
-              width="16"
-              height="16"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
+            <div className="nuv-toast__content">
+              <ToastPrimitive.Title className="nuv-toast__title">
+                {title}
+              </ToastPrimitive.Title>
+              {description ? (
+                <ToastPrimitive.Description className="nuv-toast__description">
+                  {description}
+                </ToastPrimitive.Description>
+              ) : null}
+            </div>
+            {action ? (
+              <ToastPrimitive.Action
+                className="nuv-toast__action"
+                altText={action.altText}
+                onClick={action.onClick}
+              >
+                {action.label}
+              </ToastPrimitive.Action>
+            ) : null}
+            <ToastPrimitive.Close
+              className="nuv-toast__close"
+              aria-label={closeLabel}
             >
-              <path d="M3.5 3.5l9 9m0-9l-9 9" />
-            </svg>
-          </ToastPrimitive.Close>
-        </ToastPrimitive.Root>
-      ))}
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 16 16"
+                width="16"
+                height="16"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+              >
+                <path d="M3.5 3.5l9 9m0-9l-9 9" />
+              </svg>
+            </ToastPrimitive.Close>
+          </ToastPrimitive.Root>
+        ),
+      )}
       <ToastPrimitive.Viewport
         ref={ref}
         className={cx(

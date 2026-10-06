@@ -1,13 +1,16 @@
 "use client";
 
+import { useComposedRefs } from "@radix-ui/react-compose-refs";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import {
   type ComponentPropsWithoutRef,
   type ComponentRef,
   forwardRef,
   type HTMLAttributes,
+  useState,
 } from "react";
 import { cx } from "../../utils/cx";
+import { useScrollRegion } from "../../utils/use-scroll-region";
 
 export type DialogProps = DialogPrimitive.DialogProps;
 export type DialogTriggerProps = DialogPrimitive.DialogTriggerProps;
@@ -129,6 +132,38 @@ export const DialogDescription = forwardRef<
     />
   );
 });
+
+export type DialogHeaderProps = HTMLAttributes<HTMLDivElement>;
+
+export const DialogHeader = forwardRef<HTMLDivElement, DialogHeaderProps>(
+  function DialogHeader({ className, ...props }, ref) {
+    return (
+      <div
+        ref={ref}
+        className={cx("nuv-dialog__header", className)}
+        {...props}
+      />
+    );
+  },
+);
+
+export type DialogBodyProps = HTMLAttributes<HTMLDivElement>;
+
+export const DialogBody = forwardRef<HTMLDivElement, DialogBodyProps>(
+  function DialogBody({ className, ...props }, ref) {
+    const [element, setElement] = useState<HTMLDivElement | null>(null);
+    const scrollRegion = useScrollRegion(element);
+
+    return (
+      <div
+        ref={useComposedRefs(ref, setElement)}
+        className={cx("nuv-dialog__body", className)}
+        {...scrollRegion}
+        {...props}
+      />
+    );
+  },
+);
 
 export type DialogFooterProps = HTMLAttributes<HTMLDivElement>;
 

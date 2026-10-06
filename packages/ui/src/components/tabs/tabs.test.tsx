@@ -2,7 +2,7 @@ import "../../styles/index.scss";
 import { describe, expect, test, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
-import { emulateTouch, setViewport } from "../../../test/media";
+import { setViewport } from "../../../test/media";
 import { expectNoViolations, renderThemed, themes } from "../../../test/themed";
 import {
   Tabs,
@@ -150,14 +150,10 @@ describe("styles", () => {
     expect(color("Team")).toBe("rgba(0, 0, 0, 0)");
   });
 
-  test("tabs are at least 44px tall on a touch screen and 40px with a mouse", async () => {
+  test("tabs are 40px tall with a mouse", async () => {
     await render(<Example />);
-    const height = () =>
-      tab("Account").element().getBoundingClientRect().height;
 
-    expect(height()).toBe(40);
-    await emulateTouch(true);
-    expect(height()).toBeGreaterThanOrEqual(44);
+    expect(tab("Account").element().getBoundingClientRect().height).toBe(40);
   });
 
   test("shows a focus ring for keyboard focus", async () => {

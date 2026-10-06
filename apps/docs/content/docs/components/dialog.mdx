@@ -18,10 +18,12 @@ pnpm add @nuvui/react
 ```tsx
 import {
   Dialog,
+  DialogBody,
   DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
+  DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@nuvui/react";
@@ -38,6 +40,8 @@ The styles come from `@nuvui/react/styles.css`, which you load once for the whol
 | `DialogContent` | The panel. It also renders the overlay behind it and the close button in its corner. |
 | `DialogTitle` | The heading. Required, because it's the dialog's accessible name. |
 | `DialogDescription` | A sentence or two under the title, announced when the dialog opens. |
+| `DialogHeader` | Optional. Holds the title and description when the dialog has a `DialogBody`. |
+| `DialogBody` | Optional. The part that scrolls when the content is taller than the screen. |
 | `DialogFooter` | A row for the action buttons. |
 | `DialogClose` | Closes the dialog when pressed. Wrap your own button with `asChild`. |
 
@@ -55,13 +59,25 @@ These are separate exports, not properties of `Dialog`. `Dialog.Content` isn't a
 
 `Dialog`, `DialogTrigger`, `DialogClose`, `DialogTitle` and `DialogDescription` take the same props as the Radix parts they wrap, including `open`, `defaultOpen`, `onOpenChange`, `modal` and `asChild`. The [Radix Dialog reference](https://www.radix-ui.com/primitives/docs/components/dialog#api-reference) lists them.
 
+`DialogHeader`, `DialogBody` and `DialogFooter` are plain `div` elements. They take `ref`, `className` and anything else a `div` does.
+
 ## Sizes
 
 <Preview name="dialog/sizes" />
 
 `size` sets the maximum width once the screen is at least 40rem wide: 24rem for `sm`, 32rem for `md` and 48rem for `lg`. Below that, the dialog is a sheet across the bottom of the screen whatever the size.
 
-It's never taller than the screen. If the content is longer, the panel scrolls.
+It's never taller than the screen. If the content is longer, it scrolls. [Long content](#long-content) covers which part does.
+
+## Long content
+
+Put the title and description in `DialogHeader`, the content in `DialogBody` and the buttons in `DialogFooter`. The header and footer stay where they are, and the body scrolls between them, so the title and the buttons are always in view.
+
+<Preview name="dialog/long" />
+
+Without a `DialogBody`, the whole panel scrolls, and the title and buttons scroll away with the rest. That's fine for a dialog that rarely gets that tall.
+
+The body's scrollbar sits on the edge of the panel. Its text still lines up with the title, because the body has the same padding at its sides as the panel.
 
 ## Controlling it yourself
 
@@ -79,6 +95,7 @@ Pass `open` and `onOpenChange` when something else decides when the dialog close
 | <kbd>Tab</kbd> | Moves to the next control inside the dialog. From the last one it goes back to the first. |
 | <kbd>Shift</kbd> + <kbd>Tab</kbd> | Moves to the previous control, and from the first to the last. |
 | <kbd>Esc</kbd> | Closes the dialog. |
+| <kbd>↑</kbd> <kbd>↓</kbd> <kbd>Page Up</kbd> <kbd>Page Down</kbd> | Scroll the body, when it has focus. |
 
 ### What the component handles
 
@@ -89,6 +106,7 @@ Most of this is Radix. The library doesn't change it.
 - Focus can't leave the dialog while it's open, and the rest of the page is hidden from screen readers.
 - The trigger gets `aria-haspopup="dialog"` and `aria-expanded`.
 - The close button is a real button with an accessible name, and is at least 44 pixels on touch screens. This matters on phones, where there's no <kbd>Esc</kbd> key.
+- A `DialogBody` that scrolls and has nothing inside that takes focus becomes a tab stop itself, named after the dialog. Without that, someone who doesn't use a mouse would have no way to scroll it. A body that fits, or that holds a field or a button, is left alone.
 - The open and close animations only run when the visitor hasn't asked for reduced motion.
 
 ### What you need to handle
@@ -111,7 +129,8 @@ Dialogs render at the end of `<body>`, so set these on `:root` or `body`, not on
   component="dialog"
   descriptions={{
     "--nuv-dialog-overlay-bg": "Color of the layer that dims the page.",
-    "--nuv-dialog-padding": "Padding inside the panel.",
+    "--nuv-dialog-padding":
+      "Padding inside the panel. One length, used on every side.",
     "--nuv-dialog-border": "Border color of the panel.",
     "--nuv-dialog-radius":
       "Corner radius. As a sheet on phones, only the top corners are rounded.",
@@ -136,6 +155,8 @@ The overlay and the panel sit next to each other in the page, not one inside the
     "nuv-dialog__overlay": "The layer behind the panel.",
     "nuv-dialog__title": "DialogTitle.",
     "nuv-dialog__description": "DialogDescription.",
+    "nuv-dialog__header": "DialogHeader.",
+    "nuv-dialog__body": "DialogBody.",
     "nuv-dialog__footer": "DialogFooter.",
     "nuv-dialog__close": "The close button in the corner.",
   }}

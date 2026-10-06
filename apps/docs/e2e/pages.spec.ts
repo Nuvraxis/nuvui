@@ -54,6 +54,22 @@ for (const path of pages) {
       }
     });
 
+    // Chiefly the files Next's router fetches ahead of a navigation, one for
+    // each link in view. An export made on Windows puts them where the
+    // router doesn't look, which scripts/fix-export.mjs puts right.
+    test("asks for nothing that isn't there", async ({ page }) => {
+      const missing: string[] = [];
+      page.on("response", (response) => {
+        if (response.status() === 404) {
+          missing.push(decodeURIComponent(new URL(response.url()).pathname));
+        }
+      });
+
+      await open(page, path);
+
+      expect(missing).toEqual([]);
+    });
+
     test("doesn't scroll sideways", async ({ page }) => {
       await page.goto(path);
 

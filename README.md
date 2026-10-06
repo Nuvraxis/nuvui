@@ -8,7 +8,7 @@ Early, and not published. You can't install it from the registry yet.
 
 What exists today:
 
-- Eleven components: Accordion, Button, Checkbox, Dialog, DropdownMenu, Popover, Select, Switch, Tabs, Toast and Tooltip. Each has tests for rendering, keyboard behavior, touch sizing and accessibility in light and dark.
+- Eleven components: Accordion, Button, Checkbox, Dialog, DropdownMenu, Popover, Select, Switch, Tabs, Toast and Tooltip. Each has tests for rendering, keyboard behavior, touch sizing, and accessibility in light, dark and forced colors.
 - A `toast()` function for showing toasts from anywhere, with a `Toaster` to render them.
 - The design tokens: color scales, semantic colors for both themes, type, spacing, radius, shadow and motion. They build to CSS custom properties, and the SCSS source ships alongside.
 - A docs site with a page for each component, a getting started page, and search that runs in the browser.
@@ -16,12 +16,9 @@ What exists today:
 
 What's missing:
 
-- Compiling the whole library from its SCSS source fails in Next.js with Turbopack on Windows. Loading only the mixins works there, and so does everything under webpack and Vite. The SCSS guide has the details.
-- Full coverage of forced-colors mode, which is what Windows high contrast turns on. Button, Checkbox, Switch, Tabs, Tooltip and the rows in DropdownMenu and Select are tested there. Accordion, Dialog, Popover and Toast haven't been checked.
-- A CONTRIBUTING guide.
 - A release. The docs site isn't deployed either, so to read the docs you run them locally.
-
-Tests only run in Chromium so far. Firefox and Safari haven't been checked.
+- Tests in Firefox and Safari. The suites only run in Chromium so far.
+- Compiling the whole library from its SCSS source in Next.js with Turbopack on Windows. That's a [known problem in Next.js](https://github.com/vercel/next.js/issues/87243). Loading only the mixins works there, and so does everything on Linux, and under webpack and Vite. The SCSS guide has the details.
 
 This section gets updated as things land.
 
@@ -82,7 +79,7 @@ Component tests run in Chromium through Vitest's browser mode, with Playwright d
 
 ## Contributing
 
-A CONTRIBUTING guide is still to be written. Until then, bug reports and ideas are welcome in the [issue tracker](https://github.com/Nuvraxis/nuvui/issues). Please read the [code of conduct](CODE_OF_CONDUCT.md) first.
+[CONTRIBUTING.md](CONTRIBUTING.md) covers the setup, the conventions and what a pull request needs. Bug reports and ideas are welcome in the [issue tracker](https://github.com/Nuvraxis/nuvui/issues). Please read the [code of conduct](CODE_OF_CONDUCT.md) first.
 
 Security problems go through the process in [SECURITY.md](SECURITY.md), not the public tracker.
 

@@ -77,6 +77,48 @@ test.describe("popover page", () => {
     }
   });
 
+  test("the arrow points at the middle of its trigger", async ({
+    page,
+    isMobile,
+  }) => {
+    const trigger = page
+      .locator('[data-preview="popover/arrow"]')
+      .getByRole("button", { name: "Storage" });
+    await trigger.scrollIntoViewIfNeeded();
+    await press(trigger, isMobile);
+
+    const popover = page.getByRole("dialog", { name: "Storage used" });
+    await expect(popover).toBeVisible();
+    const arrow = await popover.locator(".nuv-popover__arrow").boundingBox();
+    const button = await trigger.boundingBox();
+    if (!arrow || !button) throw new Error("nothing to measure");
+
+    expect(
+      Math.abs(arrow.x + arrow.width / 2 - (button.x + button.width / 2)),
+    ).toBeLessThanOrEqual(1);
+    await expectOnScreen(page, popover);
+  });
+
+  test("the playground adds the arrow", async ({ page }) => {
+    const playground = page.locator("[data-playground]");
+
+    await playground
+      .getByRole("button", { name: "Open with these props" })
+      .click();
+    const popover = page.getByRole("dialog", { name: "Share this page" });
+    await expect(popover).toBeVisible();
+    await expect(popover.locator(".nuv-popover__arrow")).toHaveCount(0);
+    await page.keyboard.press("Escape");
+
+    await playground.getByLabel("showArrow").check();
+    await playground
+      .getByRole("button", { name: "Open with these props" })
+      .click();
+
+    await expect(popover.locator(".nuv-popover__arrow")).toBeVisible();
+    await expect(playground.locator("pre")).toContainText("showArrow");
+  });
+
   test("opening the form example puts focus in its field", async ({
     page,
     isMobile,
@@ -426,6 +468,34 @@ test.describe("toast page", () => {
     await expect(toasts(page)).toContainText("photo.jpg uploaded");
     await expect(toasts(page)).toHaveCount(1);
     await expect(toasts(page)).toHaveClass(/nuv-toast--success/);
+  });
+
+  test("three show at once, and the next comes in when one closes", async ({
+    page,
+    isMobile,
+  }) => {
+    await press(
+      page
+        .locator('[data-preview="toast/queue"]')
+        .getByRole("button", { name: "Send five toasts" }),
+      isMobile,
+    );
+
+    await expect(toasts(page)).toHaveText([
+      "Draft saved",
+      "Link copied",
+      "Invitation sent",
+    ]);
+    await press(
+      toasts(page).first().getByRole("button", { name: "Close" }),
+      isMobile,
+    );
+
+    await expect(toasts(page)).toHaveText([
+      "Link copied",
+      "Invitation sent",
+      "Export ready",
+    ]);
   });
 
   test("the playground sends the toast it describes", async ({ page }) => {

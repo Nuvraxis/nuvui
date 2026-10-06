@@ -1,16 +1,19 @@
 @use "../../styles/layers";
 @use "../../styles/floating";
+@use "../../styles/mixins";
 
 @layer components {
   .nuv-popover {
+    // The arrow is placed against this box.
+    position: relative;
+    display: flex;
+    flex-direction: column;
     inline-size: var(--nuv-popover-width, 18rem);
 
     // Radix measures the room left on each side of the trigger. Staying
     // inside it is what keeps the popover on a phone's screen.
     max-inline-size: var(--radix-popover-content-available-width);
     max-block-size: var(--radix-popover-content-available-height);
-    padding: var(--nuv-popover-padding, calc(var(--spacing) * 4));
-    overflow-y: auto;
 
     @include floating.panel("popover");
     @include floating.pop("popover");
@@ -19,6 +22,41 @@
     // That's a container, not a control, so it gets no ring.
     &:focus {
       outline: none;
+    }
+  }
+
+  // The padding and the scrolling are here and not on the panel, because the
+  // arrow sits outside the panel's edge and a panel that scrolled would cut
+  // it off.
+  .nuv-popover__body {
+    min-block-size: 0;
+    padding: var(--nuv-popover-padding, calc(var(--spacing) * 4));
+    overflow-y: auto;
+    border-radius: inherit;
+
+    // It only takes focus when it scrolls and holds nothing else that could.
+    @include mixins.focus-ring(-2px);
+  }
+
+  // Radix works out where the arrow goes from the panel's outer edge, and
+  // positions it from the inside of the nearest positioned box. This box is
+  // the panel grown by its 1px border, which makes those two the same.
+  .nuv-popover__arrow-frame {
+    position: absolute;
+    inset: -1px;
+    pointer-events: none;
+  }
+
+  .nuv-popover__arrow {
+    overflow: visible;
+    fill: var(--nuv-popover-bg, var(--color-surface));
+    stroke: var(--nuv-popover-border, var(--color-border));
+
+    // The browser repaints the panel in its own colors here, but leaves
+    // drawings alone.
+    @media (forced-colors: active) {
+      fill: canvas;
+      stroke: canvastext;
     }
   }
 

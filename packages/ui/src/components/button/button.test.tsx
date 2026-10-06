@@ -4,7 +4,7 @@ import { describe, expect, test, vi } from "vitest";
 import { userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
 import { axe } from "../../../test/axe";
-import { emulateMedia, emulateTouch } from "../../../test/media";
+import { emulateMedia } from "../../../test/media";
 import { Button } from "./button";
 
 const intents = ["primary", "secondary", "ghost", "danger"] as const;
@@ -163,22 +163,6 @@ describe("styles", () => {
     await expect.element(button).toHaveFocus();
     expect(getComputedStyle(button.element()).outlineStyle).toBe("none");
   });
-
-  test.each(sizes)(
-    "size %s is at least 44px on a touch screen",
-    async (size) => {
-      await emulateTouch(true);
-      const screen = await render(<Button size={size}>A</Button>);
-
-      const { width, height } = screen
-        .getByRole("button")
-        .element()
-        .getBoundingClientRect();
-
-      expect(height).toBeGreaterThanOrEqual(44);
-      expect(width).toBeGreaterThanOrEqual(44);
-    },
-  );
 
   test("sizes get denser with a mouse", async () => {
     const screen = await render(

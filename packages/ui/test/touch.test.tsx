@@ -7,8 +7,16 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
   Button,
   Checkbox,
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
   Dialog,
   DialogContent,
   DialogDescription,
@@ -21,8 +29,24 @@ import {
   Input,
   InputGroup,
   InputGroupButton,
+  Menubar,
+  MenubarContent,
+  MenubarItem,
+  MenubarMenu,
+  MenubarTrigger,
   NativeSelect,
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
   OtpField,
+  Pagination,
+  PaginationItem,
+  PaginationLink,
+  PaginationList,
+  PaginationNext,
   PasswordInput,
   RadioGroup,
   RadioGroupItem,
@@ -31,6 +55,10 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetTitle,
   Slider,
   Switch,
   Tabs,
@@ -450,6 +478,216 @@ describe("file upload", () => {
   });
 });
 
+describe("sheet", () => {
+  test("the close button is at least 44px each way", async () => {
+    await emulateMedia({ reducedMotion: "reduce" });
+    await render(
+      <Sheet defaultOpen>
+        <SheetContent>
+          <SheetTitle>Filters</SheetTitle>
+          <SheetDescription>Narrow down the list of orders.</SheetDescription>
+        </SheetContent>
+      </Sheet>,
+    );
+    const close = box(
+      page.getByRole("button", { name: "Close", exact: true }).element(),
+    );
+
+    expect(close.width).toBeGreaterThanOrEqual(44);
+    expect(close.height).toBeGreaterThanOrEqual(44);
+  });
+});
+
+describe("context menu", () => {
+  // There's no right click on a touch screen. Radix opens the menu when a
+  // finger stays down for 700ms.
+  test("a long press opens it, with rows 44px tall", async () => {
+    await emulateMedia({ reducedMotion: "reduce" });
+    await render(
+      <ContextMenu>
+        <ContextMenuTrigger
+          data-testid="area"
+          style={{ display: "block", inlineSize: 240, blockSize: 120 }}
+        >
+          report.pdf
+        </ContextMenuTrigger>
+        <ContextMenuContent aria-label="File">
+          <ContextMenuItem>Rename</ContextMenuItem>
+          <ContextMenuItem>Duplicate</ContextMenuItem>
+        </ContextMenuContent>
+      </ContextMenu>,
+    );
+    const area = page.getByTestId("area").element();
+    const press = (type: string) =>
+      area.dispatchEvent(
+        new PointerEvent(type, {
+          pointerType: "touch",
+          bubbles: true,
+          clientX: 60,
+          clientY: 40,
+        }),
+      );
+
+    press("pointerdown");
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    expect(page.getByRole("menu").query()).toBeNull();
+
+    const row = page.getByRole("menuitem", { name: "Rename" });
+    await expect.element(row).toBeVisible();
+    press("pointerup");
+
+    expect(box(row.element()).height).toBe(44);
+  });
+
+  test("a finger that lifts early opens nothing", async () => {
+    await render(
+      <ContextMenu>
+        <ContextMenuTrigger data-testid="area">report.pdf</ContextMenuTrigger>
+        <ContextMenuContent aria-label="File">
+          <ContextMenuItem>Rename</ContextMenuItem>
+        </ContextMenuContent>
+      </ContextMenu>,
+    );
+    const area = page.getByTestId("area").element();
+    const press = (type: string) =>
+      area.dispatchEvent(
+        new PointerEvent(type, { pointerType: "touch", bubbles: true }),
+      );
+
+    press("pointerdown");
+    await new Promise((resolve) => setTimeout(resolve, 200));
+    press("pointerup");
+    await new Promise((resolve) => setTimeout(resolve, 700));
+
+    expect(page.getByRole("menu").query()).toBeNull();
+  });
+});
+
+describe("menubar", () => {
+  test("an entry and a row are each 44px tall", async () => {
+    await emulateMedia({ reducedMotion: "reduce" });
+    await render(
+      <Menubar defaultValue="file" aria-label="Document">
+        <MenubarMenu value="file">
+          <MenubarTrigger>File</MenubarTrigger>
+          <MenubarContent>
+            <MenubarItem>New tab</MenubarItem>
+          </MenubarContent>
+        </MenubarMenu>
+      </Menubar>,
+    );
+    const row = page.getByRole("menu").getByRole("menuitem");
+    await expect.element(row).toBeVisible();
+    const entry = box(
+      document.querySelector(".nuv-menubar__trigger") as Element,
+    );
+
+    expect(entry.height).toBe(44);
+    expect(entry.width).toBeGreaterThanOrEqual(44);
+    expect(box(row.element()).height).toBe(44);
+  });
+});
+
+describe("navigation menu", () => {
+  test("a button, a link and a link in the panel are each at least 44px tall", async () => {
+    await emulateMedia({ reducedMotion: "reduce" });
+    await render(
+      <NavigationMenu defaultValue="products">
+        <NavigationMenuList>
+          <NavigationMenuItem value="products">
+            <NavigationMenuTrigger>Products</NavigationMenuTrigger>
+            <NavigationMenuContent>
+              <NavigationMenuLink href="#billing">Billing</NavigationMenuLink>
+            </NavigationMenuContent>
+          </NavigationMenuItem>
+          <NavigationMenuItem>
+            <NavigationMenuLink href="#docs">Docs</NavigationMenuLink>
+          </NavigationMenuItem>
+        </NavigationMenuList>
+      </NavigationMenu>,
+    );
+    await expect
+      .element(page.getByRole("link", { name: "Billing" }))
+      .toBeVisible();
+
+    expect(box(page.getByRole("button").element()).height).toBe(44);
+    for (const name of ["Docs", "Billing"]) {
+      expect(
+        box(page.getByRole("link", { name }).element()).height,
+      ).toBeGreaterThanOrEqual(44);
+    }
+  });
+
+  test("a tap on a button shows its panel", async () => {
+    await render(
+      <NavigationMenu>
+        <NavigationMenuList>
+          <NavigationMenuItem>
+            <NavigationMenuTrigger>Products</NavigationMenuTrigger>
+            <NavigationMenuContent>
+              <NavigationMenuLink href="#billing">Billing</NavigationMenuLink>
+            </NavigationMenuContent>
+          </NavigationMenuItem>
+        </NavigationMenuList>
+      </NavigationMenu>,
+    );
+
+    await page.getByRole("button").click();
+
+    await expect
+      .element(page.getByRole("link", { name: "Billing" }))
+      .toBeVisible();
+  });
+});
+
+describe("breadcrumb", () => {
+  test("a link is 44px tall, and its text hasn't moved off the line", async () => {
+    await render(
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="#home">Home</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbItem>
+            <span data-testid="plain">Atlas</span>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>,
+    );
+    const link = box(page.getByRole("link").element());
+    const plain = box(page.getByTestId("plain").element());
+
+    expect(link.height).toBe(44);
+    // Centered on the same line as the text beside it.
+    expect(link.top + link.height / 2).toBeCloseTo(
+      plain.top + plain.height / 2,
+      0,
+    );
+  });
+});
+
+describe("pagination", () => {
+  test("a page link and Next are each 44px each way", async () => {
+    await render(
+      <Pagination>
+        <PaginationList>
+          <PaginationItem>
+            <PaginationLink href="#1">1</PaginationLink>
+          </PaginationItem>
+          <PaginationItem>
+            <PaginationNext href="#2" />
+          </PaginationItem>
+        </PaginationList>
+      </Pagination>,
+    );
+
+    for (const link of page.getByRole("link").elements()) {
+      expect(box(link).width).toBeGreaterThanOrEqual(44);
+      expect(box(link).height).toBe(44);
+    }
+  });
+});
+
 // Density makes controls shorter or taller with a mouse. A finger is the
 // same size whatever the layout, so nothing here may drop under 44px.
 describe.each([
@@ -543,5 +781,50 @@ describe.each([
     expect(
       box(document.querySelector(".nuv-tabs__trigger") as Element).height,
     ).toBeGreaterThanOrEqual(44);
+  });
+
+  test("the entries of a menu bar, a navigation menu and a row of page links are at least 44px tall", async () => {
+    setOnPage();
+    await render(
+      <>
+        <Menubar aria-label="Document">
+          <MenubarMenu>
+            <MenubarTrigger>File</MenubarTrigger>
+            <MenubarContent>
+              <MenubarItem>New tab</MenubarItem>
+            </MenubarContent>
+          </MenubarMenu>
+        </Menubar>
+        <NavigationMenu>
+          <NavigationMenuList>
+            <NavigationMenuItem>
+              <NavigationMenuTrigger>Products</NavigationMenuTrigger>
+              <NavigationMenuContent>Text</NavigationMenuContent>
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              <NavigationMenuLink href="#docs">Docs</NavigationMenuLink>
+            </NavigationMenuItem>
+          </NavigationMenuList>
+        </NavigationMenu>
+        <Pagination>
+          <PaginationList>
+            <PaginationItem>
+              <PaginationLink href="#1">1</PaginationLink>
+            </PaginationItem>
+          </PaginationList>
+        </Pagination>
+      </>,
+    );
+
+    for (const selector of [
+      ".nuv-menubar__trigger",
+      ".nuv-navigation-menu__trigger",
+      ".nuv-navigation-menu__link",
+      ".nuv-pagination__link",
+    ]) {
+      expect(
+        box(document.querySelector(selector) as Element).height,
+      ).toBeGreaterThanOrEqual(44);
+    }
   });
 });

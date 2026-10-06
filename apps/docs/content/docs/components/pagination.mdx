@@ -1,0 +1,200 @@
+---
+title: Pagination
+description: Links to the pages of a long list, with Previous and Next and a helper that works out which page numbers to show.
+---
+
+Use pagination to split a long list into pages people move through: search results, a table of orders, an archive. It comes as parts you put together, because only your app knows where each page lives, and a function, `paginationRange`, that does the arithmetic.
+
+<Preview name="pagination/basic" />
+
+## Install
+
+```sh
+pnpm add @nuvui/react
+```
+
+## Import
+
+```tsx
+import {
+  Pagination,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationList,
+  PaginationNext,
+  PaginationPrevious,
+  paginationRange,
+} from "@nuvui/react";
+```
+
+The styles come from `@nuvui/react/styles.css`, which you load once for the whole app. [Getting started](/docs) covers that, and how to load only this component's CSS.
+
+## Parts
+
+| Part | What it is |
+| --- | --- |
+| `Pagination` | The `nav` landmark around the links. |
+| `PaginationList` | The row. A `ul`. |
+| `PaginationItem` | One place in the row. A `li`. |
+| `PaginationLink` | The link to one page. |
+| `PaginationPrevious` | The link to the page before, with an arrow. |
+| `PaginationNext` | The link to the page after, with an arrow. |
+| `PaginationEllipsis` | Three dots that stand for the page numbers left out. |
+| `paginationRange` | A function, not a component. It says which numbers and gaps to show. |
+
+## Try it
+
+<PaginationPlayground />
+
+## Props
+
+### PaginationLink
+
+<PropsTable component="pagination" name="PaginationLinkOwnProps" />
+
+It also takes what an `a` takes, `href` included. `PaginationPrevious` and `PaginationNext` take the same props.
+
+### PaginationEllipsis
+
+<PropsTable component="pagination" name="PaginationEllipsisOwnProps" />
+
+### paginationRange
+
+<PropsTable component="pagination" name="PaginationRangeOptions" />
+
+`Pagination`, `PaginationList` and `PaginationItem` take what their elements take, including `ref` and `className`.
+
+## Working out the numbers
+
+`paginationRange` takes the current page and the number of pages, and gives back what to show: page numbers, and `"ellipsis-start"` or `"ellipsis-end"` where numbers were left out.
+
+```ts
+paginationRange({ page: 10, count: 20 });
+// [1, "ellipsis-start", 9, 10, 11, "ellipsis-end", 20]
+```
+
+Three things hold for whatever it returns:
+
+- The row is the same length whichever page is current, so the links don't move under the pointer as someone clicks through.
+- A gap always stands for two pages or more. Where only one would be hidden, its number is shown.
+- No entry appears twice, so each one can be the `key` of its item.
+
+`siblings` is how many numbers show on each side of the current page, and `boundaries` how many at each end. Both are 1 unless you say otherwise.
+
+## When the pages are state
+
+In a table or a search that keeps its page in state, there's no address to link to. Pass `asChild` and put a `button` inside. It gets the look and `aria-current`, and you give it the `onClick`.
+
+<Preview name="pagination/range" />
+
+A disabled button needs both: `disabled` on the `PaginationLink`, for the look, and `disabled` on the `button` itself, so the browser stops it being pressed.
+
+## With your router's link
+
+`asChild` is also how you use a router's link. `PaginationPrevious` and `PaginationNext` put their arrow inside it, next to its text.
+
+<Preview name="pagination/router" />
+
+With `asChild` the text comes from your element, so that's where to translate "Previous" and "Next". Without it, pass the translated word as the child: `<PaginationNext href="/page/3">Weiter</PaginationNext>`.
+
+## On small screens
+
+Each link is 44 pixels square on a touch screen. Seven of them plus Previous and Next don't fit a phone in one row, so the row wraps.
+
+Two things keep it to one row there. Below 40rem, Previous and Next show only their arrows. Their text is still there for screen readers. And `siblings: 0` drops the numbers either side of the current page, which leaves the first, the current and the last, with a gap on each side.
+
+<Preview name="pagination/compact" />
+
+## Accessibility
+
+### Keyboard
+
+| Key | What it does |
+| --- | --- |
+| <kbd>Tab</kbd> | Moves through the links in order. A disabled one is skipped. |
+| <kbd>Enter</kbd> | Follows the focused link. On a button, <kbd>Space</kbd> does too. |
+
+Safari only stops at links with <kbd>Tab</kbd> when "Press Tab to highlight each item on a webpage" is turned on in its settings. That applies to every link on every site. Buttons, as in the state example, are always stops.
+
+### What the component handles
+
+- The row is a `nav` landmark named "Pagination", around a list.
+- The current page's link has `aria-current="page"`. It's filled with the primary color, which has at least 3:1 contrast with the page, and its number keeps 4.5:1 on that fill.
+- A disabled link has no `href`, so it can't be followed or focused. It keeps `role="link"` and gets `aria-disabled="true"`, so that it's still exposed as a link that's unavailable and not as loose text.
+- The arrows are hidden from screen readers, and point the other way in a right-to-left layout.
+- The dots have a name, "More pages".
+- Numbers are set in digits of equal width where the font has them, so the row doesn't shift as the numbers change.
+- Where the browser forces its own colors, as Windows high contrast does, the current page is filled with the system's color for something selected.
+
+### What you need to handle
+
+- Give each number link a full name: `aria-label="Page 3"`. "3" alone says little when it's read out of context.
+- Leave Previous and Next in place on the first and last page, and disable them. A row that changes shape moves the links people are aiming at.
+- Translate the landmark's name with `aria-label` on `Pagination`, the dots' name with `label`, and the text of Previous and Next.
+- After the page changes without a full page load, move focus to the top of the new results, or announce the change. Otherwise nothing tells a screen reader user that the list changed.
+
+## CSS variables
+
+Set any of these on `Pagination`, or on anything around it.
+
+```css
+.orders-table {
+  --nuv-pagination-size: var(--nuv-control-height-sm);
+}
+```
+
+<CssVariables
+  component="pagination"
+  descriptions={{
+    "--nuv-pagination-gap": "Space between the links.",
+    "--nuv-pagination-radius": "Corner radius of a link.",
+    "--nuv-pagination-fg": "Text color of the links.",
+    "--nuv-pagination-size":
+      "Height of a link, and its smallest width. The default differs between touch screens and a mouse. Setting it sets both, so keep it at 44 pixels or more where people use touch.",
+    "--nuv-pagination-hover-bg": "Background of a link under the pointer.",
+    "--nuv-pagination-active-bg":
+      "Background of the current page's link. Keep it at 3:1 against the page.",
+    "--nuv-pagination-active-fg": "Text color of the current page's link.",
+  }}
+/>
+
+## Classes
+
+<BemClasses
+  component="pagination"
+  descriptions={{
+    "nuv-pagination__list": "PaginationList.",
+    "nuv-pagination__item": "PaginationItem.",
+    "nuv-pagination__link":
+      "PaginationLink, PaginationPrevious and PaginationNext.",
+    "nuv-pagination__link--previous": "PaginationPrevious.",
+    "nuv-pagination__link--next": "PaginationNext.",
+    "nuv-pagination__label":
+      "The text of Previous and Next, which is hidden on a narrow screen.",
+    "nuv-pagination__arrow": "The arrow in Previous and Next.",
+    "nuv-pagination__ellipsis": "PaginationEllipsis.",
+  }}
+/>
+
+`Pagination` itself gets `nuv-pagination`. No styles are attached to it.
+
+The current page's link has `data-active`, and a disabled one `data-disabled`. The fill and the fading hang off those.
+
+## Server components
+
+The pagination parts have no `"use client"` directive and use no state, so they render in a server component as they are. `paginationRange` is a plain function and runs anywhere. The first and last examples on this page are server components.
+
+## Do and don't
+
+**Do**
+
+- Show which page is current, and how many there are.
+- Keep the row in the same place above or below the list on every page.
+- Put the page in the address when you can, so a page of results can be linked to and the back button works.
+
+**Don't**
+
+- Don't use pagination for the steps of a form.
+- Don't hide Previous on the first page or Next on the last. Disable them.
+- Don't show every number of a long list. Let `paginationRange` leave the middle out.

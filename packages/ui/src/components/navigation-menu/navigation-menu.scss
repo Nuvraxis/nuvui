@@ -1,0 +1,207 @@
+@use "../../styles/layers";
+@use "../../styles/mixins";
+@use "../../styles/floating";
+
+// What a trigger and a link in the list share.
+@mixin entry {
+  display: inline-flex;
+  gap: var(--spacing);
+  align-items: center;
+  justify-content: center;
+  padding-block: 0;
+  padding-inline: calc(var(--spacing) * 3);
+  border: 0;
+  border-radius: var(--nuv-navigation-menu-item-radius, var(--radius-md));
+  background-color: transparent;
+  color: inherit;
+  font-family: inherit;
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--text-sm--line-height);
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+
+  @include mixins.touch-target;
+  @include mixins.focus-ring;
+
+  @include mixins.hover {
+    background-color: var(--nuv-navigation-menu-hover-bg, var(--color-muted));
+  }
+
+  @include mixins.fine-pointer {
+    min-block-size: var(--nuv-control-height-md);
+    min-inline-size: var(--nuv-control-height-md);
+  }
+}
+
+@layer components {
+  // The panel is placed against this box.
+  .nuv-navigation-menu {
+    position: relative;
+    display: flex;
+    max-inline-size: 100%;
+  }
+
+  // More entries than fit a phone wrap onto a second line.
+  .nuv-navigation-menu__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing);
+    align-items: center;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .nuv-navigation-menu__trigger {
+    @include entry;
+
+    // The panel under it is open.
+    &[data-state="open"] {
+      background-color: var(--nuv-navigation-menu-hover-bg, var(--color-muted));
+    }
+
+    &[data-disabled] {
+      opacity: var(--nuv-disabled-opacity);
+      pointer-events: none;
+    }
+  }
+
+  .nuv-navigation-menu__chevron {
+    flex: none;
+    color: var(--color-muted-foreground);
+
+    @include mixins.motion-safe {
+      transition: transform var(--nuv-duration-base) var(--ease-out);
+    }
+  }
+
+  .nuv-navigation-menu__trigger[data-state="open"]
+    .nuv-navigation-menu__chevron {
+    transform: rotate(180deg);
+  }
+
+  .nuv-navigation-menu__link {
+    @include entry;
+
+    // The page the visitor is on. Heavier text as well as the fill, so it
+    // doesn't depend on telling two colors apart.
+    &[data-active] {
+      background-color: var(--nuv-navigation-menu-hover-bg, var(--color-muted));
+      font-weight: var(--font-weight-semibold);
+    }
+  }
+
+  // The same link inside a panel is a row, with room for a line of
+  // description under its name.
+  .nuv-navigation-menu__content .nuv-navigation-menu__link {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 0.5);
+    align-items: flex-start;
+    padding-block: calc(var(--spacing) * 2);
+    white-space: normal;
+  }
+
+  // Holds the panel under the list, as wide as the menu. It takes no clicks
+  // itself, so the page beside a narrower panel can still be used.
+  .nuv-navigation-menu__frame {
+    position: absolute;
+    z-index: var(--nuv-z-popover);
+    inset-block-start: 100%;
+    inset-inline: 0;
+    display: flex;
+    padding-block-start: var(--nuv-navigation-menu-offset, calc(var(--spacing) * 1.5));
+    pointer-events: none;
+  }
+
+  .nuv-navigation-menu--center > .nuv-navigation-menu__frame {
+    justify-content: center;
+  }
+
+  .nuv-navigation-menu--end > .nuv-navigation-menu__frame {
+    justify-content: flex-end;
+  }
+
+  // On a phone the panel is as wide as the menu. From sm up it takes the
+  // size of whichever content is showing, which Radix measures.
+  .nuv-navigation-menu__viewport {
+    position: relative;
+
+    // The sizes Radix gives are the content's, without this box's border.
+    box-sizing: content-box;
+    flex: none;
+    inline-size: calc(100% - var(--nuv-border-width) * 2);
+    block-size: var(--radix-navigation-menu-viewport-height);
+    overflow: hidden;
+    transform-origin: top center;
+    pointer-events: auto;
+
+    @include floating.panel("navigation-menu");
+
+    @include mixins.breakpoint("sm") {
+      inline-size: var(--radix-navigation-menu-viewport-width);
+    }
+
+    @include mixins.motion-safe {
+      transition:
+        inline-size var(--nuv-duration-slow) var(--ease-out),
+        block-size var(--nuv-duration-slow) var(--ease-out);
+
+      &[data-state="open"] {
+        animation: nuv-navigation-menu-in var(--nuv-duration-base) var(--ease-out);
+      }
+
+      &[data-state="closed"] {
+        animation: nuv-navigation-menu-out var(--nuv-duration-fast) var(--ease-in);
+      }
+    }
+  }
+
+  // Taken out of the flow, so that the content coming in and the content
+  // going out sit on top of each other while one fades into the other.
+  .nuv-navigation-menu__content {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    inline-size: 100%;
+    padding: var(--nuv-navigation-menu-padding, calc(var(--spacing) * 2));
+
+    // As wide as what it holds, between a floor that keeps a short list of
+    // links from making a sliver and a ceiling that keeps it on the screen.
+    @include mixins.breakpoint("sm") {
+      inline-size: max-content;
+      min-inline-size: var(--nuv-navigation-menu-min-width, 12rem);
+      max-inline-size: min(
+        var(--nuv-navigation-menu-max-width, 40rem),
+        100vw - var(--spacing) * 8
+      );
+    }
+
+    @include mixins.motion-safe {
+      &[data-motion^="from-"] {
+        animation: nuv-navigation-menu-fade-in var(--nuv-duration-slow) var(--ease-out);
+      }
+
+      &[data-motion^="to-"] {
+        animation: nuv-navigation-menu-fade-out var(--nuv-duration-base) var(--ease-in);
+      }
+    }
+  }
+
+  @include floating.pop-keyframes("navigation-menu");
+
+  @keyframes nuv-navigation-menu-fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes nuv-navigation-menu-fade-out {
+    to {
+      opacity: 0;
+    }
+  }
+}

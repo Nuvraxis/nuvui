@@ -3,6 +3,20 @@
 // render on the server, this page fails to build. It isn't linked from
 // anywhere, and the e2e tests open it directly.
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
   Button,
   ButtonGroup,
   Dialog,
@@ -20,6 +34,12 @@ import {
   FieldsetLegend,
   Input,
   NativeSelect,
+  Pagination,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationList,
+  paginationRange,
 } from "@nuvui/react";
 import { Button as ButtonEntry } from "@nuvui/react/button";
 import type { Metadata } from "next";
@@ -75,6 +95,55 @@ export default function RscSmokePage() {
           <Button intent="secondary">Right</Button>
         </ButtonGroup>
       </Fieldset>
+      {/* Breadcrumb and Pagination have no directive either, and
+          paginationRange is a plain function, called here on the server. */}
+      <Breadcrumb aria-label="Server breadcrumb">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/docs">Docs</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Server check</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+      <Pagination aria-label="Server pagination">
+        <PaginationList>
+          {paginationRange({ page: 5, count: 9, siblings: 0 }).map((entry) => (
+            <PaginationItem key={entry}>
+              {typeof entry === "number" ? (
+                <PaginationLink
+                  href={`#page-${entry}`}
+                  aria-label={`Page ${entry}`}
+                  active={entry === 5}
+                >
+                  {entry}
+                </PaginationLink>
+              ) : (
+                <PaginationEllipsis />
+              )}
+            </PaginationItem>
+          ))}
+        </PaginationList>
+      </Pagination>
+      {/* The alert dialog's two buttons are the library's Button, wrapped
+          by client parts, with nothing passed to them but text. */}
+      <AlertDialog>
+        <AlertDialogTrigger asChild>
+          <Button intent="danger">Open the alert</Button>
+        </AlertDialogTrigger>
+        <AlertDialogContent>
+          <AlertDialogTitle>Asked from a server component</AlertDialogTitle>
+          <AlertDialogDescription>
+            Both answers close this.
+          </AlertDialogDescription>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Back out</AlertDialogCancel>
+            <AlertDialogAction>Go ahead</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </main>
   );
 }

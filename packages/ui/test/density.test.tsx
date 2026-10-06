@@ -1,9 +1,13 @@
 import "../src/styles/index.scss";
 import { afterEach, describe, expect, test } from "vitest";
-import { page } from "vitest/browser";
+import { page, userEvent } from "vitest/browser";
 import { cleanup, render } from "vitest-browser-react";
 import {
   Button,
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
   Dialog,
   DialogContent,
   DialogDescription,
@@ -15,14 +19,33 @@ import {
   Input,
   InputGroup,
   InputGroupButton,
+  Menubar,
+  MenubarContent,
+  MenubarItem,
+  MenubarMenu,
+  MenubarTrigger,
   NativeSelect,
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
   OtpField,
+  Pagination,
+  PaginationItem,
+  PaginationLink,
+  PaginationList,
   PasswordInput,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetTitle,
   Tabs,
   TabsContent,
   TabsList,
@@ -135,6 +158,46 @@ describe.each(densities)("density %s", (density, small, medium, large) => {
     expect(toggle("Large")).toBe(large);
   });
 
+  test("sets the height of what's in a menu bar, a navigation menu and a row of page links", async () => {
+    await render(
+      <div data-density={density}>
+        <Menubar aria-label="Document">
+          <MenubarMenu>
+            <MenubarTrigger>File</MenubarTrigger>
+            <MenubarContent>
+              <MenubarItem>New tab</MenubarItem>
+            </MenubarContent>
+          </MenubarMenu>
+        </Menubar>
+        <NavigationMenu>
+          <NavigationMenuList>
+            <NavigationMenuItem>
+              <NavigationMenuTrigger>Products</NavigationMenuTrigger>
+              <NavigationMenuContent>Text</NavigationMenuContent>
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              <NavigationMenuLink href="#docs">Docs</NavigationMenuLink>
+            </NavigationMenuItem>
+          </NavigationMenuList>
+        </NavigationMenu>
+        <Pagination>
+          <PaginationList>
+            <PaginationItem>
+              <PaginationLink href="#1">1</PaginationLink>
+            </PaginationItem>
+          </PaginationList>
+        </Pagination>
+      </div>,
+    );
+    const part = (name: string) =>
+      height(document.querySelector(`.nuv-${name}`));
+
+    expect(part("menubar__trigger")).toBe(small);
+    expect(part("navigation-menu__trigger")).toBe(medium);
+    expect(part("navigation-menu__link")).toBe(medium);
+    expect(part("pagination__link")).toBe(medium);
+  });
+
   // These render at the end of <body>, so the density has to be on the page.
   describe("in a portal", () => {
     afterEach(async () => {
@@ -170,6 +233,59 @@ describe.each(densities)("density %s", (density, small, medium, large) => {
             <DialogDescription>Description</DialogDescription>
           </DialogContent>
         </Dialog>,
+      );
+      const close = page.getByRole("button", { name: "Close" });
+      await expect.element(close).toBeVisible();
+
+      expect(height(close.element())).toBe(small);
+    });
+
+    test("sets the height of a row in a context menu and in a menu bar's menu", async () => {
+      document.documentElement.setAttribute("data-density", density);
+      await emulateMedia({ reducedMotion: "reduce" });
+      await render(
+        <>
+          <Menubar defaultValue="file" aria-label="Document">
+            <MenubarMenu value="file">
+              <MenubarTrigger>File</MenubarTrigger>
+              <MenubarContent>
+                <MenubarItem>New tab</MenubarItem>
+              </MenubarContent>
+            </MenubarMenu>
+          </Menubar>
+          <ContextMenu modal={false}>
+            <ContextMenuTrigger data-testid="area">
+              report.pdf
+            </ContextMenuTrigger>
+            <ContextMenuContent aria-label="File">
+              <ContextMenuItem>Rename</ContextMenuItem>
+            </ContextMenuContent>
+          </ContextMenu>
+        </>,
+      );
+      const inBar = page.getByRole("menuitem", { name: "New tab" });
+      await expect.element(inBar).toBeVisible();
+      expect(height(inBar.element())).toBe(small);
+      // The open menu is lying over the area the next one opens from.
+      await userEvent.keyboard("{Escape}");
+      await expect.element(inBar).not.toBeInTheDocument();
+
+      await userEvent.click(page.getByTestId("area"), { button: "right" });
+      const row = page.getByRole("menuitem", { name: "Rename" });
+      await expect.element(row).toBeVisible();
+      expect(height(row.element())).toBe(small);
+    });
+
+    test("sets the size of a sheet's close button", async () => {
+      document.documentElement.setAttribute("data-density", density);
+      await emulateMedia({ reducedMotion: "reduce" });
+      await render(
+        <Sheet defaultOpen>
+          <SheetContent>
+            <SheetTitle>Title</SheetTitle>
+            <SheetDescription>Description</SheetDescription>
+          </SheetContent>
+        </Sheet>,
       );
       const close = page.getByRole("button", { name: "Close" });
       await expect.element(close).toBeVisible();

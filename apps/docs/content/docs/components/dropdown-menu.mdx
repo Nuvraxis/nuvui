@@ -41,6 +41,7 @@ The styles come from `@nuvui/react/styles.css`, which you load once for the whol
 | `DropdownMenuRadioItem` | One choice in a radio group. |
 | `DropdownMenuLabel` | A heading for the items under it. It can't be focused. |
 | `DropdownMenuSeparator` | A line between groups of items. |
+| `DropdownMenuShortcut` | The keys that do the same as an item, shown at the end of its row. |
 | `DropdownMenuGroup` | Groups items for screen readers. It has no look of its own. |
 | `DropdownMenuSub` | Holds the open state of a submenu. |
 | `DropdownMenuSubTrigger` | The item that opens the submenu. |
@@ -139,6 +140,14 @@ A checked item shows a check at the end of its row. Putting it there keeps every
 
 <Preview name="dropdown-menu/checkable" />
 
+## Shortcuts
+
+`DropdownMenuShortcut` shows the keys that do the same thing as an item, at the end of its row. It only shows them: listening for the keys is your code's job.
+
+<Preview name="dropdown-menu/shortcuts" />
+
+It's hidden from screen readers, because its text would otherwise run into the item's name. To have the keys announced, put them in `aria-keyshortcuts` on the item, as the example does. That attribute has its own way of writing keys: `Control+D`, not `Ctrl+D`.
+
 ## Submenus
 
 <Preview name="dropdown-menu/submenu" />
@@ -235,6 +244,7 @@ Menus render at the end of `<body>`, so set these on `:root` or `body`, or strai
       "The dash shown while a checkbox item is indeterminate.",
     "nuv-dropdown-menu__chevron":
       "The arrow at the end of DropdownMenuSubTrigger.",
+    "nuv-dropdown-menu__shortcut": "DropdownMenuShortcut.",
     "nuv-dropdown-menu__label": "DropdownMenuLabel.",
     "nuv-dropdown-menu__separator": "DropdownMenuSeparator.",
   }}

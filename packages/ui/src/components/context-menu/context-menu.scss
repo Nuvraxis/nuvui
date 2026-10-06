@@ -1,0 +1,69 @@
+@use "../../styles/layers";
+@use "../../styles/floating";
+@use "../../styles/menu";
+
+@layer components {
+  // The menu, and each submenu. Radix renders them all at the end of <body>,
+  // so a submenu isn't inside its parent and gets the same class.
+  .nuv-context-menu {
+    @include menu.panel("context-menu");
+  }
+
+  .nuv-context-menu__item {
+    @include menu.item("context-menu");
+  }
+
+  .nuv-context-menu__item--danger {
+    @include menu.item-danger;
+  }
+
+  .nuv-context-menu__indicator {
+    @include menu.indicator;
+  }
+
+  // Both marks are in the page. The one that matches the state is shown.
+  .nuv-context-menu__dash {
+    display: none;
+  }
+
+  .nuv-context-menu__indicator[data-state="indeterminate"]
+    .nuv-context-menu__check {
+    display: none;
+  }
+
+  .nuv-context-menu__indicator[data-state="indeterminate"]
+    .nuv-context-menu__dash {
+    display: inline;
+  }
+
+  .nuv-context-menu__chevron {
+    @include menu.chevron;
+  }
+
+  .nuv-context-menu__shortcut {
+    @include menu.shortcut;
+  }
+
+  // A check or an arrow after a shortcut would otherwise share the free
+  // space with it, and leave it in the middle of the row.
+  .nuv-context-menu__shortcut + .nuv-context-menu__indicator,
+  .nuv-context-menu__shortcut + .nuv-context-menu__chevron {
+    margin-inline-start: 0;
+  }
+
+  // Gray on the filled row would be hard to see.
+  .nuv-context-menu__item[data-highlighted] .nuv-context-menu__chevron,
+  .nuv-context-menu__item[data-highlighted] .nuv-context-menu__shortcut {
+    color: inherit;
+  }
+
+  .nuv-context-menu__label {
+    @include menu.label;
+  }
+
+  .nuv-context-menu__separator {
+    @include menu.separator("context-menu");
+  }
+
+  @include floating.pop-keyframes("context-menu");
+}

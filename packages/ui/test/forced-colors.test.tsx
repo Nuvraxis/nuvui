@@ -7,8 +7,25 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
   Button,
   Checkbox,
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
   Dialog,
   DialogClose,
   DialogContent,
@@ -24,10 +41,29 @@ import {
   FieldError,
   FieldLabel,
   FileUpload,
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
   Input,
   InputGroup,
+  Menubar,
+  MenubarContent,
+  MenubarItem,
+  MenubarMenu,
+  MenubarTrigger,
   NativeSelect,
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
   OtpField,
+  Pagination,
+  PaginationItem,
+  PaginationLink,
+  PaginationList,
+  PaginationNext,
   PasswordInput,
   Popover,
   PopoverContent,
@@ -39,6 +75,10 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetTitle,
   Slider,
   Switch,
   Tabs,
@@ -644,6 +684,279 @@ describe("toggle", () => {
     const toggle = style(page.getByRole("button").element());
 
     expect(contrast(toggle.borderTopColor, canvas())).toBeGreaterThan(3);
+  });
+});
+
+describe("alert dialog and sheet", () => {
+  test("an alert dialog has an edge, and text that can be read", async () => {
+    await render(
+      <AlertDialog defaultOpen>
+        <AlertDialogContent>
+          <AlertDialogTitle>Delete this project?</AlertDialogTitle>
+          <AlertDialogDescription>This can't be undone.</AlertDialogDescription>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction intent="danger">Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>,
+    );
+    await expect.element(page.getByRole("alertdialog")).toBeVisible();
+    const panel = page.getByRole("alertdialog").element();
+    const description = panel.querySelector(
+      ".nuv-alert-dialog__description",
+    ) as Element;
+
+    expect(style(panel).borderTopStyle).toBe("solid");
+    expect(contrast(style(panel).borderTopColor, canvas())).toBeGreaterThan(3);
+    expect(
+      contrast(style(description).color, style(panel).backgroundColor),
+    ).toBeGreaterThan(4.5);
+    // Both buttons keep an edge, so they read as buttons.
+    for (const button of panel.querySelectorAll("button")) {
+      expect(
+        contrast(style(button).borderTopColor, style(panel).backgroundColor),
+      ).toBeGreaterThan(3);
+    }
+  });
+
+  test("a sheet has an edge on the side that faces the page, and a close button that can be seen", async () => {
+    await render(
+      <Sheet defaultOpen>
+        <SheetContent>
+          <SheetTitle>Filters</SheetTitle>
+          <SheetDescription>Narrow down the list of orders.</SheetDescription>
+        </SheetContent>
+      </Sheet>,
+    );
+    await expect.element(page.getByRole("dialog")).toBeVisible();
+    const panel = page.getByRole("dialog").element();
+    const close = page.getByRole("button", { name: "Close", exact: true });
+
+    expect(style(panel).borderInlineStartStyle).toBe("solid");
+    expect(
+      contrast(style(panel).borderInlineStartColor, canvas()),
+    ).toBeGreaterThan(3);
+    expect(
+      contrast(style(panel).color, style(panel).backgroundColor),
+    ).toBeGreaterThan(4.5);
+    // The cross is drawn in the button's text color.
+    expect(
+      contrast(style(close.element()).color, style(panel).backgroundColor),
+    ).toBeGreaterThan(3);
+  });
+});
+
+describe("hover card", () => {
+  test("has an edge to set it apart from the page", async () => {
+    await render(
+      <div style={{ padding: 80 }}>
+        <HoverCard defaultOpen>
+          <HoverCardTrigger href="#ada">@ada</HoverCardTrigger>
+          <HoverCardContent>
+            Wrote the first published program.
+          </HoverCardContent>
+        </HoverCard>
+      </div>,
+    );
+    await expect
+      .poll(() => document.querySelector(".nuv-hover-card"))
+      .not.toBeNull();
+    const card = style(document.querySelector(".nuv-hover-card") as Element);
+
+    expect(card.borderTopStyle).toBe("solid");
+    expect(contrast(card.borderTopColor, canvas())).toBeGreaterThan(3);
+    expect(contrast(card.color, card.backgroundColor)).toBeGreaterThan(4.5);
+  });
+});
+
+describe("context menu and menu bar", () => {
+  test("a context menu has an edge, and its focused row an outline", async () => {
+    await render(
+      <ContextMenu>
+        <ContextMenuTrigger data-testid="area">report.pdf</ContextMenuTrigger>
+        <ContextMenuContent aria-label="File">
+          <ContextMenuItem>Rename</ContextMenuItem>
+          <ContextMenuItem>Duplicate</ContextMenuItem>
+        </ContextMenuContent>
+      </ContextMenu>,
+    );
+    await userEvent.click(page.getByTestId("area"), { button: "right" });
+    await expect.element(page.getByRole("menu")).toBeVisible();
+    const menu = style(page.getByRole("menu").element());
+    const item = page.getByRole("menuitem", { name: "Rename" });
+    await userEvent.hover(item);
+    await expect.element(item).toHaveAttribute("data-highlighted");
+
+    expect(menu.borderTopStyle).toBe("solid");
+    expect(contrast(menu.borderTopColor, canvas())).toBeGreaterThan(3);
+    expect(style(item.element()).outlineStyle).toBe("solid");
+    expect(
+      contrast(style(item.element()).outlineColor, canvas()),
+    ).toBeGreaterThan(3);
+    expect(
+      style(page.getByRole("menuitem", { name: "Duplicate" }).element())
+        .outlineStyle,
+    ).toBe("none");
+  });
+
+  test("a menu bar and its menu each have an edge, and the focused row an outline", async () => {
+    await render(
+      <Menubar defaultValue="file" aria-label="Document">
+        <MenubarMenu value="file">
+          <MenubarTrigger>File</MenubarTrigger>
+          <MenubarContent>
+            <MenubarItem>New tab</MenubarItem>
+            <MenubarItem>New window</MenubarItem>
+          </MenubarContent>
+        </MenubarMenu>
+      </Menubar>,
+    );
+    await expect.element(page.getByRole("menu")).toBeVisible();
+    const bar = style(page.getByRole("menubar").element());
+    const menu = style(page.getByRole("menu").element());
+    const item = page.getByRole("menuitem", { name: "New tab" });
+    await userEvent.hover(item);
+    await expect.element(item).toHaveAttribute("data-highlighted");
+
+    expect(contrast(bar.borderTopColor, canvas())).toBeGreaterThan(3);
+    expect(contrast(menu.borderTopColor, canvas())).toBeGreaterThan(3);
+    expect(style(item.element()).outlineStyle).toBe("solid");
+    expect(
+      contrast(style(item.element()).outlineColor, canvas()),
+    ).toBeGreaterThan(3);
+  });
+
+  test("an entry of a menu bar has a focus ring", async () => {
+    await render(
+      <Menubar aria-label="Document">
+        <MenubarMenu>
+          <MenubarTrigger>File</MenubarTrigger>
+          <MenubarContent>
+            <MenubarItem>New tab</MenubarItem>
+          </MenubarContent>
+        </MenubarMenu>
+      </Menubar>,
+    );
+
+    await userEvent.keyboard("{Tab}");
+
+    const entry = style(page.getByRole("menuitem", { name: "File" }).element());
+    expect(entry.outlineStyle).toBe("solid");
+    expect(contrast(entry.outlineColor, canvas())).toBeGreaterThan(3);
+  });
+});
+
+describe("navigation menu", () => {
+  function Site() {
+    return (
+      <NavigationMenu defaultValue="products">
+        <NavigationMenuList>
+          <NavigationMenuItem value="products">
+            <NavigationMenuTrigger>Products</NavigationMenuTrigger>
+            <NavigationMenuContent>
+              <NavigationMenuLink href="#billing">Billing</NavigationMenuLink>
+            </NavigationMenuContent>
+          </NavigationMenuItem>
+          <NavigationMenuItem>
+            <NavigationMenuLink href="#pricing" active>
+              Pricing
+            </NavigationMenuLink>
+          </NavigationMenuItem>
+          <NavigationMenuItem>
+            <NavigationMenuLink href="#docs">Docs</NavigationMenuLink>
+          </NavigationMenuItem>
+        </NavigationMenuList>
+      </NavigationMenu>
+    );
+  }
+
+  test("the panel has an edge, and its links can be read", async () => {
+    await render(<Site />);
+    await expect
+      .element(page.getByRole("link", { name: "Billing" }))
+      .toBeVisible();
+    const panel = style(
+      document.querySelector(".nuv-navigation-menu__viewport") as Element,
+    );
+
+    expect(panel.borderTopStyle).toBe("solid");
+    expect(contrast(panel.borderTopColor, canvas())).toBeGreaterThan(3);
+    expect(
+      contrast(
+        style(page.getByRole("link", { name: "Billing" }).element()).color,
+        panel.backgroundColor,
+      ),
+    ).toBeGreaterThan(4.5);
+  });
+
+  test("the open button is told apart by its arrow, and the current page by its weight", async () => {
+    await render(<Site />);
+    const chevron = style(
+      document.querySelector(".nuv-navigation-menu__chevron") as Element,
+    );
+    const weight = (name: string) =>
+      Number(style(page.getByRole("link", { name }).element()).fontWeight);
+
+    expect(chevron.transform).not.toBe("none");
+    expect(contrast(chevron.color, canvas())).toBeGreaterThan(3);
+    expect(weight("Pricing")).toBeGreaterThan(weight("Docs"));
+  });
+});
+
+describe("breadcrumb and pagination", () => {
+  test("a breadcrumb's links, arrows and current page can all be seen", async () => {
+    await render(
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="#home">Home</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Atlas</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>,
+    );
+    const seen = [
+      page.getByRole("link").element(),
+      document.querySelector(".nuv-breadcrumb__separator"),
+      page.getByText("Atlas").element(),
+    ] as Element[];
+
+    for (const element of seen) {
+      expect(contrast(style(element).color, canvas())).toBeGreaterThan(4.5);
+    }
+  });
+
+  test("the current page link is filled with the system's color for something selected", async () => {
+    await render(
+      <Pagination>
+        <PaginationList>
+          <PaginationItem>
+            <PaginationLink href="#1">1</PaginationLink>
+          </PaginationItem>
+          <PaginationItem>
+            <PaginationLink href="#2" active>
+              2
+            </PaginationLink>
+          </PaginationItem>
+          <PaginationItem>
+            <PaginationNext href="#3" />
+          </PaginationItem>
+        </PaginationList>
+      </Pagination>,
+    );
+    const look = (name: string) =>
+      style(page.getByRole("link", { name, exact: true }).element());
+
+    expect(look("2").backgroundColor).toBe(system("highlight"));
+    expect(look("2").color).toBe(system("highlighttext"));
+    expect(look("2").backgroundColor).not.toBe(look("1").backgroundColor);
+    expect(contrast(look("1").color, canvas())).toBeGreaterThan(4.5);
+    // The arrow is drawn in the link's text color.
+    expect(contrast(look("Next").color, canvas())).toBeGreaterThan(3);
   });
 });
 

@@ -1,0 +1,209 @@
+---
+title: Alert dialog
+description: A dialog that stops everything to ask one question, with a button to go ahead and a button to back out.
+---
+
+Use an alert dialog to confirm something that can't be taken back: deleting a project, revoking access, leaving a form with unsaved changes. It differs from a [dialog](/docs/components/dialog) in three ways. A click outside doesn't close it, it has no close button in its corner, and focus starts on the button that changes nothing.
+
+<Preview name="alert-dialog/basic" />
+
+## Install
+
+```sh
+pnpm add @nuvui/react
+```
+
+## Import
+
+```tsx
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@nuvui/react";
+```
+
+The styles come from `@nuvui/react/styles.css`, which you load once for the whole app. [Getting started](/docs) covers that. If you load one stylesheet per component, this one needs `button.css` next to `alert-dialog.css`, because its two buttons are the library's [Button](/docs/components/button).
+
+## Parts
+
+| Part | What it is |
+| --- | --- |
+| `AlertDialog` | Holds the open state. Renders nothing itself. |
+| `AlertDialogTrigger` | The button that opens the dialog. Wrap your own with `asChild`. |
+| `AlertDialogContent` | The panel. It also renders the overlay behind it. |
+| `AlertDialogTitle` | The question. Required, because it's the dialog's accessible name. |
+| `AlertDialogDescription` | What will happen. It becomes the dialog's accessible description. |
+| `AlertDialogFooter` | A row for the two buttons. |
+| `AlertDialogCancel` | The button that backs out. It closes the dialog, and is where focus starts. |
+| `AlertDialogAction` | The button that goes ahead. It closes the dialog after its `onClick` has run. |
+
+These are separate exports, not properties of `AlertDialog`. `AlertDialog.Content` isn't available, because property access on a client component doesn't work from a server component.
+
+## Try it
+
+<AlertDialogPlayground />
+
+## Props
+
+### AlertDialogContent
+
+<PropsTable component="alert-dialog" name="AlertDialogContentOwnProps" />
+
+### AlertDialogAction and AlertDialogCancel
+
+Both are a [Button](/docs/components/button) and take every prop a button does. `AlertDialogCancel` starts with `intent="secondary"`, and `AlertDialogAction` with the button's own default, `"primary"`.
+
+<PropsTable
+  component="alert-dialog"
+  name="AlertDialogActionProps"
+  props={{
+    intent:
+      "How the button looks. Use `\"danger\"` on the action when it destroys something.",
+    onClick:
+      "Runs before the dialog closes. Call `event.preventDefault()` in it to keep the dialog open.",
+    disabled: "Stops the button from being pressed.",
+    asChild:
+      "Renders the element you pass in place of a `button`, such as a link, with the button's look and the closing behavior.",
+  }}
+/>
+
+### AlertDialog
+
+<PropsTable
+  component="alert-dialog"
+  name="AlertDialogProps"
+  props={{
+    open: "Whether it's open, when you control it yourself. Use it with `onOpenChange`.",
+    defaultOpen: "Whether it starts open, when you don't control it.",
+    onOpenChange: "Called when it opens or closes.",
+  }}
+/>
+
+`AlertDialogTrigger`, `AlertDialogTitle` and `AlertDialogDescription` take the same props as the Radix parts they wrap. The [Radix Alert Dialog reference](https://www.radix-ui.com/primitives/docs/components/alert-dialog#api-reference) lists them. `AlertDialogFooter` is a plain `div`.
+
+## Waiting for the action to finish
+
+By default the action closes the dialog at once. When the work can fail, or takes a moment, keep the dialog open until it's done: control `open`, and call `event.preventDefault()` in the action's `onClick`.
+
+<Preview name="alert-dialog/pending" />
+
+Disable both buttons while the request is running, so it can't be sent twice or abandoned halfway.
+
+## Opening one from a menu
+
+A destructive item in a [dropdown menu](/docs/components/dropdown-menu) should ask before it acts. Put the alert dialog next to the menu, not inside the item, and open it from the item's `onSelect`.
+
+<Preview name="alert-dialog/from-menu" />
+
+There's no trigger here for focus to go back to when the dialog closes. Left alone, Radix returns it to whatever had it when the dialog opened, which is the menu item, and that's no longer on the page. So the example says where it should go, in `onCloseAutoFocus`: the button that opened the menu.
+
+## Sizes
+
+`size` sets the maximum width once the screen is at least 40rem wide: 24rem for `sm`, 32rem for `md` and 48rem for `lg`. Below that the dialog is a sheet across the bottom of the screen, with the action on top and cancel under it, each as wide as the sheet.
+
+## Accessibility
+
+### Keyboard
+
+| Key | What it does |
+| --- | --- |
+| <kbd>Enter</kbd> or <kbd>Space</kbd> | On the trigger, opens the dialog. On a button inside, presses it. |
+| <kbd>Tab</kbd> | Moves between the two buttons. From the last it goes back to the first. |
+| <kbd>Shift</kbd> + <kbd>Tab</kbd> | The same, backwards. |
+| <kbd>Esc</kbd> | Closes the dialog, as cancel does. |
+
+### What the component handles
+
+Most of this is Radix. The library doesn't change it.
+
+- The panel has `role="alertdialog"`, named by `AlertDialogTitle` and described by `AlertDialogDescription`.
+- Opening moves focus to `AlertDialogCancel`, so that pressing <kbd>Enter</kbd> without reading does no harm. Closing returns focus to the trigger.
+- Focus can't leave the dialog while it's open, and the rest of the page is hidden from screen readers.
+- A click or tap on the page behind does nothing. The person has to pick one of the two buttons, or press <kbd>Esc</kbd>.
+- Both buttons are at least 44 pixels tall on a touch screen.
+- The open and close animations only run when the visitor hasn't asked for reduced motion.
+
+### What you need to handle
+
+- Write the title as the question, and name the action after what it does: "Delete project", not "OK" or "Yes".
+- Always include an `AlertDialogCancel`. Without one, focus has nowhere safe to start.
+- Always include an `AlertDialogDescription` that says what will happen. If the title says it all, pass `aria-describedby={undefined}` to `AlertDialogContent`, or Radix logs a warning.
+- If <kbd>Esc</kbd> must not close the dialog, call `event.preventDefault()` in `onEscapeKeyDown` on `AlertDialogContent`. Then the two buttons are the only ways out, so make sure both work.
+
+## CSS variables
+
+Alert dialogs render at the end of `<body>`, so set these on `:root` or `body`, not on the element around the trigger. They're separate from the dialog's variables: changing `--nuv-dialog-radius` doesn't change an alert dialog.
+
+```css
+:root {
+  --nuv-alert-dialog-width: 28rem;
+}
+```
+
+<CssVariables
+  component="alert-dialog"
+  descriptions={{
+    "--nuv-alert-dialog-overlay-bg": "Color of the layer that dims the page.",
+    "--nuv-alert-dialog-padding":
+      "Padding inside the panel. One length, used on every side.",
+    "--nuv-alert-dialog-border": "Border color of the panel.",
+    "--nuv-alert-dialog-bg": "Background color of the panel.",
+    "--nuv-alert-dialog-shadow": "Shadow under the panel.",
+    "--nuv-alert-dialog-fg": "Text color.",
+    "--nuv-alert-dialog-radius":
+      "Corner radius. As a sheet on phones, only the top corners are rounded.",
+    "--nuv-alert-dialog-width":
+      "Maximum width once the dialog is centered. Differs by size.",
+  }}
+/>
+
+The two buttons read the [button's variables](/docs/components/button#css-variables).
+
+## Classes
+
+<BemClasses
+  component="alert-dialog"
+  descriptions={{
+    "nuv-alert-dialog": "The panel.",
+    "nuv-alert-dialog--sm": "The panel with size=\"sm\".",
+    "nuv-alert-dialog--lg": "The panel with size=\"lg\".",
+    "nuv-alert-dialog__overlay": "The layer behind the panel.",
+    "nuv-alert-dialog__title": "AlertDialogTitle.",
+    "nuv-alert-dialog__description": "AlertDialogDescription.",
+    "nuv-alert-dialog__footer": "AlertDialogFooter.",
+  }}
+/>
+
+The panel also gets `nuv-alert-dialog--md` at the default size. No styles are attached to it, since medium is the base. The two buttons have the button's classes, such as `nuv-button` and `nuv-button--danger`.
+
+Radix sets `data-state="open"` or `data-state="closed"` on the overlay and the panel. The animations hang off those.
+
+## Server components
+
+The alert dialog parts are client components. They carry `"use client"`, and the build checks that the directive is still there in the published files.
+
+You can put one together inside a server component, as the first example on this page does. It needs a client component of your own once the action has an `onClick`, which is most of the time.
+
+## Themed sections
+
+An alert dialog opened from inside a `data-theme="dark"` section doesn't inherit that theme, because it isn't rendered inside the section. Pass the section's element as `container` and it will be.
+
+## Do and don't
+
+**Do**
+
+- Keep it for actions that can't be undone, or that cost something to undo.
+- Say what will be lost, in numbers when you have them: "its 12 files".
+- Give the action `intent="danger"` when it destroys something.
+
+**Don't**
+
+- Don't use one for an action that can be undone. Do it, and offer the undo in a [toast](/docs/components/toast).
+- Don't use one to report an error or a success. Nothing is being asked.
+- Don't put a form in one. That's a [dialog](/docs/components/dialog).

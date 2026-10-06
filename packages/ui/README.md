@@ -2,7 +2,7 @@
 
 React components built on Radix UI primitives and styled with plain SCSS and BEM class names.
 
-This is early. There are eleven components, and the package hasn't been released. See the [repository README](https://github.com/Nuvraxis/nuvui#readme) for where things stand.
+This is early. There are twenty-six components, and the package hasn't been released. See the [repository README](https://github.com/Nuvraxis/nuvui#readme) for where things stand.
 
 ```tsx
 import "@nuvui/react/styles.css";

@@ -19,20 +19,35 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  Field,
+  FieldControl,
+  FieldError,
+  FieldLabel,
+  FileUpload,
+  Input,
+  InputGroup,
+  NativeSelect,
+  OtpField,
+  PasswordInput,
   Popover,
   PopoverContent,
   PopoverTrigger,
+  RadioGroup,
+  RadioGroupItem,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
+  Slider,
   Switch,
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
+  Textarea,
   Toaster,
+  Toggle,
   Tooltip,
   TooltipContent,
   TooltipTrigger,
@@ -467,6 +482,168 @@ describe("toast", () => {
     expect(contrast(element.borderInlineStartColor, canvas())).toBeGreaterThan(
       3,
     );
+  });
+});
+
+describe("fields", () => {
+  test("every kind of field keeps an edge", async () => {
+    await render(
+      <>
+        <Input aria-label="Name" />
+        <Textarea aria-label="Notes" />
+        <NativeSelect aria-label="Country">
+          <option>Norway</option>
+        </NativeSelect>
+        <InputGroup>
+          <Input aria-label="Site" />
+        </InputGroup>
+        <PasswordInput aria-label="Password" />
+        <OtpField aria-label="Code" length={1} />
+        <FileUpload aria-label="Attachments" />
+      </>,
+    );
+    const edged = [
+      page.getByLabelText("Name").element(),
+      page.getByLabelText("Notes").element(),
+      page.getByLabelText("Country").element(),
+      document.querySelector(".nuv-input-group"),
+      document.querySelector(".nuv-password-input"),
+      document.querySelector(".nuv-otp-field__input"),
+      document.querySelector(".nuv-file-upload__dropzone"),
+    ] as Element[];
+
+    for (const element of edged) {
+      expect(style(element).borderTopStyle).not.toBe("none");
+      expect(contrast(style(element).borderTopColor, canvas())).toBeGreaterThan(
+        3,
+      );
+    }
+  });
+
+  test("the arrow of a native select and the eye of a password input can be seen", async () => {
+    await render(
+      <>
+        <NativeSelect aria-label="Country">
+          <option>Norway</option>
+        </NativeSelect>
+        <PasswordInput aria-label="Password" />
+      </>,
+    );
+    const drawn = [
+      document.querySelector(".nuv-native-select__icon"),
+      document.querySelector(".nuv-password-input__toggle"),
+    ] as Element[];
+
+    for (const element of drawn) {
+      expect(contrast(style(element).color, canvas())).toBeGreaterThan(3);
+    }
+  });
+
+  test("the dash in a one-time code is still drawn", async () => {
+    await render(<OtpField aria-label="Code" length={4} groupSize={2} />);
+    const dash = style(
+      document.querySelector(".nuv-otp-field__separator") as Element,
+    );
+
+    expect(dash.borderTopStyle).toBe("solid");
+    expect(contrast(dash.borderTopColor, canvas())).toBeGreaterThan(3);
+  });
+
+  test("a field's error can be read", async () => {
+    await render(
+      <Field>
+        <FieldLabel>Email</FieldLabel>
+        <FieldControl>
+          <Input />
+        </FieldControl>
+        <FieldError>Enter an email address.</FieldError>
+      </Field>,
+    );
+
+    expect(
+      contrast(
+        style(page.getByText("Enter an email address.").element()).color,
+        canvas(),
+      ),
+    ).toBeGreaterThan(4.5);
+  });
+
+  test("the drop area is marked in the system's color while files are over it", async () => {
+    await render(<FileUpload aria-label="Attachments" />);
+    const zone = document.querySelector(
+      ".nuv-file-upload__dropzone",
+    ) as HTMLElement;
+
+    zone.dispatchEvent(
+      new DragEvent("dragenter", {
+        dataTransfer: new DataTransfer(),
+        bubbles: true,
+      }),
+    );
+    await expect.poll(() => zone.hasAttribute("data-dragging")).toBe(true);
+
+    expect(style(zone).borderTopStyle).toBe("solid");
+    expect(style(zone).borderTopColor).toBe(system("highlight"));
+  });
+});
+
+describe("radio group", () => {
+  test("keeps its edge, and its dot when picked", async () => {
+    await render(
+      <RadioGroup aria-label="Plan" defaultValue="team">
+        <RadioGroupItem value="free" aria-label="Free" />
+        <RadioGroupItem value="team" aria-label="Team" />
+      </RadioGroup>,
+    );
+    const free = style(page.getByRole("radio", { name: "Free" }).element());
+    const team = style(page.getByRole("radio", { name: "Team" }).element());
+
+    expect(contrast(free.borderTopColor, canvas())).toBeGreaterThan(3);
+    // The dot is drawn in the current text color.
+    expect(contrast(team.color, team.backgroundColor)).toBeGreaterThan(3);
+    expect(document.querySelectorAll(".nuv-radio-group__dot")).toHaveLength(1);
+  });
+});
+
+describe("slider", () => {
+  test("the track has an edge, and the filled part and the handle stand out", async () => {
+    await render(<Slider aria-label="Volume" defaultValue={[50]} />);
+    const part = (name: string) =>
+      style(document.querySelector(`.nuv-slider__${name}`) as Element);
+
+    expect(part("track").outlineStyle).toBe("solid");
+    expect(contrast(part("track").outlineColor, canvas())).toBeGreaterThan(3);
+    expect(part("range").backgroundColor).toBe(system("highlight"));
+    expect(contrast(part("thumb").borderTopColor, canvas())).toBeGreaterThan(3);
+    expect(part("thumb").backgroundColor).toBe(canvas());
+  });
+});
+
+describe("toggle", () => {
+  test("a pressed one is filled with the system's color for something selected", async () => {
+    await render(
+      <>
+        <Toggle>Off</Toggle>
+        <Toggle defaultPressed>On</Toggle>
+        <Toggle variant="outline" defaultPressed>
+          Outlined
+        </Toggle>
+      </>,
+    );
+    const look = (name: string) =>
+      style(page.getByRole("button", { name, exact: true }).element());
+
+    expect(look("On").backgroundColor).toBe(system("highlight"));
+    expect(look("On").color).toBe(system("highlighttext"));
+    expect(look("On").backgroundColor).not.toBe(look("Off").backgroundColor);
+    expect(look("Outlined").borderTopColor).toBe(system("highlight"));
+  });
+
+  test("one that isn't pressed keeps a visible edge", async () => {
+    await render(<Toggle>Off</Toggle>);
+    const toggle = style(page.getByRole("button").element());
+
+    expect(contrast(toggle.borderTopColor, canvas())).toBeGreaterThan(3);
   });
 });
 

@@ -1,0 +1,174 @@
+@use "mixins";
+
+// Shared by everything a person types into: input, textarea, native select,
+// input group, password input and the cells of a one-time code. It's
+// internal, so the public mixins don't forward it, but it ships with the SCSS
+// source because the components need it.
+
+// The look of the box. $name is the component, and becomes part of each
+// variable's name so one kind of field can be restyled on its own. The edge
+// is what tells you this is a control, so it uses the border color that's
+// held to 3:1.
+@mixin box($name) {
+  border: var(--nuv-border-width) solid var(--nuv-#{$name}-border, var(--color-border-strong));
+  border-radius: var(--nuv-#{$name}-radius, var(--radius-md));
+  background-color: var(--nuv-#{$name}-bg, var(--color-surface));
+  color: var(--nuv-#{$name}-fg, var(--color-foreground));
+}
+
+// 44px on a touch screen, and the density's height with a mouse.
+@mixin height($name) {
+  min-block-size: var(--nuv-#{$name}-height, var(--nuv-touch-size));
+
+  @include mixins.fine-pointer {
+    min-block-size: var(--nuv-#{$name}-height, var(--nuv-control-height-md));
+  }
+}
+
+// 16px on a touch screen. iOS zooms the page in when a field with smaller
+// text takes focus, and doesn't zoom back out.
+@mixin text($name) {
+  font-family: inherit;
+  font-size: var(--nuv-#{$name}-font-size, var(--text-base));
+  line-height: var(--text-base--line-height);
+
+  @include mixins.fine-pointer {
+    font-size: var(--nuv-#{$name}-font-size, var(--text-sm));
+    line-height: var(--text-sm--line-height);
+  }
+}
+
+// Firefox fades a placeholder to about half. Full opacity keeps the color
+// the one that was checked for contrast.
+@mixin placeholder($name) {
+  &::placeholder {
+    opacity: 1;
+    color: var(--nuv-#{$name}-placeholder, var(--color-muted-foreground));
+  }
+}
+
+@mixin invalid {
+  &[aria-invalid="true"] {
+    border-color: var(--color-danger);
+  }
+}
+
+@mixin disabled {
+  &:disabled {
+    opacity: var(--nuv-disabled-opacity);
+    cursor: not-allowed;
+  }
+}
+
+// A box that holds a field and things next to it, such as an icon or a
+// button. The box has the edge and the field inside has none, so the ring
+// that shows keyboard focus goes around the whole box.
+@mixin group($name, $field) {
+  display: flex;
+  align-items: center;
+  cursor: text;
+
+  @include box($name);
+  @include height($name);
+
+  // :has() arrived in Firefox 121. Before that, the ring shows while
+  // anything in the box has focus, and the edge doesn't turn red.
+  @supports selector(:has(*)) {
+    &:has(#{$field}:focus-visible) {
+      outline: var(--nuv-focus-ring-width, 2px) solid
+        var(--nuv-focus-ring-color, var(--color-ring));
+      outline-offset: var(--nuv-focus-ring-offset, 2px);
+    }
+
+    &:has(#{$field}[aria-invalid="true"]) {
+      border-color: var(--color-danger);
+    }
+
+    &:has(#{$field}:disabled) {
+      opacity: var(--nuv-disabled-opacity);
+      cursor: not-allowed;
+    }
+  }
+
+  @supports not selector(:has(*)) {
+    &:focus-within {
+      outline: var(--nuv-focus-ring-width, 2px) solid
+        var(--nuv-focus-ring-color, var(--color-ring));
+      outline-offset: var(--nuv-focus-ring-offset, 2px);
+    }
+  }
+}
+
+// The field inside a group. It fills the room the other parts leave.
+@mixin group-field {
+  flex: 1;
+  align-self: stretch;
+  min-inline-size: 0;
+  min-block-size: 0;
+  border: 0;
+  border-radius: 0;
+  outline: none;
+  background-color: transparent;
+
+  // The group fades as a whole, where it can tell its field is disabled.
+  @supports selector(:has(*)) {
+    &:disabled {
+      opacity: 1;
+    }
+  }
+}
+
+// A small button inside a group. It's drawn smaller than a finger, so on a
+// touch screen the area that takes a tap is widened to 44px.
+@mixin group-button($name) {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  gap: var(--spacing);
+  align-items: center;
+  justify-content: center;
+  min-inline-size: calc(
+    var(--nuv-#{$name}-height, var(--nuv-touch-size)) - var(--spacing) * 2
+  );
+  block-size: calc(
+    var(--nuv-#{$name}-height, var(--nuv-touch-size)) - var(--spacing) * 2
+  );
+  margin-inline: calc(var(--spacing) - var(--nuv-border-width));
+  padding-block: 0;
+  padding-inline: calc(var(--spacing) * 2);
+  border: 0;
+  border-radius: var(--nuv-#{$name}-button-radius, var(--radius-sm));
+  background-color: transparent;
+  color: var(--nuv-#{$name}-button-fg, var(--color-muted-foreground));
+  font-family: inherit;
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--text-sm--line-height);
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+
+  @include mixins.touch-area;
+  @include mixins.focus-ring(0);
+
+  @include mixins.motion-safe {
+    transition:
+      background-color var(--nuv-duration-fast) var(--ease-out),
+      color var(--nuv-duration-fast) var(--ease-out);
+  }
+
+  @include mixins.hover {
+    background-color: var(--nuv-#{$name}-button-bg-hover, var(--color-muted));
+    color: var(--color-foreground);
+  }
+
+  @include mixins.fine-pointer {
+    min-inline-size: calc(var(--nuv-#{$name}-height, var(--nuv-control-height-md)) - var(--spacing) * 2);
+    block-size: calc(var(--nuv-#{$name}-height, var(--nuv-control-height-md)) - var(--spacing) * 2);
+  }
+
+  &:disabled {
+    opacity: var(--nuv-disabled-opacity);
+    pointer-events: none;
+  }
+}

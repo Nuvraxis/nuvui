@@ -1,0 +1,41 @@
+@use "../../styles/layers";
+@use "../../styles/mixins";
+@use "../../styles/control";
+
+@layer components {
+  .nuv-textarea {
+    display: block;
+    inline-size: var(--nuv-textarea-width, 100%);
+    min-block-size: var(--nuv-textarea-min-height, 5rem);
+    max-block-size: var(--nuv-textarea-max-height, none);
+    padding-block: var(--nuv-textarea-padding-block, calc(var(--spacing) * 2));
+    padding-inline: var(
+      --nuv-textarea-padding-inline,
+      calc(var(--spacing) * 3)
+    );
+
+    // Only up and down. Dragging it wider would break the layout around it.
+    resize: vertical;
+
+    @include control.box("textarea");
+    @include control.text("textarea");
+    @include control.placeholder("textarea");
+    @include mixins.focus-ring;
+    @include control.invalid;
+    @include control.disabled;
+
+    @include mixins.motion-safe {
+      transition: border-color var(--nuv-duration-fast) var(--ease-out);
+    }
+
+    &[readonly] {
+      background-color: var(--nuv-textarea-readonly-bg, var(--color-muted));
+    }
+  }
+
+  // The height follows the text, so there's nothing to drag.
+  .nuv-textarea--auto-resize {
+    resize: none;
+    field-sizing: content;
+  }
+}

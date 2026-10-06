@@ -1,0 +1,57 @@
+@use "../../styles/layers";
+@use "../../styles/mixins";
+@use "../../styles/control";
+
+@layer components {
+  .nuv-input {
+    display: block;
+    inline-size: var(--nuv-input-width, 100%);
+    padding-block: 0;
+    padding-inline: var(--nuv-input-padding-inline, calc(var(--spacing) * 3));
+
+    @include control.box("input");
+    @include control.height("input");
+    @include control.text("input");
+    @include control.placeholder("input");
+    @include mixins.focus-ring;
+    @include control.invalid;
+    @include control.disabled;
+
+    @include mixins.motion-safe {
+      transition: border-color var(--nuv-duration-fast) var(--ease-out);
+    }
+
+    // Something that can be selected and copied and not changed. The fill
+    // sets it apart from a field that's waiting for input.
+    &[readonly] {
+      background-color: var(--nuv-input-readonly-bg, var(--color-muted));
+    }
+
+    // The browser's own button, for type="file". The text of a file input
+    // sits at the top of its box unless the line is as tall as the box.
+    &[type="file"] {
+      padding-inline-start: var(--spacing);
+      line-height: calc(var(--nuv-input-height, var(--nuv-touch-size)) - var(--nuv-border-width) * 2);
+      cursor: pointer;
+
+      @include mixins.fine-pointer {
+        line-height: calc(var(--nuv-input-height, var(--nuv-control-height-md)) - var(--nuv-border-width) * 2);
+      }
+    }
+
+    &::file-selector-button {
+      margin-inline-end: calc(var(--spacing) * 3);
+      padding-block: var(--spacing);
+      padding-inline: calc(var(--spacing) * 3);
+      border: 0;
+      border-radius: var(--radius-sm);
+      background-color: var(--color-muted);
+      color: var(--color-foreground);
+      font: inherit;
+      font-weight: var(--font-weight-medium);
+      line-height: var(--text-sm--line-height);
+      vertical-align: middle;
+      cursor: pointer;
+    }
+  }
+}

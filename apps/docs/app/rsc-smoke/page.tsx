@@ -4,6 +4,7 @@
 // anywhere, and the e2e tests open it directly.
 import {
   Button,
+  ButtonGroup,
   Dialog,
   DialogClose,
   DialogContent,
@@ -11,6 +12,14 @@ import {
   DialogFooter,
   DialogTitle,
   DialogTrigger,
+  Field,
+  FieldControl,
+  FieldDescription,
+  FieldLabel,
+  Fieldset,
+  FieldsetLegend,
+  Input,
+  NativeSelect,
 } from "@nuvui/react";
 import { Button as ButtonEntry } from "@nuvui/react/button";
 import type { Metadata } from "next";
@@ -46,6 +55,26 @@ export default function RscSmokePage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      {/* Input, NativeSelect, Fieldset and ButtonGroup have no directive.
+          The field parts do, and tie the rest together once they hydrate. */}
+      <Fieldset>
+        <FieldsetLegend>Fields put together on the server</FieldsetLegend>
+        <Field required>
+          <FieldLabel>Server email</FieldLabel>
+          <FieldControl>
+            <Input type="email" />
+          </FieldControl>
+          <FieldDescription>Described after hydration.</FieldDescription>
+        </Field>
+        <NativeSelect aria-label="Server select">
+          <option>One</option>
+          <option>Two</option>
+        </NativeSelect>
+        <ButtonGroup aria-label="Server group">
+          <Button intent="secondary">Left</Button>
+          <Button intent="secondary">Right</Button>
+        </ButtonGroup>
+      </Fieldset>
     </main>
   );
 }

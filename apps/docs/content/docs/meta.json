@@ -1,3 +1,11 @@
 {
-  "pages": ["index", "theming", "tailwind", "scss", "components", "changelog"]
+  "pages": [
+    "index",
+    "theming",
+    "tailwind",
+    "scss",
+    "forms",
+    "components",
+    "changelog"
+  ]
 }

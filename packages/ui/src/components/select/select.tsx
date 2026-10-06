@@ -43,11 +43,18 @@ export const SelectTrigger = forwardRef<
   ComponentRef<typeof SelectPrimitive.Trigger>,
   SelectTriggerProps
 >(function SelectTrigger({ className, children, ...props }, ref) {
+  // Field passes `required` to whatever control it holds. On a select it
+  // belongs on Select, where the form value lives, and a button has no such
+  // attribute.
+  const { required: _required, ...triggerProps } = props as typeof props & {
+    required?: boolean;
+  };
+
   return (
     <SelectPrimitive.Trigger
       ref={ref}
       className={cx("nuv-select", className)}
-      {...props}
+      {...triggerProps}
     >
       {children}
       <SelectPrimitive.Icon className="nuv-select__icon">

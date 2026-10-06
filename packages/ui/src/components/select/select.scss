@@ -44,6 +44,7 @@
       border-color: var(--color-danger);
     }
 
+    &:disabled,
     &[data-disabled] {
       opacity: var(--nuv-disabled-opacity);
       cursor: not-allowed;
@@ -118,6 +119,7 @@
       );
     }
 
+    &:disabled,
     &[data-disabled] {
       opacity: var(--nuv-disabled-opacity);
       pointer-events: none;

@@ -25,7 +25,7 @@ Run these from the repository root.
 | `pnpm lint` | Biome for TypeScript and JSON, Stylelint for SCSS. |
 | `pnpm lint:fix` | Lets Biome fix what it can, formatting included. |
 | `pnpm typecheck` | TypeScript, in every workspace. |
-| `pnpm test` | The component tests in Chromium, Firefox and WebKit, and the theme generator's tests. About three minutes. |
+| `pnpm test` | The component tests in Chromium, Firefox and WebKit, and the theme generator's tests. About five minutes. |
 | `pnpm build` | Builds the theme generator and the library, checks the result, then builds the docs site. |
 | `pnpm test:e2e` | Builds first, then runs Playwright against the exported docs site, in five browser setups. |
 | `pnpm size` | Builds first, then checks each entry point against its size budget. |
@@ -55,7 +55,8 @@ pnpm --filter @nuvui/docs exec playwright test --project=firefox
 ```
 packages/ui                   the library, published as @nuvui/react
   src/components/<name>/      <name>.tsx, <name>.scss, <name>.test.tsx, index.ts
-  src/styles/                 tokens, mixins, the layer order, base styles
+  src/styles/                 tokens, mixins, the layer order, base styles,
+                              and the styles that fields and floating panels share
   src/utils/                  small helpers shared by components
   scripts/build-css.mjs       compiles the SCSS and copies the source into dist
   scripts/check-dist.mjs      fails the build if the package is put together wrong
@@ -103,6 +104,8 @@ Stylelint enforces the first five. The rest are checked in review and by the tes
 - **A component's own variables are fallbacks at the point of use.** Write `border-radius: var(--nuv-button-radius, var(--radius-md))` and never declare `--nuv-button-radius` anywhere. A consumer can then set it on `:root` or on any wrapper and it wins. The names follow `--nuv-<component>-<property>`.
 - **The base size is the touch size.** Controls are 44 pixels by default, through the `touch-target` mixin. Denser sizes go inside the `fine-pointer` mixin, so they apply with a mouse or trackpad and nowhere else.
 - **Sizes that several components share are tokens.** A control's height with a mouse is `--nuv-control-height-sm`, `-md` or `-lg`, which is what density changes. A border is `var(--nuv-border-width)` wide, and a disabled control fades to `var(--nuv-disabled-opacity)`. A size only one component has, such as a dialog's width, is that component's own variable with the number as its fallback.
+- **Anything typed into uses the shared field styles.** `src/styles/_control.scss` has the box, the height, the 16 pixel text that keeps iOS from zooming, and the group that puts a button inside a field. A new kind of field includes those mixins with its own name, which gives it variables of its own.
+- **Disabled styles go by `:disabled` as well as `[data-disabled]`,** on anything that's a form control. Inside a `<fieldset disabled>` the browser disables a control without the component's own attribute being set.
 - **A filled control's hover color moves away from its text.** Button's `filled-hover` mixin does it. Mixing in a fixed dark color makes dark text harder to read, and a theme decides whether the text is dark.
 - **Mobile first.** Base styles are for the smallest screen. Larger screens are added with the `breakpoint` mixin, which only has a minimum-width form.
 - **Use the mixins for hover, focus and motion.** `hover` keeps hover styles off touch screens. `focus-ring` draws the same ring everywhere. Animations and transitions go inside `motion-safe`, so they don't exist for someone who has asked for reduced motion.

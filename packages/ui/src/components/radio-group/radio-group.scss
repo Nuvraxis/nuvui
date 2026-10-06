@@ -1,0 +1,79 @@
+@use "../../styles/layers";
+@use "../../styles/mixins";
+
+@layer components {
+  // One option per row. On a touch screen the rows are far enough apart that
+  // the 44px tap areas of two buttons don't overlap. That holds while a
+  // row is as tall as its button, which a one-line label is.
+  .nuv-radio-group {
+    display: grid;
+    gap: var(
+      --nuv-radio-group-gap,
+      calc(var(--nuv-touch-size) - var(--nuv-radio-group-size, 1.25rem))
+    );
+
+    @include mixins.fine-pointer {
+      gap: var(--nuv-radio-group-gap, calc(var(--spacing) * 3));
+    }
+
+    &[data-orientation="horizontal"] {
+      display: flex;
+      flex-wrap: wrap;
+    }
+  }
+
+  .nuv-radio-group__item {
+    position: relative;
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--nuv-radio-group-size, 1.25rem);
+    block-size: var(--nuv-radio-group-size, 1.25rem);
+    padding: 0;
+
+    // The edge is what tells you this is a control, so it uses the border
+    // color that's held to 3:1.
+    border: var(--nuv-border-width) solid var(--nuv-radio-group-border, var(--color-border-strong));
+    border-radius: var(--radius-full);
+    background-color: var(--nuv-radio-group-bg, var(--color-surface));
+    color: var(--nuv-radio-group-fg, var(--color-primary-foreground));
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+
+    @include mixins.touch-area;
+    @include mixins.focus-ring;
+
+    @include mixins.motion-safe {
+      transition:
+        background-color var(--nuv-duration-fast) var(--ease-out),
+        border-color var(--nuv-duration-fast) var(--ease-out);
+    }
+
+    &[data-state="checked"] {
+      border-color: var(--nuv-radio-group-checked-bg, var(--color-primary));
+      background-color: var(
+        --nuv-radio-group-checked-bg,
+        var(--color-primary)
+      );
+    }
+
+    &:disabled {
+      opacity: var(--nuv-disabled-opacity);
+      cursor: not-allowed;
+    }
+  }
+
+  .nuv-radio-group__indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 100%;
+    block-size: 100%;
+  }
+
+  .nuv-radio-group__dot {
+    inline-size: 100%;
+    block-size: 100%;
+  }
+}

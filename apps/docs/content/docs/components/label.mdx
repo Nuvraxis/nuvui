@@ -1,0 +1,110 @@
+---
+title: Label
+description: The text that names a form control. A click on it goes to the control, and a double click doesn't select its words.
+---
+
+Use a label for the visible name of an input, a select or any other control. For a label that also carries a hint and an error message, use [Field](/docs/components/field), which renders this component for you.
+
+<Preview name="label/basic" />
+
+## Install
+
+```sh
+pnpm add @nuvui/react
+```
+
+## Import
+
+```tsx
+import { Label } from "@nuvui/react";
+```
+
+The styles come from `@nuvui/react/styles.css`, which you load once for the whole app. [Getting started](/docs) covers that, and how to load only this component's CSS.
+
+## Try it
+
+<LabelPlayground />
+
+## Props
+
+<PropsTable
+  component="label"
+  name="LabelProps"
+  props={{
+    htmlFor: "The `id` of the control this label names.",
+    asChild:
+      "Render the single child element instead of a `<label>`, and give it the label's class and props.",
+  }}
+/>
+
+Everything else is passed to the `<label>` element, including `ref`, `id` and `className`.
+
+## Around a control
+
+A label can also wrap its control. No `htmlFor` or `id` is needed then, and the whole row takes a click.
+
+<Preview name="label/wrapping" />
+
+## Accessibility
+
+A label has no keyboard behavior of its own. Focus goes to the control it names.
+
+### What the component handles
+
+- It renders a native `<label>`, so the browser ties it to the control: a screen reader reads the label's text as the control's name, and a click or a tap on the label focuses or toggles the control.
+- A double click on a label selects its text in most browsers, which gets in the way when someone clicks a checkbox's label twice. This one doesn't. That part is Radix.
+- A click on a button, an input or a select inside the label is left alone.
+
+### What you need to handle
+
+- Point it at the control. Set `htmlFor` to the control's `id`, or put the control inside the label.
+- Keep it visible. A placeholder isn't a label: it disappears as soon as someone types.
+- A label can't tell whether its control is disabled. Set the `data-disabled` attribute on it to fade it. Field does this for you.
+
+## CSS variables
+
+Set any of these on the label, or on anything around it.
+
+```css
+.settings {
+  --nuv-label-font-weight: var(--font-weight-normal);
+}
+```
+
+<CssVariables
+  component="label"
+  descriptions={{
+    "--nuv-label-gap":
+      "Space between the text and anything else inside the label, such as a checkbox or a required mark.",
+    "--nuv-label-fg": "Text color.",
+    "--nuv-label-font-size": "Font size.",
+    "--nuv-label-font-weight": "Font weight.",
+  }}
+/>
+
+## Classes
+
+<BemClasses
+  component="label"
+  descriptions={{
+    "nuv-label": "The label.",
+  }}
+/>
+
+A label with the `data-disabled` attribute is faded.
+
+## Server components
+
+Label is a client component. It carries `"use client"`, and the build checks that the directive is still there in the published files. You can render it from a server component, as the examples on this page do.
+
+## Do and don't
+
+**Do**
+
+- Give every control a label that people can see.
+- Keep it short, and put any explanation in a description under the control.
+
+**Don't**
+
+- Don't use a placeholder in place of a label.
+- Don't put a link or a button inside a label. A click on it is ambiguous.

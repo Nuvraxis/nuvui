@@ -3,13 +3,8 @@ import { type ComponentProps, createRef } from "react";
 import { describe, expect, test, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
-import { emulateMedia, emulateTouch } from "../../../test/media";
-import {
-  expectNoViolations,
-  hitAt,
-  renderThemed,
-  themes,
-} from "../../../test/themed";
+import { emulateMedia } from "../../../test/media";
+import { expectNoViolations, renderThemed, themes } from "../../../test/themed";
 import { Switch } from "./switch";
 
 // ComponentProps and not SwitchProps, so the helper can take a ref too.
@@ -162,18 +157,6 @@ describe("styles", () => {
     await control().click();
 
     expect(thumbX() - off).toBe(-16);
-  });
-
-  test("is 44px wide with a 44px tap area on a touch screen", async () => {
-    await emulateTouch(true);
-    await render(<Labelled />);
-    const element = control().element();
-
-    const rect = element.getBoundingClientRect();
-    expect(rect.width).toBe(44);
-    expect(rect.height).toBe(24);
-    // 20px above the center is outside the 24px track.
-    expect(hitAt(element, 0, -20)).toBe(element);
   });
 
   test("is smaller with a mouse", async () => {

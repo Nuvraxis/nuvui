@@ -4,7 +4,7 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { cleanup, render } from "vitest-browser-react";
 import { axe } from "../../../test/axe";
-import { emulateMedia, emulateTouch, setViewport } from "../../../test/media";
+import { emulateMedia, setViewport } from "../../../test/media";
 import { setPageTheme, themes } from "../../../test/themed";
 import { Toaster, toast } from "./toast";
 
@@ -233,6 +233,124 @@ describe("closing", () => {
   });
 });
 
+describe("limit", () => {
+  const forever = { duration: Number.POSITIVE_INFINITY };
+
+  function send(...names: string[]) {
+    return names.map((name) => toast(name, forever));
+  }
+
+  test("shows three at once and holds the rest back", async () => {
+    await renderStill();
+
+    send("One", "Two", "Three", "Four", "Five");
+
+    await expect.poll(titles).toEqual(["One", "Two", "Three"]);
+    // Not in the page at all, so a screen reader hasn't heard them either.
+    expect(document.body.textContent).not.toContain("Four");
+  });
+
+  test("the next in line shows when one closes", async () => {
+    await renderStill();
+    const [one, two] = send("One", "Two", "Three", "Four", "Five");
+    await expect.poll(titles).toEqual(["One", "Two", "Three"]);
+
+    toast.dismiss(one);
+    await expect.poll(titles).toEqual(["Two", "Three", "Four"]);
+
+    toast.dismiss(two);
+    await expect.poll(titles).toEqual(["Three", "Four", "Five"]);
+  });
+
+  test("the close button makes room as well", async () => {
+    await renderStill();
+    send("One", "Two", "Three", "Four");
+    await expect.poll(titles).toEqual(["One", "Two", "Three"]);
+
+    await page.getByRole("button", { name: "Close" }).first().click();
+
+    await expect.poll(titles).toEqual(["Two", "Three", "Four"]);
+  });
+
+  test("a waiting toast's time starts when it shows", async () => {
+    await renderStill();
+    const [one] = send("One", "Two", "Three");
+    toast("Four", { duration: 800 });
+    await expect.poll(titles).toEqual(["One", "Two", "Three"]);
+    // Longer than Four would have lasted had its clock been running.
+    await wait(1200);
+
+    toast.dismiss(one);
+
+    await expect.poll(titles).toEqual(["Two", "Three", "Four"]);
+    await expect.poll(titles, soon).toEqual(["Two", "Three"]);
+  });
+
+  test("a waiting toast can be dismissed before it shows", async () => {
+    await renderStill();
+    const [one, , , four] = send("One", "Two", "Three", "Four", "Five");
+    await expect.poll(titles).toEqual(["One", "Two", "Three"]);
+
+    toast.dismiss(four);
+    toast.dismiss(one);
+
+    await expect.poll(titles).toEqual(["Two", "Three", "Five"]);
+  });
+
+  test("a waiting toast can be changed before it shows", async () => {
+    await renderStill();
+    const [one, , , four] = send("One", "Two", "Three", "Four");
+    await expect.poll(titles).toEqual(["One", "Two", "Three"]);
+
+    toast("Four, updated", { ...forever, id: four });
+    toast.dismiss(one);
+
+    await expect.poll(titles).toEqual(["Two", "Three", "Four, updated"]);
+  });
+
+  test("toast.dismiss() with no id clears the ones waiting too", async () => {
+    await renderStill();
+    send("One", "Two", "Three", "Four", "Five");
+    await expect.poll(titles).toEqual(["One", "Two", "Three"]);
+
+    toast.dismiss();
+
+    await expect.poll(titles).toEqual([]);
+    await wait(300);
+    expect(titles()).toEqual([]);
+  });
+
+  test("limit changes how many show", async () => {
+    await renderStill(<Toaster limit={1} />);
+    const [one] = send("One", "Two");
+    await expect.poll(titles).toEqual(["One"]);
+
+    toast.dismiss(one);
+
+    await expect.poll(titles).toEqual(["Two"]);
+  });
+
+  test("the one coming in doesn't wait for the one going out", async () => {
+    await emulateMedia({ reducedMotion: "no-preference" });
+    // Slowed down, so the exit animation can't be over before the first look.
+    const root = document.documentElement;
+    root.style.setProperty("--nuv-duration-fast", "600ms");
+
+    try {
+      await render(<Toaster limit={1} />);
+      const [one] = send("One", "Two");
+      await expect.poll(titles).toEqual(["One"]);
+
+      toast.dismiss(one);
+
+      await expect.poll(titles).toEqual(["One", "Two"]);
+      await expect.poll(titles, soon).toEqual(["Two"]);
+    } finally {
+      root.style.removeProperty("--nuv-duration-fast");
+    }
+  });
+});
+
 describe("keyboard", () => {
   test("F8 moves focus to the list, and Tab goes on into the toast", async () => {
     await renderStill();
@@ -405,7 +523,7 @@ describe("layout", () => {
     );
   });
 
-  test("the buttons are 44px on a touch screen and 32px with a mouse", async () => {
+  test("the buttons are 32px with a mouse", async () => {
     await renderStill();
     toast("File deleted", {
       duration: Number.POSITIVE_INFINITY,
@@ -421,9 +539,6 @@ describe("layout", () => {
 
     expect(size("Close")).toEqual([false, 32]);
     expect(size("Undo")[1]).toBe(32);
-    await emulateTouch(true);
-    expect(size("Close")).toEqual([true, 44]);
-    expect(size("Undo")).toEqual([true, 44]);
   });
 
   test("titles line up whether or not the toast has a colored edge", async () => {

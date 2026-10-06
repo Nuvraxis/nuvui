@@ -1,18 +1,20 @@
 import "../../styles/index.scss";
-import { type ReactNode, useState } from "react";
+import { createRef, type ReactNode, useState } from "react";
 import { describe, expect, test, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
 import { axe } from "../../../test/axe";
-import { emulateMedia, emulateTouch, setViewport } from "../../../test/media";
+import { emulateMedia, setViewport } from "../../../test/media";
 import { Button } from "../button";
 import {
   Dialog,
+  DialogBody,
   DialogClose,
   DialogContent,
   type DialogContentProps,
   DialogDescription,
   DialogFooter,
+  DialogHeader,
   type DialogProps,
   DialogTitle,
   DialogTrigger,
@@ -158,8 +160,7 @@ describe("close button", () => {
       .not.toBeInTheDocument();
   });
 
-  test("is at least 44px on a touch screen", async () => {
-    await emulateTouch(true);
+  test("is 32px with a mouse", async () => {
     await render(<Example defaultOpen />);
 
     const { width, height } = page
@@ -167,8 +168,8 @@ describe("close button", () => {
       .element()
       .getBoundingClientRect();
 
-    expect(width).toBeGreaterThanOrEqual(44);
-    expect(height).toBeGreaterThanOrEqual(44);
+    expect(width).toBe(32);
+    expect(height).toBe(32);
   });
 });
 
@@ -311,6 +312,245 @@ describe("layout", () => {
   });
 });
 
+// A dialog in three parts. `lines` is how much text the body holds, and
+// `field` puts a control in it.
+function Parts({
+  lines = 80,
+  field = false,
+  ...props
+}: DialogProps & { lines?: number; field?: boolean }) {
+  return (
+    <Dialog {...props}>
+      <DialogTrigger asChild>
+        <Button>Edit profile</Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Edit profile</DialogTitle>
+          <DialogDescription>
+            Changes are saved to your account.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogBody>
+          {field ? <input aria-label="Name" /> : null}
+          {Array.from({ length: lines }, (_, line) => (
+            // biome-ignore lint/suspicious/noArrayIndexKey: static filler text
+            <p key={line}>Line {line}</p>
+          ))}
+        </DialogBody>
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button intent="secondary">Cancel</Button>
+          </DialogClose>
+          <Button>Save</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+const body = () => document.querySelector(".nuv-dialog__body") as HTMLElement;
+
+describe("header and body", () => {
+  test("forward their refs and keep a className", async () => {
+    const header = createRef<HTMLDivElement>();
+    const main = createRef<HTMLDivElement>();
+    await render(
+      <Dialog defaultOpen>
+        <DialogContent aria-describedby={undefined}>
+          <DialogHeader ref={header} className="mine">
+            <DialogTitle>Edit profile</DialogTitle>
+          </DialogHeader>
+          <DialogBody ref={main} className="mine">
+            Text
+          </DialogBody>
+        </DialogContent>
+      </Dialog>,
+    );
+
+    await expect.element(dialog()).toBeVisible();
+    expect(header.current?.className).toBe("nuv-dialog__header mine");
+    expect(main.current?.className).toBe("nuv-dialog__body mine");
+  });
+
+  test.each(["phone", "desktop"] as const)(
+    "on a %s the body scrolls and the panel doesn't",
+    async (viewport) => {
+      await setViewport(viewport);
+      const panel = await openWithoutMotion(<Parts />);
+
+      expect(panel.getBoundingClientRect().height).toBeLessThan(
+        window.innerHeight,
+      );
+      expect(panel.scrollHeight).toBe(panel.clientHeight);
+      expect(body().scrollHeight).toBeGreaterThan(body().clientHeight);
+    },
+  );
+
+  test.each(["phone", "desktop"] as const)(
+    "on a %s the title and the buttons stay put while it scrolls",
+    async (viewport) => {
+      await setViewport(viewport);
+      const panel = await openWithoutMotion(<Parts />);
+      const tops = () =>
+        [
+          page.getByRole("heading", { name: "Edit profile" }),
+          page.getByRole("button", { name: "Save" }),
+        ].map((part) => part.element().getBoundingClientRect().top);
+      const before = tops();
+
+      body().scrollTop = body().scrollHeight;
+
+      expect(body().scrollTop).toBeGreaterThan(0);
+      expect(tops()).toEqual(before);
+      const save = page
+        .getByRole("button", { name: "Save" })
+        .element()
+        .getBoundingClientRect();
+      expect(save.bottom).toBeLessThanOrEqual(
+        panel.getBoundingClientRect().bottom,
+      );
+    },
+  );
+
+  test("the scrollbar sits on the panel's edge, and the text lines up with the title", async () => {
+    await setViewport("desktop");
+    const panel = await openWithoutMotion(<Parts />);
+
+    // The panel's width without its border.
+    expect(body().getBoundingClientRect().width).toBe(panel.clientWidth);
+    expect(
+      (body().querySelector("p") as Element).getBoundingClientRect().left,
+    ).toBe(
+      page
+        .getByRole("heading", { name: "Edit profile" })
+        .element()
+        .getBoundingClientRect().left,
+    );
+  });
+
+  test("a body that fits doesn't scroll, and takes no room it doesn't need", async () => {
+    await setViewport("desktop");
+    const panel = await openWithoutMotion(<Parts lines={2} />);
+
+    expect(body().scrollHeight).toBe(body().clientHeight);
+    expect(panel.getBoundingClientRect().height).toBeLessThan(400);
+  });
+
+  test("a component variable changes the padding on every side", async () => {
+    await setViewport("desktop");
+    document.documentElement.style.setProperty("--nuv-dialog-padding", "40px");
+
+    try {
+      const panel = await openWithoutMotion(<Parts />);
+      const edge = panel.getBoundingClientRect().left;
+
+      expect(body().getBoundingClientRect().left).toBe(edge + 1);
+      expect(
+        (body().querySelector("p") as Element).getBoundingClientRect().left,
+      ).toBe(edge + 41);
+    } finally {
+      document.documentElement.style.removeProperty("--nuv-dialog-padding");
+    }
+  });
+});
+
+// Someone who doesn't use a mouse scrolls with the arrow keys, and those go
+// to whatever has focus. A body with only text in it has nothing to focus.
+describe("scrolling the body from the keyboard", () => {
+  test("a body of text that scrolls becomes a tab stop with a name", async () => {
+    await openWithoutMotion(<Parts />);
+
+    await expect.poll(() => body().tabIndex).toBe(0);
+    await expect
+      .element(page.getByRole("group", { name: "Edit profile" }))
+      .toBeInTheDocument();
+    expect(page.getByRole("group").element()).toBe(body());
+  });
+
+  test("the arrow keys scroll it once it has focus", async () => {
+    await openWithoutMotion(<Parts />);
+    await expect.poll(() => body().tabIndex).toBe(0);
+
+    body().focus();
+    await userEvent.keyboard("{PageDown}");
+
+    await expect.poll(() => body().scrollTop).toBeGreaterThan(0);
+  });
+
+  test("Tab reaches it between the header and the footer, with a ring", async () => {
+    await openWithoutMotion(<Parts />);
+    await expect.poll(() => body().tabIndex).toBe(0);
+    // Focus starts on Cancel, the first control. Going backwards from there
+    // is the body.
+    await userEvent.keyboard("{Shift>}{Tab}{/Shift}");
+
+    expect(document.activeElement).toBe(body());
+    expect(getComputedStyle(body()).outlineStyle).toBe("solid");
+  });
+
+  test("opening still puts focus on the first control, not on the body", async () => {
+    await openWithoutMotion(<Parts />);
+    await expect.poll(() => body().tabIndex).toBe(0);
+
+    await expect
+      .element(page.getByRole("button", { name: "Cancel" }))
+      .toHaveFocus();
+  });
+
+  test("a body that fits is left alone", async () => {
+    await openWithoutMotion(<Parts lines={2} />);
+    // Long enough for the measurement to have happened.
+    await new Promise((resolve) => setTimeout(resolve, 200));
+
+    expect(body().hasAttribute("tabindex")).toBe(false);
+    expect(body().hasAttribute("role")).toBe(false);
+  });
+
+  test("so is one with a control in it, which Tab can already reach", async () => {
+    await openWithoutMotion(<Parts field />);
+    await new Promise((resolve) => setTimeout(resolve, 200));
+
+    expect(body().scrollHeight).toBeGreaterThan(body().clientHeight);
+    expect(body().hasAttribute("tabindex")).toBe(false);
+    await expect
+      .element(page.getByRole("textbox", { name: "Name" }))
+      .toHaveFocus();
+  });
+
+  test("it follows the content as that grows and shrinks", async () => {
+    await emulateMedia({ reducedMotion: "reduce" });
+    const screen = await render(<Parts defaultOpen lines={2} />);
+    await expect.element(dialog()).toBeVisible();
+    expect(body().hasAttribute("tabindex")).toBe(false);
+
+    await screen.rerender(<Parts defaultOpen lines={80} />);
+    await expect.poll(() => body().getAttribute("tabindex")).toBe("0");
+
+    await screen.rerender(<Parts defaultOpen lines={2} />);
+    await expect.poll(() => body().hasAttribute("tabindex")).toBe(false);
+  });
+
+  test("your own tabIndex and role win", async () => {
+    await emulateMedia({ reducedMotion: "reduce" });
+    await render(
+      <Dialog defaultOpen>
+        <DialogContent aria-describedby={undefined}>
+          <DialogTitle>Terms</DialogTitle>
+          <DialogBody tabIndex={-1} role="document">
+            <div style={{ blockSize: 3000 }}>Long</div>
+          </DialogBody>
+        </DialogContent>
+      </Dialog>,
+    );
+    await expect.element(page.getByRole("dialog")).toBeVisible();
+    await new Promise((resolve) => setTimeout(resolve, 200));
+
+    expect(body().getAttribute("tabindex")).toBe("-1");
+    expect(body().getAttribute("role")).toBe("document");
+  });
+});
+
 describe("motion", () => {
   test("slides up as a sheet on a phone", async () => {
     await emulateMedia({ reducedMotion: "no-preference" });
@@ -367,5 +607,13 @@ describe.each(["light", "dark"] as const)("accessibility in %s", (theme) => {
     );
     // Title, description and the two footer buttons.
     expect(contrast?.nodes.length).toBeGreaterThanOrEqual(4);
+  });
+
+  test("a dialog whose body scrolls passes axe", async () => {
+    document.documentElement.setAttribute("data-theme", theme);
+    await openWithoutMotion(<Parts />);
+    await expect.poll(() => body().tabIndex).toBe(0);
+
+    expect(await axe(document.body)).toHaveNoViolations();
   });
 });

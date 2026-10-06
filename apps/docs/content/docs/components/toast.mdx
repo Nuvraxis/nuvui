@@ -126,6 +126,18 @@ A toast stays for 5 seconds unless `duration` says otherwise, on `Toaster` for a
 
 The clock stops while the pointer is over a toast, and while keyboard focus is anywhere in the list. It starts again when they leave.
 
+## Several at once
+
+Three toasts show at a time. A fourth waits, and shows when one of the three closes. The button below sends five to show it happening.
+
+<Preview name="toast/queue" />
+
+A toast that's waiting isn't on the page yet. Its clock starts when it shows, so it gets its full time, and that's also when a screen reader hears it.
+
+Change the number with `limit` on `Toaster`. A toast with `duration: Infinity` holds its place until someone closes it, so three of those keep everything behind them waiting.
+
+`toast.dismiss()` with no id clears the ones that are waiting as well as the ones showing.
+
 ## Where it shows
 
 On a screen narrower than 40rem, toasts span the width of the screen along the bottom, or along the top if `position` starts with `top`. From 40rem up, they're a column 22rem wide in the corner that `position` names.
@@ -150,6 +162,7 @@ The list sits where you render `Toaster`, without a portal, so it picks up a `da
 Most of this is Radix. The library chooses how each intent is announced.
 
 - Every toast is read out by screen readers when it appears. A `danger` toast interrupts whatever is being read. The others wait until the screen reader is idle.
+- No more than three toasts show at once. The rest wait their turn, and each is announced when it shows.
 - The list is a landmark named "Notifications (F8)", so it can be found again after the announcement.
 - The clock stops on hover and on focus, which gives people time to read a toast and reach its buttons.
 - The close button is a real button with an accessible name, and is at least 44 pixels on touch screens.
@@ -233,5 +246,5 @@ Toasts sent before `Toaster` has mounted aren't lost. They show once it's there.
 **Don't**
 
 - Don't use a toast for an error in a form. Put the message next to the field.
-- Don't send several at once. Each new one pushes the others further from the edge.
+- Don't send a toast for every item in a batch. Only three show at a time, so the last ones arrive long after the work is done. Send one that covers them all.
 - Don't put a toast's only action somewhere people can't get to after it's gone.

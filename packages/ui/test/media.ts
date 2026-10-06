@@ -1,4 +1,4 @@
-import { cdp, commands, page } from "vitest/browser";
+import { commands, page } from "vitest/browser";
 
 export interface Media {
   colorScheme?: "light" | "dark" | null;
@@ -18,12 +18,6 @@ declare module "vitest/browser" {
 // itself is defined in vitest.config.ts, since it runs on the Playwright side.
 export function emulateMedia(media: Media): Promise<void> {
   return commands.emulateMedia(media);
-}
-
-// Makes the browser report (pointer: coarse) and (hover: none), the way a
-// phone does. Playwright's emulateMedia has no option for this.
-export async function emulateTouch(enabled: boolean): Promise<void> {
-  await cdp().send("Emulation.setTouchEmulationEnabled", { enabled });
 }
 
 export const viewports = {

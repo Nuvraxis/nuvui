@@ -1,5 +1,7 @@
 export {
   Dialog,
+  DialogBody,
+  type DialogBodyProps,
   DialogClose,
   type DialogCloseProps,
   DialogContent,
@@ -9,6 +11,8 @@ export {
   type DialogDescriptionProps,
   DialogFooter,
   type DialogFooterProps,
+  DialogHeader,
+  type DialogHeaderProps,
   type DialogProps,
   DialogTitle,
   type DialogTitleProps,

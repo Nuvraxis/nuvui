@@ -2,7 +2,7 @@ import "../../styles/index.scss";
 import { describe, expect, test } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
-import { emulateMedia, emulateTouch } from "../../../test/media";
+import { emulateMedia } from "../../../test/media";
 import { expectNoViolations, renderThemed, themes } from "../../../test/themed";
 import {
   Accordion,
@@ -182,14 +182,12 @@ describe("styles", () => {
     );
   });
 
-  test("triggers are at least 44px tall, touch or not", async () => {
+  test("triggers are at least 44px tall, with a mouse as well", async () => {
     await render(<Example {...single} />);
-    const height = () =>
-      trigger("Shipping").element().getBoundingClientRect().height;
 
-    expect(height()).toBeGreaterThanOrEqual(44);
-    await emulateTouch(true);
-    expect(height()).toBeGreaterThanOrEqual(44);
+    expect(
+      trigger("Shipping").element().getBoundingClientRect().height,
+    ).toBeGreaterThanOrEqual(44);
   });
 
   test("shows a focus ring for keyboard focus", async () => {

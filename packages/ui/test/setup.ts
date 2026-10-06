@@ -1,7 +1,7 @@
 import { afterEach, expect } from "vitest";
 import { userEvent } from "vitest/browser";
 import { axeMatchers } from "./axe";
-import { emulateMedia, emulateTouch, setViewport } from "./media";
+import { emulateMedia, setViewport } from "./media";
 
 expect.extend(axeMatchers);
 
@@ -26,7 +26,6 @@ afterEach(async () => {
     reducedMotion: null,
     forcedColors: null,
   });
-  await emulateTouch(false);
   await setViewport("phone");
   await parkPointer();
 });

@@ -142,6 +142,57 @@ test.describe("dialog page", () => {
   });
 });
 
+test.describe("dialog page, long content", () => {
+  test.beforeEach(async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await open(page, "/docs/components/dialog");
+    await page
+      .locator('[data-preview="dialog/long"]')
+      .getByRole("button", { name: "What's changing" })
+      .click();
+  });
+
+  test("the title and the buttons stay in view while the body scrolls", async ({
+    page,
+  }) => {
+    const dialog = page.getByRole("dialog", { name: "Changes to your plan" });
+    const body = dialog.locator(".nuv-dialog__body");
+    await expect(dialog).toBeVisible();
+
+    const scrolled = await body.evaluate((element) => {
+      element.scrollTop = element.scrollHeight;
+      return element.scrollTop;
+    });
+
+    expect(scrolled).toBeGreaterThan(0);
+    await expect(dialog.getByText("Replies come within one")).toBeInViewport();
+    await expect(
+      dialog.getByRole("heading", { name: "Changes to your plan" }),
+    ).toBeInViewport({ ratio: 1 });
+    await expect(
+      dialog.getByRole("button", { name: "Accept changes" }),
+    ).toBeInViewport({ ratio: 1 });
+  });
+
+  test("the body can be scrolled from the keyboard", async ({ page }) => {
+    const body = page.locator(".nuv-dialog__body");
+    // It holds only text, so the body itself has to take focus.
+    await expect(body).toHaveAttribute("tabindex", "0");
+    await expect(
+      page.getByRole("group", { name: "Changes to your plan" }),
+    ).toBeVisible();
+
+    // Focus opens on the first button. One step back from there is the body.
+    await page.keyboard.press("Shift+Tab");
+    await expect(body).toBeFocused();
+    await page.keyboard.press("PageDown");
+
+    await expect
+      .poll(() => body.evaluate((element) => element.scrollTop))
+      .toBeGreaterThan(0);
+  });
+});
+
 test.describe("checkbox page", () => {
   test.beforeEach(async ({ page }) => {
     await open(page, "/docs/components/checkbox");

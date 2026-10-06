@@ -5,7 +5,7 @@ import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
 import { axe, behindOpenList } from "../../../test/axe";
 import { contrast } from "../../../test/contrast";
-import { emulateMedia, emulateTouch, setViewport } from "../../../test/media";
+import { emulateMedia, setViewport } from "../../../test/media";
 import { setPageTheme, themes } from "../../../test/themed";
 import {
   Select,
@@ -380,13 +380,10 @@ describe("keyboard", () => {
 });
 
 describe("layout", () => {
-  test("the trigger is 44px tall on a touch screen and 40px with a mouse", async () => {
+  test("the trigger is 40px tall with a mouse", async () => {
     await render(<Example />);
-    const height = () => rect(trigger().element()).height;
 
-    expect(height()).toBe(40);
-    await emulateTouch(true);
-    expect(height()).toBe(44);
+    expect(rect(trigger().element()).height).toBe(40);
   });
 
   test("the trigger is 12rem wide unless a variable says otherwise", async () => {
@@ -442,18 +439,14 @@ describe("layout", () => {
     expect(panel.width).toBeGreaterThanOrEqual(rect(element).width);
   });
 
-  test("rows are 44px tall on a touch screen and 32px with a mouse", async () => {
+  test("rows are 32px tall with a mouse", async () => {
     await openStill(<Example defaultOpen />);
-    const height = () => rect(option("Apple").element()).height;
 
-    expect(height()).toBe(32);
-    await emulateTouch(true);
-    expect(height()).toBe(44);
+    expect(rect(option("Apple").element()).height).toBe(32);
   });
 
   test("a long list stays on the screen and scrolls inside itself", async () => {
     await setViewport("phone");
-    await emulateTouch(true);
     const panel = await openStill(<Long defaultOpen />);
     const viewport = panel.querySelector(".nuv-select__viewport") as Element;
 

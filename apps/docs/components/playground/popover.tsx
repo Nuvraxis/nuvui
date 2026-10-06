@@ -8,7 +8,7 @@ import {
   PopoverTrigger,
 } from "@nuvui/react";
 import { useState } from "react";
-import { Playground, SelectControl } from "./controls";
+import { CheckboxControl, Playground, SelectControl } from "./controls";
 
 type Side = NonNullable<PopoverContentProps["side"]>;
 type Align = NonNullable<PopoverContentProps["align"]>;
@@ -29,8 +29,10 @@ const aligns = Object.keys({
 export function PopoverPlayground() {
   const [side, setSide] = useState<Side>("bottom");
   const [align, setAlign] = useState<Align>("center");
+  const [showArrow, setShowArrow] = useState(false);
 
   const props = [
+    showArrow && "showArrow",
     side !== "bottom" && `side="${side}"`,
     align !== "center" && `align="${align}"`,
   ].filter(Boolean);
@@ -55,6 +57,11 @@ export function PopoverPlayground() {
             options={aligns}
             onChange={setAlign}
           />
+          <CheckboxControl
+            label="showArrow"
+            checked={showArrow}
+            onChange={setShowArrow}
+          />
         </>
       }
     >
@@ -62,7 +69,12 @@ export function PopoverPlayground() {
         <PopoverTrigger asChild>
           <Button intent="secondary">Open with these props</Button>
         </PopoverTrigger>
-        <PopoverContent aria-label="Share this page" side={side} align={align}>
+        <PopoverContent
+          aria-label="Share this page"
+          showArrow={showArrow}
+          side={side}
+          align={align}
+        >
           Anyone with the link can view this page.
         </PopoverContent>
       </Popover>

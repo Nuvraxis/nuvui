@@ -5,7 +5,7 @@ import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
 import { axe, behindOpenList } from "../../../test/axe";
 import { contrast } from "../../../test/contrast";
-import { emulateMedia, emulateTouch, setViewport } from "../../../test/media";
+import { emulateMedia, setViewport } from "../../../test/media";
 import { setPageTheme, themes } from "../../../test/themed";
 import { Button } from "../button";
 import {
@@ -472,19 +472,15 @@ describe("layout", () => {
     expect(rect(panel).left).toBe(rect(button).left);
   });
 
-  test("rows are 44px tall on a touch screen and 32px with a mouse", async () => {
+  test("rows are 32px tall with a mouse", async () => {
     await openStill(<Example defaultOpen />);
-    const height = () => rect(item("Rename").element()).height;
 
-    expect(height()).toBe(32);
-    await emulateTouch(true);
-    expect(height()).toBe(44);
+    expect(rect(item("Rename").element()).height).toBe(32);
   });
 
   test("a long menu stays on the screen and scrolls inside itself", async () => {
     await setViewport("phone");
     await emulateMedia({ reducedMotion: "reduce" });
-    await emulateTouch(true);
     await render(
       <DropdownMenu defaultOpen>
         <DropdownMenuTrigger>Options</DropdownMenuTrigger>

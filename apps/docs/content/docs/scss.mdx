@@ -97,18 +97,20 @@ Keep `sm` in the map. Dialog and Toast use it, and the compile fails without it.
 
 ## What your build tool needs
 
-`@use "@nuvui/react/scss/mixins"` is a path through the package's `exports` map. Sass can't follow that by itself, so whether it works depends on what runs Sass for you. This is what we've run, all of it on Windows:
+`@use "@nuvui/react/scss/mixins"` is a path through the package's `exports` map. Sass can't follow that by itself, so whether it works depends on what runs Sass for you. This is what we've run. Every row was run on Windows, and the Turbopack row on Linux as well:
 
 | Tool | `scss/mixins` | `scss` (the whole library) |
 | --- | --- | --- |
-| Next.js 16 with Turbopack | Works | Fails on Windows |
+| Next.js 16 with Turbopack | Works | Works on Linux, fails on Windows |
 | Next.js 16 with webpack | Works | Works |
 | Vite 8 | Works | Works |
 | Sass 1.105, command line or API | Works with `pkg:` | Works with `pkg:` |
 
 ### Next.js with Turbopack on Windows
 
-Compiling the whole library fails with "Can't find stylesheet to import". Turbopack finds the file in the package, then can't follow that file's own relative `@use` lines. We traced it to the code that passes paths from Sass to Turbopack, which builds them with backslashes on Windows. We haven't run the same build on macOS or Linux, so we can't say for certain that it works there.
+Compiling the whole library fails with "Can't find stylesheet to import". Turbopack finds the file in the package, then can't follow that file's own relative `@use` lines. The code that passes paths from Sass to Turbopack builds them with backslashes on Windows. The same build works on Linux. We haven't run it on macOS.
+
+Next.js has this as [issue 87243](https://github.com/vercel/next.js/issues/87243). It was still open, and still happening in 16.4.0-canary.61, when this page was last checked in October 2026.
 
 The mixins file is one file that loads nothing else, which is why it isn't affected.
 

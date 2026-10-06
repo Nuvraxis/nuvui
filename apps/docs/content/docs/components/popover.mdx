@@ -33,7 +33,7 @@ The styles come from `@nuvui/react/styles.css`, which you load once for the whol
 | --- | --- |
 | `Popover` | Holds the open state. Renders nothing itself. |
 | `PopoverTrigger` | The button that opens the popover. |
-| `PopoverContent` | The panel. It places itself next to the trigger. |
+| `PopoverContent` | The panel. It places itself next to the trigger, and can draw an arrow that points at it. |
 | `PopoverClose` | Closes the popover when pressed. Wrap your own button with `asChild`. |
 | `PopoverAnchor` | Optional. Wrap another element in it to place the panel against that instead of the trigger. |
 
@@ -86,6 +86,16 @@ The other parts take the same props as the Radix parts they wrap, including `asC
 
 `side` is a preference, not a promise. On a phone there's rarely room to the left or right of a button, so those two usually end up above or below it.
 
+## With an arrow
+
+Pass `showArrow` to draw an arrow from the panel to the trigger. It helps when a page has several buttons close together and it isn't obvious which one the panel belongs to.
+
+<Preview name="popover/arrow" />
+
+The arrow takes the panel's background and border, so it follows `--nuv-popover-bg` and `--nuv-popover-border`. The gap set by `sideOffset` is then measured from the arrow's tip.
+
+It points at the middle of the trigger. When the trigger is near a corner of the panel, the arrow stops 12 pixels short of the corner so it stays off the rounded part, and the panel moves over to keep it pointing at the trigger. `arrowPadding` changes that distance.
+
 ## With a form
 
 Opening a popover moves focus to the first control inside it, so a field is ready to type in.
@@ -116,6 +126,8 @@ Most of this is Radix. The library doesn't change it.
 - A click or tap outside the panel closes it.
 - The panel stays inside the screen, with 8 pixels to spare, and flips to the other side of the trigger when it has to.
 - The open and close animations only run when the visitor hasn't asked for reduced motion.
+- When the content scrolls and has nothing inside that takes focus, the part that scrolls becomes a tab stop itself, with the popover's name. Without that, someone who doesn't use a mouse would have no way to scroll it.
+- The arrow is hidden from screen readers and takes no clicks.
 
 ### What you need to handle
 
@@ -138,9 +150,9 @@ Popovers render at the end of `<body>`, so set these on `:root` or `body`, or st
     "--nuv-popover-width":
       "Width of the panel. It still shrinks to fit a narrow screen.",
     "--nuv-popover-padding": "Padding inside the panel.",
-    "--nuv-popover-border": "Border color.",
+    "--nuv-popover-border": "Border color. The arrow's edge uses it too.",
     "--nuv-popover-radius": "Corner radius.",
-    "--nuv-popover-bg": "Background color.",
+    "--nuv-popover-bg": "Background color. The arrow is filled with it too.",
     "--nuv-popover-shadow": "Shadow under the panel.",
     "--nuv-popover-fg": "Text color.",
   }}
@@ -151,9 +163,16 @@ Popovers render at the end of `<body>`, so set these on `:root` or `body`, or st
 <BemClasses
   component="popover"
   descriptions={{
-    "nuv-popover": "PopoverContent.",
+    "nuv-popover": "PopoverContent, which is the panel.",
+    "nuv-popover__body":
+      "The element inside the panel that holds your content. It has the padding, and it's the part that scrolls.",
+    "nuv-popover__arrow": "The arrow.",
+    "nuv-popover__arrow-frame":
+      "An invisible box the arrow is placed against. It's only there with showArrow.",
   }}
 />
+
+A `className` or `style` on `PopoverContent` goes to the panel. Your content sits one level down, in the body, so to lay it out as a grid or a row, wrap it in an element of your own.
 
 The trigger is your own element, so it has no class from this component.
 

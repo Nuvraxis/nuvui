@@ -23,32 +23,36 @@ jobs:
       # Lets the registry verify where the package was built (provenance).
       id-token: write
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
 
-      - uses: actions/setup-node@v5
+      # registry-url writes an .npmrc that reads the token from
+      # NODE_AUTH_TOKEN. There's no dependency cache here on purpose: what
+      # gets published is built from a fresh install.
+      - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
-          cache: pnpm
           registry-url: https://registry.npmjs.org
+          package-manager-cache: false
 
       - run: pnpm install --frozen-lockfile
 
       # With pending changesets this opens or updates a "Version packages"
       # pull request. Once that PR is merged and no changesets are left, it
-      # builds and publishes instead.
-      - uses: changesets/action@v1
+      # builds and publishes instead. v2 of the action is the one that works
+      # with Changesets 3. It hands its GitHub token to both scripts, which
+      # the changelog needs to look up pull requests.
+      - uses: changesets/action@v2
         with:
-          version: pnpm version-packages
-          publish: pnpm release
-          title: Version packages
-          commit: Version packages
+          version-script: pnpm version-packages
+          publish-script: pnpm release
+          pr-title: Version packages
+          commit-message: Version packages
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # TODO(Nuvraxis): add an NPM_TOKEN repository secret with publish
           # rights to the @nuvui scope, or switch this job to trusted
-          # publishing and remove these two lines.
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          # publishing and remove this line.
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          # The registry only accepts provenance from a public repository.
           NPM_CONFIG_PROVENANCE: true

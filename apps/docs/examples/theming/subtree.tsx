@@ -7,11 +7,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@nuvui/react";
-import { useState } from "react";
+import { useId, useState } from "react";
 
 export default function Example() {
   // State, not a ref, so the select re-renders once the section exists.
   const [section, setSection] = useState<HTMLElement | null>(null);
+  const id = useId();
 
   return (
     <section
@@ -26,9 +27,9 @@ export default function Example() {
         color: "var(--color-foreground)",
       }}
     >
-      <label htmlFor="density">Density</label>
+      <label htmlFor={id}>Density</label>
       <Select defaultValue="comfortable">
-        <SelectTrigger id="density">
+        <SelectTrigger id={id}>
           <SelectValue />
         </SelectTrigger>
         <SelectContent container={section ?? undefined}>

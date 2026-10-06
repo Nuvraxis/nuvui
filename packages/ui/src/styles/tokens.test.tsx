@@ -1,8 +1,16 @@
 import "./index.scss";
+import {
+  chartColors,
+  colorTokens,
+  createTheme,
+  palette,
+  systemFont,
+  toHex,
+} from "@nuvui/theme";
 import { describe, expect, test } from "vitest";
 import { render } from "vitest-browser-react";
 import { axe } from "../../test/axe";
-import { contrast } from "../../test/contrast";
+import { contrast, toRgb } from "../../test/contrast";
 import { emulateMedia } from "../../test/media";
 
 const root = document.documentElement;
@@ -162,6 +170,115 @@ describe.each(["light", "dark"] as const)("contrast in %s", (theme) => {
       );
 
       expect(ratio).toBeGreaterThanOrEqual(3);
+    },
+  );
+});
+
+// What the browser makes of a color, so two ways of writing the same color
+// compare equal.
+function computed(color: string, inside: Element = document.body): string {
+  const probe = document.createElement("span");
+  probe.style.color = color;
+  inside.append(probe);
+  const value = getComputedStyle(probe).color;
+  probe.remove();
+  return value;
+}
+
+// The theme generator in @nuvui/theme and this stylesheet are written
+// separately. These tests are what keeps them the same.
+describe("the theme generator", () => {
+  const theme = createTheme();
+
+  test.each(["light", "dark"] as const)(
+    "its default theme is this stylesheet's, in %s",
+    async (mode) => {
+      const screen = await render(
+        <div data-theme={mode} data-testid="scope" />,
+      );
+      const scope = screen.getByTestId("scope").element();
+
+      for (const name of colorTokens) {
+        expect(computed(`var(${name})`, scope), name).toBe(
+          computed(theme[mode][name]),
+        );
+      }
+    },
+  );
+
+  test("its default radius scale and control heights are this stylesheet's", () => {
+    for (const [name, value] of Object.entries(theme.shape)) {
+      expect(token(name), name).toBe(value);
+    }
+  });
+
+  test("its system font stack is --font-sans", () => {
+    const plain = (stack: string) => stack.replace(/\s+/g, " ").trim();
+
+    expect(plain(token("--font-sans"))).toBe(plain(systemFont));
+  });
+
+  test.each(["light", "dark"] as const)(
+    "its chart colors are --color-chart-1 to 8, in %s",
+    async (mode) => {
+      const screen = await render(
+        <div data-theme={mode} data-testid="scope" />,
+      );
+      const scope = screen.getByTestId("scope").element();
+
+      chartColors[mode].forEach((color, index) => {
+        expect(computed(`var(--color-chart-${index + 1})`, scope)).toBe(
+          computed(color),
+        );
+      });
+      expect(token("--color-chart-9", scope)).toBe("");
+    },
+  );
+
+  // The generator decides what passes from its own arithmetic. This paints
+  // every color of every scale, to show the arithmetic agrees with the
+  // screen. A channel may round one step the other way, and the generator
+  // picks colors with room to spare for that.
+  test("works out the colors this browser paints", () => {
+    for (const [scale, shades] of Object.entries(palette)) {
+      for (const [step, color] of Object.entries(shades)) {
+        const painted = toRgb(color);
+        const worked = [1, 3, 5].map((at) =>
+          Number.parseInt(toHex(color).slice(at, at + 2), 16),
+        );
+
+        painted.forEach((channel, index) => {
+          expect(
+            Math.abs(channel - (worked[index] ?? Number.NaN)),
+            `${scale}-${step}: painted ${painted}, worked out ${worked}`,
+          ).toBeLessThanOrEqual(1);
+        });
+      }
+    }
+  });
+});
+
+describe("chart colors", () => {
+  test.each(["light", "dark"] as const)(
+    "each can be seen against the page and a surface in %s",
+    async (theme) => {
+      const screen = await render(
+        <div data-theme={theme} data-testid="scope" />,
+      );
+      const scope = screen.getByTestId("scope").element();
+
+      for (let index = 1; index <= 8; index += 1) {
+        for (const background of ["background", "surface"]) {
+          const ratio = contrast(
+            token(`--color-chart-${index}`, scope),
+            token(`--color-${background}`, scope),
+          );
+          expect(
+            ratio,
+            `chart-${index} on ${background}`,
+          ).toBeGreaterThanOrEqual(3);
+        }
+      }
     },
   );
 });

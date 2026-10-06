@@ -23,19 +23,29 @@ function Swatch({ color }: { color: string }) {
 }
 
 interface SemanticColorsProps {
-  /** What each color is for, keyed by its full name. */
-  descriptions: Record<string, string>;
+  /** Which colors to list. The chart colors are a group of their own. */
+  group?: "semantic" | "chart";
+  /**
+   * What each color is for, keyed by its full name. Leave it out for a group
+   * whose names say it all, and the table has no descriptions.
+   */
+  descriptions?: Record<string, string>;
 }
 
-export async function SemanticColors({ descriptions }: SemanticColorsProps) {
+export async function SemanticColors({
+  group = "semantic",
+  descriptions,
+}: SemanticColorsProps) {
   const tokens = await readTokens();
-  const names = [...tokens.dark.keys()];
-  checkDescriptions("semantic colors", "tokens", names, descriptions);
+  const names = (await tokensIn(group)).map(([name]) => name);
+  if (descriptions) {
+    checkDescriptions(`${group} colors`, "tokens", names, descriptions);
+  }
 
   return (
     <section
       className={scrollBox}
-      aria-label="Semantic colors"
+      aria-label={group === "chart" ? "Chart colors" : "Semantic colors"}
       // biome-ignore lint/a11y/noNoninteractiveTabindex: on a phone this box scrolls sideways, and a scrollable area has to be reachable by keyboard
       tabIndex={0}
     >
@@ -57,9 +67,11 @@ export async function SemanticColors({ descriptions }: SemanticColorsProps) {
               <tr key={name}>
                 <th scope="row">
                   <code className="whitespace-nowrap">{name}</code>
-                  <span className="mt-1 block font-normal">
-                    {descriptions[name]}
-                  </span>
+                  {descriptions && (
+                    <span className="mt-1 block font-normal">
+                      {descriptions[name]}
+                    </span>
+                  )}
                 </th>
                 <td className="whitespace-nowrap">
                   <Swatch color={light} />

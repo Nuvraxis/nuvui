@@ -3,12 +3,13 @@
 
 @layer components {
   .nuv-accordion {
-    border-block-start: 1px solid
+    border-block-start: var(--nuv-border-width) solid
       var(--nuv-accordion-border, var(--color-border));
   }
 
   .nuv-accordion__item {
-    border-block-end: 1px solid var(--nuv-accordion-border, var(--color-border));
+    border-block-end: var(--nuv-border-width) solid
+      var(--nuv-accordion-border, var(--color-border));
   }
 
   // The heading is only there for the page outline. It shouldn't bring a
@@ -42,7 +43,7 @@
     @include mixins.focus-ring;
 
     &[data-disabled] {
-      opacity: 0.5;
+      opacity: var(--nuv-disabled-opacity);
       cursor: not-allowed;
     }
   }

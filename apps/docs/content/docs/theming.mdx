@@ -1,6 +1,6 @@
 ---
 title: Theming and tokens
-description: How nuvui's design tokens are layered, how to override them for a site, a section or one component, and a live editor to try changes in.
+description: How nuvui's design tokens are layered, the presets that ship with it, density, how to override tokens for a site, a section or one component, and a live editor to try changes in.
 ---
 
 Every color, radius and size in nuvui comes from a CSS custom property. There's no theme object to pass around and no provider to wrap your app in. To change how the components look, you set variables in a stylesheet.
@@ -12,6 +12,8 @@ Change a value and the components in the box follow. The editor sets the variabl
 <TokenEditor />
 
 Colors are kept apart for light and dark. Switch the site's theme with the toggle in the navigation and you're editing the other set.
+
+**Start from** puts the preview in one of the [presets](#presets). Your changes then sit on top of that preset, and the CSS says which one to load.
 
 The editor will let you pick colors nobody can read. The contrast figures are there to catch that. Text needs 4.5:1 against what's behind it, and the edge of a control or a focus ring needs 3:1.
 
@@ -95,6 +97,75 @@ Each component page lists the variables that component reads. Set them on the co
 }
 ```
 
+## Presets
+
+The package ships five themes besides its default. Each is one stylesheet that sets every semantic color for light and dark, the radius scale and a density.
+
+<PresetList />
+
+<Preview name="theming/presets" />
+
+Import the ones you want and name one with `data-preset`:
+
+```tsx
+import "@nuvui/react/styles.css";
+import "@nuvui/react/themes/ink.css";
+```
+
+```html
+<html lang="en" data-preset="ink" data-theme="system">
+```
+
+A preset does nothing until an element names it, so you can load several and switch between them by changing the attribute. That's also how one section, or one customer's pages, gets a look of its own.
+
+### Presets and dark mode
+
+`data-preset` picks the theme and `data-theme` picks light or dark. They can be on the same element or on different ones, in either order, and nested as deep as you like. Each part of the page uses the nearest preset above it and the nearest `data-theme` above it.
+
+With no `data-theme` anywhere, a preset is light, like the default theme.
+
+A preset's stylesheet doesn't set the semantic colors directly. It gives both of its modes as variables named `--nuv-preset-light-*` and `--nuv-preset-dark-*`, and one rule in the library's tokens turns those into `--color-primary` and the rest, on the preset's element and on every `data-theme` element inside it. That's why nesting works: the variables are inherited, so the nearest preset supplies the values, and the nearest `data-theme` picks the mode. It needs nothing newer than the rest of the library does.
+
+That rule reads two switches the tokens define, `--nuv-light` and `--nuv-dark`. You can use them for values of your own that have to hold both modes:
+
+```css
+.banner {
+  background-color: var(--nuv-light, #fef3c6) var(--nuv-dark, #461901);
+}
+```
+
+In light, `--nuv-light` is unset, so the first `var()` gives its fallback, and `--nuv-dark` is empty, so the second gives nothing. In dark it's the other way round.
+
+### What a preset leaves alone
+
+The color scales, the chart colors, spacing, type sizes, shadows and motion are the same in every preset. A preset also doesn't load a font.
+
+Your own rules still win. A preset sits in the same `tokens` layer as the defaults, so anything you set outside a layer overrides it, exactly as described under [Changing tokens](#changing-tokens).
+
+Floating parts need `container` inside a preset section for the same reason they do inside a dark one. The [next section](#dark-mode-for-part-of-a-page) explains.
+
+## Density
+
+Density is how tall controls are with a mouse or trackpad. There are three levels, set with `data-density` on `<html>` or on any element:
+
+<Preview name="theming/density" />
+
+Each level sets three heights, for small, medium and large controls:
+
+- `data-density="compact"`: 28, 36 and 44 pixels.
+- `data-density="default"`: 32, 40 and 48 pixels.
+- `data-density="comfortable"`: 36, 44 and 52 pixels.
+
+Medium is the height of a button, a select and a tab. Small is a row in a menu or a select list, and the close button of a dialog or toast. Large is a large button.
+
+On a touch screen nothing changes. Every control keeps its 44 pixel target there at every density, because a finger doesn't get smaller when a layout gets tighter.
+
+Density only sets heights. Padding and gaps come from `--spacing`, which Tailwind shares, so that one is left for you to set.
+
+Each preset comes with a density. `data-density` on the same element, or on one inside it, wins over the preset's.
+
+The levels are three tokens, listed under [Controls](#controls). Set those yourself for a density in between.
+
 ## Dark mode for part of a page
 
 `data-theme` works on any element, not only `<html>`. Everything inside takes that theme. [Getting started](/docs#dark-mode) covers the three values it accepts.
@@ -163,6 +234,16 @@ These tables are read from the `tokens.css` that the package ships.
   }}
 />
 
+### Chart colors
+
+Eight colors for the series of a chart, to be used in this order. No component reads them yet. They're here so charts you draw now match the chart components when those arrive.
+
+<SemanticColors group="chart" />
+
+Each one reaches 3:1 against the page and against a surface, in light and in dark. The order alternates hue and lightness so that neighbours can still be told apart with protanopia, deuteranopia or tritanopia. That was checked by simulating each one, and it's part of the test suite. Color alone is still not enough for a chart: label the series as well.
+
+They don't change with a preset.
+
 ### Color scales
 
 Five of Tailwind's scales, plus black and white. The values are in `oklch()`.
@@ -200,6 +281,14 @@ Transitions and animations are only declared under `prefers-reduced-motion: no-p
 <TokenList group="breakpoint" />
 
 These are for reading in your own CSS or JavaScript. A custom property can't be used in a media query, so changing one here doesn't move the point where a dialog stops being a sheet. [Using with SCSS](/docs/scss#breakpoints) covers how to do that.
+
+### Controls
+
+<TokenList group="control" />
+
+`--nuv-border-width` is the width of every border the components draw. `--nuv-disabled-opacity` is how far a disabled control fades.
+
+`--nuv-touch-size` is the smallest a control gets on a touch screen. The three heights are what [density](#density) changes.
 
 ### Stacking order
 

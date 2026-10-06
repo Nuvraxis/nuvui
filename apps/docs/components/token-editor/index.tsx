@@ -1,6 +1,7 @@
+import { createTheme, presetNames, presets } from "@nuvui/theme";
 import { readTokens } from "@/lib/tokens";
 import { Editor } from "./editor";
-import type { ColorToken, SizeToken } from "./types";
+import type { ColorToken, PresetValues, SizeToken } from "./types";
 
 // What the editor offers. Each control sets one real token, and the defaults
 // come from the package's tokens.css, so a renamed token stops the build
@@ -49,5 +50,30 @@ export async function TokenEditor() {
     return { ...range, initial: Number(rem) };
   });
 
-  return <Editor colors={colors} sizes={sizes} />;
+  // What each preset sets for those same tokens, from the generator that
+  // writes the preset stylesheets. A token a preset leaves alone has no
+  // entry, and the editor falls back to the default for it.
+  const starts: PresetValues[] = presetNames.map((name) => {
+    const theme = createTheme(presets[name]);
+    const pick = (values: Record<string, string>) =>
+      Object.fromEntries(
+        colorNames.flatMap((token) => {
+          const value = values[token];
+          return value ? [[token, value]] : [];
+        }),
+      );
+
+    return {
+      name,
+      colors: { light: pick(theme.light), dark: pick(theme.dark) },
+      sizes: Object.fromEntries(
+        sizeRanges.flatMap((range) => {
+          const rem = /^(\d*\.?\d+)rem$/.exec(theme.shape[range.name] ?? "");
+          return rem ? [[range.name, Number(rem[1])]] : [];
+        }),
+      ),
+    };
+  });
+
+  return <Editor colors={colors} sizes={sizes} presets={starts} />;
 }

@@ -1,0 +1,120 @@
+// Installs the packed library into the apps in fixtures/ and builds them.
+// fixtures/README.md says what this is for.
+import { execFileSync } from "node:child_process";
+import {
+  cpSync,
+  existsSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
+
+const root = fileURLToPath(new URL("..", import.meta.url));
+const keep = process.argv.includes("--keep");
+const work = mkdtempSync(join(tmpdir(), "nuvui-consumers-"));
+
+// pnpm is a .cmd file on Windows, which only runs through a shell.
+function pnpm(args, cwd) {
+  execFileSync("pnpm", args, {
+    cwd,
+    stdio: "inherit",
+    shell: process.platform === "win32",
+  });
+}
+
+// Every file under a folder whose name ends in one of the extensions.
+function files(dir, ...extensions) {
+  if (!existsSync(dir)) return [];
+  return readdirSync(dir, { recursive: true, withFileTypes: true })
+    .filter(
+      (entry) =>
+        entry.isFile() && extensions.some((ext) => entry.name.endsWith(ext)),
+    )
+    .map((entry) => join(entry.parentPath, entry.name));
+}
+
+const read = (paths) =>
+  paths.map((path) => readFileSync(path, "utf8")).join("\n");
+
+function expect(app, what, passed) {
+  if (!passed) throw new Error(`${app}: ${what}`);
+  console.log(`test-consumers: ${app}: ${what}: yes`);
+}
+
+const fixtures = {
+  vite(dir) {
+    const css = read(files(join(dir, "dist"), ".css"));
+    expect("vite", "the build has a stylesheet", css.length > 0);
+    expect("vite", "it has the component styles", css.includes(".nuv-button"));
+    expect("vite", "it has the tokens", css.includes("--color-primary"));
+    expect("vite", "it has the preset", css.includes("data-preset=ink"));
+
+    const script = read(files(join(dir, "dist"), ".js"));
+    expect(
+      "vite",
+      "the script has the components",
+      script.includes("nuv-dialog"),
+    );
+  },
+
+  next(dir) {
+    const html = read([join(dir, "out", "index.html")]);
+    expect(
+      "next",
+      "the server rendered a button from a server component",
+      // The two attributes, in whichever order React wrote them.
+      /<a\s(?=[^>]*class="nuv-button)(?=[^>]*href="#next")/.test(html),
+    );
+    expect(
+      "next",
+      "the server rendered the client components",
+      html.includes('role="switch"') && html.includes('aria-haspopup="dialog"'),
+    );
+
+    const css = read(files(join(dir, "out"), ".css"));
+    expect("next", "it has the component styles", css.includes(".nuv-button"));
+    expect("next", "it has the preset", css.includes("data-preset=ink"));
+  },
+};
+
+let failed = false;
+try {
+  console.log("test-consumers: packing @nuvui/react");
+  pnpm(["--filter", "@nuvui/react", "pack", "--pack-destination", work], root);
+  const tarball = readdirSync(work).find((name) => name.endsWith(".tgz"));
+  if (!tarball) throw new Error("pnpm pack didn't write a tarball");
+
+  for (const [name, check] of Object.entries(fixtures)) {
+    const dir = join(work, name);
+    cpSync(join(root, "fixtures", name), dir, { recursive: true });
+
+    const manifest = join(dir, "package.json");
+    const pkg = JSON.parse(readFileSync(manifest, "utf8"));
+    pkg.dependencies["@nuvui/react"] = pathToFileURL(join(work, tarball)).href;
+    writeFileSync(manifest, `${JSON.stringify(pkg, null, 2)}\n`);
+
+    console.log(`test-consumers: ${name}: installing`);
+    // Outside the repository there is no workspace to find, but say so
+    // anyway: this install has to be the one a stranger would get.
+    pnpm(["install", "--ignore-workspace", "--no-frozen-lockfile"], dir);
+    console.log(`test-consumers: ${name}: checking types`);
+    pnpm(["run", "typecheck"], dir);
+    console.log(`test-consumers: ${name}: building`);
+    pnpm(["run", "build"], dir);
+    check(dir);
+  }
+  console.log("test-consumers: both apps install, type-check and build");
+} catch (error) {
+  failed = true;
+  console.error(`test-consumers failed: ${error.message}`);
+} finally {
+  if (keep) console.log(`test-consumers: kept ${work}`);
+  else rmSync(work, { recursive: true, force: true });
+}
+
+if (failed) process.exit(1);

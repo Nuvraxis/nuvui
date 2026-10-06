@@ -82,9 +82,11 @@ $breakpoints: (
   }
 }
 
-// 2.75rem is 44px at the default font size, the WCAG 2.5.5 target size. Set as
-// a minimum so longer content can still grow the element.
-@mixin touch-target($size: 2.75rem) {
+// The touch size token is 2.75rem, which is 44px at the default font size and
+// the WCAG 2.5.5 target size. It's repeated here as a fallback so the mixin
+// still works in a stylesheet that doesn't load the tokens. Set as a minimum
+// so longer content can still grow the element.
+@mixin touch-target($size: var(--nuv-touch-size, 2.75rem)) {
   min-block-size: $size;
   min-inline-size: $size;
 }
@@ -93,7 +95,7 @@ $breakpoints: (
 // It widens the area that responds to a tap without changing what's drawn.
 // The element needs to be positioned. Dropped again with a mouse, where a
 // larger invisible target would only make neighbours overlap.
-@mixin touch-area($size: 2.75rem) {
+@mixin touch-area($size: var(--nuv-touch-size, 2.75rem)) {
   &::after {
     position: absolute;
     top: 50%;

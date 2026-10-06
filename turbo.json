@@ -14,11 +14,15 @@
       "dependsOn": ["^build"]
     },
     "test": {
-      "dependsOn": ["^build"]
+      "dependsOn": ["^build"],
+      "env": ["NUVUI_BROWSERS"]
     },
     "test:e2e": {
       "dependsOn": ["build"],
       "cache": false
+    },
+    "size": {
+      "dependsOn": ["build"]
     }
   }
 }

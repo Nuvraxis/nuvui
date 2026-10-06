@@ -24,6 +24,17 @@ const provider = (contextOptions: ContextOptions = {}) =>
 
 const touchTests = "test/touch.test.tsx";
 
+// Every engine by default. NUVUI_BROWSERS narrows it to the ones named, for
+// a quicker run while working on something: NUVUI_BROWSERS=chromium.
+const engines = ["chromium", "firefox", "webkit"] as const;
+const asked = process.env.NUVUI_BROWSERS?.split(",").map((name) => name.trim());
+const browsers = engines.filter((name) => !asked || asked.includes(name));
+if (browsers.length === 0) {
+  throw new Error(
+    `NUVUI_BROWSERS is "${process.env.NUVUI_BROWSERS}". It takes any of ${engines.join(", ")}, separated by commas.`,
+  );
+}
+
 export default defineConfig({
   optimizeDeps: {
     // Bundled before the first test instead of when Vite first runs into
@@ -42,6 +53,11 @@ export default defineConfig({
   },
   test: {
     include: ["{src,test}/**/*.test.{ts,tsx}"],
+    // Chromium runs several test files at once, each in a page of its own.
+    // Firefox and WebKit only treat one page as focused, so with files side
+    // by side, the tests that follow keyboard focus fail in whichever pages
+    // aren't it. With either of them in the run, files go one at a time.
+    fileParallelism: browsers.every((browser) => browser === "chromium"),
     setupFiles: ["./test/setup.ts"],
     // Component tests run in a real browser through Playwright. jsdom has no
     // layout, so it can't check focus rings, touch target sizes or color
@@ -59,19 +75,19 @@ export default defineConfig({
       // back everywhere: on Linux with no input devices, as in CI, the page
       // is left with no pointer at all. So every test runs with a mouse,
       // except the ones in one file, which run with a touch screen.
-      instances: [
+      instances: browsers.flatMap((browser) => [
         {
-          browser: "chromium",
-          name: "mouse",
+          browser,
+          name: `${browser} mouse`,
           exclude: [...configDefaults.exclude, touchTests],
         },
         {
-          browser: "chromium",
-          name: "touch",
+          browser,
+          name: `${browser} touch`,
           include: [touchTests],
           provider: provider({ hasTouch: true }),
         },
-      ],
+      ]),
       commands: { emulateMedia },
     },
   },

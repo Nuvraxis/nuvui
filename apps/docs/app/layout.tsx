@@ -2,6 +2,12 @@
 // library's stylesheet then slots into.
 import "./global.css";
 import "@nuvui/react/styles.css";
+// Every preset, for the examples on the Theming page and its editor.
+import "@nuvui/react/themes/ink.css";
+import "@nuvui/react/themes/ledger.css";
+import "@nuvui/react/themes/meadow.css";
+import "@nuvui/react/themes/ember.css";
+import "@nuvui/react/themes/high-contrast.css";
 import { Toaster } from "@nuvui/react";
 import type { Metadata } from "next";
 import { Provider } from "@/components/provider";

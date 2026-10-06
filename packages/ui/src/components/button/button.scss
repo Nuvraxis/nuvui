@@ -1,6 +1,35 @@
 @use "../../styles/layers";
 @use "../../styles/mixins";
 
+// The hover color of a button with a filled background. It moves away from
+// the text color, darker under white text and lighter under dark text, so
+// the text gets easier to read on hover and never harder. Which way that is
+// depends on the theme: an orange primary color takes dark text, and a blue
+// one takes white.
+@mixin filled-hover($fill, $text) {
+  @include mixins.hover {
+    // For browsers without relative color syntax. Mixing in the page's text
+    // color goes the right way wherever the button's text is the opposite of
+    // the page's, as it is in the default theme.
+    background-color: var(
+      --nuv-button-bg-hover,
+      color-mix(in oklab, #{$fill} 88%, var(--color-foreground))
+    );
+
+    // The text color with its lightness turned over and its hue dropped.
+    // Chrome 119, Safari 16.4 and Firefox 128 can work that out. It isn't a
+    // color written out, which is what the lint rule is there to stop.
+    // stylelint-disable function-disallowed-list
+    @supports (color: oklch(from red calc(1 - l) 0 0)) {
+      background-color: var(
+        --nuv-button-bg-hover,
+        color-mix(in oklab, #{$fill} 88%, oklch(from #{$text} calc(1 - l) 0 0))
+      );
+    }
+    // stylelint-enable function-disallowed-list
+  }
+}
+
 @layer components {
   .nuv-button {
     display: inline-flex;
@@ -9,7 +38,7 @@
     justify-content: center;
     padding-block: 0;
     padding-inline: var(--nuv-button-padding-inline, calc(var(--spacing) * 4));
-    border: 1px solid var(--nuv-button-border, transparent);
+    border: var(--nuv-border-width) solid var(--nuv-button-border, transparent);
     border-radius: var(--nuv-button-radius, var(--radius-md));
     font-family: inherit;
     font-size: var(--nuv-button-font-size, var(--text-sm));
@@ -23,7 +52,9 @@
 
     // The base size is the touch size. Sizes only get smaller where a mouse
     // or trackpad is the main input, further down.
-    @include mixins.touch-target(var(--nuv-button-height, 2.75rem));
+    @include mixins.touch-target(
+      var(--nuv-button-height, var(--nuv-touch-size))
+    );
     @include mixins.focus-ring;
 
     @include mixins.motion-safe {
@@ -34,7 +65,7 @@
     }
 
     &[data-disabled] {
-      opacity: 0.5;
+      opacity: var(--nuv-disabled-opacity);
       pointer-events: none;
     }
   }
@@ -46,12 +77,10 @@
     background-color: var(--nuv-button-bg, var(--color-primary));
     color: var(--nuv-button-fg, var(--color-primary-foreground));
 
-    @include mixins.hover {
-      background-color: var(
-        --nuv-button-bg-hover,
-        color-mix(in oklab, var(--color-primary) 88%, var(--color-foreground))
-      );
-    }
+    @include filled-hover(
+      var(--color-primary),
+      var(--color-primary-foreground)
+    );
   }
 
   .nuv-button--secondary {
@@ -80,12 +109,7 @@
     background-color: var(--nuv-button-bg, var(--color-danger));
     color: var(--nuv-button-fg, var(--color-danger-foreground));
 
-    @include mixins.hover {
-      background-color: var(
-        --nuv-button-bg-hover,
-        color-mix(in oklab, var(--color-danger) 88%, var(--color-foreground))
-      );
-    }
+    @include filled-hover(var(--color-danger), var(--color-danger-foreground));
   }
 
   // Sizes
@@ -94,15 +118,15 @@
     padding-inline: var(--nuv-button-padding-inline, calc(var(--spacing) * 3));
 
     @include mixins.fine-pointer {
-      min-block-size: var(--nuv-button-height, 2rem);
-      min-inline-size: var(--nuv-button-height, 2rem);
+      min-block-size: var(--nuv-button-height, var(--nuv-control-height-sm));
+      min-inline-size: var(--nuv-button-height, var(--nuv-control-height-sm));
     }
   }
 
   .nuv-button--md {
     @include mixins.fine-pointer {
-      min-block-size: var(--nuv-button-height, 2.5rem);
-      min-inline-size: var(--nuv-button-height, 2.5rem);
+      min-block-size: var(--nuv-button-height, var(--nuv-control-height-md));
+      min-inline-size: var(--nuv-button-height, var(--nuv-control-height-md));
     }
   }
 
@@ -111,6 +135,17 @@
     font-size: var(--nuv-button-font-size, var(--text-base));
     line-height: var(--text-base--line-height);
 
-    @include mixins.touch-target(var(--nuv-button-height, 3rem));
+    // Never under the touch size on a touch screen, whatever the density.
+    @include mixins.touch-target(
+      var(
+        --nuv-button-height,
+        max(var(--nuv-touch-size), var(--nuv-control-height-lg))
+      )
+    );
+
+    @include mixins.fine-pointer {
+      min-block-size: var(--nuv-button-height, var(--nuv-control-height-lg));
+      min-inline-size: var(--nuv-button-height, var(--nuv-control-height-lg));
+    }
   }
 }

@@ -5,6 +5,7 @@ import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
 import { axe } from "../../../test/axe";
 import { emulateMedia, setViewport } from "../../../test/media";
+import { setPageTheme, themes } from "../../../test/themed";
 import { Button } from "../button";
 import {
   Dialog,
@@ -594,9 +595,9 @@ describe("motion", () => {
   });
 });
 
-describe.each(["light", "dark"] as const)("accessibility in %s", (theme) => {
+describe.each(themes)("accessibility in %s", (theme) => {
   test("the open dialog passes axe", async () => {
-    document.documentElement.setAttribute("data-theme", theme);
+    setPageTheme(theme);
     await openWithoutMotion(<Example />);
 
     const results = await axe(document.body);
@@ -610,7 +611,7 @@ describe.each(["light", "dark"] as const)("accessibility in %s", (theme) => {
   });
 
   test("a dialog whose body scrolls passes axe", async () => {
-    document.documentElement.setAttribute("data-theme", theme);
+    setPageTheme(theme);
     await openWithoutMotion(<Parts />);
     await expect.poll(() => body().tabIndex).toBe(0);
 

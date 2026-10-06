@@ -16,6 +16,15 @@ export interface SizeToken {
   step: number;
 }
 
+/** What a preset sets for the tokens the editor offers. */
+export interface PresetValues {
+  name: string;
+  /** Colors as the preset's stylesheet writes them, per theme. */
+  colors: Record<Theme, Record<string, string>>;
+  /** Sizes in rem. */
+  sizes: Record<string, number>;
+}
+
 export interface Edits {
   sizes: Record<string, number>;
   /** Colors are kept per theme, because each theme has its own values. */

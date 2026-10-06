@@ -555,6 +555,34 @@ describe("layout", () => {
     expect(new Set(lefts).size).toBe(1);
   });
 
+  test("they still line up with a thicker edge and a thicker border", async () => {
+    document.documentElement.style.setProperty(
+      "--nuv-toast-accent-width",
+      "9px",
+    );
+    document.documentElement.style.setProperty("--nuv-border-width", "2px");
+    try {
+      await renderStill();
+      const forever = { duration: Number.POSITIVE_INFINITY };
+      toast("Plain", forever);
+      toast("Good", { ...forever, intent: "success" });
+      await expect.poll(() => all().length).toBe(2);
+
+      const [plain, good] = all();
+      const edge = (item: Element | undefined) =>
+        getComputedStyle(item as Element).borderLeftWidth;
+      const title = (item: Element | undefined) =>
+        rect(item?.querySelector(".nuv-toast__title") as Element).left;
+
+      expect(edge(plain)).toBe("2px");
+      expect(edge(good)).toBe("9px");
+      expect(title(plain)).toBe(title(good));
+    } finally {
+      document.documentElement.style.removeProperty("--nuv-toast-accent-width");
+      document.documentElement.style.removeProperty("--nuv-border-width");
+    }
+  });
+
   test("a long title wraps inside the toast", async () => {
     await setViewport("phone");
     await renderStill();

@@ -40,10 +40,10 @@
 
   // Radix works out where the arrow goes from the panel's outer edge, and
   // positions it from the inside of the nearest positioned box. This box is
-  // the panel grown by its 1px border, which makes those two the same.
+  // the panel grown by its border, which makes those two the same.
   .nuv-popover__arrow-frame {
     position: absolute;
-    inset: -1px;
+    inset: calc(var(--nuv-border-width) * -1);
     pointer-events: none;
   }
 
@@ -51,6 +51,7 @@
     overflow: visible;
     fill: var(--nuv-popover-bg, var(--color-surface));
     stroke: var(--nuv-popover-border, var(--color-border));
+    stroke-width: var(--nuv-border-width);
 
     // The browser repaints the panel in its own colors here, but leaves
     // drawings alone.

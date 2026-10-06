@@ -3,6 +3,7 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, relative, sep } from "node:path";
 import { fileURLToPath } from "node:url";
+import { createTheme, presetNames, presets, toCss } from "@nuvui/theme";
 import { compileAsync } from "sass-embedded";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
@@ -59,10 +60,12 @@ if (scripts === 0) {
 // only button.css would otherwise get whatever order their bundler produces.
 const layerOrder = "@layer tokens, base, components;";
 const cssDir = join(distDir, "css");
+const themesDir = join(distDir, "themes");
 const stylesheets = [
   ...["styles.css", "tokens.css", "base.css"].map((name) =>
     join(distDir, name),
   ),
+  ...presetNames.map((name) => join(themesDir, `${name}.css`)),
   ...(existsSync(cssDir)
     ? readdirSync(cssDir)
         .filter((name) => name.endsWith(".css"))
@@ -78,12 +81,15 @@ for (const file of stylesheets) {
   }
 }
 
-// 3. A component has to be wired up in four places. Missing one gives a
+// 3. A component has to be wired up in five places. Missing one gives a
 // component that passes its own tests and is absent for some consumers.
 const pkg = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
 const barrel = readFileSync(join(srcDir, "index.ts"), "utf8");
 const allStyles = readFileSync(join(srcDir, "styles", "index.scss"), "utf8");
 const componentsDir = join(srcDir, "components");
+const budgets = JSON.parse(
+  readFileSync(join(root, ".size-limit.json"), "utf8"),
+);
 const components = existsSync(componentsDir)
   ? readdirSync(componentsDir, { withFileTypes: true })
       .filter((entry) => entry.isDirectory())
@@ -102,6 +108,11 @@ for (const name of components) {
   }
   if (!existsSync(join(cssDir, `${name}.css`))) {
     problems.push(`dist/css/${name}.css is missing`);
+  }
+  if (
+    !budgets.some(({ path }) => path === `dist/components/${name}/index.js`)
+  ) {
+    problems.push(`.size-limit.json has no size budget for ${name}`);
   }
 }
 
@@ -142,6 +153,35 @@ if (!existsSync(shippedMixins)) {
   }
 }
 
+// 6. Each preset has to be what the generator gives for it today, with
+// nothing left over from a preset that's been renamed or removed. The
+// generator throws if a preset no longer has enough contrast.
+if (!pkg.exports["./themes/*.css"]) {
+  problems.push('package.json has no "./themes/*.css" export');
+}
+for (const name of presetNames) {
+  const file = join(themesDir, `${name}.css`);
+  if (!existsSync(file)) continue;
+  const expected = toCss(createTheme(presets[name]), {
+    preset: name,
+    layer: "tokens",
+  });
+  if (
+    readFileSync(file, "utf8") !==
+    `${layerOrder}
+${expected}`
+  ) {
+    problems.push(`${display(file)} isn't what the theme generator writes`);
+  }
+}
+if (existsSync(themesDir)) {
+  for (const name of readdirSync(themesDir)) {
+    if (!presetNames.includes(name.replace(/.css$/, ""))) {
+      problems.push(`${display(join(themesDir, name))} isn't a preset`);
+    }
+  }
+}
+
 if (problems.length > 0) {
   console.error(
     `check-dist failed:\n${problems.map((p) => `  - ${p}`).join("\n")}`,
@@ -150,5 +190,5 @@ if (problems.length > 0) {
 }
 
 console.log(
-  `check-dist: "use client" matches src in ${scripts} scripts, ${stylesheets.length} stylesheets start with the layer order, ${components.length} components are fully wired up, shipped SCSS compiles to styles.css, the mixins file loads nothing else`,
+  `check-dist: "use client" matches src in ${scripts} scripts, ${stylesheets.length} stylesheets start with the layer order, ${components.length} components are fully wired up, shipped SCSS compiles to styles.css, the mixins file loads nothing else, ${presetNames.length} presets match the generator`,
 );

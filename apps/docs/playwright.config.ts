@@ -4,6 +4,12 @@ import { defineConfig, devices } from "@playwright/test";
 const port = 3100;
 const isCI = Boolean(process.env.CI);
 
+// For the test that presses a code block's copy button. Only Chromium has
+// these permissions to give. The other engines refuse to start with them.
+const clipboard = {
+  permissions: ["clipboard-read", "clipboard-write"],
+};
+
 export default defineConfig({
   testDir: "./e2e",
   fullyParallel: true,
@@ -13,12 +19,15 @@ export default defineConfig({
   use: {
     baseURL: `http://localhost:${port}`,
     trace: "on-first-retry",
-    // For the test that presses a code block's copy button.
-    permissions: ["clipboard-read", "clipboard-write"],
   },
+  // Three engines on a desktop, and the two phone ones that matter: Chrome
+  // on Android and Safari on an iPhone.
   projects: [
-    { name: "desktop", use: { ...devices["Desktop Chrome"] } },
-    { name: "mobile", use: { ...devices["Pixel 7"] } },
+    { name: "desktop", use: { ...devices["Desktop Chrome"], ...clipboard } },
+    { name: "mobile", use: { ...devices["Pixel 7"], ...clipboard } },
+    { name: "firefox", use: { ...devices["Desktop Firefox"] } },
+    { name: "webkit", use: { ...devices["Desktop Safari"] } },
+    { name: "mobile-webkit", use: { ...devices["iPhone 15"] } },
   ],
   // Serves the exported site in `out`, the same files a host would serve, so
   // `pnpm build` has to come first. The turbo task takes care of that.

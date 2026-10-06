@@ -1,7 +1,8 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
+import { createTheme, presetNames, presets } from "@nuvui/theme";
 import { expect, type Locator, test } from "@playwright/test";
-import { open, rootStyle } from "./helpers";
+import { open, rootStyle, sameColor } from "./helpers";
 
 const library = path.join(import.meta.dirname, "..", "..", "..", "packages/ui");
 
@@ -110,6 +111,7 @@ test.describe("scss page", () => {
   test("the example is styled by the stylesheet printed above it", async ({
     page,
     isMobile,
+    browserName,
   }) => {
     await open(page, "/docs/scss");
     const preview = page.locator('[data-preview="scss/notice"]');
@@ -129,9 +131,15 @@ test.describe("scss page", () => {
     expect(box?.width).toBeGreaterThanOrEqual(44);
 
     // focus-ring, which only shows for keyboard focus.
+    // Away and back with the keyboard, so the focus is keyboard focus.
+    // Safari leaves links out of the Tab order unless a setting is changed.
+    // There the link is focused from script, which every browser shows a
+    // ring for when the pointer hasn't been used.
     await link.focus();
-    await page.keyboard.press("Shift+Tab");
-    await page.keyboard.press("Tab");
+    if (browserName !== "webkit") {
+      await page.keyboard.press("Shift+Tab");
+      await page.keyboard.press("Tab");
+    }
     await expect(link).toBeFocused();
     expect(await style(link, "outline-style")).toBe("solid");
     expect(await style(link, "outline-width")).toBe("2px");
@@ -253,5 +261,102 @@ test.describe("changelog page", () => {
     await expect(article.locator("[data-pending] > ul > li")).toHaveCount(
       notes.length,
     );
+  });
+});
+
+test.describe("presets on the theming page", () => {
+  for (const colorScheme of ["light", "dark"] as const) {
+    test(`each preset section has its own colors and shape in ${colorScheme}`, async ({
+      page,
+      isMobile,
+    }) => {
+      await page.emulateMedia({ colorScheme, reducedMotion: "reduce" });
+      await open(page, "/docs/theming");
+      await expect(page.locator("html")).toHaveAttribute(
+        "data-theme",
+        colorScheme,
+      );
+      const preview = page.locator('[data-preview="theming/presets"]');
+
+      for (const name of presetNames) {
+        const theme = createTheme(presets[name]);
+        const section = preview.locator(`[data-preset="${name}"]`);
+        const save = section.getByRole("button", { name: "Save" });
+
+        expect(
+          await sameColor(
+            page,
+            await style(save, "background-color"),
+            theme[colorScheme]["--color-primary"],
+          ),
+          `${name}: the button`,
+        ).toBe(true);
+        expect(
+          await sameColor(
+            page,
+            await style(section, "background-color"),
+            theme[colorScheme]["--color-background"],
+          ),
+          `${name}: the section`,
+        ).toBe(true);
+
+        const radius = Number.parseFloat(theme.shape["--radius-md"] ?? "") * 16;
+        expect(await style(save, "border-top-left-radius"), name).toBe(
+          `${radius}px`,
+        );
+
+        // A touch screen keeps 44 pixels whatever the preset's density.
+        const height =
+          Number.parseFloat(theme.shape["--nuv-control-height-md"] ?? "") * 16;
+        const box = await save.boundingBox();
+        expect(box?.height, name).toBe(isMobile ? 44 : height);
+      }
+    });
+  }
+
+  test("the page outside the sections keeps the default theme", async ({
+    page,
+  }) => {
+    await page.emulateMedia({ colorScheme: "light", reducedMotion: "reduce" });
+    await open(page, "/docs/theming");
+
+    expect(await rootStyle(page, "--color-primary")).toBe(
+      await rootStyle(page, "--color-blue-600"),
+    );
+  });
+
+  test("the table lists every preset the package ships", async ({ page }) => {
+    await open(page, "/docs/theming");
+    const themes = readdirSync(path.join(library, "dist/themes")).map((file) =>
+      file.replace(/\.css$/, ""),
+    );
+
+    expect(themes.sort()).toEqual([...presetNames].sort());
+    for (const name of themes) {
+      await expect(page.locator(`[data-preset-row="${name}"]`)).toBeVisible();
+    }
+  });
+});
+
+test.describe("density on the theming page", () => {
+  test("each level sets the height of a medium button with a mouse", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/docs/theming");
+    const preview = page.locator('[data-preview="theming/density"]');
+
+    for (const [density, height] of [
+      ["compact", 36],
+      ["default", 40],
+      ["comfortable", 44],
+    ] as const) {
+      const button = preview
+        .locator(`[data-density="${density}"]`)
+        .getByRole("button", { name: "Medium" });
+      const box = await button.boundingBox();
+
+      expect(box?.height, density).toBe(isMobile ? 44 : height);
+    }
   });
 });

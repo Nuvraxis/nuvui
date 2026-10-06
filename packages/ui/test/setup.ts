@@ -2,8 +2,12 @@ import { afterEach, expect } from "vitest";
 import { userEvent } from "vitest/browser";
 import { axeMatchers } from "./axe";
 import { emulateMedia, setViewport } from "./media";
+import { loadPresets } from "./presets";
 
 expect.extend(axeMatchers);
+
+// Every test file has the presets, so any of them can render in one.
+loadPresets();
 
 // The mouse pointer stays where the last test left it, and test files share
 // a page. A button rendered under it by the next test is hovered, and shows
@@ -20,7 +24,11 @@ async function parkPointer() {
 // All of this lives on the page rather than in the rendered component, so
 // it would leak into the next test.
 afterEach(async () => {
-  document.documentElement.removeAttribute("data-theme");
+  for (const name of ["data-theme", "data-preset", "data-density"]) {
+    document.documentElement.removeAttribute(name);
+  }
+  document.body.style.removeProperty("background-color");
+  document.body.style.removeProperty("color");
   await emulateMedia({
     colorScheme: null,
     reducedMotion: null,

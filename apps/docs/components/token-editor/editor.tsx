@@ -21,7 +21,13 @@ import {
 import { codeHighlight } from "@/lib/code-themes";
 import { contrast, toHex } from "./color";
 import { buildSnippet } from "./snippet";
-import type { ColorToken, Edits, SizeToken, Theme } from "./types";
+import type {
+  ColorToken,
+  Edits,
+  PresetValues,
+  SizeToken,
+  Theme,
+} from "./types";
 
 // The site's theme toggle sets data-theme on <html>. Watching the attribute
 // keeps the editor in step with it without knowing how the toggle is built.
@@ -79,15 +85,22 @@ const pairs = [
 
 const noEdits: Edits = { sizes: {}, colors: { light: {}, dark: {} } };
 
+// The value of the "Start from" select for the library's own theme.
+const defaultTheme = "default";
+
 interface EditorProps {
   colors: ColorToken[];
   sizes: SizeToken[];
+  /** The presets the package ships, to start from one of them. */
+  presets: PresetValues[];
 }
 
-export function Editor({ colors, sizes }: EditorProps) {
+export function Editor({ colors, sizes, presets }: EditorProps) {
   const id = useId();
   const theme = useSyncExternalStore(watchTheme, readTheme, serverTheme);
   const [edits, setEdits] = useState(noEdits);
+  const [start, setStart] = useState(defaultTheme);
+  const preset = presets.find(({ name }) => name === start);
   // Kept in state, not a ref, so the select list can be told to render
   // inside it once it exists.
   const [scope, setScope] = useState<HTMLDivElement | null>(null);
@@ -107,11 +120,13 @@ export function Editor({ colors, sizes }: EditorProps) {
       hex: Object.fromEntries(
         colors.map(({ name }) => [
           name,
-          toHex(root.getPropertyValue(name).trim()),
+          toHex(
+            preset?.colors[theme][name] ?? root.getPropertyValue(name).trim(),
+          ),
         ]),
       ),
     });
-  }, [theme, colors]);
+  }, [theme, colors, preset]);
   const defaults = read?.theme === theme ? read.hex : undefined;
 
   const colorEdits = edits.colors[theme];
@@ -127,14 +142,18 @@ export function Editor({ colors, sizes }: EditorProps) {
     }));
   }
 
+  // What a size is before any edit: the preset's value, or the library's.
+  const sizeOf = (token: SizeToken) =>
+    preset?.sizes[token.name] ?? token.initial;
+
   function setSize(token: SizeToken, value: number) {
     setEdits((current) => {
       const { [token.name]: _previous, ...others } = current.sizes;
       return {
         ...current,
-        // Back on the default means there's nothing to override.
+        // Back on the starting value means there's nothing to override.
         sizes:
-          value === token.initial ? others : { ...others, [token.name]: value },
+          value === sizeOf(token) ? others : { ...others, [token.name]: value },
       };
     });
   }
@@ -159,6 +178,9 @@ export function Editor({ colors, sizes }: EditorProps) {
         role="group"
         aria-label="Preview"
         data-token-scope
+        // The preset's stylesheet does the rest: every token the editor
+        // doesn't list comes from it too.
+        data-preset={preset?.name}
         className="flex justify-center rounded-t-xl border border-b-0"
         style={scopeStyle}
       >
@@ -209,6 +231,32 @@ export function Editor({ colors, sizes }: EditorProps) {
       </div>
 
       <div className="grid gap-6 border border-b-0 p-4 text-sm">
+        <div className="grid gap-1.5 sm:max-w-xs">
+          <label htmlFor={`${id}-start`} className="font-medium">
+            Start from
+          </label>
+          <Select
+            value={start}
+            onValueChange={(value) => {
+              setStart(value);
+              // Edits are changes to one theme. They don't carry over.
+              setEdits(noEdits);
+            }}
+          >
+            <SelectTrigger id={`${id}-start`}>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={defaultTheme}>The default theme</SelectItem>
+              {presets.map(({ name }) => (
+                <SelectItem key={name} value={name}>
+                  The {name} preset
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
         {/* biome-ignore lint/a11y/useSemanticElements: a legend can't be laid out in a grid with the controls */}
         <div role="group" aria-labelledby={`${id}-colors`}>
           <p id={`${id}-colors`} className="mb-3 font-medium">
@@ -220,7 +268,8 @@ export function Editor({ colors, sizes }: EditorProps) {
                 key={token.name}
                 name={token.name}
                 edited={colorEdits[token.name]}
-                declared={token[theme]}
+                declared={preset?.colors[theme][token.name] ?? token[theme]}
+                preset={preset?.colors[theme][token.name]}
                 opensOn={defaults?.[token.name]}
                 onChange={(value) => setColor(token.name, value)}
               />
@@ -279,7 +328,7 @@ export function Editor({ colors, sizes }: EditorProps) {
               <SizeControl
                 key={token.name}
                 token={token}
-                value={edits.sizes[token.name] ?? token.initial}
+                value={edits.sizes[token.name] ?? sizeOf(token)}
                 onChange={(value) => setSize(token, value)}
               />
             ))}
@@ -299,7 +348,7 @@ export function Editor({ colors, sizes }: EditorProps) {
 
       <DynamicCodeBlock
         lang="css"
-        code={buildSnippet(edits, colors, sizes)}
+        code={buildSnippet(edits, colors, sizes, preset)}
         options={codeHighlight}
         codeblock={{ className: "my-0 rounded-t-none" }}
       />
@@ -311,8 +360,10 @@ interface ColorControlProps {
   name: string;
   /** The value picked in the editor, if there is one. */
   edited: string | undefined;
-  /** What tokens.css sets it to in this theme. */
+  /** What the starting theme sets it to in this theme. */
   declared: string;
+  /** The same, when the start is a preset and not the page's own theme. */
+  preset: string | undefined;
   /** The declared value as hex, for the picker to open on. */
   opensOn: string | undefined;
   onChange: (value: string) => void;
@@ -322,6 +373,7 @@ function ColorControl({
   name,
   edited,
   declared,
+  preset,
   opensOn,
   onChange,
 }: ColorControlProps) {
@@ -333,7 +385,7 @@ function ColorControl({
           invisible, and still takes the click and the keyboard. */}
       <span
         className="relative size-11 shrink-0 rounded-md border has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-fd-primary"
-        style={{ backgroundColor: edited ?? `var(${name})` }}
+        style={{ backgroundColor: edited ?? preset ?? `var(${name})` }}
       >
         <input
           id={id}

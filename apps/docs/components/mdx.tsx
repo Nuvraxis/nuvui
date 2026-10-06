@@ -12,6 +12,7 @@ import { SwitchPlayground } from "@/components/playground/switch";
 import { TabsPlayground } from "@/components/playground/tabs";
 import { ToastPlayground } from "@/components/playground/toast";
 import { TooltipPlayground } from "@/components/playground/tooltip";
+import { PresetList } from "@/components/preset-reference";
 import { Preview } from "@/components/preview";
 import { PropsTable } from "@/components/props-table";
 import { ScssBreakpoints, ScssMixins } from "@/components/scss-reference";
@@ -35,6 +36,7 @@ export function getMDXComponents(components?: MDXComponents) {
     SemanticColors,
     ColorScales,
     TokenList,
+    PresetList,
     TailwindTheme,
     ScssMixins,
     ScssBreakpoints,

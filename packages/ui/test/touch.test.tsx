@@ -242,3 +242,79 @@ describe("toast", () => {
     }
   });
 });
+
+// Density makes controls shorter or taller with a mouse. A finger is the
+// same size whatever the layout, so nothing here may drop under 44px.
+describe.each([
+  ["compact", { "data-density": "compact" }],
+  ["comfortable", { "data-density": "comfortable" }],
+  ["the compact preset", { "data-preset": "ledger" }],
+] as const)("with %s density", (_name, attributes) => {
+  function setOnPage() {
+    for (const [name, value] of Object.entries(attributes)) {
+      document.documentElement.setAttribute(name, value);
+    }
+  }
+
+  test.each(["sm", "md", "lg"] as const)(
+    "a %s button is at least 44px tall",
+    async (size) => {
+      setOnPage();
+      await render(<Button size={size}>A</Button>);
+
+      expect(
+        box(page.getByRole("button").element()).height,
+      ).toBeGreaterThanOrEqual(44);
+    },
+  );
+
+  test("a select and its options are 44px tall", async () => {
+    setOnPage();
+    await emulateMedia({ reducedMotion: "reduce" });
+    await render(
+      <Select defaultOpen>
+        <SelectTrigger aria-label="Fruit">
+          <SelectValue placeholder="Pick a fruit" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="apple">Apple</SelectItem>
+        </SelectContent>
+      </Select>,
+    );
+    const option = page.getByRole("option", { name: "Apple" });
+    await expect.element(option).toBeVisible();
+
+    expect(box(option.element()).height).toBe(44);
+    expect(box(document.querySelector(".nuv-select") as Element).height).toBe(
+      44,
+    );
+  });
+
+  test("a menu row and a tab are at least 44px tall", async () => {
+    setOnPage();
+    await emulateMedia({ reducedMotion: "reduce" });
+    await render(
+      <>
+        <Tabs defaultValue="one">
+          <TabsList aria-label="Sections">
+            <TabsTrigger value="one">One</TabsTrigger>
+          </TabsList>
+          <TabsContent value="one">First</TabsContent>
+        </Tabs>
+        <DropdownMenu defaultOpen>
+          <DropdownMenuTrigger>Options</DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem>Rename</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </>,
+    );
+    const row = page.getByRole("menuitem", { name: "Rename" });
+    await expect.element(row).toBeVisible();
+
+    expect(box(row.element()).height).toBe(44);
+    expect(
+      box(document.querySelector(".nuv-tabs__trigger") as Element).height,
+    ).toBeGreaterThanOrEqual(44);
+  });
+});

@@ -47,21 +47,34 @@ import { emulateMedia } from "./media";
 // background alone disappears. These check that each state can still be
 // told apart there.
 
-beforeEach(async () => {
+beforeEach(async ({ skip }) => {
   await emulateMedia({ forcedColors: "active", reducedMotion: "reduce" });
+
+  // WebKit answers the media query when asked to, but has no forced-colors
+  // mode: it goes on painting the colors the page set. There's nothing to
+  // check there, and no Safari user is in this mode either.
+  const probe = document.createElement("span");
+  probe.style.color = "rgb(1, 2, 3)";
+  document.body.append(probe);
+  const forced = getComputedStyle(probe).color !== "rgb(1, 2, 3)";
+  probe.remove();
+  if (!forced) skip("this browser doesn't force colors");
 });
 
 const style = (element: Element) => getComputedStyle(element);
 
-// The color the browser is using for the page itself.
-function canvas() {
+// What the browser is using for one of its system colors.
+function system(name: string) {
   const probe = document.createElement("span");
-  probe.style.color = "canvas";
+  probe.style.color = name;
   document.body.append(probe);
   const { color } = style(probe);
   probe.remove();
   return color;
 }
+
+// The color of the page itself.
+const canvas = () => system("canvas");
 
 test("the browser is forcing colors", async () => {
   expect(matchMedia("(forced-colors: active)").matches).toBe(true);
@@ -94,7 +107,8 @@ describe("switch", () => {
       ).backgroundColor;
 
     expect(thumb("On")).not.toBe(thumb("Off"));
-    expect(contrast(thumb("On"), canvas())).toBeGreaterThan(3);
+    expect(thumb("On")).toBe(system("highlight"));
+    expect(thumb("Off")).toBe(system("buttontext"));
   });
 });
 
@@ -124,7 +138,11 @@ describe("tabs", () => {
     const line = (name: string) =>
       style(page.getByRole("tab", { name }).element()).borderBottomColor;
 
-    expect(contrast(line("First"), canvas())).toBeGreaterThan(3);
+    // The system's own color for a selected thing. How well it stands out
+    // is up to the theme the user picked, not something to measure here:
+    // the palette a browser emulates isn't one anybody chose.
+    expect(line("First")).toBe(system("highlight"));
+    expect(line("First")).not.toBe(canvas());
     expect(line("Second")).toBe(canvas());
   });
 });

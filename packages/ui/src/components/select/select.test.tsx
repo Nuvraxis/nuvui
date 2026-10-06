@@ -76,6 +76,15 @@ function Long(props: SelectProps) {
 const trigger = () => page.getByRole("combobox", { name: "Fruit" });
 const list = () => page.getByRole("listbox");
 const option = (name: string) => page.getByRole("option", { name });
+
+// Opens the list without the mouse, for tests that are about something other
+// than how it opens. Headless Firefox on Linux drops a click that comes
+// straight after the browser's own "fill in this field" bubble, or after a
+// change to the emulated media, before any event reaches the page.
+async function openFromKeyboard() {
+  trigger().element().focus();
+  await userEvent.keyboard("{Enter}");
+}
 const rect = (element: Element) => element.getBoundingClientRect();
 
 // The animation scales the list, which would make measurements depend on
@@ -258,9 +267,15 @@ describe("forms", () => {
     await send.click();
     expect(onSubmit).not.toHaveBeenCalled();
 
-    await trigger().click();
-    await option("Apple").click();
-    await send.click();
+    // Enter opens the list on its first option, and Enter again picks it.
+    await openFromKeyboard();
+    await expect.element(option("Apple")).toHaveFocus();
+    await userEvent.keyboard("{Enter}");
+    await expect.element(trigger()).toHaveTextContent("Apple");
+
+    // Submitted from script, for the same reason the list was opened from
+    // the keyboard. requestSubmit runs the validation a click would.
+    send.element().closest("form")?.requestSubmit();
     expect(onSubmit).toHaveBeenCalledOnce();
   });
 });
@@ -430,7 +445,7 @@ describe("layout", () => {
       return trigger().element();
     })();
     await emulateMedia({ reducedMotion: "reduce" });
-    await trigger().click();
+    await openFromKeyboard();
     await expect.element(list()).toBeVisible();
     const panel = rect(list().element());
 
@@ -466,7 +481,7 @@ describe("layout", () => {
       <Example defaultValue="banana" content={{ position: "item-aligned" }} />,
     );
     const element = trigger().element();
-    await trigger().click();
+    await openFromKeyboard();
     await expect.element(option("Banana")).toBeVisible();
 
     const chosen = rect(option("Banana").element());

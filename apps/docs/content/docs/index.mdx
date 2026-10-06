@@ -55,7 +55,7 @@ Components are light unless you ask for something else. Set `data-theme` on `<ht
 
 We don't switch to dark automatically. If we did, a site with only a light design would show light text on its white background to everyone whose system is set to dark.
 
-Colors, radii and spacing are all CSS custom properties. [Theming and tokens](/docs/theming) covers changing them, and has an editor to try it in.
+Colors, radii and spacing are all CSS custom properties. [Theming and tokens](/docs/theming) covers changing them, and has an editor to try it in. It also covers the five [presets](/docs/theming#presets) that come with the package, and [density](/docs/theming#density).
 
 ## Loading less
 
@@ -87,5 +87,5 @@ Neither is needed. If your app already uses one, there's a guide for each:
 ## What isn't here yet
 
 - A released version. The [changelog](/docs/changelog) lists what the first one will contain.
-- Testing outside Chromium. Nothing has been run in Firefox or Safari yet.
+- Testing in Safari itself. The tests run in Chromium, Firefox and the WebKit build that Playwright ships, which is close to Safari and isn't Safari.
 - More components. There are eleven, and no date for the next ones.

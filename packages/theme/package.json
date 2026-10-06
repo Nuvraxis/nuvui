@@ -1,0 +1,35 @@
+{
+  "name": "@nuvui/theme",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Turns a choice of brand color, base color, radius and density into nuvui token values, and checks their contrast.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch src",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "sync:palette": "node scripts/sync-palette.mjs"
+  },
+  "devDependencies": {
+    "@nuvui/typescript-config": "workspace:*",
+    "@types/node": "catalog:",
+    "tailwindcss": "^4.3.3",
+    "tsdown": "0.23.0",
+    "typescript": "catalog:",
+    "vitest": "^5.0.3"
+  }
+}

@@ -63,7 +63,7 @@ $fine-height: 1.25rem;
     }
 
     &[data-disabled] {
-      opacity: 0.5;
+      opacity: var(--nuv-disabled-opacity);
       cursor: not-allowed;
     }
   }

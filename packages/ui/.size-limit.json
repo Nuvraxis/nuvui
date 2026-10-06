@@ -1,0 +1,86 @@
+[
+  {
+    "name": "@nuvui/react",
+    "path": "dist/index.js",
+    "limit": "46.5 kB"
+  },
+  {
+    "name": "@nuvui/react/accordion",
+    "path": "dist/components/accordion/index.js",
+    "limit": "8.5 kB"
+  },
+  {
+    "name": "@nuvui/react/button",
+    "path": "dist/components/button/index.js",
+    "limit": "1.5 kB"
+  },
+  {
+    "name": "@nuvui/react/checkbox",
+    "path": "dist/components/checkbox/index.js",
+    "limit": "5.5 kB"
+  },
+  {
+    "name": "@nuvui/react/dialog",
+    "path": "dist/components/dialog/index.js",
+    "limit": "13.5 kB"
+  },
+  {
+    "name": "@nuvui/react/dropdown-menu",
+    "path": "dist/components/dropdown-menu/index.js",
+    "limit": "29 kB"
+  },
+  {
+    "name": "@nuvui/react/popover",
+    "path": "dist/components/popover/index.js",
+    "limit": "23 kB"
+  },
+  {
+    "name": "@nuvui/react/select",
+    "path": "dist/components/select/index.js",
+    "limit": "29 kB"
+  },
+  {
+    "name": "@nuvui/react/switch",
+    "path": "dist/components/switch/index.js",
+    "limit": "4.5 kB"
+  },
+  {
+    "name": "@nuvui/react/tabs",
+    "path": "dist/components/tabs/index.js",
+    "limit": "8.5 kB"
+  },
+  {
+    "name": "@nuvui/react/toast",
+    "path": "dist/components/toast/index.js",
+    "limit": "12 kB"
+  },
+  {
+    "name": "@nuvui/react/tooltip",
+    "path": "dist/components/tooltip/index.js",
+    "limit": "18 kB"
+  },
+  {
+    "name": "styles.css",
+    "path": "dist/styles.css",
+    "rolldown": false,
+    "limit": "7 kB"
+  },
+  {
+    "name": "tokens.css",
+    "path": "dist/tokens.css",
+    "rolldown": false,
+    "limit": "2.5 kB"
+  },
+  {
+    "name": "every stylesheet in css/",
+    "path": "dist/css/*.css",
+    "rolldown": false,
+    "limit": "9 kB"
+  },
+  {
+    "name": "every preset in themes/",
+    "path": "dist/themes/*.css",
+    "rolldown": false,
+    "limit": "2.5 kB"
+  }
+]

@@ -54,6 +54,19 @@ for (const path of pages) {
       }
     });
 
+    // A heading gets its id from its text, and the examples set ids of their
+    // own. Two the same break the label of one and the link to the other,
+    // and axe no longer reports it.
+    test("uses each id once", async ({ page }) => {
+      await page.goto(path);
+
+      const repeated = await page.evaluate(() => {
+        const ids = [...document.querySelectorAll("[id]")].map(({ id }) => id);
+        return [...new Set(ids.filter((id, at) => ids.indexOf(id) !== at))];
+      });
+      expect(repeated).toEqual([]);
+    });
+
     // Chiefly the files Next's router fetches ahead of a navigation, one for
     // each link in view. An export made on Windows puts them where the
     // router doesn't look, which scripts/fix-export.mjs puts right.

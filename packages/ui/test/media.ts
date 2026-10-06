@@ -25,18 +25,33 @@ export const viewports = {
   desktop: [1280, 800],
 } as const;
 
-// The test's iframe is resized from outside, and its resize event can arrive
-// after the call has returned. Waiting for it here keeps it out of whatever
-// runs next, where it would close an open select: Radix closes those when
-// the window is resized.
+// The test's iframe is resized from outside, and its resize events arrive
+// after the call has returned. There can be more than one: Firefox on Linux
+// sends one for the width and another for the height. Any that arrives late
+// lands in whatever runs next, where it closes an open select, because Radix
+// closes those when the window is resized. So this waits until the size is
+// right and no resize event has come for a moment.
 export async function setViewport(name: keyof typeof viewports): Promise<void> {
   const [width, height] = viewports[name];
   if (window.innerWidth === width && window.innerHeight === height) return;
 
-  const resized = new Promise<void>((resolve) => {
-    window.addEventListener("resize", () => resolve(), { once: true });
-    setTimeout(resolve, 1000);
+  const quiet = 100;
+  const settled = new Promise<void>((resolve) => {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const finish = () => {
+      window.removeEventListener("resize", wait);
+      clearTimeout(giveUp);
+      resolve();
+    };
+    const wait = () => {
+      clearTimeout(timer);
+      if (window.innerWidth === width && window.innerHeight === height) {
+        timer = setTimeout(finish, quiet);
+      }
+    };
+    const giveUp = setTimeout(finish, 2000);
+    window.addEventListener("resize", wait);
   });
   await page.viewport(width, height);
-  await resized;
+  await settled;
 }

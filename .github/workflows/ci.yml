@@ -15,7 +15,7 @@ permissions:
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
 
@@ -28,8 +28,8 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - name: Install Playwright's Chromium
-        run: pnpm --filter @nuvui/react exec playwright install --with-deps chromium
+      - name: Install Playwright's browsers
+        run: pnpm --filter @nuvui/react exec playwright install --with-deps chromium firefox webkit
 
       - run: pnpm lint
       - run: pnpm typecheck
@@ -39,6 +39,13 @@ jobs:
 
       - name: Check the package that would be published
         run: pnpm --filter @nuvui/react check:package
+
+      # Fails when an entry point grows past its budget in
+      # packages/ui/.size-limit.json.
+      - run: pnpm size
+
+      - name: Install the packed library into a Vite and a Next.js app
+        run: pnpm test:consumers
 
       - name: Upload Playwright output
         if: failure()

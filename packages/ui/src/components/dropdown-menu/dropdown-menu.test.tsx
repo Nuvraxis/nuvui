@@ -78,7 +78,9 @@ function ViewMenu() {
   const [sort, setSort] = useState("name");
   return (
     <DropdownMenu defaultOpen>
-      <DropdownMenuTrigger>View</DropdownMenuTrigger>
+      <DropdownMenuTrigger asChild>
+        <Button intent="secondary">View</Button>
+      </DropdownMenuTrigger>
       <DropdownMenuContent>
         <DropdownMenuCheckboxItem checked={grid} onCheckedChange={setGrid}>
           Show grid

@@ -4,7 +4,9 @@ import { describe, expect, test, vi } from "vitest";
 import { userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
 import { axe } from "../../../test/axe";
+import { contrast } from "../../../test/contrast";
 import { emulateMedia } from "../../../test/media";
+import { themeAttributes, themes } from "../../../test/themed";
 import { Button } from "./button";
 
 const intents = ["primary", "secondary", "ghost", "danger"] as const;
@@ -160,7 +162,8 @@ describe("styles", () => {
 
     await button.click();
 
-    await expect.element(button).toHaveFocus();
+    // Chromium and Firefox focus a button that's clicked. WebKit doesn't,
+    // as Safari doesn't on a Mac. Either way there's no ring to see.
     expect(getComputedStyle(button.element()).outlineStyle).toBe("none");
   });
 
@@ -213,11 +216,39 @@ describe("styles", () => {
   });
 });
 
-describe.each(["light", "dark"] as const)("accessibility in %s", (theme) => {
+describe.each(themes)("accessibility in %s", (theme) => {
+  // A filled button changes color under the pointer. The new color has to
+  // move away from the text, whichever of white and dark the theme gave it.
+  test.each(["primary", "danger"] as const)(
+    "a %s button is no harder to read while hovered",
+    async (intent) => {
+      await emulateMedia({ reducedMotion: "reduce" });
+      const screen = await render(
+        <main
+          {...themeAttributes(theme)}
+          style={{ padding: 40, backgroundColor: "var(--color-background)" }}
+        >
+          <Button intent={intent}>Save</Button>
+        </main>,
+      );
+      const button = screen.getByRole("button");
+      const style = getComputedStyle(button.element());
+      const resting = style.backgroundColor;
+      const before = contrast(style.color, resting);
+
+      await userEvent.hover(button);
+
+      expect(style.backgroundColor).not.toBe(resting);
+      const hovered = contrast(style.color, style.backgroundColor);
+      expect(hovered).toBeGreaterThanOrEqual(4.5);
+      expect(hovered).toBeGreaterThan(before);
+    },
+  );
+
   test("every intent passes axe", async () => {
     const screen = await render(
       <main
-        data-theme={theme}
+        {...themeAttributes(theme)}
         style={{ backgroundColor: "var(--color-background)" }}
       >
         {intents.map((intent) => (

@@ -18,14 +18,16 @@
     display: flex;
     flex: none;
     overflow-x: auto;
-    border-block-end: 1px solid var(--nuv-tabs-border, var(--color-border));
+    border-block-end: var(--nuv-border-width) solid
+      var(--nuv-tabs-border, var(--color-border));
     scrollbar-width: none;
 
     &[data-orientation="vertical"] {
       flex-direction: column;
       overflow-x: visible;
       border-block-end: 0;
-      border-inline-end: 1px solid var(--nuv-tabs-border, var(--color-border));
+      border-inline-end: var(--nuv-border-width) solid
+        var(--nuv-tabs-border, var(--color-border));
     }
   }
 
@@ -36,11 +38,11 @@
     justify-content: center;
 
     // Pulled over the list's border so the active line replaces it.
-    margin-block-end: -1px;
+    margin-block-end: calc(var(--nuv-border-width) * -1);
     padding-block: 0;
     padding-inline: calc(var(--spacing) * 4);
     border: 0;
-    border-block-end: 2px solid transparent;
+    border-block-end: var(--nuv-tabs-indicator-width, 2px) solid transparent;
     background-color: transparent;
     color: var(--nuv-tabs-fg, var(--color-muted-foreground));
     font-family: inherit;
@@ -67,7 +69,7 @@
     }
 
     @include mixins.fine-pointer {
-      min-block-size: 2.5rem;
+      min-block-size: var(--nuv-control-height-md);
     }
 
     // Where the browser forces its own colors, a transparent border is
@@ -87,16 +89,16 @@
     }
 
     &[data-disabled] {
-      opacity: 0.5;
+      opacity: var(--nuv-disabled-opacity);
       pointer-events: none;
     }
 
     &[data-orientation="vertical"] {
       justify-content: flex-start;
       margin-block-end: 0;
-      margin-inline-end: -1px;
+      margin-inline-end: calc(var(--nuv-border-width) * -1);
       border-block-end: 0;
-      border-inline-end: 2px solid transparent;
+      border-inline-end: var(--nuv-tabs-indicator-width, 2px) solid transparent;
     }
 
     &[data-orientation="vertical"][data-state="active"] {

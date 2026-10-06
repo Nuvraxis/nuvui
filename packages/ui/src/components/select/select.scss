@@ -13,13 +13,13 @@
     max-inline-size: 100%;
 
     // 44px on a touch screen, a little less with a mouse.
-    min-block-size: var(--nuv-select-height, 2.75rem);
+    min-block-size: var(--nuv-select-height, var(--nuv-touch-size));
     padding-block: 0;
     padding-inline: calc(var(--spacing) * 3);
 
     // The edge is what tells you this is a control, so it uses the border
     // color that's held to 3:1.
-    border: 1px solid var(--nuv-select-border, var(--color-border-strong));
+    border: var(--nuv-border-width) solid var(--nuv-select-border, var(--color-border-strong));
     border-radius: var(--nuv-select-radius, var(--radius-md));
     background-color: var(--nuv-select-bg, var(--color-surface));
     color: var(--nuv-select-fg, var(--color-foreground));
@@ -33,7 +33,7 @@
     @include mixins.focus-ring;
 
     @include mixins.fine-pointer {
-      min-block-size: var(--nuv-select-height, 2.5rem);
+      min-block-size: var(--nuv-select-height, var(--nuv-control-height-md));
     }
 
     &[data-placeholder] {
@@ -45,7 +45,7 @@
     }
 
     &[data-disabled] {
-      opacity: 0.5;
+      opacity: var(--nuv-disabled-opacity);
       cursor: not-allowed;
     }
   }
@@ -87,7 +87,7 @@
     align-items: center;
 
     // Rows are 44px on a touch screen and tighter with a mouse.
-    min-block-size: var(--nuv-select-item-height, 2.75rem);
+    min-block-size: var(--nuv-select-item-height, var(--nuv-touch-size));
     padding-block: var(--spacing);
     padding-inline: calc(var(--spacing) * 3);
     border-radius: var(--radius-sm);
@@ -96,7 +96,10 @@
     -webkit-tap-highlight-color: transparent;
 
     @include mixins.fine-pointer {
-      min-block-size: var(--nuv-select-item-height, 2rem);
+      min-block-size: var(
+        --nuv-select-item-height,
+        var(--nuv-control-height-sm)
+      );
     }
 
     // Radix moves focus to the row under the pointer as well as the one the
@@ -116,7 +119,7 @@
     }
 
     &[data-disabled] {
-      opacity: 0.5;
+      opacity: var(--nuv-disabled-opacity);
       pointer-events: none;
     }
   }
@@ -139,7 +142,7 @@
   }
 
   .nuv-select__separator {
-    block-size: 1px;
+    block-size: var(--nuv-border-width);
     margin-block: var(--spacing);
 
     // Reaches the panel's edges, past its padding.

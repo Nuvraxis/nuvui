@@ -150,6 +150,18 @@ describe("styles", () => {
     expect(color("Team")).toBe("rgba(0, 0, 0, 0)");
   });
 
+  test("a variable sets how thick that line is", async () => {
+    await render(
+      <div style={{ "--nuv-tabs-indicator-width": "5px" } as never}>
+        <Example />
+      </div>,
+    );
+
+    expect(getComputedStyle(tab("Account").element()).borderBottomWidth).toBe(
+      "5px",
+    );
+  });
+
   test("tabs are 40px tall with a mouse", async () => {
     await render(<Example />);
 

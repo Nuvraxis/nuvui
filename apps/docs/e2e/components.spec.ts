@@ -23,7 +23,15 @@ test.describe("button page", () => {
     expect(style.radius).toBe("6px");
   });
 
-  test("the copy button copies the example's source", async ({ page }) => {
+  test("the copy button copies the example's source", async ({
+    page,
+    browserName,
+  }) => {
+    test.skip(
+      browserName !== "chromium",
+      "Only Chromium lets a test read the clipboard back.",
+    );
+
     await page
       .locator('[data-preview="button/basic"]')
       .getByRole("button", { name: "Copy Text" })
@@ -270,6 +278,8 @@ test.describe("switch page", () => {
     await control.click();
     await expect(control).toBeChecked();
 
+    // Safari doesn't move focus to a button that's clicked.
+    await control.focus();
     await page.keyboard.press("Space");
     await expect(control).not.toBeChecked();
   });

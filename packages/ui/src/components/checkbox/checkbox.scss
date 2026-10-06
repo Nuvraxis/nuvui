@@ -14,7 +14,7 @@
 
     // The edge is what tells you this is a control, so it uses the border
     // color that's held to 3:1.
-    border: 1px solid var(--nuv-checkbox-border, var(--color-border-strong));
+    border: var(--nuv-border-width) solid var(--nuv-checkbox-border, var(--color-border-strong));
     border-radius: var(--nuv-checkbox-radius, var(--radius-sm));
     background-color: var(--nuv-checkbox-bg, var(--color-surface));
     color: var(--nuv-checkbox-fg, var(--color-primary-foreground));
@@ -37,7 +37,7 @@
     }
 
     &[data-disabled] {
-      opacity: 0.5;
+      opacity: var(--nuv-disabled-opacity);
       cursor: not-allowed;
     }
   }

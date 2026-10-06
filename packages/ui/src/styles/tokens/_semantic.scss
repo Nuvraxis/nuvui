@@ -1,49 +1,126 @@
+@use "sass:map";
 @use "../mixins";
 
-// Components only ever read these, never the raw scales, so retheming means
-// overriding this list.
+// The default theme. Components only ever read these, never the raw scales,
+// so retheming means overriding this list.
+//
+// border is for dividers and card edges. border-strong is for the edge of a
+// control such as a checkbox, which has to reach 3:1 to be seen.
+$light: (
+  "background": var(--color-white),
+  "foreground": var(--color-gray-950),
+  "surface": var(--color-white),
+  "surface-foreground": var(--color-gray-950),
+  "muted": var(--color-gray-100),
+  "muted-foreground": var(--color-gray-600),
+  "primary": var(--color-blue-600),
+  "primary-foreground": var(--color-white),
+  "danger": var(--color-red-600),
+  "danger-foreground": var(--color-white),
+  "success": var(--color-green-700),
+  "warning": var(--color-amber-700),
+  "border": var(--color-gray-200),
+  "border-strong": var(--color-gray-500),
+  "ring": var(--color-blue-600),
+);
+$dark: (
+  "background": var(--color-gray-950),
+  "foreground": var(--color-gray-50),
+  "surface": var(--color-gray-900),
+  "surface-foreground": var(--color-gray-50),
+  "muted": var(--color-gray-800),
+  "muted-foreground": var(--color-gray-400),
+  "primary": var(--color-blue-400),
+  "primary-foreground": var(--color-gray-950),
+  "danger": var(--color-red-400),
+  "danger-foreground": var(--color-gray-950),
+  "success": var(--color-green-400),
+  "warning": var(--color-amber-400),
+  "border": var(--color-gray-800),
+  "border-strong": var(--color-gray-500),
+  "ring": var(--color-blue-400),
+);
+
+// Not named theme: editors with Tailwind's extension read that as its
+// theme() function and flag every use.
+@mixin semantic-colors($colors) {
+  @each $name, $value in $colors {
+    --color-#{$name}: #{$value};
+  }
+}
+
 @layer tokens {
   :root,
   [data-theme="light"],
   [data-theme="system"] {
-    --color-background: var(--color-white);
-    --color-foreground: var(--color-gray-950);
-    --color-surface: var(--color-white);
-    --color-surface-foreground: var(--color-gray-950);
-    --color-muted: var(--color-gray-100);
-    --color-muted-foreground: var(--color-gray-600);
-    --color-primary: var(--color-blue-600);
-    --color-primary-foreground: var(--color-white);
-    --color-danger: var(--color-red-600);
-    --color-danger-foreground: var(--color-white);
-    --color-success: var(--color-green-700);
-    --color-warning: var(--color-amber-700);
+    @include semantic-colors($light);
 
-    // border is for dividers and card edges. border-strong is for the edge
-    // of a control such as a checkbox, which has to reach 3:1 to be seen.
-    --color-border: var(--color-gray-200);
-    --color-border-strong: var(--color-gray-500);
-    --color-ring: var(--color-blue-600);
+    // Two switches that say which mode an element is in, for a value that
+    // has to hold both. One is unset and the other is empty, so
+    // var(--nuv-light, A) var(--nuv-dark, B) comes out as A here and as B in
+    // dark. Presets are built on them, and they work in your own CSS too.
+    --nuv-light: initial;
+    --nuv-dark: ;
+
+    // The colors no theme changes.
     --color-overlay: rgb(0 0 0 / 0.5);
+
+    // Chart series, in the order to use them. Each reaches 3:1 against the
+    // page and against a surface, and the order keeps neighbours apart for
+    // people with the common kinds of color blindness. They're steps of
+    // Tailwind's scales: blue 600, orange 800, teal 700, violet 800,
+    // amber 600, pink 700, cyan 600 and red 600. Only blue, amber and red
+    // are among the scales this package ships, so all eight are written out.
+    --color-chart-1: oklch(54.6% 0.245 262.881);
+    --color-chart-2: oklch(47% 0.157 37.304);
+    --color-chart-3: oklch(51.1% 0.096 186.391);
+    --color-chart-4: oklch(43.2% 0.232 292.759);
+    --color-chart-5: oklch(66.6% 0.179 58.318);
+    --color-chart-6: oklch(52.5% 0.223 3.958);
+    --color-chart-7: oklch(60.9% 0.126 221.723);
+    --color-chart-8: oklch(57.7% 0.245 27.325);
   }
 
   @include mixins.dark {
-    --color-background: var(--color-gray-950);
-    --color-foreground: var(--color-gray-50);
-    --color-surface: var(--color-gray-900);
-    --color-surface-foreground: var(--color-gray-50);
-    --color-muted: var(--color-gray-800);
-    --color-muted-foreground: var(--color-gray-400);
-    --color-primary: var(--color-blue-400);
-    --color-primary-foreground: var(--color-gray-950);
-    --color-danger: var(--color-red-400);
-    --color-danger-foreground: var(--color-gray-950);
-    --color-success: var(--color-green-400);
-    --color-warning: var(--color-amber-400);
-    --color-border: var(--color-gray-800);
-    --color-border-strong: var(--color-gray-500);
-    --color-ring: var(--color-blue-400);
+    @include semantic-colors($dark);
+
+    --nuv-light: ;
+    --nuv-dark: initial;
     --color-overlay: rgb(0 0 0 / 0.7);
+
+    // Blue 400, orange 400, teal 400, violet 500, amber 300, pink 500,
+    // cyan 300 and red 300.
+    --color-chart-1: oklch(70.7% 0.165 254.624);
+    --color-chart-2: oklch(75% 0.183 55.934);
+    --color-chart-3: oklch(77.7% 0.152 181.912);
+    --color-chart-4: oklch(60.6% 0.25 292.717);
+    --color-chart-5: oklch(87.9% 0.169 91.605);
+    --color-chart-6: oklch(65.6% 0.241 354.308);
+    --color-chart-7: oklch(86.5% 0.127 207.078);
+    --color-chart-8: oklch(80.8% 0.114 19.571);
+  }
+
+  // Presets. A stylesheet in themes/ gives an element both modes of a theme,
+  // as --nuv-preset-light-* and --nuv-preset-dark-* variables, and this rule
+  // turns them into the semantic colors with the switches above.
+  //
+  // It's worked out again on every data-theme element inside a preset, and
+  // that is what makes nesting come out right. The preset's variables are
+  // inherited, so the nearest preset supplies the values, and the switches
+  // are set by the nearest data-theme, so that one picks the mode.
+  //
+  // This rule has to stay below the ones above: on an element with both
+  // attributes it wins by coming later. A preset whose stylesheet isn't
+  // loaded falls back to the default theme.
+  [data-preset],
+  [data-preset] [data-theme] {
+    @each $name, $value in $light {
+      $in-light: var(--nuv-preset-light-#{$name}, #{$value});
+      $in-dark: var(--nuv-preset-dark-#{$name}, #{map.get($dark, $name)});
+
+      --color-#{$name}: var(--nuv-light, #{$in-light})
+        var(--nuv-dark, #{$in-dark});
+    }
   }
 
   // Native scrollbars and form controls follow the theme, but only where the

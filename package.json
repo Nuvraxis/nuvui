@@ -14,7 +14,9 @@
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
     "test:e2e": "turbo run test:e2e",
-    "playwright:install": "pnpm --filter @nuvui/react exec playwright install chromium",
+    "size": "turbo run size",
+    "test:consumers": "node scripts/test-consumers.mjs",
+    "playwright:install": "pnpm --filter @nuvui/react exec playwright install chromium firefox webkit",
     "changeset": "changeset",
     "version-packages": "changeset version",
     "release": "turbo run build --filter=@nuvui/react && changeset publish"

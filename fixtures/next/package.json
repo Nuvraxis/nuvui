@@ -1,0 +1,21 @@
+{
+  "name": "nuvui-fixture-next",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "next typegen && tsc --noEmit",
+    "build": "next build"
+  },
+  "dependencies": {
+    "@nuvui/react": "file:../../packages/ui",
+    "next": "^16.3.8",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "typescript": "^7.0.2"
+  }
+}

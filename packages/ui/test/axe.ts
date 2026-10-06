@@ -35,7 +35,16 @@ export const behindOpenList: RunOptions = {
 };
 
 function describeViolation(violation: Result): string {
-  const targets = violation.nodes.map((node) => `    ${node.target.join(" ")}`);
+  // What axe measured goes in too. For a contrast failure that's the two
+  // colors and their ratio, which is most of what there is to know.
+  const targets = violation.nodes.map((node) => {
+    const measured = [...node.any, ...node.all, ...node.none]
+      .map((check) => check.message)
+      .filter(Boolean)
+      .join(" ");
+    return `    ${node.target.join(" ")}
+      ${measured}`;
+  });
   return [
     `${violation.id} (${violation.impact ?? "unknown impact"}): ${violation.help}`,
     `  ${violation.helpUrl}`,

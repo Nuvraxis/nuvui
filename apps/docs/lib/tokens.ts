@@ -60,9 +60,18 @@ export const readTokens = cache(async (): Promise<Tokens> => {
 // Every token belongs to one group, and each group is one table on the
 // Theming page. A token that fits none of them fails the build, so a new
 // kind of token can't ship without being documented.
+const chart = /^--color-chart-\d+$/;
+
+const mode = /^--nuv-(light|dark)$/;
+
 const groups = {
-  semantic: (name, tokens) => tokens.dark.has(name),
-  palette: (name) => /^--color-(black|white|[a-z]+-\d+)$/.test(name),
+  semantic: (name, tokens) =>
+    tokens.dark.has(name) && !chart.test(name) && !mode.test(name),
+  // The two switches presets are built on. The page explains them in words.
+  mode: (name) => mode.test(name),
+  chart: (name) => chart.test(name),
+  palette: (name) =>
+    /^--color-(black|white|[a-z]+-\d+)$/.test(name) && !chart.test(name),
   spacing: (name) => name === "--spacing",
   type: (name) => /^--(font|text|tracking|leading)-/.test(name),
   radius: (name) => name.startsWith("--radius-"),
@@ -70,6 +79,10 @@ const groups = {
   motion: (name) => /^--(ease|nuv-duration)-/.test(name),
   breakpoint: (name) => name.startsWith("--breakpoint-"),
   stacking: (name) => name.startsWith("--nuv-z-"),
+  control: (name) =>
+    /^--nuv-(border-width|disabled-opacity|touch-size|control-height-)/.test(
+      name,
+    ),
 } satisfies Record<string, (name: string, tokens: Tokens) => boolean>;
 
 export type TokenGroup = keyof typeof groups;

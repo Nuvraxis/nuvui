@@ -35,7 +35,10 @@
     align-items: center;
 
     // Rows are 44px on a touch screen and tighter with a mouse.
-    min-block-size: var(--nuv-dropdown-menu-item-height, 2.75rem);
+    min-block-size: var(
+      --nuv-dropdown-menu-item-height,
+      var(--nuv-touch-size)
+    );
     padding-block: var(--spacing);
     padding-inline: calc(var(--spacing) * 3);
     border-radius: var(--radius-sm);
@@ -44,7 +47,10 @@
     -webkit-tap-highlight-color: transparent;
 
     @include mixins.fine-pointer {
-      min-block-size: var(--nuv-dropdown-menu-item-height, 2rem);
+      min-block-size: var(
+        --nuv-dropdown-menu-item-height,
+        var(--nuv-control-height-sm)
+      );
     }
 
     // A submenu's trigger while its submenu is open. Focus has moved on into
@@ -73,7 +79,7 @@
     }
 
     &[data-disabled] {
-      opacity: 0.5;
+      opacity: var(--nuv-disabled-opacity);
       pointer-events: none;
     }
   }
@@ -134,7 +140,7 @@
   }
 
   .nuv-dropdown-menu__separator {
-    block-size: 1px;
+    block-size: var(--nuv-border-width);
     margin-block: var(--spacing);
 
     // Reaches the panel's edges, past its padding.

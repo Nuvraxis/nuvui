@@ -43,4 +43,36 @@ export default {
     // Blank lines group related tokens.
     "custom-property-empty-line-before": null,
   },
+  overrides: [
+    {
+      // Everything outside the token files gets its colors from tokens. A
+      // color written out here would stay the same in every theme. The
+      // keyword transparent and the system colors that forced-colors mode
+      // needs aren't named colors, so they still pass.
+      files: ["src/**/*.scss"],
+      ignoreFiles: ["src/styles/tokens/**"],
+      rules: {
+        "color-named": "never",
+        "color-no-hex": true,
+        "function-disallowed-list": [
+          [
+            "rgb",
+            "rgba",
+            "hsl",
+            "hsla",
+            "hwb",
+            "lab",
+            "lch",
+            "oklab",
+            "oklch",
+            "color",
+          ],
+          {
+            message: (name) =>
+              `Unexpected color function "${name}". Use a color token, such as var(--color-primary)`,
+          },
+        ],
+      },
+    },
+  ],
 };

@@ -1,6 +1,18 @@
 @use "../../styles/layers";
 @use "../../styles/mixins";
 
+// The colored edge of a toast with an intent. It's thicker than the border
+// it replaces, and the padding gives the difference back, so titles line up
+// whatever the intent.
+@mixin accent($color) {
+  $width: var(--nuv-toast-accent-width, 4px);
+
+  padding-inline-start: calc(
+    var(--spacing) * 4 - #{$width} + var(--nuv-border-width)
+  );
+  border-inline-start: $width solid var(--nuv-toast-accent, #{$color});
+}
+
 @layer components {
   // The list that every toast is rendered into. On a phone it runs along the
   // bottom of the screen. From sm up it's a column in one corner.
@@ -67,7 +79,8 @@
     align-items: center;
     padding-block: calc(var(--spacing) * 2);
     padding-inline: calc(var(--spacing) * 4) calc(var(--spacing) * 2);
-    border: 1px solid var(--nuv-toast-border, var(--color-border));
+    border: var(--nuv-border-width) solid
+      var(--nuv-toast-border, var(--color-border));
     border-radius: var(--nuv-toast-radius, var(--radius-lg));
     background-color: var(--nuv-toast-bg, var(--color-surface));
     box-shadow: var(--nuv-toast-shadow, var(--shadow-lg));
@@ -114,17 +127,12 @@
     }
   }
 
-  // The edge is 3px thicker than the border it replaces. The padding gives
-  // those back, so titles line up whatever the intent.
   .nuv-toast--success {
-    padding-inline-start: calc(var(--spacing) * 4 - 3px);
-    border-inline-start: 4px solid
-      var(--nuv-toast-accent, var(--color-success));
+    @include accent(var(--color-success));
   }
 
   .nuv-toast--danger {
-    padding-inline-start: calc(var(--spacing) * 4 - 3px);
-    border-inline-start: 4px solid var(--nuv-toast-accent, var(--color-danger));
+    @include accent(var(--color-danger));
   }
 
   .nuv-toast__content {
@@ -150,7 +158,7 @@
     justify-content: center;
     padding-block: 0;
     padding-inline: calc(var(--spacing) * 3);
-    border: 1px solid var(--color-border-strong);
+    border: var(--nuv-border-width) solid var(--color-border-strong);
     border-radius: var(--radius-md);
     background-color: transparent;
     color: inherit;
@@ -170,8 +178,8 @@
     }
 
     @include mixins.fine-pointer {
-      min-block-size: 2rem;
-      min-inline-size: 2rem;
+      min-block-size: var(--nuv-control-height-sm);
+      min-inline-size: var(--nuv-control-height-sm);
     }
   }
 
@@ -197,8 +205,8 @@
     }
 
     @include mixins.fine-pointer {
-      min-block-size: 2rem;
-      min-inline-size: 2rem;
+      min-block-size: var(--nuv-control-height-sm);
+      min-inline-size: var(--nuv-control-height-sm);
     }
   }
 

@@ -1,4 +1,4 @@
-import type { ColorToken, Edits, SizeToken } from "./types";
+import type { ColorToken, Edits, PresetValues, SizeToken } from "./types";
 
 // Two short lines, so it fits a phone without scrolling sideways.
 export const emptySnippet =
@@ -10,7 +10,15 @@ export function buildSnippet(
   edits: Edits,
   colors: ColorToken[],
   sizes: SizeToken[],
+  preset?: PresetValues,
 ): string {
+  // With a preset, the changes sit on top of its stylesheet.
+  const start = preset
+    ? `/* On top of the "${preset.name}" preset. Import
+   "@nuvui/react/themes/${preset.name}.css" and set
+   data-preset="${preset.name}" on <html>. */`
+    : undefined;
+
   const root = [
     ...sizes
       .filter(({ name }) => name in edits.sizes)
@@ -32,7 +40,10 @@ export function buildSnippet(
     .filter(
       ({ name }) => name in edits.colors.light && !(name in edits.colors.dark),
     )
-    .map(({ name, dark: declared }) => `  ${name}: ${declared};`);
+    .map(
+      ({ name, dark: declared }) =>
+        `  ${name}: ${preset?.colors.dark[name] ?? declared};`,
+    );
   if (restored.length > 0) {
     dark.push(
       "  /* Not changed. Repeated because a color set on :root applies in dark too. */",
@@ -45,5 +56,6 @@ export function buildSnippet(
     dark.length > 0 && `[data-theme="dark"] {\n${dark.join("\n")}\n}`,
   ].filter(Boolean);
 
-  return blocks.length > 0 ? blocks.join("\n\n") : emptySnippet;
+  if (blocks.length === 0) return start ?? emptySnippet;
+  return [start, ...blocks].filter(Boolean).join("\n\n");
 }

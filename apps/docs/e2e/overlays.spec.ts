@@ -164,6 +164,9 @@ test.describe("tooltip page", () => {
       .locator('[data-preview="tooltip/basic"]')
       .getByRole("button", { name: "Archive" });
 
+    // A tooltip closes when the page scrolls, and focusing something that's
+    // off the screen scrolls to it.
+    await trigger.scrollIntoViewIfNeeded();
     await trigger.focus();
     const tooltip = page.getByRole("tooltip");
     await expect(tooltip).toContainText("Takes the project out of your list");

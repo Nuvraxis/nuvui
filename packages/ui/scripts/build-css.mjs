@@ -4,6 +4,7 @@
 import { cp, mkdir, readdir, rm, writeFile } from "node:fs/promises";
 import { basename, dirname, join, relative, sep } from "node:path";
 import { fileURLToPath } from "node:url";
+import { createTheme, presetNames, presets, toCss } from "@nuvui/theme";
 import { initAsyncCompiler } from "sass-embedded";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
@@ -43,6 +44,7 @@ for (const file of sources) {
 // watch mode, where a deleted component would otherwise leave its CSS behind.
 await rm(join(distDir, "css"), { recursive: true, force: true });
 await rm(join(distDir, "scss"), { recursive: true, force: true });
+await rm(join(distDir, "themes"), { recursive: true, force: true });
 
 const compiler = await initAsyncCompiler();
 try {
@@ -58,6 +60,26 @@ try {
 } finally {
   await compiler.dispose();
 }
+
+// One stylesheet per preset, written by the theme generator. Each opens with
+// the layer order like every other stylesheet here, and sits in the tokens
+// layer so a rule of the consumer's own still wins over it.
+const layerOrder = "@layer tokens, base, components;";
+await mkdir(join(distDir, "themes"), { recursive: true });
+for (const name of presetNames) {
+  const css = toCss(createTheme(presets[name]), {
+    preset: name,
+    layer: "tokens",
+  });
+  await writeFile(
+    join(distDir, "themes", `${name}.css`),
+    `${layerOrder}
+${css}`,
+  );
+}
+console.log(
+  `build-css: wrote ${presetNames.length} presets to dist/themes (${presetNames.join(", ")})`,
+);
 
 // The folder structure is kept so the relative @use paths still resolve.
 for (const file of sources) {

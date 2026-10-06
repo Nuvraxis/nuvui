@@ -45,7 +45,7 @@ function Example({
           </PopoverClose>
         </PopoverContent>
       </Popover>
-      <button type="button">After</button>
+      <Button intent="ghost">After</Button>
     </div>
   );
 }
@@ -277,7 +277,9 @@ describe("layout", () => {
 function Tall(props: ComponentProps<typeof PopoverContent>) {
   return (
     <Popover defaultOpen>
-      <PopoverTrigger>Share</PopoverTrigger>
+      <PopoverTrigger asChild>
+        <Button intent="secondary">Share</Button>
+      </PopoverTrigger>
       <PopoverContent aria-label="Share this page" {...props}>
         <div style={{ blockSize: 2000 }}>Long</div>
       </PopoverContent>
@@ -517,7 +519,9 @@ describe("scrolling the body from the keyboard", () => {
     await emulateMedia({ reducedMotion: "reduce" });
     await render(
       <Popover defaultOpen>
-        <PopoverTrigger>Share</PopoverTrigger>
+        <PopoverTrigger asChild>
+          <Button intent="secondary">Share</Button>
+        </PopoverTrigger>
         <PopoverContent aria-labelledby="terms">
           <h2 id="terms">Terms of use</h2>
           <div style={{ blockSize: 2000 }}>Long</div>

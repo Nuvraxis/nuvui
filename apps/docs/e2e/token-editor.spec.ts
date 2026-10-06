@@ -1,5 +1,6 @@
+import { createTheme, presets } from "@nuvui/theme";
 import { expect, type Locator, type Page, test } from "@playwright/test";
-import { open, rootStyle } from "./helpers";
+import { open, rootStyle, sameColor } from "./helpers";
 
 const purple = "#7c3aed";
 const purpleRgb = "rgb(124, 58, 237)";
@@ -151,9 +152,10 @@ test.describe("token editor", () => {
   }) => {
     const { snippet, color } = parts(page);
     await color("--color-primary").fill(purple);
+    // The dark block gives the library's value back. Waiting for it here
+    // matters: read straight away, the snippet can still be the empty one.
+    await expect(snippet).toContainText('[data-theme="dark"]');
     const css = (await snippet.innerText()).trim();
-    // The dark block gives the library's value back.
-    expect(css).toContain('[data-theme="dark"]');
     expect(css).toContain("--color-primary: var(--color-blue-400);");
 
     const button = page.locator('[data-preview="button/basic"] .nuv-button');
@@ -176,5 +178,95 @@ test.describe("token editor", () => {
     await page.emulateMedia({ colorScheme: "light", reducedMotion: "reduce" });
     await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
     expect(await background(button)).toBe(purpleRgb);
+  });
+});
+
+test.describe("token editor, starting from a preset", () => {
+  test.beforeEach(async ({ page }) => {
+    await page.emulateMedia({ colorScheme: "light", reducedMotion: "reduce" });
+    await open(page, "/docs/theming");
+  });
+
+  async function startFrom(page: Page, isMobile: boolean, option: string) {
+    const trigger = parts(page).editor.getByRole("combobox", {
+      name: "Start from",
+    });
+    await (isMobile ? trigger.tap() : trigger.click());
+    const item = page.getByRole("option", { name: option });
+    await (isMobile ? item.tap() : item.click());
+    await expect(trigger).toHaveText(option);
+  }
+
+  test("the preview takes the preset, and the page doesn't", async ({
+    page,
+    isMobile,
+  }) => {
+    const { preview, save, snippet } = parts(page);
+    const ink = createTheme(presets.ink);
+    const pageValue = await rootStyle(page, "--color-primary");
+
+    await startFrom(page, isMobile, "The ink preset");
+
+    await expect(preview).toHaveAttribute("data-preset", "ink");
+    expect(
+      await sameColor(
+        page,
+        await background(save),
+        ink.light["--color-primary"],
+      ),
+    ).toBe(true);
+    expect(await rootStyle(page, "--color-primary")).toBe(pageValue);
+    await expect(snippet).toContainText("@nuvui/react/themes/ink.css");
+    await expect(snippet).toContainText('data-preset="ink"');
+  });
+
+  test("a change on top of a preset prints the preset's own dark value", async ({
+    page,
+    isMobile,
+  }) => {
+    const { save, snippet, color } = parts(page);
+    const ink = createTheme(presets.ink);
+    await startFrom(page, isMobile, "The ink preset");
+
+    await color("--color-primary").fill(purple);
+
+    expect(await background(save)).toBe(purpleRgb);
+    await expect(snippet).toContainText(`--color-primary: ${purple};`);
+    await expect(snippet).toContainText(
+      `--color-primary: ${ink.dark["--color-primary"]};`,
+    );
+  });
+
+  test("the square preset moves the radius sliders to zero", async ({
+    page,
+    isMobile,
+  }) => {
+    const { editor, save } = parts(page);
+    await startFrom(page, isMobile, "The ledger preset");
+
+    await expect(editor.getByLabel("--radius-md", { exact: true })).toHaveValue(
+      "0",
+    );
+    expect(
+      await save.evaluate(
+        (element) => getComputedStyle(element).borderTopLeftRadius,
+      ),
+    ).toBe("0px");
+  });
+
+  test("going back to the default theme clears it", async ({
+    page,
+    isMobile,
+  }) => {
+    const { preview, save, snippet, color } = parts(page);
+    const before = await background(save);
+    await startFrom(page, isMobile, "The ember preset");
+    await color("--color-primary").fill(purple);
+
+    await startFrom(page, isMobile, "The default theme");
+
+    await expect(preview).not.toHaveAttribute("data-preset");
+    expect(await background(save)).toBe(before);
+    await expect(snippet).toContainText("Change a value above");
   });
 });

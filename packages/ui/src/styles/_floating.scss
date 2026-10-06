@@ -8,7 +8,7 @@
 // each variable's name so one kind of panel can be restyled on its own.
 @mixin panel($name) {
   z-index: var(--nuv-z-popover);
-  border: 1px solid var(--nuv-#{$name}-border, var(--color-border));
+  border: var(--nuv-border-width) solid var(--nuv-#{$name}-border, var(--color-border));
   border-radius: var(--nuv-#{$name}-radius, var(--radius-lg));
   background-color: var(--nuv-#{$name}-bg, var(--color-surface));
   box-shadow: var(--nuv-#{$name}-shadow, var(--shadow-lg));

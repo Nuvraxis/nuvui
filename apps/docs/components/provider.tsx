@@ -1,10 +1,18 @@
 "use client";
 
 import { RootProvider } from "fumadocs-ui/provider/next";
-import type { ReactNode } from "react";
+import { type ReactNode, useEffect } from "react";
 import SearchDialog from "@/components/search";
 
 export function Provider({ children }: { children: ReactNode }) {
+  // A parent's effect runs after its children's, so by now every handler on
+  // the page is attached. The pages are static HTML and look finished long
+  // before that, and the end-to-end tests wait for this before they type or
+  // click.
+  useEffect(() => {
+    document.documentElement.setAttribute("data-hydrated", "");
+  }, []);
+
   return (
     <RootProvider
       search={{ SearchDialog }}

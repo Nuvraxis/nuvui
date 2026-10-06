@@ -5,7 +5,7 @@ type Rgb = [red: number, green: number, blue: number];
 
 // Painting one pixel lets the browser do the conversion, so any color syntax
 // it understands works here, oklch included.
-function toRgb(color: string): Rgb {
+export function toRgb(color: string): Rgb {
   if (!CSS.supports("color", color)) {
     throw new Error(`"${color}" isn't a color this browser can parse`);
   }

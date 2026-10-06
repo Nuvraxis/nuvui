@@ -1,0 +1,25 @@
+@use "../../styles/layers";
+
+@layer components {
+  // A fieldset won't shrink below its content unless it's told it may.
+  .nuv-fieldset {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--nuv-fieldset-gap, calc(var(--spacing) * 4));
+    min-inline-size: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  // The gap above doesn't reach the legend, which the browser lays out by
+  // itself, and browsers disagree about a margin under one.
+  .nuv-fieldset__legend {
+    padding: 0;
+    padding-block-end: var(--nuv-fieldset-legend-gap, calc(var(--spacing) * 3));
+    color: var(--nuv-fieldset-legend-fg, var(--color-foreground));
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--text-base--line-height);
+  }
+}

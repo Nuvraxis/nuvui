@@ -1,0 +1,191 @@
+---
+title: Field
+description: Ties a label, a hint and an error message to a form control, with the ids and ARIA attributes a screen reader needs.
+---
+
+Use a field around any form control that has a label. It makes up the ids, points the label at the control, and tells the control which text describes it and whether it's invalid. It takes its error from you, so it works with whatever does your validation. [Forms](/docs/forms) shows it with React Hook Form.
+
+<Preview name="field/basic" />
+
+## Install
+
+```sh
+pnpm add @nuvui/react
+```
+
+## Import
+
+```tsx
+import {
+  Field,
+  FieldControl,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from "@nuvui/react";
+```
+
+The styles come from `@nuvui/react/styles.css`, which you load once for the whole app. [Getting started](/docs) covers that, and how to load only this component's CSS. Loaded one by one, a field needs `label.css` as well as `field.css`.
+
+## Parts
+
+| Part | What it is |
+| --- | --- |
+| `Field` | The wrapper. It holds the ids and the state the other parts read. |
+| `FieldLabel` | The label. It's a [Label](/docs/components/label) that points at the control. |
+| `FieldControl` | Wraps the control and passes the field's props to it. It renders nothing itself. |
+| `FieldDescription` | A hint under the control. |
+| `FieldError` | The error message. It renders nothing while it has nothing to say. |
+
+These are separate exports, not properties of `Field`. `Field.Label` isn't available, because property access on a client component doesn't work from a server component.
+
+## Try it
+
+<FieldPlayground />
+
+## Props
+
+### Field
+
+<PropsTable component="field" name="FieldOwnProps" />
+
+Everything else is passed to the `<div>` it renders.
+
+### FieldLabel
+
+<PropsTable component="field" name="FieldLabelOwnProps" />
+
+It also takes everything [Label](/docs/components/label) does, `asChild` included.
+
+### FieldControl
+
+<PropsTable component="field" name="FieldControlProps" />
+
+`FieldDescription` and `FieldError` take the props of a `<div>`.
+
+## What the control is given
+
+`FieldControl` holds one element and adds these props to it. Anything you set on the control yourself wins, except `aria-describedby`, where yours is kept and the field's ids are added after it.
+
+| Prop | Value |
+| --- | --- |
+| `id` | The field's id, which the label's `htmlFor` matches. |
+| `aria-labelledby` | The label's id, once there is a `FieldLabel`. |
+| `aria-describedby` | The description's id and the error's id, for whichever of the two is on the page. |
+| `aria-invalid` | `true` while the field is invalid. |
+| `required` | Set when `Field` has `required`. |
+| `disabled` | Set when `Field` has `disabled`. |
+
+Set the id on `Field` with `controlId` and not on the control, or the label will point at an id that isn't there.
+
+## Errors
+
+Pass the message to `FieldError`. While it's empty it renders nothing, so there's no need to render it conditionally. While it has something in it, the control is marked invalid and described by it.
+
+<Preview name="field/error" />
+
+`invalid` on `Field` overrides that either way: `invalid` with no message, or `invalid={false}` to show a message without marking the control yet.
+
+The message isn't a live region. A screen reader reads it when focus is on the control, as part of the control's description. So when a form is submitted with errors, move focus to the first invalid control. If your messages appear while someone is still typing in the field, add `role="alert"` or `aria-live="polite"` to `FieldError` so the change is announced.
+
+## Required and disabled
+
+`required` on `Field` reaches the control and puts an asterisk after the label. The asterisk is hidden from screen readers, which hear "required" from the control. Change it with `requiredIndicator` on `FieldLabel`, or pass `null` to leave it out.
+
+`disabled` reaches the control and fades the label.
+
+## Side by side
+
+`orientation="horizontal"` puts the first two parts on one row, in the order you write them. Put the control first for a checkbox or a switch. The description and the error line up under the second part.
+
+<Preview name="field/horizontal" />
+
+## With other controls
+
+<Preview name="field/controls" />
+
+Most controls only need wrapping. A few have something to know about.
+
+| Control | What to know |
+| --- | --- |
+| Input, Textarea, NativeSelect, PasswordInput, Checkbox, Switch, FileUpload | Wrap the control. |
+| Select | Wrap `SelectTrigger`, not `Select`. `required` has to go on `Select` itself, which is where the form value lives. |
+| RadioGroup, ToggleGroup | Use `FieldLabel asChild` with a `<span>`. A `<label>` can only point at one control, and a group isn't one. The group is named through `aria-labelledby`. |
+| Slider | The name and the description go to the handle, which is the part with the slider role. `required` is dropped: a slider always has a value. |
+| OtpField | The label names the group of boxes. `aria-invalid` and `required` go on each box. Use `FieldLabel asChild` here too. |
+
+## Accessibility
+
+A field has no keyboard behavior of its own.
+
+### What the component handles
+
+- The label is a real `<label>` with `htmlFor`, so a click on it focuses the control.
+- The control is named by the label and described by the description and the error, in that order. The ids only appear in `aria-describedby` while the part they belong to is on the page.
+- `aria-invalid` follows the error, so the two can't disagree.
+- The error is drawn in `--color-danger`, which has at least 4.5:1 contrast with the page in every theme. It's text, so it doesn't depend on the color being seen.
+- The ids come from React's `useId`, so they're the same on the server and in the browser.
+
+### What you need to handle
+
+- Write the error so it says what to do: "Enter a date after today", not "Invalid date".
+- After a failed submit, move focus to the first invalid control. Form libraries usually do this for you.
+- The parts report themselves to the field after they've rendered. On a page rendered on the server, `aria-describedby` is added when the page hydrates.
+
+## CSS variables
+
+Set any of these on the field, or on anything around it.
+
+```css
+.form {
+  --nuv-field-gap: calc(var(--spacing) * 2);
+}
+```
+
+<CssVariables
+  component="field"
+  descriptions={{
+    "--nuv-field-gap": "Space between the parts.",
+    "--nuv-field-column-gap":
+      "Space between the control and the label when they're side by side.",
+    "--nuv-field-required": "Color of the required mark.",
+    "--nuv-field-description": "Text color of the description.",
+    "--nuv-field-error": "Text color of the error.",
+  }}
+/>
+
+## Classes
+
+<BemClasses
+  component="field"
+  descriptions={{
+    "nuv-field": "Field.",
+    "nuv-field--vertical": "orientation=\"vertical\"",
+    "nuv-field--horizontal": "orientation=\"horizontal\"",
+    "nuv-field__required": "The required mark inside the label.",
+    "nuv-field__description": "FieldDescription.",
+    "nuv-field__error": "FieldError.",
+  }}
+/>
+
+`Field` has the `data-invalid` attribute while it's invalid and `data-disabled` while it's disabled. `FieldLabel` has the class `nuv-label`.
+
+## Server components
+
+The field parts are client components. They carry `"use client"`, and the build checks that the directive is still there in the published files.
+
+You can put a field together inside a server component, as the first example on this page does. Showing an error needs state somewhere, which means a client component of your own or a form library.
+
+## Do and don't
+
+**Do**
+
+- Use a field for every labelled control in a form, so they all behave the same.
+- Put the hint in `FieldDescription`, where a screen reader reads it with the control.
+- Keep the error next to its control.
+
+**Don't**
+
+- Don't set `id` on the control inside `FieldControl`. Use `controlId` on `Field`.
+- Don't put two controls in one field. Give each its own, and group them with a [Fieldset](/docs/components/fieldset).
+- Don't rely on the asterisk alone. Say which fields are optional or required somewhere in words.

@@ -1,0 +1,164 @@
+---
+title: ToggleGroup
+description: A strip of toggles that share one value. One can be pressed at a time, or several.
+---
+
+Use a toggle group to switch between a few views or modes, or to turn several related options on and off, where the choice takes effect at once. In a form that's saved with a button, a [radio group](/docs/components/radio-group) or [checkboxes](/docs/components/checkbox) say that better.
+
+<Preview name="toggle-group/basic" />
+
+## Install
+
+```sh
+pnpm add @nuvui/react
+```
+
+## Import
+
+```tsx
+import { ToggleGroup, ToggleGroupItem } from "@nuvui/react";
+```
+
+The styles come from `@nuvui/react/styles.css`, which you load once for the whole app. [Getting started](/docs) covers that, and how to load only this component's CSS. Loaded one by one, a group needs `toggle.css` as well as `toggle-group.css`, because each of its buttons is a [toggle](/docs/components/toggle).
+
+## Parts
+
+| Part | What it is |
+| --- | --- |
+| `ToggleGroup` | Holds the value and lays the buttons out. |
+| `ToggleGroupItem` | One button. It takes its variant and size from the group. |
+
+## Try it
+
+<ToggleGroupPlayground />
+
+## Props
+
+### ToggleGroup
+
+<PropsTable component="toggle-group" name="ToggleGroupOwnProps" />
+
+These come from Radix.
+
+<PropsTable
+  component="toggle-group"
+  name="ToggleGroupProps"
+  type="ToggleGroupPrimitive.ToggleGroupSingleProps"
+  props={{
+    type: "`\"single\"` lets one button be pressed at a time. `\"multiple\"` lets any number be. It's required, and it decides what kind of value the group has.",
+    value:
+      "The pressed button, or buttons, when you control it yourself: a string for `\"single\"` and an array of strings for `\"multiple\"`.",
+    defaultValue: "The same, for what's pressed at first when you don't control it.",
+    onValueChange:
+      "Called with the new value. With `\"single\"`, it's an empty string when the pressed button is pressed again.",
+    orientation:
+      "`\"vertical\"` stacks the buttons. It also decides which arrow keys move between them.",
+    disabled: "Disables every button.",
+    rovingFocus:
+      "Whether the group is one tab stop that the arrow keys move inside. It's `true` by default.",
+    loop: "Whether the arrow keys wrap around from the last button to the first. It's `true` by default.",
+    dir: "The reading direction. In `\"rtl\"` the left and right arrow keys swap.",
+  }}
+/>
+
+### ToggleGroupItem
+
+<PropsTable
+  component="toggle-group"
+  name="ToggleGroupItemProps"
+  props={{
+    value: "What the group's value holds while this button is pressed.",
+    disabled: "Stops this button from being pressed. The arrow keys skip it.",
+  }}
+/>
+
+## Several at once
+
+<Preview name="toggle-group/multiple" />
+
+`variant="ghost"` leaves a small gap between the buttons and gives none of them an edge. The default, `"outline"`, joins them into one strip.
+
+## Always one pressed
+
+With `type="single"`, pressing the pressed button again lets go of it, and the group has no value. For a view switcher that should always have one, ignore the empty value.
+
+<Preview name="toggle-group/required" />
+
+## Accessibility
+
+### Keyboard
+
+| Key | What it does |
+| --- | --- |
+| <kbd>Tab</kbd> | Moves focus into the group, to the pressed button or the first one, and out again. The group is one tab stop. |
+| <kbd>→</kbd> and <kbd>←</kbd> | Move to the next or previous button, without pressing it. In a vertical group it's <kbd>↓</kbd> and <kbd>↑</kbd>. |
+| <kbd>Home</kbd> and <kbd>End</kbd> | Move to the first or last button. |
+| <kbd>Space</kbd> or <kbd>Enter</kbd> | Presses or releases the button that has focus. |
+
+In a right-to-left group, <kbd>←</kbd> and <kbd>→</kbd> swap.
+
+### What the component handles
+
+Most of this is Radix. The library doesn't change it.
+
+- With `type="single"`, the group has `role="radiogroup"` and each button `role="radio"` with `aria-checked`. With `type="multiple"`, the group has `role="toolbar"` and each button `aria-pressed`.
+- The pressed button is filled with the primary color, which has at least 3:1 contrast with the page in every theme. [Toggle](/docs/components/toggle#why-pressed-is-a-solid-fill) has the reasoning.
+- In a joined strip, the pressed button's edge is drawn over its neighbours', and the button with focus is drawn over both, so its ring isn't cut off.
+- The joined corners follow the reading direction and the orientation.
+
+### What you need to handle
+
+- Name the group with `aria-label` or `aria-labelledby`.
+- Give each icon-only button an `aria-label`.
+- Unlike a radio group, the arrow keys only move focus here. A press is needed to change the value.
+
+## CSS variables
+
+The buttons read the [toggle's variables](/docs/components/toggle#css-variables). Set them on the group and every button in it follows. The group adds one of its own.
+
+```css
+.toolbar {
+  --nuv-toggle-on-bg: var(--color-foreground);
+  --nuv-toggle-on-fg: var(--color-background);
+}
+```
+
+<CssVariables
+  component="toggle-group"
+  descriptions={{
+    "--nuv-toggle-group-gap": "Space between buttons in the ghost variant.",
+  }}
+/>
+
+## Classes
+
+<BemClasses
+  component="toggle-group"
+  descriptions={{
+    "nuv-toggle-group": "ToggleGroup.",
+    "nuv-toggle-group--outline": "variant=\"outline\"",
+    "nuv-toggle-group--ghost": "variant=\"ghost\"",
+    "nuv-toggle-group--horizontal": "orientation=\"horizontal\", which is the default.",
+    "nuv-toggle-group--vertical": "orientation=\"vertical\"",
+    "nuv-toggle-group__item":
+      "ToggleGroupItem. It has the toggle's classes too: `nuv-toggle` and the two for its variant and size.",
+  }}
+/>
+
+## Server components
+
+The toggle group parts are client components. They carry `"use client"`, and the build checks that the directive is still there in the published files.
+
+You can put a group together inside a server component, as the first example on this page does. It needs a client component of your own once you pass `onValueChange`, which is most real uses.
+
+## Do and don't
+
+**Do**
+
+- Keep it to a handful of buttons with short labels. On a phone a long strip runs off the screen.
+- Use it where the change shows straight away.
+
+**Don't**
+
+- Don't mix it up with [tabs](/docs/components/tabs). Tabs switch between panels of content, each with its own heading. A toggle group changes how one thing is shown.
+- Don't use a toggle group for navigation between pages.

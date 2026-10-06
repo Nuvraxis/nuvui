@@ -1,0 +1,62 @@
+@use "../../styles/layers";
+
+// The buttons themselves are toggles and get their look from toggle.scss.
+// This only lays them out.
+@layer components {
+  .nuv-toggle-group {
+    display: inline-flex;
+    max-inline-size: 100%;
+  }
+
+  .nuv-toggle-group--vertical {
+    flex-direction: column;
+  }
+
+  .nuv-toggle-group--ghost {
+    gap: var(--nuv-toggle-group-gap, var(--spacing));
+  }
+
+  .nuv-toggle-group__item {
+    position: relative;
+
+    // Each button overlaps the one before it by the width of an edge. The
+    // pressed one is lifted so its edge is the one that shows, and the one
+    // with focus goes above that so nothing covers its ring.
+    &[data-state="on"] {
+      z-index: 1;
+    }
+
+    &:focus-visible {
+      z-index: 2;
+    }
+  }
+
+  // Joined into one strip: the edges between buttons are shared, and only
+  // the outer corners are round.
+
+  .nuv-toggle-group--outline.nuv-toggle-group--horizontal
+    > .nuv-toggle-group__item:not(:first-child) {
+    margin-inline-start: calc(var(--nuv-border-width) * -1);
+    border-start-start-radius: 0;
+    border-end-start-radius: 0;
+  }
+
+  .nuv-toggle-group--outline.nuv-toggle-group--horizontal
+    > .nuv-toggle-group__item:not(:last-child) {
+    border-start-end-radius: 0;
+    border-end-end-radius: 0;
+  }
+
+  .nuv-toggle-group--outline.nuv-toggle-group--vertical
+    > .nuv-toggle-group__item:not(:first-child) {
+    margin-block-start: calc(var(--nuv-border-width) * -1);
+    border-start-start-radius: 0;
+    border-start-end-radius: 0;
+  }
+
+  .nuv-toggle-group--outline.nuv-toggle-group--vertical
+    > .nuv-toggle-group__item:not(:last-child) {
+    border-end-start-radius: 0;
+    border-end-end-radius: 0;
+  }
+}

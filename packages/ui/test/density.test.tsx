@@ -12,6 +12,12 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  Input,
+  InputGroup,
+  InputGroupButton,
+  NativeSelect,
+  OtpField,
+  PasswordInput,
   Select,
   SelectContent,
   SelectItem,
@@ -22,6 +28,7 @@ import {
   TabsList,
   TabsTrigger,
   Toaster,
+  Toggle,
   toast,
 } from "../src";
 import { emulateMedia, setViewport } from "./media";
@@ -78,6 +85,54 @@ describe.each(densities)("density %s", (density, small, medium, large) => {
 
     expect(height(page.getByRole("combobox").element())).toBe(medium);
     expect(height(page.getByRole("tab").element())).toBe(medium);
+  });
+
+  test("sets the height of every kind of field", async () => {
+    await render(
+      <div data-density={density}>
+        <Input aria-label="Name" />
+        <NativeSelect aria-label="Country">
+          <option>Norway</option>
+        </NativeSelect>
+        <PasswordInput aria-label="Password" />
+        <InputGroup>
+          <Input aria-label="Site" />
+          <InputGroupButton>Copy</InputGroupButton>
+        </InputGroup>
+        <OtpField aria-label="Code" length={1} />
+      </div>,
+    );
+
+    expect(height(page.getByLabelText("Name").element())).toBe(medium);
+    expect(height(page.getByLabelText("Country").element())).toBe(medium);
+    expect(height(document.querySelector(".nuv-password-input"))).toBe(medium);
+    expect(height(document.querySelector(".nuv-input-group"))).toBe(medium);
+    expect(height(document.querySelector(".nuv-otp-field__input"))).toBe(
+      medium,
+    );
+    // The buttons inside a field keep 4px clear of its edge all round.
+    expect(height(page.getByRole("button", { name: "Copy" }).element())).toBe(
+      medium - 8,
+    );
+    expect(
+      height(page.getByRole("button", { name: "Show password" }).element()),
+    ).toBe(medium - 8);
+  });
+
+  test("sets the height of each toggle size", async () => {
+    const screen = await render(
+      <div data-density={density}>
+        <Toggle size="sm">Small</Toggle>
+        <Toggle size="md">Medium</Toggle>
+        <Toggle size="lg">Large</Toggle>
+      </div>,
+    );
+    const toggle = (name: string) =>
+      height(screen.getByRole("button", { name }).element());
+
+    expect(toggle("Small")).toBe(small);
+    expect(toggle("Medium")).toBe(medium);
+    expect(toggle("Large")).toBe(large);
   });
 
   // These render at the end of <body>, so the density has to be on the page.

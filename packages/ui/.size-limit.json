@@ -2,7 +2,7 @@
   {
     "name": "@nuvui/react",
     "path": "dist/index.js",
-    "limit": "46.5 kB"
+    "limit": "57.5 kB"
   },
   {
     "name": "@nuvui/react/accordion",
@@ -13,6 +13,11 @@
     "name": "@nuvui/react/button",
     "path": "dist/components/button/index.js",
     "limit": "1.5 kB"
+  },
+  {
+    "name": "@nuvui/react/button-group",
+    "path": "dist/components/button-group/index.js",
+    "limit": "250 B"
   },
   {
     "name": "@nuvui/react/checkbox",
@@ -30,14 +35,69 @@
     "limit": "29 kB"
   },
   {
+    "name": "@nuvui/react/field",
+    "path": "dist/components/field/index.js",
+    "limit": "2.5 kB"
+  },
+  {
+    "name": "@nuvui/react/fieldset",
+    "path": "dist/components/fieldset/index.js",
+    "limit": "250 B"
+  },
+  {
+    "name": "@nuvui/react/file-upload",
+    "path": "dist/components/file-upload/index.js",
+    "limit": "1.9 kB"
+  },
+  {
+    "name": "@nuvui/react/input",
+    "path": "dist/components/input/index.js",
+    "limit": "200 B"
+  },
+  {
+    "name": "@nuvui/react/input-group",
+    "path": "dist/components/input-group/index.js",
+    "limit": "400 B"
+  },
+  {
+    "name": "@nuvui/react/label",
+    "path": "dist/components/label/index.js",
+    "limit": "1.7 kB"
+  },
+  {
+    "name": "@nuvui/react/native-select",
+    "path": "dist/components/native-select/index.js",
+    "limit": "350 B"
+  },
+  {
+    "name": "@nuvui/react/otp-field",
+    "path": "dist/components/otp-field/index.js",
+    "limit": "9.7 kB"
+  },
+  {
+    "name": "@nuvui/react/password-input",
+    "path": "dist/components/password-input/index.js",
+    "limit": "4.9 kB"
+  },
+  {
     "name": "@nuvui/react/popover",
     "path": "dist/components/popover/index.js",
     "limit": "23 kB"
   },
   {
+    "name": "@nuvui/react/radio-group",
+    "path": "dist/components/radio-group/index.js",
+    "limit": "9.5 kB"
+  },
+  {
     "name": "@nuvui/react/select",
     "path": "dist/components/select/index.js",
     "limit": "29 kB"
+  },
+  {
+    "name": "@nuvui/react/slider",
+    "path": "dist/components/slider/index.js",
+    "limit": "9 kB"
   },
   {
     "name": "@nuvui/react/switch",
@@ -50,9 +110,24 @@
     "limit": "8.5 kB"
   },
   {
+    "name": "@nuvui/react/textarea",
+    "path": "dist/components/textarea/index.js",
+    "limit": "750 B"
+  },
+  {
     "name": "@nuvui/react/toast",
     "path": "dist/components/toast/index.js",
     "limit": "12 kB"
+  },
+  {
+    "name": "@nuvui/react/toggle",
+    "path": "dist/components/toggle/index.js",
+    "limit": "2.7 kB"
+  },
+  {
+    "name": "@nuvui/react/toggle-group",
+    "path": "dist/components/toggle-group/index.js",
+    "limit": "7.8 kB"
   },
   {
     "name": "@nuvui/react/tooltip",
@@ -63,7 +138,7 @@
     "name": "styles.css",
     "path": "dist/styles.css",
     "rolldown": false,
-    "limit": "7 kB"
+    "limit": "9.7 kB"
   },
   {
     "name": "tokens.css",
@@ -75,7 +150,7 @@
     "name": "every stylesheet in css/",
     "path": "dist/css/*.css",
     "rolldown": false,
-    "limit": "9 kB"
+    "limit": "18.2 kB"
   },
   {
     "name": "every preset in themes/",

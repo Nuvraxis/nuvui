@@ -1,0 +1,19 @@
+@use "../../styles/layers";
+
+@layer components {
+  .nuv-label {
+    display: inline-flex;
+    gap: var(--nuv-label-gap, var(--spacing));
+    align-items: center;
+    color: var(--nuv-label-fg, var(--color-foreground));
+    font-size: var(--nuv-label-font-size, var(--text-sm));
+    font-weight: var(--nuv-label-font-weight, var(--font-weight-medium));
+    line-height: var(--text-sm--line-height);
+
+    // Field sets this while its control is disabled. A label can't tell by
+    // itself: the control it names can be anywhere on the page.
+    &[data-disabled] {
+      opacity: var(--nuv-disabled-opacity);
+    }
+  }
+}

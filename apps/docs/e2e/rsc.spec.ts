@@ -33,6 +33,15 @@ test("components used from a server component hydrate and work", async ({
   await dialog.getByRole("button", { name: "Close it" }).click();
   await expect(dialog).toBeHidden();
 
+  const email = page.getByRole("textbox", { name: "Server email" });
+  await expect(email).toHaveAttribute("required", "");
+  await expect(email).toHaveAccessibleDescription("Described after hydration.");
+  await page.getByLabel("Server select").selectOption("Two");
+  await expect(page.getByLabel("Server select")).toHaveValue("Two");
+  await expect(
+    page.getByRole("group", { name: "Server group" }).getByRole("button"),
+  ).toHaveCount(2);
+
   expect(problems).toEqual([]);
 });
 

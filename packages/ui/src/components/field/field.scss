@@ -1,0 +1,50 @@
+@use "../../styles/layers";
+
+@layer components {
+  .nuv-field {
+    display: grid;
+
+    // One column that may shrink. A grid column is otherwise as wide as the
+    // longest thing in it, however narrow the container.
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--nuv-field-gap, calc(var(--spacing) * 1.5));
+    min-inline-size: 0;
+  }
+
+  // A label only as wide as its text. Stretched across the field, a click on
+  // the empty part of the row would land in the control.
+  .nuv-field--vertical > .nuv-label {
+    justify-self: start;
+  }
+
+  // Two columns, in the order the parts are written: a checkbox and then its
+  // label, or a label and then its input.
+  .nuv-field--horizontal {
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: var(--nuv-field-column-gap, calc(var(--spacing) * 2));
+    align-items: center;
+  }
+
+  .nuv-field__required {
+    color: var(--nuv-field-required, var(--color-danger));
+  }
+
+  .nuv-field__description {
+    color: var(--nuv-field-description, var(--color-muted-foreground));
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+  }
+
+  .nuv-field__error {
+    color: var(--nuv-field-error, var(--color-danger));
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+  }
+
+  // Under the second column, so the text lines up with the label of a
+  // checkbox and not with its box.
+  .nuv-field--horizontal > .nuv-field__description,
+  .nuv-field--horizontal > .nuv-field__error {
+    grid-column: 2;
+  }
+}

@@ -1,0 +1,49 @@
+@use "../../styles/layers";
+@use "../../styles/control";
+
+@layer components {
+  .nuv-input-group {
+    inline-size: var(--nuv-input-group-width, 100%);
+
+    @include control.group("input-group", "> .nuv-input");
+  }
+
+  // The input gives its edge to the group. Its padding gets smaller where
+  // it's next to another part, so the two don't sit a whole field apart.
+  .nuv-input-group > .nuv-input {
+    padding-inline: calc(var(--spacing) * 2);
+
+    @include control.group-field;
+
+    &:first-child {
+      padding-inline-start: calc(var(--spacing) * 3);
+    }
+
+    &:last-child {
+      padding-inline-end: calc(var(--spacing) * 3);
+    }
+  }
+
+  .nuv-input-group__addon {
+    display: flex;
+    flex: none;
+    gap: calc(var(--spacing) * 2);
+    align-items: center;
+    color: var(--nuv-input-group-addon-fg, var(--color-muted-foreground));
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+    white-space: nowrap;
+
+    &:first-child {
+      padding-inline-start: calc(var(--spacing) * 3);
+    }
+
+    &:last-child {
+      padding-inline-end: calc(var(--spacing) * 3);
+    }
+  }
+
+  .nuv-input-group__button {
+    @include control.group-button("input-group");
+  }
+}

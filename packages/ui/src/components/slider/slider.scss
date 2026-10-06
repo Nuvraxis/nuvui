@@ -1,0 +1,97 @@
+@use "../../styles/layers";
+@use "../../styles/mixins";
+
+@layer components {
+  .nuv-slider {
+    position: relative;
+    display: flex;
+    align-items: center;
+    inline-size: var(--nuv-slider-width, 100%);
+    block-size: var(--nuv-slider-thumb-size, 1.25rem);
+
+    // A drag along the track moves the handle and not the page.
+    touch-action: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+
+    &[data-orientation="vertical"] {
+      flex-direction: column;
+      inline-size: var(--nuv-slider-thumb-size, 1.25rem);
+      block-size: var(--nuv-slider-length, 10rem);
+    }
+
+    &[data-disabled] {
+      opacity: var(--nuv-disabled-opacity);
+      cursor: not-allowed;
+    }
+  }
+
+  // The empty part has to be visible as part of a control too, so it's the
+  // 3:1 border color and not a pale gray.
+  .nuv-slider__track {
+    position: relative;
+    flex: 1;
+    block-size: var(--nuv-slider-track-size, 0.375rem);
+    overflow: hidden;
+    border-radius: var(--radius-full);
+    background-color: var(--nuv-slider-track, var(--color-border-strong));
+
+    // Where the browser forces its own colors, backgrounds aren't drawn,
+    // and a track is made of nothing else.
+    @media (forced-colors: active) {
+      outline: 1px solid buttontext;
+      outline-offset: -1px;
+    }
+
+    &[data-orientation="vertical"] {
+      inline-size: var(--nuv-slider-track-size, 0.375rem);
+      block-size: auto;
+    }
+  }
+
+  .nuv-slider__range {
+    position: absolute;
+    block-size: 100%;
+    background-color: var(--nuv-slider-range, var(--color-primary));
+
+    @media (forced-colors: active) {
+      background-color: highlight;
+      forced-color-adjust: none;
+    }
+
+    &[data-orientation="vertical"] {
+      inline-size: 100%;
+      block-size: auto;
+    }
+  }
+
+  .nuv-slider__thumb {
+    position: relative;
+    display: block;
+    inline-size: var(--nuv-slider-thumb-size, 1.25rem);
+    block-size: var(--nuv-slider-thumb-size, 1.25rem);
+    border: calc(var(--nuv-border-width) * 2) solid
+      var(--nuv-slider-thumb-border, var(--color-primary));
+    border-radius: var(--radius-full);
+    background-color: var(--nuv-slider-thumb-bg, var(--color-surface));
+    box-shadow: var(--shadow-sm);
+    cursor: grab;
+
+    @include mixins.touch-area;
+    @include mixins.focus-ring;
+
+    @media (forced-colors: active) {
+      border-color: buttontext;
+      background-color: canvas;
+      forced-color-adjust: none;
+    }
+
+    &:active {
+      cursor: grabbing;
+    }
+
+    &[data-disabled] {
+      cursor: not-allowed;
+    }
+  }
+}

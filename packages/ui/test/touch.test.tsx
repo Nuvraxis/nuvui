@@ -17,17 +17,31 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  FileUpload,
+  Input,
+  InputGroup,
+  InputGroupButton,
+  NativeSelect,
+  OtpField,
+  PasswordInput,
+  RadioGroup,
+  RadioGroupItem,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
+  Slider,
   Switch,
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
+  Textarea,
   Toaster,
+  Toggle,
+  ToggleGroup,
+  ToggleGroupItem,
   toast,
 } from "../src";
 import { emulateMedia } from "./media";
@@ -243,6 +257,199 @@ describe("toast", () => {
   });
 });
 
+describe("fields", () => {
+  test("an input, a native select and a password input are 44px tall", async () => {
+    await render(
+      <>
+        <Input aria-label="Name" />
+        <NativeSelect aria-label="Country">
+          <option>Norway</option>
+        </NativeSelect>
+        <PasswordInput aria-label="Password" />
+      </>,
+    );
+
+    for (const name of ["Name", "Country"]) {
+      expect(box(page.getByLabelText(name).element()).height).toBe(44);
+    }
+    expect(
+      box(document.querySelector(".nuv-password-input") as Element).height,
+    ).toBe(44);
+  });
+
+  // Under 16px, iOS zooms the page in when a field takes focus.
+  test("their text is 16px", async () => {
+    await render(
+      <>
+        <Input aria-label="Name" />
+        <Textarea aria-label="Notes" />
+        <NativeSelect aria-label="Country">
+          <option>Norway</option>
+        </NativeSelect>
+        <PasswordInput aria-label="Password" />
+        <OtpField aria-label="Code" length={1} />
+      </>,
+    );
+
+    for (const field of document.querySelectorAll(
+      'input:not([type="hidden"]), textarea, select',
+    )) {
+      expect(
+        Number.parseFloat(getComputedStyle(field).fontSize),
+      ).toBeGreaterThanOrEqual(16);
+    }
+  });
+
+  test("a one-time code box is 44px each way", async () => {
+    await render(<OtpField aria-label="Code" />);
+    const first = box(page.getByRole("textbox").first().element());
+
+    expect(first.width).toBe(44);
+    expect(first.height).toBe(44);
+  });
+
+  test("six boxes still fit a narrow phone", async () => {
+    await render(
+      <div style={{ inlineSize: 280 }}>
+        <OtpField aria-label="Code" />
+      </div>,
+    );
+    const group = box(page.getByRole("group").element());
+
+    expect(group.width).toBeLessThanOrEqual(280);
+    expect(box(page.getByRole("textbox").first().element()).height).toBe(44);
+  });
+
+  test("a button inside a field takes a tap from just outside it", async () => {
+    await render(
+      <div style={padded}>
+        <InputGroup>
+          <Input aria-label="Site" />
+          <InputGroupButton>Copy</InputGroupButton>
+        </InputGroup>
+        <PasswordInput aria-label="Password" />
+      </div>,
+    );
+
+    for (const name of ["Copy", "Show password"]) {
+      const element = page.getByRole("button", { name }).element();
+      // Drawn 36px tall. 20px up from its center is outside it and inside
+      // a 44px target.
+      expect(box(element).height).toBe(36);
+      expect(hitAt(element, 0, -20)).toBe(element);
+    }
+  });
+});
+
+describe("radio group", () => {
+  test("a tap just outside the circle still lands on it", async () => {
+    await render(
+      <div style={padded}>
+        <RadioGroup aria-label="Plan">
+          <RadioGroupItem value="free" aria-label="Free" />
+        </RadioGroup>
+      </div>,
+    );
+    const element = page.getByRole("radio").element();
+
+    expect(box(element).width).toBe(20);
+    expect(hitAt(element, 0, -18)).toBe(element);
+  });
+
+  test("the rows are far enough apart that two tap areas don't overlap", async () => {
+    await render(
+      <div style={padded}>
+        <RadioGroup aria-label="Plan">
+          <RadioGroupItem value="free" aria-label="Free" />
+          <RadioGroupItem value="team" aria-label="Team" />
+        </RadioGroup>
+      </div>,
+    );
+    const first = page.getByRole("radio", { name: "Free" }).element();
+    const second = page.getByRole("radio", { name: "Team" }).element();
+
+    expect(box(second).top - box(first).top).toBe(44);
+    // The halfway point between them is 22px down from the first.
+    expect(hitAt(first, 0, 21)).toBe(first);
+    expect(hitAt(first, 0, 23)).toBe(second);
+  });
+});
+
+describe("slider", () => {
+  test("a tap just outside the handle still lands on it", async () => {
+    await render(
+      <div style={padded}>
+        <Slider aria-label="Volume" defaultValue={[50]} />
+      </div>,
+    );
+    const element = page.getByRole("slider").element();
+
+    expect(box(element).width).toBe(20);
+    expect(hitAt(element, 0, -18)).toBe(element);
+    expect(hitAt(element, 18, 0)).toBe(element);
+  });
+});
+
+describe("toggle", () => {
+  test.each([
+    ["sm", 44],
+    ["md", 44],
+    ["lg", 48],
+  ] as const)(
+    "size %s is %ipx tall and at least 44px wide",
+    async (size, height) => {
+      await render(<Toggle size={size}>B</Toggle>);
+      const toggle = box(page.getByRole("button").element());
+
+      expect(toggle.height).toBe(height);
+      expect(toggle.width).toBeGreaterThanOrEqual(44);
+    },
+  );
+
+  test("a button in a toggle group is 44px tall", async () => {
+    await render(
+      <ToggleGroup type="single" aria-label="Alignment" size="sm">
+        <ToggleGroupItem value="left">Left</ToggleGroupItem>
+      </ToggleGroup>,
+    );
+
+    expect(box(page.getByRole("radio").element()).height).toBe(44);
+  });
+
+  test("doesn't change color under a finger that has moved on", async () => {
+    await render(<Toggle>Bold</Toggle>);
+    const toggle = page.getByRole("button");
+    const before = getComputedStyle(toggle.element()).backgroundColor;
+
+    await userEvent.hover(toggle);
+
+    expect(getComputedStyle(toggle.element()).backgroundColor).toBe(before);
+  });
+});
+
+describe("file upload", () => {
+  test("a file's row is 44px tall, and its button takes a tap from just outside", async () => {
+    await render(
+      <div style={padded}>
+        <FileUpload aria-label="Attachments" />
+      </div>,
+    );
+    await userEvent.upload(
+      page.getByLabelText("Attachments"),
+      new File(["x"], "a.txt", { type: "text/plain" }),
+    );
+    await expect
+      .element(page.getByRole("button", { name: "Remove a.txt" }))
+      .toBeVisible();
+    const button = page.getByRole("button", { name: "Remove a.txt" }).element();
+
+    expect(
+      box(document.querySelector(".nuv-file-upload__item") as Element).height,
+    ).toBe(44);
+    expect(hitAt(button, 0, -20)).toBe(button);
+  });
+});
+
 // Density makes controls shorter or taller with a mouse. A finger is the
 // same size whatever the layout, so nothing here may drop under 44px.
 describe.each([
@@ -288,6 +495,26 @@ describe.each([
     expect(box(document.querySelector(".nuv-select") as Element).height).toBe(
       44,
     );
+  });
+
+  test("fields and toggles are at least 44px tall", async () => {
+    setOnPage();
+    await render(
+      <>
+        <Input aria-label="Name" />
+        <NativeSelect aria-label="Country">
+          <option>Norway</option>
+        </NativeSelect>
+        <OtpField aria-label="Code" length={1} />
+        <Toggle size="sm">Bold</Toggle>
+      </>,
+    );
+
+    for (const control of document.querySelectorAll(
+      'input:not([type="hidden"]), select, button',
+    )) {
+      expect(box(control).height).toBeGreaterThanOrEqual(44);
+    }
   });
 
   test("a menu row and a tab are at least 44px tall", async () => {

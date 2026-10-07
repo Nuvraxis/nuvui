@@ -21,6 +21,12 @@ interface PropsTableProps {
   component: string;
   /** The add-on package the component is in. Left out, it's the core. */
   package?: Addon;
+  /**
+   * The file in the component's folder that the type is in. Without an
+   * extension it's a .tsx file. Left out, it's the one named after the
+   * component.
+   */
+  file?: string;
   /** Exported type to document, such as `ButtonOwnProps`. */
   name: string;
   /**
@@ -69,6 +75,7 @@ function only(
 export function PropsTable({
   component,
   package: addon,
+  file,
   name,
   type,
   props,
@@ -78,7 +85,7 @@ export function PropsTable({
   return (
     <AutoTypeTable
       generator={props ? only(generator, props, name) : generator}
-      path={source.source(component)}
+      path={source.source(component, file)}
       name={name}
       type={type}
       shiki={codeHighlight}

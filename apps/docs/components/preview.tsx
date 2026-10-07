@@ -12,13 +12,18 @@ interface PreviewProps {
    * example's own source, and both blocks get a title.
    */
   stylesheet?: string;
+  /**
+   * Give the example the whole width of the frame. For something that
+   * fills its container, such as a table.
+   */
+  wide?: boolean;
 }
 
 const examplesDir = path.join(process.cwd(), "examples");
 
 // Renders an example and prints the file it came from. The code on the page
 // is the code that's running, because it's the same file.
-export async function Preview({ name, stylesheet }: PreviewProps) {
+export async function Preview({ name, stylesheet, wide }: PreviewProps) {
   const [module, code, styles] = await Promise.all([
     import(`@/examples/${name}.tsx`) as Promise<{ default: ComponentType }>,
     readFile(path.join(examplesDir, `${name}.tsx`), "utf8"),
@@ -33,7 +38,11 @@ export async function Preview({ name, stylesheet }: PreviewProps) {
     // components being shown.
     <figure className="not-prose my-6" data-preview={name}>
       <div
-        className="flex min-h-40 flex-wrap items-center justify-center gap-3 rounded-t-xl border border-b-0 p-6"
+        className={
+          wide
+            ? "min-h-40 rounded-t-xl border border-b-0 p-4 sm:p-6"
+            : "flex min-h-40 flex-wrap items-center justify-center gap-3 rounded-t-xl border border-b-0 p-6"
+        }
         style={{
           backgroundColor: "var(--color-background)",
           color: "var(--color-foreground)",

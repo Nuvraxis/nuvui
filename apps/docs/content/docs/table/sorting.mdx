@@ -1,0 +1,118 @@
+---
+title: Sorting
+description: Sort a data table by clicking a heading. Ascending, descending and off, a sort by several columns with Shift, aria-sort on the heading, and a message read out after each sort.
+---
+
+A column that can be sorted has a button for a heading. A press sorts by it, the next press reverses the sort, and the third takes it off.
+
+<Preview name="data-table/sorting" wide />
+
+## What to register
+
+`@nuvui/table/full` has sorting. In a hook of your own:
+
+```tsx
+import {
+  createSortedRowModel,
+  rowSortingFeature,
+  sortFn_alphanumeric,
+  sortFn_datetime,
+  sortFn_text,
+  tableFeatures,
+} from "@tanstack/react-table";
+
+tableFeatures({
+  rowSortingFeature,
+  sortedRowModel: createSortedRowModel(),
+  sortFns: {
+    text: sortFn_text,
+    alphanumeric: sortFn_alphanumeric,
+    datetime: sortFn_datetime,
+  },
+});
+```
+
+`rowSortingFeature` is the state and the methods. `sortedRowModel` is what puts the rows in order: leave it out when [a server sorts](/docs/table/server). `sortFns` are the comparisons. TanStack picks one for a column by looking at its values: `text` for words, `alphanumeric` for text with numbers in it, such as "Item 12", and `datetime` for `Date`s. Numbers need none. Register the ones your columns have, and only those end up in your bundle.
+
+## Which columns sort
+
+A column sorts if it reads a value, which is every `helper.accessor` column. Turn it off for one with `enableSorting: false`. Its heading is then plain text.
+
+A `header` that's a string gets the sort button by itself. In a `header` of your own, use `header.ColumnHeader`:
+
+```tsx
+helper.accessor("name", {
+  meta: { label: "Name" },
+  header: ({ header }) => <header.ColumnHeader>Full name</header.ColumnHeader>,
+});
+```
+
+## The order of the presses
+
+Text sorts from A to Z first. Numbers sort from the largest first. Both are TanStack's defaults. Set `sortDescFirst` on a column, or on the table, to choose.
+
+The third press takes the sort off. For a table that should always be sorted by something, pass `enableSortingRemoval: false` to the hook, and the presses go back and forth between the two directions.
+
+## Sorted to begin with
+
+```tsx
+const table = useDataTable({
+  columns,
+  data,
+  initialState: { sorting: [{ id: "name", desc: false }] },
+});
+```
+
+To hold the sort yourself, in a URL for instance, pass `state: { sorting }` and `onSortingChange` together. The setter is given either a new value or a function of the old one, which is what a `useState` setter takes:
+
+```tsx
+const [sorting, setSorting] = useState<SortingState>([]);
+const table = useDataTable({
+  columns,
+  data,
+  state: { sorting },
+  onSortingChange: setSorting,
+});
+```
+
+## By several columns
+
+Hold <kbd>Shift</kbd> and press a second heading to sort by it within the first. Each sorted heading then shows a number for its place in the order. A press without <kbd>Shift</kbd> goes back to one column.
+
+`enableMultiSort: false` on the table turns this off.
+
+## Accessibility
+
+### Keyboard
+
+| Key | What it does |
+| --- | --- |
+| <kbd>Tab</kbd> | Moves to the next heading that sorts. |
+| <kbd>Enter</kbd> or <kbd>Space</kbd> | Sorts by the column, reverses the sort, then takes it off. |
+| <kbd>Shift</kbd> with <kbd>Enter</kbd> or <kbd>Space</kbd> | Adds the column to the sort. |
+
+### What the component handles
+
+- The heading is a `button` inside the `th`, so it's in the tab order and a screen reader says it can be pressed.
+- The `th` of the sorted column has `aria-sort="ascending"` or `"descending"`. With several sorted columns only the first has it, since a table may only name one.
+- After a sort, a polite live region says "Sorted by Name, ascending", or "Sorting cleared".
+- The arrows are decoration, hidden from screen readers. Both show on a heading that isn't sorted, and one on a heading that is, so the state isn't carried by color.
+- On a touch screen the button is 44 pixels tall.
+- <kbd>Shift</kbd> counts for a press from the keyboard as it does for a click. Firefox doesn't pass it on by itself, so the component does.
+
+### What you need to handle
+
+- Don't sort the rows yourself as well. With `manualSorting`, the table shows the rows in the order you give them.
+- If the order matters to what a row means, such as a ranking, say so in a column. A screen reader user moving through cells doesn't see the row's position.
+
+## Do and don't
+
+**Do**
+
+- Turn sorting off for columns where an order means nothing: a column of buttons, a description.
+- Start a table sorted the way most people want it.
+
+**Don't**
+
+- Don't sort a table with a few rows that are already in a meaningful order.
+- Don't expect a sort by several columns to be found. Say it's there if it matters.

@@ -1,0 +1,20 @@
+{
+  "title": "Tables",
+  "defaultOpen": true,
+  "pages": [
+    "index",
+    "table",
+    "data-table",
+    "sorting",
+    "filtering",
+    "pagination",
+    "row-selection",
+    "column-visibility",
+    "column-pinning",
+    "column-resizing",
+    "expanding",
+    "server",
+    "virtualization",
+    "migrating"
+  ]
+}

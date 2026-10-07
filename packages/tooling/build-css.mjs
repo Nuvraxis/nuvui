@@ -9,6 +9,26 @@ import { initAsyncCompiler } from "sass-embedded";
 
 export const layerOrder = "@layer tokens, base, components;";
 
+// In watch mode the core may be rewriting its dist/scss while an add-on
+// compiles against it. Its files are back within a second or two, so a
+// failure to load from another package is tried again before it's reported.
+// A mistake in the package's own SCSS is reported at once.
+const watching = process.argv.includes("--watch");
+const attempts = watching ? 40 : 1;
+const elsewhere = /@nuvui\/|[\\/]dist[\\/]/;
+
+async function compile(compiler, entry, options) {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      return await compiler.compileAsync(entry, options);
+    } catch (error) {
+      const text = `${error.message}\n${error.sassStack ?? ""}`;
+      if (attempt >= attempts || !elsewhere.test(text)) throw error;
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
+  }
+}
+
 async function scssFiles(dir) {
   const entries = await readdir(dir, { withFileTypes: true });
   const nested = await Promise.all(
@@ -92,7 +112,7 @@ export async function buildCss({
   const compiler = await initAsyncCompiler();
   try {
     for (const [output, entry] of outputs) {
-      const { css } = await compiler.compileAsync(entry, {
+      const { css } = await compile(compiler, entry, {
         style: "expanded",
         importers: [packageImporter(root)],
       });

@@ -138,9 +138,8 @@ test.describe("calendar page", () => {
 
   test("the year can be chosen from a list", async ({ page }) => {
     const calendar = preview(page, "calendar/dropdown");
-    await calendar
-      .getByRole("combobox", { name: "Choose the Year" })
-      .selectOption("1975");
+    await calendar.getByRole("combobox", { name: "Choose the Year" }).click();
+    await page.getByRole("option", { name: "1975" }).click();
     await expect(
       calendar.getByRole("grid", { name: "January 1975" }),
     ).toBeVisible();

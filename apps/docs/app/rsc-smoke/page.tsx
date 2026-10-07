@@ -82,6 +82,17 @@ import {
   VisuallyHidden,
 } from "@nuvui/react";
 import { Button as ButtonEntry } from "@nuvui/react/button";
+// The table's elements, from their own entry. A data table isn't here: it's
+// made with a hook, and so in a client component.
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@nuvui/table/table";
 import type { Metadata } from "next";
 import type { CSSProperties } from "react";
 
@@ -236,6 +247,28 @@ export default function RscSmokePage() {
         timeZone="UTC"
         defaultMonth={new Date(Date.UTC(2026, 9, 15))}
       />
+      <div style={{ width: 200 }}>
+        <TableContainer aria-label="Server table">
+          <Table aria-label="Server table" stickyHeader>
+            <TableHeader>
+              <TableRow>
+                <TableHead pinned="start">Server plan</TableHead>
+                <TableHead>Seats included</TableHead>
+                <TableHead align="end">Price a month</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableRow>
+                <TableCell rowHeader pinned="start">
+                  Team
+                </TableCell>
+                <TableCell>Ten seats</TableCell>
+                <TableCell align="end">$120.00</TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </div>
       <Command label="Server commands">
         <CommandInput />
         <CommandList>

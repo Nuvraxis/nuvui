@@ -1,0 +1,207 @@
+@use "../../styles/layers";
+@use "@nuvui/react/scss/mixins";
+
+// With a mouse a row is as tall as a control at the current density, so a
+// table tightens and loosens with everything else. On a touch screen it's
+// 44px whatever the density: a checkbox in each row answers a tap anywhere
+// in 44px around it, and in shorter rows those areas would overlap. Either
+// way it's a minimum, and a cell with two lines of text makes its row taller.
+$touch-row-height: var(--nuv-table-row-height, var(--nuv-touch-size));
+$row-height: var(--nuv-table-row-height, var(--nuv-control-height-md));
+$padding-x: var(--nuv-table-cell-padding-x, calc(var(--spacing) * 3));
+$padding-y: var(--nuv-table-cell-padding-y, calc(var(--spacing) * 1.5));
+$border: var(--nuv-border-width) solid var(--nuv-table-border, var(--color-border));
+$bg: var(--nuv-table-bg, var(--color-surface));
+
+@mixin pinned($block) {
+  #{$block}--pinned-start,
+  #{$block}--pinned-end {
+    position: sticky;
+    z-index: 1;
+  }
+
+  #{$block}--pinned-start {
+    inset-inline-start: 0;
+  }
+
+  #{$block}--pinned-end {
+    inset-inline-end: 0;
+  }
+
+  #{$block}--pinned-start#{$block}--pinned-edge {
+    border-inline-end: $border;
+  }
+
+  #{$block}--pinned-end#{$block}--pinned-edge {
+    border-inline-start: $border;
+  }
+}
+
+@mixin aligned($block) {
+  #{$block}--align-center {
+    text-align: center;
+  }
+
+  #{$block}--align-end {
+    text-align: end;
+  }
+}
+
+@layer components {
+  .nuv-table-container {
+    position: relative;
+    max-inline-size: 100%;
+    max-block-size: var(--nuv-table-container-max-height, none);
+    overflow: auto;
+    border: var(--nuv-table-container-border-width, var(--nuv-border-width)) solid
+      var(--nuv-table-border, var(--color-border));
+    border-radius: var(--nuv-table-container-radius, var(--radius-lg));
+    background-color: $bg;
+
+    // The ring is drawn inside the box. Outside it, whatever the box sits in
+    // would clip it.
+    @include mixins.focus-ring(-2px);
+  }
+
+  // The borders are on the cells and kept apart. With collapsed borders a
+  // sticky header leaves its lines behind when the body scrolls.
+  .nuv-table {
+    inline-size: 100%;
+    border-spacing: 0;
+    border-collapse: separate;
+    color: var(--nuv-table-fg, var(--color-surface-foreground));
+    font-size: var(--nuv-table-font-size, var(--text-sm));
+    line-height: var(--text-sm--line-height);
+    font-variant-numeric: tabular-nums;
+    text-align: start;
+  }
+
+  .nuv-table--fixed {
+    table-layout: fixed;
+  }
+
+  // With set widths a column can be narrower than what's in it. A heading
+  // is cut short with an ellipsis, and a cell breaks a long word, where
+  // both would otherwise run over the column next to them.
+  .nuv-table--fixed .nuv-table__head {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .nuv-table--fixed .nuv-table__cell {
+    overflow-wrap: anywhere;
+  }
+
+  .nuv-table__caption {
+    padding: $padding-y $padding-x;
+    color: var(--nuv-table-caption-fg, var(--color-muted-foreground));
+    text-align: start;
+    caption-side: var(--nuv-table-caption-side, bottom);
+  }
+
+  // Out of sight and still read. `display: none` would take the table's
+  // name away from screen readers along with it.
+  .nuv-table__caption--hidden {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  // A row is painted and its cells take the row's color. A pinned cell stays
+  // put while the rest of its row scrolls under it, which only works if the
+  // cell is painted too.
+  .nuv-table__row {
+    background-color: var(--nuv-table-row-bg, #{$bg});
+  }
+
+  .nuv-table__head,
+  .nuv-table__cell {
+    block-size: $touch-row-height;
+
+    @include mixins.fine-pointer {
+      block-size: $row-height;
+    }
+
+    padding: $padding-y $padding-x;
+    border-block-end: $border;
+    background-color: inherit;
+    vertical-align: middle;
+  }
+
+  .nuv-table__head {
+    background-color: var(--nuv-table-header-bg, var(--color-muted));
+    color: var(--nuv-table-header-fg, var(--color-muted-foreground));
+    font-weight: var(--font-weight-medium);
+    text-align: start;
+    white-space: nowrap;
+  }
+
+  // The cell that names its row is a th, and reads as one. It looks like
+  // the cells next to it, a little heavier.
+  .nuv-table__cell--row-header {
+    font-weight: var(--font-weight-medium);
+    text-align: start;
+  }
+
+  @include aligned(".nuv-table__head");
+  @include aligned(".nuv-table__cell");
+  @include pinned(".nuv-table__head");
+  @include pinned(".nuv-table__cell");
+
+  // The last row's line would double the box's own.
+  .nuv-table__row:last-child > .nuv-table__cell {
+    border-block-end-width: var(--nuv-table-last-row-border-width, 0);
+  }
+
+  .nuv-table__footer > .nuv-table__row {
+    background-color: var(--nuv-table-footer-bg, var(--color-muted));
+    font-weight: var(--font-weight-medium);
+  }
+
+  .nuv-table__footer .nuv-table__cell {
+    border-block-start: $border;
+  }
+
+  .nuv-table__body--striped > .nuv-table__row:nth-child(even) {
+    background-color: var(--nuv-table-stripe-bg, var(--color-muted));
+  }
+
+  .nuv-table__body > .nuv-table__row {
+    @include mixins.hover {
+      background-color: var(--nuv-table-row-hover-bg, var(--color-muted));
+    }
+  }
+
+  // After the hover rule, so a selected row stays selected under the mouse.
+  .nuv-table__body > .nuv-table__row[data-state="selected"] {
+    background-color: var(
+      --nuv-table-row-selected-bg,
+      color-mix(in oklab, var(--color-primary) 12%, var(--color-surface))
+    );
+  }
+
+  // The header stays over the body, and a pinned header cell over both.
+  .nuv-table--sticky-header .nuv-table__head {
+    position: sticky;
+    inset-block-start: 0;
+    z-index: 2;
+  }
+
+  .nuv-table--sticky-header .nuv-table__head--pinned-start,
+  .nuv-table--sticky-header .nuv-table__head--pinned-end {
+    z-index: 3;
+  }
+
+  // Forced colors drop every background, the selected one too. A bar down
+  // the start of the row says it there.
+  @media (forced-colors: active) {
+    .nuv-table__row[data-state="selected"] > :first-child {
+      border-inline-start: calc(var(--spacing) * 1) solid Highlight;
+    }
+  }
+}

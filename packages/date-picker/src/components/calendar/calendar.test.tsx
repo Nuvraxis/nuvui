@@ -130,9 +130,68 @@ describe("rendering", () => {
     const year = page.getByRole("combobox", { name: /year/i });
     await expect
       .element(page.getByRole("combobox", { name: /month/i }))
-      .toHaveValue("9");
-    await userEvent.selectOptions(year, "2028");
+      .toHaveTextContent("October");
+    await year.click();
+    await page.getByRole("option", { name: "2028" }).click();
     await expect.element(grid("October 2028")).toBeVisible();
+    await expect.element(year).toHaveTextContent("2028");
+  });
+
+  test("a list works from the keyboard, and gives focus back", async () => {
+    await render(<Calendar {...base} captionLayout="dropdown" />);
+    const month = page.getByRole("combobox", { name: /month/i });
+    (month.element() as HTMLElement).focus();
+    await userEvent.keyboard("{Enter}");
+    await expect
+      .element(page.getByRole("option", { name: "October" }))
+      .toHaveFocus();
+    // Radix moves to the next option a moment after the key, so Enter waits
+    // for it.
+    await userEvent.keyboard("{ArrowDown}");
+    await expect
+      .element(page.getByRole("option", { name: "November" }))
+      .toHaveFocus();
+    await userEvent.keyboard("{Enter}");
+    await expect.element(grid("November 2026")).toBeVisible();
+    await expect.element(month).toHaveFocus();
+  });
+
+  test("a month outside the earliest and latest can't be chosen", async () => {
+    await render(
+      <Calendar
+        {...base}
+        captionLayout="dropdown"
+        startMonth={new Date(2026, 2)}
+        endMonth={new Date(2027, 5)}
+      />,
+    );
+    await page.getByRole("combobox", { name: /month/i }).click();
+    await expect
+      .element(page.getByRole("option", { name: "January" }))
+      .toHaveAttribute("aria-disabled", "true");
+    await expect
+      .element(page.getByRole("option", { name: "March" }))
+      .not.toHaveAttribute("aria-disabled");
+  });
+
+  test("the list of years is kept short enough to scroll", async () => {
+    await render(
+      <Calendar
+        {...base}
+        captionLayout="dropdown"
+        startMonth={new Date(1930, 0)}
+        endMonth={new Date(2030, 11)}
+      />,
+    );
+    await page.getByRole("combobox", { name: /year/i }).click();
+    const list = page.getByRole("listbox");
+    await expect.element(list).toBeVisible();
+    expect(list.element().getBoundingClientRect().height).toBeLessThanOrEqual(
+      18 * 16,
+    );
+    await expect
+      .element(page.getByRole("option", { name: "2026" }))
+      .toBeInViewport();
   });
 });
 

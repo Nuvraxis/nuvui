@@ -1,0 +1,104 @@
+---
+title: Column resizing
+description: Let people drag the edge of a data table's column to resize it, or do it from the keyboard. Columns have set widths in a fixed layout, with a least and a most.
+---
+
+With `layout="fixed"`, every column has a set width and a grip at the end of its heading. Drag the grip to resize the column.
+
+<Preview name="data-table/resizing" wide />
+
+## What to register
+
+`@nuvui/table/full` has both features. In a hook of your own:
+
+```tsx
+import {
+  columnResizingFeature,
+  columnSizingFeature,
+  tableFeatures,
+} from "@tanstack/react-table";
+
+tableFeatures({ columnSizingFeature, columnResizingFeature });
+```
+
+`columnSizingFeature` is the widths. `columnResizingFeature` is the dragging, and needs the first. With only the first, columns have their set widths and no grips.
+
+## The fixed layout
+
+By default a table is laid out by the browser: each column is as wide as its content needs, and the table fills its box. That's `layout="auto"`, and nothing in it has a set width, so there's nothing to resize.
+
+`layout="fixed"` gives each column the width TanStack holds for it:
+
+```tsx
+<DataTable table={table} caption="People" layout="fixed" />
+```
+
+The table is then exactly as wide as its columns add up to. Narrower than its box, it leaves space at the end. Wider, it scrolls. It isn't stretched to fill the box, because then every column would be wider than the width a resize had just given it.
+
+## Widths
+
+A column is 150 pixels unless it says otherwise, which is TanStack's default.
+
+```tsx
+helper.accessor("name", {
+  header: "Name",
+  size: 200,
+  minSize: 120,
+  maxSize: 400,
+});
+```
+
+`size` is where it starts, and `minSize` and `maxSize` are how far it can be dragged. Without them a column can go down to 20 pixels and has no upper limit. Text that doesn't fit a narrow column wraps onto more lines.
+
+`enableResizing: false` on a column takes its grip away. `enableColumnResizing: false` on the hook takes them all.
+
+Sizes are numbers of pixels. TanStack doesn't take percentages.
+
+## Remembering widths
+
+The widths people set are in the table's `columnSizing` state, as a map from column id to pixels. To keep them between visits, hold that state yourself with `state: { columnSizing }` and `onColumnSizingChange`, and save it.
+
+`column.resetSize()` puts one column back, and `table.resetColumnSizing()` all of them.
+
+## Right to left
+
+In a right-to-left layout the grip is at the left end of its heading, and dragging left makes the column wider. `useDataTable` reads the direction from the [`DirectionProvider`](/docs/right-to-left) and tells TanStack. With TanStack's plain `useTable`, pass `columnResizeDirection: "rtl"` yourself.
+
+## Accessibility
+
+### Keyboard
+
+TanStack's own resizing follows a mouse or a finger. The keyboard is added here. <kbd>Tab</kbd> stops at each grip, after its heading's sort button.
+
+| Key | What it does |
+| --- | --- |
+| <kbd>→</kbd> | Makes the column 16 pixels wider. |
+| <kbd>←</kbd> | Makes it 16 pixels narrower. The two swap in a right-to-left layout. |
+| <kbd>Shift</kbd> with an arrow | Moves 64 pixels. |
+| <kbd>Home</kbd> | Goes to the least width. |
+| <kbd>Enter</kbd> | Puts the column back to the width it started with. |
+
+A double click on a grip also puts the column back.
+
+### What the component handles
+
+- The grip is a `separator` that takes focus, named "Resize Name" for its column, with the width as its value and the least and most as its limits. That's the role for a divider that can be moved.
+- The heading keeps its own name. A heading is named by what's in it, and with the grip inside it every cell in the column would be read out as "Name Resize Name", so the heading is given the column's label.
+- The grip is 8 pixels wide with a mouse and 16 on a touch screen, and shows a line that's 2 pixels wide. The line is full height and in the primary color while the column is being resized.
+
+### What you need to handle
+
+- Set a `minSize` that still shows something useful. A column dragged to 20 pixels can't be read.
+- Give a column whose `header` is a function a `meta.label`. The grip and the heading are both named from it.
+
+## Do and don't
+
+**Do**
+
+- Set `size` on every column, so the table starts out looking deliberate.
+- Save the widths for a table people use every day.
+
+**Don't**
+
+- Don't use the fixed layout only to line columns up. The automatic layout does that with less to maintain.
+- Don't expect resizing to be found on a touch screen. Keep the default widths good enough.

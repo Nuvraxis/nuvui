@@ -1,0 +1,97 @@
+---
+title: Table pagination
+description: Split a data table into pages. A bar with rows per page, which rows are showing out of how many, and buttons for the first, previous, next and last page that keep keyboard focus.
+---
+
+A table with pagination shows one page of rows and gets a bar under it: how many rows to a page, which rows are showing, and buttons to move.
+
+<Preview name="data-table/pagination" wide />
+
+## What to register
+
+`@nuvui/table/full` has pagination. In a hook of your own:
+
+```tsx
+import {
+  createPaginatedRowModel,
+  rowPaginationFeature,
+  tableFeatures,
+} from "@tanstack/react-table";
+
+tableFeatures({
+  rowPaginationFeature,
+  paginatedRowModel: createPaginatedRowModel(),
+});
+```
+
+`rowPaginationFeature` is the state and the methods. `paginatedRowModel` is what cuts the rows into pages, and is left out when [a server sends one page at a time](/docs/table/server).
+
+## The page size
+
+A page is ten rows unless you say otherwise:
+
+```tsx
+const table = useDataTable({
+  columns,
+  data,
+  initialState: { pagination: { pageIndex: 0, pageSize: 25 } },
+});
+```
+
+`pageSizes` on `DataTable` is the list in the "Rows per page" select. It's `[10, 20, 50, 100]` by default. The size the table has is added to the list if it isn't in it, so the select always shows the truth. Pass an empty list to leave the select out.
+
+## The bar
+
+`DataTablePagination`, or `table.Pagination`, is the bar on its own:
+
+<PropsTable
+  package="table"
+  component="data-table"
+  file="pagination"
+  name="DataTablePaginationOwnProps"
+/>
+
+It reads everything else from the table. `pagination={false}` on `DataTable` leaves it out, and `pagination={<Something />}` puts your own in its place. A bar of your own can call `table.nextPage()`, `table.setPageIndex(3)` and the rest of [TanStack's pagination methods](https://tanstack.com/table).
+
+## What resets the page
+
+A new sort or a new filter goes back to the first page. So does new `data`. To stay on the page when the data is replaced, as after saving an edit to a row, pass `autoResetPageIndex: false` to the hook. You then have to deal with a page that no longer exists, for instance after the last row on the last page is deleted.
+
+## Pages or a long scroll
+
+Pages suit a table people look things up in: they give a place to come back to, and the page stays light. For a table people scan from top to bottom, such as a log, [virtual rows](/docs/table/virtualization) keep everything in one scroll.
+
+## Accessibility
+
+### Keyboard
+
+| Key | What it does |
+| --- | --- |
+| <kbd>Tab</kbd> | Moves through the select and the four buttons. |
+| <kbd>Enter</kbd> or <kbd>Space</kbd> | On a button, goes to that page. |
+| <kbd>↑</kbd> and <kbd>↓</kbd> | On the select, changes the rows per page. |
+
+### What the component handles
+
+- The bar is a group named "Pagination". It isn't a `nav`: these are a table's controls, not links to other places, and a page with two tables would have two landmarks with the same name.
+- Each button is named: "First page", "Previous page", "Next page", "Last page".
+- A button with no page to go to has `aria-disabled` and stays where it is, with keyboard focus if it had it. A disabled button would drop focus onto the page the moment "Next" reached the last page, and the next <kbd>Tab</kbd> would start from the top.
+- After a change of page, a polite live region says "Page 2 of 5".
+- "Rows per page" is a label for its select, and the select is the browser's own, which opens the system picker on a phone.
+- The arrows turn around in a right-to-left layout.
+
+### What you need to handle
+
+- Translate the six labels: `pagination`, `rowsPerPage`, `firstPage`, `previousPage`, `nextPage`, `lastPage`, and the two functions `page` and `pageRange`.
+
+## Do and don't
+
+**Do**
+
+- Offer page sizes that suit the rows. Ten tall rows fill a screen. Fifty short ones do too.
+- Keep the bar directly under the table.
+
+**Don't**
+
+- Don't page a table that fits on one page. A table from `@nuvui/table/full` with a dozen rows can pass `pagination={false}` and a page size that holds them all.
+- Don't use pages for a table that has to be compared from top to bottom.

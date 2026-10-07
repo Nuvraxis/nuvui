@@ -13,7 +13,10 @@
   "dependencies": {
     "@nuvui/date-picker": "workspace:*",
     "@nuvui/react": "workspace:*",
+    "@nuvui/table": "workspace:*",
     "@nuvui/theme": "workspace:*",
+    "@tanstack/react-table": "^9.2.6",
+    "@tanstack/react-virtual": "^3.14.13",
     "fumadocs-core": "16.16.0",
     "fumadocs-mdx": "15.4.6",
     "fumadocs-typescript": "^5.4.1",

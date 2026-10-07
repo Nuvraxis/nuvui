@@ -1,0 +1,170 @@
+---
+title: Coming from TanStack Table 8
+description: What changes in your table code between TanStack Table 8 and 9, for people bringing version 8 tables to @nuvui/table. The hook, features, row models, state, pinning, sizing and sorting names.
+---
+
+`@nuvui/table` is built on TanStack Table 9. Version 9 is a different API from version 8, and version 8 code doesn't run on it unchanged. If you have tables written for version 8, with `useReactTable`, this page is what changes in them.
+
+It covers what you'll meet using this package. TanStack's own [migration guide](https://tanstack.com/table) is the full list.
+
+## The short version
+
+A version 8 table:
+
+```tsx
+import {
+  getCoreRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
+
+const table = useReactTable({
+  columns,
+  data,
+  getCoreRowModel: getCoreRowModel(),
+  getSortedRowModel: getSortedRowModel(),
+});
+```
+
+The same table here:
+
+```tsx
+import { createColumnHelper, useDataTable } from "@nuvui/table/full";
+
+const table = useDataTable({ columns, data });
+```
+
+The row models are gone from the options because they're part of the features the hook was made with. With `@nuvui/table/full` that's all of them. With a hook of your own, it's the ones you listed.
+
+## Features are listed, not assumed
+
+Version 8 shipped every feature in every table. Version 9 has a table say which it uses:
+
+```tsx
+import {
+  createSortedRowModel,
+  rowSortingFeature,
+  sortFn_text,
+  tableFeatures,
+} from "@tanstack/react-table";
+
+const features = tableFeatures({
+  rowSortingFeature,
+  sortedRowModel: createSortedRowModel(),
+  sortFns: { text: sortFn_text },
+});
+```
+
+A method that isn't there, such as `column.getCanSort`, usually means the feature wasn't registered, not that version 9 removed it. TypeScript says so too: the methods of a feature are only on the types of a table made with it.
+
+| Version 8 | Version 9 |
+| --- | --- |
+| `useReactTable(options)` | `useTable({ features, ...options })`, or `useDataTable(options)` here |
+| `getCoreRowModel: getCoreRowModel()` | Nothing. The core row model is automatic. |
+| `getSortedRowModel: getSortedRowModel()` | `sortedRowModel: createSortedRowModel()` in `tableFeatures` |
+| `getFilteredRowModel: getFilteredRowModel()` | `filteredRowModel: createFilteredRowModel()` in `tableFeatures` |
+| `getPaginationRowModel: getPaginationRowModel()` | `paginatedRowModel: createPaginatedRowModel()` in `tableFeatures` |
+| `getExpandedRowModel: getExpandedRowModel()` | `expandedRowModel: createExpandedRowModel()` in `tableFeatures` |
+| `filterFns` and `sortingFns` as table options | `filterFns` and `sortFns` in `tableFeatures` |
+
+Two features need another registered before them: `globalFilteringFeature` needs `columnFilteringFeature`, and `columnResizingFeature` needs `columnSizingFeature`.
+
+## Column helpers know the features
+
+The column helper takes the features as well as the row type, so that a column's options are the ones its table has:
+
+```tsx
+// Version 8
+const helper = createColumnHelper<Person>();
+
+// Version 9, plain
+const helper = createColumnHelper<typeof features, Person>();
+
+// Version 9, from this package's hook: the features are already bound
+const helper = createColumnHelper<Person>();
+```
+
+Wrap the list in `helper.columns([...])`. It keeps each column's value type, where a plain array would widen them all.
+
+## State
+
+| Version 8 | Version 9 |
+| --- | --- |
+| `table.getState()` | `table.state` |
+| `onStateChange` for everything | One function per slice: `onSortingChange`, `onPaginationChange` and so on |
+| `state: { sorting }` with `onSortingChange` | The same. This still works as it did. |
+
+`useTable` takes a second argument, a function that picks which state the component follows, for a component that should only draw again for some changes. `DataTable` follows all of the table's state itself, whatever the table handed to it was told to follow, so its controls are never stale.
+
+## Sorting names
+
+`sorting` in function and type names became `sort`:
+
+| Version 8 | Version 9 |
+| --- | --- |
+| `sortingFn` on a column | `sortFn` |
+| `SortingFn` | `SortFn` |
+| `sortingFns` | `sortFns` |
+| `column.getSortingFn()` | `column.getSortFn()` |
+
+The state is still `sorting`, and `SortingState` is still its type.
+
+## Pinning is by start and end
+
+Version 9 has no `left` and `right`. Pinned columns are at the `start` or the `end`, which follow the direction of the text:
+
+| Version 8 | Version 9 |
+| --- | --- |
+| `columnPinning: { left, right }` | `columnPinning: { start, end }` |
+| `column.pin("left")` | `column.pin("start")` |
+| `column.getIsPinned() === "left"` | `=== "start"` |
+| `table.getLeftHeaderGroups()` | `table.getStartHeaderGroups()` |
+| `row.getLeftVisibleCells()` | `row.getStartVisibleCells()` |
+| `enablePinning` on the table | `enableColumnPinning` |
+
+With `DataTable` you don't write the sticky positioning these were used for. It [measures and places](/docs/table/column-pinning) pinned columns itself.
+
+## Sizing and resizing are two features
+
+| Version 8 | Version 9 |
+| --- | --- |
+| One feature for widths and dragging | `columnSizingFeature` for widths, `columnResizingFeature` for dragging |
+| `columnSizingInfo` state | `columnResizing` |
+| `onColumnSizingInfoChange` | `onColumnResizingChange` |
+
+## Selection
+
+`table.getIsSomeRowsSelected()` and `table.getIsSomePageRowsSelected()` now mean "at least one", and are true when all are selected too. In version 8 they meant "some and not all". A checkbox of your own that shows a dash needs both tests:
+
+```tsx
+const some = table.getIsSomeRowsSelected() && !table.getIsAllRowsSelected();
+```
+
+`DataTableSelectAll` does this.
+
+## Methods stay on their object
+
+In version 9 the methods of a row, a column, a cell and a header are shared through a prototype. Call them on the object:
+
+```tsx
+// Works
+row.getValue("name");
+
+// Doesn't: the method has lost the row it belongs to
+const { getValue } = row;
+getValue("name");
+```
+
+For the same reason, spreading a row into a new object leaves its methods behind.
+
+## Rendering
+
+`flexRender(cell.column.columnDef.cell, cell.getContext())` still works. There's also a component, `<table.FlexRender cell={cell} />`. With `DataTable` you write neither: it draws the headings and the cells.
+
+## What you can delete
+
+A version 8 table usually came with markup of your own: the `table`, the `thead`, the loop over header groups, the sort button, the pagination buttons, the `aria-sort`. `DataTable` is that markup. What's left of a migrated table is the columns, the hook and one element.
+
+## A way to move a table at a time
+
+TanStack ships `useLegacyTable` in `@tanstack/react-table/legacy`, which takes version 8 options and returns a version 9 table. It includes every feature, and TanStack marks it as deprecated: it's there to keep an app running while its tables are moved one by one, not to stay on. A table from it can be given to `DataTable`.

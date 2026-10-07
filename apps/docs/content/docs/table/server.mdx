@@ -1,0 +1,191 @@
+---
+title: Server mode
+description: A data table whose sorting, filtering and paging are done by your API. The table reports what's being asked for, you fetch it, and it shows what comes back, with loading and error states.
+---
+
+A table that holds every row in the browser stops being practical somewhere in the thousands of rows. Past that, the database should sort, filter and cut out the page, and the table should ask for one page at a time.
+
+In this mode the table doesn't work on the rows at all. It keeps track of what's being asked for: which page, sorted how, filtered by what. You send that to your API and give the table what comes back.
+
+<Preview name="data-table/server" wide />
+
+That example has a function standing in for an API, which takes half a second to answer.
+
+## The request
+
+`useDataTableRequest` holds what the table is asking for, and returns it with the options that put the table in server mode:
+
+```tsx
+import { useDataTableRequest } from "@nuvui/table";
+
+const [request, options] = useDataTableRequest({
+  pagination: { pageIndex: 0, pageSize: 20 },
+});
+```
+
+`request` is what to send:
+
+| Field | What it holds |
+| --- | --- |
+| `pagination` | `{ pageIndex, pageSize }`. The first page is 0. |
+| `sorting` | A list of `{ id, desc }`, in order. Empty for no sort. |
+| `columnFilters` | A list of `{ id, value }`. |
+| `globalFilter` | The text in the search field. |
+
+`options` goes into the hook. It holds that state, the functions that change it, and `manualPagination`, `manualSorting` and `manualFiltering`, which are what tell TanStack to leave the rows as they come:
+
+```tsx
+const table = useDataTable({
+  columns,
+  data: page?.rows ?? none,
+  rowCount: page?.total,
+  getRowId: (person) => person.id,
+  ...options,
+});
+```
+
+Three things in that matter:
+
+- **`rowCount`** is how many rows match in all, from your API. The pagination bar needs it for "21-40 of 143" and to know when there's no next page.
+- **`none`** is an empty array made once, outside the component. A new `[]` on every render would be new `data` every time, and TanStack would work the table out again every time.
+- **`getRowId`** keeps the selection on the right rows. A row's position means nothing when each page is a different set of rows.
+
+`request` is a new object whenever anything in it changes, and the same object otherwise, so it can go straight into an effect's dependencies or a query key.
+
+## Fetching
+
+With [TanStack Query](https://tanstack.com/query), the request is the key:
+
+```tsx
+"use client";
+
+import { DataTable, useDataTableRequest } from "@nuvui/table";
+import { createColumnHelper, useDataTable } from "@nuvui/table/full";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
+
+const none: Person[] = [];
+
+export function People() {
+  const [request, options] = useDataTableRequest({
+    pagination: { pageIndex: 0, pageSize: 20 },
+  });
+
+  const query = useQuery({
+    queryKey: ["people", request],
+    queryFn: ({ signal }) => fetchPeople(request, signal),
+    // Keeps the page that's showing until the next one arrives.
+    placeholderData: keepPreviousData,
+  });
+
+  const table = useDataTable({
+    columns,
+    data: query.data?.rows ?? none,
+    rowCount: query.data?.total,
+    getRowId: (person) => person.id,
+    ...options,
+  });
+
+  return (
+    <DataTable
+      table={table}
+      caption="People"
+      rowHeader="name"
+      loading={query.isFetching}
+      error={query.isError}
+      onRetry={() => query.refetch()}
+    />
+  );
+}
+```
+
+The example at the top does the same with `useEffect`, and drops an answer that arrives after a newer request was made. A fetching library does that for you.
+
+## What your API does with it
+
+The table sends ids and values. Turning them into a query is the server's job, and it shouldn't trust them:
+
+```ts
+export async function fetchPeople(request: DataTableRequest, signal?: AbortSignal) {
+  const params = new URLSearchParams({
+    page: String(request.pagination.pageIndex),
+    size: String(request.pagination.pageSize),
+    search: request.globalFilter,
+  });
+  for (const sort of request.sorting) {
+    params.append("sort", `${sort.id}:${sort.desc ? "desc" : "asc"}`);
+  }
+  const response = await fetch(`/api/people?${params}`, { signal });
+  if (!response.ok) throw new Error("The people couldn't be loaded.");
+  return (await response.json()) as { rows: Person[]; total: number };
+}
+```
+
+On the server, check each sort id against the list of columns that can be sorted before it goes anywhere near a query. A column id from a browser is text someone else wrote.
+
+## Loading and errors
+
+- `loading` while a request is out. The first time, with no rows, the table shows placeholders. After that it keeps the rows it has and marks itself busy, so the table doesn't jump.
+- `error` when a request fails, with `onRetry` to try again.
+
+The message a screen reader hears after a sort or a filter, such as "4 rows", waits for the answer, so it describes the rows that arrived and not the ones that were there before. It's said once `loading` has been set and cleared, or once `data` is a new array, whichever the table sees. Pass `loading`: without it, an answer that's the very same array as before is never noticed.
+
+## The search field
+
+Each key in the search field is a new request. Set `debounce` on it so the request waits for a pause in the typing:
+
+```tsx
+<DataTable
+  table={table}
+  caption="People"
+  toolbar={
+    <DataTableToolbar>
+      <table.Filter debounce={300} />
+    </DataTableToolbar>
+  }
+/>
+```
+
+## Back to the first page
+
+A new sort or filter sets `pageIndex` to 0. The seventh page of the old results is usually past the end of the new ones. TanStack does this itself when it does the paging and not when a server does, so `useDataTableRequest` does it.
+
+## Selection across pages
+
+Selection is kept by row id, so ticks stay when the page changes and come back with the row. `table.getSelectedRowIds()` has all of them. The rows for ids on other pages aren't in the browser: an action on the selection sends the ids, and the server finds the rows.
+
+<kbd>Shift</kbd> and a click selects a range within the page that's showing. It can't reach rows that haven't been loaded.
+
+## Some of it on the server
+
+The three `manual` options are separate. A table that fetches every matching row but lets the browser page them can override one:
+
+```tsx
+useDataTable({ columns, data, ...options, manualPagination: false });
+```
+
+It then needs `paginatedRowModel` in its features. The usual mistake goes the other way: paging on the server and sorting in the browser, which sorts only the rows on the page.
+
+## Without the helper
+
+`useDataTableRequest` is a `useState` and four setters. To keep the state somewhere else, such as the URL, pass `state`, the `on...Change` functions and the three `manual` options yourself. Remember to reset the page when the sort or a filter changes.
+
+## Accessibility
+
+Everything on the [DataTable page](/docs/table/data-table#accessibility) applies. Two things are particular to this mode:
+
+- The table has `aria-busy` while `loading` is set.
+- What's read out after a change waits for the rows.
+
+## Do and don't
+
+**Do**
+
+- Send the total with every page.
+- Keep the old rows on screen while the next page loads.
+- Cancel or ignore a request that's been replaced.
+
+**Don't**
+
+- Don't sort or filter the returned page in the browser as well.
+- Don't make `data` a new array on every render.
+- Don't put a column id from the request into a query without checking it against a list.

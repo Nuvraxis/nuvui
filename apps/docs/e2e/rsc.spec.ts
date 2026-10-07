@@ -118,6 +118,15 @@ test("components used from a server component hydrate and work", async ({
     grid.getByRole("button", { name: /October 15th, 2026, selected/ }),
   ).toBeVisible();
 
+  // The table was in the server's HTML. Its box only takes focus once the
+  // browser has measured it and found it too narrow for the table.
+  const box = page.getByRole("region", { name: "Server table" });
+  await expect(box).toHaveAttribute("tabindex", "0");
+  await expect(box.getByRole("rowheader", { name: "Team" })).toHaveAttribute(
+    "scope",
+    "row",
+  );
+
   // On a wide screen the sidebar is in the page and the button collapses
   // it. On a phone the button opens it as a panel. Either way the button's
   // state changes, which it only does once the provider has hydrated.

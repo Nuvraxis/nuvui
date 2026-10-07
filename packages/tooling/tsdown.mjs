@@ -4,12 +4,16 @@ import { defineConfig } from "tsdown";
  * The build of a published package. A package's own tsdown.config.ts only
  * says where its entry points are.
  *
- * @param {{ entry: string[] }} options
+ * @param {object} options
+ * @param {string[]} options.entry
+ * @param {("esm" | "cjs")[]} [options.format] Both by default. A package
+ *   whose peer dependency is ESM only has nothing to gain from a CommonJS
+ *   build: `require` of it works exactly where `require` of the peer does.
  */
-export function library({ entry }) {
+export function library({ entry, format = ["esm", "cjs"] }) {
   return defineConfig({
     entry,
-    format: ["esm", "cjs"],
+    format,
     platform: "neutral",
     target: "es2022",
     dts: true,

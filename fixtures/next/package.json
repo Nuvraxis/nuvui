@@ -9,6 +9,8 @@
   "dependencies": {
     "@nuvui/date-picker": "file:../../packages/date-picker",
     "@nuvui/react": "file:../../packages/ui",
+    "@nuvui/table": "file:../../packages/table",
+    "@tanstack/react-table": "^9.2.6",
     "next": "^16.3.8",
     "react": "^19.3.0",
     "react-dom": "^19.3.0"

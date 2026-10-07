@@ -1,0 +1,150 @@
+---
+title: Tables
+description: The @nuvui/table package. Styled table elements, and a data table on TanStack Table 9 with sorting, filtering, pagination, selection, pinned and resizable columns, expanding rows, a server mode and virtual rows.
+---
+
+Tables are a package of their own, `@nuvui/table`. It has two things in it:
+
+| | What it is |
+| --- | --- |
+| [Table](/docs/table/table) | The elements of a table, styled: `Table`, `TableHeader`, `TableRow`, `TableCell` and the rest. For a table you write out by hand. |
+| [DataTable](/docs/table/data-table) | A table drawn from a [TanStack Table](https://tanstack.com/table) instance, with the controls that go with it: headings that sort, a search field, a column chooser, checkboxes, a pagination bar. |
+
+<Preview name="data-table/basic" wide />
+
+TanStack Table keeps a table's state and works out which rows to show. It draws nothing: its own guide says the markup, the styles, the interactions and the accessibility are the application's. This package is that part.
+
+<Callout type="warn" title="Not published yet">
+  `@nuvui/table` isn't on the registry yet, so the install command below won't find it.
+</Callout>
+
+## Install
+
+```sh
+pnpm add @nuvui/table @nuvui/react @tanstack/react-table
+```
+
+Both `@nuvui/react` and `@tanstack/react-table` are peer dependencies. The controls are built from the core's button, checkbox, input and menu. And your columns are written with TanStack's own helpers and types, so your app has to own that version: a new major of TanStack Table is then a new major of this one package, and not something that arrives inside another dependency.
+
+This package needs TanStack Table 9. Version 8 is a different API, and [coming from version 8](/docs/table/migrating) says what changes.
+
+For [virtual rows](/docs/table/virtualization), add `@tanstack/react-virtual` as well. It's an optional peer: nothing else in the package needs it.
+
+## Load the styles
+
+Import the package's stylesheet once, after the core's:
+
+```tsx title="app/layout.tsx"
+import "@nuvui/react/styles.css";
+import "@nuvui/table/styles.css";
+```
+
+It reads the same tokens as every other component, so a [theme](/docs/theming), a preset or a density you've set applies to tables with nothing more to do.
+
+Both files open with the same line naming the cascade layers, so the order you import them in doesn't decide which rule wins. To load one part's styles on their own, there's `@nuvui/table/css/table.css` and `@nuvui/table/css/data-table.css`. The second needs the first, and the core's button, checkbox, input, native select, dropdown menu and skeleton styles.
+
+## A table in two steps
+
+Make the table with a hook, then hand it to `DataTable`:
+
+```tsx
+"use client";
+
+import { DataTable } from "@nuvui/table";
+import { createColumnHelper, useDataTable } from "@nuvui/table/full";
+
+type Person = { id: string; name: string; email: string };
+
+const helper = createColumnHelper<Person>();
+const columns = helper.columns([
+  helper.accessor("name", { header: "Name" }),
+  helper.accessor("email", { header: "Email" }),
+]);
+
+export function People({ people }: { people: Person[] }) {
+  const table = useDataTable({ columns, data: people });
+  return <DataTable table={table} caption="People" rowHeader="name" />;
+}
+```
+
+`table` is a TanStack table. Everything in [TanStack's documentation](https://tanstack.com/table) about columns, state and options applies to it as written. `DataTable` reads it and draws what it finds.
+
+Keep `columns` outside the component, as above, or in a `useMemo`. TanStack works the rows out again whenever `columns` or `data` is a new array, and an array made during render is new every time.
+
+## Features are opt-in
+
+TanStack Table 9 is built so that a table only carries the code for what it does. Sorting, filtering, pagination and the rest are separate features, and a table is made with the ones it uses. That's worth having: with none, TanStack Table is about 10 kB minified and compressed, and with the nine this package has controls for, about 21 kB.
+
+So there are two ways to get the hook.
+
+**`@nuvui/table/full`** has one ready, with all nine features: sorting, column filters, a global filter, pagination, row selection, column visibility, column pinning, column resizing and expanding rows. Use it to get going, or when your tables use most of them anyway.
+
+**`createDataTableHook`** makes one with the features you list. Call it once, in a module of its own, and import the hook and the column helper from there in every table:
+
+```tsx title="lib/table.ts"
+import { createDataTableHook } from "@nuvui/table";
+import {
+  createSortedRowModel,
+  rowSortingFeature,
+  sortFn_text,
+  tableFeatures,
+} from "@tanstack/react-table";
+
+export const { useDataTable, createColumnHelper } = createDataTableHook({
+  features: tableFeatures({
+    rowSortingFeature,
+    sortedRowModel: createSortedRowModel(),
+    sortFns: { text: sortFn_text },
+  }),
+});
+```
+
+<Preview name="data-table/own-hook" wide />
+
+That table sorts, and has no search field, pagination bar or column chooser, because it wasn't made with the features behind them. `DataTable` shows a control only where the table can do what the control asks. Each feature's page lists what to register for it.
+
+`createDataTableHook` is TanStack's `createTableHook` with this package's controls registered, and takes the same options, so it's also where defaults for every table in an app go, such as `getRowId`.
+
+A table from TanStack's plain `useTable` works too. `DataTable` takes any version 9 table.
+
+## What the hook adds
+
+A table from `useDataTable` has the controls on it, so they can be placed without importing each one:
+
+| On | Parts |
+| --- | --- |
+| The table | `table.Toolbar`, `table.Filter`, `table.ColumnChooser`, `table.BulkActions`, `table.Pagination` |
+| A column's `header` | `header.ColumnHeader`, `header.ColumnFilter`, `header.SelectAll` |
+| A column's `cell` | `cell.SelectRow`, `cell.ExpandToggle` |
+
+The column helper is TanStack's, with two columns added: `helper.select()` for a column of checkboxes, and `helper.expand()` for a column of buttons that open a row.
+
+Every one of these is also an export of its own, such as `DataTablePagination`, for a table that didn't come from the hook.
+
+## The entries
+
+| Import from | For |
+| --- | --- |
+| `@nuvui/table` | Everything except the two below. |
+| `@nuvui/table/full` | The hook with all nine features. Separate because importing it brings all nine in. |
+| `@nuvui/table/virtual` | The virtual table. Separate because it needs `@tanstack/react-virtual`. |
+| `@nuvui/table/table` | The styled elements alone, with no TanStack code. |
+| `@nuvui/table/data-table` | The data table alone. |
+
+The package is published as ES modules only. `@tanstack/react-table` is too, so a CommonJS build would run in exactly the places an ES module can already be loaded from, and nowhere else.
+
+## Server components
+
+The styled elements can be rendered from a server component. A data table can't be made in one: the hook holds state, so the component that calls `useDataTable` has `"use client"` at the top. Fetch the rows in a server component and pass them down as a prop.
+
+For rows that are sorted, filtered and paged by a database, see [the server mode](/docs/table/server).
+
+## What's not here
+
+These are things TanStack Table can do that this package has no controls or markup for yet. A table made with those features still works, and `DataTable` draws it, without anything for them.
+
+- **Grouping rows** under a shared value, and totals for a group.
+- **Faceted filters**: the list of values a column has, with a count for each.
+- **Dragging columns** into a new order.
+- **Pinned rows**, and selecting cells.
+- **Virtual columns.** The virtual table draws a window of rows, and all of the columns.

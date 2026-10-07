@@ -50,6 +50,10 @@ import { SkeletonPlayground } from "@/components/playground/skeleton";
 import { SliderPlayground } from "@/components/playground/slider";
 import { SpinnerPlayground } from "@/components/playground/spinner";
 import { SwitchPlayground } from "@/components/playground/switch";
+import {
+  DataTablePlayground,
+  TablePlayground,
+} from "@/components/playground/table";
 import { TabsPlayground } from "@/components/playground/tabs";
 import { TextareaPlayground } from "@/components/playground/textarea";
 import { ToastPlayground } from "@/components/playground/toast";
@@ -105,6 +109,7 @@ export function getMDXComponents(components?: MDXComponents) {
     ComboboxPlayground,
     CommandPlayground,
     ContextMenuPlayground,
+    DataTablePlayground,
     DatePickerPlayground,
     DateRangePickerPlayground,
     DialogPlayground,
@@ -136,6 +141,7 @@ export function getMDXComponents(components?: MDXComponents) {
     SliderPlayground,
     SpinnerPlayground,
     SwitchPlayground,
+    TablePlayground,
     TabsPlayground,
     TextareaPlayground,
     ToastPlayground,

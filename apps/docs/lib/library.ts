@@ -12,8 +12,16 @@ function pkg(folder: string, name: string) {
     name,
     dir,
     tsconfig: path.join(dir, "tsconfig.json"),
-    source: (component: string) =>
-      path.join(dir, "src", "components", component, `${component}.tsx`),
+    // A component's types are in the file named after it, unless a page
+    // names another file in the same folder.
+    source: (component: string, file = component) =>
+      path.join(
+        dir,
+        "src",
+        "components",
+        component,
+        file.endsWith(".ts") ? file : `${file}.tsx`,
+      ),
     css: (component: string) =>
       path.join(dir, "dist", "css", `${component}.css`),
     styles: path.join(dir, "dist", "styles.css"),
@@ -36,6 +44,7 @@ export const library = {
 // `package` prop.
 export const addons = {
   "date-picker": pkg("date-picker", "@nuvui/date-picker"),
+  table: pkg("table", "@nuvui/table"),
 };
 
 export type Addon = keyof typeof addons;

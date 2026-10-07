@@ -45,6 +45,7 @@ const read = (paths) =>
 const published = {
   "@nuvui/react": "ui",
   "@nuvui/date-picker": "date-picker",
+  "@nuvui/table": "table",
 };
 
 function expect(app, what, passed) {
@@ -88,6 +89,24 @@ const fixtures = {
       "the script has none of the other locales",
       !script.includes("vasárnap"),
     );
+    expect(
+      "vite",
+      "it has the table's styles",
+      css.includes(".nuv-data-table"),
+    );
+    expect(
+      "vite",
+      "the script has the data table",
+      script.includes("nuv-data-table__sort"),
+    );
+    // The app's hook has sorting and nothing else. This is a property that
+    // only TanStack's row selection feature sets, and a bundler can't
+    // rename a property.
+    expect(
+      "vite",
+      "the script has none of the table features that weren't asked for",
+      !script.includes("_lastSelectedRowId"),
+    );
   },
 
   next(dir) {
@@ -115,7 +134,27 @@ const fixtures = {
       html.includes("October 2026") && !html.includes("Today,"),
     );
 
+    expect(
+      "next",
+      "the server rendered the table's elements from a server component",
+      /<th\s(?=[^>]*scope="row")(?=[^>]*class="nuv-table__cell nuv-table__cell--row-header")[^>]*>Team</.test(
+        html,
+      ),
+    );
+    expect(
+      "next",
+      "the server rendered the data table, sorted, with its rows named",
+      html.indexOf(">Ada Lovelace<") < html.indexOf(">Cleo Park<") &&
+        html.includes('aria-sort="ascending"') &&
+        html.includes('aria-label="Select Ada Lovelace"'),
+    );
+
     const css = read(files(join(dir, "out"), ".css"));
+    expect(
+      "next",
+      "it has the table's styles",
+      css.includes(".nuv-data-table"),
+    );
     expect("next", "it has the component styles", css.includes(".nuv-button"));
     expect("next", "it has the preset", css.includes("data-preset=ink"));
     expect(

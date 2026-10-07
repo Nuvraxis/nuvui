@@ -71,6 +71,11 @@ packages/date-picker          an add-on, published as @nuvui/date-picker
   src/components/<name>/      the same four files as in the library
   src/locale.ts               the locales, passed on from react-day-picker
   src/utils/                  reading and writing dates, and the typed text
+packages/table                an add-on, published as @nuvui/table
+  src/components/table/       the styled table elements
+  src/components/data-table/  the data table and its controls, one file each
+  src/full.ts                 the hook with every feature, an entry of its own
+  src/virtual.tsx             the virtual table, an entry of its own
 packages/tooling              what every published package is built with, private
   tsdown.mjs                  the build
   build-css.mjs               compiles the SCSS, and copies the source into dist
@@ -173,7 +178,7 @@ Button is the smallest example to copy from, and Dialog the fullest.
 
 ## Add-on packages
 
-A component goes in a package of its own when it needs a library the core doesn't have. `@nuvui/date-picker` is the first, for react-day-picker and date-fns. An app that doesn't use the component then never installs that library.
+A component goes in a package of its own when it needs a library the core doesn't have. `@nuvui/date-picker` is the first, for react-day-picker and date-fns, and `@nuvui/table` the second, for TanStack Table. An app that doesn't use the component then never installs that library.
 
 An add-on is laid out like the core and built with the same tooling, from `packages/tooling`. Its own config files only say what's particular to it. What differs from the core:
 
@@ -183,6 +188,10 @@ An add-on is laid out like the core and built with the same tooling, from `packa
 - **A rule can't count on being loaded after the core's stylesheet.** Both are in the `components` layer, and the app decides the order. To change how a core component looks inside an add-on, set that component's CSS variables on the element. That's the one place where a `--nuv-*` variable is declared.
 - **Its tests import the core's built stylesheet,** `@nuvui/react/styles.css`, and then its own SCSS. So the core has to be built first, which `pnpm test` sees to.
 - **Its docs pages are in a folder of their own** under `apps/docs/content/docs/`. `PropsTable`, `CssVariables` and `BemClasses` take a `package` prop that says which package to read.
+
+- **The library it's built on is a dependency or a peer, depending on who writes code against it.** Nobody uses react-day-picker's own API to use the date picker, so it's a dependency. Columns for a table are written with TanStack's helpers and types, so TanStack Table is a peer, and the app owns its version.
+- **It ships CommonJS as well as ES modules, unless its peer doesn't.** `@tanstack/react-table` is ES modules only, so `@nuvui/table` is too: `library({ format: ["esm"] })` in its `tsdown.config.ts`, and the `esm-only` profile in `.attw.json`.
+- **An entry that needs an optional peer, or that pulls in a lot, is a file at the top of `src`** and not a folder in `src/components`, so the package's main entry doesn't re-export it. `src/virtual.tsx` and `src/full.ts` in the table package are the two there are.
 
 A new add-on also has to be added in three places: `addons` in `apps/docs/lib/library.ts`, `published` in `scripts/test-consumers.mjs`, and the dependencies of `apps/docs` and of the two apps in `fixtures`.
 
@@ -204,7 +213,7 @@ Docs, comments, test names and changesets are all written the same way: plain se
 
 ## Changesets
 
-If a pull request changes what gets published in `@nuvui/react`, it needs a changeset:
+If a pull request changes what gets published, in `@nuvui/react` or in an add-on, it needs a changeset:
 
 ```sh
 pnpm changeset

@@ -15,6 +15,23 @@ import {
 } from "@nuvui/react";
 // One import from a component's own entry, to check that those resolve too.
 import { Switch } from "@nuvui/react/switch";
+// The table's elements are client components too, and used here as they
+// are. The data table is in a client component of this app's own.
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@nuvui/table/table";
+import { People } from "./people";
+
+const people = [
+  { id: "1", name: "Cleo Park", team: "Design" },
+  { id: "2", name: "Ada Lovelace", team: "Engineering" },
+];
 
 export default function Page() {
   return (
@@ -43,6 +60,23 @@ export default function Page() {
         timeZone="UTC"
         defaultMonth={new Date(Date.UTC(2026, 9, 15))}
       />
+      <TableContainer>
+        <Table aria-label="Plans">
+          <TableHeader>
+            <TableRow>
+              <TableHead>Plan</TableHead>
+              <TableHead align="end">Price</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            <TableRow>
+              <TableCell rowHeader>Team</TableCell>
+              <TableCell align="end">$12</TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <People people={people} />
     </main>
   );
 }

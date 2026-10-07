@@ -2,6 +2,14 @@
 
 import { useDirection } from "@nuvui/react/direction";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@nuvui/react/select";
+import {
+  type ChangeEvent,
   createContext,
   forwardRef,
   type Ref,
@@ -16,8 +24,10 @@ import {
   type CustomComponents,
   DayPicker,
   type DayPickerProps,
+  type DropdownProps,
   type PropsBase,
   type RootProps,
+  useDayPicker,
 } from "react-day-picker";
 import { cx } from "../../utils/cx";
 
@@ -40,7 +50,8 @@ const classes: ClassNames = {
   button_next: "nuv-calendar__nav-button nuv-calendar__nav-button--next",
   chevron: "nuv-calendar__chevron",
   dropdowns: "nuv-calendar__dropdowns",
-  dropdown_root: "nuv-calendar__dropdown",
+  // Dropdown below draws no element around the select.
+  dropdown_root: "",
   dropdown: "nuv-calendar__select",
   months_dropdown: "nuv-calendar__select--month",
   years_dropdown: "nuv-calendar__select--year",
@@ -125,7 +136,56 @@ function Root({ rootRef, ...props }: RootProps) {
   return <div ref={setRef} {...props} />;
 }
 
-const parts: Partial<CustomComponents> = { Chevron, Root };
+// The month or the year as a list to choose from. react-day-picker's own
+// is a select element, whose open list is the system's and can't be themed.
+function Dropdown({
+  options,
+  value,
+  onChange,
+  disabled,
+  className,
+  style,
+  "aria-label": label,
+}: DropdownProps) {
+  const { classNames } = useDayPicker();
+  const selected = options?.find((option) => option.value === value);
+
+  return (
+    <Select
+      value={String(value)}
+      disabled={disabled}
+      onValueChange={(next) =>
+        // All react-day-picker reads from the event is the value.
+        onChange?.({
+          target: { value: next },
+        } as ChangeEvent<HTMLSelectElement>)
+      }
+    >
+      <SelectTrigger
+        className={cx(classNames.dropdown, className)}
+        style={style}
+        aria-label={label}
+      >
+        {/* Radix fills the trigger in from the list once it's in the
+            browser. Given the text, the server draws it too. */}
+        <SelectValue>{selected?.label}</SelectValue>
+      </SelectTrigger>
+      <SelectContent className="nuv-calendar__options">
+        {options?.map((option) => (
+          <SelectItem
+            key={option.value}
+            value={String(option.value)}
+            disabled={option.disabled}
+          >
+            {option.label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+}
+
+const parts: Partial<CustomComponents> = { Chevron, Dropdown, Root };
 
 const never = () => () => {};
 

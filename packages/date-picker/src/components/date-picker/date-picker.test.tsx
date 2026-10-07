@@ -560,6 +560,47 @@ describe("in a field", () => {
   });
 });
 
+describe("with the month and year as lists", () => {
+  const dropdown = { ...calendar, captionLayout: "dropdown" as const };
+  const year = () => page.getByRole("combobox", { name: /year/i });
+
+  test("choosing a year keeps the calendar open", async () => {
+    await render(<Example calendar={dropdown} />);
+    await button().click();
+    await year().click();
+    await page.getByRole("option", { name: "2024" }).click();
+    await expect.element(popup()).toBeVisible();
+    await expect
+      .element(page.getByRole("grid", { name: "October 2024" }))
+      .toBeVisible();
+    await day(/October 15th/).click();
+    await expect.element(field()).toHaveValue("10/15/2024");
+  });
+
+  test("Escape closes the list and not the calendar", async () => {
+    await render(<Example calendar={dropdown} />);
+    await button().click();
+    await year().click();
+    await expect.element(page.getByRole("listbox")).toBeVisible();
+    await userEvent.keyboard("{Escape}");
+    await expect.element(page.getByRole("listbox")).not.toBeInTheDocument();
+    await expect.element(popup()).toBeVisible();
+  });
+
+  test("it works in the sheet on a phone", async () => {
+    await setViewport("phone");
+    await emulateMedia({ reducedMotion: "reduce" });
+    await render(<Example calendar={dropdown} />);
+    await button().click();
+    await year().click();
+    await page.getByRole("option", { name: "2024" }).click();
+    await expect.element(popup()).toBeVisible();
+    await expect
+      .element(page.getByRole("grid", { name: "October 2024" }))
+      .toBeVisible();
+  });
+});
+
 describe("on a phone", () => {
   // The sheet slides up. With motion reduced it's in place at once, and its
   // edges can be measured.

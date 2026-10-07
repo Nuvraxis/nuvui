@@ -129,43 +129,24 @@ $mouse: var(--nuv-calendar-cell-size, var(--nuv-control-height-md));
     align-items: center;
   }
 
-  // A month or year to choose from. The real select lies over the text,
-  // see-through, so it opens the system's own list and takes the keyboard.
-  .nuv-calendar__dropdown {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    border-radius: var(--radius-sm);
+  // A month or year to choose from: the trigger of a Select. Its size is
+  // set through the Select's variables, which work whichever of the two
+  // stylesheets is loaded first.
+  .nuv-calendar__select {
+    --nuv-select-width: 0;
+    --nuv-select-height: #{$touch};
 
-    @supports selector(:has(*)) {
-      &:has(.nuv-calendar__select:focus-visible) {
-        outline: var(--nuv-focus-ring-width, 2px) solid
-          var(--nuv-focus-ring-color, var(--color-ring));
-        outline-offset: var(--nuv-focus-ring-offset, 2px);
-      }
-    }
+    font-weight: var(--font-weight-medium);
 
-    @supports not selector(:has(*)) {
-      &:focus-within {
-        outline: var(--nuv-focus-ring-width, 2px) solid
-          var(--nuv-focus-ring-color, var(--color-ring));
-        outline-offset: var(--nuv-focus-ring-offset, 2px);
-      }
+    @include mixins.fine-pointer {
+      --nuv-select-height: #{$mouse};
     }
   }
 
-  .nuv-calendar__select {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    inline-size: 100%;
-    margin: 0;
-    padding: 0;
-    border: 0;
-    opacity: 0;
-    font: inherit;
-    cursor: pointer;
-    appearance: none;
+  // A hundred years is a long list. It scrolls in a box no taller than the
+  // calendar instead of running to the bottom of the screen.
+  .nuv-calendar__options {
+    --nuv-select-content-max-height: var(--nuv-calendar-options-height, 18rem);
   }
 
   .nuv-calendar__caption-label {

@@ -11,6 +11,7 @@ import { defineConfig } from "tsdown";
  *   build: `require` of it works exactly where `require` of the peer does.
  */
 export function library({ entry, format = ["esm", "cjs"] }) {
+  const watch = process.argv.some((arg) => arg === "--watch" || arg === "-w");
   return defineConfig({
     entry,
     format,
@@ -20,10 +21,15 @@ export function library({ entry, format = ["esm", "cjs"] }) {
     // One output file per source file. A bundled chunk can't carry a
     // per-file "use client" directive, so this is what keeps them intact.
     unbundle: true,
-    clean: true,
+    // Not in watch mode. `pnpm dev` starts every package's watcher at once,
+    // and an add-on's stylesheet is compiled against the core's dist/scss:
+    // emptying that as the others start leaves them without their CSS.
+    clean: !watch,
     // CSS is built here rather than as a separate script step so that watch
-    // mode rebuilds it too, after tsdown has emptied dist.
-    onSuccess: "node scripts/build-css.mjs",
+    // mode rebuilds it too.
+    onSuccess: watch
+      ? "node scripts/build-css.mjs --watch"
+      : "node scripts/build-css.mjs",
     inputOptions: {
       // Rolldown warns that "use client" may not survive bundling. With
       // unbundle it does, and check-dist fails the build if not.

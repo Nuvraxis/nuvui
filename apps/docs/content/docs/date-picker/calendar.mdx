@@ -102,7 +102,7 @@ Paging a month at a time to a date of birth takes hundreds of presses. With `cap
 
 <Preview name="calendar/dropdown" />
 
-The lists are the browser's own `select` elements, drawn to look like the month's name. On a phone they open the system's picker.
+Each list is a [Select](/docs/components/select), so it's themed like the rest of the calendar and works the same from the keyboard: <kbd>Enter</kbd> or <kbd>Space</kbd> opens it, the arrow keys move, and typing goes to a month or a year. A long list of years scrolls in a box 18rem tall, which `--nuv-calendar-options-height` changes.
 
 ## Languages
 
@@ -193,6 +193,8 @@ The tests check the roles, names and states that a browser passes on to a screen
     "--nuv-calendar-font-size": "Size of the numbers and the month's name.",
     "--nuv-calendar-months-gap": "Space between two months shown together.",
     "--nuv-calendar-radius": "Corner radius of a day and of the month buttons.",
+    "--nuv-calendar-options-height":
+      "The most height the open list of months or years takes before it scrolls.",
     "--nuv-calendar-day-bg-hover":
       "Background of a day or a month button under the pointer.",
     "--nuv-calendar-weekday-fg": "Color of the day names and the week numbers.",
@@ -220,16 +222,18 @@ Add a class of your own to any part with `classNames`, which takes react-day-pic
     "nuv-calendar__months": "The element that holds the months.",
     "nuv-calendar__month": "One month: its buttons, its name and its days.",
     "nuv-calendar__caption": "The row with the month's name.",
-    "nuv-calendar__caption-label": "The month's name, or the text of a dropdown.",
+    "nuv-calendar__caption-label": "The month's name.",
     "nuv-calendar__nav":
       "The element around both month buttons. Only there when navLayout isn't \"around\".",
     "nuv-calendar__nav-button": "A button that goes to another month.",
     "nuv-calendar__nav-button--previous": "The one for the month before.",
     "nuv-calendar__nav-button--next": "The one for the month after.",
-    "nuv-calendar__chevron": "The arrow in a month button or a dropdown.",
+    "nuv-calendar__chevron": "The arrow in a month button.",
     "nuv-calendar__dropdowns": "The element around the month and year dropdowns.",
-    "nuv-calendar__dropdown": "One dropdown: a select with its text drawn over it.",
-    "nuv-calendar__select": "The select element in a dropdown. It's see-through.",
+    "nuv-calendar__select":
+      "The button of a month or year dropdown. It's a Select's trigger, and has nuv-select as well. The month's also has nuv-calendar__select--month, and the year's nuv-calendar__select--year.",
+    "nuv-calendar__options":
+      "The open list of months or years. It's a Select's list, at the end of the body.",
     "nuv-calendar__grid": "The table of days.",
     "nuv-calendar__weekday": "The name of a day of the week.",
     "nuv-calendar__week-number-header": "The cell over the week numbers.",

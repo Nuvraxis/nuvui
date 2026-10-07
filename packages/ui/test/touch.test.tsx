@@ -16,6 +16,15 @@ import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
+  Combobox,
+  ComboboxContent,
+  ComboboxItem,
+  ComboboxTrigger,
+  ComboboxValue,
+  Command,
+  CommandInput,
+  CommandItem,
+  CommandList,
   ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
@@ -63,6 +72,18 @@ import {
   SheetContent,
   SheetDescription,
   SheetTitle,
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarMain,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
+  SidebarProvider,
+  SidebarTrigger,
   Slider,
   Switch,
   Tabs,
@@ -81,7 +102,7 @@ import {
   ToolbarToggleItem,
   toast,
 } from "../src";
-import { emulateMedia } from "./media";
+import { emulateMedia, setViewport } from "./media";
 import { hitAt } from "./themed";
 
 // This file runs in a browser context of its own, one that reports a touch
@@ -790,6 +811,149 @@ describe("collapsible", () => {
   });
 });
 
+describe("combobox", () => {
+  function Fruit({ defaultOpen = false }: { defaultOpen?: boolean }) {
+    return (
+      <Combobox defaultOpen={defaultOpen}>
+        <ComboboxTrigger aria-label="Fruit">
+          <ComboboxValue placeholder="Pick a fruit" />
+        </ComboboxTrigger>
+        <ComboboxContent label="Search fruit">
+          <ComboboxItem value="Apple">Apple</ComboboxItem>
+          <ComboboxItem value="Banana">Banana</ComboboxItem>
+        </ComboboxContent>
+      </Combobox>
+    );
+  }
+
+  test("the trigger is 44px tall", async () => {
+    await render(<Fruit />);
+
+    expect(
+      box(page.getByRole("combobox", { name: "Fruit", exact: true }).element())
+        .height,
+    ).toBe(44);
+  });
+
+  test("an option and the search field are 44px tall, and the field's text is 16px", async () => {
+    await emulateMedia({ reducedMotion: "reduce" });
+    await render(<Fruit defaultOpen />);
+    const option = page.getByRole("option", { name: "Apple" });
+    await expect.element(option).toBeVisible();
+    const field = page.getByRole("combobox", { name: "Search fruit" });
+
+    expect(box(option.element()).height).toBe(44);
+    expect(box(field.element()).height).toBe(44);
+    // iOS zooms the page in when a field with smaller text takes focus.
+    expect(getComputedStyle(field.element()).fontSize).toBe("16px");
+  });
+});
+
+describe("command", () => {
+  test("an item and the search field are 44px tall, and the field's text is 16px", async () => {
+    await render(
+      <Command label="Commands">
+        <CommandInput />
+        <CommandList>
+          <CommandItem>Open file</CommandItem>
+        </CommandList>
+      </Command>,
+    );
+    const field = page.getByRole("combobox", { name: "Commands" });
+
+    expect(box(page.getByRole("option").element()).height).toBe(44);
+    expect(box(field.element()).height).toBe(44);
+    expect(getComputedStyle(field.element()).fontSize).toBe("16px");
+  });
+});
+
+describe("sidebar", () => {
+  function Layout({ defaultOpen = true }: { defaultOpen?: boolean }) {
+    return (
+      <SidebarProvider
+        cookieName={null}
+        defaultOpen={defaultOpen}
+        style={{ "--nuv-sidebar-height": "400px" } as never}
+      >
+        <Sidebar>
+          <SidebarContent>
+            <SidebarGroup>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton>
+                    <svg aria-hidden="true" viewBox="0 0 16 16" />
+                    <span>Inbox</span>
+                  </SidebarMenuButton>
+                  <SidebarMenuSub>
+                    <SidebarMenuSubItem>
+                      <SidebarMenuSubButton href="#today">
+                        Today
+                      </SidebarMenuSubButton>
+                    </SidebarMenuSubItem>
+                  </SidebarMenuSub>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroup>
+          </SidebarContent>
+        </Sidebar>
+        <SidebarMain>
+          <SidebarTrigger />
+        </SidebarMain>
+      </SidebarProvider>
+    );
+  }
+  const trigger = () => page.getByRole("button", { name: "Toggle sidebar" });
+  const inbox = () => page.getByRole("button", { name: "Inbox" });
+
+  test("the trigger is 44px each way", async () => {
+    await render(<Layout />);
+
+    expect(box(trigger().element()).width).toBe(44);
+    expect(box(trigger().element()).height).toBe(44);
+  });
+
+  test("in the panel a phone gets, the rows and the close button are 44px", async () => {
+    await emulateMedia({ reducedMotion: "reduce" });
+    await render(<Layout />);
+    await trigger().click();
+    await expect.element(inbox()).toBeVisible();
+    const close = box(page.getByRole("button", { name: "Close" }).element());
+
+    expect(box(inbox().element()).height).toBe(44);
+    expect(
+      box(page.getByRole("link", { name: "Today" }).element()).height,
+    ).toBe(44);
+    expect(close.width).toBe(44);
+    expect(close.height).toBe(44);
+  });
+
+  test("on a wide touch screen the rows are 44px, and so is what's left of one on the strip of icons", async () => {
+    await setViewport("desktop");
+    await emulateMedia({ reducedMotion: "reduce" });
+    await render(<Layout defaultOpen={false} />);
+    const button = box(inbox().element());
+    const icon = box(inbox().element().querySelector("svg") as Element);
+
+    expect(button.width).toBe(44);
+    expect(button.height).toBe(44);
+    expect(icon.left + icon.width / 2).toBe(button.left + 22);
+    expect(box(document.querySelector(".nuv-sidebar") as Element).width).toBe(
+      44 + 16 + 1,
+    );
+  });
+
+  test("a row doesn't change color under a finger that has moved on", async () => {
+    await setViewport("desktop");
+    await render(<Layout />);
+    const before = getComputedStyle(inbox().element()).backgroundColor;
+
+    await userEvent.hover(inbox());
+
+    expect(inbox().element().matches(":hover")).toBe(true);
+    expect(getComputedStyle(inbox().element()).backgroundColor).toBe(before);
+  });
+});
+
 // Density makes controls shorter or taller with a mouse. A finger is the
 // same size whatever the layout, so nothing here may drop under 44px.
 describe.each([
@@ -923,6 +1087,52 @@ describe.each([
       ".nuv-navigation-menu__trigger",
       ".nuv-navigation-menu__link",
       ".nuv-pagination__link",
+    ]) {
+      expect(
+        box(document.querySelector(selector) as Element).height,
+      ).toBeGreaterThanOrEqual(44);
+    }
+  });
+
+  test("a command's rows and a sidebar's are at least 44px tall", async () => {
+    setOnPage();
+    await setViewport("desktop");
+    await render(
+      <>
+        <Command label="Commands">
+          <CommandInput />
+          <CommandList>
+            <CommandItem>Open file</CommandItem>
+          </CommandList>
+        </Command>
+        <SidebarProvider cookieName={null}>
+          <Sidebar>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton>Inbox</SidebarMenuButton>
+                <SidebarMenuSub>
+                  <SidebarMenuSubItem>
+                    <SidebarMenuSubButton href="#today">
+                      Today
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                </SidebarMenuSub>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </Sidebar>
+          <SidebarMain>
+            <SidebarTrigger />
+          </SidebarMain>
+        </SidebarProvider>
+      </>,
+    );
+
+    for (const selector of [
+      ".nuv-command__input",
+      ".nuv-command__item",
+      ".nuv-sidebar__menu-button",
+      ".nuv-sidebar__menu-sub-button",
+      ".nuv-sidebar__trigger",
     ]) {
       expect(
         box(document.querySelector(selector) as Element).height,

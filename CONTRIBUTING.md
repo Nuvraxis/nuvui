@@ -25,7 +25,7 @@ Run these from the repository root.
 | `pnpm lint` | Biome for TypeScript and JSON, Stylelint for SCSS. |
 | `pnpm lint:fix` | Lets Biome fix what it can, formatting included. |
 | `pnpm typecheck` | TypeScript, in every workspace. |
-| `pnpm test` | The component tests in Chromium, Firefox and WebKit, and the theme generator's tests. About ten minutes. |
+| `pnpm test` | The component tests in Chromium, Firefox and WebKit, and the theme generator's tests. About twelve minutes. |
 | `pnpm build` | Builds the theme generator and the library, checks the result, then builds the docs site. |
 | `pnpm test:e2e` | Builds first, then runs Playwright against the exported docs site, in five browser setups. |
 | `pnpm size` | Builds first, then checks each entry point against its size budget. |

@@ -1,0 +1,131 @@
+@use "../../styles/layers";
+@use "../../styles/mixins";
+@use "../../styles/control";
+@use "../../styles/floating";
+@use "../../styles/listbox";
+
+@layer components {
+  // The trigger. It's the part that sits in the page, so it's the block.
+  .nuv-combobox {
+    display: inline-flex;
+    gap: calc(var(--spacing) * 2);
+    align-items: center;
+    justify-content: space-between;
+    min-inline-size: var(--nuv-combobox-width, 12rem);
+    max-inline-size: 100%;
+    padding-block: 0;
+    padding-inline: calc(var(--spacing) * 3);
+    font-family: inherit;
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+    text-align: start;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+
+    @include control.box("combobox");
+    @include control.height("combobox");
+    @include mixins.focus-ring;
+    @include control.invalid;
+    @include control.disabled;
+  }
+
+  // A long option is cut short in the trigger instead of stretching it.
+  .nuv-combobox__value {
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    &[data-placeholder] {
+      color: var(--color-muted-foreground);
+    }
+  }
+
+  .nuv-combobox__icon {
+    display: inline-flex;
+    flex: none;
+    color: var(--color-muted-foreground);
+  }
+
+  // The popup. Radix renders it at the end of <body>.
+  .nuv-combobox__content {
+    display: flex;
+    flex-direction: column;
+
+    // At least as wide as the trigger, and never past the room Radix says
+    // is free. The minimum has to give way too, because a min beats a max
+    // when the two disagree.
+    min-inline-size: min(
+      var(--radix-popover-trigger-width),
+      var(--radix-popover-content-available-width)
+    );
+    max-inline-size: var(--radix-popover-content-available-width);
+    max-block-size: var(--radix-popover-content-available-height);
+    overflow: hidden;
+
+    @include floating.panel("combobox-content");
+    @include floating.pop("combobox-content", "popover");
+
+    &:focus {
+      outline: none;
+    }
+  }
+
+  .nuv-combobox__body {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-block-size: 0;
+
+    &:focus {
+      outline: none;
+    }
+  }
+
+  .nuv-combobox__search {
+    @include listbox.search("combobox-content");
+  }
+
+  .nuv-combobox__search-icon {
+    @include listbox.search-icon;
+  }
+
+  .nuv-combobox__input {
+    @include listbox.input("combobox");
+  }
+
+  .nuv-combobox__list {
+    @include listbox.list("combobox");
+  }
+
+  .nuv-combobox__item {
+    @include listbox.item("combobox");
+  }
+
+  // The check sits at the far end of the row, so the options' text lines up
+  // whether or not one of them is picked.
+  .nuv-combobox__indicator {
+    display: inline-flex;
+    flex: none;
+    margin-inline-start: auto;
+  }
+
+  .nuv-combobox__label {
+    @include listbox.label;
+  }
+
+  .nuv-combobox__separator {
+    @include listbox.separator("combobox-content");
+  }
+
+  .nuv-combobox__empty,
+  .nuv-combobox__loading {
+    @include listbox.message;
+  }
+
+  .nuv-combobox__status {
+    @include listbox.status;
+  }
+
+  @include floating.pop-keyframes("combobox-content");
+}

@@ -17,6 +17,18 @@ const emulateMedia: BrowserCommand<[media: Media]> = async (
   await page.emulateMedia(media);
 };
 
+// A turn of the mouse wheel over an element, sent the way a real mouse sends
+// it. An event built in the page wouldn't scroll anything, and it's the
+// scrolling that the tests are after.
+const wheel: BrowserCommand<[selector: string, deltaY: number]> = async (
+  { page, iframe },
+  selector,
+  deltaY,
+) => {
+  await iframe.locator(selector).hover();
+  await page.mouse.wheel(0, deltaY);
+};
+
 // Without a limit on actions, a click or hover on something that has already
 // gone waits forever, and every test after it waits behind it.
 const provider = (contextOptions: ContextOptions = {}) =>
@@ -88,7 +100,7 @@ export default defineConfig({
           provider: provider({ hasTouch: true }),
         },
       ]),
-      commands: { emulateMedia },
+      commands: { emulateMedia, wheel },
     },
   },
 });

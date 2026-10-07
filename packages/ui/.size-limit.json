@@ -2,7 +2,7 @@
   {
     "name": "@nuvui/react",
     "path": "dist/index.js",
-    "limit": "72 kB"
+    "limit": "74 kB"
   },
   {
     "name": "@nuvui/react/accordion",
@@ -63,6 +63,16 @@
     "name": "@nuvui/react/collapsible",
     "path": "dist/components/collapsible/index.js",
     "limit": "4.8 kB"
+  },
+  {
+    "name": "@nuvui/react/combobox",
+    "path": "dist/components/combobox/index.js",
+    "limit": "26.5 kB"
+  },
+  {
+    "name": "@nuvui/react/command",
+    "path": "dist/components/command/index.js",
+    "limit": "16.5 kB"
   },
   {
     "name": "@nuvui/react/context-menu",
@@ -190,6 +200,11 @@
     "limit": "13.5 kB"
   },
   {
+    "name": "@nuvui/react/sidebar",
+    "path": "dist/components/sidebar/index.js",
+    "limit": "25.5 kB"
+  },
+  {
     "name": "@nuvui/react/skeleton",
     "path": "dist/components/skeleton/index.js",
     "limit": "250 B"
@@ -258,7 +273,7 @@
     "name": "styles.css",
     "path": "dist/styles.css",
     "rolldown": false,
-    "limit": "14 kB"
+    "limit": "15.5 kB"
   },
   {
     "name": "tokens.css",
@@ -270,7 +285,7 @@
     "name": "every stylesheet in css/",
     "path": "dist/css/*.css",
     "rolldown": false,
-    "limit": "32 kB"
+    "limit": "35 kB"
   },
   {
     "name": "every preset in themes/",

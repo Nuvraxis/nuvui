@@ -13,6 +13,8 @@ import { ButtonGroupPlayground } from "@/components/playground/button-group";
 import { CardPlayground } from "@/components/playground/card";
 import { CheckboxPlayground } from "@/components/playground/checkbox";
 import { CollapsiblePlayground } from "@/components/playground/collapsible";
+import { ComboboxPlayground } from "@/components/playground/combobox";
+import { CommandPlayground } from "@/components/playground/command";
 import { ContextMenuPlayground } from "@/components/playground/context-menu";
 import { DialogPlayground } from "@/components/playground/dialog";
 import { DropdownMenuPlayground } from "@/components/playground/dropdown-menu";
@@ -38,6 +40,7 @@ import { ScrollAreaPlayground } from "@/components/playground/scroll-area";
 import { SelectPlayground } from "@/components/playground/select";
 import { SeparatorPlayground } from "@/components/playground/separator";
 import { SheetPlayground } from "@/components/playground/sheet";
+import { SidebarPlayground } from "@/components/playground/sidebar";
 import { SkeletonPlayground } from "@/components/playground/skeleton";
 import { SliderPlayground } from "@/components/playground/slider";
 import { SpinnerPlayground } from "@/components/playground/spinner";
@@ -93,6 +96,8 @@ export function getMDXComponents(components?: MDXComponents) {
     CardPlayground,
     CheckboxPlayground,
     CollapsiblePlayground,
+    ComboboxPlayground,
+    CommandPlayground,
     ContextMenuPlayground,
     DialogPlayground,
     DropdownMenuPlayground,
@@ -118,6 +123,7 @@ export function getMDXComponents(components?: MDXComponents) {
     SelectPlayground,
     SeparatorPlayground,
     SheetPlayground,
+    SidebarPlayground,
     SkeletonPlayground,
     SliderPlayground,
     SpinnerPlayground,

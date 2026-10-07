@@ -1,0 +1,116 @@
+---
+title: Skeleton
+description: A gray box in the shape of content that's still loading.
+---
+
+Use skeletons where content is on its way and you know roughly what shape it will have: a card, a row, a line of text. They hold the layout still, so nothing jumps when the content arrives. Where you don't know the shape, or the wait is for an action and not for content, use a [spinner](/docs/components/spinner).
+
+<Preview name="skeleton/basic" />
+
+## Install
+
+```sh
+pnpm add @nuvui/react
+```
+
+## Import
+
+```tsx
+import { Skeleton } from "@nuvui/react";
+```
+
+The styles come from `@nuvui/react/styles.css`, which you load once for the whole app. [Getting started](/docs) covers that, and how to load only this component's CSS.
+
+## Try it
+
+<SkeletonPlayground />
+
+## Props
+
+<PropsTable component="skeleton" name="SkeletonOwnProps" />
+
+Everything else is passed to the `<div>`, including `ref`, `className` and `style`.
+
+## Shapes
+
+| Shape | What it's for | Its size |
+| --- | --- | --- |
+| `block` | A picture, a chart, a button, a whole card. | As wide as its container and 16 pixels tall. Give it the size of what it stands for. |
+| `text` | A line of text. | One line of the text around it, with a bar as tall as the letters. It follows the font size and the line height. |
+| `circle` | An [avatar](/docs/components/avatar). | 40 pixels each way, the same as a medium avatar. |
+
+Set a size with `style`, with a class of your own, or with `--nuv-skeleton-width` and `--nuv-skeleton-height`.
+
+Two `text` skeletons one after the other are spaced like two lines of a paragraph, because each takes up exactly one line. Make the last one shorter and the block reads as text.
+
+## In place of real content
+
+Render the skeletons in the same parts the content will use, and swap one for the other when the data arrives.
+
+<Preview name="skeleton/card" />
+
+## Accessibility
+
+A skeleton has no keyboard behavior, and it's hidden from screen readers with `aria-hidden`. A dozen gray boxes would otherwise be a dozen things with nothing to say.
+
+### What the component handles
+
+- `aria-hidden="true"` on every skeleton.
+- The pulse only runs when the visitor hasn't asked for reduced motion. With reduced motion, the boxes stand still.
+- Where the browser forces its own colors, a skeleton is an outline. Its fill isn't drawn there.
+
+### What you need to handle
+
+- **Say that something is loading.** Put `aria-busy="true"` on the region the skeletons are in, and take it off when the content is there.
+- **Say when it has loaded,** if the wait was long enough to notice. `aria-busy` isn't announced by itself. A visually hidden element with `role="status"` that changes from "Loading the customer" to "The customer has loaded" is, as in the example above.
+- Don't leave skeletons up when loading fails. Show an [alert](/docs/components/alert) that says what went wrong.
+
+## CSS variables
+
+Set any of these on the skeleton, or on anything around it.
+
+```css
+.sidebar {
+  --nuv-skeleton-bg: var(--color-border);
+}
+```
+
+<CssVariables
+  component="skeleton"
+  descriptions={{
+    "--nuv-skeleton-width": "Width. Differs by shape.",
+    "--nuv-skeleton-height":
+      "Height. Differs by shape. On the text shape it's the height of the bar, not of the line.",
+    "--nuv-skeleton-radius": "Corner radius. Differs by shape.",
+    "--nuv-skeleton-bg": "Fill color.",
+  }}
+/>
+
+## Classes
+
+<BemClasses
+  component="skeleton"
+  descriptions={{
+    "nuv-skeleton": "Every skeleton.",
+    "nuv-skeleton--text": "shape=\"text\"",
+    "nuv-skeleton--circle": "shape=\"circle\"",
+  }}
+/>
+
+A block also has the class `nuv-skeleton--block`. It has no rules of its own, because a block is how every skeleton starts.
+
+## Server components
+
+Skeleton has no `"use client"` directive and uses no state, so it renders in a server component as it is. That makes it a good fit for the `fallback` of a React `Suspense` boundary, or a `loading.tsx` file in Next.js.
+
+## Do and don't
+
+**Do**
+
+- Match the shape and size of the real content closely enough that nothing moves when it arrives.
+- Show them only for a wait people would notice. Content that takes a tenth of a second doesn't need one.
+
+**Don't**
+
+- Don't draw a skeleton for every small detail. A few boxes that give the layout are enough.
+- Don't use a skeleton for something that may turn out to be empty. Decide between content and an [empty state](/docs/components/empty) once you know.

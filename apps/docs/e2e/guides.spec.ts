@@ -1,5 +1,6 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
+import AxeBuilder from "@axe-core/playwright";
 import { createTheme, presetNames, presets } from "@nuvui/theme";
 import { expect, type Locator, test } from "@playwright/test";
 import { open, rootStyle, sameColor } from "./helpers";
@@ -359,4 +360,52 @@ test.describe("density on the theming page", () => {
       expect(box?.height, density).toBe(isMobile ? 44 : height);
     }
   });
+});
+
+// A table in a page is in a box that scrolls sideways when the table is
+// wider than the screen. Whether that happens on a phone depends on the
+// fonts, so this makes the screen narrow enough that it always does.
+test.describe("a wide table on a narrow screen", () => {
+  test.use({ viewport: { width: 300, height: 700 } });
+
+  test("can be scrolled from the keyboard, and one that fits adds no tab stop", async ({
+    page,
+  }) => {
+    await open(page, "/docs/right-to-left");
+    const boxes = page.getByRole("group", { name: "Table" });
+    await expect(boxes.first()).toHaveAttribute("tabindex", "0");
+    const box = boxes.first();
+
+    await box.focus();
+    await page.keyboard.press("ArrowRight");
+    await page.keyboard.press("ArrowRight");
+    await expect
+      .poll(() => box.evaluate((element) => element.scrollLeft))
+      .toBeGreaterThan(0);
+
+    // The page itself still doesn't scroll sideways.
+    expect(
+      await page.evaluate(
+        () =>
+          document.documentElement.scrollWidth <=
+          document.documentElement.clientWidth,
+      ),
+    ).toBe(true);
+
+    const results = await new AxeBuilder({ page })
+      .withRules(["scrollable-region-focusable"])
+      .analyze();
+    expect(results.violations).toEqual([]);
+  });
+});
+
+test("a table that fits its page is not a tab stop", async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(isMobile, "On a phone most tables don't fit.");
+  await open(page, "/docs/right-to-left");
+
+  await expect(page.locator("table").first()).toBeVisible();
+  await expect(page.getByRole("group", { name: "Table" })).toHaveCount(0);
 });

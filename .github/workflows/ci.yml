@@ -2,6 +2,9 @@ name: CI
 
 # Pull requests only. A merge to main doesn't run this again, so the checks
 # on the pull request are the only ones a change gets.
+#
+# The end-to-end tests and the consumer apps are in e2e.yml, which only runs
+# for a pull request with the invoke-e2e label.
 on:
   pull_request:
 
@@ -28,6 +31,7 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      # The component tests run in real browsers.
       - name: Install Playwright's browsers
         run: pnpm --filter @nuvui/react exec playwright install --with-deps chromium firefox webkit
 
@@ -35,7 +39,6 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm build
       - run: pnpm test
-      - run: pnpm test:e2e
 
       - name: Check the package that would be published
         run: pnpm --filter @nuvui/react check:package
@@ -44,17 +47,11 @@ jobs:
       # packages/ui/.size-limit.json.
       - run: pnpm size
 
-      - name: Install the packed library into a Vite and a Next.js app
-        run: pnpm test:consumers
-
-      - name: Upload Playwright output
+      - name: Upload the component tests' output
         if: failure()
         uses: actions/upload-artifact@v7
         with:
-          name: playwright-output
-          path: |
-            apps/docs/playwright-report
-            apps/docs/test-results
-            packages/ui/.vitest
+          name: vitest-output
+          path: packages/ui/.vitest
           if-no-files-found: ignore
           retention-days: 7

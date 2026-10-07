@@ -1,0 +1,51 @@
+@use "../../styles/layers";
+@use "../../styles/mixins";
+
+@layer components {
+  // The edge can't be seen against the fill. It shows where the browser
+  // forces its own colors, which is where the fill isn't drawn.
+  .nuv-skeleton {
+    display: block;
+    inline-size: var(--nuv-skeleton-width, 100%);
+    block-size: var(--nuv-skeleton-height, 1rem);
+    border: var(--nuv-border-width) solid transparent;
+    border-radius: var(--nuv-skeleton-radius, var(--radius-md));
+    background-color: var(--nuv-skeleton-bg, var(--color-muted));
+
+    @include mixins.motion-safe {
+      animation: nuv-skeleton-pulse 2s var(--ease-in-out) infinite;
+    }
+  }
+
+  // The element is one line of the text around it, whatever that text's
+  // line height is, and the bar drawn in it is as tall as the letters. So
+  // rows of them are spaced like the lines they stand for.
+  .nuv-skeleton--text {
+    block-size: auto;
+    border: 0;
+    background-color: transparent;
+
+    &::before {
+      display: inline-block;
+      inline-size: 100%;
+      block-size: var(--nuv-skeleton-height, 1em);
+      border: var(--nuv-border-width) solid transparent;
+      border-radius: var(--nuv-skeleton-radius, var(--radius-sm));
+      background-color: var(--nuv-skeleton-bg, var(--color-muted));
+      vertical-align: middle;
+      content: "";
+    }
+  }
+
+  .nuv-skeleton--circle {
+    inline-size: var(--nuv-skeleton-width, 2.5rem);
+    block-size: var(--nuv-skeleton-height, 2.5rem);
+    border-radius: var(--nuv-skeleton-radius, var(--radius-full));
+  }
+
+  @keyframes nuv-skeleton-pulse {
+    50% {
+      opacity: 0.5;
+    }
+  }
+}

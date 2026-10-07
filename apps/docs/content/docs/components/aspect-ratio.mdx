@@ -1,0 +1,107 @@
+---
+title: AspectRatio
+description: A box that keeps its shape at any width, for pictures, videos, maps and anything else that loads late.
+---
+
+Use `AspectRatio` around something whose height should follow its width: a picture in a card, an embedded video, a map. The box has its shape before the content has loaded, so nothing below it moves when the content arrives.
+
+<Preview name="aspect-ratio/basic" />
+
+## Install
+
+```sh
+pnpm add @nuvui/react
+```
+
+## Import
+
+```tsx
+import { AspectRatio } from "@nuvui/react";
+```
+
+The styles come from `@nuvui/react/styles.css`, which you load once for the whole app. [Getting started](/docs) covers that, and how to load only this component's CSS.
+
+## Try it
+
+<AspectRatioPlayground />
+
+## Props
+
+<PropsTable component="aspect-ratio" name="AspectRatioOwnProps" />
+
+Everything else is passed to the `<div>`, including `ref`, `className` and `style`.
+
+## Ratios
+
+`ratio` is the width divided by the height. Write it as the division, so it reads the way people say it: `16 / 9`, `4 / 3`.
+
+<Preview name="aspect-ratio/ratios" />
+
+The box is as wide as its container. Put it inside something that sets the width.
+
+## What goes inside
+
+Give it one child. The child fills the box.
+
+- A picture or a video keeps its own proportions and is cropped to fit, from the center. Set `--nuv-aspect-ratio-fit` to `contain` to show all of it with empty bands instead.
+- Anything else, such as an `iframe` or a `div`, is stretched to the box.
+
+Content that's taller than the box is cut off. This is a frame for media, not a container for text.
+
+## A different ratio on a larger screen
+
+Leave `ratio` out and set `--nuv-aspect-ratio-value` in your CSS, where a media query can change it. The prop writes the same variable as an inline style, which a stylesheet can't override. So use one or the other.
+
+<Preview name="aspect-ratio/responsive" stylesheet="responsive.css" />
+
+## Accessibility
+
+The box has no role and no keyboard behavior. What's inside it carries the meaning.
+
+### What you need to handle
+
+- Give a picture an `alt` that says what it shows, or `alt=""` if it's decoration.
+- Cropping can cut off the part of a picture that matters. Check the picture at the widths the layout uses, or set `object-position` on it.
+- Give an `iframe` a `title`.
+
+## CSS variables
+
+Set any of these on the box, or on anything around it.
+
+<CssVariables
+  component="aspect-ratio"
+  descriptions={{
+    "--nuv-aspect-ratio-radius": "Corner radius. The content is clipped to it.",
+    "--nuv-aspect-ratio-value":
+      "The ratio, as CSS writes it: 16 / 9. The ratio prop sets this on the element.",
+    "--nuv-aspect-ratio-fit":
+      "How a picture or a video fits the box: cover crops it, contain shows all of it.",
+  }}
+/>
+
+## Classes
+
+<BemClasses
+  component="aspect-ratio"
+  descriptions={{
+    "nuv-aspect-ratio": "The box.",
+  }}
+/>
+
+## Server components
+
+AspectRatio has no `"use client"` directive and uses no state, so it renders in a server component as it is.
+
+It's built on the CSS `aspect-ratio` property and not on Radix's primitive. That gives one element in place of two, and a ratio that CSS can change at a breakpoint.
+
+## Do and don't
+
+**Do**
+
+- Use the same ratio for every picture in a grid.
+- Pick a ratio close to the pictures you have, so little is cropped.
+
+**Don't**
+
+- Don't use it to square off a box of text. Text needs the height it needs.
+- Don't set a height on it. The width and the ratio decide the height.

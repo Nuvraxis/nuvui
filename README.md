@@ -8,12 +8,13 @@ Early, and not published. You can't install it from the registry yet.
 
 What exists today:
 
-- Thirty-four components. Nineteen for actions, overlays and navigation: Accordion, AlertDialog, Breadcrumb, Button, Checkbox, ContextMenu, Dialog, DropdownMenu, HoverCard, Menubar, NavigationMenu, Pagination, Popover, Select, Sheet, Switch, Tabs, Toast and Tooltip. Fifteen for forms: ButtonGroup, Field, Fieldset, FileUpload, Input, InputGroup, Label, NativeSelect, OtpField, PasswordInput, RadioGroup, Slider, Textarea, Toggle and ToggleGroup. Each has tests for rendering, keyboard behavior, touch sizing, and accessibility in light, dark and forced colors. The tests run in Chromium, Firefox and WebKit.
+- Forty-nine components. Nineteen for actions, overlays and navigation: Accordion, AlertDialog, Breadcrumb, Button, Checkbox, ContextMenu, Dialog, DropdownMenu, HoverCard, Menubar, NavigationMenu, Pagination, Popover, Select, Sheet, Switch, Tabs, Toast and Tooltip. Fifteen for forms: ButtonGroup, Field, Fieldset, FileUpload, Input, InputGroup, Label, NativeSelect, OtpField, PasswordInput, RadioGroup, Slider, Textarea, Toggle and ToggleGroup. Fifteen for display and layout: Alert, AspectRatio, Avatar, Badge, Card, Collapsible, Empty, Kbd, Progress, ScrollArea, Separator, Skeleton, Spinner, Toolbar and VisuallyHidden. Each has tests for rendering, keyboard behavior, touch sizing, and accessibility in light, dark and forced colors. The tests run in Chromium, Firefox and WebKit.
 - A `toast()` function for showing toasts from anywhere, with a `Toaster` to render them.
+- `DirectionProvider`, for apps in languages that read from the right.
 - The design tokens: color scales, semantic colors for both themes, chart colors, type, spacing, radius, shadow, motion and control sizes. They build to CSS custom properties, and the SCSS source ships alongside.
 - Five presets, each a stylesheet that restyles everything, and three densities.
 - A docs site with a page for each component, a getting started page, and search that runs in the browser.
-- Guides for theming, for using the tokens with Tailwind v4, for using the SCSS source, and for building forms, with React Hook Form as the worked example. The theming page has an editor that changes tokens in the browser and prints the CSS for what you changed.
+- Guides for theming, for using the tokens with Tailwind v4, for using the SCSS source, for building forms, with React Hook Form as the worked example, and for right-to-left layouts. The theming page has an editor that changes tokens in the browser and prints the CSS for what you changed.
 
 What's missing:
 

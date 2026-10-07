@@ -1,0 +1,208 @@
+---
+title: Toolbar
+description: A row of buttons, links and toggles that the Tab key treats as one stop, with the arrow keys moving inside it.
+---
+
+Use a toolbar for a set of controls that act on the same thing: the formatting buttons of an editor, the tools of a drawing app, the actions above a table. What makes it a toolbar is the keyboard: one press of <kbd>Tab</kbd> gets past it, however many controls it holds.
+
+Three controls or fewer don't need one. A plain row of [buttons](/docs/components/button) is simpler, and each button is then its own tab stop.
+
+<Preview name="toolbar/basic" />
+
+## Install
+
+```sh
+pnpm add @nuvui/react
+```
+
+## Import
+
+```tsx
+import {
+  Toolbar,
+  ToolbarButton,
+  ToolbarLink,
+  ToolbarSeparator,
+  ToolbarToggleGroup,
+  ToolbarToggleItem,
+} from "@nuvui/react";
+```
+
+The styles come from `@nuvui/react/styles.css`, which you load once for the whole app. [Getting started](/docs) covers that, and how to load only this component's CSS.
+
+## Parts
+
+| Part | What it is |
+| --- | --- |
+| `Toolbar` | The row. It has `role="toolbar"`. |
+| `ToolbarButton` | A button. |
+| `ToolbarLink` | A link, which the arrow keys reach like the buttons. |
+| `ToolbarToggleGroup` | A group of buttons that stay pressed. |
+| `ToolbarToggleItem` | One of those buttons. |
+| `ToolbarSeparator` | A line between two groups. |
+
+## Try it
+
+<ToolbarPlayground />
+
+## Props
+
+All of these come from Radix.
+
+### Toolbar
+
+<PropsTable
+  component="toolbar"
+  name="ToolbarProps"
+  props={{
+    orientation:
+      "`\"horizontal\"` or `\"vertical\"`. It sets the layout and which arrow keys move focus. Horizontal by default.",
+    loop: "Whether the arrow keys go round from the last control to the first. On by default.",
+    dir: "The reading direction, which decides which of the left and right arrows goes forward. It's taken from `DirectionProvider` when not set.",
+  }}
+/>
+
+### ToolbarToggleGroup
+
+<PropsTable
+  component="toolbar"
+  name="ToolbarToggleGroupProps"
+  props={{
+    type: "`\"single\"` lets one button be pressed at a time. `\"multiple\"` lets any number.",
+    value:
+      "The pressed button's value, or an array of them for `\"multiple\"`, when you control it yourself. Use it with `onValueChange`.",
+    defaultValue: "What's pressed to begin with, when you don't control it.",
+    onValueChange: "Called with the new value when a button is pressed.",
+    disabled: "Disables every button in the group.",
+  }}
+/>
+
+### ToolbarToggleItem
+
+<PropsTable
+  component="toolbar"
+  name="ToolbarToggleItemProps"
+  props={{
+    value: "What this button stands for in the group's value.",
+    disabled: "Stops it from being focused or pressed.",
+  }}
+/>
+
+`ToolbarButton`, `ToolbarLink` and `ToolbarSeparator` take what their elements take. `ToolbarButton` also takes `asChild`, which is how [other components join the toolbar](#a-menu-in-a-toolbar).
+
+## Icons
+
+A toolbar of icons needs a name on each control, with `aria-label`. A control holding only an icon comes out square.
+
+<Preview name="toolbar/icons" />
+
+A [tooltip](/docs/components/tooltip) on each one helps people who see the icon and don't know what it means. `aria-label` doesn't do that: it's for screen readers only.
+
+## A menu in a toolbar
+
+Any button can take part in the toolbar's arrow-key order. Pass `asChild` to `ToolbarButton` and put the other component's trigger inside.
+
+<Preview name="toolbar/with-menu" />
+
+## Vertical
+
+`orientation="vertical"` stacks the controls, turns the separators on their side, and moves focus with the up and down arrows.
+
+<Preview name="toolbar/vertical" />
+
+## On small screens
+
+A toolbar that runs out of room wraps onto another row, so nothing is pushed off the screen. The arrow keys still go through the controls in order.
+
+On a touch screen every control is at least 44 pixels tall and wide. With a mouse or trackpad they're 32 pixels at the default [density](/docs/theming#density), 28 at compact and 36 at comfortable. A toolbar is a dense row by nature, so it takes the smallest of the three control heights.
+
+## Accessibility
+
+### Keyboard
+
+| Key | What it does |
+| --- | --- |
+| <kbd>Tab</kbd> | Moves focus into the toolbar, to the control that had focus last time, and out again with the next press. |
+| <kbd>→</kbd> and <kbd>←</kbd> | Move to the next and the previous control. In a vertical toolbar it's <kbd>↓</kbd> and <kbd>↑</kbd>. In a right-to-left toolbar the left arrow goes forward. |
+| <kbd>Home</kbd> and <kbd>End</kbd> | Move to the first and the last control. |
+| <kbd>Space</kbd> or <kbd>Enter</kbd> | Press the control that has focus. |
+
+Disabled controls are skipped.
+
+### What the component handles
+
+- `role="toolbar"` and `aria-orientation`, and the keys above. This part is Radix.
+- A toggle group of type `single` is a radio group, and each button a radio button with `aria-checked`. One of type `multiple` is a plain group, and each button has `aria-pressed`.
+- The separator has `role="separator"`, so a screen reader says where one group ends.
+- A pressed toggle is filled with the primary color, which has at least 3:1 against the toolbar in every theme. Where the browser forces its own colors, it takes the system's colors for something selected.
+- Keyboard focus shows a 2 pixel ring in `--color-ring`.
+
+### What you need to handle
+
+- **Name the toolbar** with `aria-label`: "Formatting", "Drawing tools". Name each toggle group too.
+- **Give an icon-only control an `aria-label`.**
+- **Don't put a text field in a toolbar.** The arrow keys move the caret inside a field, so they can't also move to the next control, and people get stuck. A field belongs next to the toolbar. The [ARIA guide](https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/) has more on this.
+- Keep a toggle's name the same in both states. `aria-pressed` says which state it's in.
+
+## CSS variables
+
+Set any of these on `Toolbar`, or on anything around it.
+
+```css
+.editor {
+  --nuv-toolbar-border: transparent;
+  --nuv-toolbar-padding: 0;
+}
+```
+
+<CssVariables
+  component="toolbar"
+  descriptions={{
+    "--nuv-toolbar-gap": "Space between the controls.",
+    "--nuv-toolbar-padding": "Padding inside the toolbar.",
+    "--nuv-toolbar-border": "Color of the toolbar's edge and of the separators.",
+    "--nuv-toolbar-radius": "Corner radius of the toolbar.",
+    "--nuv-toolbar-bg": "Background color of the toolbar.",
+    "--nuv-toolbar-item-padding-inline": "Padding left and right in a control.",
+    "--nuv-toolbar-item-radius": "Corner radius of a control.",
+    "--nuv-toolbar-fg": "Text color of the controls.",
+    "--nuv-toolbar-item-height":
+      "Smallest height, and smallest width, of a control. Differs by whether the device is touch.",
+    "--nuv-toolbar-item-hover-bg": "Background color of a control under the pointer.",
+    "--nuv-toolbar-on-bg":
+      "Background color of a pressed toggle. Keep it at 3:1 against the toolbar.",
+    "--nuv-toolbar-on-fg": "Text color of a pressed toggle.",
+  }}
+/>
+
+## Classes
+
+<BemClasses
+  component="toolbar"
+  descriptions={{
+    "nuv-toolbar": "Toolbar.",
+    "nuv-toolbar__button": "ToolbarButton.",
+    "nuv-toolbar__link": "ToolbarLink.",
+    "nuv-toolbar__toggle-group": "ToolbarToggleGroup.",
+    "nuv-toolbar__toggle-item": "ToolbarToggleItem.",
+    "nuv-toolbar__separator": "ToolbarSeparator.",
+  }}
+/>
+
+Radix sets `data-orientation` on the toolbar, the groups and the separators, `data-state` to `on` or `off` on a toggle, and `data-disabled` on a disabled control.
+
+## Server components
+
+The toolbar parts are client components. They carry `"use client"`, and the build checks that the directive is still there in the published files. You can render them from a server component, as the examples on this page do.
+
+## Do and don't
+
+**Do**
+
+- Group controls that belong together, with a separator between groups.
+- Put the controls people use most at the start, where focus lands.
+
+**Don't**
+
+- Don't use a toolbar for a site's navigation. That's a [navigation menu](/docs/components/navigation-menu), or a plain list of links.
+- Don't disable a control without saying why somewhere. A grayed-out button with no explanation is a dead end.

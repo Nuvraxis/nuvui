@@ -1,0 +1,152 @@
+---
+title: Empty
+description: What a list, a table or a search shows when it has nothing in it, with a way to get something into it.
+---
+
+Use an empty state wherever a screen can have nothing to show: a list before the first item, a search with no matches, a folder that was cleared. Say why it's empty and offer the next step. A blank area leaves people wondering whether the page is still loading.
+
+<Preview name="empty/basic" />
+
+## Install
+
+```sh
+pnpm add @nuvui/react
+```
+
+## Import
+
+```tsx
+import {
+  Empty,
+  EmptyActions,
+  EmptyDescription,
+  EmptyMedia,
+  EmptyTitle,
+} from "@nuvui/react";
+```
+
+The styles come from `@nuvui/react/styles.css`, which you load once for the whole app. [Getting started](/docs) covers that, and how to load only this component's CSS.
+
+## Parts
+
+| Part | What it is |
+| --- | --- |
+| `Empty` | The box, with everything centered in it. |
+| `EmptyMedia` | An icon or a small picture, on a filled square. |
+| `EmptyTitle` | What's missing. An `h3` unless you say otherwise. |
+| `EmptyDescription` | Why, and what to do about it. |
+| `EmptyActions` | The buttons or links. |
+
+Only `Empty` and `EmptyTitle` are needed.
+
+## Try it
+
+<EmptyPlayground />
+
+## Props
+
+### EmptyTitle
+
+<PropsTable component="empty" name="EmptyTitleOwnProps" />
+
+The other parts add no props of their own. Each takes what its element takes, including `ref` and `className`.
+
+## A search with no matches
+
+A search that finds nothing isn't the same as a list that was never filled. Say what was searched for, and offer a way back to results.
+
+<Preview name="empty/search" />
+
+The title here is an `h4`, set with `asChild`, because this example sits under an `h3` on this page. Pick the level that fits where the empty state is used.
+
+## Three kinds of empty
+
+What to write depends on why there's nothing there.
+
+| Why it's empty | Say | Offer |
+| --- | --- | --- |
+| Nothing has been made yet | What will show up here | The button that makes the first one |
+| A search or filter matched nothing | What was searched for | Clearing the search, or widening it |
+| The visitor isn't allowed to see it | That there's something they can't see | Who to ask for access |
+
+When something went wrong, that's an error and not an empty state. Use an [alert](/docs/components/alert) and say what happened.
+
+## On small screens
+
+The padding is 24 pixels on a phone and 48 from the `sm` breakpoint up. The description wraps at 28rem however wide the box is, so its lines stay short enough to read. Buttons that don't fit in one row wrap.
+
+## Accessibility
+
+An empty state has no keyboard behavior of its own. The buttons and links in `EmptyActions` work as they do anywhere.
+
+### What the component handles
+
+- The title is a heading, so the empty state can be found in the page's outline.
+- `EmptyMedia` is hidden from screen readers. The title says what the picture shows.
+- The dashed edge is a border, which is still drawn where the browser forces its own colors. The square behind the picture gets an edge there too.
+- The description's color has at least 4.5:1 against the page in every theme.
+
+### What you need to handle
+
+- Pick the heading level that fits the page, with `asChild`.
+- When a search or a filter empties a list while the page is open, a screen reader user isn't told. Say it in an element with `role="status"`, such as "No customers match".
+- Keep the page's other controls where they were. A search field that disappears along with its results leaves no way to change the search.
+
+## CSS variables
+
+Set any of these on `Empty`, or on anything around it.
+
+```css
+.table-empty {
+  --nuv-empty-border: transparent;
+  --nuv-empty-padding: calc(var(--spacing) * 8);
+}
+```
+
+<CssVariables
+  component="empty"
+  descriptions={{
+    "--nuv-empty-gap": "Space between the parts.",
+    "--nuv-empty-padding":
+      "Padding inside the box. Larger from the sm breakpoint.",
+    "--nuv-empty-border":
+      "Color of the dashed edge. Set it to transparent for no edge.",
+    "--nuv-empty-radius": "Corner radius.",
+    "--nuv-empty-fg": "Text color of the title.",
+    "--nuv-empty-media-size": "Width and height of the square behind the picture.",
+    "--nuv-empty-media-bg": "Background color of that square.",
+    "--nuv-empty-media-fg": "Color of an icon inside it.",
+    "--nuv-empty-title-size": "Font size of the title.",
+    "--nuv-empty-text-width": "The widest the description gets.",
+    "--nuv-empty-muted-fg": "Text color of the description.",
+  }}
+/>
+
+## Classes
+
+<BemClasses
+  component="empty"
+  descriptions={{
+    "nuv-empty": "Empty.",
+    "nuv-empty__media": "EmptyMedia.",
+    "nuv-empty__title": "EmptyTitle.",
+    "nuv-empty__description": "EmptyDescription.",
+    "nuv-empty__actions": "EmptyActions.",
+  }}
+/>
+
+## Server components
+
+The empty parts have no `"use client"` directive and use no state, so they render in a server component as they are.
+
+## Do and don't
+
+**Do**
+
+- Write the title as a plain statement: "No invoices yet".
+- Make the main button the same action as the page's own "new" button.
+
+**Don't**
+
+- Don't show an empty state while the data is still loading. Use a [skeleton](/docs/components/skeleton) until you know.
+- Don't blame the visitor. "Nothing matches" is enough.

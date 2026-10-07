@@ -1,0 +1,32 @@
+@use "../../styles/layers";
+
+@layer components {
+  // Sized in em, so a key in a heading is bigger than one in a table cell.
+  .nuv-kbd {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-inline-size: var(--nuv-kbd-size, 1.6em);
+    min-block-size: var(--nuv-kbd-size, 1.6em);
+
+    // The cap is taller than its letters. This takes the difference back
+    // out of the layout, so the cap sits in the space between lines and
+    // never makes its own line taller, whatever the font.
+    margin-block: calc((1em - var(--nuv-kbd-size, 1.6em)) / 2);
+    padding-inline: var(--nuv-kbd-padding-inline, 0.4em);
+    border: var(--nuv-border-width) solid
+      var(--nuv-kbd-border, var(--color-border-strong));
+
+    // The thicker bottom edge is what makes it look like a key.
+    border-block-end-width: calc(var(--nuv-border-width) * 2);
+    border-radius: var(--nuv-kbd-radius, var(--radius-sm));
+    background-color: var(--nuv-kbd-bg, var(--color-muted));
+    color: var(--nuv-kbd-fg, var(--color-foreground));
+    font-family: var(--nuv-kbd-font, var(--font-sans));
+    font-size: var(--nuv-kbd-font-size, 0.8em);
+    font-weight: var(--font-weight-medium);
+    line-height: 1;
+    white-space: nowrap;
+    vertical-align: baseline;
+  }
+}

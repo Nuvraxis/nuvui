@@ -1,0 +1,66 @@
+@use "../../styles/layers";
+@use "../../styles/mixins";
+
+@layer components {
+  .nuv-empty {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nuv-empty-gap, calc(var(--spacing) * 2));
+    align-items: center;
+    justify-content: center;
+    min-inline-size: 0;
+    padding: var(--nuv-empty-padding, calc(var(--spacing) * 6));
+    border: var(--nuv-border-width) dashed
+      var(--nuv-empty-border, var(--color-border));
+    border-radius: var(--nuv-empty-radius, var(--radius-lg));
+    color: var(--nuv-empty-fg, var(--color-foreground));
+    text-align: center;
+
+    @include mixins.breakpoint("sm") {
+      padding: var(--nuv-empty-padding, calc(var(--spacing) * 12));
+    }
+  }
+
+  .nuv-empty__media {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--nuv-empty-media-size, 3rem);
+    block-size: var(--nuv-empty-media-size, 3rem);
+    margin-block-end: calc(var(--spacing) * 2);
+
+    // The edge can't be seen against the fill. It shows where the browser
+    // forces its own colors, which is where the fill isn't drawn.
+    border: var(--nuv-border-width) solid transparent;
+    border-radius: var(--radius-lg);
+    background-color: var(--nuv-empty-media-bg, var(--color-muted));
+    color: var(--nuv-empty-media-fg, var(--color-foreground));
+  }
+
+  .nuv-empty__title {
+    margin: 0;
+    font-size: var(--nuv-empty-title-size, var(--text-base));
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--leading-snug);
+    overflow-wrap: anywhere;
+  }
+
+  // Lines of about fifty characters, however wide the box is.
+  .nuv-empty__description {
+    max-inline-size: var(--nuv-empty-text-width, 28rem);
+    margin: 0;
+    color: var(--nuv-empty-muted-fg, var(--color-muted-foreground));
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+    overflow-wrap: anywhere;
+  }
+
+  .nuv-empty__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(var(--spacing) * 2);
+    align-items: center;
+    justify-content: center;
+    margin-block-start: calc(var(--spacing) * 4);
+  }
+}

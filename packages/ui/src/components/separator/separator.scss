@@ -1,0 +1,33 @@
+@use "../../styles/layers";
+
+@layer components {
+  // The line is a border and not a background, because a background isn't
+  // drawn where the browser forces its own colors.
+  .nuv-separator {
+    flex: none;
+    margin: 0;
+    border: 0 solid var(--nuv-separator-color, var(--color-border));
+
+    // The other dimension is zero, so that the line is only ever as thick as
+    // its border, even where a flex container would stretch it.
+    &[data-orientation="horizontal"] {
+      inline-size: 100%;
+      block-size: 0;
+      border-block-start-width: var(
+        --nuv-separator-size,
+        var(--nuv-border-width)
+      );
+    }
+
+    // As tall as the row it's in, when that row is a flex or grid container.
+    &[data-orientation="vertical"] {
+      align-self: stretch;
+      inline-size: 0;
+      min-block-size: 1em;
+      border-inline-start-width: var(
+        --nuv-separator-size,
+        var(--nuv-border-width)
+      );
+    }
+  }
+}

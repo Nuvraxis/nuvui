@@ -13,6 +13,9 @@ import {
   BreadcrumbList,
   Button,
   Checkbox,
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
   ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
@@ -50,6 +53,7 @@ import {
   PasswordInput,
   RadioGroup,
   RadioGroupItem,
+  ScrollArea,
   Select,
   SelectContent,
   SelectItem,
@@ -70,6 +74,11 @@ import {
   Toggle,
   ToggleGroup,
   ToggleGroupItem,
+  Toolbar,
+  ToolbarButton,
+  ToolbarLink,
+  ToolbarToggleGroup,
+  ToolbarToggleItem,
   toast,
 } from "../src";
 import { emulateMedia } from "./media";
@@ -688,6 +697,99 @@ describe("pagination", () => {
   });
 });
 
+describe("toolbar", () => {
+  test("a button, a link and a toggle are each 44px each way", async () => {
+    await render(
+      <Toolbar aria-label="Formatting">
+        <ToolbarToggleGroup type="multiple" aria-label="Text style">
+          <ToolbarToggleItem value="bold">B</ToolbarToggleItem>
+        </ToolbarToggleGroup>
+        <ToolbarLink href="#help">?</ToolbarLink>
+        <ToolbarButton>S</ToolbarButton>
+      </Toolbar>,
+    );
+
+    for (const selector of [
+      ".nuv-toolbar__toggle-item",
+      ".nuv-toolbar__link",
+      ".nuv-toolbar__button",
+    ]) {
+      const control = box(document.querySelector(selector) as Element);
+      expect(control.height).toBe(44);
+      expect(control.width).toBeGreaterThanOrEqual(44);
+    }
+  });
+
+  test("a row of them wraps and doesn't widen the page", async () => {
+    await render(
+      <Toolbar aria-label="Formatting">
+        {["Undo", "Redo", "Cut", "Copy", "Paste", "Find", "Print"].map(
+          (name) => (
+            <ToolbarButton key={name}>{name}</ToolbarButton>
+          ),
+        )}
+      </Toolbar>,
+    );
+
+    expect(document.documentElement.scrollWidth).toBe(
+      document.documentElement.clientWidth,
+    );
+  });
+
+  test("doesn't change color under a finger that has moved on", async () => {
+    await render(
+      <Toolbar aria-label="Formatting">
+        <ToolbarButton>Share</ToolbarButton>
+      </Toolbar>,
+    );
+    const button = page.getByRole("button");
+    const before = getComputedStyle(button.element()).backgroundColor;
+
+    await userEvent.hover(button);
+
+    expect(getComputedStyle(button.element()).backgroundColor).toBe(before);
+  });
+});
+
+describe("scroll area", () => {
+  test("a finger scrolls the content, and the scrollbar keeps out of the way of taps", async () => {
+    await render(
+      <ScrollArea aria-label="Releases" style={{ height: 120 }}>
+        <div style={{ height: 600 }}>Tall content</div>
+      </ScrollArea>,
+    );
+    const viewport = document.querySelector(
+      ".nuv-scroll-area__viewport",
+    ) as HTMLElement;
+    await expect
+      .poll(() => document.querySelector(".nuv-scroll-area__thumb"))
+      .not.toBeNull();
+
+    // Scrolling is the browser's own, so a swipe works as it does anywhere.
+    expect(getComputedStyle(viewport).overflowY).toBe("scroll");
+    expect(getComputedStyle(viewport).touchAction).toBe("auto");
+    expect(
+      box(document.querySelector(".nuv-scroll-area__scrollbar") as Element)
+        .width,
+    ).toBe(10);
+  });
+});
+
+describe("collapsible", () => {
+  test("a Button as its trigger is 44px tall", async () => {
+    await render(
+      <Collapsible>
+        <CollapsibleTrigger asChild>
+          <Button size="sm">Show details</Button>
+        </CollapsibleTrigger>
+        <CollapsibleContent>Text</CollapsibleContent>
+      </Collapsible>,
+    );
+
+    expect(box(page.getByRole("button").element()).height).toBe(44);
+  });
+});
+
 // Density makes controls shorter or taller with a mouse. A finger is the
 // same size whatever the layout, so nothing here may drop under 44px.
 describe.each([
@@ -821,6 +923,29 @@ describe.each([
       ".nuv-navigation-menu__trigger",
       ".nuv-navigation-menu__link",
       ".nuv-pagination__link",
+    ]) {
+      expect(
+        box(document.querySelector(selector) as Element).height,
+      ).toBeGreaterThanOrEqual(44);
+    }
+  });
+
+  test("what's in a toolbar is at least 44px tall", async () => {
+    setOnPage();
+    await render(
+      <Toolbar aria-label="Formatting">
+        <ToolbarToggleGroup type="multiple" aria-label="Text style">
+          <ToolbarToggleItem value="bold">B</ToolbarToggleItem>
+        </ToolbarToggleGroup>
+        <ToolbarLink href="#help">?</ToolbarLink>
+        <ToolbarButton>S</ToolbarButton>
+      </Toolbar>,
+    );
+
+    for (const selector of [
+      ".nuv-toolbar__toggle-item",
+      ".nuv-toolbar__link",
+      ".nuv-toolbar__button",
     ]) {
       expect(
         box(document.querySelector(selector) as Element).height,

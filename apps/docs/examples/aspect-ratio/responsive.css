@@ -1,0 +1,9 @@
+.hero-media {
+  --nuv-aspect-ratio-value: 1;
+}
+
+@media (width >= 40rem) {
+  .hero-media {
+    --nuv-aspect-ratio-value: 21 / 9;
+  }
+}

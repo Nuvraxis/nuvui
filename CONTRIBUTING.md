@@ -25,7 +25,7 @@ Run these from the repository root.
 | `pnpm lint` | Biome for TypeScript and JSON, Stylelint for SCSS. |
 | `pnpm lint:fix` | Lets Biome fix what it can, formatting included. |
 | `pnpm typecheck` | TypeScript, in every workspace. |
-| `pnpm test` | The component tests in Chromium, Firefox and WebKit, and the theme generator's tests. About five minutes. |
+| `pnpm test` | The component tests in Chromium, Firefox and WebKit, and the theme generator's tests. About ten minutes. |
 | `pnpm build` | Builds the theme generator and the library, checks the result, then builds the docs site. |
 | `pnpm test:e2e` | Builds first, then runs Playwright against the exported docs site, in five browser setups. |
 | `pnpm size` | Builds first, then checks each entry point against its size budget. |
@@ -55,6 +55,7 @@ pnpm --filter @nuvui/docs exec playwright test --project=firefox
 ```
 packages/ui                   the library, published as @nuvui/react
   src/components/<name>/      <name>.tsx, <name>.scss, <name>.test.tsx, index.ts
+  src/direction/              DirectionProvider, which has no styles
   src/styles/                 tokens, mixins, the layer order, base styles,
                               and the styles that fields and floating panels share
   src/utils/                  small helpers shared by components
@@ -72,6 +73,7 @@ apps/docs                     the documentation site (Next.js and Fumadocs)
   examples/<name>/            the examples the pages render and print
   components/                 previews, props tables, playgrounds, reference tables
   e2e/                        Playwright tests
+  scripts/serve-out.mjs       serves the built site, for those tests and for pnpm start
 packages/typescript-config    shared tsconfig presets
 fixtures                      two apps that install the packed library
 scripts/test-consumers.mjs    builds those two apps
@@ -186,7 +188,9 @@ Before 1.0, a breaking change is a minor bump, and its changeset has to say what
 
 A pull request needs:
 
-- `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build` and `pnpm test:e2e` passing. CI runs the same commands on Linux for every pull request. It then checks the package that would be published, the size of each entry point, and that the packed library installs and builds in a Vite app and a Next.js app.
+- `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build` and `pnpm test:e2e` passing. CI runs on Linux, in two workflows:
+  - `ci.yml` runs for every pull request: lint, typecheck, build and the component tests, then a check of the package that would be published and of the size of each entry point.
+  - `e2e.yml` runs only for a pull request with the `invoke-e2e` label: the end-to-end tests, and a check that the packed library installs and builds in a Vite app and a Next.js app. A maintainer adds the label when a change is ready for it. Without the label nothing runs these for you, so run `pnpm test:e2e` yourself.
 - Tests for what changed.
 - The docs page updated, if behavior, props, CSS variables or class names changed.
 - A changeset, if the change reaches the published package.

@@ -1,0 +1,133 @@
+@use "../../styles/layers";
+@use "../../styles/mixins";
+
+// What a button, a link and a toggle in a toolbar have in common. Each is
+// the inside of one rule.
+@mixin item {
+  display: inline-flex;
+  flex: none;
+  gap: calc(var(--spacing) * 2);
+  align-items: center;
+  justify-content: center;
+  padding-block: 0;
+  padding-inline: var(
+    --nuv-toolbar-item-padding-inline,
+    calc(var(--spacing) * 2.5)
+  );
+  border: var(--nuv-border-width) solid transparent;
+  border-radius: var(--nuv-toolbar-item-radius, var(--radius-md));
+  background-color: transparent;
+  color: var(--nuv-toolbar-fg, var(--color-surface-foreground));
+  font-family: inherit;
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--text-sm--line-height);
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+
+  @include mixins.touch-target(
+    var(--nuv-toolbar-item-height, var(--nuv-touch-size))
+  );
+  @include mixins.focus-ring;
+
+  @include mixins.fine-pointer {
+    min-block-size: var(--nuv-toolbar-item-height, var(--nuv-control-height-sm));
+    min-inline-size: var(--nuv-toolbar-item-height, var(--nuv-control-height-sm));
+  }
+
+  @include mixins.motion-safe {
+    transition:
+      background-color var(--nuv-duration-fast) var(--ease-out),
+      color var(--nuv-duration-fast) var(--ease-out);
+  }
+
+  @include mixins.hover {
+    background-color: var(--nuv-toolbar-item-hover-bg, var(--color-muted));
+  }
+
+  &:disabled,
+  &[data-disabled] {
+    opacity: var(--nuv-disabled-opacity);
+    pointer-events: none;
+  }
+}
+
+@layer components {
+  // The row wraps when it runs out of room, so nothing is pushed off a
+  // phone's screen.
+  .nuv-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--nuv-toolbar-gap, var(--spacing));
+    align-items: center;
+    max-inline-size: 100%;
+    padding: var(--nuv-toolbar-padding, var(--spacing));
+    border: var(--nuv-border-width) solid
+      var(--nuv-toolbar-border, var(--color-border));
+    border-radius: var(--nuv-toolbar-radius, var(--radius-lg));
+    background-color: var(--nuv-toolbar-bg, var(--color-surface));
+
+    &[data-orientation="vertical"] {
+      flex-direction: column;
+      inline-size: max-content;
+    }
+  }
+
+  .nuv-toolbar__button {
+    @include item;
+  }
+
+  .nuv-toolbar__link {
+    @include item;
+  }
+
+  .nuv-toolbar__toggle-group {
+    display: flex;
+    gap: var(--nuv-toolbar-gap, var(--spacing));
+    align-items: center;
+
+    &[data-orientation="vertical"] {
+      flex-direction: column;
+    }
+  }
+
+  .nuv-toolbar__toggle-item {
+    @include item;
+
+    // Pressed is the primary fill. A paler fill wouldn't reach the 3:1 a
+    // state needs to be told apart from the one next to it.
+    &[data-state="on"] {
+      background-color: var(--nuv-toolbar-on-bg, var(--color-primary));
+      color: var(--nuv-toolbar-on-fg, var(--color-primary-foreground));
+
+      // Where the browser forces its own colors, the fill isn't drawn.
+      // These are the system's colors for something selected.
+      @media (forced-colors: active) {
+        border-color: highlight;
+        background-color: highlight;
+        color: highlighttext;
+        forced-color-adjust: none;
+      }
+    }
+  }
+
+  // The line is a border and not a background, because a background isn't
+  // drawn where the browser forces its own colors.
+  .nuv-toolbar__separator {
+    flex: none;
+    align-self: stretch;
+    margin-inline: var(--spacing);
+    border: 0 solid var(--nuv-toolbar-border, var(--color-border));
+    border-inline-start-width: var(--nuv-border-width);
+
+    &[data-orientation="horizontal"] {
+      margin-block: var(--spacing);
+      margin-inline: 0;
+      border-block-start-width: var(--nuv-border-width);
+      border-inline-start-width: 0;
+    }
+  }
+}

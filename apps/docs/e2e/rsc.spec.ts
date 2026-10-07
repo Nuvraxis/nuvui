@@ -62,6 +62,32 @@ test("components used from a server component hydrate and work", async ({
   await alert.getByRole("button", { name: "Go ahead" }).click();
   await expect(alert).toBeHidden();
 
+  await expect(
+    page.getByRole("heading", { name: "Card from the server" }),
+  ).toHaveClass(/nuv-card__title/);
+  await expect(page.getByText("Server badge")).toHaveClass(
+    /nuv-badge--success/,
+  );
+  await expect(
+    page.getByRole("alert").filter({ hasText: "Alert from the server" }),
+  ).toHaveClass(/nuv-alert--warning/);
+  await expect(
+    page.getByRole("heading", { name: "Empty from the server" }),
+  ).toBeVisible();
+  const ratio = await page.getByTestId("server-ratio").boundingBox();
+  expect(ratio?.width).toBe(120);
+  expect(ratio?.height).toBe(60);
+  await expect(page.getByRole("status")).toHaveText("Server spinner");
+  await expect(
+    page.getByRole("progressbar", { name: "Server progress" }),
+  ).toHaveAttribute("aria-valuenow", "30");
+
+  // The provider was rendered on the server, and the tabs inside it take
+  // their direction from it: the left arrow goes forward.
+  await page.getByRole("tab", { name: "One" }).focus();
+  await page.keyboard.press("ArrowLeft", { delay: 30 });
+  await expect(page.getByRole("tab", { name: "Two" })).toBeFocused();
+
   expect(problems).toEqual([]);
 });
 

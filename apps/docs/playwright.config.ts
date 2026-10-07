@@ -32,7 +32,7 @@ export default defineConfig({
   // Serves the exported site in `out`, the same files a host would serve, so
   // `pnpm build` has to come first. The turbo task takes care of that.
   webServer: {
-    command: `pnpm exec serve out --listen ${port} --no-request-logging --no-clipboard`,
+    command: `node scripts/serve-out.mjs ${port}`,
     url: `http://localhost:${port}`,
     reuseExistingServer: !isCI,
   },

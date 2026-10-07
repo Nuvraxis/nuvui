@@ -8,7 +8,7 @@ Early, and not published. You can't install it from the registry yet.
 
 What exists today:
 
-- Twenty-six components. Eleven for actions, overlays and navigation: Accordion, Button, Checkbox, Dialog, DropdownMenu, Popover, Select, Switch, Tabs, Toast and Tooltip. Fifteen for forms: ButtonGroup, Field, Fieldset, FileUpload, Input, InputGroup, Label, NativeSelect, OtpField, PasswordInput, RadioGroup, Slider, Textarea, Toggle and ToggleGroup. Each has tests for rendering, keyboard behavior, touch sizing, and accessibility in light, dark and forced colors. The tests run in Chromium, Firefox and WebKit.
+- Thirty-four components. Nineteen for actions, overlays and navigation: Accordion, AlertDialog, Breadcrumb, Button, Checkbox, ContextMenu, Dialog, DropdownMenu, HoverCard, Menubar, NavigationMenu, Pagination, Popover, Select, Sheet, Switch, Tabs, Toast and Tooltip. Fifteen for forms: ButtonGroup, Field, Fieldset, FileUpload, Input, InputGroup, Label, NativeSelect, OtpField, PasswordInput, RadioGroup, Slider, Textarea, Toggle and ToggleGroup. Each has tests for rendering, keyboard behavior, touch sizing, and accessibility in light, dark and forced colors. The tests run in Chromium, Firefox and WebKit.
 - A `toast()` function for showing toasts from anywhere, with a `Toaster` to render them.
 - The design tokens: color scales, semantic colors for both themes, chart colors, type, spacing, radius, shadow, motion and control sizes. They build to CSS custom properties, and the SCSS source ships alongside.
 - Five presets, each a stylesheet that restyles everything, and three densities.

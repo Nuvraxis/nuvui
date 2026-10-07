@@ -117,6 +117,8 @@ for (const path of pages) {
 }
 
 test("no two pages share a title or a description", async ({ page }) => {
+  // One test opens every page in turn, so its time grows with the site.
+  test.setTimeout(30_000 + pages.length * 2_000);
   const titles: string[] = [];
   const descriptions: string[] = [];
 

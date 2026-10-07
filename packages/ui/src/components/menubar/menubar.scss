@@ -1,0 +1,135 @@
+@use "../../styles/layers";
+@use "../../styles/mixins";
+@use "../../styles/floating";
+@use "../../styles/menu";
+
+@layer components {
+  // The bar. More menus than fit a phone wrap onto a second line.
+  .nuv-menubar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing);
+    align-items: center;
+    padding: var(--spacing);
+    border: var(--nuv-border-width) solid var(--nuv-menubar-border, var(--color-border));
+    border-radius: var(--nuv-menubar-radius, var(--radius-lg));
+    background-color: var(--nuv-menubar-bg, var(--color-surface));
+    color: var(--nuv-menubar-fg, var(--color-surface-foreground));
+  }
+
+  .nuv-menubar__trigger {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    padding-block: 0;
+    padding-inline: calc(var(--spacing) * 3);
+    border: 0;
+    border-radius: var(--radius-sm);
+    background-color: transparent;
+    color: inherit;
+    font-family: inherit;
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--text-sm--line-height);
+    white-space: nowrap;
+    cursor: default;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+
+    @include mixins.touch-target;
+    @include mixins.focus-ring;
+
+    @include mixins.hover {
+      background-color: var(--color-muted);
+    }
+
+    @include mixins.fine-pointer {
+      min-block-size: var(--nuv-control-height-sm);
+      min-inline-size: var(--nuv-control-height-sm);
+    }
+
+    // The menu under it is open. Focus has moved on into the menu, and
+    // this keeps the way back visible.
+    &[data-state="open"] {
+      background-color: var(--color-muted);
+    }
+
+    &[data-disabled] {
+      opacity: var(--nuv-disabled-opacity);
+      pointer-events: none;
+    }
+  }
+
+  // Each menu, and each submenu. Radix renders them all at the end of
+  // <body>, not inside the bar.
+  .nuv-menubar__content {
+    @include menu.panel("menubar-menu", "menubar");
+
+    // A menu playing its exit animation is still on the page. Radix then
+    // takes focus moving into the next menu for a click outside the old
+    // one, and closes the whole bar. So a menu here leaves at once, which
+    // is also how a menu bar behaves everywhere else.
+    &[data-state="closed"] {
+      animation: none;
+    }
+  }
+
+  .nuv-menubar__item {
+    @include menu.item("menubar-menu");
+  }
+
+  .nuv-menubar__item--danger {
+    @include menu.item-danger;
+  }
+
+  .nuv-menubar__indicator {
+    @include menu.indicator;
+  }
+
+  // Both marks are in the page. The one that matches the state is shown.
+  .nuv-menubar__dash {
+    display: none;
+  }
+
+  .nuv-menubar__indicator[data-state="indeterminate"]
+    .nuv-menubar__check {
+    display: none;
+  }
+
+  .nuv-menubar__indicator[data-state="indeterminate"]
+    .nuv-menubar__dash {
+    display: inline;
+  }
+
+  .nuv-menubar__chevron {
+    @include menu.chevron;
+  }
+
+  .nuv-menubar__shortcut {
+    @include menu.shortcut;
+  }
+
+  // A check or an arrow after a shortcut would otherwise share the free
+  // space with it, and leave it in the middle of the row.
+  .nuv-menubar__shortcut + .nuv-menubar__indicator,
+  .nuv-menubar__shortcut + .nuv-menubar__chevron {
+    margin-inline-start: 0;
+  }
+
+  // Gray on the filled row would be hard to see.
+  .nuv-menubar__item[data-highlighted] .nuv-menubar__chevron,
+  .nuv-menubar__item[data-highlighted] .nuv-menubar__shortcut {
+    color: inherit;
+  }
+
+  .nuv-menubar__label {
+    @include menu.label;
+  }
+
+  .nuv-menubar__separator {
+    @include menu.separator("menubar-menu");
+  }
+
+  @include floating.pop-keyframes("menubar-menu");
+}

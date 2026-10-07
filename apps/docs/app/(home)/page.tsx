@@ -31,8 +31,8 @@ export default function HomePage() {
         it works with server components and needs no build plugin.
       </p>
       <p className="text-fd-muted-foreground">
-        It's early. There are twenty-six components so far, and nothing has been
-        published to the registry yet.
+        It's early. There are thirty-four components so far, and nothing has
+        been published to the registry yet.
       </p>
       <div className="flex flex-wrap gap-3">
         <Button asChild size="lg">

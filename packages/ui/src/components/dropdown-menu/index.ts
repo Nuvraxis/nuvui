@@ -19,6 +19,8 @@ export {
   type DropdownMenuRadioItemProps,
   DropdownMenuSeparator,
   type DropdownMenuSeparatorProps,
+  DropdownMenuShortcut,
+  type DropdownMenuShortcutProps,
   DropdownMenuSub,
   DropdownMenuSubContent,
   type DropdownMenuSubContentOwnProps,

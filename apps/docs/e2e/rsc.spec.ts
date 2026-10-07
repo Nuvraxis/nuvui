@@ -42,6 +42,26 @@ test("components used from a server component hydrate and work", async ({
     page.getByRole("group", { name: "Server group" }).getByRole("button"),
   ).toHaveCount(2);
 
+  await expect(
+    page
+      .getByRole("navigation", { name: "Server breadcrumb" })
+      .getByRole("link", { name: "Docs" }),
+  ).toHaveClass(/nuv-breadcrumb__link/);
+  const pages = page.getByRole("navigation", { name: "Server pagination" });
+  await expect(pages.getByRole("link")).toHaveText(["1", "5", "9"]);
+  await expect(pages.getByRole("link", { name: "Page 5" })).toHaveAttribute(
+    "aria-current",
+    "page",
+  );
+
+  await page.getByRole("button", { name: "Open the alert" }).click();
+  const alert = page.getByRole("alertdialog", {
+    name: "Asked from a server component",
+  });
+  await expect(alert.getByRole("button", { name: "Back out" })).toBeFocused();
+  await alert.getByRole("button", { name: "Go ahead" }).click();
+  await expect(alert).toBeHidden();
+
   expect(problems).toEqual([]);
 });
 

@@ -1,0 +1,201 @@
+---
+title: Sheet
+description: A panel that slides in from an edge of the screen and takes over the page until it's closed.
+---
+
+Use a sheet for something that goes with the page behind it and needs more room than a popover: a set of filters, the details of a row, the site's menu on a phone. It's a [dialog](/docs/components/dialog) attached to an edge, and behaves like one.
+
+<Preview name="sheet/basic" />
+
+## Install
+
+```sh
+pnpm add @nuvui/react
+```
+
+## Import
+
+```tsx
+import {
+  Sheet,
+  SheetBody,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@nuvui/react";
+```
+
+The styles come from `@nuvui/react/styles.css`, which you load once for the whole app. [Getting started](/docs) covers that, and how to load only this component's CSS.
+
+## Parts
+
+| Part | What it is |
+| --- | --- |
+| `Sheet` | Holds the open state. Renders nothing itself. |
+| `SheetTrigger` | The button that opens the sheet. Wrap your own with `asChild`. |
+| `SheetContent` | The panel. It also renders the overlay behind it and the close button in its corner. |
+| `SheetTitle` | The heading. Required, because it's the sheet's accessible name. |
+| `SheetDescription` | A sentence or two under the title. It becomes the sheet's accessible description. |
+| `SheetHeader` | Holds the title and description, and stays in place while the body scrolls. |
+| `SheetBody` | The part that scrolls when the content is taller than the screen. |
+| `SheetFooter` | A row for the action buttons, at the far edge of the panel. |
+| `SheetClose` | Closes the sheet when pressed. Wrap your own button with `asChild`. |
+
+These are separate exports, not properties of `Sheet`. `Sheet.Content` isn't available, because property access on a client component doesn't work from a server component.
+
+## Try it
+
+<SheetPlayground />
+
+## Props
+
+`SheetContent` adds these to what Radix provides:
+
+<PropsTable component="sheet" name="SheetContentOwnProps" />
+
+`Sheet`, `SheetTrigger`, `SheetClose`, `SheetTitle` and `SheetDescription` are Radix's dialog parts, and take the same props, including `open`, `defaultOpen`, `onOpenChange`, `modal` and `asChild`. The [Radix Dialog reference](https://www.radix-ui.com/primitives/docs/components/dialog#api-reference) lists them.
+
+`SheetHeader`, `SheetBody` and `SheetFooter` are plain `div` elements. They take `ref`, `className` and anything else a `div` does.
+
+## Sides
+
+<Preview name="sheet/sides" />
+
+`side` names the edge. `"start"` and `"end"` follow the reading direction: `"end"` is the right edge in a left-to-right layout and the left edge in a right-to-left one. The sheet slides in from the edge it's on.
+
+A sheet on the top or bottom edge is as wide as the screen and as tall as what it holds. It stops 48 pixels short of the full height, and its body scrolls from there.
+
+## Sizes
+
+`size` sets how wide a sheet on the start or end edge is: 20rem for `sm`, 24rem for `md` and 40rem for `lg`. It doesn't apply to the top and bottom edges.
+
+On a narrow screen the sheet stops 48 pixels short of the far side whatever its size. That strip of page is what people tap to close it, so it has to stay.
+
+## Long content
+
+Put what scrolls in `SheetBody`. The header and the footer stay where they are, so the title and the buttons are always in view.
+
+<Preview name="sheet/long" />
+
+The footer sits at the far edge of the panel whether or not there's a body, and however little the sheet holds.
+
+## As a menu on a phone
+
+A sheet on the start edge is the usual place for a site's navigation when the screen is too narrow for a row of links.
+
+<Preview name="sheet/menu" />
+
+Wrap each link in `SheetClose`. A link to another page closes the sheet by leaving, but a link to a section of the same page would leave it open over what the person asked to see.
+
+## Accessibility
+
+### Keyboard
+
+| Key | What it does |
+| --- | --- |
+| <kbd>Enter</kbd> or <kbd>Space</kbd> | On the trigger, opens the sheet. |
+| <kbd>Tab</kbd> | Moves to the next control inside the sheet. From the last one it goes back to the first. |
+| <kbd>Shift</kbd> + <kbd>Tab</kbd> | Moves to the previous control, and from the first to the last. |
+| <kbd>Esc</kbd> | Closes the sheet. |
+| <kbd>↑</kbd> <kbd>↓</kbd> <kbd>Page Up</kbd> <kbd>Page Down</kbd> | Scroll the body, when it has focus. |
+
+### What the component handles
+
+Most of this is Radix. The library doesn't change it.
+
+- The panel has `role="dialog"`, named by `SheetTitle` and described by `SheetDescription`.
+- Opening moves focus to the first control in the content. Closing returns it to the trigger.
+- Focus can't leave the sheet while it's open, and the rest of the page is hidden from screen readers.
+- The trigger gets `aria-haspopup="dialog"` and `aria-expanded`.
+- The close button is a real button with an accessible name, and is at least 44 pixels on touch screens. This matters on phones, where there's no <kbd>Esc</kbd> key.
+- A `SheetBody` that scrolls and has nothing inside that takes focus becomes a tab stop itself, named after the sheet. Without that, someone who doesn't use a mouse would have no way to scroll it. A body that fits, or that holds a field or a button, is left alone.
+- The first and last rows keep clear of a phone's notch and home indicator, on pages that draw under them.
+- The slide only runs when the visitor hasn't asked for reduced motion.
+
+### What you need to handle
+
+- Always include a `SheetTitle`. If the design has no visible heading, hide it visually but keep it.
+- If you leave out `SheetDescription`, pass `aria-describedby={undefined}` to `SheetContent`, or Radix logs a warning.
+- Translate `closeLabel` along with the rest of your interface.
+- In a right-to-left layout, set `dir="rtl"` on the page's root element. The sheet is rendered at the end of `<body>`, so that's where it takes its direction from.
+
+## CSS variables
+
+Sheets render at the end of `<body>`, so set these on `:root` or `body`, not on the element around the trigger.
+
+```css
+:root {
+  --nuv-sheet-width: 28rem;
+}
+```
+
+<CssVariables
+  component="sheet"
+  descriptions={{
+    "--nuv-sheet-overlay-bg": "Color of the layer that dims the page.",
+    "--nuv-sheet-width":
+      "Width of a sheet on the start or end edge. Differs by size. It's never wider than the screen less 48 pixels.",
+    "--nuv-sheet-padding":
+      "Padding inside the panel. One length, used on every side.",
+    "--nuv-sheet-border": "Border color of the panel.",
+    "--nuv-sheet-bg": "Background color of the panel.",
+    "--nuv-sheet-shadow": "Shadow under the panel.",
+    "--nuv-sheet-fg": "Text color.",
+  }}
+/>
+
+## Classes
+
+The overlay and the panel sit next to each other in the page, not one inside the other. That's why the overlay is its own flat class.
+
+<BemClasses
+  component="sheet"
+  descriptions={{
+    "nuv-sheet": "The panel.",
+    "nuv-sheet--start": "The panel with side=\"start\".",
+    "nuv-sheet--end": "The panel with side=\"end\".",
+    "nuv-sheet--top": "The panel with side=\"top\".",
+    "nuv-sheet--bottom": "The panel with side=\"bottom\".",
+    "nuv-sheet--sm": "The panel with size=\"sm\".",
+    "nuv-sheet--lg": "The panel with size=\"lg\".",
+    "nuv-sheet__overlay": "The layer behind the panel.",
+    "nuv-sheet__title": "SheetTitle.",
+    "nuv-sheet__description": "SheetDescription.",
+    "nuv-sheet__header": "SheetHeader.",
+    "nuv-sheet__body": "SheetBody.",
+    "nuv-sheet__footer": "SheetFooter.",
+    "nuv-sheet__close": "The close button in the corner.",
+  }}
+/>
+
+The panel also gets `nuv-sheet--md` at the default size. No styles are attached to it, since medium is the base.
+
+Radix sets `data-state="open"` or `data-state="closed"` on the overlay and the panel. The animations hang off those.
+
+## Server components
+
+The sheet parts are client components. They carry `"use client"`, and the build checks that the directive is still there in the published files.
+
+You can put a sheet together inside a server component, as every example on this page does. It only needs a client component of your own when you control `open`.
+
+## Themed sections
+
+A sheet opened from inside a `data-theme="dark"` section doesn't inherit that theme, because it isn't rendered inside the section. Pass the section's element as `container` and it will be.
+
+## Do and don't
+
+**Do**
+
+- Use the end edge for details and filters, and the start edge for navigation.
+- Put the buttons in `SheetFooter`, so they're in the same place every time.
+- Leave the close button in, unless there's another visible way out.
+
+**Don't**
+
+- Don't use a sheet for a question that needs an answer. That's an [alert dialog](/docs/components/alert-dialog).
+- Don't open a sheet from inside a sheet.
+- Don't open one without the person doing something to ask for it.

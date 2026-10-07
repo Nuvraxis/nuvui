@@ -1,0 +1,181 @@
+---
+title: Breadcrumb
+description: A trail of links that shows where the current page sits in a site, from the top level down.
+---
+
+Use a breadcrumb on pages that sit a few levels deep, so people can see where they are and step back up. It shows the structure of the site, not the path someone took to get here.
+
+<Preview name="breadcrumb/basic" />
+
+## Install
+
+```sh
+pnpm add @nuvui/react
+```
+
+## Import
+
+```tsx
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@nuvui/react";
+```
+
+The styles come from `@nuvui/react/styles.css`, which you load once for the whole app. [Getting started](/docs) covers that, and how to load only this component's CSS.
+
+## Parts
+
+| Part | What it is |
+| --- | --- |
+| `Breadcrumb` | The `nav` landmark around the trail. |
+| `BreadcrumbList` | The trail. An `ol`, because the order means something. |
+| `BreadcrumbItem` | One level. A `li`. |
+| `BreadcrumbLink` | The link to a level above the current page. |
+| `BreadcrumbPage` | The current page, last in the trail. Text, not a link. |
+| `BreadcrumbSeparator` | The mark between two levels. A `li` of its own, between two items. |
+| `BreadcrumbEllipsis` | Three dots that stand for levels left out of a long trail. |
+
+## Try it
+
+<BreadcrumbPlayground />
+
+## Props
+
+### BreadcrumbLink
+
+<PropsTable component="breadcrumb" name="BreadcrumbLinkOwnProps" />
+
+It also takes what an `a` takes, `href` included.
+
+### BreadcrumbEllipsis
+
+<PropsTable component="breadcrumb" name="BreadcrumbEllipsisOwnProps" />
+
+### BreadcrumbSeparator
+
+<PropsTable
+  component="breadcrumb"
+  name="BreadcrumbSeparatorProps"
+  props={{
+    children:
+      "What to draw in place of the arrow: a slash, a dot, an icon of your own.",
+  }}
+/>
+
+`Breadcrumb`, `BreadcrumbList`, `BreadcrumbItem` and `BreadcrumbPage` take what their elements take, including `ref` and `className`.
+
+## Another separator
+
+Give `BreadcrumbSeparator` children and it draws them in place of the arrow.
+
+<Preview name="breadcrumb/separator" />
+
+## A long trail
+
+When there are more levels than there's room for, leave out the middle ones and put `BreadcrumbEllipsis` where they were. Keep the first level and the last two.
+
+The dots alone tell people something is missing and give them no way to get to it. Putting them in the trigger of a [dropdown menu](/docs/components/dropdown-menu) that lists the missing levels fixes that.
+
+<Preview name="breadcrumb/collapsed" />
+
+## With your router's link
+
+Pass `asChild` and put the router's link inside. It gets the look, and keeps its own way of changing page.
+
+<Preview name="breadcrumb/router" />
+
+## On small screens
+
+A trail that doesn't fit wraps onto a second line. A single long name breaks inside itself, so the page never scrolls sideways.
+
+Links are 44 pixels tall on a touch screen, which is taller than their text. The text stays on its line, and the extra height is above and below it.
+
+On a phone, a trail of five levels takes a lot of the screen. Showing only the level above, as a "back" link, is often the better use of the room.
+
+## Accessibility
+
+### Keyboard
+
+| Key | What it does |
+| --- | --- |
+| <kbd>Tab</kbd> | Moves through the links in order. The current page isn't a link, so it's skipped. |
+| <kbd>Enter</kbd> | Follows the focused link. |
+
+Safari only stops at links with <kbd>Tab</kbd> when "Press Tab to highlight each item on a webpage" is turned on in its settings. That applies to every link on every site, not to this component in particular.
+
+### What the component handles
+
+- The trail is a `nav` landmark named "Breadcrumb", around an ordered list.
+- The current page has `aria-current="page"`.
+- The separators are hidden from screen readers. The list already says where one level ends and the next begins.
+- `BreadcrumbEllipsis` has a name, "More".
+- The arrow points the other way in a right-to-left layout.
+- The current page is heavier as well as darker than the links, so it doesn't depend on telling two colors apart.
+- Links have a focus ring.
+
+### What you need to handle
+
+- Translate the landmark's name with `aria-label` on `Breadcrumb`, and the dots' name with `label` on `BreadcrumbEllipsis`.
+- End the trail with `BreadcrumbPage`, not with a link to the page people are already on.
+- When the dots are inside a button, give the button an `aria-label` that says what it opens. It replaces the dots' own name.
+- A page with two breadcrumbs needs a different `aria-label` on each.
+
+## CSS variables
+
+Set any of these on `Breadcrumb`, or on anything around it.
+
+```css
+.page-header {
+  --nuv-breadcrumb-gap: calc(var(--spacing) * 2);
+}
+```
+
+<CssVariables
+  component="breadcrumb"
+  descriptions={{
+    "--nuv-breadcrumb-gap": "Space between a level and the mark beside it.",
+    "--nuv-breadcrumb-fg": "Color of the links, the separators and the dots.",
+    "--nuv-breadcrumb-current-fg":
+      "Color of the current page, and of a link under the pointer.",
+  }}
+/>
+
+## Classes
+
+<BemClasses
+  component="breadcrumb"
+  descriptions={{
+    "nuv-breadcrumb__list": "BreadcrumbList.",
+    "nuv-breadcrumb__item": "BreadcrumbItem.",
+    "nuv-breadcrumb__link": "BreadcrumbLink.",
+    "nuv-breadcrumb__page": "BreadcrumbPage.",
+    "nuv-breadcrumb__separator": "BreadcrumbSeparator.",
+    "nuv-breadcrumb__chevron": "The arrow a separator draws when it has no children.",
+    "nuv-breadcrumb__ellipsis": "BreadcrumbEllipsis.",
+  }}
+/>
+
+`Breadcrumb` itself gets `nuv-breadcrumb`. No styles are attached to it.
+
+## Server components
+
+The breadcrumb parts have no `"use client"` directive and use no state, so they render in a server component as they are.
+
+## Do and don't
+
+**Do**
+
+- Start from the top level of the site and end on the current page.
+- Use the same names as the pages' own titles.
+- Put it above the page's heading, where people look for it.
+
+**Don't**
+
+- Don't use one on a site that's only one or two levels deep. There's nothing to show.
+- Don't use it for the steps of a process. Those aren't levels.
+- Don't make the current page a link.

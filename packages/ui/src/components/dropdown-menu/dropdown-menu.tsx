@@ -5,6 +5,7 @@ import {
   type ComponentPropsWithoutRef,
   type ComponentRef,
   forwardRef,
+  type HTMLAttributes,
 } from "react";
 import { cx } from "../../utils/cx";
 
@@ -185,6 +186,28 @@ export const DropdownMenuLabel = forwardRef<
     <MenuPrimitive.Label
       ref={ref}
       className={cx("nuv-dropdown-menu__label", className)}
+      {...props}
+    />
+  );
+});
+
+export type DropdownMenuShortcutProps = HTMLAttributes<HTMLSpanElement>;
+
+/**
+ * The keys that do the same thing as an item, shown at the end of its row.
+ * It only shows them: listening for the keys is up to you. It's hidden from
+ * screen readers, so that it doesn't run into the item's name. Put the same
+ * keys in `aria-keyshortcuts` on the item to have them announced.
+ */
+export const DropdownMenuShortcut = forwardRef<
+  HTMLSpanElement,
+  DropdownMenuShortcutProps
+>(function DropdownMenuShortcut({ className, ...props }, ref) {
+  return (
+    <span
+      ref={ref}
+      aria-hidden="true"
+      className={cx("nuv-dropdown-menu__shortcut", className)}
       {...props}
     />
   );

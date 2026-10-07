@@ -34,6 +34,16 @@ export const behindOpenList: RunOptions = {
   },
 };
 
+// For a navigation menu with its panel open. Radix puts an invisible element
+// after the open button that takes focus and is hidden from screen readers.
+// The moment Tab lands on it, it passes focus on into the panel, which is how
+// the panel comes next in the tab order without being next in the page. axe
+// sees something focusable inside aria-hidden and can't know it never keeps
+// the focus.
+export const withFocusProxy: RunOptions = {
+  rules: { "aria-hidden-focus": { enabled: false } },
+};
+
 function describeViolation(violation: Result): string {
   // What axe measured goes in too. For a contrast failure that's the two
   // colors and their ratio, which is most of what there is to know.

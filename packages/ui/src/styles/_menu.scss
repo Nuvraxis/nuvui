@@ -1,0 +1,140 @@
+@use "mixins";
+@use "floating";
+
+// Shared by everything that shows a Radix menu: dropdown menu, context menu
+// and menubar. It's internal, like the floating panel styles it builds on.
+
+// Each mixin is the inside of one rule. The component writes the selector,
+// so its class names are there in full for Stylelint to check.
+
+// $name becomes part of each variable's name, so one kind of menu can be
+// restyled on its own. $primitive is the name Radix uses in the variables it
+// sets, which isn't always the component's name here.
+
+// The menu's panel, and each submenu's.
+@mixin panel($name, $primitive: $name) {
+  // Radix measures the room left around the trigger. Staying inside it
+  // keeps the menu on the screen: a long one scrolls, and a submenu with
+  // little room beside its parent gets narrower. The minimum width has to
+  // give way too, because a min beats a max when the two disagree.
+  min-inline-size: min(
+    var(--nuv-#{$name}-width, 12rem),
+    var(--radix-#{$primitive}-content-available-width)
+  );
+  max-inline-size: var(--radix-#{$primitive}-content-available-width);
+  max-block-size: var(--radix-#{$primitive}-content-available-height);
+  padding: var(--spacing);
+  overflow-y: auto;
+
+  @include floating.panel($name);
+  @include floating.pop($name, $primitive);
+
+  // The panel holds focus while the pointer is between rows. It is a
+  // container, not a control, so it gets no ring.
+  &:focus {
+    outline: none;
+  }
+}
+
+// A row: an item of any kind, and a submenu's trigger.
+@mixin item($name) {
+  display: flex;
+  gap: calc(var(--spacing) * 2);
+  align-items: center;
+
+  // Rows are 44px on a touch screen and tighter with a mouse.
+  min-block-size: var(--nuv-#{$name}-item-height, var(--nuv-touch-size));
+  padding-block: var(--spacing);
+  padding-inline: calc(var(--spacing) * 3);
+  border-radius: var(--radius-sm);
+  cursor: default;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+
+  @include mixins.fine-pointer {
+    min-block-size: var(
+      --nuv-#{$name}-item-height,
+      var(--nuv-control-height-sm)
+    );
+  }
+
+  // A submenu's trigger while its submenu is open. Focus has moved on into
+  // the submenu, and this keeps the way back visible.
+  &[data-state="open"] {
+    background-color: var(--color-muted);
+  }
+
+  // Radix moves focus to the row under the pointer as well as the one the
+  // arrow keys are on, and marks it with data-highlighted. The browser
+  // can't tell those two apart, so a ring here would follow the mouse
+  // around. Filling the row works as the focus indicator for both.
+  &[data-highlighted] {
+    // Only seen where the browser forces its own colors and drops the
+    // fill, as Windows high contrast does.
+    outline: 2px solid transparent;
+    outline-offset: -2px;
+    background-color: var(--nuv-#{$name}-highlight-bg, var(--color-primary));
+    color: var(--nuv-#{$name}-highlight-fg, var(--color-primary-foreground));
+  }
+
+  &[data-disabled] {
+    opacity: var(--nuv-disabled-opacity);
+    pointer-events: none;
+  }
+}
+
+// A row for an action that destroys something.
+@mixin item-danger {
+  color: var(--color-danger);
+
+  &[data-highlighted] {
+    background-color: var(--color-danger);
+    color: var(--color-danger-foreground);
+  }
+}
+
+// The check and the submenu arrow both sit at the far end of the row, so
+// rows with and without one keep their labels lined up.
+@mixin indicator {
+  display: inline-flex;
+  flex: none;
+  margin-inline-start: auto;
+}
+
+@mixin chevron {
+  flex: none;
+  margin-inline-start: auto;
+  color: var(--color-muted-foreground);
+
+  &:dir(rtl) {
+    transform: scaleX(-1);
+  }
+}
+
+// The keys that do the same thing, at the far end of the row.
+@mixin shortcut {
+  flex: none;
+  margin-inline-start: auto;
+  padding-inline-start: calc(var(--spacing) * 4);
+  color: var(--color-muted-foreground);
+  font-size: var(--text-xs);
+  line-height: var(--text-xs--line-height);
+}
+
+@mixin label {
+  padding-block: calc(var(--spacing) * 1.5);
+  padding-inline: calc(var(--spacing) * 3);
+  color: var(--color-muted-foreground);
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--text-xs--line-height);
+}
+
+@mixin separator($name) {
+  block-size: var(--nuv-border-width);
+  margin-block: var(--spacing);
+
+  // Reaches the panel's edges, past its padding.
+  margin-inline: calc(var(--spacing) * -1);
+  background-color: var(--nuv-#{$name}-border, var(--color-border));
+}

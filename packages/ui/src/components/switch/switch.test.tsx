@@ -1,10 +1,14 @@
 import "../../styles/index.scss";
+import { emulateMedia } from "@nuvui/tooling/test/media";
+import {
+  expectNoViolations,
+  renderThemed,
+  themes,
+} from "@nuvui/tooling/test/themed";
 import { type ComponentProps, createRef } from "react";
 import { describe, expect, test, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
-import { emulateMedia } from "../../../test/media";
-import { expectNoViolations, renderThemed, themes } from "../../../test/themed";
 import { Switch } from "./switch";
 
 // ComponentProps and not SwitchProps, so the helper can take a ref too.

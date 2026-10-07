@@ -7,6 +7,7 @@
     "build": "vite build"
   },
   "dependencies": {
+    "@nuvui/date-picker": "file:../../packages/date-picker",
     "@nuvui/react": "file:../../packages/ui",
     "react": "^19.3.0",
     "react-dom": "^19.3.0"

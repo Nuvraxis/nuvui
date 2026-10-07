@@ -1,5 +1,6 @@
 import "@nuvui/react/styles.css";
 import "@nuvui/react/themes/ink.css";
+import "@nuvui/date-picker/styles.css";
 // A client component from an entry of its own, used from this server
 // component with nothing but plain props.
 import { DirectionProvider } from "@nuvui/react/direction";

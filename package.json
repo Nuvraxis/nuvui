@@ -19,7 +19,8 @@
     "playwright:install": "pnpm --filter @nuvui/react exec playwright install chromium firefox webkit",
     "changeset": "changeset",
     "version-packages": "changeset version",
-    "release": "turbo run build --filter=@nuvui/react && changeset publish"
+    "release": "turbo run build --filter=\"./packages/*\" && changeset publish",
+    "check:package": "pnpm --recursive --if-present run check:package"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.15",

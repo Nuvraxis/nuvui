@@ -1,4 +1,4 @@
-// Installs the packed library into the apps in fixtures/ and builds them.
+// Installs the packed packages into the apps in fixtures/ and builds them.
 // fixtures/README.md says what this is for.
 import { execFileSync } from "node:child_process";
 import {
@@ -41,6 +41,12 @@ function files(dir, ...extensions) {
 const read = (paths) =>
   paths.map((path) => readFileSync(path, "utf8")).join("\n");
 
+// Every package that gets published, by the folder it's in.
+const published = {
+  "@nuvui/react": "ui",
+  "@nuvui/date-picker": "date-picker",
+};
+
 function expect(app, what, passed) {
   if (!passed) throw new Error(`${app}: ${what}`);
   console.log(`test-consumers: ${app}: ${what}: yes`);
@@ -53,12 +59,34 @@ const fixtures = {
     expect("vite", "it has the component styles", css.includes(".nuv-button"));
     expect("vite", "it has the tokens", css.includes("--color-primary"));
     expect("vite", "it has the preset", css.includes("data-preset=ink"));
+    expect(
+      "vite",
+      "it has the date picker's styles",
+      css.includes(".nuv-calendar"),
+    );
 
     const script = read(files(join(dir, "dist"), ".js"));
     expect(
       "vite",
       "the script has the components",
       script.includes("nuv-dialog"),
+    );
+    expect(
+      "vite",
+      "the script has the calendar",
+      script.includes("nuv-calendar__day"),
+    );
+    // The app imports one locale, German. Hungarian for Sunday is in the
+    // script only if every other locale came along with it.
+    expect(
+      "vite",
+      "the script has the one locale that was imported",
+      script.includes("Sonntag"),
+    );
+    expect(
+      "vite",
+      "the script has none of the other locales",
+      !script.includes("vasárnap"),
     );
   },
 
@@ -75,19 +103,43 @@ const fixtures = {
       "the server rendered the client components",
       html.includes('role="switch"') && html.includes('aria-haspopup="dialog"'),
     );
+    expect(
+      "next",
+      "the server rendered the date field, with its date",
+      /<input\s(?=[^>]*name="due")(?=[^>]*value="2026-10-15")/.test(html) &&
+        html.includes('value="10/15/2026"'),
+    );
+    expect(
+      "next",
+      "the server rendered the calendar's month, and no day as today",
+      html.includes("October 2026") && !html.includes("Today,"),
+    );
 
     const css = read(files(join(dir, "out"), ".css"));
     expect("next", "it has the component styles", css.includes(".nuv-button"));
     expect("next", "it has the preset", css.includes("data-preset=ink"));
+    expect(
+      "next",
+      "it has the date picker's styles",
+      css.includes(".nuv-calendar"),
+    );
   },
 };
 
 let failed = false;
 try {
-  console.log("test-consumers: packing @nuvui/react");
-  pnpm(["--filter", "@nuvui/react", "pack", "--pack-destination", work], root);
-  const tarball = readdirSync(work).find((name) => name.endsWith(".tgz"));
-  if (!tarball) throw new Error("pnpm pack didn't write a tarball");
+  // Each package into a folder of its own, so there's no guessing which
+  // tarball is whose.
+  const tarballs = {};
+  for (const [name, folder] of Object.entries(published)) {
+    console.log(`test-consumers: packing ${name}`);
+    const to = join(work, "packed", folder);
+    pnpm(["--filter", name, "pack", "--pack-destination", to], root);
+    const tarball = readdirSync(to).find((file) => file.endsWith(".tgz"));
+    if (!tarball)
+      throw new Error(`pnpm pack didn't write a tarball of ${name}`);
+    tarballs[name] = pathToFileURL(join(to, tarball)).href;
+  }
 
   for (const [name, check] of Object.entries(fixtures)) {
     const dir = join(work, name);
@@ -95,7 +147,9 @@ try {
 
     const manifest = join(dir, "package.json");
     const pkg = JSON.parse(readFileSync(manifest, "utf8"));
-    pkg.dependencies["@nuvui/react"] = pathToFileURL(join(work, tarball)).href;
+    for (const [dependency, tarball] of Object.entries(tarballs)) {
+      pkg.dependencies[dependency] = tarball;
+    }
     writeFileSync(manifest, `${JSON.stringify(pkg, null, 2)}\n`);
 
     console.log(`test-consumers: ${name}: installing`);

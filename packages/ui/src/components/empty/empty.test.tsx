@@ -1,10 +1,14 @@
 import "../../styles/index.scss";
+import { setViewport } from "@nuvui/tooling/test/media";
+import {
+  expectNoViolations,
+  renderThemed,
+  themes,
+} from "@nuvui/tooling/test/themed";
 import { createRef } from "react";
 import { describe, expect, test } from "vitest";
 import { page } from "vitest/browser";
 import { render } from "vitest-browser-react";
-import { setViewport } from "../../../test/media";
-import { expectNoViolations, renderThemed, themes } from "../../../test/themed";
 import { Button } from "../button";
 import {
   Empty,

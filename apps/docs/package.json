@@ -11,6 +11,7 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@nuvui/date-picker": "workspace:*",
     "@nuvui/react": "workspace:*",
     "@nuvui/theme": "workspace:*",
     "fumadocs-core": "16.16.0",

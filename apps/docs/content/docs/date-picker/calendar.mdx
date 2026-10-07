@@ -1,0 +1,269 @@
+---
+title: Calendar
+description: A month of days to pick from. It holds one day, several days or a range, moves by keyboard, and takes a locale, a week start and a time zone.
+---
+
+Use a calendar where the days themselves are the interface: a booking page, a schedule, a filter that stays open beside a report. To put a date in a form, use a [date picker](/docs/date-picker/date-picker), which is a field with this calendar behind a button.
+
+<Preview name="calendar/basic" />
+
+## Install
+
+```sh
+pnpm add @nuvui/date-picker @nuvui/react
+```
+
+## Import
+
+```tsx
+import { Calendar } from "@nuvui/date-picker";
+```
+
+The styles come from `@nuvui/date-picker/styles.css`, which you load once for the whole app, after `@nuvui/react/styles.css`. [Dates](/docs/date-picker) covers that.
+
+## Try it
+
+<CalendarPlayground />
+
+## Props
+
+`Calendar` is [react-day-picker](https://daypicker.dev)'s `DayPicker` with this library's styles and markup. It takes what `DayPicker` takes, and these are the ones you're most likely to set:
+
+<PropsTable
+  package="date-picker"
+  component="calendar"
+  name="CalendarOptions"
+  props={{
+    mode: "What can be picked: `\"single\"` for one day, `\"multiple\"` for several, `\"range\"` for a first and a last day. Left out, the calendar only shows days.",
+    required:
+      "With `true`, there's always something picked: pressing the picked day doesn't clear it.",
+    disabled:
+      "Days that can't be picked. A date, a list of them, `{ before }`, `{ after }`, `{ from, to }`, `{ dayOfWeek: [0, 6] }`, or a function that's given a date.",
+    defaultMonth: "The month shown to begin with. Left out, it's this month.",
+    month: "The month shown, when you control it. Use it with `onMonthChange`.",
+    onMonthChange: "Called when the month shown changes.",
+    startMonth: "The earliest month that can be gone to.",
+    endMonth: "The latest month that can be gone to.",
+    numberOfMonths: "How many months are shown side by side. One by default.",
+    captionLayout:
+      "`\"dropdown\"` makes the month and the year lists to choose from. `\"dropdown-months\"` and `\"dropdown-years\"` do it for one of them.",
+    showOutsideDays:
+      "Fills the first and last week with days from the months either side.",
+    showWeekNumber: "Adds a column with the number of each week.",
+    fixedWeeks: "Always draws six weeks, so the calendar doesn't change height from month to month.",
+    weekStartsOn: "The day a week starts on, from 0 for Sunday. Left out, it's the locale's.",
+    locale: "The language. Take one from `@nuvui/date-picker/locale`.",
+    timeZone: "The time zone the days are in, as an IANA name such as `\"Asia/Tokyo\"`.",
+    today: "The day marked as today. Left out, it's today.",
+    labels: "Functions that give the accessible names of the buttons and the grid, to replace the locale's.",
+    footer: "Text under the days. It's a live region, so a screen reader says it when it changes.",
+    navLayout:
+      "Where the two month buttons go. `\"around\"`, either side of the month's name, is the default here.",
+  }}
+/>
+
+What's picked is in `selected`, and `onSelect` is called with the new value. Their types follow `mode`:
+
+| `mode` | `selected` | `onSelect` is called with |
+| --- | --- | --- |
+| `"single"` | `Date` | The day, or `undefined` when the picked day was pressed again. |
+| `"multiple"` | `Date[]` | The list of days. |
+| `"range"` | `{ from, to }` | The range. `to` is `undefined` until a second day is picked. |
+
+Pass both, or neither. With neither, the calendar keeps what's picked itself. With `onSelect` and no `selected`, nothing shows as picked.
+
+`animate` is the one `DayPicker` prop that's left out. Its slide between months is drawn by react-day-picker's own stylesheet, which this package doesn't use. The [react-day-picker reference](https://daypicker.dev/api/interfaces/PropsBase) lists every prop.
+
+## Several days
+
+With `mode="multiple"`, each press adds a day or takes it out. `max` is the most that can be picked, and `min` the fewest.
+
+<Preview name="calendar/multiple" />
+
+## A range
+
+With `mode="range"`, the first press sets the first day and the second sets the last. A press before the first day moves the start. `min` and `max` here are the fewest and the most days the range may span.
+
+<Preview name="calendar/range" />
+
+Two months side by side suit a range, which often runs over the end of a month. On a narrow screen the second month wraps under the first.
+
+## Days that can't be picked
+
+`disabled` takes one matcher or a list. `startMonth` and `endMonth` stop the month buttons, so that people can't page into months where nothing can be picked.
+
+<Preview name="calendar/disabled" />
+
+A disabled day is faded and struck through. Fading alone is hard to see for someone with low vision.
+
+## A date far from today
+
+Paging a month at a time to a date of birth takes hundreds of presses. With `captionLayout="dropdown"` the month and the year are lists. Give `startMonth` and `endMonth` to set which years are offered.
+
+<Preview name="calendar/dropdown" />
+
+The lists are the browser's own `select` elements, drawn to look like the month's name. On a phone they open the system's picker.
+
+## Languages
+
+A locale changes the month and day names, the day a week starts on, and what a screen reader hears. This one is French, with week numbers.
+
+<Preview name="calendar/locale" />
+
+The calendar sets `lang` on itself from the locale, so a screen reader reads the names in the right language. [Dates](/docs/date-picker#languages) lists where the strings come from.
+
+## Right to left
+
+Inside a [`DirectionProvider`](/docs/right-to-left) with `dir="rtl"`, the days run from right to left, the button for the month before is on the right, and the left arrow key moves to the next day. Without the provider, pass `dir="rtl"` to the calendar.
+
+## Server rendering
+
+A server can't know which day is today for the person looking at the page. It may have rendered the page an hour ago, or yesterday for a site that's built ahead of time, and its clock may be in another time zone. A calendar that marked the server's today would be wrong for some people, and React would report that the page it was sent doesn't match.
+
+So a calendar rendered on a server marks no day as today. The browser adds the mark once React has taken over the page.
+
+A calendar that has no `month` or `defaultMonth` has nothing but today to choose its month by. On a server it renders an empty month, hidden, that holds its place in the page, and the real one appears in the browser. To have the days in the HTML from the start, say which month to show:
+
+```tsx
+<Calendar mode="single" defaultMonth={new Date(2026, 9)} />
+```
+
+Passing `today` yourself turns all of this off, and the calendar renders the same on the server and in the browser. A calendar that's first rendered in the browser, as the one inside a date picker is, isn't affected.
+
+## On small screens
+
+A day is 44 pixels each way on a touch screen, and so are the two month buttons. With a mouse a day is 40 pixels, and [density](/docs/theming#density) moves it to 36 or 44. Seven days across is 308 pixels on a touch screen, which fits a 360 pixel phone with the usual margins.
+
+`--nuv-calendar-cell-size` sets the size of a day everywhere at once. Don't go under 44 pixels on a touch screen.
+
+## Accessibility
+
+### Keyboard
+
+<kbd>Tab</kbd> stops at the button for the month before, the button for the month after, and one day: the picked one, or today. From that day:
+
+| Key | What it does |
+| --- | --- |
+| <kbd>←</kbd> and <kbd>→</kbd> | Move to the day before or after. They swap in a right-to-left calendar. |
+| <kbd>↑</kbd> and <kbd>↓</kbd> | Move to the same day the week before or after. |
+| <kbd>Home</kbd> and <kbd>End</kbd> | Move to the first or last day of the week. |
+| <kbd>Page Up</kbd> and <kbd>Page Down</kbd> | Move to the same day the month before or after. |
+| <kbd>Shift</kbd> with <kbd>Page Up</kbd> or <kbd>Page Down</kbd> | Move a year. |
+| <kbd>Enter</kbd> or <kbd>Space</kbd> | Picks the day. |
+
+Moving past the end of the month shows the next one and keeps focus on the day.
+
+### What the component handles
+
+- Each month is a `table` with `role="grid"`, named for its month and year. With `mode="multiple"` or `"range"` it has `aria-multiselectable`.
+- Each day is a button named with its whole date, such as "Thursday, October 15th, 2026". Today's name starts with "Today", and a picked day's ends with "selected". The cell around a picked day has `aria-selected`.
+- The row of day names is hidden from screen readers, because every day already says which day of the week it is.
+- The month's name is a live region. When the month changes, a screen reader says the new one.
+- A picked day is filled with the primary color, which has at least 3:1 contrast with what's behind it, and the number on it keeps 4.5:1. Where the browser forces its own colors, as Windows high contrast does, the fill is the system's color for something selected.
+- Today has a ring around it. Color alone wouldn't tell it from the days next to it.
+- A disabled day is a disabled button, so it's skipped by a screen reader's list of buttons and can't be pressed.
+- A month button that can't go further stays in place with `aria-disabled`. Removing it would throw keyboard focus out of the calendar when the last month is reached.
+
+### What you need to handle
+
+- Say what the calendar is for. Put a heading or a label before it. The grid's own name is the month.
+- Don't rely on a disabled day to explain itself. If days are unavailable for a reason, say the reason in text near the calendar.
+- With `footer`, keep it to a short sentence. It's read out whenever it changes.
+
+### What hasn't been checked
+
+The tests check the roles, names and states that a browser passes on to a screen reader. What each screen reader then says in a grid of dates hasn't been checked by a person.
+
+## CSS variables
+
+```css
+.booking {
+  --nuv-calendar-cell-size: 3rem;
+  --nuv-calendar-radius: var(--radius-full);
+}
+```
+
+<CssVariables
+  package="date-picker"
+  component="calendar"
+  descriptions={{
+    "--nuv-calendar-cell-size":
+      "Width and height of a day, and of the month buttons. The default differs between touch screens and a mouse.",
+    "--nuv-calendar-fg": "Text color.",
+    "--nuv-calendar-font-size": "Size of the numbers and the month's name.",
+    "--nuv-calendar-months-gap": "Space between two months shown together.",
+    "--nuv-calendar-radius": "Corner radius of a day and of the month buttons.",
+    "--nuv-calendar-day-bg-hover":
+      "Background of a day or a month button under the pointer.",
+    "--nuv-calendar-weekday-fg": "Color of the day names and the week numbers.",
+    "--nuv-calendar-today-border":
+      "Color of the ring around today. Keep it at 3:1 against the background.",
+    "--nuv-calendar-outside-fg":
+      "Color of the days from the months either side, with showOutsideDays.",
+    "--nuv-calendar-range-bg": "Background that runs between the two ends of a range.",
+    "--nuv-calendar-selected-bg":
+      "Background of a picked day. Keep it at 3:1 against the background.",
+    "--nuv-calendar-selected-fg": "Color of the number on a picked day.",
+    "--nuv-calendar-footer-fg": "Color of the footer's text.",
+  }}
+/>
+
+## Classes
+
+Add a class of your own to any part with `classNames`, which takes react-day-picker's names for the parts: `classNames={{ weekday: "mine" }}`. It's added to the class below, not put in its place.
+
+<BemClasses
+  package="date-picker"
+  component="calendar"
+  descriptions={{
+    "nuv-calendar": "The root element.",
+    "nuv-calendar__months": "The element that holds the months.",
+    "nuv-calendar__month": "One month: its buttons, its name and its days.",
+    "nuv-calendar__caption": "The row with the month's name.",
+    "nuv-calendar__caption-label": "The month's name, or the text of a dropdown.",
+    "nuv-calendar__nav":
+      "The element around both month buttons. Only there when navLayout isn't \"around\".",
+    "nuv-calendar__nav-button": "A button that goes to another month.",
+    "nuv-calendar__nav-button--previous": "The one for the month before.",
+    "nuv-calendar__nav-button--next": "The one for the month after.",
+    "nuv-calendar__chevron": "The arrow in a month button or a dropdown.",
+    "nuv-calendar__dropdowns": "The element around the month and year dropdowns.",
+    "nuv-calendar__dropdown": "One dropdown: a select with its text drawn over it.",
+    "nuv-calendar__select": "The select element in a dropdown. It's see-through.",
+    "nuv-calendar__grid": "The table of days.",
+    "nuv-calendar__weekday": "The name of a day of the week.",
+    "nuv-calendar__week-number-header": "The cell over the week numbers.",
+    "nuv-calendar__week-number": "A week's number.",
+    "nuv-calendar__day": "The cell of a day.",
+    "nuv-calendar__day-button": "The button in that cell.",
+    "nuv-calendar__day--today": "Today's cell.",
+    "nuv-calendar__day--selected": "A picked day's cell.",
+    "nuv-calendar__day--range-start": "The cell of a range's first day.",
+    "nuv-calendar__day--range-middle": "A cell between the two ends of a range.",
+    "nuv-calendar__day--range-end": "The cell of a range's last day.",
+    "nuv-calendar__day--outside": "A cell for a day from the month before or after.",
+    "nuv-calendar__day--disabled": "The cell of a day that can't be picked.",
+    "nuv-calendar__day--hidden": "A cell with no day in it.",
+    "nuv-calendar__footer": "The footer.",
+  }}
+/>
+
+## What it's built on
+
+The calendar is [react-day-picker](https://daypicker.dev) 10, which does the date arithmetic with [date-fns](https://date-fns.org). Both are installed with the package.
+
+Three things are done differently from react-day-picker on its own. The styles are this library's, read from its tokens, and react-day-picker's stylesheet isn't used. The month buttons sit either side of the month's name, so that the order <kbd>Tab</kbd> goes through them is the order they're drawn in. And the calendar can be rendered on a server without marking the wrong day as today.
+
+## Do and don't
+
+**Do**
+
+- Open on the month people are most likely to want. For a booking that's this month. For a date of birth it isn't.
+- Limit the months with `startMonth` and `endMonth` when only some dates make sense.
+- Show two months for a range.
+
+**Don't**
+
+- Don't use an inline calendar for a date in a long form. A [date picker](/docs/date-picker/date-picker) takes one line.
+- Don't make people page month by month to a year far away. Use `captionLayout="dropdown"`.
+- Don't mark days with color alone. Say what a marked day means in text.

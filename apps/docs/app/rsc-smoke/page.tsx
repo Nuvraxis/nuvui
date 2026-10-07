@@ -2,6 +2,9 @@
 // If the package lost a directive, or a component stopped being safe to
 // render on the server, this page fails to build. It isn't linked from
 // anywhere, and the e2e tests open it directly.
+import { Calendar, DatePicker } from "@nuvui/date-picker";
+// One import from an entry of the add-on's own, to check those resolve too.
+import { DateRangePicker } from "@nuvui/date-picker/date-picker";
 import {
   Alert,
   AlertDescription,
@@ -218,6 +221,21 @@ export default function RscSmokePage() {
           <ComboboxItem value="Server pear">Server pear</ComboboxItem>
         </ComboboxContent>
       </Combobox>
+      {/* The date components come from a package of their own. A date
+          made here is sent to the browser as a moment in time, so both
+          sides are told to read it in the same time zone. */}
+      <DatePicker
+        aria-label="Server date"
+        name="server-date"
+        timeZone="UTC"
+        defaultValue={new Date(Date.UTC(2026, 9, 15))}
+      />
+      <DateRangePicker aria-label="Server range" startName="server-from" />
+      <Calendar
+        mode="single"
+        timeZone="UTC"
+        defaultMonth={new Date(Date.UTC(2026, 9, 15))}
+      />
       <Command label="Server commands">
         <CommandInput />
         <CommandList>

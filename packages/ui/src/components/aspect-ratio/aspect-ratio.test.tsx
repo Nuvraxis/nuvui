@@ -1,9 +1,13 @@
 import "../../styles/index.scss";
+import {
+  expectNoViolations,
+  renderThemed,
+  themes,
+} from "@nuvui/tooling/test/themed";
 import { createRef } from "react";
 import { describe, expect, test } from "vitest";
 import { page } from "vitest/browser";
 import { render } from "vitest-browser-react";
-import { expectNoViolations, renderThemed, themes } from "../../../test/themed";
 import { AspectRatio } from "./aspect-ratio";
 
 // A picture four times as wide as it is tall.

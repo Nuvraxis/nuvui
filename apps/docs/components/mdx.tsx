@@ -16,6 +16,11 @@ import { CollapsiblePlayground } from "@/components/playground/collapsible";
 import { ComboboxPlayground } from "@/components/playground/combobox";
 import { CommandPlayground } from "@/components/playground/command";
 import { ContextMenuPlayground } from "@/components/playground/context-menu";
+import {
+  CalendarPlayground,
+  DatePickerPlayground,
+  DateRangePickerPlayground,
+} from "@/components/playground/date-picker";
 import { DialogPlayground } from "@/components/playground/dialog";
 import { DropdownMenuPlayground } from "@/components/playground/dropdown-menu";
 import { EmptyPlayground } from "@/components/playground/empty";
@@ -93,12 +98,15 @@ export function getMDXComponents(components?: MDXComponents) {
     BreadcrumbPlayground,
     ButtonPlayground,
     ButtonGroupPlayground,
+    CalendarPlayground,
     CardPlayground,
     CheckboxPlayground,
     CollapsiblePlayground,
     ComboboxPlayground,
     CommandPlayground,
     ContextMenuPlayground,
+    DatePickerPlayground,
+    DateRangePickerPlayground,
     DialogPlayground,
     DropdownMenuPlayground,
     EmptyPlayground,

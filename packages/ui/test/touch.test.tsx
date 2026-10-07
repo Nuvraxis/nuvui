@@ -1,4 +1,6 @@
 import "../src/styles/index.scss";
+import { emulateMedia, setViewport } from "@nuvui/tooling/test/media";
+import { hitAt } from "@nuvui/tooling/test/themed";
 import { afterEach, describe, expect, test } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { cleanup, render } from "vitest-browser-react";
@@ -102,8 +104,6 @@ import {
   ToolbarToggleItem,
   toast,
 } from "../src";
-import { emulateMedia, setViewport } from "./media";
-import { hitAt } from "./themed";
 
 // This file runs in a browser context of its own, one that reports a touch
 // screen. vitest.config.ts sets that up and says why. What a control measures

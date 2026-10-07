@@ -1,0 +1,29 @@
+[
+  {
+    "name": "@nuvui/date-picker",
+    "path": "dist/index.js",
+    "limit": "26.5 kB"
+  },
+  {
+    "name": "@nuvui/date-picker/calendar",
+    "path": "dist/components/calendar/index.js",
+    "limit": "20.5 kB"
+  },
+  {
+    "name": "@nuvui/date-picker/date-picker",
+    "path": "dist/components/date-picker/index.js",
+    "limit": "26.5 kB"
+  },
+  {
+    "name": "one locale from @nuvui/date-picker/locale",
+    "path": "dist/locale.js",
+    "import": "{ de }",
+    "limit": "10.5 kB"
+  },
+  {
+    "name": "styles.css",
+    "path": "dist/styles.css",
+    "rolldown": false,
+    "limit": "1.5 kB"
+  }
+]

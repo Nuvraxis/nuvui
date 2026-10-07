@@ -1,9 +1,9 @@
 import "../src/styles/index.scss";
 import { createTheme, type PresetName, presets } from "@nuvui/theme";
+import { emulateMedia } from "@nuvui/tooling/test/media";
 import { describe, expect, test } from "vitest";
 import { render } from "vitest-browser-react";
 import { Button } from "../src";
-import { emulateMedia } from "./media";
 
 // How a preset, data-theme and data-density combine. There's one test for
 // each way they can sit on the same element or on different ones.

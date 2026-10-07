@@ -1,15 +1,15 @@
 import "../../styles/index.scss";
-import { type ComponentProps, createRef } from "react";
-import { describe, expect, test, vi } from "vitest";
-import { page, userEvent } from "vitest/browser";
-import { render } from "vitest-browser-react";
-import { contrast } from "../../../test/contrast";
+import { contrast } from "@nuvui/tooling/test/contrast";
 import {
   expectNoViolations,
   hitAt,
   renderThemed,
   themes,
-} from "../../../test/themed";
+} from "@nuvui/tooling/test/themed";
+import { type ComponentProps, createRef } from "react";
+import { describe, expect, test, vi } from "vitest";
+import { page, userEvent } from "vitest/browser";
+import { render } from "vitest-browser-react";
 import { FileUpload } from "./file-upload";
 
 function Labelled(props: ComponentProps<typeof FileUpload>) {

@@ -40,11 +40,11 @@ jobs:
       - run: pnpm build
       - run: pnpm test
 
-      - name: Check the package that would be published
-        run: pnpm --filter @nuvui/react check:package
+      - name: Check the packages that would be published
+        run: pnpm check:package
 
-      # Fails when an entry point grows past its budget in
-      # packages/ui/.size-limit.json.
+      # Fails when an entry point grows past its budget in its package's
+      # .size-limit.json.
       - run: pnpm size
 
       - name: Upload the component tests' output
@@ -52,6 +52,6 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: vitest-output
-          path: packages/ui/.vitest
+          path: packages/*/.vitest
           if-no-files-found: ignore
           retention-days: 7

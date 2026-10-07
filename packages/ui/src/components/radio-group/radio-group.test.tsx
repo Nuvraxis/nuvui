@@ -1,16 +1,16 @@
 import "../../styles/index.scss";
-import { type ComponentProps, createRef } from "react";
-import { describe, expect, test, vi } from "vitest";
-import { page, userEvent } from "vitest/browser";
-import { render } from "vitest-browser-react";
-import { contrast } from "../../../test/contrast";
-import { emulateMedia } from "../../../test/media";
+import { contrast } from "@nuvui/tooling/test/contrast";
+import { emulateMedia } from "@nuvui/tooling/test/media";
 import {
   expectNoViolations,
   hitAt,
   renderThemed,
   themes,
-} from "../../../test/themed";
+} from "@nuvui/tooling/test/themed";
+import { type ComponentProps, createRef } from "react";
+import { describe, expect, test, vi } from "vitest";
+import { page, userEvent } from "vitest/browser";
+import { render } from "vitest-browser-react";
 import { RadioGroup, RadioGroupItem } from "./radio-group";
 
 const row = { display: "flex", gap: 8, alignItems: "center" };

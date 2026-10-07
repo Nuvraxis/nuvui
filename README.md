@@ -1,6 +1,6 @@
 # nuvui
 
-React components built on [Radix UI](https://www.radix-ui.com/primitives) primitives and styled with plain SCSS. Class names follow BEM, and the look is controlled through CSS custom properties named after Tailwind v4's theme variables. It will be published as `@nuvui/react`.
+React components built on [Radix UI](https://www.radix-ui.com/primitives) primitives and styled with plain SCSS. Class names follow BEM, and the look is controlled through CSS custom properties named after Tailwind v4's theme variables. It will be published as `@nuvui/react`, with add-on packages next to it for the parts that need a library of their own. The first is `@nuvui/date-picker`.
 
 ## Status
 
@@ -9,6 +9,7 @@ Early, and not published. You can't install it from the registry yet.
 What exists today:
 
 - Fifty-two components. Twenty-one for actions, overlays and navigation: Accordion, AlertDialog, Breadcrumb, Button, Checkbox, Command, ContextMenu, Dialog, DropdownMenu, HoverCard, Menubar, NavigationMenu, Pagination, Popover, Select, Sheet, Sidebar, Switch, Tabs, Toast and Tooltip. Sixteen for forms: ButtonGroup, Combobox, Field, Fieldset, FileUpload, Input, InputGroup, Label, NativeSelect, OtpField, PasswordInput, RadioGroup, Slider, Textarea, Toggle and ToggleGroup. Fifteen for display and layout: Alert, AspectRatio, Avatar, Badge, Card, Collapsible, Empty, Kbd, Progress, ScrollArea, Separator, Skeleton, Spinner, Toolbar and VisuallyHidden. Each has tests for rendering, keyboard behavior, touch sizing, and accessibility in light, dark and forced colors. The tests run in Chromium, Firefox and WebKit.
+- `@nuvui/date-picker`, a package of its own with three more: Calendar, DatePicker and DateRangePicker. It's built on react-day-picker and date-fns, which is why it isn't part of the core. It has locales, time zones, and dates that can be typed as well as picked.
 - A `toast()` function for showing toasts from anywhere, with a `Toaster` to render them.
 - `DirectionProvider`, for apps in languages that read from the right.
 - The design tokens: color scales, semantic colors for both themes, chart colors, type, spacing, radius, shadow, motion and control sizes. They build to CSS custom properties, and the SCSS source ships alongside.

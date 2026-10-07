@@ -25,11 +25,12 @@ Run these from the repository root.
 | `pnpm lint` | Biome for TypeScript and JSON, Stylelint for SCSS. |
 | `pnpm lint:fix` | Lets Biome fix what it can, formatting included. |
 | `pnpm typecheck` | TypeScript, in every workspace. |
-| `pnpm test` | The component tests in Chromium, Firefox and WebKit, and the theme generator's tests. About twelve minutes. |
-| `pnpm build` | Builds the theme generator and the library, checks the result, then builds the docs site. |
+| `pnpm test` | The component tests of every package in Chromium, Firefox and WebKit, and the theme generator's tests. About fourteen minutes. |
+| `pnpm build` | Builds the theme generator and the packages, checks the result, then builds the docs site. |
 | `pnpm test:e2e` | Builds first, then runs Playwright against the exported docs site, in five browser setups. |
 | `pnpm size` | Builds first, then checks each entry point against its size budget. |
-| `pnpm test:consumers` | Packs the library and installs it into a Vite app and a Next.js app. Run `pnpm build` first. |
+| `pnpm check:package` | Checks what each package would publish: its `exports` map and its types. Run `pnpm build` first. |
+| `pnpm test:consumers` | Packs the packages and installs them into a Vite app and a Next.js app. Run `pnpm build` first. |
 
 To run part of a suite:
 
@@ -41,6 +42,9 @@ pnpm --filter @nuvui/react test:watch
 # One browser, which is much quicker while you're working on something.
 # Set the variable the way your shell does it. This is a POSIX shell.
 NUVUI_BROWSERS=chromium pnpm --filter @nuvui/react exec vitest run
+
+# The same for an add-on package
+NUVUI_BROWSERS=chromium pnpm --filter @nuvui/date-picker exec vitest run
 
 # One end-to-end file. It tests the files in apps/docs/out, so build first.
 pnpm build
@@ -59,10 +63,21 @@ packages/ui                   the library, published as @nuvui/react
   src/styles/                 tokens, mixins, the layer order, base styles,
                               and the styles that fields and floating panels share
   src/utils/                  small helpers shared by components
-  scripts/build-css.mjs       compiles the SCSS and copies the source into dist
-  scripts/check-dist.mjs      fails the build if the package is put together wrong
-  test/                       test helpers, and the tests that cut across components
+  scripts/build-css.mjs       says which stylesheets this package builds
+  scripts/check-dist.mjs      says what to check in what was built
+  test/                       the tests that cut across components
   .size-limit.json            the size budget of each entry point
+packages/date-picker          an add-on, published as @nuvui/date-picker
+  src/components/<name>/      the same four files as in the library
+  src/locale.ts               the locales, passed on from react-day-picker
+  src/utils/                  reading and writing dates, and the typed text
+packages/tooling              what every published package is built with, private
+  tsdown.mjs                  the build
+  build-css.mjs               compiles the SCSS, and copies the source into dist
+  check-dist.mjs              fails the build if a package is put together wrong
+  stylelint.mjs               the SCSS rules
+  vitest.mjs                  the browser tests' setup
+  test/                       test helpers: axe, contrast, themes, the viewport
 packages/theme                the theme generator, private for now
   src/theme.ts                picks every color of a theme by measuring contrast
   src/css.ts                  writes a theme as CSS, SCSS or for Tailwind
@@ -75,7 +90,7 @@ apps/docs                     the documentation site (Next.js and Fumadocs)
   e2e/                        Playwright tests
   scripts/serve-out.mjs       serves the built site, for those tests and for pnpm start
 packages/typescript-config    shared tsconfig presets
-fixtures                      two apps that install the packed library
+fixtures                      two apps that install the packed packages
 scripts/test-consumers.mjs    builds those two apps
 .changeset                    release notes waiting for the next version
 ```
@@ -155,6 +170,21 @@ Button is the smallest example to copy from, and Dialog the fullest.
 6. **Add end-to-end tests** in `apps/docs/e2e/` for what the page's examples do. Every page is also checked for one h1, a unique title and description, an Open Graph image and no axe violations, without you listing it anywhere.
 
 7. **Add a changeset.** See below.
+
+## Add-on packages
+
+A component goes in a package of its own when it needs a library the core doesn't have. `@nuvui/date-picker` is the first, for react-day-picker and date-fns. An app that doesn't use the component then never installs that library.
+
+An add-on is laid out like the core and built with the same tooling, from `packages/tooling`. Its own config files only say what's particular to it. What differs from the core:
+
+- **`@nuvui/react` is a peer dependency,** written `workspace:^0.0.0`, and a dev dependency so the workspace has it. Changesets rewrites the range when the core's version moves. The add-on imports core components from their own entries, `@nuvui/react/popover` and not `@nuvui/react`.
+- **Its SCSS loads the core's mixins by package name:** `@use "@nuvui/react/scss/mixins"`. The core's other partials, such as `_control.scss`, aren't exported. Build from the core's components instead of from its partials.
+- **It ships compiled CSS only:** `styles.css` and one file per component in `css/`. It has no tokens, no presets and no SCSS source of its own.
+- **A rule can't count on being loaded after the core's stylesheet.** Both are in the `components` layer, and the app decides the order. To change how a core component looks inside an add-on, set that component's CSS variables on the element. That's the one place where a `--nuv-*` variable is declared.
+- **Its tests import the core's built stylesheet,** `@nuvui/react/styles.css`, and then its own SCSS. So the core has to be built first, which `pnpm test` sees to.
+- **Its docs pages are in a folder of their own** under `apps/docs/content/docs/`. `PropsTable`, `CssVariables` and `BemClasses` take a `package` prop that says which package to read.
+
+A new add-on also has to be added in three places: `addons` in `apps/docs/lib/library.ts`, `published` in `scripts/test-consumers.mjs`, and the dependencies of `apps/docs` and of the two apps in `fixtures`.
 
 ## Changing a component
 

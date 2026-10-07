@@ -1,0 +1,62 @@
+name: E2E
+
+# The slow checks: Playwright against the built docs site, and the packed
+# library installed into a Vite and a Next.js app. They run for a pull request
+# that has the invoke-e2e label, and not otherwise.
+#
+# Adding the label starts a run. While the label stays on, so does every push
+# to the pull request. Take the label off to stop that.
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, labeled]
+
+# A label other than invoke-e2e also starts this workflow, with its one job
+# skipped. Such a run gets a group of its own, so it can't cancel a run that
+# is doing the work.
+concurrency:
+  group: e2e-${{ github.ref }}-${{ github.event.action != 'labeled' || github.event.label.name == 'invoke-e2e' }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  e2e:
+    if: >-
+      contains(github.event.pull_request.labels.*.name, 'invoke-e2e') &&
+      (github.event.action != 'labeled' || github.event.label.name == 'invoke-e2e')
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright's browsers
+        run: pnpm --filter @nuvui/react exec playwright install --with-deps chromium firefox webkit
+
+      # Both steps below need the built packages. test:e2e would build by
+      # itself, test:consumers wouldn't.
+      - run: pnpm build
+      - run: pnpm test:e2e
+
+      - name: Install the packed library into a Vite and a Next.js app
+        run: pnpm test:consumers
+
+      - name: Upload Playwright output
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-output
+          path: |
+            apps/docs/playwright-report
+            apps/docs/test-results
+          if-no-files-found: ignore
+          retention-days: 7

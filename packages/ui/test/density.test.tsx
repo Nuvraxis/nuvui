@@ -52,6 +52,11 @@ import {
   TabsTrigger,
   Toaster,
   Toggle,
+  Toolbar,
+  ToolbarButton,
+  ToolbarLink,
+  ToolbarToggleGroup,
+  ToolbarToggleItem,
   toast,
 } from "../src";
 import { emulateMedia, setViewport } from "./media";
@@ -196,6 +201,27 @@ describe.each(densities)("density %s", (density, small, medium, large) => {
     expect(part("navigation-menu__trigger")).toBe(medium);
     expect(part("navigation-menu__link")).toBe(medium);
     expect(part("pagination__link")).toBe(medium);
+  });
+
+  test("sets the height of what's in a toolbar", async () => {
+    await render(
+      <div data-density={density}>
+        <Toolbar aria-label="Formatting">
+          <ToolbarToggleGroup type="multiple" aria-label="Text style">
+            <ToolbarToggleItem value="bold">Bold</ToolbarToggleItem>
+          </ToolbarToggleGroup>
+          <ToolbarLink href="#help">Help</ToolbarLink>
+          <ToolbarButton>Share</ToolbarButton>
+        </Toolbar>
+      </div>,
+    );
+    const part = (name: string) =>
+      height(document.querySelector(`.nuv-toolbar__${name}`));
+
+    // A toolbar is a dense row, so its controls take the small height.
+    expect(part("toggle-item")).toBe(small);
+    expect(part("link")).toBe(small);
+    expect(part("button")).toBe(small);
   });
 
   // These render at the end of <body>, so the density has to be on the page.

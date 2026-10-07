@@ -1,0 +1,37 @@
+@use "../../styles/layers";
+
+// One pixel, clipped away, and out of the layout so it takes no room. Not
+// display: none or visibility: hidden, which hide from screen readers too.
+// The white-space rule keeps a screen reader from running the words together
+// when the box is too narrow to hold a space.
+@mixin hidden {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@layer components {
+  .nuv-visually-hidden {
+    @include hidden;
+  }
+
+  // Hidden only while focus is elsewhere. With focus on it or inside it,
+  // everything above is put back to what an element has by default.
+  .nuv-visually-hidden--focusable {
+    &:focus-within {
+      position: static;
+      inline-size: auto;
+      block-size: auto;
+      margin: 0;
+      overflow: visible;
+      clip-path: none;
+      white-space: normal;
+    }
+  }
+}

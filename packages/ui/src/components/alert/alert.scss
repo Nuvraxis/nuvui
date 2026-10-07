@@ -1,0 +1,84 @@
+@use "../../styles/layers";
+
+@layer components {
+  .nuv-alert {
+    display: flex;
+    gap: var(--nuv-alert-gap, calc(var(--spacing) * 3));
+    align-items: flex-start;
+    padding: var(--nuv-alert-padding, calc(var(--spacing) * 4));
+    border: var(--nuv-border-width) solid
+      var(--nuv-alert-border, var(--color-border));
+    border-radius: var(--nuv-alert-radius, var(--radius-lg));
+    background-color: var(--nuv-alert-bg, var(--color-surface));
+    color: var(--nuv-alert-fg, var(--color-surface-foreground));
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+  }
+
+  // Each intent has one color, for the edge and the icon. The text stays the
+  // surface's own.
+
+  .nuv-alert--info {
+    border-color: var(--nuv-alert-border, var(--color-primary));
+  }
+
+  .nuv-alert--info > .nuv-alert__icon {
+    color: var(--nuv-alert-icon, var(--color-primary));
+  }
+
+  .nuv-alert--success {
+    border-color: var(--nuv-alert-border, var(--color-success));
+  }
+
+  .nuv-alert--success > .nuv-alert__icon {
+    color: var(--nuv-alert-icon, var(--color-success));
+  }
+
+  .nuv-alert--warning {
+    border-color: var(--nuv-alert-border, var(--color-warning));
+  }
+
+  .nuv-alert--warning > .nuv-alert__icon {
+    color: var(--nuv-alert-icon, var(--color-warning));
+  }
+
+  .nuv-alert--danger {
+    border-color: var(--nuv-alert-border, var(--color-danger));
+  }
+
+  .nuv-alert--danger > .nuv-alert__icon {
+    color: var(--nuv-alert-icon, var(--color-danger));
+  }
+
+  .nuv-alert__icon {
+    display: inline-flex;
+    flex: none;
+  }
+
+  .nuv-alert__body {
+    display: grid;
+    flex: 1;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--spacing);
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .nuv-alert__title {
+    margin: 0;
+    font-size: inherit;
+    font-weight: var(--font-weight-semibold);
+    line-height: inherit;
+  }
+
+  .nuv-alert__description {
+    color: var(--nuv-alert-muted-fg, var(--color-muted-foreground));
+  }
+
+  .nuv-alert__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(var(--spacing) * 2);
+    margin-block-start: calc(var(--spacing) * 2);
+  }
+}

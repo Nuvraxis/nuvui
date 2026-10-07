@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build && node scripts/fix-export.mjs",
-    "start": "serve out",
+    "start": "node scripts/serve-out.mjs",
     "typecheck": "next typegen && tsc --noEmit",
     "test:e2e": "playwright test"
   },
@@ -33,7 +33,6 @@
     "@types/react-dom": "catalog:",
     "postcss": "^8.5.28",
     "sass-embedded": "^1.105.1",
-    "serve": "^14.2.6",
     "tailwindcss": "^4.3.3",
     "typescript": "catalog:"
   }

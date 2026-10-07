@@ -7,6 +7,8 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
+  Alert,
+  AlertDescription,
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -14,6 +16,10 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogTitle,
+  AlertTitle,
+  Avatar,
+  AvatarFallback,
+  Badge,
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
@@ -21,6 +27,8 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
   Button,
+  Card,
+  CardContent,
   Checkbox,
   ContextMenu,
   ContextMenuContent,
@@ -36,6 +44,9 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  Empty,
+  EmptyMedia,
+  EmptyTitle,
   Field,
   FieldControl,
   FieldError,
@@ -46,6 +57,7 @@ import {
   HoverCardTrigger,
   Input,
   InputGroup,
+  Kbd,
   Menubar,
   MenubarContent,
   MenubarItem,
@@ -68,18 +80,23 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
+  Progress,
   RadioGroup,
   RadioGroupItem,
+  ScrollArea,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
+  Separator,
   Sheet,
   SheetContent,
   SheetDescription,
   SheetTitle,
+  Skeleton,
   Slider,
+  Spinner,
   Switch,
   Tabs,
   TabsContent,
@@ -88,6 +105,11 @@ import {
   Textarea,
   Toaster,
   Toggle,
+  Toolbar,
+  ToolbarButton,
+  ToolbarSeparator,
+  ToolbarToggleGroup,
+  ToolbarToggleItem,
   Tooltip,
   TooltipContent,
   TooltipTrigger,
@@ -957,6 +979,209 @@ describe("breadcrumb and pagination", () => {
     expect(contrast(look("1").color, canvas())).toBeGreaterThan(4.5);
     // The arrow is drawn in the link's text color.
     expect(contrast(look("Next").color, canvas())).toBeGreaterThan(3);
+  });
+});
+
+describe("badge, alert and card", () => {
+  test("a filled badge has an edge in place of its fill, whatever the intent", async () => {
+    await render(
+      <>
+        {(["neutral", "primary", "success", "warning", "danger"] as const).map(
+          (intent) => (
+            <Badge key={intent} intent={intent}>
+              {intent}
+            </Badge>
+          ),
+        )}
+        <Badge variant="outline">outline</Badge>
+      </>,
+    );
+
+    for (const name of [
+      "neutral",
+      "primary",
+      "success",
+      "warning",
+      "danger",
+      "outline",
+    ]) {
+      const badge = style(page.getByText(name, { exact: true }).element());
+      expect(contrast(badge.borderTopColor, canvas()), name).toBeGreaterThan(3);
+      expect(contrast(badge.color, canvas()), name).toBeGreaterThan(4.5);
+    }
+  });
+
+  test("an alert keeps its edge and its icon", async () => {
+    await render(
+      <Alert intent="danger" data-testid="alert">
+        <AlertTitle>Payment failed</AlertTitle>
+        <AlertDescription>The card was declined.</AlertDescription>
+      </Alert>,
+    );
+    const alert = page.getByTestId("alert").element();
+    const icon = alert.querySelector(".nuv-alert__icon") as Element;
+
+    expect(contrast(style(alert).borderTopColor, canvas())).toBeGreaterThan(3);
+    // The icon is drawn in the current text color.
+    expect(contrast(style(icon).color, canvas())).toBeGreaterThan(3);
+    expect(
+      contrast(
+        style(page.getByText("The card was declined.").element()).color,
+        canvas(),
+      ),
+    ).toBeGreaterThan(4.5);
+  });
+
+  test("a card and an empty state keep their edges", async () => {
+    await render(
+      <>
+        <Card data-testid="card">
+          <CardContent>Text</CardContent>
+        </Card>
+        <Empty data-testid="empty">
+          <EmptyMedia data-testid="media" />
+          <EmptyTitle>Nothing here</EmptyTitle>
+        </Empty>
+      </>,
+    );
+    const edge = (id: string) =>
+      style(page.getByTestId(id).element()).borderTopColor;
+
+    expect(contrast(edge("card"), canvas())).toBeGreaterThan(3);
+    expect(contrast(edge("empty"), canvas())).toBeGreaterThan(3);
+    // The box behind the picture is a fill, so it gets an edge here.
+    expect(contrast(edge("media"), canvas())).toBeGreaterThan(3);
+  });
+});
+
+describe("avatar, skeleton and key", () => {
+  test("an avatar's initials have an edge around them", async () => {
+    await render(
+      <Avatar>
+        <AvatarFallback>AL</AvatarFallback>
+      </Avatar>,
+    );
+    const fallback = style(page.getByText("AL").element());
+
+    expect(contrast(fallback.borderTopColor, canvas())).toBeGreaterThan(3);
+    expect(contrast(fallback.color, canvas())).toBeGreaterThan(4.5);
+  });
+
+  test("a skeleton is an outline, in each shape", async () => {
+    await render(
+      <>
+        <Skeleton data-testid="block" />
+        <Skeleton shape="circle" data-testid="circle" />
+        <Skeleton shape="text" data-testid="text" />
+      </>,
+    );
+    const edge = (id: string, pseudo?: string) =>
+      getComputedStyle(page.getByTestId(id).element(), pseudo).borderTopColor;
+
+    expect(contrast(edge("block"), canvas())).toBeGreaterThan(3);
+    expect(contrast(edge("circle"), canvas())).toBeGreaterThan(3);
+    expect(contrast(edge("text", "::before"), canvas())).toBeGreaterThan(3);
+  });
+
+  test("a key keeps its edge", async () => {
+    await render(<Kbd>Esc</Kbd>);
+    const key = style(page.getByText("Esc").element());
+
+    expect(contrast(key.borderTopColor, canvas())).toBeGreaterThan(3);
+    expect(contrast(key.color, canvas())).toBeGreaterThan(4.5);
+  });
+
+  test("a spinner is drawn in the text color", async () => {
+    await render(<Spinner />);
+    const ring = document.querySelector(".nuv-spinner__ring") as Element;
+
+    expect(contrast(style(ring).stroke, canvas())).toBeGreaterThan(3);
+  });
+});
+
+describe("progress, separator and scroll area", () => {
+  test("a progress bar has an edge, and its filled part is the system's color for something selected", async () => {
+    await render(<Progress aria-label="Upload" value={40} />);
+    const bar = page.getByRole("progressbar").element();
+    const indicator = bar.querySelector(".nuv-progress__indicator") as Element;
+
+    expect(contrast(style(bar).borderTopColor, canvas())).toBeGreaterThan(3);
+    expect(style(indicator).backgroundColor).toBe(system("highlight"));
+  });
+
+  test("a separator is still a line, both ways", async () => {
+    await render(
+      <div style={{ display: "flex", height: 40 }}>
+        <Separator data-testid="flat" />
+        <Separator orientation="vertical" data-testid="upright" />
+      </div>,
+    );
+    const flat = style(page.getByTestId("flat").element());
+    const upright = style(page.getByTestId("upright").element());
+
+    expect(flat.borderTopWidth).toBe("1px");
+    expect(contrast(flat.borderTopColor, canvas())).toBeGreaterThan(3);
+    expect(upright.borderInlineStartWidth).toBe("1px");
+    expect(contrast(upright.borderInlineStartColor, canvas())).toBeGreaterThan(
+      3,
+    );
+  });
+
+  test("a scroll area's thumb is drawn", async () => {
+    await render(
+      <ScrollArea aria-label="Releases" style={{ height: 100 }}>
+        <div style={{ height: 500 }}>Tall content</div>
+      </ScrollArea>,
+    );
+    await expect
+      .poll(() => document.querySelector(".nuv-scroll-area__thumb"))
+      .not.toBeNull();
+    const thumb = style(
+      document.querySelector(".nuv-scroll-area__thumb") as Element,
+    );
+
+    expect(contrast(thumb.backgroundColor, canvas())).toBeGreaterThan(3);
+  });
+});
+
+describe("toolbar", () => {
+  test("has an edge, and a pressed toggle is the system's color for something selected", async () => {
+    await render(
+      <Toolbar aria-label="Formatting">
+        <ToolbarToggleGroup
+          type="multiple"
+          aria-label="Text style"
+          defaultValue={["bold"]}
+        >
+          <ToolbarToggleItem value="bold">Bold</ToolbarToggleItem>
+          <ToolbarToggleItem value="italic">Italic</ToolbarToggleItem>
+        </ToolbarToggleGroup>
+        <ToolbarSeparator />
+        <ToolbarButton>Share</ToolbarButton>
+      </Toolbar>,
+    );
+    const look = (name: string) =>
+      style(page.getByRole("button", { name }).element());
+
+    expect(
+      contrast(
+        style(page.getByRole("toolbar").element()).borderTopColor,
+        canvas(),
+      ),
+    ).toBeGreaterThan(3);
+    expect(look("Bold").backgroundColor).toBe(system("highlight"));
+    expect(look("Bold").color).toBe(system("highlighttext"));
+    expect(look("Italic").backgroundColor).not.toBe(
+      look("Bold").backgroundColor,
+    );
+    // A control that isn't pressed keeps an edge, so it reads as a button.
+    expect(contrast(look("Share").borderTopColor, canvas())).toBeGreaterThan(3);
+    expect(
+      contrast(
+        style(page.getByRole("separator").element()).borderInlineStartColor,
+        canvas(),
+      ),
+    ).toBeGreaterThan(3);
   });
 });
 

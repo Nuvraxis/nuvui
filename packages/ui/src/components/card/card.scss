@@ -1,0 +1,99 @@
+@use "../../styles/layers";
+@use "../../styles/mixins";
+
+@layer components {
+  // The parts are stacked with a gap, and each part has the inline padding.
+  // The card itself has none, so that an image or a table placed straight
+  // inside it reaches the edges.
+  .nuv-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nuv-card-gap, calc(var(--spacing) * 4));
+    min-inline-size: 0;
+    padding-block: var(--nuv-card-padding, calc(var(--spacing) * 4));
+    border: var(--nuv-border-width) solid
+      var(--nuv-card-border, var(--color-border));
+    border-radius: var(--nuv-card-radius, var(--radius-lg));
+    background-color: var(--nuv-card-bg, var(--color-surface));
+    box-shadow: var(--nuv-card-shadow, var(--shadow-xs));
+    color: var(--nuv-card-fg, var(--color-surface-foreground));
+
+    @include mixins.breakpoint("sm") {
+      gap: var(--nuv-card-gap, calc(var(--spacing) * 6));
+      padding-block: var(--nuv-card-padding, calc(var(--spacing) * 6));
+    }
+  }
+
+  // Two columns: the text, and the action if there is one. An empty second
+  // column takes no room, which is why the space between the two is a
+  // margin on the action and not a gap.
+  .nuv-card__header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    row-gap: calc(var(--spacing) * 1.5);
+    align-items: start;
+    padding-inline: var(--nuv-card-padding, calc(var(--spacing) * 4));
+
+    @include mixins.breakpoint("sm") {
+      padding-inline: var(--nuv-card-padding, calc(var(--spacing) * 6));
+    }
+  }
+
+  // Everything in the header goes in the first column, whatever it is: a
+  // skeleton while the title loads, say. Only the action is in the second.
+  .nuv-card__header > * {
+    grid-column: 1;
+  }
+
+  .nuv-card__title {
+    margin: 0;
+    font-size: var(--nuv-card-title-size, var(--text-base));
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--leading-snug);
+    overflow-wrap: anywhere;
+  }
+
+  .nuv-card__description {
+    margin: 0;
+    color: var(--nuv-card-muted-fg, var(--color-muted-foreground));
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+    overflow-wrap: anywhere;
+  }
+
+  .nuv-card__header > .nuv-card__action {
+    display: flex;
+    grid-row: 1 / span 2;
+    grid-column: 2;
+    gap: calc(var(--spacing) * 2);
+    align-items: center;
+    margin-inline-start: calc(var(--spacing) * 3);
+  }
+
+  .nuv-card__content {
+    min-inline-size: 0;
+    padding-inline: var(--nuv-card-padding, calc(var(--spacing) * 4));
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+
+    @include mixins.breakpoint("sm") {
+      padding-inline: var(--nuv-card-padding, calc(var(--spacing) * 6));
+    }
+  }
+
+  // Buttons stack on a phone, with the main one on top, and sit in a row at
+  // the end from the first breakpoint up.
+  .nuv-card__footer {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: calc(var(--spacing) * 2);
+    padding-inline: var(--nuv-card-padding, calc(var(--spacing) * 4));
+
+    @include mixins.breakpoint("sm") {
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-end;
+      padding-inline: var(--nuv-card-padding, calc(var(--spacing) * 6));
+    }
+  }
+}

@@ -11,6 +11,8 @@ import {
   Toaster,
   toast,
 } from "@nuvui/react";
+// The provider has an entry of its own that isn't a component's.
+import { DirectionProvider } from "@nuvui/react/direction";
 // One import from a component's own entry, to check that those resolve too.
 import { Switch } from "@nuvui/react/switch";
 import { StrictMode } from "react";
@@ -43,6 +45,8 @@ const root = document.getElementById("root");
 if (!root) throw new Error("no #root element");
 createRoot(root).render(
   <StrictMode>
-    <App />
+    <DirectionProvider dir="ltr">
+      <App />
+    </DirectionProvider>
   </StrictMode>,
 );

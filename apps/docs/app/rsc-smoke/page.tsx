@@ -3,6 +3,8 @@
 // render on the server, this page fails to build. It isn't linked from
 // anywhere, and the e2e tests open it directly.
 import {
+  Alert,
+  AlertDescription,
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -11,6 +13,9 @@ import {
   AlertDialogFooter,
   AlertDialogTitle,
   AlertDialogTrigger,
+  AlertTitle,
+  AspectRatio,
+  Badge,
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
@@ -19,6 +24,10 @@ import {
   BreadcrumbSeparator,
   Button,
   ButtonGroup,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
   Dialog,
   DialogClose,
   DialogContent,
@@ -26,6 +35,9 @@ import {
   DialogFooter,
   DialogTitle,
   DialogTrigger,
+  DirectionProvider,
+  Empty,
+  EmptyTitle,
   Field,
   FieldControl,
   FieldDescription,
@@ -33,13 +45,22 @@ import {
   Fieldset,
   FieldsetLegend,
   Input,
+  Kbd,
   NativeSelect,
   Pagination,
   PaginationEllipsis,
   PaginationItem,
   PaginationLink,
   PaginationList,
+  Progress,
   paginationRange,
+  Skeleton,
+  Spinner,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+  VisuallyHidden,
 } from "@nuvui/react";
 import { Button as ButtonEntry } from "@nuvui/react/button";
 import type { Metadata } from "next";
@@ -144,6 +165,43 @@ export default function RscSmokePage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      {/* None of these has a directive. They're only markup. */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Card from the server</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Badge intent="success">Server badge</Badge> Press <Kbd>Esc</Kbd>
+          <VisuallyHidden> to close</VisuallyHidden>
+        </CardContent>
+      </Card>
+      <Alert intent="warning">
+        <AlertTitle>Alert from the server</AlertTitle>
+        <AlertDescription>It was in the page from the start.</AlertDescription>
+      </Alert>
+      <Empty>
+        <EmptyTitle>Empty from the server</EmptyTitle>
+      </Empty>
+      <div style={{ width: 120 }}>
+        <AspectRatio ratio={2} data-testid="server-ratio" />
+        <Skeleton data-testid="server-skeleton" />
+      </div>
+      <Spinner label="Server spinner" />
+      {/* Progress and DirectionProvider are client components, rendered
+          here with nothing but plain props. */}
+      <Progress aria-label="Server progress" value={30} />
+      <DirectionProvider dir="rtl">
+        <div dir="rtl">
+          <Tabs defaultValue="one">
+            <TabsList aria-label="Server tabs">
+              <TabsTrigger value="one">One</TabsTrigger>
+              <TabsTrigger value="two">Two</TabsTrigger>
+            </TabsList>
+            <TabsContent value="one">First</TabsContent>
+            <TabsContent value="two">Second</TabsContent>
+          </Tabs>
+        </div>
+      </DirectionProvider>
     </main>
   );
 }

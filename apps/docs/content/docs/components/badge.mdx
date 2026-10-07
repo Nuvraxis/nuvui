@@ -1,0 +1,133 @@
+---
+title: Badge
+description: A short label that says what state something is in, or how many of something there are.
+---
+
+Use a badge for a word or a number next to the thing it describes: the status of an invoice, the plan a customer is on, a count of unread messages. A badge is text, not a control. For something people press, use a [button](/docs/components/button) or a [toggle](/docs/components/toggle).
+
+<Preview name="badge/basic" />
+
+## Install
+
+```sh
+pnpm add @nuvui/react
+```
+
+## Import
+
+```tsx
+import { Badge } from "@nuvui/react";
+```
+
+The styles come from `@nuvui/react/styles.css`, which you load once for the whole app. [Getting started](/docs) covers that, and how to load only this component's CSS.
+
+## Try it
+
+<BadgePlayground />
+
+## Props
+
+<PropsTable component="badge" name="BadgeOwnProps" />
+
+Everything else is passed to the `<span>`, including `ref` and `className`.
+
+## Outline
+
+`variant="outline"` gives a plain background with an edge in the intent's color. Use it where a column of filled badges would pull the eye away from everything else, as in a long table.
+
+<Preview name="badge/outline" />
+
+An outlined success, warning or danger badge has its text in that color too. An outlined primary badge keeps the ordinary text color: a theme's primary color only has to stand out as an edge, at 3:1, and that isn't enough for text.
+
+## With an icon or a number
+
+An icon goes inside, before the text. A badge that only shows a number needs words for a screen reader, since "12" by itself says nothing. Put them in [`VisuallyHidden`](/docs/components/visually-hidden).
+
+<Preview name="badge/with-icon" />
+
+## The colors
+
+A filled badge takes its colors from the theme's tokens, so it follows every preset and both modes.
+
+| Intent | Fill | Text |
+| --- | --- | --- |
+| `neutral` | `--color-muted` | `--color-foreground` |
+| `primary` | `--color-primary` | `--color-primary-foreground` |
+| `success` | `--color-success` | `--color-background` |
+| `warning` | `--color-warning` | `--color-background` |
+| `danger` | `--color-danger` | `--color-danger-foreground` |
+
+The success and warning colors are chosen to be readable as text on the page's background. Contrast is the same both ways round, so the background color is readable as text on them. Every pair in the table has at least 4.5:1 in every theme, and the tests measure each one.
+
+## Accessibility
+
+A badge has no keyboard behavior. It isn't a control and can't take focus.
+
+### What the component handles
+
+- It's a `<span>`, read in place with the text around it.
+- Text has at least 4.5:1 against the badge in every intent, variant and theme.
+- A filled badge has a border that only shows where the browser forces its own colors, as Windows high contrast does. The fill isn't drawn there, and the border is what keeps the badge a badge.
+
+### What you need to handle
+
+- Say the state in words. Color is extra: plenty of people can't tell red from green, and a badge that says "Overdue" works for them where a red dot doesn't.
+- Give a count its unit, in `VisuallyHidden` if there's no room for it.
+- A badge that changes while the page is open isn't announced. If the change matters, such as a job that just failed, say it in a [toast](/docs/components/toast) or an element with `role="status"`.
+
+## CSS variables
+
+Set any of these on the badge, or on anything around it. A variable set this way applies whatever the intent.
+
+```css
+.plan-badge {
+  --nuv-badge-radius: var(--radius-sm);
+}
+```
+
+<CssVariables
+  component="badge"
+  descriptions={{
+    "--nuv-badge-gap": "Space between an icon and the text.",
+    "--nuv-badge-padding-block": "Padding above and below the text.",
+    "--nuv-badge-padding-inline": "Padding left and right.",
+    "--nuv-badge-border":
+      "Border color. Transparent on a filled badge, and the intent's color on an outlined one.",
+    "--nuv-badge-radius": "Corner radius. A pill by default.",
+    "--nuv-badge-font-size": "Font size.",
+    "--nuv-badge-bg": "Background color. Differs by intent.",
+    "--nuv-badge-fg":
+      "Text color. Differs by intent. Keep it at 4.5:1 against the background.",
+  }}
+/>
+
+## Classes
+
+<BemClasses
+  component="badge"
+  descriptions={{
+    "nuv-badge": "Every badge.",
+    "nuv-badge--neutral": "intent=\"neutral\"",
+    "nuv-badge--primary": "intent=\"primary\"",
+    "nuv-badge--success": "intent=\"success\"",
+    "nuv-badge--warning": "intent=\"warning\"",
+    "nuv-badge--danger": "intent=\"danger\"",
+    "nuv-badge--outline": "variant=\"outline\", next to the intent's class.",
+  }}
+/>
+
+## Server components
+
+Badge has no `"use client"` directive and uses no state, so it renders in a server component as it is.
+
+## Do and don't
+
+**Do**
+
+- Keep it to one or two words.
+- Use the same intent for the same state everywhere in the app.
+
+**Don't**
+
+- Don't use a badge as a button. It has no focus ring and no keyboard behavior.
+- Don't put a sentence in one. A badge stays on one line and doesn't wrap.

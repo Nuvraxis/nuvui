@@ -1,0 +1,58 @@
+@use "../../styles/layers";
+@use "../../styles/mixins";
+
+@layer components {
+  // It takes the color of the text around it, so it works inside a button
+  // of any intent without being told.
+  .nuv-spinner {
+    position: relative;
+    display: inline-flex;
+    flex: none;
+    inline-size: var(--nuv-spinner-size, 1.25rem);
+    block-size: var(--nuv-spinner-size, 1.25rem);
+    color: var(--nuv-spinner-color, currentcolor);
+    vertical-align: middle;
+  }
+
+  .nuv-spinner--sm {
+    inline-size: var(--nuv-spinner-size, 1rem);
+    block-size: var(--nuv-spinner-size, 1rem);
+  }
+
+  .nuv-spinner--lg {
+    inline-size: var(--nuv-spinner-size, 2rem);
+    block-size: var(--nuv-spinner-size, 2rem);
+  }
+
+  // Without motion it stands still: a ring with one quarter drawn darker,
+  // which still reads as a spinner.
+  .nuv-spinner__ring {
+    inline-size: 100%;
+    block-size: 100%;
+
+    @include mixins.motion-safe {
+      animation: nuv-spinner-turn var(--nuv-spinner-duration, 0.75s) linear
+        infinite;
+    }
+  }
+
+  .nuv-spinner__track {
+    opacity: var(--nuv-spinner-track-opacity, 0.25);
+  }
+
+  // In the page for screen readers and drawn nowhere.
+  .nuv-spinner__label {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  @keyframes nuv-spinner-turn {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+}

@@ -9,6 +9,7 @@ export interface Media {
 declare module "vitest/browser" {
   interface BrowserCommands {
     emulateMedia: (media: Media) => Promise<void>;
+    wheel: (selector: string, deltaY: number) => Promise<void>;
   }
 }
 
@@ -18,6 +19,12 @@ declare module "vitest/browser" {
 // itself is defined in vitest.config.ts, since it runs on the Playwright side.
 export function emulateMedia(media: Media): Promise<void> {
   return commands.emulateMedia(media);
+}
+
+// Turns the mouse wheel over the element the selector finds. It's a real
+// wheel event from the browser, so it scrolls what a person's would.
+export function wheel(selector: string, deltaY: number): Promise<void> {
+  return commands.wheel(selector, deltaY);
 }
 
 export const viewports = {

@@ -30,6 +30,17 @@ import {
   Card,
   CardContent,
   Checkbox,
+  Combobox,
+  ComboboxContent,
+  ComboboxItem,
+  ComboboxSeparator,
+  ComboboxTrigger,
+  ComboboxValue,
+  Command,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
   ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
@@ -94,6 +105,17 @@ import {
   SheetContent,
   SheetDescription,
   SheetTitle,
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarMain,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarSeparator,
+  SidebarTrigger,
   Skeleton,
   Slider,
   Spinner,
@@ -116,7 +138,7 @@ import {
   toast,
 } from "../src";
 import { contrast } from "./contrast";
-import { emulateMedia } from "./media";
+import { emulateMedia, setViewport } from "./media";
 
 // Forced-colors mode is what Windows high contrast turns on. The browser
 // replaces every color with one from a short system palette and stops
@@ -1182,6 +1204,160 @@ describe("toolbar", () => {
         canvas(),
       ),
     ).toBeGreaterThan(3);
+  });
+});
+
+describe("command and combobox", () => {
+  test("a command's active row has an outline, its field shows focus, and its separator is still a line", async () => {
+    await render(
+      <Command label="Commands">
+        <CommandInput />
+        <CommandList>
+          <CommandItem>Open file</CommandItem>
+          <CommandSeparator />
+          <CommandItem>Print</CommandItem>
+        </CommandList>
+      </Command>,
+    );
+    await userEvent.keyboard("{Tab}");
+    const active = page.getByRole("option", { name: "Open file" });
+    await expect.element(active).toHaveAttribute("aria-selected", "true");
+    const row = style(active.element());
+    const other = style(page.getByRole("option", { name: "Print" }).element());
+    const field = style(
+      document.querySelector(".nuv-command__search") as Element,
+    );
+    const line = style(
+      document.querySelector(".nuv-command__separator") as Element,
+    );
+
+    // The fill is gone. The outline is what's left to say which row it is.
+    expect(row.outlineStyle).toBe("solid");
+    expect(contrast(row.outlineColor, canvas())).toBeGreaterThan(3);
+    expect(other.outlineStyle).toBe("none");
+    expect(field.outlineStyle).toBe("solid");
+    expect(contrast(field.outlineColor, canvas())).toBeGreaterThan(3);
+    expect(contrast(line.borderTopColor, canvas())).toBeGreaterThan(3);
+    expect(line.borderTopWidth).toBe("1px");
+  });
+
+  test("a combobox keeps its edge, and its popup has one, with an outline on the active row", async () => {
+    await render(
+      <Combobox defaultOpen defaultValue="Apple">
+        <ComboboxTrigger aria-label="Fruit">
+          <ComboboxValue />
+        </ComboboxTrigger>
+        <ComboboxContent label="Search fruit">
+          <ComboboxItem value="Apple">Apple</ComboboxItem>
+          <ComboboxSeparator />
+          <ComboboxItem value="Banana">Banana</ComboboxItem>
+        </ComboboxContent>
+      </Combobox>,
+    );
+    const popup = page.getByRole("dialog", { name: "Search fruit" });
+    await expect.element(popup).toBeVisible();
+    const picked = page.getByRole("option", { name: "Apple" });
+    await expect.element(picked).toHaveAttribute("aria-selected", "true");
+    const trigger = style(
+      page.getByRole("combobox", { name: "Fruit", exact: true }).element(),
+    );
+    const row = style(picked.element());
+
+    expect(contrast(trigger.borderTopColor, canvas())).toBeGreaterThan(3);
+    expect(
+      contrast(style(popup.element()).borderTopColor, canvas()),
+    ).toBeGreaterThan(3);
+    expect(row.outlineStyle).toBe("solid");
+    expect(contrast(row.outlineColor, canvas())).toBeGreaterThan(3);
+    // The check is drawn in the row's text color.
+    expect(contrast(row.color, canvas())).toBeGreaterThan(3);
+    expect(
+      contrast(
+        style(document.querySelector(".nuv-combobox__separator") as Element)
+          .borderTopColor,
+        canvas(),
+      ),
+    ).toBeGreaterThan(3);
+  });
+});
+
+describe("sidebar", () => {
+  test("has an edge, a line for its separator, and a bar on the open page", async () => {
+    await setViewport("desktop");
+    await render(
+      <SidebarProvider
+        cookieName={null}
+        style={{ "--nuv-sidebar-height": "300px" } as never}
+      >
+        <Sidebar>
+          <SidebarContent>
+            <SidebarGroup>
+              <SidebarGroupLabel>Mail</SidebarGroupLabel>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton active>Inbox</SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton>Sent</SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroup>
+            <SidebarSeparator />
+          </SidebarContent>
+        </Sidebar>
+        <SidebarMain>
+          <SidebarTrigger />
+        </SidebarMain>
+      </SidebarProvider>,
+    );
+    const bar = style(document.querySelector(".nuv-sidebar") as Element);
+    const open = page.getByRole("button", { name: "Inbox" }).element();
+    const other = page.getByRole("button", { name: "Sent" }).element();
+    const marker = getComputedStyle(open, "::before");
+
+    expect(contrast(bar.borderRightColor, canvas())).toBeGreaterThan(3);
+    // The fill that marks the open page is gone. The bar is a border,
+    // which stays.
+    expect(marker.borderLeftWidth).toBe("3px");
+    expect(contrast(marker.borderLeftColor, canvas())).toBeGreaterThan(3);
+    expect(getComputedStyle(other, "::before").content).toBe("none");
+    expect(contrast(style(open).color, canvas())).toBeGreaterThan(3);
+    expect(
+      contrast(
+        style(document.querySelector(".nuv-sidebar__separator") as Element)
+          .borderTopColor,
+        canvas(),
+      ),
+    ).toBeGreaterThan(3);
+    expect(
+      contrast(
+        style(page.getByRole("button", { name: "Toggle sidebar" }).element())
+          .color,
+        canvas(),
+      ),
+    ).toBeGreaterThan(3);
+  });
+
+  test("a row shows a focus ring", async () => {
+    await setViewport("desktop");
+    await render(
+      <SidebarProvider cookieName={null}>
+        <Sidebar>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton>Inbox</SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </Sidebar>
+        <SidebarMain />
+      </SidebarProvider>,
+    );
+
+    await userEvent.keyboard("{Tab}");
+
+    const row = style(page.getByRole("button", { name: "Inbox" }).element());
+    expect(row.outlineStyle).toBe("solid");
+    expect(contrast(row.outlineColor, canvas())).toBeGreaterThan(3);
   });
 });
 

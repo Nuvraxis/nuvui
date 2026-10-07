@@ -1,0 +1,150 @@
+@use "mixins";
+@use "control";
+
+// Shared by everything that shows a list you search: command and combobox.
+// It's internal, so the public mixins don't forward it, but it ships with
+// the SCSS source because the components need it.
+
+// Each mixin is the inside of one rule. The component writes the selector,
+// so its class names are there in full for Stylelint to check. $name becomes
+// part of each variable's name, so one kind of list can be restyled on its
+// own.
+
+// The row at the top that holds the search field.
+@mixin search($name) {
+  display: flex;
+  flex: none;
+  gap: calc(var(--spacing) * 2);
+  align-items: center;
+  padding-inline: calc(var(--spacing) * 3);
+  border-block-end: var(--nuv-border-width) solid
+    var(--nuv-#{$name}-border, var(--color-border));
+  cursor: text;
+
+  // The field has no edge of its own, so the row shows where focus is: a
+  // line in the ring color along its bottom edge. The outline is only seen
+  // where the browser forces its own colors and drops the shadow.
+  &:focus-within {
+    outline: 2px solid transparent;
+    outline-offset: -2px;
+    box-shadow: inset 0 calc(var(--nuv-focus-ring-width, 2px) * -1) 0
+      var(--nuv-focus-ring-color, var(--color-ring));
+  }
+}
+
+@mixin search-icon {
+  flex: none;
+  color: var(--color-muted-foreground);
+}
+
+@mixin input($name) {
+  flex: 1;
+  min-inline-size: 0;
+  padding: 0;
+  border: 0;
+  outline: none;
+  background-color: transparent;
+  color: inherit;
+
+  @include control.height($name + "-input");
+  @include control.text($name + "-input");
+  @include control.placeholder($name + "-input");
+}
+
+// The part that scrolls.
+@mixin list($name, $height: 18rem) {
+  flex: 1 1 auto;
+  min-block-size: 0;
+  max-block-size: var(--nuv-#{$name}-list-height, #{$height});
+  padding: var(--spacing);
+  overflow-y: auto;
+
+  // The arrow keys bring a row into view. This keeps it off the very edge.
+  scroll-padding-block: var(--spacing);
+
+  // Reaching the end of the list doesn't start scrolling the page.
+  overscroll-behavior: contain;
+
+  // It never has focus. The search field does, and says which row is
+  // active.
+  &:focus {
+    outline: none;
+  }
+}
+
+@mixin item($name) {
+  display: flex;
+  gap: calc(var(--spacing) * 2);
+  align-items: center;
+
+  // Rows are 44px on a touch screen and tighter with a mouse.
+  min-block-size: var(--nuv-#{$name}-item-height, var(--nuv-touch-size));
+  padding-block: var(--spacing);
+  padding-inline: calc(var(--spacing) * 3);
+  border-radius: var(--radius-sm);
+  cursor: default;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+
+  @include mixins.fine-pointer {
+    min-block-size: var(
+      --nuv-#{$name}-item-height,
+      var(--nuv-control-height-sm)
+    );
+  }
+
+  // The row the arrow keys are on, which is also the one under the pointer.
+  // Focus stays in the search field, so the fill is the only sign of it.
+  &[data-selected="true"] {
+    // Only seen where the browser forces its own colors and drops the
+    // fill, as Windows high contrast does.
+    outline: 2px solid transparent;
+    outline-offset: -2px;
+    background-color: var(--nuv-#{$name}-highlight-bg, var(--color-primary));
+    color: var(--nuv-#{$name}-highlight-fg, var(--color-primary-foreground));
+  }
+
+  &[data-disabled="true"] {
+    opacity: var(--nuv-disabled-opacity);
+    pointer-events: none;
+  }
+}
+
+// The heading over a group of rows.
+@mixin label {
+  padding-block: calc(var(--spacing) * 1.5);
+  padding-inline: calc(var(--spacing) * 3);
+  color: var(--color-muted-foreground);
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--text-xs--line-height);
+}
+
+// A border and not a background, which is what's left where the browser
+// forces its own colors.
+@mixin separator($name) {
+  margin-block: var(--spacing);
+
+  // Reaches the panel's edges, past its padding.
+  margin-inline: calc(var(--spacing) * -1);
+  border-block-start: var(--nuv-border-width) solid
+    var(--nuv-#{$name}-border, var(--color-border));
+}
+
+// What shows in place of the rows: "No results", or "Loading".
+@mixin message {
+  padding-block: calc(var(--spacing) * 6);
+  padding-inline: calc(var(--spacing) * 3);
+  color: var(--color-muted-foreground);
+  text-align: center;
+}
+
+// In the page for screen readers and drawn nowhere.
+@mixin status {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

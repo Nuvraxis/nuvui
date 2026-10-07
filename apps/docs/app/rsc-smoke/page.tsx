@@ -28,6 +28,15 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  Combobox,
+  ComboboxContent,
+  ComboboxItem,
+  ComboboxTrigger,
+  ComboboxValue,
+  Command,
+  CommandInput,
+  CommandItem,
+  CommandList,
   Dialog,
   DialogClose,
   DialogContent,
@@ -54,6 +63,13 @@ import {
   PaginationList,
   Progress,
   paginationRange,
+  Sidebar,
+  SidebarMain,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarTrigger,
   Skeleton,
   Spinner,
   Tabs,
@@ -64,6 +80,7 @@ import {
 } from "@nuvui/react";
 import { Button as ButtonEntry } from "@nuvui/react/button";
 import type { Metadata } from "next";
+import type { CSSProperties } from "react";
 
 export const metadata: Metadata = {
   title: "Server component check",
@@ -190,6 +207,44 @@ export default function RscSmokePage() {
       {/* Progress and DirectionProvider are client components, rendered
           here with nothing but plain props. */}
       <Progress aria-label="Server progress" value={30} />
+      {/* Combobox, Command and Sidebar are client components too, and
+          keep their state themselves when nothing is passed to hold it. */}
+      <Combobox defaultValue="Server apple" name="server-fruit">
+        <ComboboxTrigger aria-label="Server combobox">
+          <ComboboxValue placeholder="Pick one" />
+        </ComboboxTrigger>
+        <ComboboxContent label="Search server fruit">
+          <ComboboxItem value="Server apple">Server apple</ComboboxItem>
+          <ComboboxItem value="Server pear">Server pear</ComboboxItem>
+        </ComboboxContent>
+      </Combobox>
+      <Command label="Server commands">
+        <CommandInput />
+        <CommandList>
+          <CommandItem>Server command</CommandItem>
+        </CommandList>
+      </Command>
+      <SidebarProvider
+        cookieName={null}
+        shortcut={null}
+        style={{ "--nuv-sidebar-height": "8rem" } as CSSProperties}
+      >
+        <Sidebar label="Server sidebar">
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild active>
+                <a href="/docs">Server page</a>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </Sidebar>
+        {/* The page already has its main element. */}
+        <SidebarMain asChild>
+          <div>
+            <SidebarTrigger />
+          </div>
+        </SidebarMain>
+      </SidebarProvider>
       <DirectionProvider dir="rtl">
         <div dir="rtl">
           <Tabs defaultValue="one">

@@ -16,6 +16,8 @@
 @use "../components/card/card";
 @use "../components/checkbox/checkbox";
 @use "../components/collapsible/collapsible";
+@use "../components/combobox/combobox";
+@use "../components/command/command";
 @use "../components/context-menu/context-menu";
 @use "../components/dialog/dialog";
 @use "../components/dropdown-menu/dropdown-menu";
@@ -41,6 +43,7 @@
 @use "../components/select/select";
 @use "../components/separator/separator";
 @use "../components/sheet/sheet";
+@use "../components/sidebar/sidebar";
 @use "../components/skeleton/skeleton";
 @use "../components/slider/slider";
 @use "../components/spinner/spinner";

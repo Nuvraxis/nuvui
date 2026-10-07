@@ -77,10 +77,50 @@ test("components used from a server component hydrate and work", async ({
   const ratio = await page.getByTestId("server-ratio").boundingBox();
   expect(ratio?.width).toBe(120);
   expect(ratio?.height).toBe(60);
-  await expect(page.getByRole("status")).toHaveText("Server spinner");
+  await expect(
+    page.getByRole("status").filter({ hasText: "Server spinner" }),
+  ).toBeVisible();
   await expect(
     page.getByRole("progressbar", { name: "Server progress" }),
   ).toHaveAttribute("aria-valuenow", "30");
+
+  const combobox = page.getByRole("combobox", { name: "Server combobox" });
+  await expect(combobox).toHaveText("Server apple");
+  await combobox.click();
+  await page.getByRole("option", { name: "Server pear" }).click();
+  await expect(combobox).toHaveText("Server pear");
+  await expect(page.locator('input[name="server-fruit"]')).toHaveValue(
+    "Server pear",
+  );
+
+  await page.getByRole("combobox", { name: "Server commands" }).fill("zzz");
+  await expect(
+    page.getByRole("option", { name: "Server command" }),
+  ).toBeHidden();
+
+  // On a wide screen the sidebar is in the page and the button collapses
+  // it. On a phone the button opens it as a panel. Either way the button's
+  // state changes, which it only does once the provider has hydrated.
+  // Found by its class, because an open panel hides the page behind it,
+  // this button included, from everything that goes by role.
+  const toggle = page.locator(".nuv-sidebar__trigger");
+  const before = (await toggle.getAttribute("aria-expanded")) ?? "";
+  await toggle.click();
+  await expect(toggle).not.toHaveAttribute("aria-expanded", before);
+  const panel = page.getByRole("dialog", { name: "Server sidebar" });
+  if (await panel.isVisible()) {
+    await expect(
+      panel.getByRole("link", { name: "Server page" }),
+    ).toHaveAttribute("aria-current", "page");
+    await page.keyboard.press("Escape");
+    await expect(panel).toBeHidden();
+  } else {
+    await expect(
+      page
+        .getByRole("navigation", { name: "Server sidebar" })
+        .getByRole("link", { name: "Server page" }),
+    ).toHaveAttribute("aria-current", "page");
+  }
 
   // The provider was rendered on the server, and the tabs inside it take
   // their direction from it: the left arrow goes forward.

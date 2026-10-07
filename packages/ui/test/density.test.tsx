@@ -4,6 +4,15 @@ import { page, userEvent } from "vitest/browser";
 import { cleanup, render } from "vitest-browser-react";
 import {
   Button,
+  Combobox,
+  ComboboxContent,
+  ComboboxItem,
+  ComboboxTrigger,
+  ComboboxValue,
+  Command,
+  CommandInput,
+  CommandItem,
+  CommandList,
   ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
@@ -46,6 +55,16 @@ import {
   SheetContent,
   SheetDescription,
   SheetTitle,
+  Sidebar,
+  SidebarMain,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
+  SidebarProvider,
+  SidebarTrigger,
   Tabs,
   TabsContent,
   TabsList,
@@ -224,6 +243,63 @@ describe.each(densities)("density %s", (density, small, medium, large) => {
     expect(part("button")).toBe(small);
   });
 
+  test("sets the height of a command's field and rows", async () => {
+    await render(
+      <div data-density={density}>
+        <Command label="Commands">
+          <CommandInput />
+          <CommandList>
+            <CommandItem>Open file</CommandItem>
+          </CommandList>
+        </Command>
+      </div>,
+    );
+    const part = (name: string) =>
+      height(document.querySelector(`.nuv-command__${name}`));
+
+    expect(part("input")).toBe(medium);
+    expect(part("item")).toBe(small);
+  });
+
+  test("sets the height of a sidebar's rows, and the width of its strip of icons", async () => {
+    await setViewport("desktop");
+    await emulateMedia({ reducedMotion: "reduce" });
+    await render(
+      <div data-density={density}>
+        <SidebarProvider cookieName={null}>
+          <Sidebar>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton>Inbox</SidebarMenuButton>
+                <SidebarMenuSub>
+                  <SidebarMenuSubItem>
+                    <SidebarMenuSubButton href="#today">
+                      Today
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                </SidebarMenuSub>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </Sidebar>
+          <SidebarMain>
+            <SidebarTrigger />
+          </SidebarMain>
+        </SidebarProvider>
+      </div>,
+    );
+    const part = (name: string) =>
+      height(document.querySelector(`.nuv-sidebar__${name}`));
+
+    expect(part("menu-button")).toBe(medium);
+    expect(part("menu-sub-button")).toBe(small);
+    expect(part("trigger")).toBe(small);
+
+    await page.getByRole("button", { name: "Toggle sidebar" }).click();
+    expect(
+      document.querySelector(".nuv-sidebar")?.getBoundingClientRect().width,
+    ).toBe(medium + 16 + 1);
+  });
+
   // These render at the end of <body>, so the density has to be on the page.
   describe("in a portal", () => {
     afterEach(async () => {
@@ -317,6 +393,33 @@ describe.each(densities)("density %s", (density, small, medium, large) => {
       await expect.element(close).toBeVisible();
 
       expect(height(close.element())).toBe(small);
+    });
+
+    test("sets the height of a combobox, its search field and its options", async () => {
+      document.documentElement.setAttribute("data-density", density);
+      await emulateMedia({ reducedMotion: "reduce" });
+      await render(
+        <Combobox defaultOpen>
+          <ComboboxTrigger aria-label="Fruit">
+            <ComboboxValue placeholder="Pick a fruit" />
+          </ComboboxTrigger>
+          <ComboboxContent label="Search fruit">
+            <ComboboxItem value="Apple">Apple</ComboboxItem>
+          </ComboboxContent>
+        </Combobox>,
+      );
+      const option = page.getByRole("option", { name: "Apple" });
+      await expect.element(option).toBeVisible();
+
+      expect(
+        height(
+          page.getByRole("combobox", { name: "Fruit", exact: true }).element(),
+        ),
+      ).toBe(medium);
+      expect(
+        height(page.getByRole("combobox", { name: "Search fruit" }).element()),
+      ).toBe(medium);
+      expect(height(option.element())).toBe(small);
     });
 
     test("sets the size of a toast's buttons", async () => {

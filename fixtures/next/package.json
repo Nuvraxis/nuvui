@@ -7,6 +7,7 @@
     "build": "next build"
   },
   "dependencies": {
+    "@nuvui/date-picker": "file:../../packages/date-picker",
     "@nuvui/react": "file:../../packages/ui",
     "next": "^16.3.8",
     "react": "^19.3.0",

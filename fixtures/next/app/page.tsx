@@ -1,6 +1,10 @@
 // A server component: there's no "use client" in this file. Button renders
 // on the server as it is. Dialog and Switch keep state, so they only work
 // here if the package's own files still carry their "use client" lines.
+// The add-on's components are client components as well, used here with
+// plain props. The dates are made in UTC and read in UTC, so they're the
+// same day on this server and in whichever browser opens the page.
+import { Calendar, DatePicker } from "@nuvui/date-picker";
 import {
   Button,
   Dialog,
@@ -28,6 +32,17 @@ export default function Page() {
           <DialogDescription>Description</DialogDescription>
         </DialogContent>
       </Dialog>
+      <DatePicker
+        aria-label="Due date"
+        name="due"
+        timeZone="UTC"
+        defaultValue={new Date(Date.UTC(2026, 9, 15))}
+      />
+      <Calendar
+        mode="single"
+        timeZone="UTC"
+        defaultMonth={new Date(Date.UTC(2026, 9, 15))}
+      />
     </main>
   );
 }

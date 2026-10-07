@@ -1,5 +1,10 @@
 import "@nuvui/react/styles.css";
 import "@nuvui/react/themes/ink.css";
+import "@nuvui/date-picker/styles.css";
+import { DatePicker, type DateRange } from "@nuvui/date-picker";
+// An entry of the add-on's own, and one locale out of all it has.
+import { Calendar } from "@nuvui/date-picker/calendar";
+import { de } from "@nuvui/date-picker/locale";
 import {
   Button,
   type ButtonProps,
@@ -19,6 +24,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
 const size: ButtonProps["size"] = "lg";
+const range: DateRange = { from: new Date(2026, 9, 12), to: undefined };
 
 function App() {
   return (
@@ -36,6 +42,8 @@ function App() {
           <DialogDescription>Description</DialogDescription>
         </DialogContent>
       </Dialog>
+      <DatePicker aria-label="Termin" name="termin" locale={de} />
+      <Calendar mode="range" selected={range} locale={de} />
       <Toaster />
     </main>
   );

@@ -1,13 +1,17 @@
 import "../../styles/index.scss";
+import { axe, withFocusProxy } from "@nuvui/tooling/test/axe";
+import { contrast } from "@nuvui/tooling/test/contrast";
+import { tabsToLinks } from "@nuvui/tooling/test/keys";
+import { emulateMedia, setViewport } from "@nuvui/tooling/test/media";
+import {
+  expectNoViolations,
+  renderThemed,
+  themes,
+} from "@nuvui/tooling/test/themed";
 import { type CSSProperties, createRef } from "react";
 import { describe, expect, test, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
-import { axe, withFocusProxy } from "../../../test/axe";
-import { contrast } from "../../../test/contrast";
-import { tabsToLinks } from "../../../test/keys";
-import { emulateMedia, setViewport } from "../../../test/media";
-import { expectNoViolations, renderThemed, themes } from "../../../test/themed";
 import {
   NavigationMenu,
   NavigationMenuContent,

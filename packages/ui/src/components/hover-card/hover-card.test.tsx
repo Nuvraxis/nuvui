@@ -1,4 +1,7 @@
 import "../../styles/index.scss";
+import { axe, outsideLandmarks } from "@nuvui/tooling/test/axe";
+import { emulateMedia, setViewport } from "@nuvui/tooling/test/media";
+import { setPageTheme, themes } from "@nuvui/tooling/test/themed";
 import {
   type CSSProperties,
   createRef,
@@ -8,9 +11,6 @@ import {
 import { describe, expect, test, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
-import { axe, outsideLandmarks } from "../../../test/axe";
-import { emulateMedia, setViewport } from "../../../test/media";
-import { setPageTheme, themes } from "../../../test/themed";
 import {
   HoverCard,
   HoverCardContent,

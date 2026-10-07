@@ -1,16 +1,16 @@
 import "../../styles/index.scss";
-import { createRef } from "react";
-import { describe, expect, test, vi } from "vitest";
-import { page, userEvent } from "vitest/browser";
-import { render } from "vitest-browser-react";
-import { contrast } from "../../../test/contrast";
-import { emulateMedia, setViewport } from "../../../test/media";
+import { contrast } from "@nuvui/tooling/test/contrast";
+import { emulateMedia, setViewport } from "@nuvui/tooling/test/media";
 import {
   expectNoViolations,
   renderThemed,
   themeAttributes,
   themes,
-} from "../../../test/themed";
+} from "@nuvui/tooling/test/themed";
+import { createRef } from "react";
+import { describe, expect, test, vi } from "vitest";
+import { page, userEvent } from "vitest/browser";
+import { render } from "vitest-browser-react";
 import { Button } from "../button";
 import {
   Toolbar,

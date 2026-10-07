@@ -98,6 +98,26 @@ test("components used from a server component hydrate and work", async ({
     page.getByRole("option", { name: "Server command" }),
   ).toBeHidden();
 
+  const date = page.getByRole("textbox", { name: "Server date" });
+  await expect(date).toHaveValue("10/15/2026");
+  await date.fill("10/20/2026");
+  await expect(page.locator('input[name="server-date"]')).toHaveValue(
+    "2026-10-20",
+  );
+  await page
+    .getByRole("group", { name: "Server range" })
+    .getByRole("textbox", { name: "Start date" })
+    .fill("10/01/2026");
+  await expect(page.locator('input[name="server-from"]')).toHaveValue(
+    "2026-10-01",
+  );
+  // The calendar was in the server's HTML, and its days work.
+  const grid = page.getByRole("grid", { name: "October 2026" });
+  await grid.getByRole("button", { name: /October 15th/ }).click();
+  await expect(
+    grid.getByRole("button", { name: /October 15th, 2026, selected/ }),
+  ).toBeVisible();
+
   // On a wide screen the sidebar is in the page and the button collapses
   // it. On a phone the button opens it as a panel. Either way the button's
   // state changes, which it only does once the provider has hydrated.

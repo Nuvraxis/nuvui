@@ -1,4 +1,5 @@
 import "../src/styles/index.scss";
+import { emulateMedia, setViewport } from "@nuvui/tooling/test/media";
 import { afterEach, describe, expect, test } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { cleanup, render } from "vitest-browser-react";
@@ -78,7 +79,6 @@ import {
   ToolbarToggleItem,
   toast,
 } from "../src";
-import { emulateMedia, setViewport } from "./media";
 
 // What controls measure with a mouse at each density. Their sizes on a touch
 // screen are in touch.test.tsx, and don't change with density.

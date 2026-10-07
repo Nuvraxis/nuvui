@@ -1,4 +1,6 @@
 import "../src/styles/index.scss";
+import { contrast } from "@nuvui/tooling/test/contrast";
+import { emulateMedia, setViewport } from "@nuvui/tooling/test/media";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { cleanup, render } from "vitest-browser-react";
@@ -137,8 +139,6 @@ import {
   TooltipTrigger,
   toast,
 } from "../src";
-import { contrast } from "./contrast";
-import { emulateMedia, setViewport } from "./media";
 
 // Forced-colors mode is what Windows high contrast turns on. The browser
 // replaces every color with one from a short system palette and stops

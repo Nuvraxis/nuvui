@@ -1,0 +1,125 @@
+---
+title: DateRangePicker
+description: Two date fields in one box, for the first and the last day, with one calendar that picks both. Each day can be typed, and each is submitted under its own name.
+---
+
+Use a date range picker for a span of days: a stay, a reporting period, the dates of a leave request. It's a [date picker](/docs/date-picker/date-picker) with two fields, and most of that page applies here.
+
+<Preview name="date-range-picker/basic" />
+
+## Install
+
+```sh
+pnpm add @nuvui/date-picker @nuvui/react
+```
+
+## Import
+
+```tsx
+import { DateRangePicker } from "@nuvui/date-picker";
+```
+
+The styles come from `@nuvui/date-picker/styles.css`, which you load once for the whole app, after `@nuvui/react/styles.css`. [Dates](/docs/date-picker) covers that.
+
+## Try it
+
+<DateRangePickerPlayground />
+
+## Props
+
+<PropsTable
+  package="date-picker"
+  component="date-picker"
+  name="DateRangePickerOwnProps"
+/>
+
+Everything else goes to both text fields, apart from `id`, which goes to the first, and `aria-label` and `aria-labelledby`, which name the group around the two. The ref is the first field.
+
+## The value
+
+The value is an object with the two days, or `null` for none:
+
+```ts
+{ from: Date | undefined, to: Date | undefined }
+```
+
+`onValueChange` is called each time either day changes. After the first press in the calendar, `to` is still `undefined`. Check for both before using the range.
+
+## Picking a range
+
+The first press in the calendar sets the first day, and the calendar stays open. The second sets the last day and closes it. If the second day is earlier than the first, the two swap.
+
+With a whole range already picked, the next press starts a new one. It doesn't move the nearer end. That keeps it clear when someone has finished: the calendar closes on the press that completes a range, and only then.
+
+The calendar shows two months side by side. `numberOfMonths` changes that, and on a phone it's always one.
+
+## Typing a range
+
+Each field takes a date the way a [date picker's](/docs/date-picker/date-picker#typing-a-date) does. A last day that's before the first is refused, and so is a first day after the last. The field that was typed in is marked invalid, with `orderMessage` as the browser's message.
+
+## In a form
+
+`startName` and `endName` are the names the two days are submitted under, each as `yyyy-MM-dd`.
+
+Inside a [field](/docs/components/field), wrap the picker in `FieldControl`. The label names the group, a click on it goes to the first field, and the description and the error are read with both.
+
+<Preview name="date-range-picker/field" />
+
+`required` goes on both text fields. As with a date picker, a form with `noValidate` leaves the checking to you.
+
+## The length of a range
+
+`min`, `max` and `disabledDates` limit which days can be picked, as on a date picker. How long the range may be is a calendar option: `calendar={{ min: 2, max: 14 }}` allows from two to fourteen days between the ends.
+
+<Preview name="date-range-picker/nights" />
+
+A second press that would make the range too short or too long starts a new range from that day. `excludeDisabled`, also in `calendar`, does the same for a range that would run across a day that can't be picked.
+
+The length isn't checked for typed dates. Check it in your own validation, where you can also say what the limit is.
+
+## On small screens
+
+Both fields, the dash and the button fit a 360 pixel phone with the usual margins, with a date such as `10/15/2026` in each. A longer `format` needs more room. Give the picker a line to itself there.
+
+The calendar opens as a sheet with one month in it. The box is 44 pixels tall on a touch screen and 40 with a mouse.
+
+## Accessibility
+
+### Keyboard
+
+The keys are the [date picker's](/docs/date-picker/date-picker#keyboard). <kbd>Tab</kbd> goes through the first field, the second field and the button. In the calendar, the first <kbd>Enter</kbd> on a day sets the first day and the second sets the last.
+
+### What the component handles
+
+- The box has `role="group"` and takes the label's name. The two fields inside are named by `startLabel` and `endLabel`, so a screen reader says "Stay, group", then "Start date" and "End date".
+- The button's name is `calendarLabel` followed by the days that are picked, written out.
+- The calendar's grid has `aria-multiselectable`, and every day in the range has `aria-selected`.
+- The days between the two ends are joined by a fill. Where the browser forces its own colors, that fill is the system's color for something selected.
+- The dash between the fields is hidden from screen readers.
+
+### What you need to handle
+
+- Give the group a name: a [field](/docs/components/field), or `aria-label`. With a plain `<label>`, point `htmlFor` at the picker's `id` and name the group with `aria-labelledby`, as the first example does.
+- Translate `startLabel`, `endLabel`, `orderMessage` and the strings a date picker has.
+- When a range is refused for its length, say what's allowed in text.
+
+### What hasn't been checked
+
+The tests check the roles, names and states that a browser passes on to a screen reader. What each screen reader then says hasn't been checked by a person.
+
+## CSS variables and classes
+
+They're the [date picker's](/docs/date-picker/date-picker#css-variables). The box has `nuv-date-picker--range` as well, and `--nuv-date-picker-separator-fg` colors the dash.
+
+## Do and don't
+
+**Do**
+
+- Name the two fields for what they are: "Check-in" and "Check-out" say more than "Start date" and "End date".
+- Set `max` to today for a report on the past, and `min` to today for a booking.
+- Say how long a range may be before people pick one.
+
+**Don't**
+
+- Don't use one where the two dates aren't a span, such as a date of issue and a date of expiry years apart. Two date pickers are clearer.
+- Don't treat a range with only its first day as finished. `to` is `undefined` until the second day is picked.

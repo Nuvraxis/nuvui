@@ -1,15 +1,15 @@
 import "../../styles/index.scss";
-import { createRef } from "react";
-import { describe, expect, test } from "vitest";
-import { page } from "vitest/browser";
-import { render } from "vitest-browser-react";
-import { contrast } from "../../../test/contrast";
+import { contrast } from "@nuvui/tooling/test/contrast";
 import {
   expectNoViolations,
   renderThemed,
   themeAttributes,
   themes,
-} from "../../../test/themed";
+} from "@nuvui/tooling/test/themed";
+import { createRef } from "react";
+import { describe, expect, test } from "vitest";
+import { page } from "vitest/browser";
+import { render } from "vitest-browser-react";
 import { Kbd } from "./kbd";
 
 const key = (name: string) => page.getByText(name, { exact: true }).element();

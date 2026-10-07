@@ -1,4 +1,7 @@
 import "../../styles/index.scss";
+import { axe } from "@nuvui/tooling/test/axe";
+import { emulateMedia, setViewport } from "@nuvui/tooling/test/media";
+import { setPageTheme, themes } from "@nuvui/tooling/test/themed";
 import {
   type ComponentProps,
   type CSSProperties,
@@ -8,9 +11,6 @@ import {
 import { describe, expect, test, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
-import { axe } from "../../../test/axe";
-import { emulateMedia, setViewport } from "../../../test/media";
-import { setPageTheme, themes } from "../../../test/themed";
 import { Button } from "../button";
 import {
   Popover,

@@ -1,4 +1,8 @@
 import "../../styles/index.scss";
+import { axe, outsideLandmarks } from "@nuvui/tooling/test/axe";
+import { contrast } from "@nuvui/tooling/test/contrast";
+import { emulateMedia, setViewport, wheel } from "@nuvui/tooling/test/media";
+import { setPageTheme, themes } from "@nuvui/tooling/test/themed";
 import {
   type ComponentProps,
   type CSSProperties,
@@ -9,10 +13,6 @@ import {
 import { describe, expect, test, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
-import { axe, outsideLandmarks } from "../../../test/axe";
-import { contrast } from "../../../test/contrast";
-import { emulateMedia, setViewport, wheel } from "../../../test/media";
-import { setPageTheme, themes } from "../../../test/themed";
 import { DirectionProvider } from "../../direction";
 import { Button } from "../button";
 import { Dialog, DialogContent, DialogTitle } from "../dialog";

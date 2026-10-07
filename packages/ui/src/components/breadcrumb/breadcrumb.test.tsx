@@ -1,12 +1,16 @@
 import "../../styles/index.scss";
+import { contrast } from "@nuvui/tooling/test/contrast";
+import { tabsToLinks } from "@nuvui/tooling/test/keys";
+import { setViewport } from "@nuvui/tooling/test/media";
+import {
+  expectNoViolations,
+  renderThemed,
+  themes,
+} from "@nuvui/tooling/test/themed";
 import { createRef } from "react";
 import { describe, expect, test } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
-import { contrast } from "../../../test/contrast";
-import { tabsToLinks } from "../../../test/keys";
-import { setViewport } from "../../../test/media";
-import { expectNoViolations, renderThemed, themes } from "../../../test/themed";
 import {
   Breadcrumb,
   BreadcrumbEllipsis,

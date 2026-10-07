@@ -1,0 +1,5 @@
+{
+  "title": "Dates",
+  "defaultOpen": true,
+  "pages": ["index", "calendar", "date-picker", "date-range-picker"]
+}

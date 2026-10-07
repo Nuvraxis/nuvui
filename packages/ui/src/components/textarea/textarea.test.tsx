@@ -1,10 +1,14 @@
 import "../../styles/index.scss";
+import { contrast } from "@nuvui/tooling/test/contrast";
+import {
+  expectNoViolations,
+  renderThemed,
+  themes,
+} from "@nuvui/tooling/test/themed";
 import { type ComponentProps, createRef, useState } from "react";
 import { describe, expect, test, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
-import { contrast } from "../../../test/contrast";
-import { expectNoViolations, renderThemed, themes } from "../../../test/themed";
 import { Textarea } from "./textarea";
 
 function Labelled(props: ComponentProps<typeof Textarea>) {

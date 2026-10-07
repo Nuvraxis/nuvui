@@ -1,9 +1,13 @@
 import "../../styles/index.scss";
+import {
+  expectNoViolations,
+  renderThemed,
+  themes,
+} from "@nuvui/tooling/test/themed";
 import { createRef } from "react";
 import { describe, expect, test } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
-import { expectNoViolations, renderThemed, themes } from "../../../test/themed";
 import { Button } from "../button/button";
 import { Checkbox } from "../checkbox/checkbox";
 import { Input } from "../input/input";

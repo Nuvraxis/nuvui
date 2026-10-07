@@ -1,0 +1,42 @@
+@use "../../styles/layers";
+@use "@nuvui/react/scss/mixins";
+
+@layer components {
+  // The box, the text field and the button are @nuvui/react's InputGroup.
+  // This only adds what a date field has of its own.
+  .nuv-date-picker {
+    inline-size: var(--nuv-date-picker-width, 100%);
+  }
+
+  // The two fields of a range share the room evenly, and their text is
+  // centered so the dash between them reads as joining two dates.
+  .nuv-date-picker--range > .nuv-input {
+    flex: 1 1 0;
+    text-align: center;
+  }
+
+  .nuv-date-picker__separator {
+    flex: none;
+    color: var(--nuv-date-picker-separator-fg, var(--color-muted-foreground));
+  }
+
+  .nuv-date-picker__button {
+    color: var(--nuv-date-picker-icon-fg, var(--color-muted-foreground));
+  }
+
+  // The panel is as wide as the calendar in it, however many months that is.
+  // The popover's variables are set here, where a rule for its width and
+  // padding would be the usual way. A rule in this stylesheet only beats the
+  // popover's own if this stylesheet is loaded second, and nothing makes an
+  // app load them in that order. A variable works either way.
+  .nuv-date-picker__popover {
+    --nuv-popover-width: auto;
+    --nuv-popover-padding: var(--nuv-date-picker-padding, calc(var(--spacing) * 3));
+  }
+
+  // In the sheet the calendar sits in the middle, under a heading that stays
+  // where a dialog's heading always is.
+  .nuv-date-picker__sheet > .nuv-calendar {
+    align-self: center;
+  }
+}

@@ -1,17 +1,17 @@
 import "../../styles/index.scss";
-import { createRef, useState } from "react";
-import { describe, expect, test, vi } from "vitest";
-import { page, userEvent } from "vitest/browser";
-import { render } from "vitest-browser-react";
-import { axe, outsideLandmarks } from "../../../test/axe";
-import { contrast } from "../../../test/contrast";
-import { emulateMedia, setViewport } from "../../../test/media";
+import { axe, outsideLandmarks } from "@nuvui/tooling/test/axe";
+import { contrast } from "@nuvui/tooling/test/contrast";
+import { emulateMedia, setViewport } from "@nuvui/tooling/test/media";
 import {
   expectNoViolations,
   renderThemed,
   setPageTheme,
   themes,
-} from "../../../test/themed";
+} from "@nuvui/tooling/test/themed";
+import { createRef, useState } from "react";
+import { describe, expect, test, vi } from "vitest";
+import { page, userEvent } from "vitest/browser";
+import { render } from "vitest-browser-react";
 import {
   Menubar,
   MenubarCheckboxItem,

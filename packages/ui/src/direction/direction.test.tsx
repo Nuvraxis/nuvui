@@ -1,8 +1,8 @@
 import "../styles/index.scss";
+import { emulateMedia } from "@nuvui/tooling/test/media";
 import { describe, expect, test } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
-import { emulateMedia } from "../../test/media";
 import {
   DropdownMenu,
   DropdownMenuContent,

@@ -1,5 +1,5 @@
 import { readFile } from "node:fs/promises";
-import { library } from "@/lib/library";
+import { type Addon, packageOf } from "@/lib/library";
 
 // Both tables are read out of the component's compiled CSS, so they list
 // exactly what ships. The descriptions are written by hand in the MDX, and
@@ -67,6 +67,8 @@ function findVariables(css: string, component: string) {
 interface ReferenceProps {
   /** Folder name of the component, such as `button`. */
   component: string;
+  /** The add-on package the component is in. Left out, it's the core. */
+  package?: Addon;
   /** What each entry is for, keyed by its full name. */
   descriptions: Record<string, string>;
 }
@@ -81,11 +83,13 @@ interface CssVariablesProps extends ReferenceProps {
 
 export async function CssVariables({
   component,
+  package: addon,
   descriptions,
   shared = false,
 }: CssVariablesProps) {
+  const source = packageOf(addon);
   const css = await readFile(
-    shared ? library.styles : library.css(component),
+    shared ? source.styles : source.css(component),
     "utf8",
   );
   const variables = findVariables(css, component);
@@ -135,8 +139,12 @@ export async function CssVariables({
   );
 }
 
-export async function BemClasses({ component, descriptions }: ReferenceProps) {
-  const css = await readFile(library.css(component), "utf8");
+export async function BemClasses({
+  component,
+  package: addon,
+  descriptions,
+}: ReferenceProps) {
+  const css = await readFile(packageOf(addon).css(component), "utf8");
   const pattern = new RegExp(`\\.(nuv-${component}[a-z0-9_-]*)`, "g");
   const classes = [
     ...new Set([...css.matchAll(pattern)].map(([, name]) => name)),

@@ -1,12 +1,12 @@
 import "../../styles/index.scss";
+import { axe } from "@nuvui/tooling/test/axe";
+import { contrast } from "@nuvui/tooling/test/contrast";
+import { emulateMedia } from "@nuvui/tooling/test/media";
+import { renderThemed, themes } from "@nuvui/tooling/test/themed";
 import { createRef } from "react";
 import { describe, expect, test, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
-import { axe } from "../../../test/axe";
-import { contrast } from "../../../test/contrast";
-import { emulateMedia } from "../../../test/media";
-import { renderThemed, themes } from "../../../test/themed";
 import { Toggle } from "./toggle";
 
 const toggle = (name = "Bold") => page.getByRole("button", { name });

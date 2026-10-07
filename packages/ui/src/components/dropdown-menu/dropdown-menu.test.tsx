@@ -1,12 +1,12 @@
 import "../../styles/index.scss";
+import { axe, behindOpenList } from "@nuvui/tooling/test/axe";
+import { contrast } from "@nuvui/tooling/test/contrast";
+import { emulateMedia, setViewport } from "@nuvui/tooling/test/media";
+import { setPageTheme, themes } from "@nuvui/tooling/test/themed";
 import { type CSSProperties, createRef, useState } from "react";
 import { describe, expect, test, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
-import { axe, behindOpenList } from "../../../test/axe";
-import { contrast } from "../../../test/contrast";
-import { emulateMedia, setViewport } from "../../../test/media";
-import { setPageTheme, themes } from "../../../test/themed";
 import { Button } from "../button";
 import {
   DropdownMenu,

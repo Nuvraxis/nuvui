@@ -1,0 +1,201 @@
+@use "@nuvui/react/scss/mixins";
+@use "layout";
+
+// The top of a page that isn't the home page: its heading and what it's for.
+.site-intro {
+  @include layout.container;
+
+  display: grid;
+  gap: calc(var(--spacing) * 4);
+  padding-block: calc(var(--spacing) * 10) calc(var(--spacing) * 8);
+
+  @include mixins.breakpoint("md") {
+    padding-block: calc(var(--spacing) * 14) calc(var(--spacing) * 10);
+  }
+}
+
+.site-intro__title {
+  margin: 0;
+  font-size: clamp(1.875rem, 1.5rem + 1.6vw, 2.5rem);
+  font-weight: var(--font-weight-bold);
+  line-height: 1.15;
+  letter-spacing: var(--tracking-tight);
+  text-wrap: balance;
+}
+
+.site-intro__lead {
+  max-inline-size: 65ch;
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-lg);
+  line-height: var(--text-lg--line-height);
+}
+
+.site-intro__text {
+  max-inline-size: 65ch;
+  margin: 0;
+  color: var(--color-muted-foreground);
+}
+
+// A link in a sentence is underlined: color alone doesn't tell it from the
+// words around it.
+.site-intro__link {
+  border-radius: var(--radius-sm);
+  color: var(--color-foreground);
+  font-weight: var(--font-weight-medium);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+
+  @include mixins.focus-ring;
+}
+
+// The chart families, as a row of links that wraps.
+.site-families {
+  margin-block-start: calc(var(--spacing) * 2);
+}
+
+.site-families__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.site-families__link {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--nuv-control-height-sm);
+  padding-inline: calc(var(--spacing) * 3);
+  border-radius: var(--radius-md);
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+
+  @include mixins.focus-ring;
+
+  @include mixins.hover {
+    background-color: var(--color-muted);
+    color: var(--color-foreground);
+  }
+
+  // The page this is. The underline is there for anyone who can't tell the
+  // two shades apart.
+  &[aria-current="page"] {
+    background-color: var(--color-muted);
+    color: var(--color-foreground);
+    text-decoration: underline;
+    text-underline-offset: 0.3em;
+  }
+}
+
+// The families on the charts page, each a box with a link in it.
+.site-family-grid {
+  display: grid;
+  gap: calc(var(--spacing) * 4);
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.site-family-grid__item {
+  position: relative;
+  display: grid;
+  gap: calc(var(--spacing) * 2);
+  align-content: start;
+  padding: calc(var(--spacing) * 5);
+  border: var(--nuv-border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-surface);
+  color: var(--color-surface-foreground);
+
+  @include mixins.hover {
+    border-color: var(--color-border-strong);
+  }
+}
+
+.site-family-grid__title {
+  margin: 0;
+  font-size: var(--text-base);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--leading-snug);
+}
+
+// The link is the title, and the whole box takes the press: its ::after
+// covers the box.
+.site-family-grid__link {
+  color: inherit;
+  text-decoration: none;
+
+  &::after {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    content: "";
+  }
+
+  &:focus-visible {
+    outline: none;
+  }
+
+  &:focus-visible::after {
+    outline: var(--nuv-focus-ring-width, 2px) solid
+      var(--nuv-focus-ring-color, var(--color-ring));
+    outline-offset: 2px;
+  }
+}
+
+.site-family-grid__text {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+.site-family-grid__count {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+// The charts of a family.
+.site-chart-grid {
+  @include layout.container;
+
+  display: grid;
+  gap: calc(var(--spacing) * 4);
+  grid-template-columns: minmax(0, 1fr);
+
+  @include mixins.breakpoint("md") {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @include mixins.breakpoint("xl") {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.site-chart {
+  min-inline-size: 0;
+}
+
+// Every chart in the grid gets the same box, so the cards line up. A card
+// is a surface, a shade off the page in a dark theme, and the gaps in a
+// chart that show what's behind it should show the card.
+.site-chart__frame {
+  --nuv-chart-aspect-ratio: 4 / 3;
+  --nuv-chart-backdrop: var(--color-surface);
+
+  margin-block-start: auto;
+}
+
+// A button that's only an icon: square, at the size of the button it is.
+.site-chart__icon-button {
+  flex: none;
+  aspect-ratio: 1;
+  padding: 0;
+}

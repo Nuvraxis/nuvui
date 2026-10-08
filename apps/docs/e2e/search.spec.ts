@@ -30,7 +30,7 @@ test("search finds text inside a page, not only titles", async ({ page }) => {
 });
 
 test("the search index is a file, not a server", async ({ request }) => {
-  const response = await request.get("/api/search");
+  const response = await request.get("/docs/api/search");
 
   expect(response.ok()).toBe(true);
   // It parses as JSON, and it's big enough to hold real content.

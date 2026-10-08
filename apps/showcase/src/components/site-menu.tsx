@@ -12,6 +12,7 @@ import {
 import { Menu } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { NavLink } from "@/components/nav-link";
 import { navigation, site } from "@/lib/site";
 
 // The navigation on a screen too narrow for it in the header. The same
@@ -47,19 +48,11 @@ export function SiteMenu() {
               </li>
               {navigation.map((item) => (
                 <li key={item.href}>
-                  {item.docs ? (
-                    <a href={item.href} className="site-menu__link">
-                      {item.label}
-                    </a>
-                  ) : (
-                    <Link
-                      href={item.href}
-                      className="site-menu__link"
-                      onClick={close}
-                    >
-                      {item.label}
-                    </Link>
-                  )}
+                  <NavLink
+                    item={item}
+                    className="site-menu__link"
+                    onClick={close}
+                  />
                 </li>
               ))}
             </ul>

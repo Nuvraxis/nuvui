@@ -27,7 +27,7 @@ Run these from the repository root.
 | `pnpm typecheck` | TypeScript, in every workspace. |
 | `pnpm test` | The component tests of every package in Chromium, Firefox and WebKit, and the theme generator's tests. About fourteen minutes. |
 | `pnpm build` | Builds the theme generator and the packages, checks the result, then builds the docs and the website. `apps/showcase/out` is then the whole site: the website, with the docs copied in under `/docs`. |
-| `pnpm test:e2e` | Builds first, then runs Playwright against the exported site, in five browser setups. The docs' tests run against the docs alone, and the website's against the two together. |
+| `pnpm test:e2e` | Builds first, then runs Playwright against the exported site, in five browser setups. The docs' tests run against the docs alone, and the website's against the two together. The two suites run one after the other: each already uses every core, and together they starve each other into timeouts. |
 | `pnpm size` | Builds first, then checks each entry point against its size budget. |
 | `pnpm check:package` | Checks what each package would publish: its `exports` map and its types. Run `pnpm build` first. |
 | `pnpm test:consumers` | Packs the packages and installs them into a Vite app and a Next.js app. Run `pnpm build` first. |

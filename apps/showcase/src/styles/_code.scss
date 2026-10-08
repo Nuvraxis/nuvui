@@ -1,0 +1,42 @@
+@use "@nuvui/react/scss/mixins";
+
+// A block of code, highlighted when the site was built. Every token carries
+// two colors as custom properties, --shiki-light and --shiki-dark, and this
+// picks one. `var(--a, X) var(--b, Y)` comes out as X while --a is unset and
+// --b is empty, and as Y the other way round, so one rule on the block
+// switches every token in it.
+.site-code {
+  --site-code-light: initial;
+  --site-code-dark: ;
+
+  overflow: hidden;
+  border: var(--nuv-border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-muted);
+  font-size: var(--text-sm);
+  line-height: 1.6;
+}
+
+@include mixins.dark {
+  .site-code {
+    --site-code-light: ;
+    --site-code-dark: initial;
+  }
+}
+
+// Shiki's own elements, which have no class of ours.
+.site-code pre {
+  margin: 0;
+  padding: calc(var(--spacing) * 4);
+  overflow-x: auto;
+  color: var(--site-code-light, var(--shiki-light)) var(--site-code-dark, var(--shiki-dark));
+  font-family: var(--font-mono);
+  tab-size: 2;
+
+  // It scrolls sideways, so it takes focus, for the arrow keys.
+  @include mixins.focus-ring(-2px);
+}
+
+.site-code span {
+  color: var(--site-code-light, var(--shiki-light)) var(--site-code-dark, var(--shiki-dark));
+}

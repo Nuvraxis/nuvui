@@ -56,10 +56,13 @@ export function ChartLegendContent({
 
   return (
     <ul className={cx("nuv-chart__legend", className)}>
-      {items.map(({ item, series }) => {
+      {items.map(({ item, series }, index) => {
         return (
           <li
-            key={`${String(item.dataKey)}-${String(item.value)}`}
+            // The place is part of the key: the items of a radial chart
+            // have no key or value of their own to tell them apart by.
+            // biome-ignore lint/suspicious/noArrayIndexKey: see above
+            key={`${index}-${String(item.dataKey)}-${String(item.value)}`}
             className={cx(
               "nuv-chart__legend-item",
               item.inactive && "nuv-chart__legend-item--inactive",

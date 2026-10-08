@@ -18,6 +18,8 @@ import {
   LineChart,
   Pie,
   PieChart,
+  RadialBar,
+  RadialBarChart,
   Tooltip,
   XAxis,
   YAxis,
@@ -538,6 +540,42 @@ describe("the legend", () => {
       "Safari",
       "Firefox",
     ]);
+  });
+
+  test("lists the bars of a radial chart, each under a key of its own", async () => {
+    const errors = vi.spyOn(console, "error").mockImplementation(() => {});
+    await render(
+      <ChartContainer
+        config={browserConfig}
+        aria-label="Visitors by browser"
+        style={{ width: 400 }}
+      >
+        <RadialBarChart
+          data={browsers.map((row) => ({
+            ...row,
+            fill: chartFill(row.browser),
+          }))}
+        >
+          <ChartLegend nameKey="browser" />
+          <RadialBar dataKey="visitors" isAnimationActive={false} />
+        </RadialBarChart>
+      </ChartContainer>,
+    );
+    const items = page.getByRole("listitem");
+    await expect.element(items.first()).toBeVisible();
+    expect(items.elements().map((item) => item.textContent)).toEqual([
+      "Chrome",
+      "Safari",
+      "Firefox",
+    ]);
+    // Recharts gives these items no key and no value, and React complains
+    // of any two list items with the same key.
+    expect(
+      errors.mock.calls.filter(([message]) =>
+        String(message).includes("same key"),
+      ),
+    ).toEqual([]);
+    errors.mockRestore();
   });
 
   test("a series the config doesn't have keeps Recharts' name and color", async () => {

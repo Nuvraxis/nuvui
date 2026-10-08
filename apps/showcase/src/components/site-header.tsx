@@ -1,29 +1,10 @@
 import { VisuallyHidden } from "@nuvui/react/visually-hidden";
 import Link from "next/link";
+import { NavLink } from "@/components/nav-link";
 import { SiteMenu } from "@/components/site-menu";
 import { SiteSearch } from "@/components/site-search";
 import { ThemeControl } from "@/components/theme-control";
-import { type NavItem, navigation, site } from "@/lib/site";
-
-// A link to the docs is a plain <a>: they're another app's pages. One of
-// this app's own goes through the router.
-export function NavLink({
-  item,
-  className,
-}: {
-  item: NavItem;
-  className?: string;
-}) {
-  return item.docs ? (
-    <a href={item.href} className={className}>
-      {item.label}
-    </a>
-  ) : (
-    <Link href={item.href} className={className}>
-      {item.label}
-    </Link>
-  );
-}
+import { navigation, site } from "@/lib/site";
 
 export function GitHubLink() {
   return (

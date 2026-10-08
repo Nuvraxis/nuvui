@@ -61,6 +61,10 @@ export function browserTests({ dependencies }) {
       // time.
       fileParallelism: browsers.every((browser) => browser === "chromium"),
       setupFiles: [fileURLToPath(new URL("./test/setup.ts", import.meta.url))],
+      // What runs after each test puts the page back as it was, and waits
+      // for the page to do it. Vitest's ten seconds is less than that may
+      // take on a busy machine. See parkPointer in test/setup.ts.
+      hookTimeout: 60_000,
       // Component tests run in a real browser through Playwright. jsdom has
       // no layout, so it can't check focus rings, touch target sizes or
       // color contrast, and it needs polyfills for half of what Radix does.

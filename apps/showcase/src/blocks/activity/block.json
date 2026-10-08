@@ -1,0 +1,9 @@
+{
+  "name": "activity",
+  "title": "Activity list",
+  "description": "Who did what and when, newest first, with what to show when there's nothing yet.",
+  "category": "dashboard",
+  "files": ["activity.tsx", "activity.scss"],
+  "install": ["@nuvui/react", "lucide-react"],
+  "height": 640
+}

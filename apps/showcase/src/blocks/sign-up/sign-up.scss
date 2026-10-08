@@ -1,0 +1,149 @@
+@use "@nuvui/react/scss/mixins";
+
+.sign-up {
+  display: grid;
+  min-block-size: 100svh;
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+
+  @include mixins.breakpoint("lg") {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  }
+}
+
+.sign-up__panel {
+  display: grid;
+  place-items: center;
+  padding: calc(var(--spacing) * 10) calc(var(--spacing) * 5);
+}
+
+.sign-up__box {
+  display: grid;
+  gap: calc(var(--spacing) * 8);
+  inline-size: 100%;
+  max-inline-size: 28rem;
+}
+
+.sign-up__brand {
+  display: flex;
+  gap: calc(var(--spacing) * 2);
+  align-items: center;
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--tracking-tight);
+}
+
+.sign-up__intro {
+  display: grid;
+  gap: calc(var(--spacing) * 2);
+}
+
+.sign-up__title {
+  margin: 0;
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-2xl--line-height);
+  letter-spacing: var(--tracking-tight);
+}
+
+.sign-up__text {
+  margin: 0;
+  color: var(--color-muted-foreground);
+}
+
+// A link in a line of text is underlined: color alone doesn't tell it from
+// the words around it.
+.sign-up__link {
+  border-radius: var(--radius-sm);
+  color: var(--color-foreground);
+  font-weight: var(--font-weight-medium);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+
+  @include mixins.focus-ring;
+}
+
+.sign-up__form {
+  display: grid;
+  gap: calc(var(--spacing) * 5);
+}
+
+// The two names, side by side once there's room for both.
+.sign-up__pair {
+  display: grid;
+  gap: calc(var(--spacing) * 5) calc(var(--spacing) * 4);
+
+  @include mixins.breakpoint("sm") {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.sign-up__check {
+  display: flex;
+  gap: calc(var(--spacing) * 2);
+  align-items: flex-start;
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+.sign-up__submit {
+  inline-size: 100%;
+}
+
+// The side that says what the account is for. There's room for it from
+// the lg breakpoint up.
+.sign-up__aside {
+  position: relative;
+  isolation: isolate;
+  display: none;
+  flex-direction: column;
+  gap: calc(var(--spacing) * 8);
+  justify-content: center;
+  overflow: hidden;
+  padding: calc(var(--spacing) * 12);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+
+  // A wash of the brand color, from one corner.
+  &::before {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(
+      ellipse 80% 60% at 100% 0%,
+      color-mix(in oklab, var(--color-primary) 35%, transparent),
+      transparent 70%
+    );
+    content: "";
+  }
+
+  @include mixins.breakpoint("lg") {
+    display: flex;
+  }
+}
+
+.sign-up__statement {
+  max-inline-size: 16ch;
+  margin: 0;
+  font-size: clamp(1.75rem, 1.2rem + 1.6vw, 2.5rem);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.15;
+  letter-spacing: var(--tracking-tight);
+  text-wrap: balance;
+}
+
+.sign-up__points {
+  display: grid;
+  gap: calc(var(--spacing) * 4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sign-up__point {
+  display: flex;
+  gap: calc(var(--spacing) * 3);
+  align-items: center;
+  color: var(--color-muted-foreground);
+}

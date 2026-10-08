@@ -227,6 +227,20 @@ The theme a visitor picks is kept in `localStorage` under `theme`, by both apps,
 
 The website's own styles are in `apps/showcase/src/styles`: SCSS, the library's tokens, and BEM classes that start with `site`. Stylelint holds it to the same rules as the library, with that prefix.
 
+Both apps show the same header. Its links are listed twice, in `apps/showcase/src/lib/site.ts` and in `apps/docs/lib/site.ts`, and a test fails if the two lists differ.
+
+## Adding a block
+
+A block is a folder under `apps/showcase/src/blocks`, named for the block, with three files:
+
+- `<name>.tsx`, the component, as the default export. It imports its stylesheet and nothing else from this repository.
+- `<name>.scss`, its styles. Every class starts with the block's name, such as `.sign-in__title`, with no `nuv` or `site` prefix: a block is copied into someone's app, and from then on it's their code. Stylelint checks this, and that every color is a token.
+- `block.json`, which says what the block is: its name, title, description, category, files, the packages to install, and the height of its preview.
+
+Then add the manifest to the list in `apps/showcase/src/lib/blocks.ts`. That's all the pages, the search, the sitemap and the tests need: every block gets the same tests from its manifest. Add one of your own to `e2e/blocks.spec.ts` for what the block does that the others don't.
+
+Names, figures and companies in a block are made up, and look it.
+
 ## Changing a component
 
 The same rules apply on a smaller scale. If a change adds a class or a CSS variable, the docs build will tell you which page needs a description for it. If it changes what a prop does, update the JSDoc comment, because that's what the docs page shows.

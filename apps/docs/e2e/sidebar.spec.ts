@@ -325,9 +325,11 @@ test.describe("sidebar page, on a phone", () => {
     const close = await panel
       .getByRole("button", { name: "Close" })
       .boundingBox();
-    expect(row?.height).toBe(44);
-    expect(close?.width).toBe(44);
-    expect(close?.height).toBe(44);
+    // To a hundredth of a pixel. Safari on Linux has measured the button at
+    // 44.00002 while the panel was still arriving.
+    expect(row?.height).toBeCloseTo(44, 2);
+    expect(close?.width).toBeCloseTo(44, 2);
+    expect(close?.height).toBeCloseTo(44, 2);
   });
 
   test("a panel on the end side comes from the other edge", async ({

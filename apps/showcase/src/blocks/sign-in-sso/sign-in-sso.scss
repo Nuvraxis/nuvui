@@ -1,0 +1,94 @@
+@use "@nuvui/react/scss/mixins";
+
+.sign-in-sso {
+  display: grid;
+  place-items: center;
+  min-block-size: 100svh;
+  padding: calc(var(--spacing) * 8) calc(var(--spacing) * 4);
+  background-color: var(--color-muted);
+  color: var(--color-foreground);
+}
+
+.sign-in-sso__card {
+  display: grid;
+  gap: calc(var(--spacing) * 6);
+  inline-size: 100%;
+  max-inline-size: 26rem;
+  padding: calc(var(--spacing) * 6);
+  border: var(--nuv-border-width) solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-lg);
+  color: var(--color-surface-foreground);
+
+  @include mixins.breakpoint("sm") {
+    padding: calc(var(--spacing) * 10);
+  }
+}
+
+.sign-in-sso__brand {
+  display: flex;
+  gap: calc(var(--spacing) * 2);
+  align-items: center;
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--tracking-tight);
+}
+
+.sign-in-sso__intro {
+  display: grid;
+  gap: calc(var(--spacing) * 2);
+}
+
+.sign-in-sso__title {
+  margin: 0;
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-2xl--line-height);
+  letter-spacing: var(--tracking-tight);
+  text-wrap: balance;
+}
+
+.sign-in-sso__text {
+  margin: 0;
+  color: var(--color-muted-foreground);
+}
+
+.sign-in-sso__form {
+  display: grid;
+  gap: calc(var(--spacing) * 5);
+}
+
+.sign-in-sso__wide {
+  inline-size: 100%;
+}
+
+// The word between the two ways in, with a line on each side of it.
+.sign-in-sso__or {
+  display: grid;
+  gap: calc(var(--spacing) * 3);
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+}
+
+.sign-in-sso__small {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+// A link in a line of text is underlined: color alone doesn't tell it from
+// the words around it.
+.sign-in-sso__link {
+  border-radius: var(--radius-sm);
+  color: var(--color-surface-foreground);
+  font-weight: var(--font-weight-medium);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+
+  @include mixins.focus-ring;
+}

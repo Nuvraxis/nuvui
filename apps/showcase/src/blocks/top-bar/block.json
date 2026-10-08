@@ -1,0 +1,9 @@
+{
+  "name": "top-bar",
+  "title": "Top bar",
+  "description": "A bar across the top with the product's name, a search that opens a command palette, and the person's menu.",
+  "category": "layout",
+  "files": ["top-bar.tsx", "top-bar.scss"],
+  "install": ["@nuvui/react", "lucide-react"],
+  "height": 420
+}

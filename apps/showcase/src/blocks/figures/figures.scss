@@ -1,0 +1,62 @@
+.figures {
+  display: grid;
+  gap: calc(var(--spacing) * 4);
+  padding: calc(var(--spacing) * 4);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+}
+
+.figures__title {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-lg--line-height);
+  letter-spacing: var(--tracking-tight);
+}
+
+// As many cards to a row as fit, and never one narrower than 14rem.
+.figures__list {
+  display: grid;
+  gap: calc(var(--spacing) * 4);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.figures__card {
+  block-size: 100%;
+}
+
+.figures__value {
+  margin: 0;
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-2xl--line-height);
+  letter-spacing: var(--tracking-tight);
+  font-variant-numeric: tabular-nums;
+}
+
+.figures__body {
+  display: grid;
+  gap: calc(var(--spacing) * 4);
+}
+
+.figures__change {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 2);
+  align-items: center;
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+}
+
+// A short, wide box with no axes: the line is there for its shape. The
+// number above it is the figure, and the chart's table has the rest. A
+// card is a surface, and the gaps in a chart should show the card.
+.figures__chart {
+  --nuv-chart-height: 3.5rem;
+  --nuv-chart-aspect-ratio: auto;
+  --nuv-chart-backdrop: var(--color-surface);
+}

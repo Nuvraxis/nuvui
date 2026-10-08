@@ -1,31 +1,323 @@
+@use "@nuvui/react/scss/mixins";
 @use "layout";
+
+// The home page's sections, one under the other with room between them.
+.site-home {
+  display: grid;
+  gap: clamp(5rem, 3rem + 8vw, 9rem);
+  grid-template-columns: minmax(0, 1fr);
+}
 
 .site-section {
   @include layout.container;
 
   display: grid;
-  gap: calc(var(--spacing) * 8);
+  gap: calc(var(--spacing) * 10);
 
   // The grid's one column may not grow past the page for something wide
   // inside it, such as a table. The table scrolls in its own box.
   grid-template-columns: minmax(0, 1fr);
 }
 
+.site-section--wide {
+  max-inline-size: layout.$width-wide;
+}
+
 .site-section__intro {
   display: grid;
-  gap: calc(var(--spacing) * 2);
+  gap: calc(var(--spacing) * 3);
+}
+
+.site-section__intro--center {
+  justify-items: center;
+  text-align: center;
+}
+
+// A few words above a section's title, saying which part of the page it is.
+.site-section__label {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--text-sm--line-height);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .site-section__title {
+  max-inline-size: 24ch;
   margin: 0;
-  font-size: var(--text-2xl);
+  font-size: clamp(1.75rem, 1.35rem + 1.8vw, 2.75rem);
   font-weight: var(--font-weight-semibold);
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+// A section's title on a page that isn't the home page, where the page's
+// own heading is the large one.
+.site-section__title--small {
+  font-size: var(--text-2xl);
   line-height: var(--text-2xl--line-height);
   letter-spacing: var(--tracking-tight);
 }
 
 .site-section__text {
-  max-inline-size: 65ch;
+  max-inline-size: 62ch;
   margin: 0;
   color: var(--color-muted-foreground);
+  font-size: var(--text-lg);
+  line-height: var(--leading-relaxed);
+  text-wrap: pretty;
+}
+
+// A frame around something shown off, drawn as a window: a bar with three
+// dots, and the thing under it.
+.site-window {
+  overflow: hidden;
+  border: var(--nuv-border-width) solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background-color: var(--color-background);
+  box-shadow:
+    var(--shadow-xl),
+    0 0 0 calc(var(--spacing) * 2) color-mix(in oklab, var(--color-muted) 60%, transparent);
+}
+
+.site-window__bar {
+  display: flex;
+  gap: calc(var(--spacing) * 2);
+  align-items: center;
+  padding: calc(var(--spacing) * 3) calc(var(--spacing) * 4);
+  border-block-end: var(--nuv-border-width) solid var(--color-border);
+  background-color: var(--color-muted);
+}
+
+.site-window__dot {
+  inline-size: calc(var(--spacing) * 2.5);
+  block-size: calc(var(--spacing) * 2.5);
+  border: var(--nuv-border-width) solid var(--color-border-strong);
+  border-radius: var(--radius-full);
+}
+
+.site-window__body {
+  padding: calc(var(--spacing) * 3);
+
+  @include mixins.breakpoint("md") {
+    padding: calc(var(--spacing) * 6);
+  }
+}
+
+// What the library is built on, as a grid of short statements. The lines
+// between them are the grid's own background, showing through its gaps.
+.site-features {
+  display: grid;
+  gap: var(--nuv-border-width);
+  grid-template-columns: minmax(0, 1fr);
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  border: var(--nuv-border-width) solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background-color: var(--color-border);
+  list-style: none;
+
+  @include mixins.breakpoint("md") {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @include mixins.breakpoint("lg") {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.site-features__item {
+  display: grid;
+  gap: calc(var(--spacing) * 3);
+  align-content: start;
+  padding: calc(var(--spacing) * 7);
+  background-color: var(--color-background);
+
+  @include mixins.breakpoint("md") {
+    padding: calc(var(--spacing) * 9);
+  }
+}
+
+.site-features__icon {
+  display: grid;
+  place-items: center;
+  inline-size: calc(var(--spacing) * 10);
+  block-size: calc(var(--spacing) * 10);
+  margin-block-end: calc(var(--spacing) * 2);
+  border: var(--nuv-border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-xs);
+  color: var(--color-surface-foreground);
+}
+
+.site-features__title {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--leading-snug);
+  letter-spacing: var(--tracking-tight);
+}
+
+.site-features__text {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  line-height: var(--leading-relaxed);
+}
+
+// A box that's a link to somewhere: a part of the site, a family of charts,
+// a category of blocks. The link is the title, and its ::after covers the
+// box, so the whole box takes the press.
+.site-tiles {
+  display: grid;
+  gap: calc(var(--spacing) * 4);
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.site-tiles--three {
+  @include mixins.breakpoint("lg") {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.site-tile {
+  position: relative;
+  display: grid;
+  gap: calc(var(--spacing) * 2);
+  align-content: start;
+  block-size: 100%;
+  padding: calc(var(--spacing) * 6);
+  border: var(--nuv-border-width) solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-xs);
+  color: var(--color-surface-foreground);
+
+  @include mixins.motion-safe {
+    transition:
+      border-color var(--nuv-duration-base) var(--ease-out),
+      box-shadow var(--nuv-duration-base) var(--ease-out),
+      transform var(--nuv-duration-base) var(--ease-out);
+  }
+
+  @include mixins.hover {
+    border-color: var(--color-border-strong);
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+  }
+}
+
+.site-tile--large {
+  gap: calc(var(--spacing) * 3);
+  padding: calc(var(--spacing) * 8);
+}
+
+.site-tile__icon {
+  display: grid;
+  place-items: center;
+  inline-size: calc(var(--spacing) * 10);
+  block-size: calc(var(--spacing) * 10);
+  margin-block-end: calc(var(--spacing) * 3);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-primary);
+  color: var(--color-primary-foreground);
+}
+
+.site-tile__title {
+  margin: 0;
+  font-size: var(--text-base);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--leading-snug);
+  letter-spacing: var(--tracking-tight);
+}
+
+.site-tile__title--large {
+  font-size: var(--text-xl);
+  line-height: var(--text-xl--line-height);
+}
+
+.site-tile__link {
+  color: inherit;
+  text-decoration: none;
+
+  &::after {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    content: "";
+  }
+
+  &:focus-visible {
+    outline: none;
+  }
+
+  &:focus-visible::after {
+    outline: var(--nuv-focus-ring-width, 2px) solid
+      var(--nuv-focus-ring-color, var(--color-ring));
+    outline-offset: 2px;
+  }
+}
+
+.site-tile__text {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+}
+
+// The last line of a tile: a count, with an arrow that says it's a link.
+.site-tile__more {
+  display: flex;
+  gap: calc(var(--spacing) * 1.5);
+  align-items: center;
+  margin: calc(var(--spacing) * 2) 0 0;
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  font-variant-numeric: tabular-nums;
+}
+
+// The end of the home page: what to do next, in a panel.
+.site-cta {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  gap: calc(var(--spacing) * 5);
+  justify-items: center;
+  overflow: hidden;
+  padding: calc(var(--spacing) * 12) calc(var(--spacing) * 6);
+  border: var(--nuv-border-width) solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background-color: var(--color-surface);
+  color: var(--color-surface-foreground);
+  text-align: center;
+
+  @include mixins.breakpoint("md") {
+    padding: calc(var(--spacing) * 20) calc(var(--spacing) * 10);
+  }
+
+  &::before {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(
+      ellipse 40rem 18rem at 50% 0%,
+      color-mix(in oklab, var(--color-primary) 12%, transparent),
+      transparent 70%
+    );
+    content: "";
+    pointer-events: none;
+  }
+
+  @media (forced-colors: active) {
+    &::before {
+      display: none;
+    }
+  }
 }

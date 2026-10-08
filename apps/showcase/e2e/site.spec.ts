@@ -1,7 +1,10 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
-import { site as docsSite } from "../../docs/lib/site";
-import { absoluteUrl, pages, site } from "../src/lib/site";
+import {
+  navigation as docsNavigation,
+  site as docsSite,
+} from "../../docs/lib/site";
+import { absoluteUrl, navigation, pages, site } from "../src/lib/site";
 import { open, overflow, press, settleStyles, wcag } from "./helpers";
 
 // The site is this app's pages and the docs', in one folder. These tests
@@ -159,6 +162,16 @@ test.describe("how the site is built", () => {
     expect(docsSite.url).toBe(site.url);
     expect(docsSite.name).toBe(site.name);
   });
+
+  test("both apps have the same header: the same links in the same order", () => {
+    expect(docsNavigation.map(({ label, href }) => ({ label, href }))).toEqual(
+      navigation.map(({ label, href }) => ({ label, href })),
+    );
+    // What the website calls a page of the docs, the docs call their own.
+    expect(docsNavigation.map((item) => Boolean(item.docs))).toEqual(
+      navigation.map((item) => Boolean(item.docs)),
+    );
+  });
 });
 
 test.describe("the header", () => {
@@ -182,7 +195,7 @@ test.describe("the header", () => {
         );
       });
     const stops: string[] = [];
-    for (let index = 0; index < 9; index += 1) {
+    for (let index = 0; index < 10; index += 1) {
       await page.keyboard.press("Tab");
       stops.push(await focused());
     }
@@ -190,11 +203,12 @@ test.describe("the header", () => {
     expect(stops[1]).toBe(site.name);
     expect(stops[2]).toBe("Docs");
     expect(stops[3]).toBe("Components");
-    expect(stops[4]).toBe("Charts");
-    expect(stops[5]).toBe("Themes");
-    expect(stops[6]).toMatch(/^Search/);
-    expect(stops[7]).toBe("GitHub repository");
-    expect(stops[8]).toMatch(/^Theme: /);
+    expect(stops[4]).toBe("Blocks");
+    expect(stops[5]).toBe("Charts");
+    expect(stops[6]).toBe("Themes");
+    expect(stops[7]).toMatch(/^Search/);
+    expect(stops[8]).toBe("GitHub repository");
+    expect(stops[9]).toMatch(/^Theme: /);
   });
 
   test("the skip link goes to the content", async ({
@@ -456,15 +470,69 @@ test.describe("where the two apps meet", () => {
     await page.locator('a[href="/docs/theming"]:visible').first().click();
     await expect(page).toHaveURL(/\/docs\/theming$/);
 
-    await page
-      .getByRole("link", { name: `${site.name} home` })
-      .first()
-      .click();
+    // The docs have the website's header, and its name is the way back.
+    const header = page.locator("#site-header");
+    await expect(
+      header.getByRole("link", { name: "Docs", exact: true }),
+    ).toHaveAttribute("aria-current", "page");
+    await header.getByRole("link", { name: site.name, exact: true }).click();
     await expect(page).toHaveURL(/:\d+\/$/);
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(
       "React components on Radix UI, styled with plain SCSS",
     );
     expect(missing).toEqual([]);
+  });
+
+  test("the docs have the website's header, and every link in it goes somewhere", async ({
+    page,
+    request,
+  }) => {
+    await open(page, "/docs/components/button");
+    const header = page.locator("#site-header");
+    const links = header.getByRole("navigation", { name: "Site" });
+    await expect(links.getByRole("link")).toHaveText(
+      navigation.map((item) => item.label),
+    );
+    for (const item of navigation) {
+      const link = links.getByRole("link", { name: item.label, exact: true });
+      await expect(link).toHaveAttribute("href", item.href);
+      expect((await request.get(item.href)).status(), item.href).toBe(200);
+    }
+    // A component's page is in the section of that name, not in "Docs".
+    await expect(
+      links.getByRole("link", { name: "Components", exact: true }),
+    ).toHaveAttribute("aria-current", "page");
+    await expect(
+      links.getByRole("link", { name: "Docs", exact: true }),
+    ).not.toHaveAttribute("aria-current");
+
+    // From there to a page of the website, which is a full load.
+    await links.getByRole("link", { name: "Charts", exact: true }).click();
+    await expect(page).toHaveURL(/\/charts$/);
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Charts");
+  });
+
+  test("the docs' header stays at the top on a wide screen, with the sidebar under it", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/docs/components/button");
+    const header = page.locator("#site-header");
+    await page.evaluate(() => window.scrollTo(0, 1200));
+    if (isMobile) {
+      // On a phone it scrolls away, and the docs' own bar takes the top.
+      await expect(header).not.toBeInViewport();
+      return;
+    }
+    await expect(header).toBeInViewport();
+    const bottom = await header.evaluate(
+      (element) => element.getBoundingClientRect().bottom,
+    );
+    const sidebarTop = await page
+      .locator("#nd-sidebar")
+      .evaluate((element) => element.getBoundingClientRect().top);
+    expect(sidebarTop).toBeGreaterThanOrEqual(bottom - 1);
+    expect(await overflow(page)).toBeLessThanOrEqual(0);
   });
 
   test("the buttons on the home page go to pages that exist", async ({

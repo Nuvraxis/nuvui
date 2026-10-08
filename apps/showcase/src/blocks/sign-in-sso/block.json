@@ -1,0 +1,9 @@
+{
+  "name": "sign-in-sso",
+  "title": "Sign in with a company account",
+  "description": "A work email that leads to the company's own sign-in, with a password as the other way in.",
+  "category": "accounts",
+  "files": ["sign-in-sso.tsx", "sign-in-sso.scss"],
+  "install": ["@nuvui/react", "lucide-react"],
+  "height": 680
+}

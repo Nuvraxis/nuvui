@@ -35,3 +35,12 @@ html {
     outline: none;
   }
 }
+
+.site-logo {
+  flex: none;
+}
+
+// The arch in the site's mark is cut out of the square: it shows the page.
+.site-logo__arch {
+  stroke: var(--color-background);
+}

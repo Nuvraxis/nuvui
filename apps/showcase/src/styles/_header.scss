@@ -7,6 +7,13 @@
   z-index: 10;
   border-block-end: var(--nuv-border-width) solid var(--color-border);
   background-color: var(--color-background);
+
+  // The page shows through, blurred, where a browser can do that. Where it
+  // can't, the header stays solid.
+  @supports (backdrop-filter: blur(1px)) {
+    background-color: color-mix(in oklab, var(--color-background) 80%, transparent);
+    backdrop-filter: saturate(160%) blur(14px);
+  }
 }
 
 // The first stop for Tab, and out of sight until it has focus.
@@ -32,23 +39,28 @@
 }
 
 .site-header__inner {
-  @include layout.container;
+  @include layout.container(layout.$width-wide);
 
   display: flex;
   gap: calc(var(--spacing) * 2);
   align-items: center;
-  min-block-size: calc(var(--spacing) * 14);
+  min-block-size: calc(var(--spacing) * 16);
 
   @include mixins.breakpoint("md") {
-    gap: calc(var(--spacing) * 6);
+    gap: calc(var(--spacing) * 8);
   }
 }
 
 .site-header__name {
+  display: inline-flex;
+  gap: calc(var(--spacing) * 2.5);
+  align-items: center;
+  min-block-size: var(--nuv-touch-size);
   border-radius: var(--radius-sm);
   color: inherit;
   font-size: var(--text-lg);
   font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--tracking-tight);
   text-decoration: none;
 
   @include mixins.focus-ring;
@@ -79,6 +91,7 @@
 }
 
 .site-header__link {
+  position: relative;
   display: inline-flex;
   align-items: center;
   min-block-size: var(--nuv-control-height-sm);
@@ -91,17 +104,28 @@
 
   @include mixins.focus-ring;
 
+  @include mixins.motion-safe {
+    transition: color var(--nuv-duration-fast) var(--ease-out);
+  }
+
   @include mixins.hover {
-    background-color: var(--color-muted);
     color: var(--color-foreground);
   }
 
-  // The page that's open, or the section it's in. The underline is there
-  // for anyone who can't tell the two shades apart.
+  // The page that's open, or the section it's in.
   &[aria-current="page"] {
     color: var(--color-foreground);
-    text-decoration: underline;
-    text-underline-offset: 0.3em;
+  }
+
+  // The line under it is there for anyone who can't tell the two shades
+  // apart. It's a border, which a forced-colors theme keeps where it would
+  // drop a background.
+  &[aria-current="page"]::after {
+    position: absolute;
+    inset-block-end: 0;
+    inset-inline: calc(var(--spacing) * 3);
+    border-block-end: 2px solid currentcolor;
+    content: "";
   }
 }
 

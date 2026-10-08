@@ -27,23 +27,25 @@ export default function ThemesPage() {
           operatingSystem: "Any",
         }}
       />
-      <section className="site-intro site-intro--wide">
-        <h1 className="site-intro__title">Themes</h1>
-        <p className="site-intro__lead">
-          Pick a brand color, a base color, a radius and a density, and see the
-          components in it, in light and in dark. Then take the result as CSS. A
-          theme is a set of values for the library's variables and nothing else,
-          so there's nothing to install.
-        </p>
-        <p className="site-intro__text">
-          Each color is chosen by measuring its contrast against the colors it's
-          used with. What the variables are is in{" "}
-          <a className="site-intro__link" href={`${docs.home}/theming`}>
-            the theming guide
-          </a>
-          .
-        </p>
-      </section>
+      <div className="site-backdrop">
+        <section className="site-intro site-intro--wide">
+          <h1 className="site-intro__title">Themes</h1>
+          <p className="site-intro__lead">
+            Pick a brand color, a base color, a radius and a density, and see
+            the components in it, in light and in dark. Then take the result as
+            CSS. A theme is a set of values for the library's variables and
+            nothing else, so there's nothing to install.
+          </p>
+          <p className="site-intro__text">
+            Each color is chosen by measuring its contrast against the colors
+            it's used with. What the variables are is in{" "}
+            <a className="site-intro__link" href={`${docs.home}/theming`}>
+              the theming guide
+            </a>
+            .
+          </p>
+        </section>
+      </div>
       <ThemeBuilder />
     </>
   );

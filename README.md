@@ -17,7 +17,7 @@ What exists today:
 - The design tokens: color scales, semantic colors for both themes, chart colors, type, spacing, radius, shadow, motion and control sizes. They build to CSS custom properties, and the SCSS source ships alongside.
 - Five presets, each a stylesheet that restyles everything, and three densities.
 - A docs site with a page for each component, a getting started page, and search that runs in the browser.
-- A website around the docs, built with the library's own tokens: a home page with a live dashboard, and 39 charts in ten families, each one file to copy.
+- A website around the docs, built with the library's own tokens: a home page with a live dashboard, 39 charts in ten families, each one file to copy, and a theme builder that shows a theme on real components in light and dark and gives it back as CSS.
 - Guides for theming, for using the tokens with Tailwind v4, for using the SCSS source, for building forms, with React Hook Form as the worked example, and for right-to-left layouts. The theming page has an editor that changes tokens in the browser and prints the CSS for what you changed.
 
 What's missing:

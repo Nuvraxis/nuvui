@@ -14,6 +14,10 @@
   }
 }
 
+.site-intro--wide {
+  max-inline-size: layout.$width-wide;
+}
+
 .site-intro__title {
   margin: 0;
   font-size: clamp(1.875rem, 1.5rem + 1.6vw, 2.5rem);

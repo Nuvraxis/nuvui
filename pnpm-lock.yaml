@@ -296,6 +296,9 @@ importers:
       '@nuvui/table':
         specifier: workspace:*
         version: link:../../packages/table
+      '@nuvui/theme':
+        specifier: workspace:*
+        version: link:../../packages/theme
       '@tanstack/react-table':
         specifier: ^9.2.6
         version: 9.2.6(react-dom@19.3.0(react@19.3.0))(react@19.3.0)

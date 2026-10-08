@@ -1,0 +1,280 @@
+---
+title: ChartContainer
+description: The box a Recharts chart goes in. It sizes the chart, sets a CSS variable for each series from a config, styles the axes and grid from the tokens, and holds the legend, the patterns and a table of the same numbers.
+---
+
+Every chart goes in a `ChartContainer`. It takes one Recharts chart as its child and does what Recharts leaves to you: the size, the colors, and the text that stands in for the picture.
+
+<Preview name="charts/basic" wide />
+
+## Install
+
+```sh
+pnpm add @nuvui/charts @nuvui/react recharts
+```
+
+## Import
+
+```tsx
+import {
+  ChartContainer,
+  ChartLegend,
+  ChartTable,
+  ChartTooltip,
+  chartColor,
+  chartDash,
+  chartFill,
+  type ChartConfig,
+} from "@nuvui/charts";
+```
+
+The styles come from `@nuvui/charts/styles.css`, which you load once for the whole app, after `@nuvui/react/styles.css`. [Charts](/docs/charts) covers that.
+
+## The config
+
+The config lists the chart's series. The key is the name the series has in your data, and what its CSS variables are named after:
+
+```tsx
+const config = {
+  desktop: { label: "Desktop" },
+  mobile: { label: "Mobile" },
+} satisfies ChartConfig;
+```
+
+`satisfies` checks the object and keeps its keys, so `config.desktop` is still known to exist.
+
+<PropsTable package="charts" component="chart" file="config.ts" name="ChartSeries" />
+
+Make the config once, outside the component, or with `useMemo`. A new object on every render makes the container work its variables out again every time.
+
+## Colors
+
+For each series the container sets three variables on itself. For a series called `desktop`:
+
+| Variable | Helper | What it holds |
+| --- | --- | --- |
+| `--chart-desktop` | `chartColor("desktop")` | The series' color. |
+| `--chart-desktop-fill` | `chartFill("desktop")` | Its fill: the color, or a pattern. |
+| `--chart-desktop-dash` | `chartDash("desktop")` | The dashes of its line, for `strokeDasharray`. |
+
+A helper returns the text `var(--chart-desktop)`, which goes straight into a Recharts prop:
+
+```tsx
+<Bar dataKey="desktop" fill={chartFill("desktop")} />
+<Line dataKey="desktop" stroke={chartColor("desktop")} strokeDasharray={chartDash("desktop")} />
+```
+
+Use `chartFill` for anything filled and `chartColor` for a line. The variables work in your own CSS too, anywhere inside the container.
+
+A series with no `color` takes the next of the theme's eight chart colors, `--color-chart-1` to `--color-chart-8`, by its place in the config. Those are chosen to stand 3:1 against the page in every theme the library ships, and ordered so that neighbours stay apart for people with the common kinds of color blindness. A ninth series starts again at the first.
+
+To choose a color, give any CSS color. A token changes with the theme, and a fixed color doesn't:
+
+<Preview name="charts/colors" wide />
+
+Because a color is a variable, switching the theme recolors a chart in CSS. Nothing is rendered again.
+
+A key that can't be part of a variable's name, one with a space in it say, has each such character replaced by a hyphen. The helpers do the same, so `chartFill("north america")` finds `--chart-north-america-fill`.
+
+## Patterns
+
+About one man in twelve can't tell some colors apart, and a chart that's printed or photocopied has no colors at all. `patterns` gives each series a second way to be told from the others: a fill of its own, and a line dashed its own way.
+
+<Preview name="charts/patterns" wide />
+
+The first series stays plain, and the next seven each get a different pattern and a different dash. The legend and the tooltip show the same pattern as the series.
+
+Three things decide whether a series is patterned:
+
+- `patterns` on the container turns them on for every series.
+- `pattern` or `dash` on a series in the config sets that one for good, whatever the container says. `"solid"` keeps it plain.
+- Where the browser is forcing colors, as Windows high contrast does, patterns are on whatever you set. A forced palette doesn't reach inside a drawing, so there every series is drawn in the system's text color and the patterns are what tell them apart.
+
+This only works for series colored with `chartFill` and `chartDash`. A series given a color directly has no pattern to switch to.
+
+Patterns are one way to meet [WCAG 1.4.1](https://www.w3.org/WAI/WCAG22/Understanding/use-of-color.html), which asks that color isn't the only way to tell things apart. A label written on each series, or a visible table, are others.
+
+## The same numbers as a table
+
+`ChartTable` writes the chart's data as a table, and goes in the container's `table`:
+
+```tsx
+<ChartContainer
+  config={config}
+  aria-label="Visitors by month"
+  table={<ChartTable data={data} category="month" categoryLabel="Month" />}
+>
+```
+
+It has a column for each series in the config, headed by the series' label, and a row for each row of the data, headed by its `category`.
+
+Without `visible` the table is in the page for screen readers and takes no room. With it, the table is drawn under the chart:
+
+<Preview name="charts/table" wide />
+
+Give every chart a table unless the same numbers are already in the page as text. It's the only part of a chart a screen reader can read as data, and with `visible` it's also how anyone reads an exact number off a chart.
+
+<PropsTable package="charts" component="chart" file="chart-table" name="ChartTableOwnProps" />
+
+`ChartTable` also takes a `table` element's attributes and a `ref`.
+
+## Formatting numbers
+
+`formatValue` on the container says how a value is written in the tooltip and in the table. It's given the value and the series' key:
+
+```tsx
+const number = new Intl.NumberFormat("en-US");
+
+<ChartContainer formatValue={(value) => number.format(Number(value))} ... >
+```
+
+Name the locale. The table is rendered on the server as well as in the browser, and a formatter that takes each one's default locale can write two different texts for one number, which React reports as an error. Without `formatValue` a value is shown as it is in the data.
+
+The numbers on an axis are Recharts' own, set with `tickFormatter` on the axis.
+
+## Size
+
+The container is as wide as the space it's in, and the chart is drawn in a box shaped 16 to 9. Two variables change that:
+
+```css
+.revenue {
+  --nuv-chart-aspect-ratio: 2 / 1;
+}
+
+.sparkline {
+  --nuv-chart-height: 4rem;
+  --nuv-chart-aspect-ratio: auto;
+}
+```
+
+The chart follows the box when it changes size. Don't wrap it in Recharts' `ResponsiveContainer`, and don't give the chart a `width` or a `height`: the container sets `responsive` on it.
+
+The container's child has to be the Recharts chart itself, `<BarChart>` or one of the others. The container hands it its size and its name as props, and a component of your own in between wouldn't pass them on. Put the container inside that component instead.
+
+## Legend
+
+`ChartLegend` is Recharts' `Legend` with the library's look. It lists the series in the config's order, with their labels and the same fill, pattern or dashes as the series:
+
+```tsx
+<ChartLegend />
+<ChartLegend indicator="line" verticalAlign="top" />
+```
+
+<PropsTable package="charts" component="chart" file="chart-legend" name="ChartLegendContentOwnProps" />
+
+It takes everything Recharts' `Legend` takes. The tooltip has [a page of its own](/docs/charts/tooltip).
+
+## Props
+
+<PropsTable package="charts" component="chart" file="chart-container" name="ChartContainerOwnProps" />
+
+`ChartContainer` also takes a `div`'s attributes and a `ref`, and one of `aria-label` and `aria-labelledby`.
+
+## Accessibility
+
+### Keyboard
+
+A chart is one stop for <kbd>Tab</kbd>. With focus on it:
+
+| Key | What it does |
+| --- | --- |
+| <kbd>←</kbd> and <kbd>→</kbd> | Move to the point before or after, and show its tooltip. |
+| <kbd>Enter</kbd> | Hides the tooltip, or shows it again. |
+
+This is Recharts' own keyboard layer, which is on unless a chart sets `accessibilityLayer={false}`.
+
+### What the components handle
+
+- The chart has the name you gave the container, and a focus ring when it has keyboard focus. Recharts gives it `role="application"`, which tells a screen reader to pass the arrow keys through.
+- The tooltip is a live region, so a screen reader hears the point the arrow keys moved to.
+- The axes, the grid and the labels take their colors from the tokens. Axis text is held to 4.5:1 against the page, and the eight chart colors to 3:1, in every theme the library ships.
+- Animation is off for people who've asked their system to reduce motion. Recharts does this itself.
+- Where the browser forces colors, every series is drawn in the system's text color with a pattern of its own.
+
+### What you need to handle
+
+- Name the chart for what it shows: "Visitors by month, on desktop and mobile".
+- Give it a `ChartTable`.
+- Turn `patterns` on, or label the series directly, when a chart has more than one.
+- Don't put anything in a chart that's only in the tooltip. A tooltip can't be reached on a touch screen without a tap on the right spot.
+
+### With a screen reader
+
+Recharts' guidance is that VoiceOver users have to turn QuickNav off to move through a chart's points with the arrow keys, because QuickNav takes those keys for itself.
+
+None of this has been checked with a screen reader yet: what's said when focus lands on a chart, and how the tooltip's text is read as it changes. The table doesn't depend on any of it.
+
+## CSS variables
+
+<CssVariables
+  package="charts"
+  component="chart"
+  descriptions={{
+    "--nuv-chart-height":
+      "Height of the box the chart is drawn in. Set the aspect ratio to auto with it.",
+    "--nuv-chart-aspect-ratio": "Shape of the box, while it has no height.",
+    "--nuv-chart-fg": "Color of the text on the axes.",
+    "--nuv-chart-font-size": "Size of the text on the axes.",
+    "--nuv-chart-label-fg": "Color of a label written onto the chart.",
+    "--nuv-chart-grid": "Color of the grid lines.",
+    "--nuv-chart-axis":
+      "Color of the axis lines, their ticks and a reference line.",
+    "--nuv-chart-cursor":
+      "Color of what follows the pointer: the line on a line chart, the band behind a group of bars. Also the track behind a radial bar.",
+    "--nuv-chart-backdrop":
+      "The color behind the chart. It's drawn between the slices of a pie and around a dot. Set it when the chart is on a card.",
+    "--nuv-chart-legend-fg": "Text color of the legend.",
+    "--nuv-chart-tooltip-bg": "Background of the tooltip.",
+    "--nuv-chart-tooltip-fg": "Text color of the tooltip.",
+    "--nuv-chart-tooltip-border": "Border color of the tooltip.",
+    "--nuv-chart-tooltip-radius": "Corner radius of the tooltip.",
+    "--nuv-chart-tooltip-shadow": "Shadow under the tooltip.",
+    "--nuv-chart-table-fg": "Text color of a visible table.",
+    "--nuv-chart-table-border": "Color of the lines between its rows.",
+  }}
+/>
+
+The stylesheet also sets three variables of its own on the container, `--nuv-chart-patterns`, `--nuv-chart-solid` and `--nuv-chart-forced-color`. They're the switches behind `patterns` and forced colors. Leave them alone.
+
+## Classes
+
+<BemClasses
+  package="charts"
+  component="chart"
+  descriptions={{
+    "nuv-chart": "The container.",
+    "nuv-chart__plot": "The box the chart is drawn in.",
+    "nuv-chart__patterns":
+      "A hidden svg that holds the patterns. It takes no room.",
+    "nuv-chart__tooltip": "The tooltip's panel.",
+    "nuv-chart__tooltip-label": "The line that says which point it is.",
+    "nuv-chart__tooltip-items": "The list of series.",
+    "nuv-chart__tooltip-item": "One series in the tooltip.",
+    "nuv-chart__tooltip-name": "Its label.",
+    "nuv-chart__tooltip-value": "Its value.",
+    "nuv-chart__swatch": "The sample of a series, in the tooltip and the legend.",
+    "nuv-chart__swatch--line": "A sample drawn as a line.",
+    "nuv-chart__legend": "The legend's list.",
+    "nuv-chart__legend-item": "One series in the legend.",
+    "nuv-chart__legend-item--inactive": "A series Recharts reports as hidden.",
+    "nuv-chart__data": "The box around the table.",
+    "nuv-chart__data--hidden": "That box, when the table is for screen readers only.",
+    "nuv-chart__table": "The table.",
+  }}
+/>
+
+Recharts' own elements keep Recharts' class names, such as `recharts-cartesian-grid`. The stylesheet colors them from the variables above, and they aren't part of this library's naming.
+
+## Do and don't
+
+**Do**
+
+- Make the config once, outside the component.
+- Color a series with `chartFill` or `chartColor`, so the theme and the patterns reach it.
+- Give the chart a table.
+
+**Don't**
+
+- Don't wrap the chart in `ResponsiveContainer` or give it a size.
+- Don't write a color straight into a series when its config has one.
+- Don't use more than eight series in one chart. Past that the colors repeat, and no one can follow that many.

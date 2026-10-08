@@ -45,6 +45,7 @@ export const library = {
 export const addons = {
   "date-picker": pkg("date-picker", "@nuvui/date-picker"),
   table: pkg("table", "@nuvui/table"),
+  charts: pkg("charts", "@nuvui/charts"),
 };
 
 export type Addon = keyof typeof addons;

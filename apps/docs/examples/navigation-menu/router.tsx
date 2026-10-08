@@ -14,7 +14,7 @@ export default function Example() {
       <NavigationMenuList>
         <NavigationMenuItem>
           <NavigationMenuLink asChild>
-            <Link href="/docs">Getting started</Link>
+            <Link href="/">Getting started</Link>
           </NavigationMenuLink>
         </NavigationMenuItem>
         <NavigationMenuItem>
@@ -23,12 +23,12 @@ export default function Example() {
             <ul style={{ display: "grid", gap: 4, margin: 0, padding: 0 }}>
               <li style={{ listStyle: "none" }}>
                 <NavigationMenuLink asChild>
-                  <Link href="/docs/tailwind">Tailwind</Link>
+                  <Link href="/tailwind">Tailwind</Link>
                 </NavigationMenuLink>
               </li>
               <li style={{ listStyle: "none" }}>
                 <NavigationMenuLink asChild>
-                  <Link href="/docs/scss">SCSS</Link>
+                  <Link href="/scss">SCSS</Link>
                 </NavigationMenuLink>
               </li>
             </ul>

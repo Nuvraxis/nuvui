@@ -13,7 +13,7 @@ test("components used from a server component hydrate and work", async ({
     if (message.type() === "error") problems.push(message.text());
   });
 
-  await open(page, "/rsc-smoke");
+  await open(page, "/docs/rsc-smoke");
 
   await expect(
     page.getByRole("button", { name: "Rendered on the server" }),
@@ -161,7 +161,7 @@ test("components used from a server component hydrate and work", async ({
 });
 
 test("the check page is kept out of search engines", async ({ page }) => {
-  await page.goto("/rsc-smoke");
+  await page.goto("/docs/rsc-smoke");
 
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
     "content",

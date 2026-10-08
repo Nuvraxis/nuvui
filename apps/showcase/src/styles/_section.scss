@@ -1,0 +1,31 @@
+@use "layout";
+
+.site-section {
+  @include layout.container;
+
+  display: grid;
+  gap: calc(var(--spacing) * 8);
+
+  // The grid's one column may not grow past the page for something wide
+  // inside it, such as a table. The table scrolls in its own box.
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.site-section__intro {
+  display: grid;
+  gap: calc(var(--spacing) * 2);
+}
+
+.site-section__title {
+  margin: 0;
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-2xl--line-height);
+  letter-spacing: var(--tracking-tight);
+}
+
+.site-section__text {
+  max-inline-size: 65ch;
+  margin: 0;
+  color: var(--color-muted-foreground);
+}

@@ -1,0 +1,115 @@
+---
+title: Charts
+description: The @nuvui/charts package. Recharts 3 charts that take their colors from the theme, with a tooltip and a legend that match the library, pattern fills, and a table of the same numbers for screen readers.
+---
+
+Charts are a package of their own, `@nuvui/charts`. You build a chart from [Recharts](https://recharts.github.io)' own parts, `BarChart`, `Line`, `XAxis` and the rest, and this package is what goes around them:
+
+| | What it does |
+| --- | --- |
+| `ChartContainer` | Sizes the chart, gives each series a color from the theme, and styles Recharts' axes, grid and labels from the tokens. |
+| `ChartTooltip` | Recharts' tooltip, drawn like the library's other floating panels. |
+| `ChartLegend` | Recharts' legend, with the series' labels. |
+| `ChartTable` | The same numbers as a table, for screen readers or for everyone. |
+
+<Preview name="charts/basic" wide />
+
+Recharts does the drawing: the scales, the shapes, the axes, the animation and the keyboard. Nothing of it is wrapped or renamed, so its [documentation](https://recharts.github.io/en-US/api) applies as written.
+
+<Callout type="warn" title="Not published yet">
+  `@nuvui/charts` isn't on the registry yet, so the install command below won't find it.
+</Callout>
+
+## Install
+
+```sh
+pnpm add @nuvui/charts @nuvui/react recharts
+```
+
+`@nuvui/react` and `recharts` are peer dependencies. You import the chart's parts from `recharts` yourself, so your app has to own that version. This package needs Recharts 3.
+
+Recharts asks for `react-is` as a peer of its own. Most package managers install it for you. If yours reports it missing, add it at the same version as `react`.
+
+## Load the styles
+
+Import the package's stylesheet once, after the core's:
+
+```tsx title="app/layout.tsx"
+import "@nuvui/react/styles.css";
+import "@nuvui/charts/styles.css";
+```
+
+Both files open with the same line naming the cascade layers, so the order you import them in doesn't decide which rule wins.
+
+## A chart in three steps
+
+**Describe the series.** The config has an entry for each series, under the key it has in the data:
+
+```tsx
+import type { ChartConfig } from "@nuvui/charts";
+
+const config = {
+  desktop: { label: "Desktop" },
+  mobile: { label: "Mobile" },
+} satisfies ChartConfig;
+```
+
+**Put a Recharts chart in a container.** The container needs the config and a name:
+
+```tsx
+"use client";
+
+import { ChartContainer, ChartLegend, ChartTooltip, chartFill } from "@nuvui/charts";
+import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
+
+export function Visitors({ data }: { data: Row[] }) {
+  return (
+    <ChartContainer config={config} aria-label="Visitors by month">
+      <BarChart data={data}>
+        <CartesianGrid vertical={false} />
+        <XAxis dataKey="month" />
+        <ChartTooltip />
+        <ChartLegend />
+        <Bar dataKey="desktop" fill={chartFill("desktop")} />
+        <Bar dataKey="mobile" fill={chartFill("mobile")} />
+      </BarChart>
+    </ChartContainer>
+  );
+}
+```
+
+**Color each series with its variable.** `chartFill("desktop")` is the text `var(--chart-desktop-fill)`. The container sets that variable from the config, so the color is CSS: it changes with the theme without the chart being drawn again.
+
+[ChartContainer](/docs/charts/chart) has all of it: colors, patterns, sizes, the table and the reference.
+
+## Client components
+
+A chart is a client component. Recharts measures the page and keeps state, and neither can happen on a server. Put `"use client"` at the top of the file a chart is written in, as the example above does. The page around it can stay a server component.
+
+On the server a chart renders its container, at its final size, and its table. The drawing arrives in the browser, so nothing moves when it does.
+
+## Kinds of chart
+
+| Page | Recharts parts |
+| --- | --- |
+| [Area](/docs/charts/area) | `AreaChart`, `Area` |
+| [Bar](/docs/charts/bar) | `BarChart`, `Bar` |
+| [Line](/docs/charts/line) | `LineChart`, `Line` |
+| [Pie](/docs/charts/pie) | `PieChart`, `Pie` |
+| [Radar](/docs/charts/radar) | `RadarChart`, `Radar` |
+| [Radial](/docs/charts/radial) | `RadialBarChart`, `RadialBar` |
+| [Tooltip](/docs/charts/tooltip) | `ChartTooltip` in each of them |
+| [Composed](/docs/charts/composed) | `ComposedChart`, with bars, lines and a target |
+| [Scatter](/docs/charts/scatter) | `ScatterChart`, `Scatter` |
+
+Any other Recharts chart works in a container the same way.
+
+## Accessibility
+
+A chart is a picture of numbers, and a picture needs a text that says the same. Three things in this package are for that:
+
+- **A name.** `ChartContainer` won't compile without `aria-label` or `aria-labelledby`. Say what the chart shows, not what kind of chart it is.
+- **A table.** [`ChartTable`](/docs/charts/chart#the-same-numbers-as-a-table) puts the numbers in the page as a real table. A screen reader reads it with its table commands, which is a better way through forty numbers than hearing them one at a time.
+- **More than color.** [Patterns](/docs/charts/chart#patterns) fill each series differently and dash each line differently, for people who can't tell the colors apart and for a page printed in gray.
+
+Recharts adds the keyboard: a chart is one stop for <kbd>Tab</kbd>, and the arrow keys move from point to point. Each kind of chart's page says what that's like. All of it is tested with axe and by keyboard, and none of it has been checked with a screen reader yet.

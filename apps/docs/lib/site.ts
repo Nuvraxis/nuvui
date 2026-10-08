@@ -9,6 +9,19 @@ export const site = {
   repo: "https://github.com/Nuvraxis/nuvui",
 };
 
+// Where the docs app is served. The same value as basePath in
+// next.config.ts, which can't import this file.
+export const docsBase = "/docs";
+
+/**
+ * The path a visitor sees for a path inside this app: /components/button
+ * becomes /docs/components/button. Next adds the base path to links and
+ * routes, but not to the URLs written into metadata, a sitemap or JSON-LD.
+ */
+export function docsPath(path: string): string {
+  return path === "/" ? docsBase : `${docsBase}${path}`;
+}
+
 export function absoluteUrl(path: string): string {
   return new URL(path, site.url).toString();
 }

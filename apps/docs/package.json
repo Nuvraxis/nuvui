@@ -5,12 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "next dev",
-    "build": "next build && node scripts/fix-export.mjs",
-    "start": "node scripts/serve-out.mjs",
+    "build": "next build && node ../../scripts/fix-next-export.mjs out",
+    "start": "node ../../scripts/serve-static.mjs 3000 out --under /docs",
     "typecheck": "next typegen && tsc --noEmit",
     "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@nuvui/charts": "workspace:*",
     "@nuvui/date-picker": "workspace:*",
     "@nuvui/react": "workspace:*",
     "@nuvui/table": "workspace:*",
@@ -24,7 +25,9 @@
     "next": "^16.3.8",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "react-hook-form": "^7.89.0"
+    "react-hook-form": "^7.89.0",
+    "react-is": "catalog:",
+    "recharts": "^3.10.1"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",

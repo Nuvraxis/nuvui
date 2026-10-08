@@ -1,0 +1,18 @@
+[
+  {
+    "name": "@nuvui/charts",
+    "path": "dist/index.js",
+    "limit": "3 kB"
+  },
+  {
+    "name": "@nuvui/charts/chart",
+    "path": "dist/components/chart/index.js",
+    "limit": "3 kB"
+  },
+  {
+    "name": "styles.css",
+    "path": "dist/styles.css",
+    "rolldown": false,
+    "limit": "1.5 kB"
+  }
+]

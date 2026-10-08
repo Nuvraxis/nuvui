@@ -1,6 +1,6 @@
 name: E2E
 
-# The slow checks: Playwright against the built docs site, and the packed
+# The slow checks: Playwright against the built website and docs, and the packed
 # library installed into a Vite and a Next.js app. They run for a pull request
 # that has the invoke-e2e label, and not otherwise.
 #
@@ -58,5 +58,7 @@ jobs:
           path: |
             apps/docs/playwright-report
             apps/docs/test-results
+            apps/showcase/playwright-report
+            apps/showcase/test-results
           if-no-files-found: ignore
           retention-days: 7

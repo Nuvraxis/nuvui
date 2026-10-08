@@ -32,8 +32,8 @@ export default defineConfig({
   // Serves the exported site in `out`, the same files a host would serve, so
   // `pnpm build` has to come first. The turbo task takes care of that.
   webServer: {
-    command: `node scripts/serve-out.mjs ${port}`,
-    url: `http://localhost:${port}`,
+    command: `node ../../scripts/serve-static.mjs ${port} out --under /docs`,
+    url: `http://localhost:${port}/docs`,
     reuseExistingServer: !isCI,
   },
 });

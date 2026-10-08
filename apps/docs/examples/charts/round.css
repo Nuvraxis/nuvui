@@ -1,0 +1,8 @@
+/* A round chart is as wide as it is tall, so it gets a square box and a
+   width to stop at. */
+.round-chart {
+  --nuv-chart-aspect-ratio: 1;
+
+  max-inline-size: 20rem;
+  margin-inline: auto;
+}

@@ -1,0 +1,39 @@
+{
+  "name": "@nuvui/showcase",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev --port 3001",
+    "build": "next build && node ../../scripts/fix-next-export.mjs out && node scripts/add-docs.mjs",
+    "start": "node ../../scripts/serve-static.mjs 3001 out",
+    "lint": "stylelint \"src/**/*.scss\"",
+    "typecheck": "next typegen && tsc --noEmit",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "@nuvui/charts": "workspace:*",
+    "@nuvui/react": "workspace:*",
+    "@nuvui/table": "workspace:*",
+    "@tanstack/react-table": "^9.2.6",
+    "fumadocs-core": "16.16.0",
+    "lucide-react": "^1.52.0",
+    "next": "^16.3.8",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "react-is": "catalog:",
+    "recharts": "^3.10.1"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
+    "@nuvui/tooling": "workspace:*",
+    "@nuvui/typescript-config": "workspace:*",
+    "@playwright/test": "catalog:",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "sass-embedded": "catalog:",
+    "stylelint": "catalog:",
+    "typescript": "catalog:"
+  }
+}

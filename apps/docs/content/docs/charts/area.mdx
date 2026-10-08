@@ -1,0 +1,48 @@
+---
+title: Area chart
+description: Area charts with Recharts' AreaChart in a ChartContainer. One series, stacked series and a gradient fill, colored from the theme.
+---
+
+An area chart shows how an amount changes over time, with the space under the line filled in. Use it when the amount itself matters, such as a total, and a [line chart](/docs/charts/line) when only the direction does.
+
+<Preview name="charts/area" wide />
+
+## How it's made
+
+`AreaChart` and `Area` come from Recharts. An area has two colors: `fill` for the space and `stroke` for the line along its top.
+
+```tsx
+<Area
+  dataKey="desktop"
+  fill={chartFill("desktop")}
+  fillOpacity={0.4}
+  stroke={chartColor("desktop")}
+/>
+```
+
+A see-through fill lets the grid show, and lets two areas that overlap both be seen.
+
+## Stacked
+
+Give each `Area` the same `stackId` and each is drawn on top of the one before, so the top edge is the total.
+
+<Preview name="charts/area-stacked" wide />
+
+The series written first is at the bottom. Put the steadiest one there: every series above it takes on the bumps of the ones below.
+
+## A gradient
+
+A gradient is an SVG `linearGradient` in the chart's `defs`, and the area's `fill` points at it. Its stops use the series' color, so it still follows the theme.
+
+<Preview name="charts/area-gradient" wide />
+
+Ids are shared by the whole page, so the gradient's comes from `useId`. A fill written this way doesn't switch to a [pattern](/docs/charts/chart#patterns).
+
+## Accessibility
+
+- <kbd>←</kbd> and <kbd>→</kbd> move along the points, and the tooltip reads out each one.
+- Stacked areas are hard to read exactly: only the bottom series sits on a flat line. Give the chart a [table](/docs/charts/chart#the-same-numbers-as-a-table), which has every number.
+- Two overlapping areas of different colors mix where they cross. With `patterns` each keeps a fill that can be told from the other.
+- Name the chart for what it shows, and say that it's stacked if it is.
+
+Everything on the [ChartContainer page](/docs/charts/chart#accessibility) applies.

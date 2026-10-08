@@ -1,0 +1,17 @@
+{
+  "title": "Charts",
+  "defaultOpen": true,
+  "pages": [
+    "index",
+    "chart",
+    "area",
+    "bar",
+    "line",
+    "pie",
+    "radar",
+    "radial",
+    "tooltip",
+    "composed",
+    "scatter"
+  ]
+}

@@ -15,10 +15,12 @@ import {
 } from "fumadocs-ui/components/dialog/search";
 
 // The index is a static file built with the site (app/api/search), downloaded
-// on first use and searched in the browser. There's no search server.
+// on first use and searched in the browser. There's no search server. The
+// address is written out with the base path, which Next adds to links and
+// not to a fetch. The website's search reads the same file.
 export default function StaticSearchDialog(props: SharedProps) {
   const { search, setSearch, query } = useDocsSearch({
-    client: staticClient(),
+    client: staticClient({ from: "/docs/api/search" }),
   });
 
   return (

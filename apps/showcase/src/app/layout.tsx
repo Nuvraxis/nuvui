@@ -1,0 +1,57 @@
+// The library's stylesheets, then this site's own. The library's rules are
+// in cascade layers and this site's aren't, so the site's win wherever both
+// set the same thing, whichever order they load in.
+import "@nuvui/react/styles.css";
+import "@nuvui/table/styles.css";
+import "@nuvui/charts/styles.css";
+import "@/styles/index.scss";
+import { Toaster } from "@nuvui/react/toast";
+import type { Metadata } from "next";
+import { Hydrated } from "@/components/hydrated";
+import { SiteFooter } from "@/components/site-footer";
+import { SiteHeader } from "@/components/site-header";
+import { site } from "@/lib/site";
+import { themeScript } from "@/lib/theme";
+
+export const metadata: Metadata = {
+  metadataBase: new URL(site.url),
+  title: {
+    default: `${site.name}: React components on Radix UI, styled with SCSS`,
+    template: `%s | ${site.name}`,
+  },
+  description: site.description,
+  openGraph: {
+    siteName: site.name,
+    type: "website",
+    locale: "en",
+  },
+  twitter: {
+    card: "summary_large_image",
+  },
+};
+
+export default function RootLayout({ children }: LayoutProps<"/">) {
+  return (
+    // The script below sets data-theme before React is there, to the
+    // visitor's own choice, which the server can't know.
+    <html lang="en" data-theme="system" suppressHydrationWarning>
+      <head>
+        <script
+          // The theme has to be in place before the first paint, so this
+          // can't wait for a script that loads. The text is a constant of
+          // ours, with nothing from outside in it.
+          dangerouslySetInnerHTML={{ __html: themeScript }}
+        />
+      </head>
+      <body className="site-page">
+        <SiteHeader />
+        <main id="content" className="site-page__main" tabIndex={-1}>
+          {children}
+        </main>
+        <SiteFooter />
+        <Toaster />
+        <Hydrated />
+      </body>
+    </html>
+  );
+}

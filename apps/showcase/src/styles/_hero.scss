@@ -1,0 +1,45 @@
+@use "@nuvui/react/scss/mixins";
+@use "layout";
+
+.site-hero {
+  @include layout.container;
+
+  display: grid;
+  gap: calc(var(--spacing) * 5);
+  padding-block: calc(var(--spacing) * 12) calc(var(--spacing) * 10);
+
+  @include mixins.breakpoint("md") {
+    padding-block: calc(var(--spacing) * 20) calc(var(--spacing) * 14);
+  }
+}
+
+.site-hero__title {
+  max-inline-size: 22ch;
+  margin: 0;
+  font-size: clamp(2rem, 1.4rem + 3vw, 3.5rem);
+  font-weight: var(--font-weight-bold);
+  line-height: 1.1;
+  letter-spacing: var(--tracking-tight);
+  text-wrap: balance;
+}
+
+.site-hero__lead {
+  max-inline-size: 60ch;
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-lg);
+  line-height: var(--text-lg--line-height);
+}
+
+.site-hero__note {
+  max-inline-size: 60ch;
+  margin: 0;
+  color: var(--color-muted-foreground);
+}
+
+.site-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 3);
+  margin-block-start: calc(var(--spacing) * 2);
+}

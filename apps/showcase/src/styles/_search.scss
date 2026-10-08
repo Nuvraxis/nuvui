@@ -1,0 +1,49 @@
+@use "@nuvui/react/scss/mixins";
+
+// The button in the header that opens the search. On a narrow screen it's
+// the icon alone.
+.site-search {
+  flex: none;
+  gap: calc(var(--spacing) * 2);
+  color: var(--color-muted-foreground);
+}
+
+.site-search__label {
+  display: none;
+
+  @include mixins.breakpoint("sm") {
+    display: inline;
+  }
+}
+
+// The shortcut is for a keyboard, so it's only shown where there's room
+// for it, which is also where there's likely to be one.
+.site-search__keys {
+  display: none;
+  gap: calc(var(--spacing) * 1);
+
+  @include mixins.breakpoint("lg") {
+    display: inline-flex;
+  }
+}
+
+.site-search__problem {
+  margin: 0;
+  padding: calc(var(--spacing) * 4);
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+}
+
+// What matched, marked in a result's text.
+.site-search__match {
+  background-color: transparent;
+  color: inherit;
+  font-weight: var(--font-weight-semibold);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+// A heading or a line of text inside a page, set in under the page it's in.
+.site-search__result--within {
+  padding-inline-start: calc(var(--spacing) * 7);
+}

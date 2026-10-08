@@ -1,0 +1,264 @@
+@use "../../styles/layers";
+@use "@nuvui/react/scss/mixins";
+
+$grid: var(--nuv-chart-grid, var(--color-border));
+$axis: var(--nuv-chart-axis, var(--color-border-strong));
+$backdrop: var(--nuv-chart-backdrop, var(--color-background));
+
+@layer components {
+  .nuv-chart {
+    // The two switches every series' fill and dashes are written with. See
+    // resolveSeries in config.ts. Patterns are off here, and turned on by
+    // the container's `patterns` and by forced colors, below.
+    --nuv-chart-patterns: ;
+    --nuv-chart-solid: initial;
+
+    position: relative;
+    inline-size: 100%;
+    min-inline-size: 0;
+    color: var(--nuv-chart-fg, var(--color-muted-foreground));
+    font-size: var(--nuv-chart-font-size, var(--text-xs));
+    line-height: var(--text-xs--line-height);
+
+    &[data-patterns] {
+      --nuv-chart-patterns: initial;
+      --nuv-chart-solid: ;
+    }
+
+    // Forced colors leave an svg's own colors alone, so eight theme colors
+    // would be drawn on a background the person chose, some of them unseen.
+    // Every series becomes the system's text color, and the patterns and
+    // dashes are what tell them apart.
+    @media (forced-colors: active) {
+      --nuv-chart-patterns: initial;
+      --nuv-chart-solid: ;
+      --nuv-chart-forced-color: CanvasText;
+      --nuv-chart-grid: GrayText;
+      --nuv-chart-axis: CanvasText;
+      --nuv-chart-fg: CanvasText;
+      --nuv-chart-label-fg: CanvasText;
+      --nuv-chart-backdrop: Canvas;
+      --nuv-chart-cursor: GrayText;
+    }
+  }
+
+  // The box the chart is drawn in. Recharts sizes itself to it, so it has to
+  // have a height before there's anything inside: a shape by default, or a
+  // height when one is set.
+  .nuv-chart__plot {
+    inline-size: 100%;
+    block-size: var(--nuv-chart-height, auto);
+    aspect-ratio: var(--nuv-chart-aspect-ratio, 16 / 9);
+  }
+
+  .nuv-chart__patterns {
+    position: absolute;
+    pointer-events: none;
+  }
+
+  .nuv-chart__tooltip {
+    display: grid;
+    gap: calc(var(--spacing) * 1.5);
+    min-inline-size: 8rem;
+    padding: calc(var(--spacing) * 2) calc(var(--spacing) * 2.5);
+    border: var(--nuv-border-width) solid var(--nuv-chart-tooltip-border, var(--color-border));
+    border-radius: var(--nuv-chart-tooltip-radius, var(--radius-lg));
+    background-color: var(--nuv-chart-tooltip-bg, var(--color-surface));
+    box-shadow: var(--nuv-chart-tooltip-shadow, var(--shadow-lg));
+    color: var(--nuv-chart-tooltip-fg, var(--color-surface-foreground));
+    font-size: var(--text-xs);
+    line-height: var(--text-xs--line-height);
+
+    &[hidden] {
+      display: none;
+    }
+  }
+
+  .nuv-chart__tooltip-label {
+    font-weight: var(--font-weight-medium);
+  }
+
+  .nuv-chart__tooltip-items {
+    display: grid;
+    gap: var(--spacing);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .nuv-chart__tooltip-item {
+    display: flex;
+    gap: calc(var(--spacing) * 2);
+    align-items: center;
+  }
+
+  .nuv-chart__tooltip-name {
+    flex: 1;
+    color: var(--color-muted-foreground);
+  }
+
+  .nuv-chart__tooltip-value {
+    margin-inline-start: calc(var(--spacing) * 2);
+    font-weight: var(--font-weight-medium);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .nuv-chart__swatch {
+    flex: none;
+    inline-size: calc(var(--spacing) * 3);
+    block-size: calc(var(--spacing) * 3);
+  }
+
+  .nuv-chart__swatch--line {
+    inline-size: calc(var(--spacing) * 6);
+  }
+
+  .nuv-chart__legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(var(--spacing) * 1) calc(var(--spacing) * 4);
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+    color: var(--nuv-chart-legend-fg, var(--color-foreground));
+    list-style: none;
+  }
+
+  .nuv-chart__legend-item {
+    display: inline-flex;
+    gap: calc(var(--spacing) * 1.5);
+    align-items: center;
+  }
+
+  .nuv-chart__legend-item--inactive {
+    opacity: var(--nuv-disabled-opacity);
+  }
+
+  .nuv-chart__data {
+    margin-block-start: calc(var(--spacing) * 4);
+  }
+
+  .nuv-chart__table {
+    inline-size: 100%;
+    border-collapse: collapse;
+    color: var(--nuv-chart-table-fg, var(--color-foreground));
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+    font-variant-numeric: tabular-nums;
+    text-align: end;
+
+    caption {
+      padding-block-end: calc(var(--spacing) * 2);
+      color: var(--color-muted-foreground);
+      text-align: start;
+    }
+
+    th,
+    td {
+      padding: calc(var(--spacing) * 1.5) calc(var(--spacing) * 3);
+      border-block-end: var(--nuv-border-width) solid var(--nuv-chart-table-border, var(--color-border));
+    }
+
+    th {
+      font-weight: var(--font-weight-medium);
+    }
+
+    // The first column is the name of each row.
+    th:first-child {
+      text-align: start;
+    }
+  }
+
+  // There for screen readers and not for the eye. The same rules as the
+  // core's VisuallyHidden, which this stylesheet can't load.
+  .nuv-chart__data--hidden {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    border: 0;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  // What Recharts draws. Its elements have its own class names and colors
+  // written on them as attributes, and nothing of ours can be put on them,
+  // so these rules reach them through the container. Each is one level
+  // deeper than the rest of the library allows, and none is BEM.
+  /* stylelint-disable selector-class-pattern, selector-max-compound-selectors */
+
+  // The one tab stop of a chart. Recharts takes the browser's outline off.
+  .nuv-chart .recharts-surface {
+    overflow: visible;
+    border-radius: var(--radius-sm);
+    outline: none;
+
+    @include mixins.focus-ring;
+  }
+
+  // A bar or a slice that was clicked gets the browser's outline, as a box
+  // around its shape. The tab stop is the chart, which has the ring above.
+  .nuv-chart .recharts-layer,
+  .nuv-chart .recharts-sector {
+    outline: none;
+  }
+
+  .nuv-chart .recharts-text {
+    fill: currentcolor;
+  }
+
+  // A label written onto the chart, on a bar or in the middle of a ring.
+  .nuv-chart .recharts-label {
+    fill: var(--nuv-chart-label-fg, var(--color-foreground));
+  }
+
+  .nuv-chart .recharts-cartesian-grid line,
+  .nuv-chart .recharts-polar-grid line,
+  .nuv-chart .recharts-polar-grid-concentric-polygon,
+  .nuv-chart .recharts-polar-grid-concentric-circle {
+    stroke: $grid;
+  }
+
+  .nuv-chart .recharts-cartesian-axis-line,
+  .nuv-chart .recharts-cartesian-axis-tick-line,
+  .nuv-chart .recharts-polar-angle-axis-tick-line,
+  .nuv-chart .recharts-polar-radius-axis-line,
+  .nuv-chart .recharts-polar-radius-axis-tick-line,
+  .nuv-chart .recharts-reference-line-line {
+    stroke: $axis;
+  }
+
+  // What follows the pointer: a line on a line or area chart, a band behind
+  // the bars of a bar chart.
+  .nuv-chart .recharts-curve.recharts-tooltip-cursor {
+    stroke: var(--nuv-chart-cursor, var(--color-border-strong));
+  }
+
+  .nuv-chart .recharts-rectangle.recharts-tooltip-cursor,
+  .nuv-chart .recharts-sector.recharts-tooltip-cursor,
+  .nuv-chart .recharts-radial-bar-background-sector {
+    fill: var(--nuv-chart-cursor, var(--color-muted));
+  }
+
+  // Recharts separates slices, and rings its dots, with white. That's the
+  // page showing through, so it's the color behind the chart.
+  .nuv-chart .recharts-sector[stroke="#fff"],
+  .nuv-chart .recharts-dot[stroke="#fff"],
+  .nuv-chart .recharts-active-dot [stroke="#fff"] {
+    stroke: $backdrop;
+  }
+
+  .nuv-chart .recharts-dot[fill="#fff"] {
+    fill: $backdrop;
+  }
+
+  // Above the page, as the library's other floating panels are.
+  .nuv-chart .recharts-tooltip-wrapper {
+    z-index: var(--nuv-z-popover);
+  }
+
+  /* stylelint-enable selector-class-pattern, selector-max-compound-selectors */
+}

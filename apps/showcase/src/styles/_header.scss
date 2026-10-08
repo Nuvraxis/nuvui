@@ -1,0 +1,134 @@
+@use "@nuvui/react/scss/mixins";
+@use "layout";
+
+.site-header {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 10;
+  border-block-end: var(--nuv-border-width) solid var(--color-border);
+  background-color: var(--color-background);
+}
+
+// The first stop for Tab, and out of sight until it has focus.
+.site-header__skip {
+  position: absolute;
+  inset-block-start: calc(var(--spacing) * 2);
+  inset-inline-start: calc(var(--spacing) * 2);
+  z-index: 1;
+  padding: calc(var(--spacing) * 2) calc(var(--spacing) * 3);
+  border-radius: var(--radius-md);
+  background-color: var(--color-primary);
+  color: var(--color-primary-foreground);
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+  transform: translateY(-200%);
+
+  &:focus {
+    transform: none;
+  }
+
+  @include mixins.focus-ring;
+}
+
+.site-header__inner {
+  @include layout.container;
+
+  display: flex;
+  gap: calc(var(--spacing) * 2);
+  align-items: center;
+  min-block-size: calc(var(--spacing) * 14);
+
+  @include mixins.breakpoint("md") {
+    gap: calc(var(--spacing) * 6);
+  }
+}
+
+.site-header__name {
+  border-radius: var(--radius-sm);
+  color: inherit;
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-semibold);
+  text-decoration: none;
+
+  @include mixins.focus-ring;
+}
+
+// The list of links is in the header from the md breakpoint up. Below it
+// the same links are in a sheet, behind the menu button.
+.site-header__nav {
+  display: none;
+
+  @include mixins.breakpoint("md") {
+    display: block;
+  }
+}
+
+.site-header__menu-button {
+  @include mixins.breakpoint("md") {
+    display: none;
+  }
+}
+
+.site-header__list {
+  display: flex;
+  gap: calc(var(--spacing) * 1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.site-header__link {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--nuv-control-height-sm);
+  padding-inline: calc(var(--spacing) * 3);
+  border-radius: var(--radius-md);
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+
+  @include mixins.focus-ring;
+
+  @include mixins.hover {
+    background-color: var(--color-muted);
+    color: var(--color-foreground);
+  }
+}
+
+.site-header__tools {
+  display: flex;
+  gap: calc(var(--spacing) * 1);
+  align-items: center;
+  margin-inline-start: auto;
+}
+
+// A button that's only an icon: square, at the size of the button it is.
+.site-header__icon-button {
+  flex: none;
+  aspect-ratio: 1;
+  padding: 0;
+}
+
+.site-header__icon-link {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--nuv-touch-size);
+  block-size: var(--nuv-touch-size);
+  border-radius: var(--radius-md);
+  color: var(--color-foreground);
+
+  @include mixins.focus-ring;
+
+  @include mixins.fine-pointer {
+    inline-size: var(--nuv-control-height-sm);
+    block-size: var(--nuv-control-height-sm);
+  }
+
+  @include mixins.hover {
+    background-color: var(--color-muted);
+  }
+}

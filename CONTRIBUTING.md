@@ -21,13 +21,13 @@ Run these from the repository root.
 
 | Command | What it does |
 | --- | --- |
-| `pnpm dev` | Builds the library in watch mode and serves the docs at http://localhost:3000. |
+| `pnpm dev` | Builds the packages in watch mode and serves the website at http://localhost:3001, with the docs under `/docs`. The docs app's own server is on port 3000, and the website passes `/docs` on to it. |
 | `pnpm lint` | Biome for TypeScript and JSON, Stylelint for SCSS. |
 | `pnpm lint:fix` | Lets Biome fix what it can, formatting included. |
 | `pnpm typecheck` | TypeScript, in every workspace. |
 | `pnpm test` | The component tests of every package in Chromium, Firefox and WebKit, and the theme generator's tests. About fourteen minutes. |
-| `pnpm build` | Builds the theme generator and the packages, checks the result, then builds the docs site. |
-| `pnpm test:e2e` | Builds first, then runs Playwright against the exported docs site, in five browser setups. |
+| `pnpm build` | Builds the theme generator and the packages, checks the result, then builds the docs and the website. `apps/showcase/out` is then the whole site: the website, with the docs copied in under `/docs`. |
+| `pnpm test:e2e` | Builds first, then runs Playwright against the exported site, in five browser setups. The docs' tests run against the docs alone, and the website's against the two together. |
 | `pnpm size` | Builds first, then checks each entry point against its size budget. |
 | `pnpm check:package` | Checks what each package would publish: its `exports` map and its types. Run `pnpm build` first. |
 | `pnpm test:consumers` | Packs the packages and installs them into a Vite app and a Next.js app. Run `pnpm build` first. |
@@ -76,6 +76,8 @@ packages/table                an add-on, published as @nuvui/table
   src/components/data-table/  the data table and its controls, one file each
   src/full.ts                 the hook with every feature, an entry of its own
   src/virtual.tsx             the virtual table, an entry of its own
+packages/charts               an add-on, published as @nuvui/charts
+  src/components/chart/       the container, tooltip, legend and table, one file each
 packages/tooling              what every published package is built with, private
   tsdown.mjs                  the build
   build-css.mjs               compiles the SCSS, and copies the source into dist
@@ -93,7 +95,14 @@ apps/docs                     the documentation site (Next.js and Fumadocs)
   examples/<name>/            the examples the pages render and print
   components/                 previews, props tables, playgrounds, reference tables
   e2e/                        Playwright tests
-  scripts/serve-out.mjs       serves the built site, for those tests and for pnpm start
+apps/showcase                 the website (Next.js, SCSS and the library's tokens)
+  src/app/                    its pages, the sitemap index, robots and share images
+  src/components/             the header, the search, the theme control, the dashboard
+  src/styles/                 its own styles, BEM with the prefix "site"
+  scripts/add-docs.mjs        copies the built docs into its export, under /docs
+  e2e/                        Playwright tests, of its pages and of where the two apps meet
+scripts/serve-static.mjs      serves an exported site, for the e2e tests and for pnpm start
+scripts/fix-next-export.mjs   puts right what Next's export gets wrong on Windows
 packages/typescript-config    shared tsconfig presets
 fixtures                      two apps that install the packed packages
 scripts/test-consumers.mjs    builds those two apps
@@ -178,7 +187,7 @@ Button is the smallest example to copy from, and Dialog the fullest.
 
 ## Add-on packages
 
-A component goes in a package of its own when it needs a library the core doesn't have. `@nuvui/date-picker` is the first, for react-day-picker and date-fns, and `@nuvui/table` the second, for TanStack Table. An app that doesn't use the component then never installs that library.
+A component goes in a package of its own when it needs a library the core doesn't have. `@nuvui/date-picker` is the first, for react-day-picker and date-fns, `@nuvui/table` the second, for TanStack Table, and `@nuvui/charts` the third, for Recharts. An app that doesn't use the component then never installs that library.
 
 An add-on is laid out like the core and built with the same tooling, from `packages/tooling`. Its own config files only say what's particular to it. What differs from the core:
 
@@ -189,11 +198,29 @@ An add-on is laid out like the core and built with the same tooling, from `packa
 - **Its tests import the core's built stylesheet,** `@nuvui/react/styles.css`, and then its own SCSS. So the core has to be built first, which `pnpm test` sees to.
 - **Its docs pages are in a folder of their own** under `apps/docs/content/docs/`. `PropsTable`, `CssVariables` and `BemClasses` take a `package` prop that says which package to read.
 
-- **The library it's built on is a dependency or a peer, depending on who writes code against it.** Nobody uses react-day-picker's own API to use the date picker, so it's a dependency. Columns for a table are written with TanStack's helpers and types, so TanStack Table is a peer, and the app owns its version.
+- **The library it's built on is a dependency or a peer, depending on who writes code against it.** Nobody uses react-day-picker's own API to use the date picker, so it's a dependency. Columns for a table are written with TanStack's helpers and types, so TanStack Table is a peer, and the app owns its version. Charts are built from Recharts' own parts, so Recharts is a peer too.
+- **Markup that a library draws, and that takes no class of ours, is styled through the container around it.** Recharts' axes and grid lines are the one case: `chart.scss` reaches them by Recharts' class names, one level deeper than the linter allows, in a block with the two rules switched off and a comment that says why. Everything this library draws itself stays BEM.
 - **It ships CommonJS as well as ES modules, unless its peer doesn't.** `@tanstack/react-table` is ES modules only, so `@nuvui/table` is too: `library({ format: ["esm"] })` in its `tsdown.config.ts`, and the `esm-only` profile in `.attw.json`.
 - **An entry that needs an optional peer, or that pulls in a lot, is a file at the top of `src`** and not a folder in `src/components`, so the package's main entry doesn't re-export it. `src/virtual.tsx` and `src/full.ts` in the table package are the two there are.
 
 A new add-on also has to be added in three places: `addons` in `apps/docs/lib/library.ts`, `published` in `scripts/test-consumers.mjs`, and the dependencies of `apps/docs` and of the two apps in `fixtures`.
+
+## The website and the docs
+
+The site is two Next.js apps on one address. `apps/showcase` is served at `/` and `apps/docs` under `/docs`. Each is a static export, and the website's build copies the docs' into its own, so one folder holds everything.
+
+The docs app has `basePath: "/docs"`. What that means when you write a link:
+
+- **In a docs page's MDX, write the address a visitor sees:** `[Button](/docs/components/button)`. The page route takes the prefix off before Next's link puts it back.
+- **In a docs example or component that uses `next/link`, leave the prefix out:** `<Link href="/forms">`. Next adds it. A plain `<a href>` isn't touched, so there it's written in full.
+- **Next doesn't add the prefix to a URL in metadata, a sitemap, JSON-LD or a `fetch`.** `docsPath()` in `apps/docs/lib/site.ts` does.
+- **A link from one app to the other is a plain `<a>`,** never the router's link. The page it leads to belongs to another app, and the router would ask that app's files of this one.
+
+`robots.txt`, the sitemap index and the 404 page are the website's, because a crawler and a static host look for one of each, at the root. The docs list their own pages in `/docs/sitemap.xml`, which the index points to.
+
+The theme a visitor picks is kept in `localStorage` under `theme`, by both apps, with the same three values. That's all it takes for a choice on one to hold on the other.
+
+The website's own styles are in `apps/showcase/src/styles`: SCSS, the library's tokens, and BEM classes that start with `site`. Stylelint holds it to the same rules as the library, with that prefix.
 
 ## Changing a component
 

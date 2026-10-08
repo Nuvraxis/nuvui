@@ -46,6 +46,7 @@ const published = {
   "@nuvui/react": "ui",
   "@nuvui/date-picker": "date-picker",
   "@nuvui/table": "table",
+  "@nuvui/charts": "charts",
 };
 
 function expect(app, what, passed) {
@@ -107,6 +108,12 @@ const fixtures = {
       "the script has none of the table features that weren't asked for",
       !script.includes("_lastSelectedRowId"),
     );
+    expect("vite", "it has the charts' styles", css.includes(".nuv-chart"));
+    expect(
+      "vite",
+      "the script has the chart's tooltip",
+      script.includes("nuv-chart__tooltip"),
+    );
   },
 
   next(dir) {
@@ -149,7 +156,26 @@ const fixtures = {
         html.includes('aria-label="Select Ada Lovelace"'),
     );
 
+    // A chart is drawn in the browser. What the server can render of one
+    // is its box, with a color for each series, and the table of its
+    // numbers.
+    expect(
+      "next",
+      "the server rendered the chart's container, with a variable for each series",
+      /<div\s(?=[^>]*class="nuv-chart")(?=[^>]*--chart-desktop:)(?=[^>]*--chart-mobile-fill:)/.test(
+        html,
+      ),
+    );
+    expect(
+      "next",
+      "the server rendered the chart's numbers as a table",
+      /<table\s(?=[^>]*class="nuv-chart__table")(?=[^>]*aria-label="Visitors by month")/.test(
+        html,
+      ) && html.includes('<th scope="row">February</th><td>305</td>'),
+    );
+
     const css = read(files(join(dir, "out"), ".css"));
+    expect("next", "it has the charts' styles", css.includes(".nuv-chart"));
     expect(
       "next",
       "it has the table's styles",

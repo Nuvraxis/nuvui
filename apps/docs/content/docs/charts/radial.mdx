@@ -1,0 +1,36 @@
+---
+title: Radial chart
+description: Radial bar charts with Recharts' RadialBarChart in a ChartContainer. Bars bent into rings, each colored and named from the config.
+---
+
+A radial chart is a bar chart bent into rings. It takes less room than bars and suits a dashboard tile. It's harder to read: an outer ring is longer than an inner one for the same value, so compare the angles and not the lengths. For anything people need to compare closely, use a [bar chart](/docs/charts/bar).
+
+<Preview name="charts/radial" stylesheet="round.css" wide />
+
+## How it's made
+
+`RadialBarChart` and `RadialBar` come from Recharts. As in a [pie](/docs/charts/pie), each row of the data is a ring, and takes its color from a `fill` field in the row:
+
+```tsx
+const bars = browsers.map((row) => ({
+  ...row,
+  fill: chartFill(row.browser),
+}));
+
+<RadialBarChart data={bars} innerRadius="25%" outerRadius="100%">
+  <RadialBar dataKey="visitors" background />
+</RadialBarChart>
+```
+
+`background` draws the track each ring runs along, in `--nuv-chart-cursor`.
+
+Every ring is read from the same field, so the tooltip and the legend can't tell from the series which label to use. `nameKey="browser"` on each says which field of the row holds the config's key.
+
+## Accessibility
+
+- The rings don't say what they are. Keep the legend, or the names are only in the tooltip.
+- Give the chart a [table](/docs/charts/chart#the-same-numbers-as-a-table). Nobody reads an exact value off a ring.
+- Turn on [`patterns`](/docs/charts/chart#patterns) when the rings need to be told apart without color.
+- The arrow keys move from ring to ring.
+
+Everything on the [ChartContainer page](/docs/charts/chart#accessibility) applies.

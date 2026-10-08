@@ -2,6 +2,14 @@ import "@nuvui/react/styles.css";
 import "@nuvui/react/themes/ink.css";
 import "@nuvui/date-picker/styles.css";
 import "@nuvui/table/styles.css";
+import "@nuvui/charts/styles.css";
+// The chart package, from the entry of its one component.
+import {
+  type ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  chartFill,
+} from "@nuvui/charts/chart";
 import { DatePicker, type DateRange } from "@nuvui/date-picker";
 // An entry of the add-on's own, and one locale out of all it has.
 import { Calendar } from "@nuvui/date-picker/calendar";
@@ -33,6 +41,7 @@ import {
 } from "@tanstack/react-table";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+import { Bar, BarChart, XAxis } from "recharts";
 
 const size: ButtonProps["size"] = "lg";
 const range: DateRange = { from: new Date(2026, 9, 12), to: undefined };
@@ -60,6 +69,24 @@ function People() {
   return <DataTable table={table} caption="People" rowHeader="name" />;
 }
 
+const chartConfig = { seats: { label: "Seats" } } satisfies ChartConfig;
+const seats = [
+  { team: "Design", seats: 4 },
+  { team: "Engineering", seats: 9 },
+];
+
+function Seats() {
+  return (
+    <ChartContainer config={chartConfig} aria-label="Seats by team">
+      <BarChart data={seats}>
+        <XAxis dataKey="team" />
+        <ChartTooltip />
+        <Bar dataKey="seats" fill={chartFill("seats")} />
+      </BarChart>
+    </ChartContainer>
+  );
+}
+
 function App() {
   return (
     <main>
@@ -79,6 +106,7 @@ function App() {
       <DatePicker aria-label="Termin" name="termin" locale={de} />
       <Calendar mode="range" selected={range} locale={de} />
       <People />
+      <Seats />
       <Toaster />
     </main>
   );

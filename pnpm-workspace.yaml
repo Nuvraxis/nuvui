@@ -23,6 +23,7 @@ catalog:
   publint: ^0.3.25
   react: ^19.3.0
   react-dom: ^19.3.0
+  react-is: ^19.3.0
   sass-embedded: ^1.105.1
   size-limit: 14.1.0
   stylelint: ^17.16.0

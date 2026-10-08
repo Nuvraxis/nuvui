@@ -1,0 +1,43 @@
+---
+title: Pie chart
+description: Pie and donut charts with Recharts' PieChart in a ChartContainer. Each slice colored and named from the config, with pattern fills and a total in the middle.
+---
+
+A pie chart shows parts of one whole. It works for a few slices that differ clearly, and for little else: angles are hard to compare. For more than five parts, or parts close in size, use a [bar chart](/docs/charts/bar).
+
+<Preview name="charts/pie" stylesheet="round.css" wide />
+
+## How it's made
+
+`PieChart` and `Pie` come from Recharts. A pie has one `Pie`, whose slices are the rows of its data:
+
+```tsx
+const slices = browsers.map((row) => ({
+  ...row,
+  fill: chartFill(row.browser),
+}));
+
+<Pie data={slices} dataKey="visitors" nameKey="browser" />
+```
+
+The config has an entry for each slice, under the value its row has in the `nameKey` field. A slice takes its color from a `fill` field in its row, which is where `chartFill` goes. The tooltip and the legend then find each slice's label in the config by its name.
+
+A pie is as wide as it is tall. In the container's usual box, which is wider than it's tall, it would be small with empty space either side. The stylesheet above makes the box square with `--nuv-chart-aspect-ratio`, and stops it growing with a `max-inline-size`.
+
+## A donut
+
+`innerRadius` makes a ring, and a `Label` inside the `Pie` writes in the middle. The total is the usual thing to put there.
+
+<Preview name="charts/donut" stylesheet="round.css" wide />
+
+`strokeWidth` is the gap between slices. It's drawn in `--nuv-chart-backdrop`, which is the page's background. On a card, set that variable to the card's color.
+
+## Accessibility
+
+- Slices touch, so their fill is all that separates them. Use [`patterns`](/docs/charts/chart#patterns), as the first example does.
+- A legend makes people look back and forth between it and the pie. With few slices, a label on each slice is easier to read.
+- The number in the middle of a donut is text in the chart, which a screen reader doesn't reach. Say it in the chart's name, as the example does, or in the page.
+- Give the chart a [table](/docs/charts/chart#the-same-numbers-as-a-table). With `series` set to the one field that holds the values, it has a row for each slice.
+- The arrow keys move from slice to slice.
+
+Everything on the [ChartContainer page](/docs/charts/chart#accessibility) applies.

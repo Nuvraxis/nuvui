@@ -1,0 +1,37 @@
+// The library styles its own elements and leaves the page alone. These few
+// rules are the page: the box model and the body.
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  // Room for the scrollbar is kept whether or not there's one, so the page
+  // doesn't shift sideways when a dialog locks scrolling.
+  scrollbar-gutter: stable;
+  text-size-adjust: 100%;
+}
+
+.site-page {
+  display: flex;
+  flex-direction: column;
+  min-block-size: 100vh;
+  margin: 0;
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: var(--text-base--line-height);
+  -webkit-font-smoothing: antialiased;
+}
+
+.site-page__main {
+  flex: 1;
+
+  // It takes focus from the skip link, and shows no ring for it: the ring
+  // would be around the whole page.
+  &:focus {
+    outline: none;
+  }
+}

@@ -1,0 +1,68 @@
+---
+title: Chart tooltip
+description: ChartTooltip, Recharts' tooltip drawn like the library's other floating panels. It names each series from the config, shows its color or pattern, formats values, and is a live region for screen readers.
+---
+
+`ChartTooltip` shows the values at the point under the pointer, or at the point the arrow keys are on. It's Recharts' `Tooltip` with the library's look and the labels from the chart's config.
+
+<Preview name="charts/tooltip-line" wide />
+
+## Import
+
+```tsx
+import { ChartTooltip, ChartTooltipContent } from "@nuvui/charts";
+```
+
+Put `<ChartTooltip />` inside the chart, where Recharts' `Tooltip` would go. It takes everything `Tooltip` takes, such as `cursor`, `trigger` and `defaultIndex`.
+
+## What it shows
+
+- **The point**, on the first line: the category from the axis, such as the month. `hideLabel` leaves it out, for a pie, where each slice already says what it is.
+- **A row for each series**, with a sample, the series' label from the config, and its value.
+
+The sample is drawn from the series' own variables, so it has the same color, the same pattern and the same dashes. `indicator="line"` makes it a short line, for a line chart. The default is a square.
+
+A series is matched to the config by its name, then by its `dataKey`. A series the config doesn't have is shown with Recharts' name and color for it. Where neither is a key of the config, as with the rings of a [radial chart](/docs/charts/radial), `nameKey` names the field of the data row that is.
+
+## Formatting
+
+The container's `formatValue` writes the values, here and in the table. Recharts' `labelFormatter` writes the first line.
+
+<Preview name="charts/tooltip-format" wide />
+
+`formatValue` on the tooltip itself is for when the tooltip should differ from the table. Recharts' own `formatter` works too, on the tooltip or on a series. It can give back a value, or a value and a name.
+
+## Props
+
+<PropsTable package="charts" component="chart" file="chart-tooltip" name="ChartTooltipContentOwnProps" />
+
+## Your own tooltip
+
+`ChartTooltip` is Recharts' `Tooltip` with `ChartTooltipContent` as its `content`. To add to what's shown, pass `Tooltip` a component of your own that draws `ChartTooltipContent` and whatever goes with it:
+
+```tsx
+import { ChartTooltipContent, type ChartTooltipContentProps } from "@nuvui/charts";
+import { Tooltip } from "recharts";
+
+function WithNote(props: ChartTooltipContentProps) {
+  return (
+    <div>
+      <ChartTooltipContent {...props} />
+      {props.active ? <p>Figures are provisional.</p> : null}
+    </div>
+  );
+}
+
+<Tooltip content={<WithNote />} />
+```
+
+## Accessibility
+
+- The tooltip is a live region. When the arrow keys move to a point, a screen reader reads the tooltip's text: the point, then each series and its value.
+- It's in the page from the start, empty and hidden, because a live region that arrives with its text already in it isn't read.
+- <kbd>Enter</kbd> on a focused chart hides the tooltip and shows it again.
+- The tooltip never takes focus and has nothing in it to press. Don't put links or buttons in one.
+- On a touch screen a tooltip opens on a tap and covers part of the chart. Nothing should be in the tooltip only: the [table](/docs/charts/chart#the-same-numbers-as-a-table) has the same numbers.
+- The tooltip's slide between points is Recharts' animation, and is off when the system asks for reduced motion.
+
+How the text is read as it changes hasn't been checked with a screen reader yet. Recharts' guidance is that VoiceOver users have to turn QuickNav off for the arrow keys to reach the chart.

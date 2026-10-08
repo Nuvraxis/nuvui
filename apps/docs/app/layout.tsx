@@ -4,6 +4,7 @@ import "./global.css";
 import "@nuvui/react/styles.css";
 import "@nuvui/date-picker/styles.css";
 import "@nuvui/table/styles.css";
+import "@nuvui/charts/styles.css";
 // Every preset, for the examples on the Theming page and its editor.
 import "@nuvui/react/themes/ink.css";
 import "@nuvui/react/themes/ledger.css";

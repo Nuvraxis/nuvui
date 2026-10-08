@@ -7,6 +7,19 @@ export function baseOptions(): BaseLayoutProps {
     // Not the built-in `githubUrl` option. Its icon is an <svg role="img">
     // with no text alternative, which fails WCAG 1.1.1.
     links: [
+      // The website is another app, at the root of the same address. A plain
+      // link, because the router would add this app's base path to it.
+      {
+        type: "custom",
+        children: (
+          <a
+            href="/"
+            className="text-fd-muted-foreground hover:text-fd-accent-foreground inline-flex items-center gap-2 rounded-md p-2 text-sm transition-colors"
+          >
+            {site.name} home
+          </a>
+        ),
+      },
       {
         type: "icon",
         label: "GitHub repository",

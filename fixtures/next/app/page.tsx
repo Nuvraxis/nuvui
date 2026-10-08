@@ -27,6 +27,12 @@ import {
   TableRow,
 } from "@nuvui/table/table";
 import { People } from "./people";
+import { Visitors } from "./visitors";
+
+const months = [
+  { month: "January", desktop: 186, mobile: 80 },
+  { month: "February", desktop: 305, mobile: 200 },
+];
 
 const people = [
   { id: "1", name: "Cleo Park", team: "Design" },
@@ -77,6 +83,7 @@ export default function Page() {
         </Table>
       </TableContainer>
       <People people={people} />
+      <Visitors months={months} />
     </main>
   );
 }

@@ -22,6 +22,17 @@ html {
   scrollbar-gutter: stable;
 }
 
+/* The site's header is above the docs' layout, and stays at the top of the
+   window from this width up. Fumadocs keeps this much room for a banner
+   there, and places the sidebar and the page's contents list under it. On a
+   phone the header scrolls away with the page, so there's nothing to keep
+   room for. */
+@media (width >= 48rem) {
+  :root {
+    --fd-banner-height: 3.5rem;
+  }
+}
+
 /* Radix pads the body while a dialog locks scrolling, to make up for the
    scrollbar going away. With a stable gutter it never goes away. Radix sets
    these with !important itself, so that's what it takes to undo them. */

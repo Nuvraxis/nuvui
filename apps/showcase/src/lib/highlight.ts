@@ -20,7 +20,7 @@ const colorReplacements = {
  * the browser. Each token carries both themes' colors as custom properties,
  * and the stylesheet picks one by the page's theme.
  */
-export function highlight(code: string, lang: "tsx" | "css" | "scss") {
+export function highlight(code: string, lang: "tsx" | "ts" | "css" | "scss") {
   return codeToHtml(code, {
     lang,
     themes,

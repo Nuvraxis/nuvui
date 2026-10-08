@@ -1,0 +1,9 @@
+{
+  "name": "figures",
+  "title": "Figures with trends",
+  "description": "Four numbers, each with its change against last month and a small chart of the last twelve.",
+  "category": "dashboard",
+  "files": ["figures.tsx", "figures.scss"],
+  "install": ["@nuvui/react", "@nuvui/charts", "recharts", "lucide-react"],
+  "height": 460
+}

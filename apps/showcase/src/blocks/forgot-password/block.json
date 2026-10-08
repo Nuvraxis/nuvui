@@ -1,0 +1,9 @@
+{
+  "name": "forgot-password",
+  "title": "Forgotten password",
+  "description": "One field, and a message that says what happens next.",
+  "category": "accounts",
+  "files": ["forgot-password.tsx", "forgot-password.scss"],
+  "install": ["@nuvui/react", "lucide-react"],
+  "height": 600
+}

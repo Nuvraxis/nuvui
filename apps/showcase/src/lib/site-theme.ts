@@ -60,6 +60,24 @@ function draw(css: string | null) {
   root.setAttribute("data-preset", sitePreset);
 }
 
+/**
+ * Draws whatever is stored, as the script in <head> did when the page
+ * loaded. For a page that hears of a change made on another: a block's
+ * preview is a page of its own, in a frame.
+ */
+export function redraw() {
+  try {
+    const stored = JSON.parse(localStorage.getItem(siteThemeKey) ?? "null");
+    draw(
+      typeof stored?.code === "string" && typeof stored?.css === "string"
+        ? stored.css
+        : null,
+    );
+  } catch {
+    draw(null);
+  }
+}
+
 /** Puts a theme on the site and remembers it. */
 export function apply(theme: StoredTheme) {
   draw(theme.css);

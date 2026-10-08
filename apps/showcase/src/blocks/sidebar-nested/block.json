@@ -1,0 +1,9 @@
+{
+  "name": "sidebar-nested",
+  "title": "Sidebar with sections",
+  "description": "Navigation in two levels. A section opens to show its pages, and the open page is marked.",
+  "category": "layout",
+  "files": ["sidebar-nested.tsx", "sidebar-nested.scss"],
+  "install": ["@nuvui/react", "lucide-react"],
+  "height": 720
+}

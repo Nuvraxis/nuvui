@@ -1,0 +1,114 @@
+@use "@nuvui/react/scss/mixins";
+
+.verify-code {
+  display: grid;
+  place-items: center;
+  min-block-size: 100svh;
+  padding: calc(var(--spacing) * 8) calc(var(--spacing) * 4);
+  background-color: var(--color-muted);
+  color: var(--color-foreground);
+}
+
+.verify-code__card {
+  display: grid;
+  gap: calc(var(--spacing) * 6);
+  inline-size: 100%;
+  max-inline-size: 26rem;
+  padding: calc(var(--spacing) * 6);
+  border: var(--nuv-border-width) solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-lg);
+  color: var(--color-surface-foreground);
+
+  @include mixins.breakpoint("sm") {
+    padding: calc(var(--spacing) * 10);
+  }
+}
+
+.verify-code__intro {
+  display: grid;
+  gap: calc(var(--spacing) * 2);
+  justify-items: start;
+}
+
+.verify-code__icon {
+  display: grid;
+  place-items: center;
+  inline-size: calc(var(--spacing) * 11);
+  block-size: calc(var(--spacing) * 11);
+  margin-block-end: calc(var(--spacing) * 2);
+  border-radius: var(--radius-full);
+  background-color: var(--color-muted);
+  color: var(--color-foreground);
+}
+
+.verify-code__title {
+  margin: 0;
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-2xl--line-height);
+  letter-spacing: var(--tracking-tight);
+}
+
+.verify-code__text {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  overflow-wrap: anywhere;
+}
+
+.verify-code__form {
+  display: grid;
+  gap: calc(var(--spacing) * 6);
+}
+
+.verify-code__wide {
+  inline-size: 100%;
+}
+
+// A button that reads as a link in a line of text. It does something on
+// this page, so it's a button, and it's underlined so color alone doesn't
+// have to tell it from the words around it.
+.verify-code__link {
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--color-surface-foreground);
+  font: inherit;
+  font-weight: var(--font-weight-medium);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+
+  @include mixins.focus-ring;
+}
+
+.verify-code__resend {
+  display: grid;
+  gap: calc(var(--spacing) * 1);
+}
+
+// Empty until there's something to say. It stays in the page while it's
+// empty, so a screen reader is already listening when the words arrive.
+.verify-code__said {
+  margin: 0;
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+.verify-code__back {
+  display: inline-flex;
+  gap: calc(var(--spacing) * 2);
+  align-items: center;
+  justify-self: center;
+  min-block-size: var(--nuv-touch-size);
+  border-radius: var(--radius-sm);
+  color: var(--color-surface-foreground);
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+
+  @include mixins.focus-ring;
+}

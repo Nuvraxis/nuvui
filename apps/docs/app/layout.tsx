@@ -14,6 +14,7 @@ import "@nuvui/react/themes/high-contrast.css";
 import { Toaster } from "@nuvui/react";
 import type { Metadata } from "next";
 import { Provider } from "@/components/provider";
+import { SiteHeader } from "@/components/site-header";
 import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -38,7 +39,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     // next-themes sets the theme on <html> before React hydrates.
     <html lang="en" suppressHydrationWarning>
       <body className="flex min-h-screen flex-col">
-        <Provider>{children}</Provider>
+        <Provider>
+          <SiteHeader />
+          {children}
+        </Provider>
         {/* One for the whole site. The examples on the Toast page call
             toast() and this is where they show up. */}
         <Toaster />

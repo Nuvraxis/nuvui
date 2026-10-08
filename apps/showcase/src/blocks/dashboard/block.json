@@ -1,0 +1,16 @@
+{
+  "name": "dashboard",
+  "title": "Dashboard",
+  "description": "A whole screen: a sidebar, four figures, a chart of revenue against target, and a table of recent orders.",
+  "category": "dashboard",
+  "files": ["dashboard.tsx", "dashboard.scss"],
+  "install": [
+    "@nuvui/react",
+    "@nuvui/charts",
+    "@nuvui/table",
+    "@tanstack/react-table",
+    "recharts",
+    "lucide-react"
+  ],
+  "height": 900
+}

@@ -1,0 +1,9 @@
+{
+  "name": "page-header",
+  "title": "Page header",
+  "description": "A breadcrumb, the page's title with its status, and the actions for the page.",
+  "category": "layout",
+  "files": ["page-header.tsx", "page-header.scss"],
+  "install": ["@nuvui/react", "lucide-react"],
+  "height": 460
+}

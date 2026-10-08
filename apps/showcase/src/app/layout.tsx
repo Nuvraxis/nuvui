@@ -8,8 +8,6 @@ import "@/styles/index.scss";
 import { Toaster } from "@nuvui/react/toast";
 import type { Metadata } from "next";
 import { Hydrated } from "@/components/hydrated";
-import { SiteFooter } from "@/components/site-footer";
-import { SiteHeader } from "@/components/site-header";
 import { site } from "@/lib/site";
 import { siteThemeScript } from "@/lib/site-theme";
 import { themeScript } from "@/lib/theme";
@@ -51,11 +49,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         />
       </head>
       <body className="site-page">
-        <SiteHeader />
-        <main id="content" className="site-page__main" tabIndex={-1}>
-          {children}
-        </main>
-        <SiteFooter />
+        {/* The header and the footer are a layout further in, around the
+            site's own pages. A block's preview has neither. */}
+        {children}
         <Toaster />
         <Hydrated />
       </body>

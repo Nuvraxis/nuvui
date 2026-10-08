@@ -17,6 +17,12 @@
   line-height: 1.6;
 }
 
+// In a list of files, where a long one shouldn't push the page down.
+.site-code--tall {
+  max-block-size: 36rem;
+  overflow-y: auto;
+}
+
 @include mixins.dark {
   .site-code {
     --site-code-light: ;

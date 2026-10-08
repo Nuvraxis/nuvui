@@ -17,7 +17,7 @@ What exists today:
 - The design tokens: color scales, semantic colors for both themes, chart colors, type, spacing, radius, shadow, motion and control sizes. They build to CSS custom properties, and the SCSS source ships alongside.
 - Five presets, each a stylesheet that restyles everything, and three densities.
 - A docs site with a page for each component, a getting started page, and search that runs in the browser.
-- A website around the docs, built with the library's own tokens: a home page with a live dashboard, 39 charts in ten families, each one file to copy, and a theme builder that shows a theme on real components in light and dark and gives it back as CSS.
+- A website around the docs, built with the library's own tokens: a home page with a live dashboard, 39 charts in ten families, each one file to copy, a theme builder that shows a theme on real components in light and dark and gives it back as CSS, and the first 12 blocks. A block is a part of an app, such as a sign-in screen or a dashboard, as a TSX file and an SCSS file to copy. The docs carry the website's header, so either leads to the other.
 - Guides for theming, for using the tokens with Tailwind v4, for using the SCSS source, for building forms, with React Hook Form as the worked example, and for right-to-left layouts. The theming page has an editor that changes tokens in the browser and prints the CSS for what you changed.
 
 What's missing:
@@ -78,7 +78,7 @@ pnpm dev         # packages in watch mode plus the website and the docs
 
 - `packages/ui` is the library that gets published.
 - `packages/theme` is the theme generator. It turns a choice of brand color, base color, radius and density into token values and checks their contrast. The presets are written by it. It isn't published.
-- `apps/showcase` is the website: the home page, and what goes around the docs. It's built with the library's own tokens, in SCSS, with no Tailwind.
+- `apps/showcase` is the website: the home page, the charts, the theme builder and the blocks. It's built with the library's own tokens, in SCSS, with no Tailwind. A block is a folder under `apps/showcase/src/blocks`, with a `block.json` that says what it is.
 - `apps/docs` is the documentation, served under `/docs` of the same address. Its build is copied into the website's, so the two are one folder of static files.
 - `packages/typescript-config` holds the shared tsconfig presets.
 - `fixtures` holds two small apps that install the packed library the way a stranger would.

@@ -1,3 +1,10 @@
+import {
+  blockCount,
+  blocksHome,
+  blocksIn,
+  categories,
+  categoryPath,
+} from "./blocks";
 import { chartCount, chartsHome, families, familyPath } from "./charts";
 
 export const site = {
@@ -37,10 +44,13 @@ export interface NavItem {
   docs?: boolean;
 }
 
-// What the header links to. An item goes in when its page exists.
+// What the header links to. The docs app shows the same header, from a
+// list of its own in apps/docs/lib/site.ts, and a test holds the two
+// together.
 export const navigation: NavItem[] = [
   { label: "Docs", href: docs.home, docs: true },
   { label: "Components", href: docs.components, docs: true },
+  { label: "Blocks", href: blocksHome },
   { label: "Charts", href: chartsHome },
   { label: "Themes", href: themesHome },
 ];
@@ -52,6 +62,16 @@ export const pages = [
     title: "Home",
     description: site.description,
   },
+  {
+    path: blocksHome,
+    title: "Blocks",
+    description: `${blockCount} blocks built from the library's components, each a TSX file and an SCSS file to copy: sign-in screens, app layouts and dashboards.`,
+  },
+  ...categories.map((category) => ({
+    path: categoryPath(category),
+    title: `${category.title} blocks`,
+    description: `${blocksIn(category).length} blocks. ${category.description}`,
+  })),
   {
     path: chartsHome,
     title: "Charts",

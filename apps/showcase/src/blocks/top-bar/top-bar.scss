@@ -1,0 +1,188 @@
+@use "@nuvui/react/scss/mixins";
+
+.top-bar {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  min-block-size: 100svh;
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+}
+
+.top-bar__bar {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 1;
+  display: flex;
+  gap: calc(var(--spacing) * 2);
+  align-items: center;
+  min-block-size: calc(var(--spacing) * 16);
+  padding-inline: calc(var(--spacing) * 3);
+  border-block-end: var(--nuv-border-width) solid var(--color-border);
+  background-color: var(--color-background);
+
+  @include mixins.breakpoint("md") {
+    gap: calc(var(--spacing) * 4);
+    padding-inline: calc(var(--spacing) * 6);
+  }
+}
+
+.top-bar__brand {
+  display: inline-flex;
+  gap: calc(var(--spacing) * 2);
+  align-items: center;
+  min-block-size: var(--nuv-touch-size);
+  border-radius: var(--radius-sm);
+  color: inherit;
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--tracking-tight);
+  text-decoration: none;
+
+  @include mixins.focus-ring;
+}
+
+// The pages are in the bar from the md breakpoint up. Below it they're in
+// the menu at the start of the bar.
+.top-bar__nav {
+  display: none;
+
+  @include mixins.breakpoint("md") {
+    display: block;
+  }
+}
+
+.top-bar__menu {
+  @include mixins.breakpoint("md") {
+    display: none;
+  }
+}
+
+.top-bar__list {
+  display: flex;
+  gap: calc(var(--spacing) * 1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.top-bar__link {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--nuv-control-height-sm);
+  padding-inline: calc(var(--spacing) * 3);
+  border-radius: var(--radius-md);
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+
+  @include mixins.focus-ring;
+
+  @include mixins.hover {
+    background-color: var(--color-muted);
+    color: var(--color-foreground);
+  }
+
+  // The page that's open. The underline is there for anyone who can't tell
+  // the two shades apart.
+  &[aria-current="page"] {
+    background-color: var(--color-muted);
+    color: var(--color-foreground);
+    text-decoration: underline;
+    text-underline-offset: 0.3em;
+  }
+}
+
+.top-bar__tools {
+  display: flex;
+  gap: calc(var(--spacing) * 1);
+  align-items: center;
+  margin-inline-start: auto;
+
+  @include mixins.breakpoint("md") {
+    gap: calc(var(--spacing) * 2);
+  }
+}
+
+// On a narrow screen the search button is its icon. From the md breakpoint
+// it has its word and its shortcut, and from lg, where the bar has room to
+// spare, it's wide enough to read as a search field.
+.top-bar__search {
+  flex: none;
+  gap: calc(var(--spacing) * 2);
+  color: var(--color-muted-foreground);
+
+  @include mixins.breakpoint("lg") {
+    justify-content: flex-start;
+    min-inline-size: 16rem;
+  }
+}
+
+.top-bar__word {
+  display: none;
+
+  @include mixins.breakpoint("md") {
+    display: inline;
+  }
+}
+
+// The shortcut is for a keyboard, so it's only shown where there's likely
+// to be one.
+.top-bar__keys {
+  display: none;
+  gap: calc(var(--spacing) * 1);
+  margin-inline-start: auto;
+
+  @include mixins.breakpoint("md") {
+    display: inline-flex;
+  }
+}
+
+// A button that's only an icon: square, at the size of the button it is.
+.top-bar__icon {
+  flex: none;
+  aspect-ratio: 1;
+  padding: 0;
+}
+
+// The person's picture is the button. The area that takes a tap is the
+// library's touch size, whatever size the picture is drawn at.
+.top-bar__person {
+  display: grid;
+  flex: none;
+  place-items: center;
+  inline-size: var(--nuv-touch-size);
+  block-size: var(--nuv-touch-size);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: none;
+  cursor: pointer;
+
+  @include mixins.focus-ring;
+}
+
+.top-bar__page {
+  display: grid;
+  gap: calc(var(--spacing) * 2);
+  align-content: start;
+  padding: calc(var(--spacing) * 6) calc(var(--spacing) * 4);
+
+  @include mixins.breakpoint("md") {
+    padding: calc(var(--spacing) * 8) calc(var(--spacing) * 6);
+  }
+}
+
+.top-bar__title {
+  margin: 0;
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-2xl--line-height);
+  letter-spacing: var(--tracking-tight);
+}
+
+.top-bar__hint {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+}

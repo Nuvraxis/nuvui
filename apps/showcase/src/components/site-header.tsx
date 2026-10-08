@@ -1,5 +1,6 @@
 import { VisuallyHidden } from "@nuvui/react/visually-hidden";
 import Link from "next/link";
+import { Logo } from "@/components/logo";
 import { NavLink } from "@/components/nav-link";
 import { SiteMenu } from "@/components/site-menu";
 import { SiteSearch } from "@/components/site-search";
@@ -32,6 +33,7 @@ export function SiteHeader() {
       <div className="site-header__inner">
         <SiteMenu />
         <Link href="/" className="site-header__name">
+          <Logo />
           {site.name}
         </Link>
         <nav className="site-header__nav" aria-label="Main">

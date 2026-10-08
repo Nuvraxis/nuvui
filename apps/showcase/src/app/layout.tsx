@@ -11,6 +11,7 @@ import { Hydrated } from "@/components/hydrated";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { site } from "@/lib/site";
+import { siteThemeScript } from "@/lib/site-theme";
 import { themeScript } from "@/lib/theme";
 
 export const metadata: Metadata = {
@@ -41,6 +42,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           // can't wait for a script that loads. The text is a constant of
           // ours, with nothing from outside in it.
           dangerouslySetInnerHTML={{ __html: themeScript }}
+        />
+        <script
+          // The same goes for a theme made on the Themes page and put on
+          // the whole site. This one is a constant of ours too. The CSS it
+          // puts in place is what that page stored.
+          dangerouslySetInnerHTML={{ __html: siteThemeScript }}
         />
       </head>
       <body className="site-page">

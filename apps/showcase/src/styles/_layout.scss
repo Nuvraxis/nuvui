@@ -1,9 +1,13 @@
 // The width the page's content stops at, and the room at its sides.
 $width: 76rem;
+
+// For a page that's a tool and wants the room: the theme builder, with its
+// controls beside two previews.
+$width-wide: 100rem;
 $gutter: calc(var(--spacing) * 4);
 $gutter-wide: calc(var(--spacing) * 8);
 
-@mixin container {
+@mixin container($width: $width) {
   inline-size: 100%;
   max-inline-size: $width;
   margin-inline: auto;

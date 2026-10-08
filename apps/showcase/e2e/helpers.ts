@@ -37,3 +37,17 @@ export async function settleStyles(page: Page) {
     return getComputedStyle(document.body).outlineStyle;
   });
 }
+
+// The errors a page throws, for a test that expects none. Loading another
+// page cancels whatever the router was fetching ahead for this one, and
+// Safari reports each cancelled fetch as an error. Those aren't the page's,
+// and are left out.
+export function pageProblems(page: Page) {
+  const problems: string[] = [];
+  page.on("pageerror", (error) => {
+    if (!/_rsc=.*access control checks/.test(error.message)) {
+      problems.push(error.message);
+    }
+  });
+  return problems;
+}

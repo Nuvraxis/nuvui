@@ -38,10 +38,10 @@ jobs:
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm build
-      # Two packages' tests at a time. Each opens three browsers, and the
-      # runner has few cores: with every package at once, a page can go
+      # One package's tests at a time. Each opens three browsers, and the
+      # runner has two cores: with several packages at once, a page can go
       # seconds without answering, and tests fail that aren't wrong.
-      - run: pnpm test --concurrency=2
+      - run: pnpm test --concurrency=1
 
       - name: Check the packages that would be published
         run: pnpm check:package

@@ -28,6 +28,8 @@ export const docs = {
   sitemap: "/docs/sitemap.xml",
 };
 
+export const themesHome = "/themes";
+
 export interface NavItem {
   label: string;
   href: string;
@@ -40,6 +42,7 @@ export const navigation: NavItem[] = [
   { label: "Docs", href: docs.home, docs: true },
   { label: "Components", href: docs.components, docs: true },
   { label: "Charts", href: chartsHome },
+  { label: "Themes", href: themesHome },
 ];
 
 // This app's own pages, for the sitemap and the search.
@@ -59,4 +62,10 @@ export const pages = [
     title: family.title,
     description: family.description,
   })),
+  {
+    path: themesHome,
+    title: "Themes",
+    description:
+      "Make a theme from a brand color, a base color, a radius and a density, see it on real components in light and dark, and copy it as CSS.",
+  },
 ];

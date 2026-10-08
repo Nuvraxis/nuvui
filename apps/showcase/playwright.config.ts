@@ -1,3 +1,4 @@
+import { askedProjects } from "@nuvui/tooling/browsers";
 import { defineConfig, devices } from "@playwright/test";
 
 // A port of its own, so neither a running `next dev` nor the docs' tests get
@@ -22,14 +23,15 @@ export default defineConfig({
     trace: "on-first-retry",
   },
   // Three engines on a desktop, and the two phone ones that matter: Chrome
-  // on Android and Safari on an iPhone.
-  projects: [
+  // on Android and Safari on an iPhone. NUVUI_BROWSERS=chromium keeps the
+  // two Chromium ones, for a quicker run while working on something.
+  projects: askedProjects([
     { name: "desktop", use: { ...devices["Desktop Chrome"], ...clipboard } },
     { name: "mobile", use: { ...devices["Pixel 7"], ...clipboard } },
     { name: "firefox", use: { ...devices["Desktop Firefox"] } },
     { name: "webkit", use: { ...devices["Desktop Safari"] } },
     { name: "mobile-webkit", use: { ...devices["iPhone 15"] } },
-  ],
+  ]),
   // Serves `out`, which after a build is the whole site: this app's pages
   // and the docs' under /docs. So `pnpm build` has to come first. The turbo
   // task takes care of that.

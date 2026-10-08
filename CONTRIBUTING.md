@@ -46,6 +46,11 @@ NUVUI_BROWSERS=chromium pnpm --filter @nuvui/react exec vitest run
 # The same for an add-on package
 NUVUI_BROWSERS=chromium pnpm --filter @nuvui/date-picker exec vitest run
 
+# The end-to-end tests in Chrome only, on a desktop and on a phone. That's
+# two of the five setups, and well under half the time. Run all five before
+# a pull request, which is what CI does.
+NUVUI_BROWSERS=chromium pnpm test:e2e
+
 # One end-to-end file. It tests the files in apps/docs/out, so build first.
 pnpm build
 pnpm --filter @nuvui/docs exec playwright test e2e/overlays.spec.ts

@@ -31,6 +31,7 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
+    "@nuvui/tooling": "workspace:*",
     "@nuvui/typescript-config": "workspace:*",
     "@playwright/test": "catalog:",
     "@tailwindcss/postcss": "^4.3.3",

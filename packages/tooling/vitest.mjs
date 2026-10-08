@@ -1,6 +1,7 @@
 import { fileURLToPath } from "node:url";
 import { playwright } from "@vitest/browser-playwright";
 import { configDefaults, defineConfig } from "vitest/config";
+import { askedBrowsers } from "./browsers.mjs";
 
 // Called from tests through test/media.ts.
 /** @type {import("vitest/node").BrowserCommand<[media: object]>} */
@@ -24,10 +25,6 @@ const provider = (contextOptions = {}) =>
 
 const touchTests = "test/touch.test.tsx";
 
-// Every engine by default. NUVUI_BROWSERS narrows it to the ones named, for
-// a quicker run while working on something: NUVUI_BROWSERS=chromium.
-const engines = ["chromium", "firefox", "webkit"];
-
 /**
  * The component tests of a published package, in real browsers.
  *
@@ -36,15 +33,8 @@ const engines = ["chromium", "firefox", "webkit"];
  *   imports, by package name.
  */
 export function browserTests({ dependencies }) {
-  const asked = process.env.NUVUI_BROWSERS?.split(",").map((name) =>
-    name.trim(),
-  );
-  const browsers = engines.filter((name) => !asked || asked.includes(name));
-  if (browsers.length === 0) {
-    throw new Error(
-      `NUVUI_BROWSERS is "${process.env.NUVUI_BROWSERS}". It takes any of ${engines.join(", ")}, separated by commas.`,
-    );
-  }
+  // All three engines, or the ones NUVUI_BROWSERS names.
+  const browsers = askedBrowsers();
 
   return defineConfig({
     optimizeDeps: {

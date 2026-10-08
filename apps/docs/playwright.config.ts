@@ -1,3 +1,4 @@
+import { askedProjects } from "@nuvui/tooling/browsers";
 import { defineConfig, devices } from "@playwright/test";
 
 // Not 3000, so a running `next dev` doesn't get tested by accident.
@@ -21,14 +22,15 @@ export default defineConfig({
     trace: "on-first-retry",
   },
   // Three engines on a desktop, and the two phone ones that matter: Chrome
-  // on Android and Safari on an iPhone.
-  projects: [
+  // on Android and Safari on an iPhone. NUVUI_BROWSERS=chromium keeps the
+  // two Chromium ones, for a quicker run while working on something.
+  projects: askedProjects([
     { name: "desktop", use: { ...devices["Desktop Chrome"], ...clipboard } },
     { name: "mobile", use: { ...devices["Pixel 7"], ...clipboard } },
     { name: "firefox", use: { ...devices["Desktop Firefox"] } },
     { name: "webkit", use: { ...devices["Desktop Safari"] } },
     { name: "mobile-webkit", use: { ...devices["iPhone 15"] } },
-  ],
+  ]),
   // Serves the exported site in `out`, the same files a host would serve, so
   // `pnpm build` has to come first. The turbo task takes care of that.
   webServer: {

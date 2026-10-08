@@ -11,6 +11,7 @@
     "./check-dist": "./check-dist.mjs",
     "./stylelint": "./stylelint.mjs",
     "./vitest": "./vitest.mjs",
+    "./browsers": "./browsers.mjs",
     "./styles": {
       "types": "./test/styles.d.ts"
     },

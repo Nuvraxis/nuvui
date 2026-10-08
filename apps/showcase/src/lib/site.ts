@@ -1,3 +1,5 @@
+import { chartCount, chartsHome, families, familyPath } from "./charts";
+
 export const site = {
   name: "Nuvui",
   packageName: "@nuvui/react",
@@ -37,6 +39,7 @@ export interface NavItem {
 export const navigation: NavItem[] = [
   { label: "Docs", href: docs.home, docs: true },
   { label: "Components", href: docs.components, docs: true },
+  { label: "Charts", href: chartsHome },
 ];
 
 // This app's own pages, for the sitemap and the search.
@@ -46,4 +49,14 @@ export const pages = [
     title: "Home",
     description: site.description,
   },
+  {
+    path: chartsHome,
+    title: "Charts",
+    description: `${chartCount} charts built with Recharts and the library's chart parts, each with its code to copy.`,
+  },
+  ...families.map((family) => ({
+    path: familyPath(family),
+    title: family.title,
+    description: family.description,
+  })),
 ];

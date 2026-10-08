@@ -13,7 +13,7 @@
     "lint:fix": "biome check --write .",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
-    "test:e2e": "turbo run test:e2e",
+    "test:e2e": "turbo run test:e2e --concurrency=1 --continue=dependencies-successful",
     "size": "turbo run size",
     "test:consumers": "node scripts/test-consumers.mjs",
     "playwright:install": "pnpm --filter @nuvui/react exec playwright install chromium firefox webkit",

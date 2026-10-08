@@ -248,6 +248,9 @@ importers:
       '@axe-core/playwright':
         specifier: ^4.13.0
         version: 4.13.0(playwright-core@1.63.0)
+      '@nuvui/tooling':
+        specifier: workspace:*
+        version: link:../../packages/tooling
       '@nuvui/typescript-config':
         specifier: workspace:*
         version: link:../../packages/typescript-config
@@ -317,6 +320,9 @@ importers:
       recharts:
         specifier: ^3.10.1
         version: 3.10.1(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react-is@19.3.0)(react@19.3.0)(redux@5.0.1)
+      shiki:
+        specifier: ^4.5.0
+        version: 4.5.0
     devDependencies:
       '@axe-core/playwright':
         specifier: ^4.13.0

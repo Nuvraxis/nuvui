@@ -426,9 +426,15 @@ test.describe("hover card page", () => {
   }) => {
     test.skip(!isMobile, "This is about touch screens.");
     const problems: string[] = [];
-    page.on("pageerror", (error) => problems.push(error.message));
+    // The link is a plain one, so following it leaves the page, and that
+    // cancels whatever the router was fetching ahead for the sidebar.
+    // Safari reports each cancelled fetch as an error. It isn't the page's.
+    const note = (text: string) => {
+      if (!/_rsc=.*access control checks/.test(text)) problems.push(text);
+    };
+    page.on("pageerror", (error) => note(error.message));
     page.on("console", (message) => {
-      if (message.type() === "error") problems.push(message.text());
+      if (message.type() === "error") note(message.text());
     });
 
     await page

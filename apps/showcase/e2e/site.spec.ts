@@ -102,6 +102,30 @@ for (const { path } of pages) {
   });
 }
 
+test("every page has a title and a description of its own", async ({
+  page,
+}) => {
+  const titles = new Map<string, string>();
+  const descriptions = new Map<string, string>();
+  for (const { path } of pages) {
+    await page.goto(path);
+    const title = await page.title();
+    const description =
+      (await page
+        .locator('meta[name="description"]')
+        .getAttribute("content")) ?? "";
+    expect(titles.get(title), `${path} has the title of another page`).toBe(
+      undefined,
+    );
+    expect(
+      descriptions.get(description),
+      `${path} has the description of another page`,
+    ).toBe(undefined);
+    titles.set(title, path);
+    descriptions.set(description, path);
+  }
+});
+
 test.describe("how the site is built", () => {
   test("its pages load no Tailwind, and the docs' do", async ({
     page,
@@ -158,7 +182,7 @@ test.describe("the header", () => {
         );
       });
     const stops: string[] = [];
-    for (let index = 0; index < 7; index += 1) {
+    for (let index = 0; index < 8; index += 1) {
       await page.keyboard.press("Tab");
       stops.push(await focused());
     }
@@ -166,9 +190,10 @@ test.describe("the header", () => {
     expect(stops[1]).toBe(site.name);
     expect(stops[2]).toBe("Docs");
     expect(stops[3]).toBe("Components");
-    expect(stops[4]).toMatch(/^Search/);
-    expect(stops[5]).toBe("GitHub repository");
-    expect(stops[6]).toMatch(/^Theme: /);
+    expect(stops[4]).toBe("Charts");
+    expect(stops[5]).toMatch(/^Search/);
+    expect(stops[6]).toBe("GitHub repository");
+    expect(stops[7]).toMatch(/^Theme: /);
   });
 
   test("the skip link goes to the content", async ({

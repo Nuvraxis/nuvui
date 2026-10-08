@@ -19,6 +19,7 @@
     },
     "test:e2e": {
       "dependsOn": ["build"],
+      "env": ["NUVUI_BROWSERS"],
       "cache": false
     },
     "size": {

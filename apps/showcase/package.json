@@ -22,7 +22,8 @@
     "react": "catalog:",
     "react-dom": "catalog:",
     "react-is": "catalog:",
-    "recharts": "^3.10.1"
+    "recharts": "^3.10.1",
+    "shiki": "^4.5.0"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",

@@ -95,6 +95,14 @@
     background-color: var(--color-muted);
     color: var(--color-foreground);
   }
+
+  // The page that's open, or the section it's in. The underline is there
+  // for anyone who can't tell the two shades apart.
+  &[aria-current="page"] {
+    color: var(--color-foreground);
+    text-decoration: underline;
+    text-underline-offset: 0.3em;
+  }
 }
 
 .site-header__tools {

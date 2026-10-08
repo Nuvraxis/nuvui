@@ -13,11 +13,19 @@ loadPresets();
 // a page. A button rendered under it by the next test is hovered, and shows
 // its hover color instead of the one being checked. The bottom corner is the
 // spot least likely to have anything under it.
+const tidyTimeout = 30_000;
+
 async function parkPointer() {
   await userEvent.hover(document.documentElement, {
     position: { x: window.innerWidth - 1, y: window.innerHeight - 1 },
     // The point is outside the element's own box once the page is empty.
     force: true,
+    // An action in a test gets five seconds, so that a click on something
+    // that's gone fails soon. This is tidying up, not a test, and it has
+    // nothing to wait for but the page itself. On a CI runner with two
+    // cores and several browsers open, a page can take longer than five
+    // seconds to answer, and that failed a test that had passed.
+    timeout: tidyTimeout,
   });
 }
 

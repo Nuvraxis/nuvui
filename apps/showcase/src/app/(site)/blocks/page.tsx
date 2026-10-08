@@ -62,6 +62,12 @@ export default function BlocksPage() {
             </a>
             . The names and figures in them are made up.
           </p>
+          <p className="site-intro__text">
+            A block needs the stylesheet of each package it imports from, loaded
+            once in your app, and an app that compiles Sass. Under Code, each
+            block has the command that installs its packages, and one for
+            shadcn's command line tool, which copies the files as well.
+          </p>
           <CategoryNav />
         </section>
       </div>

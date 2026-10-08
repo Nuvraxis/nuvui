@@ -1,0 +1,9 @@
+{
+  "name": "detail-panel",
+  "title": "Detail panel beside a list",
+  "description": "A list where a row opens a panel at the side, with tabs for what there is to know about it.",
+  "category": "data",
+  "files": ["detail-panel.tsx", "detail-panel.scss"],
+  "install": ["@nuvui/react", "lucide-react"],
+  "height": 600
+}

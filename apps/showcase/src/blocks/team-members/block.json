@@ -1,0 +1,14 @@
+{
+  "name": "team-members",
+  "title": "Team members",
+  "description": "The people in a workspace with a role each, invitations that haven't been taken up, and a dialog to invite someone.",
+  "category": "settings",
+  "files": ["team-members.tsx", "team-members.scss"],
+  "install": [
+    "@nuvui/react",
+    "@nuvui/table",
+    "@tanstack/react-table",
+    "lucide-react"
+  ],
+  "height": 600
+}

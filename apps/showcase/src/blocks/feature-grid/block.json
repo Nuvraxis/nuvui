@@ -1,0 +1,9 @@
+{
+  "name": "feature-grid",
+  "title": "Feature grid",
+  "description": "A heading and six cards, each with an icon, a title and a sentence, laid out as many to a row as fit.",
+  "category": "marketing",
+  "files": ["feature-grid.tsx", "feature-grid.scss"],
+  "install": ["@nuvui/react", "lucide-react"],
+  "height": 820
+}

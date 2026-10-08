@@ -8,6 +8,7 @@ import {
   blocksIn,
   categories,
   categoryPath,
+  registryPath,
   viewPath,
 } from "../src/lib/blocks";
 import {
@@ -95,6 +96,35 @@ test.describe("the list of blocks", () => {
       }
     });
   }
+
+  test("the registry for shadcn's tool has every block, with its files as they're written", async ({
+    request,
+  }) => {
+    const list = await (await request.get("/r/registry.json")).json();
+    expect(
+      list.items.map((item: { name: string }) => item.name).sort(),
+    ).toEqual(blocks.map((block) => block.name).sort());
+
+    for (const block of blocks) {
+      const response = await request.get(registryPath(block));
+      expect(response.status(), block.name).toBe(200);
+      const item = await response.json();
+      expect(item.name).toBe(block.name);
+      expect(item.type).toBe("registry:block");
+      expect(item.title).toBe(block.title);
+      expect(item.dependencies).toEqual(block.install);
+      // The two files import each other by a relative path, so they have
+      // to land in one folder.
+      expect(item.files.map((file: { target: string }) => file.target)).toEqual(
+        block.files.map((file) => `components/${block.name}/${file}`),
+      );
+      for (const [index, file] of block.files.entries()) {
+        expect(item.files[index].content.trim()).toBe(
+          await source(block.name, file),
+        );
+      }
+    }
+  });
 });
 
 for (const block of blocks) {
@@ -407,6 +437,481 @@ test.describe("what the blocks do", () => {
     );
     await expect(page.getByRole("listitem")).toHaveCount(5);
   });
+
+  test("table with a toolbar: the status filter narrows the rows, and ticked rows are acted on together", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/blocks/view/table-toolbar");
+    const table = page.getByRole("table", { name: "Invoices" });
+    await expect(table.getByRole("rowheader")).toHaveCount(5);
+
+    const status = page.getByRole("combobox", {
+      name: "Status",
+      exact: true,
+    });
+    await expect(status).toHaveText("Any status");
+    await press(status, isMobile);
+    await press(page.getByRole("option", { name: "Overdue" }), isMobile);
+    await page.keyboard.press("Escape");
+    await expect(status).toHaveText("Overdue");
+    await expect(table.getByRole("rowheader")).toHaveText([
+      "INV-2039",
+      "INV-2034",
+    ]);
+
+    await table.getByRole("checkbox", { name: "Select INV-2039" }).check();
+    await table.getByRole("checkbox", { name: "Select INV-2034" }).check();
+    const bar = page.getByRole("group", { name: "Selected rows" });
+    await expect(bar).toContainText("2 selected");
+    await press(bar.getByRole("button", { name: "Mark as paid" }), isMobile);
+
+    // Neither is overdue now, so the filter leaves nothing, and says why.
+    await expect(table).toContainText("No rows match.");
+    await press(table.getByRole("button", { name: "Clear filters" }), isMobile);
+    await expect(status).toHaveText("Any status");
+    await expect(
+      table.getByRole("row", { name: /INV-2039/ }).getByText("Paid"),
+    ).toBeVisible();
+  });
+
+  test("table with a toolbar: a row's menu acts on that row, and a column can be hidden", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/blocks/view/table-toolbar");
+    const table = page.getByRole("table", { name: "Invoices" });
+    const more = table.getByRole("button", { name: "Actions for INV-2040" });
+    await more.scrollIntoViewIfNeeded();
+    await press(more, isMobile);
+    await press(page.getByRole("menuitem", { name: "Delete" }), isMobile);
+    await expect(
+      table.getByRole("rowheader", { name: "INV-2040" }),
+    ).toHaveCount(0);
+
+    await expect(
+      table.getByRole("columnheader", { name: /Customer/ }),
+    ).toBeVisible();
+    await press(page.getByRole("button", { name: "Columns" }), isMobile);
+    // The invoice number is always there, and so isn't offered.
+    await expect(
+      page.getByRole("menuitemcheckbox", { name: "Invoice" }),
+    ).toHaveCount(0);
+    await press(
+      page.getByRole("menuitemcheckbox", { name: "Customer" }),
+      isMobile,
+    );
+    // The menu stays open for more, and the page behind it is out of reach
+    // until it's closed.
+    await page.keyboard.press("Escape");
+    await expect(
+      table.getByRole("columnheader", { name: /Invoice/ }),
+    ).toBeVisible();
+    await expect(
+      table.getByRole("columnheader", { name: /Customer/ }),
+    ).toHaveCount(0);
+  });
+
+  test("detail panel: a row opens its panel, the tabs change what it shows, and focus goes back to the row", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/blocks/view/detail-panel");
+    const row = page.getByRole("button", { name: /Contoso/ });
+    await press(row, isMobile);
+    const panel = page.getByRole("dialog", { name: "Contoso" });
+    await expect(panel).toBeVisible();
+    await expect(panel.getByText("alan@example.com")).toBeVisible();
+
+    await press(panel.getByRole("tab", { name: "Orders" }), isMobile);
+    await expect(panel.getByText("ORD-7230")).toBeVisible();
+    await expect(panel.getByText("alan@example.com")).toBeHidden();
+
+    await press(
+      panel.getByRole("button", { name: "Close", exact: true }).first(),
+      isMobile,
+    );
+    await expect(panel).toBeHidden();
+    if (!isMobile) await expect(row).toBeFocused();
+
+    // A customer with no orders says so.
+    await press(
+      page.getByRole("button", { name: /Adventure Works/ }),
+      isMobile,
+    );
+    const other = page.getByRole("dialog", { name: "Adventure Works" });
+    await press(other.getByRole("tab", { name: "Orders" }), isMobile);
+    await expect(other.getByText("No orders this year.")).toBeVisible();
+  });
+
+  test("empty, loading and error: each state shows, and says what it is", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/blocks/view/page-states");
+    const body = page.getByRole("region", { name: "Projects" });
+    const show = page.getByRole("radiogroup", { name: "State to show" });
+    const said = page.getByRole("status");
+    await expect(body).toHaveAttribute("aria-busy", "true");
+    await expect(said).toHaveText("Loading the projects");
+
+    await press(show.getByRole("radio", { name: "Loaded" }), isMobile);
+    await expect(body).toHaveAttribute("aria-busy", "false");
+    await expect(body.getByRole("link")).toHaveCount(3);
+    await expect(said).toHaveText("3 projects");
+
+    await press(show.getByRole("radio", { name: "Empty" }), isMobile);
+    await expect(body.getByText("No projects yet")).toBeVisible();
+    await expect(
+      body.getByRole("button", { name: "New project" }),
+    ).toBeVisible();
+
+    await press(show.getByRole("radio", { name: "Error" }), isMobile);
+    await expect(body.getByRole("alert")).toContainText(
+      "The projects couldn't be loaded",
+    );
+    await press(body.getByRole("button", { name: "Try again" }), isMobile);
+    await expect(body).toHaveAttribute("aria-busy", "true");
+    await expect(body.getByRole("alert")).toHaveCount(0);
+  });
+
+  test("profile form: a chosen picture shows, a file of the wrong kind is refused, and saving says so", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/blocks/view/profile-form");
+    const file = page.locator('input[type="file"]');
+    await expect(page.locator(".profile-form__avatar img")).toHaveCount(0);
+
+    await file.setInputFiles({
+      name: "notes.txt",
+      mimeType: "text/plain",
+      buffer: Buffer.from("not a picture"),
+    });
+    await expect(
+      page.getByText("notes.txt isn't a PNG or JPEG image."),
+    ).toBeVisible();
+
+    await file.setInputFiles({
+      name: "me.png",
+      mimeType: "image/png",
+      // The smallest PNG there is: one transparent pixel.
+      buffer: Buffer.from(
+        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==",
+        "base64",
+      ),
+    });
+    await expect(page.locator(".profile-form__avatar img")).toHaveCount(1);
+    await expect(
+      page.getByText("notes.txt isn't a PNG or JPEG image."),
+    ).toBeHidden();
+
+    const said = page.locator(".profile-form__status");
+    await press(page.getByRole("button", { name: "Save changes" }), isMobile);
+    await expect(said).toHaveText("Saved.");
+    // A change after that is one that hasn't been saved.
+    await page.getByRole("textbox", { name: "Job title" }).fill("Controller");
+    await expect(said).toHaveText("");
+  });
+
+  test("notification preferences: each switch is named and described, and the form says when it's saved", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/blocks/view/notifications");
+    const summary = page.getByRole("switch", { name: "Weekly summary" });
+    await expect(summary).toHaveAccessibleDescription(
+      "What your team did, on Monday morning.",
+    );
+    await expect(summary).not.toBeChecked();
+    await press(summary, isMobile);
+    await expect(summary).toBeChecked();
+
+    const said = page.locator(".notifications__status");
+    await press(
+      page.getByRole("button", { name: "Save preferences" }),
+      isMobile,
+    );
+    await expect(said).toHaveText("Saved.");
+    await press(summary, isMobile);
+    await expect(said).toHaveText("");
+  });
+
+  test("team members: someone is invited, their role is changed, and the invitation is cancelled", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/blocks/view/team-members");
+    const table = page.getByRole("table", { name: "Team" });
+    const said = page.locator(".team-members__status");
+    await expect(table.getByRole("rowheader")).toHaveCount(5);
+    // The owner's role is words, not a control.
+    await expect(
+      page.getByRole("combobox", { name: "Role of Ada Lovelace" }),
+    ).toHaveCount(0);
+
+    await press(page.getByRole("button", { name: "Invite" }), isMobile);
+    const dialog = page.getByRole("dialog", { name: "Invite someone" });
+    await dialog
+      .getByRole("textbox", { name: "Email" })
+      .fill("mary@example.com");
+    await press(
+      dialog.getByRole("button", { name: "Send the invitation" }),
+      isMobile,
+    );
+    await expect(dialog).toBeHidden();
+    await expect(said).toHaveText(
+      "An invitation was sent to mary@example.com.",
+    );
+    const row = table.getByRole("row", { name: /mary@example\.com/ });
+    await expect(row).toContainText("Invited");
+
+    const role = page.getByRole("combobox", {
+      name: "Role of mary@example.com",
+    });
+    await role.scrollIntoViewIfNeeded();
+    await expect(role).toHaveText("Member");
+    await press(role, isMobile);
+    await press(page.getByRole("option", { name: "Viewer" }), isMobile);
+    await expect(role).toHaveText("Viewer");
+
+    await press(
+      page.getByRole("button", {
+        name: "Cancel the invitation to mary@example.com",
+      }),
+      isMobile,
+    );
+    await expect(row).toHaveCount(0);
+    await expect(said).toHaveText(
+      "The invitation to mary@example.com was cancelled.",
+    );
+  });
+
+  test("billing: the seats in use are a progress bar with its numbers, and every invoice can be downloaded", async ({
+    page,
+  }) => {
+    await open(page, "/blocks/view/billing");
+    const seats = page.getByRole("progressbar", {
+      name: "18 of 25 seats used",
+    });
+    await expect(seats).toHaveAttribute("aria-valuetext", "18 of 25");
+
+    const table = page.getByRole("table", { name: "Invoices" });
+    await expect(table.getByRole("rowheader")).toHaveCount(4);
+    for (const id of ["INV-2041", "INV-1987", "INV-1930", "INV-1876"]) {
+      await expect(
+        table.getByRole("link", { name: `Download ${id}` }),
+      ).toHaveAttribute("href", `#${id}`);
+    }
+  });
+
+  test("danger zone: deleting waits for the workspace's name to be typed", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/blocks/view/danger-zone");
+    const open_ = page.getByRole("button", { name: "Delete", exact: true });
+    await press(open_, isMobile);
+    const dialog = page.getByRole("alertdialog", {
+      name: "Delete acme-production?",
+    });
+    const field = dialog.getByRole("textbox", {
+      name: "Type acme-production to confirm",
+    });
+    const confirm = dialog.getByRole("button", {
+      name: "Delete the workspace",
+    });
+    await expect(confirm).toBeDisabled();
+    await field.fill("acme-prod");
+    await expect(confirm).toBeDisabled();
+
+    // Closed and opened again, what was typed is gone.
+    await press(
+      dialog.getByRole("button", { name: "Keep the workspace" }),
+      isMobile,
+    );
+    await expect(dialog).toBeHidden();
+    await expect(page.locator(".danger-zone__status")).toHaveText("");
+    await press(open_, isMobile);
+    await expect(field).toHaveValue("");
+
+    await field.fill("acme-production");
+    await expect(confirm).toBeEnabled();
+    await press(confirm, isMobile);
+    await expect(dialog).toBeHidden();
+    await expect(page.locator(".danger-zone__status")).toHaveText(
+      "acme-production has been deleted.",
+    );
+    await expect(open_).toBeDisabled();
+  });
+
+  test("danger zone: archiving can be taken back", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/blocks/view/danger-zone");
+    await press(page.getByRole("button", { name: "Archive" }), isMobile);
+    await expect(
+      page.getByRole("heading", { name: "Restore this workspace" }),
+    ).toBeVisible();
+    await press(page.getByRole("button", { name: "Restore" }), isMobile);
+    await expect(
+      page.getByRole("heading", { name: "Archive this workspace" }),
+    ).toBeVisible();
+  });
+
+  test("audit log: two dates narrow it to those days, newest first, and a hidden column can be shown", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/blocks/view/audit-log");
+    const table = page.getByRole("table", { name: "Audit log" });
+    const rows = table.locator("tbody tr");
+    await expect(rows).toHaveCount(5);
+    await expect(rows.first()).toContainText("Approved an invoice");
+
+    const dates = page.getByRole("group", { name: "Dates" });
+    const end = dates.getByRole("textbox", { name: "End date" });
+    await dates.getByRole("textbox", { name: "Start date" }).fill("10/06/2026");
+    await end.fill("10/07/2026");
+    await end.blur();
+    // The whole of the last day is in the range.
+    await expect(rows).toHaveCount(4);
+    await expect(rows.first()).toContainText("Changed the plan");
+    await expect(rows.last()).toContainText("Exported a report");
+
+    await expect(
+      table.getByRole("columnheader", { name: /Address/ }),
+    ).toHaveCount(0);
+    await press(page.getByRole("button", { name: "Columns" }), isMobile);
+    await press(
+      page.getByRole("menuitemcheckbox", { name: "Address" }),
+      isMobile,
+    );
+    await page.keyboard.press("Escape");
+    await expect(
+      table.getByRole("columnheader", { name: /Address/ }),
+    ).toBeVisible();
+  });
+
+  test("navigation bar: the menu is in the bar on a wide screen and in a panel on a narrow one", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/blocks/view/nav-bar");
+    const menu = page.getByRole("button", { name: "Menu" });
+    const inBar = page.getByRole("navigation", { name: "Main" });
+
+    if (!isMobile) {
+      await expect(menu).toBeHidden();
+      await expect(inBar.getByRole("link", { name: "Pricing" })).toBeVisible();
+      const product = inBar.getByRole("button", { name: "Product" });
+      await product.focus();
+      await page.keyboard.press("Enter");
+      await expect(product).toHaveAttribute("aria-expanded", "true");
+      await expect(
+        inBar.getByRole("link", { name: /Reminders/ }),
+      ).toBeVisible();
+      await page.keyboard.press("Escape");
+      await expect(product).toHaveAttribute("aria-expanded", "false");
+      await expect(product).toBeFocused();
+      return;
+    }
+
+    await expect(inBar).toBeHidden();
+    await expect(page.getByRole("link", { name: "Sign in" })).toBeHidden();
+    await menu.tap();
+    const panel = page.getByRole("dialog", { name: "Menu" });
+    await expect(panel.getByRole("link")).toHaveCount(7);
+    // A link closes the panel on its way out.
+    await panel.getByRole("link", { name: "Pricing" }).tap();
+    await expect(panel).toBeHidden();
+    await expect(page).toHaveURL(/#pricing$/);
+  });
+
+  test("pricing: the prices follow the period that's chosen", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/blocks/view/pricing");
+    const period = page.getByRole("radiogroup", { name: "Pay by" });
+    const team = page.getByRole("listitem").filter({
+      has: page.getByRole("heading", { name: "Team" }),
+    });
+    await expect(period.getByRole("radio", { name: "Yearly" })).toBeChecked();
+    await expect(team).toContainText("$10 a person a month, paid by the year");
+    await expect(team).toContainText("Most chosen");
+
+    await press(period.getByRole("radio", { name: "Monthly" }), isMobile);
+    await expect(team).toContainText("$12 a person a month");
+    await expect(team).not.toContainText("paid by the year");
+    // The free plan is free either way.
+    await expect(
+      page.getByRole("listitem").filter({
+        has: page.getByRole("heading", { name: "Starter" }),
+      }),
+    ).toContainText("$0 for good");
+    // Three links that would read the same are told apart by their plan.
+    await expect(
+      page.getByRole("link", { name: "Start a free trial, Team" }),
+    ).toBeVisible();
+  });
+
+  test("questions and answers: one answer is open at a time, and it can be closed", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/blocks/view/faq");
+    const first = page.getByRole("button", {
+      name: "What happens when the trial ends?",
+    });
+    const second = page.getByRole("button", { name: "How can I pay?" });
+    await expect(first).toHaveAttribute("aria-expanded", "false");
+
+    await press(first, isMobile);
+    await expect(first).toHaveAttribute("aria-expanded", "true");
+    await expect(
+      page.getByText("The workspace becomes read-only."),
+    ).toBeVisible();
+
+    await press(second, isMobile);
+    await expect(first).toHaveAttribute("aria-expanded", "false");
+    await expect(second).toHaveAttribute("aria-expanded", "true");
+
+    await press(second, isMobile);
+    await expect(second).toHaveAttribute("aria-expanded", "false");
+  });
+
+  test("footer: each list of links is a landmark with a name", async ({
+    page,
+  }) => {
+    await open(page, "/blocks/view/footer");
+    const footer = page.getByRole("contentinfo");
+    for (const name of ["Product", "Company", "Help", "Legal"]) {
+      await expect(
+        footer.getByRole("navigation", { name, exact: true }),
+      ).toBeVisible();
+    }
+    await expect(footer.getByRole("link")).toHaveCount(15);
+  });
+
+  test("hero and feature grid: the headings are in order, and the drawing is kept from screen readers", async ({
+    page,
+  }) => {
+    await open(page, "/blocks/view/hero");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
+    await expect(page.locator(".hero__window")).toHaveAttribute(
+      "aria-hidden",
+      "true",
+    );
+    await expect(
+      page.getByRole("link", { name: "Start free" }),
+    ).toHaveAttribute("href", "#start");
+
+    await open(page, "/blocks/view/feature-grid");
+    await expect(page.getByRole("heading", { level: 2 })).toHaveCount(1);
+    await expect(page.getByRole("heading", { level: 3 })).toHaveCount(6);
+  });
 });
 
 test.describe("the blocks page", () => {
@@ -513,9 +1018,12 @@ for (const category of categories) {
         const card = page.locator(`[data-block="${block.name}"]`);
         await card.scrollIntoViewIfNeeded();
         await press(card.getByRole("tab", { name: "Code" }), isMobile);
-        await expect(card.locator(".site-block__command")).toHaveText(
+        await expect(card.locator(".site-block__command")).toHaveText([
           `pnpm add ${block.install.join(" ")}`,
-        );
+          new RegExp(
+            `^pnpm dlx shadcn@latest add https://\\S+/r/${block.name}\\.json$`,
+          ),
+        ]);
 
         for (const file of block.files) {
           await press(card.getByRole("tab", { name: file }), isMobile);

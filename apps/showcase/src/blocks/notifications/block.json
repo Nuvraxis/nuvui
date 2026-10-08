@@ -1,0 +1,9 @@
+{
+  "name": "notifications",
+  "title": "Notification preferences",
+  "description": "Switches in groups, each with a line that says what it turns on, sent as one form.",
+  "category": "settings",
+  "files": ["notifications.tsx", "notifications.scss"],
+  "install": ["@nuvui/react"],
+  "height": 760
+}

@@ -1,0 +1,68 @@
+@use "@nuvui/react/scss/mixins";
+
+// One column that may not grow past the room it has. The table is wider
+// than a phone, and scrolls in its own box.
+.table-toolbar {
+  display: grid;
+  gap: calc(var(--spacing) * 6);
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  min-block-size: 100svh;
+  padding: calc(var(--spacing) * 6) calc(var(--spacing) * 4);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+
+  @include mixins.breakpoint("md") {
+    padding: calc(var(--spacing) * 8);
+  }
+}
+
+.table-toolbar__head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 4);
+  align-items: end;
+  justify-content: space-between;
+}
+
+.table-toolbar__about {
+  display: grid;
+  gap: calc(var(--spacing) * 1);
+}
+
+.table-toolbar__title {
+  margin: 0;
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-2xl--line-height);
+  letter-spacing: var(--tracking-tight);
+}
+
+.table-toolbar__text {
+  max-inline-size: 60ch;
+  margin: 0;
+  color: var(--color-muted-foreground);
+}
+
+// Half the row beside the search field on a phone, and its own width from
+// the sm breakpoint.
+.table-toolbar__status {
+  --nuv-combobox-width: 10rem;
+
+  flex: 1 1 var(--nuv-combobox-width);
+
+  @include mixins.breakpoint("sm") {
+    flex: none;
+  }
+}
+
+// Pushes the column chooser to the far end.
+.table-toolbar__gap {
+  flex: 1 1 0;
+}
+
+// A button that's only an icon: square, at the size of the button it is.
+.table-toolbar__more {
+  aspect-ratio: 1;
+  padding: 0;
+}

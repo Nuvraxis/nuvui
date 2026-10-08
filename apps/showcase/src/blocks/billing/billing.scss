@@ -1,0 +1,125 @@
+@use "@nuvui/react/scss/mixins";
+
+// One column that may not grow past the room it has. The table is wider
+// than a phone, and scrolls in its own box.
+.billing {
+  display: grid;
+  gap: calc(var(--spacing) * 6);
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  inline-size: 100%;
+  max-inline-size: 60rem;
+  min-block-size: 100svh;
+  margin-inline: auto;
+  padding: calc(var(--spacing) * 6) calc(var(--spacing) * 4);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+
+  @include mixins.breakpoint("md") {
+    padding: calc(var(--spacing) * 8);
+  }
+}
+
+.billing__head {
+  display: grid;
+  gap: calc(var(--spacing) * 1);
+}
+
+.billing__title {
+  margin: 0;
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-2xl--line-height);
+  letter-spacing: var(--tracking-tight);
+}
+
+.billing__text {
+  margin: 0;
+  color: var(--color-muted-foreground);
+}
+
+// The plan and the card, side by side once there's room for both.
+.billing__pair {
+  display: grid;
+  gap: calc(var(--spacing) * 6);
+
+  @include mixins.breakpoint("md") {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+// The words take what room there is, so the buttons are at the foot of
+// both cards whichever has more to say.
+.billing__panel {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+}
+
+.billing__body {
+  display: grid;
+  gap: calc(var(--spacing) * 4);
+  align-content: start;
+}
+
+.billing__price {
+  margin: 0;
+  color: var(--color-muted-foreground);
+}
+
+.billing__amount {
+  color: var(--color-surface-foreground);
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-2xl--line-height);
+  letter-spacing: var(--tracking-tight);
+  font-variant-numeric: tabular-nums;
+}
+
+.billing__seats {
+  display: grid;
+  gap: calc(var(--spacing) * 2);
+}
+
+.billing__label {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--text-sm--line-height);
+}
+
+.billing__note {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+.billing__card {
+  display: flex;
+  gap: calc(var(--spacing) * 2);
+  align-items: center;
+  margin: 0;
+}
+
+.billing__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: calc(var(--spacing) * 2);
+}
+
+// A link in a table is underlined: color alone doesn't tell it from the
+// words around it.
+.billing__link {
+  display: inline-flex;
+  gap: calc(var(--spacing) * 1.5);
+  align-items: center;
+  min-block-size: var(--nuv-control-height-sm);
+  border-radius: var(--radius-sm);
+  color: var(--color-surface-foreground);
+  font-weight: var(--font-weight-medium);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+
+  @include mixins.focus-ring;
+}

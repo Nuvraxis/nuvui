@@ -242,6 +242,9 @@ test.describe("a chart's code", () => {
       page,
       isMobile,
     }) => {
+      // The dialog fades in. Caught part of the way, its text is measured
+      // against what's showing through it.
+      await page.emulateMedia({ reducedMotion: "reduce" });
       await setTheme(page, theme);
       await open(page, "/charts/bar");
       await expect(page.locator("html")).toHaveAttribute("data-theme", theme);

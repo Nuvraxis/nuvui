@@ -1,0 +1,9 @@
+{
+  "name": "profile-form",
+  "title": "Profile form",
+  "description": "A person's picture, name, email and a few words about them, with a picture that shows as soon as it's chosen.",
+  "category": "settings",
+  "files": ["profile-form.tsx", "profile-form.scss"],
+  "install": ["@nuvui/react"],
+  "height": 900
+}

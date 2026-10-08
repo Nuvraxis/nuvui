@@ -1,0 +1,15 @@
+{
+  "name": "audit-log",
+  "title": "Audit log",
+  "description": "Who did what and when, newest first, with a search and two date fields that narrow it to a span of days.",
+  "category": "settings",
+  "files": ["audit-log.tsx", "audit-log.scss"],
+  "install": [
+    "@nuvui/react",
+    "@nuvui/table",
+    "@nuvui/date-picker",
+    "@tanstack/react-table",
+    "lucide-react"
+  ],
+  "height": 600
+}

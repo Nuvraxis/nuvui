@@ -1,0 +1,93 @@
+@use "@nuvui/react/scss/mixins";
+
+.notifications {
+  display: grid;
+  gap: calc(var(--spacing) * 8);
+  align-content: start;
+  inline-size: 100%;
+  max-inline-size: 40rem;
+  min-block-size: 100svh;
+  margin-inline: auto;
+  padding: calc(var(--spacing) * 6) calc(var(--spacing) * 4);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+
+  @include mixins.breakpoint("md") {
+    padding: calc(var(--spacing) * 8);
+  }
+}
+
+.notifications__head {
+  display: grid;
+  gap: calc(var(--spacing) * 1);
+}
+
+.notifications__title {
+  margin: 0;
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-2xl--line-height);
+  letter-spacing: var(--tracking-tight);
+}
+
+.notifications__text {
+  margin: 0;
+  color: var(--color-muted-foreground);
+}
+
+.notifications__form {
+  display: grid;
+  gap: calc(var(--spacing) * 6);
+}
+
+.notifications__list {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+// The words at the start and the switch at the far end, on one line at
+// every width.
+.notifications__item {
+  display: flex;
+  gap: calc(var(--spacing) * 4);
+  align-items: center;
+  justify-content: space-between;
+  padding-block: calc(var(--spacing) * 3);
+
+  & + & {
+    border-block-start: var(--nuv-border-width) solid var(--color-border);
+  }
+}
+
+.notifications__about {
+  display: grid;
+  gap: calc(var(--spacing) * 0.5);
+  min-inline-size: 0;
+}
+
+.notifications__label {
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+}
+
+.notifications__hint {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+.notifications__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 3);
+  align-items: center;
+}
+
+.notifications__status {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+}

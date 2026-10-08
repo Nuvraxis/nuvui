@@ -35,6 +35,8 @@ interface BlockPreviewProps {
   /** How tall the frame is, in pixels. */
   height: number;
   install: string[];
+  /** The address of the block in the registry for shadcn's tool. */
+  registry: string;
   files: BlockFile[];
   level: 2 | 3;
 }
@@ -46,6 +48,7 @@ export function BlockPreview({
   view,
   height,
   install,
+  registry,
   files,
   level,
 }: BlockPreviewProps) {
@@ -53,6 +56,7 @@ export function BlockPreview({
   const heading = useId();
   const Heading = level === 2 ? "h2" : "h3";
   const command = `pnpm add ${install.join(" ")}`;
+  const add = `pnpm dlx shadcn@latest add ${registry}`;
 
   return (
     <Tabs asChild defaultValue="preview">
@@ -120,6 +124,17 @@ export function BlockPreview({
             <CopyButton
               code={command}
               label={`Copy the install command for ${title}`}
+            />
+          </div>
+          <div className="site-block__install">
+            <p className="site-block__note">
+              Or have shadcn's command line tool copy the files and install the
+              packages:
+            </p>
+            <code className="site-block__command">{add}</code>
+            <CopyButton
+              code={add}
+              label={`Copy the shadcn command for ${title}`}
             />
           </div>
           <Tabs defaultValue={files[0]?.name}>

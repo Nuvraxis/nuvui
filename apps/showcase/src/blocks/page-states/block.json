@@ -1,0 +1,9 @@
+{
+  "name": "page-states",
+  "title": "Empty, loading and error",
+  "description": "One page in each state it can be in: with its rows, waiting for them, with none yet, and after a request that failed.",
+  "category": "data",
+  "files": ["page-states.tsx", "page-states.scss"],
+  "install": ["@nuvui/react", "lucide-react"],
+  "height": 480
+}

@@ -19,9 +19,13 @@ const wheel = async ({ page, iframe }, selector, deltaY) => {
 };
 
 // Without a limit on actions, a click or hover on something that has already
-// gone waits forever, and every test after it waits behind it.
+// gone waits forever, and every test after it waits behind it. Five seconds
+// is plenty on a developer's machine. A CI runner has two cores for three
+// browsers, and there a tap on something that's still sliding into place
+// has been seen to take longer, so it gets three times as long.
+const actionTimeout = process.env.CI ? 15_000 : 5000;
 const provider = (contextOptions = {}) =>
-  playwright({ actionTimeout: 5000, contextOptions });
+  playwright({ actionTimeout, contextOptions });
 
 const touchTests = "test/touch.test.tsx";
 

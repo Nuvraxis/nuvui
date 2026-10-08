@@ -409,3 +409,80 @@ test("a table that fits its page is not a tab stop", async ({
   await expect(page.locator("table").first()).toBeVisible();
   await expect(page.getByRole("group", { name: "Table" })).toHaveCount(0);
 });
+
+test.describe("translation page", () => {
+  test("has every default the components' comments say to translate", async ({
+    page,
+  }) => {
+    // A prop whose comment says "Translate it" has text that reaches a
+    // person. Its default has to be on the page that lists them all.
+    const components = path.join(library, "src/components");
+    const defaults = new Set<string>();
+    for (const folder of readdirSync(components)) {
+      const file = path.join(components, folder, `${folder}.tsx`);
+      if (!existsSync(file)) continue;
+      const source = readFileSync(file, "utf8");
+      for (const [comment] of source.matchAll(/\/\*\*[\s\S]*?\*\//g)) {
+        if (!comment.includes("Translate")) continue;
+        const text = comment.match(/@default "([^"]+)"/)?.[1];
+        if (text) defaults.add(text);
+      }
+    }
+    expect(defaults.size).toBeGreaterThan(10);
+
+    await open(page, "/docs/translation");
+    // A row's default is drawn when the row is opened, so every row is.
+    const article = page.locator("article").first();
+    const closed = article.locator(
+      '[id^="type-table-"] > button[aria-expanded="false"]',
+    );
+    const rows = await closed.count();
+    expect(rows).toBeGreaterThan(20);
+    await closed.evaluateAll((buttons) => {
+      for (const button of buttons) (button as HTMLButtonElement).click();
+    });
+    await expect(closed).toHaveCount(0);
+    const content = await article.innerText();
+    for (const text of defaults) {
+      expect(content, text).toContain(text);
+    }
+  });
+
+  test("has the data table's labels, and the dates' own strings", async ({
+    page,
+  }) => {
+    await open(page, "/docs/translation");
+    const article = page.locator("article").first();
+    for (const name of ["clearFilters", "rowsPerPage", "calendarLabel"]) {
+      // A row's id ends in the prop it's for.
+      await expect(article.locator(`[id$="-${name}"]`)).toHaveCount(1);
+    }
+  });
+});
+
+test.describe("support policy page", () => {
+  test("says what the packages themselves declare", async ({ page }) => {
+    const packages = path.join(library, "..");
+    const manifest = (name: string) =>
+      JSON.parse(
+        readFileSync(path.join(packages, name, "package.json"), "utf8"),
+      );
+
+    await open(page, "/docs/support");
+    const article = page.locator("article").first();
+    await expect(article).toContainText(manifest("ui").peerDependencies.react);
+
+    // Each row of the Node table is the package's own `engines`.
+    for (const [folder, name] of [
+      ["ui", "@nuvui/react"],
+      ["date-picker", "@nuvui/date-picker"],
+      ["charts", "@nuvui/charts"],
+      ["table", "@nuvui/table"],
+    ] as const) {
+      const oldest = manifest(folder).engines.node.replace(">=", "");
+      await expect(
+        article.getByRole("row").filter({ hasText: name }),
+      ).toContainText(`${oldest} or newer`);
+    }
+  });
+});

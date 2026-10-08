@@ -8,6 +8,7 @@ import {
   type HTMLAttributes,
 } from "react";
 import { cx } from "../../utils/cx";
+import type { PartProps } from "../../utils/part-props";
 
 export type ContextMenuProps = MenuPrimitive.ContextMenuProps;
 export type ContextMenuTriggerProps = MenuPrimitive.ContextMenuTriggerProps;
@@ -66,9 +67,9 @@ export const ContextMenuContent = forwardRef<
 export interface ContextMenuItemOwnProps {
   /**
    * Use `"danger"` for an action that destroys something.
-   * @default "default"
+   * @default "neutral"
    */
-  intent?: "default" | "danger";
+  intent?: "neutral" | "danger";
 }
 
 export interface ContextMenuItemProps
@@ -78,7 +79,7 @@ export interface ContextMenuItemProps
 export const ContextMenuItem = forwardRef<
   ComponentRef<typeof MenuPrimitive.Item>,
   ContextMenuItemProps
->(function ContextMenuItem({ intent = "default", className, ...props }, ref) {
+>(function ContextMenuItem({ intent = "neutral", className, ...props }, ref) {
   return (
     <MenuPrimitive.Item
       ref={ref}
@@ -115,7 +116,7 @@ function Indicator() {
   );
 }
 
-export type ContextMenuCheckboxItemProps = ComponentPropsWithoutRef<
+export type ContextMenuCheckboxItemProps = PartProps<
   typeof MenuPrimitive.CheckboxItem
 >;
 
@@ -135,7 +136,7 @@ export const ContextMenuCheckboxItem = forwardRef<
   );
 });
 
-export type ContextMenuRadioItemProps = ComponentPropsWithoutRef<
+export type ContextMenuRadioItemProps = PartProps<
   typeof MenuPrimitive.RadioItem
 >;
 
@@ -211,7 +212,7 @@ export const ContextMenuSeparator = forwardRef<
   );
 });
 
-export type ContextMenuSubTriggerProps = ComponentPropsWithoutRef<
+export type ContextMenuSubTriggerProps = PartProps<
   typeof MenuPrimitive.SubTrigger
 >;
 

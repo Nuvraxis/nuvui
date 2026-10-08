@@ -31,7 +31,7 @@ const aligns = Object.keys({
 } satisfies Record<Align, true>) as Align[];
 
 const intents = Object.keys({
-  default: true,
+  neutral: true,
   danger: true,
 } satisfies Record<Intent, true>) as Intent[];
 
@@ -44,7 +44,7 @@ export function DropdownMenuPlayground() {
     side !== "bottom" && `side="${side}"`,
     align !== "start" && `align="${align}"`,
   ].filter(Boolean);
-  const item = intent === "default" ? "" : ` intent="${intent}"`;
+  const item = intent === "neutral" ? "" : ` intent="${intent}"`;
   const code = `<DropdownMenuContent${props.map((prop) => ` ${prop}`).join("")}>
   <DropdownMenuItem>Rename</DropdownMenuItem>
   <DropdownMenuSeparator />

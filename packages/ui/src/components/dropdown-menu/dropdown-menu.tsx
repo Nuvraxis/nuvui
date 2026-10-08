@@ -8,6 +8,7 @@ import {
   type HTMLAttributes,
 } from "react";
 import { cx } from "../../utils/cx";
+import type { PartProps } from "../../utils/part-props";
 
 export type DropdownMenuProps = MenuPrimitive.DropdownMenuProps;
 export type DropdownMenuTriggerProps = MenuPrimitive.DropdownMenuTriggerProps;
@@ -85,9 +86,9 @@ export const DropdownMenuContent = forwardRef<
 export interface DropdownMenuItemOwnProps {
   /**
    * Use `"danger"` for an action that destroys something.
-   * @default "default"
+   * @default "neutral"
    */
-  intent?: "default" | "danger";
+  intent?: "neutral" | "danger";
 }
 
 export interface DropdownMenuItemProps
@@ -97,7 +98,7 @@ export interface DropdownMenuItemProps
 export const DropdownMenuItem = forwardRef<
   ComponentRef<typeof MenuPrimitive.Item>,
   DropdownMenuItemProps
->(function DropdownMenuItem({ intent = "default", className, ...props }, ref) {
+>(function DropdownMenuItem({ intent = "neutral", className, ...props }, ref) {
   return (
     <MenuPrimitive.Item
       ref={ref}
@@ -134,7 +135,7 @@ function Indicator() {
   );
 }
 
-export type DropdownMenuCheckboxItemProps = ComponentPropsWithoutRef<
+export type DropdownMenuCheckboxItemProps = PartProps<
   typeof MenuPrimitive.CheckboxItem
 >;
 
@@ -154,7 +155,7 @@ export const DropdownMenuCheckboxItem = forwardRef<
   );
 });
 
-export type DropdownMenuRadioItemProps = ComponentPropsWithoutRef<
+export type DropdownMenuRadioItemProps = PartProps<
   typeof MenuPrimitive.RadioItem
 >;
 
@@ -230,7 +231,7 @@ export const DropdownMenuSeparator = forwardRef<
   );
 });
 
-export type DropdownMenuSubTriggerProps = ComponentPropsWithoutRef<
+export type DropdownMenuSubTriggerProps = PartProps<
   typeof MenuPrimitive.SubTrigger
 >;
 

@@ -127,8 +127,16 @@
     }
   }
 
+  .nuv-toast--info {
+    @include accent(var(--color-primary));
+  }
+
   .nuv-toast--success {
     @include accent(var(--color-success));
+  }
+
+  .nuv-toast--warning {
+    @include accent(var(--color-warning));
   }
 
   .nuv-toast--danger {

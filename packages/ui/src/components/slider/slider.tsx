@@ -1,15 +1,11 @@
 "use client";
 
 import * as SliderPrimitive from "@radix-ui/react-slider";
-import {
-  type ComponentPropsWithoutRef,
-  type ComponentRef,
-  forwardRef,
-  useState,
-} from "react";
+import { type ComponentRef, forwardRef, useState } from "react";
 import { cx } from "../../utils/cx";
+import type { PartProps } from "../../utils/part-props";
 
-type RootProps = ComponentPropsWithoutRef<typeof SliderPrimitive.Root>;
+type RootProps = PartProps<typeof SliderPrimitive.Root>;
 
 export interface SliderOwnProps {
   /**
@@ -23,7 +19,7 @@ export interface SliderOwnProps {
    * number: "40 percent", or the name of a step. It's given the value and
    * the handle's position, counted from 0.
    */
-  valueText?: (value: number, index: number) => string;
+  getValueLabel?: (value: number, index: number) => string;
 }
 
 export interface SliderProps extends SliderOwnProps, RootProps {}
@@ -34,7 +30,7 @@ export const Slider = forwardRef<
 >(function Slider(
   {
     thumbLabels,
-    valueText,
+    getValueLabel,
     className,
     onValueChange,
     "aria-label": label,
@@ -96,7 +92,7 @@ export const Slider = forwardRef<
                   "aria-describedby": describedBy,
                 }
               : {})}
-            aria-valuetext={valueText?.(value, index)}
+            aria-valuetext={getValueLabel?.(value, index)}
             aria-invalid={invalid}
           />
         );

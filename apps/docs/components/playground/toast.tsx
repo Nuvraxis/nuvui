@@ -13,7 +13,9 @@ type Intent = NonNullable<ToastOptions["intent"]>;
 
 const intents = Object.keys({
   neutral: true,
+  info: true,
   success: true,
+  warning: true,
   danger: true,
 } satisfies Record<Intent, true>) as Intent[];
 

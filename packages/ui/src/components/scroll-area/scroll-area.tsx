@@ -2,14 +2,9 @@
 
 import { useComposedRefs } from "@radix-ui/react-compose-refs";
 import * as ScrollAreaPrimitive from "@radix-ui/react-scroll-area";
-import {
-  type ComponentPropsWithoutRef,
-  type ComponentRef,
-  forwardRef,
-  type Ref,
-  useState,
-} from "react";
+import { type ComponentRef, forwardRef, type Ref, useState } from "react";
 import { cx } from "../../utils/cx";
+import type { PartProps } from "../../utils/part-props";
 import { useScrollRegion } from "../../utils/use-scroll-region";
 
 export interface ScrollAreaOwnProps {
@@ -40,7 +35,7 @@ export interface ScrollAreaOwnProps {
 export interface ScrollAreaProps
   extends ScrollAreaOwnProps,
     Omit<
-      ComponentPropsWithoutRef<typeof ScrollAreaPrimitive.Root>,
+      PartProps<typeof ScrollAreaPrimitive.Root>,
       keyof ScrollAreaOwnProps
     > {}
 

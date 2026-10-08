@@ -9,6 +9,7 @@ import {
   type HTMLAttributes,
 } from "react";
 import { cx } from "../../utils/cx";
+import type { PartProps } from "../../utils/part-props";
 
 export type MenubarMenuProps = MenuPrimitive.MenubarMenuProps;
 export type MenubarGroupProps = MenuPrimitive.MenubarGroupProps;
@@ -118,9 +119,9 @@ export const MenubarContent = forwardRef<
 export interface MenubarItemOwnProps {
   /**
    * Use `"danger"` for an action that destroys something.
-   * @default "default"
+   * @default "neutral"
    */
-  intent?: "default" | "danger";
+  intent?: "neutral" | "danger";
 }
 
 export interface MenubarItemProps
@@ -130,7 +131,7 @@ export interface MenubarItemProps
 export const MenubarItem = forwardRef<
   ComponentRef<typeof MenuPrimitive.Item>,
   MenubarItemProps
->(function MenubarItem({ intent = "default", className, ...props }, ref) {
+>(function MenubarItem({ intent = "neutral", className, ...props }, ref) {
   return (
     <MenuPrimitive.Item
       ref={ref}
@@ -167,7 +168,7 @@ function Indicator() {
   );
 }
 
-export type MenubarCheckboxItemProps = ComponentPropsWithoutRef<
+export type MenubarCheckboxItemProps = PartProps<
   typeof MenuPrimitive.CheckboxItem
 >;
 
@@ -187,9 +188,7 @@ export const MenubarCheckboxItem = forwardRef<
   );
 });
 
-export type MenubarRadioItemProps = ComponentPropsWithoutRef<
-  typeof MenuPrimitive.RadioItem
->;
+export type MenubarRadioItemProps = PartProps<typeof MenuPrimitive.RadioItem>;
 
 export const MenubarRadioItem = forwardRef<
   ComponentRef<typeof MenuPrimitive.RadioItem>,
@@ -263,9 +262,7 @@ export const MenubarSeparator = forwardRef<
   );
 });
 
-export type MenubarSubTriggerProps = ComponentPropsWithoutRef<
-  typeof MenuPrimitive.SubTrigger
->;
+export type MenubarSubTriggerProps = PartProps<typeof MenuPrimitive.SubTrigger>;
 
 export const MenubarSubTrigger = forwardRef<
   ComponentRef<typeof MenuPrimitive.SubTrigger>,

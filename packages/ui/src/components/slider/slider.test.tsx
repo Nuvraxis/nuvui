@@ -113,9 +113,12 @@ describe("rendering", () => {
       .not.toHaveAttribute("aria-describedby");
   });
 
-  test("valueText gives a screen reader words in place of the bare number", async () => {
+  test("getValueLabel gives a screen reader words in place of the bare number", async () => {
     await render(
-      <Volume defaultValue={[30]} valueText={(value) => `${value} percent`} />,
+      <Volume
+        defaultValue={[30]}
+        getValueLabel={(value) => `${value} percent`}
+      />,
     );
     await expect
       .element(handle())
@@ -133,7 +136,9 @@ describe("rendering", () => {
     await render(
       <Volume
         defaultValue={[20, 80]}
-        valueText={(value, index) => `${index === 0 ? "from" : "to"} ${value}`}
+        getValueLabel={(value, index) =>
+          `${index === 0 ? "from" : "to"} ${value}`
+        }
       />,
     );
 

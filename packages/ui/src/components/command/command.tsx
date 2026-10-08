@@ -19,11 +19,12 @@ import {
   useListStatus,
   useMarkListLoading,
 } from "../../utils/list-status";
+import type { PartProps } from "../../utils/part-props";
 import { useActiveOption } from "../../utils/use-active-option";
 import { useReturnFocus } from "../../utils/use-return-focus";
 import { useShortcut } from "../../utils/use-shortcut";
 
-type RootProps = ComponentPropsWithoutRef<typeof CommandPrimitive>;
+type RootProps = PartProps<typeof CommandPrimitive>;
 
 export interface CommandOwnProps {
   /**
@@ -134,9 +135,7 @@ export const CommandList = forwardRef<
   );
 });
 
-export type CommandEmptyProps = ComponentPropsWithoutRef<
-  typeof CommandPrimitive.Empty
->;
+export type CommandEmptyProps = PartProps<typeof CommandPrimitive.Empty>;
 
 /**
  * Shown while nothing matches what was typed, unless a `CommandLoading` is
@@ -160,7 +159,7 @@ export const CommandEmpty = forwardRef<
   );
 });
 
-type LoadingProps = ComponentPropsWithoutRef<typeof CommandPrimitive.Loading>;
+type LoadingProps = PartProps<typeof CommandPrimitive.Loading>;
 
 export interface CommandLoadingOwnProps {
   /**

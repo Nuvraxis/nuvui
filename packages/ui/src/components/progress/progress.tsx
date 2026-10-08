@@ -1,12 +1,9 @@
 "use client";
 
 import * as ProgressPrimitive from "@radix-ui/react-progress";
-import {
-  type ComponentPropsWithoutRef,
-  type ComponentRef,
-  forwardRef,
-} from "react";
+import { type ComponentRef, forwardRef } from "react";
 import { cx } from "../../utils/cx";
+import type { PartProps } from "../../utils/part-props";
 
 export interface ProgressOwnProps {
   /**
@@ -27,10 +24,7 @@ export interface ProgressOwnProps {
 
 export interface ProgressProps
   extends ProgressOwnProps,
-    Omit<
-      ComponentPropsWithoutRef<typeof ProgressPrimitive.Root>,
-      keyof ProgressOwnProps
-    > {}
+    Omit<PartProps<typeof ProgressPrimitive.Root>, keyof ProgressOwnProps> {}
 
 /**
  * A bar that fills as a task gets done. Name it with `aria-label` or

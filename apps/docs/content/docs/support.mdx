@@ -1,0 +1,81 @@
+---
+title: Support policy
+description: Which versions of React, Node and browsers nuvui works with, which of those are tested, how versions are numbered, and what a fix in a supported setup means.
+---
+
+This page says what the library is meant to work with, and separately what it's tested with. Where the two differ, it says so.
+
+Nothing is published yet. The policy applies from the first release.
+
+## React
+
+| Version | Status |
+| --- | --- |
+| 19 | Supported, and what every test runs on. |
+| 18.2 and later 18 releases | Supported. Not tested yet. |
+| 17 and older | Not supported. |
+
+The packages declare `react` and `react-dom` as peers at `^18.2.0 || ^19.0.0`. The code is written for both: components use `forwardRef`, which React 18 needs, and nothing uses an API that only React 19 has.
+
+No test runs on React 18 today. Until one does, treat a problem there as likely to be found by you first, and report it.
+
+Server components are supported. A component that needs the browser is marked `"use client"` in the package, so it can be imported from a server component. This is tested with Next.js.
+
+## Node
+
+Node is only involved where your app renders on a server or builds. Each package says the oldest version it runs on in its `engines` field:
+
+| Package | Node |
+| --- | --- |
+| `@nuvui/react` | 18 or newer |
+| `@nuvui/date-picker` | 18 or newer |
+| `@nuvui/charts` | 18 or newer |
+| `@nuvui/table` | 20 or newer, because TanStack Table 9 asks for it |
+
+The tests run on Node 24. Older versions on this list aren't tested.
+
+Working on the library itself needs Node 22 or newer.
+
+## Browsers
+
+Chrome and Edge 111, Firefox 113 and Safari 16.4, or newer. The styles use cascade layers, `oklch()` colors, `color-mix()` and `dvh` units, and there's no fallback for a browser without them.
+
+The tests run in Chromium, Firefox and WebKit, in the current versions that Playwright ships, on a desktop and at a phone's size. WebKit there is close to Safari and isn't Safari. Nothing is tested in an old version of any browser: the versions above are where the features the styles need arrived.
+
+## Build tools
+
+The end-to-end tests pack the packages, install them into two apps and build those: one with Vite, one with Next.js as a static export. Other bundlers that read a package's `exports` should work, and aren't tested.
+
+The styles are plain CSS files. The SCSS source is there for apps that compile Sass, with [one known problem](/docs/scss) in Next.js with Turbopack on Windows.
+
+## TypeScript
+
+The packages ship their own types. They're built and checked with the TypeScript version in the repository, and with `@arethetypeswrong/cli` for both ES modules and CommonJS. Older TypeScript versions aren't tested.
+
+## Assistive technology
+
+Every component is tested for the roles, names and states a browser passes to a screen reader, and with axe. What a screen reader then says hasn't been checked by a person. Each component's page has a section that says this for that component.
+
+## Versions
+
+The packages follow semantic versioning:
+
+- A **patch** fixes a bug and changes nothing else.
+- A **minor** adds something. Code written for the version before still works.
+- A **major** may rename or remove things. The changelog says what to change.
+
+Before 1.0, a minor may also rename or remove things. The [changelog](/docs/changelog) says so where it does.
+
+What counts as the public API: the components and their props, the functions the packages export, the CSS variables and the class names on each component's page, and the tokens. What doesn't: the DOM inside a component beyond the classes its page lists, and anything imported from a path that isn't in a package's `exports`.
+
+Dropping a version of React, Node or a browser from this page is a major change.
+
+## What supported means
+
+A bug you can reproduce in a setup this page calls supported is a bug in the library, and is fixed in the next release. Fixes go into the latest release only.
+
+{/* TODO(Nuvraxis): say here whether an older major gets fixes after a new one is out, and for how long. Nothing has been decided, so nothing is promised. */}
+
+A security problem is reported privately. The repository's `SECURITY.md` says how.
+
+To report anything else, open an issue on [GitHub](https://github.com/Nuvraxis/nuvui/issues) with the versions you're on and the smallest example that shows it.

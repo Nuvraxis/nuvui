@@ -10,6 +10,7 @@ import {
   useState,
 } from "react";
 import { cx } from "../../utils/cx";
+import type { PartProps } from "../../utils/part-props";
 import { useScrollRegion } from "../../utils/use-scroll-region";
 
 export type DialogProps = DialogPrimitive.DialogProps;
@@ -49,7 +50,7 @@ export interface DialogContentOwnProps {
 
 export interface DialogContentProps
   extends DialogContentOwnProps,
-    ComponentPropsWithoutRef<typeof DialogPrimitive.Content> {}
+    PartProps<typeof DialogPrimitive.Content> {}
 
 export const DialogContent = forwardRef<
   ComponentRef<typeof DialogPrimitive.Content>,

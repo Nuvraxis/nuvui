@@ -7,6 +7,7 @@ import {
   forwardRef,
 } from "react";
 import { cx } from "../../utils/cx";
+import type { PartProps } from "../../utils/part-props";
 
 export type RadioGroupProps = ComponentPropsWithoutRef<
   typeof RadioGroupPrimitive.Root
@@ -25,9 +26,7 @@ export const RadioGroup = forwardRef<
   );
 });
 
-export type RadioGroupItemProps = ComponentPropsWithoutRef<
-  typeof RadioGroupPrimitive.Item
->;
+export type RadioGroupItemProps = PartProps<typeof RadioGroupPrimitive.Item>;
 
 export const RadioGroupItem = forwardRef<
   ComponentRef<typeof RadioGroupPrimitive.Item>,

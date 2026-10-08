@@ -32,11 +32,12 @@ export interface ToastOptions {
   /** A second line under the title. */
   description?: ReactNode;
   /**
-   * Colors the toast's edge. A `"danger"` toast also interrupts a screen
-   * reader to be read out at once. The others wait until it's quiet.
+   * Colors the toast's edge. A `"warning"` or `"danger"` toast also
+   * interrupts a screen reader to be read out at once, as an alert with
+   * that intent does. The others wait until it's quiet.
    * @default "neutral"
    */
-  intent?: "neutral" | "success" | "danger";
+  intent?: "neutral" | "info" | "success" | "warning" | "danger";
   /**
    * How long the toast stays, in milliseconds. `Infinity` keeps it until
    * it's dismissed. Without this, the Toaster's `duration` applies.
@@ -248,7 +249,11 @@ export const Toaster = forwardRef<
             duration={item.duration}
             // Radix reads a "foreground" toast out at once and leaves a
             // "background" one until the screen reader is idle.
-            type={intent === "danger" ? "foreground" : "background"}
+            type={
+              intent === "danger" || intent === "warning"
+                ? "foreground"
+                : "background"
+            }
             onOpenChange={(open) => {
               if (!open) close(id);
             }}

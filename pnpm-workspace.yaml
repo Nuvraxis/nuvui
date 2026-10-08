@@ -10,6 +10,16 @@ allowBuilds:
   "@parcel/watcher": false
   esbuild: false
 
+# What `pnpm audit` leaves out, each with why.
+#
+# GHSA-vfj7-8cjw-p6xm: braces can be made to run out of stack by a pattern
+# with braces nested very deep. It comes in through Stylelint, which only
+# gets the patterns written in this repository's own scripts, and no
+# version has the fix yet. Take this out when one does.
+auditConfig:
+  ignoreGhsas:
+    - GHSA-vfj7-8cjw-p6xm
+
 catalog:
   "@arethetypeswrong/cli": ^0.18.5
   "@playwright/test": 1.63.0

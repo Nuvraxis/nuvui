@@ -37,6 +37,20 @@ export default function Page() {
 }
 ```
 
+## Rendering another element
+
+Many parts take `asChild`. With it, the part doesn't render an element of its own. It gives its props, its classes and its behavior to the one child you put inside:
+
+```tsx
+<Button asChild>
+  <a href="/pricing">See pricing</a>
+</Button>
+```
+
+That's a link that looks like a button, and it's how a trigger takes your own button: `<DialogTrigger asChild><Button>Open</Button></DialogTrigger>`.
+
+It only works where there's one child to become. A part that draws something of its own beside what you give it doesn't take `asChild`, and TypeScript says so: a dialog's content has its close button, a checkbox has its tick, a select's trigger has its arrow. Style those with `className`, or with the CSS variables on the component's page.
+
 ## Dark mode
 
 Components are light unless you ask for something else. Set `data-theme` on `<html>`, or on any element to theme just that part of the page:
@@ -77,6 +91,8 @@ import { Button } from "@nuvui/react/button";
 
 The styles use cascade layers, `oklch()` colors, `color-mix()` and `dvh` units. That means Chrome and Edge 111, Firefox 113 and Safari 16.4, or newer. There's no fallback for older browsers.
 
+The [support policy](/docs/support) has the versions of React and Node as well, and says which of them the tests run on.
+
 ## With Tailwind or Sass
 
 Neither is needed. If your app already uses one, there's a guide for each:
@@ -84,7 +100,7 @@ Neither is needed. If your app already uses one, there's a guide for each:
 - [Using with Tailwind](/docs/tailwind) covers the layer order and how to get utilities such as `bg-primary`.
 - [Using with SCSS](/docs/scss) covers the mixins and changing the breakpoints.
 
-For Arabic, Hebrew and other languages that read from the right, see [Right-to-left](/docs/right-to-left).
+For Arabic, Hebrew and other languages that read from the right, see [Right-to-left](/docs/right-to-left). The few words the components write themselves, and the prop for each, are listed in [Translation](/docs/translation).
 
 ## What isn't here yet
 

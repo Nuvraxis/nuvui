@@ -28,6 +28,20 @@ What's missing:
 
 This section gets updated as things land.
 
+## What 1.0 means
+
+The first release will be a 0.x. It becomes 1.0 when all of this is true:
+
+- Every component in the four packages has its page in the docs, its tests in three browser engines, and axe passing in every theme. That's done.
+- The names are frozen: props, variants, CSS variables and class names. A pass over them was made in October 2026, and from 1.0 a rename needs a major version.
+- Every piece of text the library writes has a prop, and one page lists them. That's done: [translation](apps/docs/content/docs/translation.mdx).
+- The [support policy](apps/docs/content/docs/support.mdx) is written, and what it calls supported is tested. React 18 isn't tested yet.
+- Every component has been checked in a forced-colors theme and in a right-to-left layout by a test, and with a screen reader by a person.
+- The policy a site with a strict Content Security Policy needs is written down.
+- The packages have been published under 0.x and used in at least one real app.
+
+Until then a minor version may rename or remove things, and the changelog says so where one does.
+
 ## Quick look
 
 ```tsx

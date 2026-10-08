@@ -23,6 +23,7 @@ import {
   useListStatus,
   useMarkListLoading,
 } from "../../utils/list-status";
+import type { PartProps } from "../../utils/part-props";
 import { useActiveOption } from "../../utils/use-active-option";
 
 interface ComboboxContextValue {
@@ -299,9 +300,7 @@ export const ComboboxValue = forwardRef<HTMLSpanElement, ComboboxValueProps>(
   },
 );
 
-type PopoverContentProps = ComponentPropsWithoutRef<
-  typeof PopoverPrimitive.Content
->;
+type PopoverContentProps = PartProps<typeof PopoverPrimitive.Content>;
 type CommandRootProps = ComponentPropsWithoutRef<typeof CommandPrimitive>;
 
 export interface ComboboxContentOwnProps {
@@ -466,7 +465,7 @@ export const ComboboxContent = forwardRef<
   );
 });
 
-type ItemProps = ComponentPropsWithoutRef<typeof CommandPrimitive.Item>;
+type ItemProps = PartProps<typeof CommandPrimitive.Item>;
 
 export interface ComboboxItemOwnProps {
   /**
@@ -614,9 +613,7 @@ export const ComboboxSeparator = forwardRef<
   );
 });
 
-export type ComboboxEmptyProps = ComponentPropsWithoutRef<
-  typeof CommandPrimitive.Empty
->;
+export type ComboboxEmptyProps = PartProps<typeof CommandPrimitive.Empty>;
 
 /**
  * Shown while no option matches what was typed, unless a `ComboboxLoading`
@@ -640,7 +637,7 @@ export const ComboboxEmpty = forwardRef<
   );
 });
 
-type LoadingProps = ComponentPropsWithoutRef<typeof CommandPrimitive.Loading>;
+type LoadingProps = PartProps<typeof CommandPrimitive.Loading>;
 
 export interface ComboboxLoadingOwnProps {
   /**

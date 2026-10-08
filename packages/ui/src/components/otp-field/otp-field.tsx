@@ -1,15 +1,11 @@
 "use client";
 
 import * as OtpPrimitive from "@radix-ui/react-one-time-password-field";
-import {
-  type ComponentPropsWithoutRef,
-  type ComponentRef,
-  Fragment,
-  forwardRef,
-} from "react";
+import { type ComponentRef, Fragment, forwardRef } from "react";
 import { cx } from "../../utils/cx";
+import type { PartProps } from "../../utils/part-props";
 
-type RootProps = ComponentPropsWithoutRef<typeof OtpPrimitive.Root>;
+type RootProps = PartProps<typeof OtpPrimitive.Root>;
 
 export interface OtpFieldOwnProps {
   /**

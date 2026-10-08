@@ -161,7 +161,7 @@ The list sits where you render `Toaster`, without a portal, so it picks up a `da
 
 Most of this is Radix. The library chooses how each intent is announced.
 
-- Every toast is read out by screen readers when it appears. A `danger` toast interrupts whatever is being read. The others wait until the screen reader is idle.
+- Every toast is read out by screen readers when it appears. A `warning` or `danger` toast interrupts whatever is being read, as an [alert](/docs/components/alert) with that intent does. The others wait until the screen reader is idle.
 - No more than three toasts show at once. The rest wait their turn, and each is announced when it shows.
 - The list is a landmark named "Notifications (F8)", so it can be found again after the announcement.
 - The clock stops on hover and on focus, which gives people time to read a toast and reach its buttons.
@@ -198,7 +198,7 @@ Set any of these on `Toaster` with a class or `style`, or on anything around it.
     "--nuv-toast-shadow": "Shadow under each toast.",
     "--nuv-toast-fg": "Text color.",
     "--nuv-toast-accent":
-      "Color of the thick edge on a success or danger toast.",
+      "Color of the thick edge on a toast with an intent.",
     "--nuv-toast-accent-width":
       "Thickness of that edge. The padding beside it shrinks to match, so titles stay lined up.",
   }}
@@ -215,7 +215,9 @@ Set any of these on `Toaster` with a class or `style`, or on anything around it.
     "nuv-toaster--center": "A position that ends with center.",
     "nuv-toaster--end": "A position that ends with end.",
     "nuv-toast": "One toast.",
+    "nuv-toast--info": "A toast with intent \"info\".",
     "nuv-toast--success": "A toast with intent \"success\".",
+    "nuv-toast--warning": "A toast with intent \"warning\".",
     "nuv-toast--danger": "A toast with intent \"danger\".",
     "nuv-toast__content": "The title and the description together.",
     "nuv-toast__title": "The title.",

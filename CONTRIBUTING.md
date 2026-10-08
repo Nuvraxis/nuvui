@@ -30,6 +30,8 @@ Run these from the repository root.
 | `pnpm test:e2e` | Builds first, then runs Playwright against the exported site, in five browser setups. The docs' tests run against the docs alone, and the website's against the two together. The two suites run one after the other: each already uses every core, and together they starve each other into timeouts. |
 | `pnpm size` | Builds first, then checks each entry point against its size budget. |
 | `pnpm check:package` | Checks what each package would publish: its `exports` map and its types. Run `pnpm build` first. |
+| `pnpm check:licenses` | Fails on a dependency whose license isn't on the lists in `scripts/check-licenses.mjs`: a short one for what the published packages depend on, and a longer one for the tools. |
+| `pnpm check:audit` | Fails on a dependency with a known vulnerability rated high or worse. What it leaves out is in `pnpm-workspace.yaml`, each with why. |
 | `pnpm test:consumers` | Packs the packages and installs them into a Vite app and a Next.js app. Run `pnpm build` first. |
 
 To run part of a suite:
@@ -123,6 +125,8 @@ A few decisions shape most changes. Each one has a reason, and a change that goe
 - **Exports are flat.** It's `DialogContent`, not `Dialog.Content`. Reading a property off a client component fails inside a server component.
 - **`"use client"` goes on line 1 of any file that uses state, effects or a Radix primitive that does.** A component that's only markup, like Button, has no directive and can render on the server. The build checks that the directive in `dist` matches the source.
 - **Components use `forwardRef`,** because React 18 is supported and it doesn't pass `ref` as a prop.
+- **A part that draws something of its own beside its children doesn't take `asChild`.** Type its props with `PartProps<typeof Primitive.Part>`, from `utils/part-props`, in place of `ComponentPropsWithoutRef`, and add it to the list in `utils/part-props.test.tsx`. Radix merges a part into its one child, and such a part has more than one.
+- **Text a component writes itself has a prop,** with an English default and a comment that says "Translate it with the rest of your interface." Add the prop to `apps/docs/content/docs/translation.mdx`. A test fails if a default with that comment isn't on the page.
 - **Dark mode is opt-in.** A page with no `data-theme` is light.
 - **A theme is token values and nothing else.** No component reads a color, a border width or a control height that isn't a token. That's what lets one stylesheet restyle everything, and what lets the theme generator check a theme's contrast without rendering a component.
 
@@ -280,11 +284,13 @@ Before 1.0, a breaking change is a minor bump, and its changeset has to say what
 A pull request needs:
 
 - `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build` and `pnpm test:e2e` passing. CI runs on Linux, in two workflows:
-  - `ci.yml` runs for every pull request: lint, typecheck, build and the component tests, then a check of the package that would be published and of the size of each entry point.
+  - `ci.yml` runs for every pull request: an audit of the dependencies and a check of their licenses, then lint, typecheck, build and the component tests, then a check of the package that would be published and of the size of each entry point.
   - `e2e.yml` runs only for a pull request with the `invoke-e2e` label: the end-to-end tests, and a check that the packed library installs and builds in a Vite app and a Next.js app. A maintainer adds the label when a change is ready for it. Without the label nothing runs these for you, so run `pnpm test:e2e` yourself.
 - Tests for what changed.
 - The docs page updated, if behavior, props, CSS variables or class names changed.
 - A changeset, if the change reaches the published package.
+
+The workflows name each action by a commit, with its version in a comment, and Dependabot proposes the next one. Don't change one back to a tag.
 
 Keep a pull request to one change. A fix and an unrelated cleanup are easier to review, and to revert, as two.
 

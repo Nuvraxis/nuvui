@@ -1,0 +1,263 @@
+---
+title: Translation
+description: Every piece of text nuvui writes by itself, such as "Close" and "Loading", with the prop that changes each one. A list for translators, taken from the components' own types.
+---
+
+Almost all the text in an interface built with nuvui is yours: the labels, the headings, what's on the buttons. A few words the components write themselves, mostly names for screen readers on buttons that are only an icon. Each has a prop, with an English default.
+
+This page lists all of them. The tables are made from the components' types when the docs are built, so a default shown here is the one in the code.
+
+## How to translate them
+
+Pass the prop wherever you render the component. With many dialogs in an app, that's easiest in a component of your own that wraps the library's:
+
+```tsx
+import { DialogContent, type DialogContentProps } from "@nuvui/react";
+import { useTranslations } from "your-i18n-library";
+
+export function AppDialogContent(props: DialogContentProps) {
+  const t = useTranslations();
+  return <DialogContent closeLabel={t("close")} {...props} />;
+}
+```
+
+There's no provider that takes all the strings at once. A prop is found by TypeScript when its name changes, works in a server component, and keeps a component's text next to the component.
+
+Text direction is a separate matter, covered in [right-to-left](/docs/right-to-left).
+
+## Components
+
+### Breadcrumb
+
+The trail is a landmark named "Breadcrumb". Pass `aria-label` to `Breadcrumb` to change it.
+
+<PropsTable
+  component="breadcrumb"
+  name="BreadcrumbEllipsisOwnProps"
+  props={{
+    label: "What a screen reader says for the three dots.",
+  }}
+/>
+
+### Combobox
+
+On `ComboboxContent`:
+
+<PropsTable
+  component="combobox"
+  name="ComboboxContentOwnProps"
+  props={{
+    label: "The search field's name, and the popup's.",
+    listLabel: "The list's name.",
+    searchPlaceholder: "The search field's placeholder. There's none by default.",
+  }}
+/>
+
+On `ComboboxLoading`:
+
+<PropsTable
+  component="combobox"
+  name="ComboboxLoadingOwnProps"
+  props={{
+    label: "What a screen reader hears while options are fetched, when the part has no children.",
+  }}
+/>
+
+What `ComboboxEmpty` says is its children, which you write.
+
+### Command
+
+<PropsTable
+  component="command"
+  name="CommandOwnProps"
+  props={{
+    label: "The search field's name.",
+  }}
+/>
+
+<PropsTable
+  component="command"
+  name="CommandListOwnProps"
+  props={{
+    label: "The list's name.",
+  }}
+/>
+
+<PropsTable
+  component="command"
+  name="CommandLoadingOwnProps"
+  props={{
+    label: "What a screen reader hears while items are fetched, when the part has no children.",
+  }}
+/>
+
+<PropsTable
+  component="command"
+  name="CommandDialogOwnProps"
+  props={{
+    title: "The dialog's name. It isn't drawn.",
+  }}
+/>
+
+### Dialog and Sheet
+
+<PropsTable
+  component="dialog"
+  name="DialogContentOwnProps"
+  props={{
+    closeLabel: "The name of the close button in the corner.",
+  }}
+/>
+
+<PropsTable
+  component="sheet"
+  name="SheetContentOwnProps"
+  props={{
+    closeLabel: "The name of the close button in the corner.",
+  }}
+/>
+
+An alert dialog has no close button, and nothing of its own to translate.
+
+### FileUpload
+
+<PropsTable
+  component="file-upload"
+  name="FileUploadOwnProps"
+  props={{
+    children: "The words in the drop area.",
+    removeLabel: "The name of the button that removes a file from the list, given the file's name.",
+    formatSize: "How a file's size is written. The default uses the browser's language for the number and the unit.",
+  }}
+/>
+
+Why a file was refused is yours to say. `onReject` gives you the reason as `"type"`, `"size"` or `"count"`.
+
+### OtpField
+
+<PropsTable
+  component="otp-field"
+  name="OtpFieldOwnProps"
+  props={{
+    inputLabel: "The name of each box, given its position and how many there are.",
+  }}
+/>
+
+### Pagination
+
+The bar is a landmark named "Pagination". Pass `aria-label` to `Pagination` to change it. `PaginationPrevious` and `PaginationNext` say "Previous" and "Next" unless you give them children.
+
+<PropsTable
+  component="pagination"
+  name="PaginationEllipsisOwnProps"
+  props={{
+    label: "What a screen reader says for the three dots.",
+  }}
+/>
+
+### PasswordInput
+
+<PropsTable
+  component="password-input"
+  name="PasswordInputOwnProps"
+  props={{
+    showLabel: "The name of the button while the password is hidden.",
+    hideLabel: "The name of the button while the password is shown.",
+  }}
+/>
+
+### Sidebar
+
+<PropsTable
+  component="sidebar"
+  name="SidebarOwnProps"
+  props={{
+    label: "The sidebar's name as a landmark, and the name of the panel it becomes on a phone.",
+    closeLabel: "The name of the button that closes that panel.",
+  }}
+/>
+
+<PropsTable
+  component="sidebar"
+  name="SidebarTriggerOwnProps"
+  props={{
+    label: "The name of the button that opens and closes the sidebar.",
+  }}
+/>
+
+### Spinner
+
+<PropsTable
+  component="spinner"
+  name="SpinnerOwnProps"
+  props={{
+    label: "What a screen reader hears when the spinner appears.",
+  }}
+/>
+
+### Toast
+
+On `Toaster`:
+
+<PropsTable
+  component="toast"
+  name="ToasterOwnProps"
+  props={{
+    closeLabel: "The name of the close button on each toast.",
+    toastLabel: "What a screen reader says before the text of each toast.",
+  }}
+/>
+
+<PropsTable
+  component="toast"
+  name="ToasterProps"
+  props={{
+    label: "The name of the list of toasts as a landmark. It's `\"Notifications ({hotkey})\"` unless you say otherwise, and `{hotkey}` is filled in for you.",
+  }}
+/>
+
+## Dates
+
+A calendar's month and day names, and the names a screen reader hears on its buttons, come from a `locale`. [Dates](/docs/date-picker#languages) has how to pass one. These are what the two fields add, on `DatePicker` and `DateRangePicker`:
+
+<PropsTable
+  package="date-picker"
+  component="date-picker"
+  name="DateRangePickerOwnProps"
+  props={{
+    calendarLabel: "The name of the button that opens the calendar. `\"Choose date\"` on a date picker.",
+    title: "The name of the calendar's panel, and the heading of the sheet on a phone. `\"Choose date\"` on a date picker.",
+    closeLabel: "The name of the sheet's close button.",
+    invalidMessage: "What the browser shows for text that isn't a date.",
+    startLabel: "The name of the first field. A range only.",
+    endLabel: "The name of the second field. A range only.",
+    orderMessage: "What the browser shows for a range typed the wrong way round. A range only.",
+  }}
+/>
+
+## Tables
+
+A data table takes all its text in one prop, `labels`. Pass the ones to change:
+
+<PropsTable
+  package="table"
+  component="data-table"
+  file="labels.ts"
+  name="DataTableLabels"
+/>
+
+`empty` and `error`, on `DataTable`, replace "No rows." and the error message for one table.
+
+## Charts
+
+A chart writes no text of its own. Its name is the `aria-label` you give it, a series is named by its `label` in the config, and numbers are written by `formatValue`.
+
+## What isn't text
+
+- A [field](/docs/components/field) marks a required label with `*`, which `FieldLabel` changes with `requiredIndicator`. Screen readers don't hear it. They hear "required" from the control, in the browser's own language.
+- A [progress bar](/docs/components/progress) says its value as a percentage, such as "40%". `getValueLabel` changes that.
+- Messages a browser shows for a field that fails its own validation, such as a required one left empty, are the browser's and in its language.
+
+## What hasn't been checked
+
+The list was made by searching the source of the four packages for text, and by reading what Radix UI, cmdk, react-day-picker and Recharts add by themselves. It was not checked by running an interface in another language through a screen reader.

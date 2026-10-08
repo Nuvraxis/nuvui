@@ -8,6 +8,7 @@ import {
   useRef,
 } from "react";
 import { cx } from "../../utils/cx";
+import type { PartProps } from "../../utils/part-props";
 
 export interface NavigationMenuOwnProps {
   /**
@@ -21,7 +22,7 @@ export interface NavigationMenuOwnProps {
 
 export interface NavigationMenuProps
   extends NavigationMenuOwnProps,
-    ComponentPropsWithoutRef<typeof NavigationMenuPrimitive.Root> {}
+    PartProps<typeof NavigationMenuPrimitive.Root> {}
 
 export const NavigationMenu = forwardRef<
   ComponentRef<typeof NavigationMenuPrimitive.Root>,
@@ -84,7 +85,7 @@ export const NavigationMenuItem = forwardRef<
   );
 });
 
-export type NavigationMenuTriggerProps = ComponentPropsWithoutRef<
+export type NavigationMenuTriggerProps = PartProps<
   typeof NavigationMenuPrimitive.Trigger
 >;
 

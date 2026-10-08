@@ -20,7 +20,9 @@
     "changeset": "changeset",
     "version-packages": "changeset version",
     "release": "turbo run build --filter=\"./packages/*\" && changeset publish",
-    "check:package": "pnpm --recursive --if-present run check:package"
+    "check:package": "pnpm --recursive --if-present run check:package",
+    "check:licenses": "node scripts/check-licenses.mjs",
+    "check:audit": "pnpm audit --audit-level high"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.15",

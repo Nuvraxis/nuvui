@@ -401,6 +401,44 @@ test.describe("toast page", () => {
     await expect(toasts(page)).toHaveCount(0);
   });
 
+  test("each intent has its own edge color, and a warning interrupts as a danger does", async ({
+    page,
+    isMobile,
+  }) => {
+    const example = page.locator('[data-preview="toast/intents"]');
+    const edge = () =>
+      toasts(page)
+        .last()
+        .evaluate((toast) => getComputedStyle(toast).borderInlineStartColor);
+    const seen = new Set<string>();
+
+    for (const [name, modifier] of [
+      ["Info", "info"],
+      ["Success", "success"],
+      ["Warning", "warning"],
+      ["Danger", "danger"],
+    ] as const) {
+      await press(example.getByRole("button", { name }), isMobile);
+      await expect(toasts(page).last()).toHaveClass(
+        new RegExp(`nuv-toast--${modifier}`),
+      );
+      seen.add(await edge());
+      await press(
+        toasts(page).last().getByRole("button", { name: "Close" }),
+        isMobile,
+      );
+      await expect(toasts(page)).toHaveCount(0);
+    }
+    expect(seen.size).toBe(4);
+
+    // Radix puts a toast that interrupts in an assertive live region for a
+    // moment, and one that waits in a polite one.
+    await press(example.getByRole("button", { name: "Warning" }), isMobile);
+    await expect(
+      page.locator('[role="status"][aria-live="assertive"]'),
+    ).toContainText("Your trial ends in three days");
+  });
+
   test("toasts span a phone's screen and sit in the corner on a desktop", async ({
     page,
     isMobile,

@@ -62,6 +62,19 @@ describe("toast()", () => {
     expect((await first()).querySelector(".nuv-toast__description")).toBeNull();
   });
 
+  test("has a modifier for the info and warning intents too", async () => {
+    await renderStill();
+
+    toast("A new version is ready", { intent: "info" });
+    toast("The trial ends in three days", { intent: "warning" });
+
+    await expect.poll(() => all().length).toBe(2);
+    expect(all().map((item) => item.className)).toEqual([
+      "nuv-toast nuv-toast--info",
+      "nuv-toast nuv-toast--warning",
+    ]);
+  });
+
   test("turns the intent into a BEM modifier", async () => {
     await renderStill();
 
@@ -408,6 +421,27 @@ describe("screen readers", () => {
     toast("Couldn't save", { intent: "danger" });
 
     await expect.poll(() => announced("assertive")).toContain("Couldn't save");
+  });
+
+  test("a warning toast is announced at once, as a warning alert is", async () => {
+    await renderStill();
+
+    toast("The trial ends in three days", { intent: "warning" });
+
+    await expect
+      .poll(() => announced("assertive"))
+      .toContain("The trial ends in three days");
+  });
+
+  test("an info toast waits its turn", async () => {
+    await renderStill();
+
+    toast("A new version is ready", { intent: "info" });
+
+    await expect
+      .poll(() => announced("polite"))
+      .toContain("A new version is ready");
+    expect(announced("assertive")).toBeUndefined();
   });
 
   test("other toasts wait their turn", async () => {

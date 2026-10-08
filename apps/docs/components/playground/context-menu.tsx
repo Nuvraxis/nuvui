@@ -14,7 +14,7 @@ import { CheckboxControl, Playground, SelectControl } from "./controls";
 type Intent = NonNullable<ContextMenuItemProps["intent"]>;
 
 const intents = Object.keys({
-  default: true,
+  neutral: true,
   danger: true,
 } satisfies Record<Intent, true>) as Intent[];
 
@@ -25,7 +25,7 @@ export function ContextMenuPlayground() {
 
   const trigger = disabled ? " disabled" : "";
   const first = itemDisabled ? " disabled" : "";
-  const last = intent === "default" ? "" : ` intent="${intent}"`;
+  const last = intent === "neutral" ? "" : ` intent="${intent}"`;
   const code = `<ContextMenu>
   <ContextMenuTrigger${trigger}>...</ContextMenuTrigger>
   <ContextMenuContent>

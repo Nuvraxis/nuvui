@@ -2,13 +2,13 @@
 
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import {
-  type ComponentPropsWithoutRef,
   type ComponentRef,
   createContext,
   forwardRef,
   useContext,
 } from "react";
 import { cx } from "../../utils/cx";
+import type { PartProps } from "../../utils/part-props";
 
 // Radix throws when a tooltip has no provider above it. This records whether
 // one is there, so a tooltip used on its own can bring its own.
@@ -38,7 +38,7 @@ export type TooltipTriggerProps = TooltipPrimitive.TooltipTriggerProps;
 
 export const TooltipTrigger = TooltipPrimitive.Trigger;
 
-type ContentProps = ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>;
+type ContentProps = PartProps<typeof TooltipPrimitive.Content>;
 
 export interface TooltipContentOwnProps {
   /**

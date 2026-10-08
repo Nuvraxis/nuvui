@@ -1,0 +1,17 @@
+# The workflows name each action by the commit it's at, so that a tag moved
+# to other code can't change what runs. That leaves nothing to follow new
+# releases, which is what this does: once a week it opens a pull request
+# that moves an action to its latest release, commit and comment both.
+#
+# npm dependencies aren't here. They're updated by hand, a group at a time,
+# because several of them have to move together.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns:
+          - "*"

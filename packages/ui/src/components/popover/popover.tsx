@@ -1,13 +1,9 @@
 "use client";
 
 import * as PopoverPrimitive from "@radix-ui/react-popover";
-import {
-  type ComponentPropsWithoutRef,
-  type ComponentRef,
-  forwardRef,
-  useState,
-} from "react";
+import { type ComponentRef, forwardRef, useState } from "react";
 import { cx } from "../../utils/cx";
+import type { PartProps } from "../../utils/part-props";
 import { useScrollRegion } from "../../utils/use-scroll-region";
 
 export type PopoverProps = PopoverPrimitive.PopoverProps;
@@ -20,7 +16,7 @@ export const PopoverTrigger = PopoverPrimitive.Trigger;
 export const PopoverAnchor = PopoverPrimitive.Anchor;
 export const PopoverClose = PopoverPrimitive.Close;
 
-type ContentProps = ComponentPropsWithoutRef<typeof PopoverPrimitive.Content>;
+type ContentProps = PartProps<typeof PopoverPrimitive.Content>;
 
 export interface PopoverContentOwnProps {
   /**

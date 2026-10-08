@@ -1,0 +1,92 @@
+@use "@nuvui/react/scss/mixins";
+
+.page-states {
+  display: grid;
+  gap: calc(var(--spacing) * 6);
+  align-content: start;
+  inline-size: 100%;
+  max-inline-size: 48rem;
+  min-block-size: 100svh;
+  margin-inline: auto;
+  padding: calc(var(--spacing) * 6) calc(var(--spacing) * 4);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+
+  @include mixins.breakpoint("md") {
+    padding: calc(var(--spacing) * 8);
+  }
+}
+
+.page-states__head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 4);
+  align-items: center;
+  justify-content: space-between;
+}
+
+.page-states__title {
+  margin: 0;
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-2xl--line-height);
+  letter-spacing: var(--tracking-tight);
+}
+
+.page-states__body {
+  display: grid;
+}
+
+.page-states__list {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  border: var(--nuv-border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-surface);
+  list-style: none;
+}
+
+// A row is the same height with words in it as with placeholders, so the
+// page doesn't jump when the rows arrive.
+.page-states__item {
+  display: grid;
+  gap: calc(var(--spacing) * 1);
+  align-content: center;
+  min-block-size: calc(var(--spacing) * 18);
+  padding: calc(var(--spacing) * 3) calc(var(--spacing) * 4);
+
+  & + & {
+    border-block-start: var(--nuv-border-width) solid var(--color-border);
+  }
+}
+
+.page-states__link {
+  justify-self: start;
+  border-radius: var(--radius-sm);
+  color: var(--color-surface-foreground);
+  font-weight: var(--font-weight-medium);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+
+  @include mixins.focus-ring;
+}
+
+.page-states__about {
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+.page-states__bone {
+  inline-size: 40%;
+}
+
+.page-states__bone--short {
+  inline-size: 25%;
+}
+
+.page-states__empty {
+  border: var(--nuv-border-width) dashed var(--color-border-strong);
+  border-radius: var(--radius-lg);
+}

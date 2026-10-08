@@ -1,0 +1,133 @@
+@use "@nuvui/react/scss/mixins";
+
+.footer {
+  padding: calc(var(--spacing) * 12) calc(var(--spacing) * 4)
+    calc(var(--spacing) * 8);
+  border-block-start: var(--nuv-border-width) solid var(--color-border);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+
+  @include mixins.breakpoint("md") {
+    padding: calc(var(--spacing) * 16) calc(var(--spacing) * 8)
+      calc(var(--spacing) * 8);
+  }
+}
+
+.footer__inner {
+  display: grid;
+  gap: calc(var(--spacing) * 8);
+  inline-size: 100%;
+  max-inline-size: 72rem;
+  margin-inline: auto;
+}
+
+// Two lists to a row on a phone, with the name above them. From the lg
+// breakpoint the name and the three lists share one row.
+.footer__top {
+  display: grid;
+  gap: calc(var(--spacing) * 10) calc(var(--spacing) * 6);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  @include mixins.breakpoint("lg") {
+    grid-template-columns: minmax(0, 2fr) repeat(3, minmax(0, 1fr));
+  }
+}
+
+.footer__about {
+  display: grid;
+  gap: calc(var(--spacing) * 3);
+  grid-column: 1 / -1;
+  align-content: start;
+  justify-items: start;
+
+  @include mixins.breakpoint("lg") {
+    grid-column: auto;
+  }
+}
+
+.footer__brand {
+  display: inline-flex;
+  gap: calc(var(--spacing) * 2);
+  align-items: center;
+  min-block-size: var(--nuv-touch-size);
+  border-radius: var(--radius-sm);
+  color: inherit;
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--tracking-tight);
+  text-decoration: none;
+
+  @include mixins.focus-ring;
+}
+
+.footer__text {
+  max-inline-size: 22rem;
+  margin: 0;
+  color: var(--color-muted-foreground);
+}
+
+.footer__group {
+  display: grid;
+  gap: calc(var(--spacing) * 3);
+  align-content: start;
+}
+
+.footer__heading {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-sm--line-height);
+}
+
+.footer__list {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+// Tall enough to tap, with the words where they'd be in a shorter line.
+.footer__link {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: calc(var(--spacing) * 9);
+  border-radius: var(--radius-sm);
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  text-decoration: none;
+
+  @include mixins.focus-ring;
+
+  @include mixins.hover {
+    color: var(--color-foreground);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  @media (pointer: coarse) {
+    min-block-size: var(--nuv-touch-size);
+  }
+}
+
+.footer__foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 2) calc(var(--spacing) * 6);
+  align-items: center;
+  justify-content: space-between;
+}
+
+.footer__note {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+}
+
+.footer__legal {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 6);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}

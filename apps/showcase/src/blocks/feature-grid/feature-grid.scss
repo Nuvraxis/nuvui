@@ -1,0 +1,104 @@
+@use "@nuvui/react/scss/mixins";
+
+.feature-grid {
+  display: grid;
+  gap: calc(var(--spacing) * 10);
+  padding: calc(var(--spacing) * 16) calc(var(--spacing) * 4);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+
+  @include mixins.breakpoint("md") {
+    gap: calc(var(--spacing) * 12);
+    padding: calc(var(--spacing) * 20) calc(var(--spacing) * 8);
+  }
+}
+
+.feature-grid__intro {
+  display: grid;
+  gap: calc(var(--spacing) * 4);
+  inline-size: 100%;
+  max-inline-size: 72rem;
+  margin-inline: auto;
+}
+
+.feature-grid__label {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+}
+
+.feature-grid__title {
+  max-inline-size: 22ch;
+  margin: 0;
+  font-size: clamp(1.75rem, 1.25rem + 2.2vw, 2.75rem);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+.feature-grid__lead {
+  max-inline-size: 36rem;
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-lg);
+  line-height: var(--leading-relaxed);
+}
+
+// A link on a line of its own is underlined: color alone doesn't say it's
+// a link.
+.feature-grid__link {
+  display: inline-flex;
+  gap: calc(var(--spacing) * 2);
+  align-items: center;
+  justify-self: start;
+  min-block-size: var(--nuv-control-height-sm);
+  border-radius: var(--radius-sm);
+  color: var(--color-foreground);
+  font-weight: var(--font-weight-medium);
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+
+  @include mixins.focus-ring;
+
+  @media (pointer: coarse) {
+    min-block-size: var(--nuv-touch-size);
+  }
+}
+
+// As many cards to a row as fit, and never one narrower than 17rem.
+.feature-grid__list {
+  display: grid;
+  gap: calc(var(--spacing) * 4);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+  inline-size: 100%;
+  max-inline-size: 72rem;
+  margin: 0 auto;
+  padding: 0;
+  list-style: none;
+
+  @include mixins.breakpoint("md") {
+    gap: calc(var(--spacing) * 6);
+  }
+}
+
+.feature-grid__card {
+  block-size: 100%;
+}
+
+// The tint is mixed from the brand color, so a theme changes it. The icon
+// is the text color, which is readable on either.
+.feature-grid__icon {
+  display: grid;
+  place-items: center;
+  inline-size: calc(var(--spacing) * 10);
+  block-size: calc(var(--spacing) * 10);
+  margin-block-end: calc(var(--spacing) * 3);
+  border: var(--nuv-border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: color-mix(in oklab, var(--color-primary) 10%, transparent);
+  color: var(--color-surface-foreground);
+}

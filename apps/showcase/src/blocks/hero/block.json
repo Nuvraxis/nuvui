@@ -1,0 +1,9 @@
+{
+  "name": "hero",
+  "title": "Hero",
+  "description": "The top of a product's home page: a line of news, the headline, two actions, and a frame where a picture of the product goes.",
+  "category": "marketing",
+  "files": ["hero.tsx", "hero.scss"],
+  "install": ["@nuvui/react", "lucide-react"],
+  "height": 860
+}

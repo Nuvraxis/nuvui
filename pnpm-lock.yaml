@@ -290,6 +290,9 @@ importers:
       '@nuvui/charts':
         specifier: workspace:*
         version: link:../../packages/charts
+      '@nuvui/date-picker':
+        specifier: workspace:*
+        version: link:../../packages/date-picker
       '@nuvui/react':
         specifier: workspace:*
         version: link:../../packages/ui

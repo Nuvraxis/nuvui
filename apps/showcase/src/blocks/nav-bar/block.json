@@ -1,0 +1,9 @@
+{
+  "name": "nav-bar",
+  "title": "Navigation bar",
+  "description": "A site's top bar: a menu with a panel under one entry, two actions, and on a phone one button that opens every link in a panel.",
+  "category": "marketing",
+  "files": ["nav-bar.tsx", "nav-bar.scss"],
+  "install": ["@nuvui/react", "lucide-react"],
+  "height": 420
+}

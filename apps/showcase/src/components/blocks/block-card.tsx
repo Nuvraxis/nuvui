@@ -1,7 +1,8 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
-import { type BlockManifest, viewPath } from "@/lib/blocks";
+import { type BlockManifest, registryPath, viewPath } from "@/lib/blocks";
 import { highlight } from "@/lib/highlight";
+import { absoluteUrl } from "@/lib/site";
 import { BlockPreview } from "./block-preview";
 
 const blocksDir = path.join(process.cwd(), "src", "blocks");
@@ -38,6 +39,7 @@ export async function BlockCard({ block, level = 2 }: BlockCardProps) {
       view={viewPath(block)}
       height={block.height}
       install={block.install}
+      registry={absoluteUrl(registryPath(block))}
       files={files}
       level={level}
     />

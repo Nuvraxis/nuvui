@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "next dev --port 3001",
-    "build": "next build && node ../../scripts/fix-next-export.mjs out && node scripts/add-docs.mjs",
+    "build": "next build && node ../../scripts/fix-next-export.mjs out && node scripts/add-docs.mjs && node scripts/add-registry.mjs",
     "start": "node ../../scripts/serve-static.mjs 3001 out",
     "lint": "stylelint \"src/**/*.scss\"",
     "typecheck": "next typegen && tsc --noEmit",
@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@nuvui/charts": "workspace:*",
+    "@nuvui/date-picker": "workspace:*",
     "@nuvui/react": "workspace:*",
     "@nuvui/table": "workspace:*",
     "@nuvui/theme": "workspace:*",

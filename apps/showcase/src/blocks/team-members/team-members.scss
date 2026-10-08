@@ -1,0 +1,90 @@
+@use "@nuvui/react/scss/mixins";
+
+// One column that may not grow past the room it has. The table is wider
+// than a phone, and scrolls in its own box.
+.team-members {
+  display: grid;
+  gap: calc(var(--spacing) * 6);
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  inline-size: 100%;
+  max-inline-size: 56rem;
+  min-block-size: 100svh;
+  margin-inline: auto;
+  padding: calc(var(--spacing) * 6) calc(var(--spacing) * 4);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+
+  @include mixins.breakpoint("md") {
+    padding: calc(var(--spacing) * 8);
+  }
+}
+
+.team-members__head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 4);
+  align-items: end;
+  justify-content: space-between;
+}
+
+.team-members__about {
+  display: grid;
+  gap: calc(var(--spacing) * 1);
+}
+
+.team-members__title {
+  margin: 0;
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-2xl--line-height);
+  letter-spacing: var(--tracking-tight);
+}
+
+.team-members__text {
+  max-inline-size: 60ch;
+  margin: 0;
+  color: var(--color-muted-foreground);
+}
+
+.team-members__person {
+  display: grid;
+  gap: calc(var(--spacing) * 0.5);
+  padding-block: calc(var(--spacing) * 1);
+}
+
+.team-members__name {
+  font-weight: var(--font-weight-medium);
+}
+
+.team-members__email {
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--text-sm--line-height);
+}
+
+.team-members__role {
+  --nuv-select-width: 8rem;
+}
+
+.team-members__role--wide {
+  --nuv-select-width: 100%;
+}
+
+.team-members__invited {
+  display: inline-flex;
+  gap: calc(var(--spacing) * 2);
+  align-items: center;
+}
+
+.team-members__form {
+  display: grid;
+  gap: calc(var(--spacing) * 5);
+}
+
+.team-members__status {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+}

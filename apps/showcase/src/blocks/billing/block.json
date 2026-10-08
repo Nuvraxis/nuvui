@@ -1,0 +1,14 @@
+{
+  "name": "billing",
+  "title": "Billing and plan",
+  "description": "The plan with the seats in use, the card it's paid with, and a table of past invoices to download.",
+  "category": "settings",
+  "files": ["billing.tsx", "billing.scss"],
+  "install": [
+    "@nuvui/react",
+    "@nuvui/table",
+    "@tanstack/react-table",
+    "lucide-react"
+  ],
+  "height": 860
+}

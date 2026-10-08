@@ -1,10 +1,31 @@
 import activity from "@/blocks/activity/block.json" with { type: "json" };
+import auditLog from "@/blocks/audit-log/block.json" with { type: "json" };
+import billing from "@/blocks/billing/block.json" with { type: "json" };
+import dangerZone from "@/blocks/danger-zone/block.json" with { type: "json" };
 import dashboard from "@/blocks/dashboard/block.json" with { type: "json" };
+import detailPanel from "@/blocks/detail-panel/block.json" with {
+  type: "json",
+};
+import faq from "@/blocks/faq/block.json" with { type: "json" };
+import featureGrid from "@/blocks/feature-grid/block.json" with {
+  type: "json",
+};
 import figures from "@/blocks/figures/block.json" with { type: "json" };
+import footer from "@/blocks/footer/block.json" with { type: "json" };
 import forgotPassword from "@/blocks/forgot-password/block.json" with {
   type: "json",
 };
+import hero from "@/blocks/hero/block.json" with { type: "json" };
+import navBar from "@/blocks/nav-bar/block.json" with { type: "json" };
+import notifications from "@/blocks/notifications/block.json" with {
+  type: "json",
+};
 import pageHeader from "@/blocks/page-header/block.json" with { type: "json" };
+import pageStates from "@/blocks/page-states/block.json" with { type: "json" };
+import pricing from "@/blocks/pricing/block.json" with { type: "json" };
+import profileForm from "@/blocks/profile-form/block.json" with {
+  type: "json",
+};
 import sidebarIcons from "@/blocks/sidebar-icons/block.json" with {
   type: "json",
 };
@@ -14,6 +35,12 @@ import sidebarNested from "@/blocks/sidebar-nested/block.json" with {
 import signIn from "@/blocks/sign-in/block.json" with { type: "json" };
 import signInSso from "@/blocks/sign-in-sso/block.json" with { type: "json" };
 import signUp from "@/blocks/sign-up/block.json" with { type: "json" };
+import tableToolbar from "@/blocks/table-toolbar/block.json" with {
+  type: "json",
+};
+import teamMembers from "@/blocks/team-members/block.json" with {
+  type: "json",
+};
 import topBar from "@/blocks/top-bar/block.json" with { type: "json" };
 import verifyCode from "@/blocks/verify-code/block.json" with { type: "json" };
 
@@ -67,6 +94,27 @@ export const categories: BlockCategory[] = [
     description:
       "A whole dashboard with a sidebar, figures, a chart and a table, and two of its parts on their own: figures with trends, and a list of recent activity.",
   },
+  {
+    slug: "data",
+    label: "Data",
+    title: "Data",
+    description:
+      "Rows to work with: a table with search, a filter, a column chooser and actions for several rows, a panel that opens beside a list, and a page in each state it can be in.",
+  },
+  {
+    slug: "settings",
+    label: "Settings",
+    title: "Settings and admin",
+    description:
+      "The pages behind an account: a profile, notification preferences, team members and invitations, billing, the actions that can't be taken back, and an audit log.",
+  },
+  {
+    slug: "marketing",
+    label: "Marketing",
+    title: "Marketing pages",
+    description:
+      "A product's public pages in six parts: a navigation bar, a hero, a grid of features, a pricing table, questions and answers, and a footer.",
+  },
 ];
 
 // Every block, in the order its category's page shows it. A block is a
@@ -85,6 +133,21 @@ export const blocks: BlockManifest[] = [
   dashboard,
   figures,
   activity,
+  tableToolbar,
+  detailPanel,
+  pageStates,
+  profileForm,
+  notifications,
+  teamMembers,
+  billing,
+  dangerZone,
+  auditLog,
+  navBar,
+  hero,
+  featureGrid,
+  pricing,
+  faq,
+  footer,
 ];
 
 export const categoryPath = (category: BlockCategory) =>
@@ -93,6 +156,12 @@ export const categoryPath = (category: BlockCategory) =>
 /** The block alone on a page, which is what a preview's frame shows. */
 export const viewPath = (block: BlockManifest) =>
   `${blocksHome}/view/${block.name}`;
+
+/**
+ * The block as an item in the registry that shadcn's command line tool
+ * reads. scripts/add-registry.mjs writes the file when the site is built.
+ */
+export const registryPath = (block: BlockManifest) => `/r/${block.name}.json`;
 
 export const blocksIn = (category: BlockCategory) =>
   blocks.filter((block) => block.category === category.slug);

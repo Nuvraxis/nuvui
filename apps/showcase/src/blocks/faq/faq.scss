@@ -1,0 +1,60 @@
+@use "@nuvui/react/scss/mixins";
+
+// The heading above the questions on a phone, and beside them from the lg
+// breakpoint.
+.faq {
+  display: grid;
+  gap: calc(var(--spacing) * 8);
+  align-items: start;
+  padding: calc(var(--spacing) * 16) calc(var(--spacing) * 4);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+
+  @include mixins.breakpoint("md") {
+    padding: calc(var(--spacing) * 20) calc(var(--spacing) * 8);
+  }
+
+  @include mixins.breakpoint("lg") {
+    gap: calc(var(--spacing) * 16);
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    max-inline-size: 72rem;
+    margin-inline: auto;
+  }
+}
+
+.faq__intro {
+  display: grid;
+  gap: calc(var(--spacing) * 4);
+}
+
+.faq__title {
+  margin: 0;
+  font-size: clamp(1.75rem, 1.25rem + 2.2vw, 2.75rem);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+.faq__lead {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-lg);
+  line-height: var(--leading-relaxed);
+}
+
+// A link in a line of text is underlined: color alone doesn't tell it from
+// the words around it.
+.faq__link {
+  border-radius: var(--radius-sm);
+  color: var(--color-foreground);
+  font-weight: var(--font-weight-medium);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+
+  @include mixins.focus-ring;
+}
+
+.faq__list {
+  inline-size: 100%;
+}

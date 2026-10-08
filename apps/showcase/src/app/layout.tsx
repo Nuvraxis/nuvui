@@ -3,6 +3,7 @@
 // set the same thing, whichever order they load in.
 import "@nuvui/react/styles.css";
 import "@nuvui/table/styles.css";
+import "@nuvui/date-picker/styles.css";
 import "@nuvui/charts/styles.css";
 import "@/styles/index.scss";
 import { Toaster } from "@nuvui/react/toast";

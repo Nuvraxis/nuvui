@@ -1,0 +1,128 @@
+@use "@nuvui/react/scss/mixins";
+
+.nav-bar {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  min-block-size: 100svh;
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+}
+
+.nav-bar__bar {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 1;
+  display: flex;
+  gap: calc(var(--spacing) * 2);
+  align-items: center;
+  min-block-size: calc(var(--spacing) * 16);
+  padding-inline: calc(var(--spacing) * 4);
+  border-block-end: var(--nuv-border-width) solid var(--color-border);
+  background-color: var(--color-background);
+
+  @include mixins.breakpoint("md") {
+    gap: calc(var(--spacing) * 6);
+    padding-inline: calc(var(--spacing) * 8);
+  }
+}
+
+.nav-bar__brand {
+  display: inline-flex;
+  gap: calc(var(--spacing) * 2);
+  align-items: center;
+  min-block-size: var(--nuv-touch-size);
+  border-radius: var(--radius-sm);
+  color: inherit;
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--tracking-tight);
+  text-decoration: none;
+
+  @include mixins.focus-ring;
+}
+
+.nav-bar__menu {
+  display: none;
+
+  @include mixins.breakpoint("md") {
+    display: block;
+  }
+}
+
+.nav-bar__panel {
+  display: grid;
+  gap: calc(var(--spacing) * 1);
+  min-inline-size: 18rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nav-bar__about {
+  color: var(--color-muted-foreground);
+  font-weight: var(--font-weight-normal);
+}
+
+.nav-bar__actions {
+  display: flex;
+  gap: calc(var(--spacing) * 2);
+  align-items: center;
+  margin-inline-start: auto;
+}
+
+// In the bar from the md breakpoint. Below it, it's in the panel.
+.nav-bar__wide {
+  display: none;
+
+  @include mixins.breakpoint("md") {
+    display: inline-flex;
+  }
+}
+
+// A button that's only an icon: square, at the size of the button it is.
+.nav-bar__toggle {
+  flex: none;
+  aspect-ratio: 1;
+  padding: 0;
+
+  @include mixins.breakpoint("md") {
+    display: none;
+  }
+}
+
+.nav-bar__list {
+  display: grid;
+  gap: calc(var(--spacing) * 1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nav-bar__entry {
+  justify-content: flex-start;
+  inline-size: 100%;
+}
+
+.nav-bar__page {
+  display: grid;
+  gap: calc(var(--spacing) * 2);
+  align-content: start;
+  padding: calc(var(--spacing) * 8) calc(var(--spacing) * 4);
+
+  @include mixins.breakpoint("md") {
+    padding: calc(var(--spacing) * 12) calc(var(--spacing) * 8);
+  }
+}
+
+.nav-bar__title {
+  margin: 0;
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-2xl--line-height);
+  letter-spacing: var(--tracking-tight);
+}
+
+.nav-bar__hint {
+  margin: 0;
+  color: var(--color-muted-foreground);
+}

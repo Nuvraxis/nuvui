@@ -237,7 +237,13 @@ A block is a folder under `apps/showcase/src/blocks`, named for the block, with 
 - `<name>.scss`, its styles. Every class starts with the block's name, such as `.sign-in__title`, with no `nuv` or `site` prefix: a block is copied into someone's app, and from then on it's their code. Stylelint checks this, and that every color is a token.
 - `block.json`, which says what the block is: its name, title, description, category, files, the packages to install, and the height of its preview.
 
-Then add the manifest to the list in `apps/showcase/src/lib/blocks.ts`. That's all the pages, the search, the sitemap and the tests need: every block gets the same tests from its manifest. Add one of your own to `e2e/blocks.spec.ts` for what the block does that the others don't.
+Then add the manifest to the list in `apps/showcase/src/lib/blocks.ts`. That's all the pages, the search, the sitemap, the registry and the tests need: every block gets the same tests from its manifest. Add one of your own to `e2e/blocks.spec.ts` for what the block does that the others don't.
+
+The tests every block gets ask for a heading, and for at least one thing Tab can reach, each with a name. They run axe in light and dark, and look for sideways scrolling at a phone's width and a tablet's.
+
+The site's build writes each block to `out/r/<name>.json`, in the format shadcn's command line tool reads, from `apps/showcase/scripts/add-registry.mjs`. Nothing is added by hand.
+
+A block that uses a package the website doesn't load yet needs that package in `apps/showcase/package.json`, and its stylesheet in `apps/showcase/src/app/layout.tsx`.
 
 Names, figures and companies in a block are made up, and look it.
 

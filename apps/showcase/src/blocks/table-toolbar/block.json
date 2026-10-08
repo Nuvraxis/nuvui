@@ -1,0 +1,14 @@
+{
+  "name": "table-toolbar",
+  "title": "Table with a toolbar",
+  "description": "A table to work in: search, a filter by status, a column chooser, a menu on each row, and actions for the rows that are ticked.",
+  "category": "data",
+  "files": ["table-toolbar.tsx", "table-toolbar.scss"],
+  "install": [
+    "@nuvui/react",
+    "@nuvui/table",
+    "@tanstack/react-table",
+    "lucide-react"
+  ],
+  "height": 620
+}

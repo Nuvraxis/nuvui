@@ -14,7 +14,7 @@
 
 # The build runs on the machine's own architecture whatever the image is
 # for. What it makes is HTML, CSS and JavaScript, the same for every one.
-FROM --platform=$BUILDPLATFORM node:24-bookworm-slim@sha256:d6aa754f16b3197301076f047b5def2f02ea1dbbc2ca920407d46d7ec7f87b20 AS build
+FROM --platform=$BUILDPLATFORM node:25-bookworm-slim@sha256:81db02c4b671288a03915da9534dbd54f96d0e7c24d80ccc54f5b36b2e684370 AS build
 
 ENV CI=true \
     NEXT_TELEMETRY_DISABLED=1 \
@@ -50,7 +50,7 @@ RUN pnpm build
 
 # Runs as a user that isn't root, and listens on 8080. It writes only to
 # /tmp, so the root filesystem can be read-only with a volume there.
-FROM nginxinc/nginx-unprivileged:1.29-alpine@sha256:0c79d56aee561a1d81c63f00eee5fb5fe29279560cdc55e91425133104c7fbe6
+FROM nginxinc/nginx-unprivileged:1.31-alpine@sha256:b9241c6e7b8e9a862f129d8d4199ab64b10390949a78bdd5603379b32c844083
 
 COPY apps/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /repo/apps/showcase/out /usr/share/nginx/html

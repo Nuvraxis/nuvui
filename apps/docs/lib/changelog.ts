@@ -3,7 +3,7 @@ import path from "node:path";
 import { getTableOfContents } from "fumadocs-core/content/toc";
 import type { TOCItemType } from "fumadocs-core/toc";
 import { cache } from "react";
-import { library } from "@/lib/library";
+import { addons, library } from "@/lib/library";
 import { site } from "@/lib/site";
 
 // Both sources are outside this app: the package's CHANGELOG.md and the
@@ -52,9 +52,15 @@ async function readPending(): Promise<PendingNote[]> {
     .filter((name) => name.endsWith(".md") && name !== "README.md")
     .sort();
 
+  // A changeset names each package it's for, with a bump for each. A note
+  // goes under the biggest bump it has for a package that's published.
+  const published = [
+    site.packageName,
+    ...Object.values(addons).map((addon) => addon.name),
+  ];
   const packageLine = new RegExp(
-    `^["']?${site.packageName.replace("/", "\\/")}["']?:\\s*(${bumps.join("|")})\\s*$`,
-    "m",
+    `^["']?(${published.join("|")})["']?:\\s*(${bumps.join("|")})\\s*$`,
+    "gm",
   );
 
   const notes = await Promise.all(
@@ -64,8 +70,19 @@ async function readPending(): Promise<PendingNote[]> {
       ).replace(/\r\n/g, "\n");
       const [, header = "", body = ""] =
         /^---\n([\s\S]*?)\n---\n([\s\S]*)$/.exec(text) ?? [];
-      const bump = packageLine.exec(header)?.[1] as Bump | undefined;
-      return bump && body.trim() ? { file, bump, body: body.trim() } : [];
+      const lines = [...header.matchAll(packageLine)];
+      const bump = bumps.find((name) => lines.some((line) => line[2] === name));
+      if (!bump || !body.trim()) return [];
+
+      // A note for an add-on says which one. The page is the core's.
+      const others = lines
+        .map((line) => line[1])
+        .filter((name) => name !== site.packageName);
+      const prefix =
+        others.length > 0
+          ? `${others.map((name) => `\`${name}\``).join(", ")}: `
+          : "";
+      return { file, bump, body: prefix + body.trim() };
     }),
   );
   return notes.flat();

@@ -1,0 +1,187 @@
+@use "@nuvui/react/scss/mixins";
+
+// A wash of the brand color behind the words. It's mixed from the theme's
+// own color, so a theme changes it, and no text depends on it.
+.hero {
+  display: grid;
+  gap: calc(var(--spacing) * 12);
+  justify-items: center;
+  padding: calc(var(--spacing) * 16) calc(var(--spacing) * 4)
+    calc(var(--spacing) * 12);
+  background-color: var(--color-background);
+  background-image: radial-gradient(
+    ellipse 70% 55% at 50% 0%,
+    color-mix(in oklab, var(--color-primary) 14%, transparent),
+    transparent
+  );
+  color: var(--color-foreground);
+
+  @include mixins.breakpoint("md") {
+    padding: calc(var(--spacing) * 24) calc(var(--spacing) * 8)
+      calc(var(--spacing) * 16);
+  }
+
+  // A forced-colors theme has a background of its own.
+  @media (forced-colors: active) {
+    background-image: none;
+  }
+}
+
+.hero__inner {
+  display: grid;
+  gap: calc(var(--spacing) * 6);
+  justify-items: center;
+  max-inline-size: 48rem;
+  text-align: center;
+}
+
+.hero__news {
+  display: inline-flex;
+  gap: calc(var(--spacing) * 2);
+  align-items: center;
+  min-block-size: var(--nuv-control-height-sm);
+  padding-inline: calc(var(--spacing) * 3);
+  border: var(--nuv-border-width) solid var(--color-border-strong);
+  border-radius: var(--radius-full);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+
+  @include mixins.focus-ring;
+
+  @include mixins.hover {
+    background-color: var(--color-muted);
+  }
+}
+
+.hero__title {
+  margin: 0;
+  font-size: clamp(2.25rem, 1.5rem + 3.6vw, 4rem);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+
+.hero__lead {
+  max-inline-size: 38rem;
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-lg);
+  line-height: var(--leading-relaxed);
+  text-wrap: pretty;
+}
+
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 3);
+  justify-content: center;
+}
+
+.hero__points {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 2) calc(var(--spacing) * 6);
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  list-style: none;
+}
+
+.hero__point {
+  display: inline-flex;
+  gap: calc(var(--spacing) * 2);
+  align-items: center;
+}
+
+.hero__window {
+  inline-size: 100%;
+  max-inline-size: 60rem;
+  overflow: hidden;
+  border: var(--nuv-border-width) solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-xl);
+}
+
+.hero__chrome {
+  display: flex;
+  gap: calc(var(--spacing) * 1.5);
+  padding: calc(var(--spacing) * 3) calc(var(--spacing) * 4);
+  border-block-end: var(--nuv-border-width) solid var(--color-border);
+}
+
+.hero__dot {
+  inline-size: calc(var(--spacing) * 2.5);
+  block-size: calc(var(--spacing) * 2.5);
+  border-radius: var(--radius-full);
+  background-color: var(--color-border-strong);
+}
+
+.hero__screen {
+  display: grid;
+  min-block-size: 14rem;
+
+  @include mixins.breakpoint("sm") {
+    grid-template-columns: 11rem minmax(0, 1fr);
+  }
+}
+
+.hero__side {
+  display: none;
+  gap: calc(var(--spacing) * 3);
+  align-content: start;
+  padding: calc(var(--spacing) * 5);
+  border-inline-end: var(--nuv-border-width) solid var(--color-border);
+
+  @include mixins.breakpoint("sm") {
+    display: grid;
+  }
+}
+
+.hero__rows {
+  display: grid;
+  gap: calc(var(--spacing) * 3);
+  align-content: start;
+  padding: calc(var(--spacing) * 5);
+}
+
+.hero__tiles {
+  display: grid;
+  gap: calc(var(--spacing) * 3);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-block-end: calc(var(--spacing) * 2);
+}
+
+.hero__tile {
+  block-size: calc(var(--spacing) * 14);
+  border-radius: var(--radius-md);
+  background-color: var(--color-muted);
+}
+
+.hero__tile--strong {
+  background-color: color-mix(in oklab, var(--color-primary) 22%, transparent);
+}
+
+.hero__bar {
+  block-size: calc(var(--spacing) * 2.5);
+  border-radius: var(--radius-full);
+  background-color: var(--color-muted);
+}
+
+.hero__bar--long {
+  inline-size: 92%;
+}
+
+.hero__bar--mid {
+  inline-size: 68%;
+}
+
+.hero__bar--short {
+  inline-size: 44%;
+}

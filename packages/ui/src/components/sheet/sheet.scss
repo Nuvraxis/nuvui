@@ -1,0 +1,163 @@
+@use "../../styles/layers";
+@use "../../styles/mixins";
+@use "../../styles/modal";
+
+// The panel slides in from the edge it's attached to, and back out to it.
+@mixin slide($edge) {
+  &[data-state="open"] {
+    animation: nuv-sheet-#{$edge}-in var(--nuv-duration-slow) var(--ease-out);
+  }
+
+  &[data-state="closed"] {
+    animation: nuv-sheet-#{$edge}-out var(--nuv-duration-base) var(--ease-in);
+  }
+}
+
+@mixin slide-keyframes($edge, $offset) {
+  @keyframes nuv-sheet-#{$edge}-in {
+    from {
+      transform: #{$offset};
+    }
+  }
+
+  @keyframes nuv-sheet-#{$edge}-out {
+    to {
+      transform: #{$offset};
+    }
+  }
+}
+
+@layer components {
+  // Radix renders the overlay and the panel next to each other at the end of
+  // <body>, so nothing here can depend on a parent selector.
+
+  .nuv-sheet__overlay {
+    @include modal.overlay("sheet");
+  }
+
+  // The base is a sheet on the start or end edge: as tall as the screen and
+  // a set width. The strip of page it leaves on a phone is there to be
+  // tapped, which closes the sheet.
+  .nuv-sheet {
+    inset-block: 0;
+    inline-size: min(
+      100% - var(--spacing) * 12,
+      var(--nuv-sheet-width, 24rem)
+    );
+
+    @include modal.surface("sheet");
+
+    // Keeps the first and last rows clear of a phone's notch and home
+    // indicator.
+    padding-block:
+      max(
+        var(--nuv-sheet-padding, calc(var(--spacing) * 6)),
+        env(safe-area-inset-top)
+      )
+      max(
+        var(--nuv-sheet-padding, calc(var(--spacing) * 6)),
+        env(safe-area-inset-bottom)
+      );
+  }
+
+  .nuv-sheet--sm {
+    inline-size: min(
+      100% - var(--spacing) * 12,
+      var(--nuv-sheet-width, 20rem)
+    );
+  }
+
+  .nuv-sheet--lg {
+    inline-size: min(
+      100% - var(--spacing) * 12,
+      var(--nuv-sheet-width, 40rem)
+    );
+  }
+
+  // Which side "start" and "end" are depends on the reading direction, and
+  // an animation can't ask. So each edge has its own, picked by direction.
+  .nuv-sheet--start {
+    inset-inline-start: 0;
+
+    @include mixins.motion-safe {
+      @include slide("left");
+
+      &:dir(rtl) {
+        @include slide("right");
+      }
+    }
+  }
+
+  .nuv-sheet--end {
+    inset-inline-end: 0;
+
+    @include mixins.motion-safe {
+      @include slide("right");
+
+      &:dir(rtl) {
+        @include slide("left");
+      }
+    }
+  }
+
+  // On the top or bottom edge it's as wide as the screen and as tall as its
+  // content, up to most of the screen.
+  .nuv-sheet--top,
+  .nuv-sheet--bottom {
+    inset-block: auto;
+    inset-inline: 0;
+    inline-size: auto;
+    max-block-size: calc(100dvh - var(--spacing) * 12);
+  }
+
+  .nuv-sheet--top {
+    inset-block-start: 0;
+
+    @include mixins.motion-safe {
+      @include slide("top");
+    }
+  }
+
+  .nuv-sheet--bottom {
+    inset-block-end: 0;
+
+    @include mixins.motion-safe {
+      @include slide("bottom");
+    }
+  }
+
+  .nuv-sheet__title {
+    @include modal.title;
+  }
+
+  .nuv-sheet__description {
+    @include modal.description;
+  }
+
+  .nuv-sheet__header {
+    @include modal.header;
+  }
+
+  .nuv-sheet__body {
+    @include modal.body("sheet");
+  }
+
+  // Pushed to the far edge of the panel, so the buttons are in the same
+  // place however much the sheet holds.
+  .nuv-sheet__footer {
+    @include modal.footer;
+
+    margin-block-start: auto;
+    padding-block-start: calc(var(--spacing) * 4);
+  }
+
+  .nuv-sheet__close {
+    @include modal.close;
+  }
+
+  @include modal.overlay-keyframes("sheet");
+  @include slide-keyframes("left", translateX(-100%));
+  @include slide-keyframes("right", translateX(100%));
+  @include slide-keyframes("top", translateY(-100%));
+  @include slide-keyframes("bottom", translateY(100%));
+}

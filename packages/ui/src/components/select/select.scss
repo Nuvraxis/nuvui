@@ -44,6 +44,7 @@
       border-color: var(--color-danger);
     }
 
+    &:disabled,
     &[data-disabled] {
       opacity: var(--nuv-disabled-opacity);
       cursor: not-allowed;
@@ -70,7 +71,10 @@
     // is free. Both variables only exist with position="popper".
     min-inline-size: var(--radix-select-trigger-width);
     max-inline-size: var(--radix-select-content-available-width);
-    max-block-size: var(--radix-select-content-available-height);
+    max-block-size: min(
+      var(--radix-select-content-available-height),
+      var(--nuv-select-content-max-height, 100vh)
+    );
     overflow: hidden;
 
     @include floating.panel("select-content");
@@ -118,6 +122,7 @@
       );
     }
 
+    &:disabled,
     &[data-disabled] {
       opacity: var(--nuv-disabled-opacity);
       pointer-events: none;

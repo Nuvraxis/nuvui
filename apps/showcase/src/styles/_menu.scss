@@ -1,0 +1,31 @@
+@use "@nuvui/react/scss/mixins";
+
+// The navigation in the sheet, on a narrow screen.
+.site-menu {
+  display: grid;
+  gap: calc(var(--spacing) * 1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.site-menu__link {
+  display: flex;
+  align-items: center;
+  min-block-size: var(--nuv-touch-size);
+  padding-inline: calc(var(--spacing) * 3);
+  border-radius: var(--radius-md);
+  color: var(--color-foreground);
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+
+  @include mixins.focus-ring;
+
+  @include mixins.hover {
+    background-color: var(--color-muted);
+  }
+
+  &[aria-current="page"] {
+    background-color: var(--color-muted);
+  }
+}

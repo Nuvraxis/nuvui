@@ -1,11 +1,11 @@
 import "../../styles/index.scss";
+import { axe } from "@nuvui/tooling/test/axe";
+import { emulateMedia, setViewport } from "@nuvui/tooling/test/media";
+import { setPageTheme, themes } from "@nuvui/tooling/test/themed";
 import { createRef } from "react";
 import { afterEach, describe, expect, test, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { cleanup, render } from "vitest-browser-react";
-import { axe } from "../../../test/axe";
-import { emulateMedia, setViewport } from "../../../test/media";
-import { setPageTheme, themes } from "../../../test/themed";
 import { Toaster, toast } from "./toast";
 
 // The list of toasts lives outside React, so it outlasts a test's render.
@@ -60,6 +60,19 @@ describe("toast()", () => {
     toast("Changes saved");
 
     expect((await first()).querySelector(".nuv-toast__description")).toBeNull();
+  });
+
+  test("has a modifier for the info and warning intents too", async () => {
+    await renderStill();
+
+    toast("A new version is ready", { intent: "info" });
+    toast("The trial ends in three days", { intent: "warning" });
+
+    await expect.poll(() => all().length).toBe(2);
+    expect(all().map((item) => item.className)).toEqual([
+      "nuv-toast nuv-toast--info",
+      "nuv-toast nuv-toast--warning",
+    ]);
   });
 
   test("turns the intent into a BEM modifier", async () => {
@@ -408,6 +421,27 @@ describe("screen readers", () => {
     toast("Couldn't save", { intent: "danger" });
 
     await expect.poll(() => announced("assertive")).toContain("Couldn't save");
+  });
+
+  test("a warning toast is announced at once, as a warning alert is", async () => {
+    await renderStill();
+
+    toast("The trial ends in three days", { intent: "warning" });
+
+    await expect
+      .poll(() => announced("assertive"))
+      .toContain("The trial ends in three days");
+  });
+
+  test("an info toast waits its turn", async () => {
+    await renderStill();
+
+    toast("A new version is ready", { intent: "info" });
+
+    await expect
+      .poll(() => announced("polite"))
+      .toContain("A new version is ready");
+    expect(announced("assertive")).toBeUndefined();
   });
 
   test("other toasts wait their turn", async () => {

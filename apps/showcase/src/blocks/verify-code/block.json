@@ -1,0 +1,9 @@
+{
+  "name": "verify-code",
+  "title": "Enter a code",
+  "description": "Six digits sent by email, sent off when the last one is typed.",
+  "category": "accounts",
+  "files": ["verify-code.tsx", "verify-code.scss"],
+  "install": ["@nuvui/react", "lucide-react"],
+  "height": 600
+}

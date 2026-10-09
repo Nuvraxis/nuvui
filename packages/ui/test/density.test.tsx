@@ -1,9 +1,23 @@
 import "../src/styles/index.scss";
+import { emulateMedia, setViewport } from "@nuvui/tooling/test/media";
 import { afterEach, describe, expect, test } from "vitest";
-import { page } from "vitest/browser";
+import { page, userEvent } from "vitest/browser";
 import { cleanup, render } from "vitest-browser-react";
 import {
   Button,
+  Combobox,
+  ComboboxContent,
+  ComboboxItem,
+  ComboboxTrigger,
+  ComboboxValue,
+  Command,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
   Dialog,
   DialogContent,
   DialogDescription,
@@ -12,19 +26,59 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  Input,
+  InputGroup,
+  InputGroupButton,
+  Menubar,
+  MenubarContent,
+  MenubarItem,
+  MenubarMenu,
+  MenubarTrigger,
+  NativeSelect,
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+  OtpField,
+  Pagination,
+  PaginationItem,
+  PaginationLink,
+  PaginationList,
+  PasswordInput,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetTitle,
+  Sidebar,
+  SidebarMain,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
+  SidebarProvider,
+  SidebarTrigger,
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
   Toaster,
+  Toggle,
+  Toolbar,
+  ToolbarButton,
+  ToolbarLink,
+  ToolbarToggleGroup,
+  ToolbarToggleItem,
   toast,
 } from "../src";
-import { emulateMedia, setViewport } from "./media";
 
 // What controls measure with a mouse at each density. Their sizes on a touch
 // screen are in touch.test.tsx, and don't change with density.
@@ -80,6 +134,172 @@ describe.each(densities)("density %s", (density, small, medium, large) => {
     expect(height(page.getByRole("tab").element())).toBe(medium);
   });
 
+  test("sets the height of every kind of field", async () => {
+    await render(
+      <div data-density={density}>
+        <Input aria-label="Name" />
+        <NativeSelect aria-label="Country">
+          <option>Norway</option>
+        </NativeSelect>
+        <PasswordInput aria-label="Password" />
+        <InputGroup>
+          <Input aria-label="Site" />
+          <InputGroupButton>Copy</InputGroupButton>
+        </InputGroup>
+        <OtpField aria-label="Code" length={1} />
+      </div>,
+    );
+
+    expect(height(page.getByLabelText("Name").element())).toBe(medium);
+    expect(height(page.getByLabelText("Country").element())).toBe(medium);
+    expect(height(document.querySelector(".nuv-password-input"))).toBe(medium);
+    expect(height(document.querySelector(".nuv-input-group"))).toBe(medium);
+    expect(height(document.querySelector(".nuv-otp-field__input"))).toBe(
+      medium,
+    );
+    // The buttons inside a field keep 4px clear of its edge all round.
+    expect(height(page.getByRole("button", { name: "Copy" }).element())).toBe(
+      medium - 8,
+    );
+    expect(
+      height(page.getByRole("button", { name: "Show password" }).element()),
+    ).toBe(medium - 8);
+  });
+
+  test("sets the height of each toggle size", async () => {
+    const screen = await render(
+      <div data-density={density}>
+        <Toggle size="sm">Small</Toggle>
+        <Toggle size="md">Medium</Toggle>
+        <Toggle size="lg">Large</Toggle>
+      </div>,
+    );
+    const toggle = (name: string) =>
+      height(screen.getByRole("button", { name }).element());
+
+    expect(toggle("Small")).toBe(small);
+    expect(toggle("Medium")).toBe(medium);
+    expect(toggle("Large")).toBe(large);
+  });
+
+  test("sets the height of what's in a menu bar, a navigation menu and a row of page links", async () => {
+    await render(
+      <div data-density={density}>
+        <Menubar aria-label="Document">
+          <MenubarMenu>
+            <MenubarTrigger>File</MenubarTrigger>
+            <MenubarContent>
+              <MenubarItem>New tab</MenubarItem>
+            </MenubarContent>
+          </MenubarMenu>
+        </Menubar>
+        <NavigationMenu>
+          <NavigationMenuList>
+            <NavigationMenuItem>
+              <NavigationMenuTrigger>Products</NavigationMenuTrigger>
+              <NavigationMenuContent>Text</NavigationMenuContent>
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              <NavigationMenuLink href="#docs">Docs</NavigationMenuLink>
+            </NavigationMenuItem>
+          </NavigationMenuList>
+        </NavigationMenu>
+        <Pagination>
+          <PaginationList>
+            <PaginationItem>
+              <PaginationLink href="#1">1</PaginationLink>
+            </PaginationItem>
+          </PaginationList>
+        </Pagination>
+      </div>,
+    );
+    const part = (name: string) =>
+      height(document.querySelector(`.nuv-${name}`));
+
+    expect(part("menubar__trigger")).toBe(small);
+    expect(part("navigation-menu__trigger")).toBe(medium);
+    expect(part("navigation-menu__link")).toBe(medium);
+    expect(part("pagination__link")).toBe(medium);
+  });
+
+  test("sets the height of what's in a toolbar", async () => {
+    await render(
+      <div data-density={density}>
+        <Toolbar aria-label="Formatting">
+          <ToolbarToggleGroup type="multiple" aria-label="Text style">
+            <ToolbarToggleItem value="bold">Bold</ToolbarToggleItem>
+          </ToolbarToggleGroup>
+          <ToolbarLink href="#help">Help</ToolbarLink>
+          <ToolbarButton>Share</ToolbarButton>
+        </Toolbar>
+      </div>,
+    );
+    const part = (name: string) =>
+      height(document.querySelector(`.nuv-toolbar__${name}`));
+
+    // A toolbar is a dense row, so its controls take the small height.
+    expect(part("toggle-item")).toBe(small);
+    expect(part("link")).toBe(small);
+    expect(part("button")).toBe(small);
+  });
+
+  test("sets the height of a command's field and rows", async () => {
+    await render(
+      <div data-density={density}>
+        <Command label="Commands">
+          <CommandInput />
+          <CommandList>
+            <CommandItem>Open file</CommandItem>
+          </CommandList>
+        </Command>
+      </div>,
+    );
+    const part = (name: string) =>
+      height(document.querySelector(`.nuv-command__${name}`));
+
+    expect(part("input")).toBe(medium);
+    expect(part("item")).toBe(small);
+  });
+
+  test("sets the height of a sidebar's rows, and the width of its strip of icons", async () => {
+    await setViewport("desktop");
+    await emulateMedia({ reducedMotion: "reduce" });
+    await render(
+      <div data-density={density}>
+        <SidebarProvider cookieName={null}>
+          <Sidebar>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton>Inbox</SidebarMenuButton>
+                <SidebarMenuSub>
+                  <SidebarMenuSubItem>
+                    <SidebarMenuSubButton href="#today">
+                      Today
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                </SidebarMenuSub>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </Sidebar>
+          <SidebarMain>
+            <SidebarTrigger />
+          </SidebarMain>
+        </SidebarProvider>
+      </div>,
+    );
+    const part = (name: string) =>
+      height(document.querySelector(`.nuv-sidebar__${name}`));
+
+    expect(part("menu-button")).toBe(medium);
+    expect(part("menu-sub-button")).toBe(small);
+    expect(part("trigger")).toBe(small);
+
+    await page.getByRole("button", { name: "Toggle sidebar" }).click();
+    expect(
+      document.querySelector(".nuv-sidebar")?.getBoundingClientRect().width,
+    ).toBe(medium + 16 + 1);
+  });
+
   // These render at the end of <body>, so the density has to be on the page.
   describe("in a portal", () => {
     afterEach(async () => {
@@ -120,6 +340,86 @@ describe.each(densities)("density %s", (density, small, medium, large) => {
       await expect.element(close).toBeVisible();
 
       expect(height(close.element())).toBe(small);
+    });
+
+    test("sets the height of a row in a context menu and in a menu bar's menu", async () => {
+      document.documentElement.setAttribute("data-density", density);
+      await emulateMedia({ reducedMotion: "reduce" });
+      await render(
+        <>
+          <Menubar defaultValue="file" aria-label="Document">
+            <MenubarMenu value="file">
+              <MenubarTrigger>File</MenubarTrigger>
+              <MenubarContent>
+                <MenubarItem>New tab</MenubarItem>
+              </MenubarContent>
+            </MenubarMenu>
+          </Menubar>
+          <ContextMenu modal={false}>
+            <ContextMenuTrigger data-testid="area">
+              report.pdf
+            </ContextMenuTrigger>
+            <ContextMenuContent aria-label="File">
+              <ContextMenuItem>Rename</ContextMenuItem>
+            </ContextMenuContent>
+          </ContextMenu>
+        </>,
+      );
+      const inBar = page.getByRole("menuitem", { name: "New tab" });
+      await expect.element(inBar).toBeVisible();
+      expect(height(inBar.element())).toBe(small);
+      // The open menu is lying over the area the next one opens from.
+      await userEvent.keyboard("{Escape}");
+      await expect.element(inBar).not.toBeInTheDocument();
+
+      await userEvent.click(page.getByTestId("area"), { button: "right" });
+      const row = page.getByRole("menuitem", { name: "Rename" });
+      await expect.element(row).toBeVisible();
+      expect(height(row.element())).toBe(small);
+    });
+
+    test("sets the size of a sheet's close button", async () => {
+      document.documentElement.setAttribute("data-density", density);
+      await emulateMedia({ reducedMotion: "reduce" });
+      await render(
+        <Sheet defaultOpen>
+          <SheetContent>
+            <SheetTitle>Title</SheetTitle>
+            <SheetDescription>Description</SheetDescription>
+          </SheetContent>
+        </Sheet>,
+      );
+      const close = page.getByRole("button", { name: "Close" });
+      await expect.element(close).toBeVisible();
+
+      expect(height(close.element())).toBe(small);
+    });
+
+    test("sets the height of a combobox, its search field and its options", async () => {
+      document.documentElement.setAttribute("data-density", density);
+      await emulateMedia({ reducedMotion: "reduce" });
+      await render(
+        <Combobox defaultOpen>
+          <ComboboxTrigger aria-label="Fruit">
+            <ComboboxValue placeholder="Pick a fruit" />
+          </ComboboxTrigger>
+          <ComboboxContent label="Search fruit">
+            <ComboboxItem value="Apple">Apple</ComboboxItem>
+          </ComboboxContent>
+        </Combobox>,
+      );
+      const option = page.getByRole("option", { name: "Apple" });
+      await expect.element(option).toBeVisible();
+
+      expect(
+        height(
+          page.getByRole("combobox", { name: "Fruit", exact: true }).element(),
+        ),
+      ).toBe(medium);
+      expect(
+        height(page.getByRole("combobox", { name: "Search fruit" }).element()),
+      ).toBe(medium);
+      expect(height(option.element())).toBe(small);
     });
 
     test("sets the size of a toast's buttons", async () => {

@@ -1,0 +1,150 @@
+@use "../../styles/layers";
+@use "../../styles/mixins";
+@use "../../styles/control";
+
+@layer components {
+  .nuv-file-upload {
+    display: grid;
+
+    // One column that may shrink. A grid column is otherwise as wide as the
+    // longest thing in it, however narrow the container.
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--nuv-file-upload-gap, calc(var(--spacing) * 3));
+    inline-size: var(--nuv-file-upload-width, 100%);
+    min-inline-size: 0;
+
+    &[data-disabled] {
+      opacity: var(--nuv-disabled-opacity);
+    }
+  }
+
+  .nuv-file-upload__dropzone {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 2);
+    align-items: center;
+    justify-content: center;
+    min-block-size: var(--nuv-file-upload-min-height, 8rem);
+    padding: calc(var(--spacing) * 6) calc(var(--spacing) * 4);
+
+    // Dashed is the usual sign that something can be dropped here. The
+    // color is the one held to 3:1, since this edge is all there is to show
+    // where the control ends.
+    border: var(--nuv-border-width) dashed var(--nuv-file-upload-border, var(--color-border-strong));
+    border-radius: var(--nuv-file-upload-radius, var(--radius-lg));
+    background-color: var(--nuv-file-upload-bg, var(--color-surface));
+    color: var(--nuv-file-upload-fg, var(--color-muted-foreground));
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+    text-align: center;
+
+    @include mixins.motion-safe {
+      transition:
+        background-color var(--nuv-duration-fast) var(--ease-out),
+        border-color var(--nuv-duration-fast) var(--ease-out);
+    }
+
+    @include mixins.hover {
+      background-color: var(--nuv-file-upload-active-bg, var(--color-muted));
+    }
+
+    // The input inside is see-through, so the ring that shows keyboard
+    // focus goes around the area. :has() arrived in Firefox 121. Before
+    // that the ring also shows after a click.
+    @supports selector(:has(*)) {
+      &:has(.nuv-file-upload__input:focus-visible) {
+        outline: var(--nuv-focus-ring-width, 2px) solid
+          var(--nuv-focus-ring-color, var(--color-ring));
+        outline-offset: var(--nuv-focus-ring-offset, 2px);
+      }
+
+      &:has(.nuv-file-upload__input[aria-invalid="true"]) {
+        border-color: var(--color-danger);
+      }
+    }
+
+    @supports not selector(:has(*)) {
+      &:focus-within {
+        outline: var(--nuv-focus-ring-width, 2px) solid
+          var(--nuv-focus-ring-color, var(--color-ring));
+        outline-offset: var(--nuv-focus-ring-offset, 2px);
+      }
+    }
+
+    // While files are being dragged over it.
+    &[data-dragging] {
+      border-style: solid;
+      border-color: var(--nuv-file-upload-active-border, var(--color-primary));
+      background-color: var(--nuv-file-upload-active-bg, var(--color-muted));
+
+      @media (forced-colors: active) {
+        border-color: highlight;
+      }
+    }
+  }
+
+  .nuv-file-upload__icon {
+    flex: none;
+  }
+
+  .nuv-file-upload__input {
+    position: absolute;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    opacity: 0;
+    cursor: pointer;
+
+    &::file-selector-button {
+      cursor: pointer;
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+    }
+  }
+
+  .nuv-file-upload__list {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: calc(var(--spacing) * 2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .nuv-file-upload__item {
+    display: flex;
+    gap: calc(var(--spacing) * 3);
+    align-items: center;
+    padding-inline-start: calc(var(--spacing) * 3);
+    border: var(--nuv-border-width) solid var(--nuv-file-upload-item-border, var(--color-border));
+    border-radius: var(--nuv-file-upload-item-radius, var(--radius-md));
+    background-color: var(--nuv-file-upload-item-bg, var(--color-surface));
+    color: var(--nuv-file-upload-item-fg, var(--color-foreground));
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+
+    @include control.height("file-upload-item");
+  }
+
+  // A long name is cut short instead of pushing the button off the row.
+  .nuv-file-upload__name {
+    flex: 1;
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .nuv-file-upload__size {
+    flex: none;
+    color: var(--color-muted-foreground);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .nuv-file-upload__remove {
+    @include control.group-button("file-upload-item");
+  }
+}

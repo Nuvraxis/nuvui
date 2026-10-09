@@ -1,0 +1,129 @@
+@use "../../styles/layers";
+@use "../../styles/mixins";
+
+@layer components {
+  // More links than fit a phone wrap onto a second line.
+  .nuv-pagination__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--nuv-pagination-gap, var(--spacing));
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .nuv-pagination__item {
+    display: inline-flex;
+  }
+
+  // A square at least, so single digits line up. Longer numbers grow it.
+  .nuv-pagination__link {
+    display: inline-flex;
+    gap: var(--spacing);
+    align-items: center;
+    justify-content: center;
+    padding-block: 0;
+    padding-inline: calc(var(--spacing) * 2);
+    border: var(--nuv-border-width) solid transparent;
+    border-radius: var(--nuv-pagination-radius, var(--radius-md));
+    background-color: transparent;
+    color: var(--nuv-pagination-fg, var(--color-foreground));
+    font-family: inherit;
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-medium);
+    font-variant-numeric: tabular-nums;
+    line-height: var(--text-sm--line-height);
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+
+    @include mixins.touch-target(
+      var(--nuv-pagination-size, var(--nuv-touch-size))
+    );
+    @include mixins.focus-ring;
+
+    @include mixins.motion-safe {
+      transition:
+        background-color var(--nuv-duration-fast) var(--ease-out),
+        color var(--nuv-duration-fast) var(--ease-out);
+    }
+
+    @include mixins.hover {
+      background-color: var(--nuv-pagination-hover-bg, var(--color-muted));
+    }
+
+    @include mixins.fine-pointer {
+      min-block-size: var(--nuv-pagination-size, var(--nuv-control-height-md));
+      min-inline-size: var(--nuv-pagination-size, var(--nuv-control-height-md));
+    }
+
+    // The page being shown. The fill has to stand out from the page by 3:1
+    // to count as a state, which the pale hover color doesn't.
+    &[data-active] {
+      background-color: var(--nuv-pagination-active-bg, var(--color-primary));
+      color: var(--nuv-pagination-active-fg, var(--color-primary-foreground));
+
+      // Where the browser forces its own colors, the fill isn't drawn.
+      @media (forced-colors: active) {
+        border-color: highlight;
+        background-color: highlight;
+        color: highlighttext;
+        forced-color-adjust: none;
+      }
+    }
+
+    &:disabled,
+    &[data-disabled] {
+      opacity: var(--nuv-disabled-opacity);
+      pointer-events: none;
+    }
+  }
+
+  // Previous and Next. On a phone only the arrow shows, and the text is
+  // still there for screen readers. From sm up the text shows too.
+  .nuv-pagination__label {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+
+    @include mixins.breakpoint("sm") {
+      position: static;
+      inline-size: auto;
+      block-size: auto;
+      overflow: visible;
+      clip-path: none;
+    }
+  }
+
+  .nuv-pagination__link--previous,
+  .nuv-pagination__link--next {
+    position: relative;
+
+    @include mixins.breakpoint("sm") {
+      padding-inline: calc(var(--spacing) * 3);
+    }
+  }
+
+  .nuv-pagination__arrow {
+    flex: none;
+
+    &:dir(rtl) {
+      transform: scaleX(-1);
+    }
+  }
+
+  .nuv-pagination__ellipsis {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-inline-size: calc(var(--spacing) * 6);
+    color: var(--color-muted-foreground);
+  }
+}

@@ -1,0 +1,44 @@
+@use "../../styles/layers";
+@use "../../styles/mixins";
+@use "../../styles/modal";
+
+@layer components {
+  // The same panel as a dialog, with no close button in its corner. The two
+  // buttons in the footer are the only ways out, along with Escape.
+
+  .nuv-alert-dialog__overlay {
+    @include modal.overlay("alert-dialog");
+  }
+
+  .nuv-alert-dialog {
+    @include modal.surface("alert-dialog");
+    @include modal.centered("alert-dialog");
+  }
+
+  .nuv-alert-dialog--sm {
+    @include mixins.breakpoint("sm") {
+      @include modal.width("alert-dialog", 24rem);
+    }
+  }
+
+  .nuv-alert-dialog--lg {
+    @include mixins.breakpoint("sm") {
+      @include modal.width("alert-dialog", 48rem);
+    }
+  }
+
+  .nuv-alert-dialog__title {
+    @include modal.title($close: false);
+  }
+
+  .nuv-alert-dialog__description {
+    @include modal.description;
+  }
+
+  .nuv-alert-dialog__footer {
+    @include modal.footer;
+  }
+
+  @include modal.overlay-keyframes("alert-dialog");
+  @include modal.centered-keyframes("alert-dialog");
+}

@@ -1,0 +1,9 @@
+{
+  "name": "footer",
+  "title": "Footer",
+  "description": "The foot of a site: the name with a line about it, three lists of links, and the legal links under a rule.",
+  "category": "marketing",
+  "files": ["footer.tsx", "footer.scss"],
+  "install": ["@nuvui/react", "lucide-react"],
+  "height": 420
+}

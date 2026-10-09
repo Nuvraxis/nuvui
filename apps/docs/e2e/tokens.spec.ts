@@ -9,7 +9,7 @@ import { rootStyle } from "./helpers";
 // because Next minifies the CSS and rewrites values along the way.
 test("the package stylesheet loads", async ({ page }) => {
   await page.emulateMedia({ colorScheme: "light" });
-  await page.goto("/");
+  await page.goto("/docs");
 
   const white = await rootStyle(page, "--color-white");
   expect(white).not.toBe("");

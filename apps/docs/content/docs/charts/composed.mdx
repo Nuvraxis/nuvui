@@ -1,0 +1,39 @@
+---
+title: Composed chart
+description: Bars, lines and a target line in one chart, with Recharts' ComposedChart in a ChartContainer.
+---
+
+A composed chart draws different kinds of series on the same axes: bars for one thing, a line for another, and a reference line for a target. It's the chart behind most "actual against plan" tiles.
+
+<Preview name="charts/composed" wide />
+
+## How it's made
+
+`ComposedChart` comes from Recharts, and takes `Bar`, `Line`, `Area` and `Scatter` together. They're drawn in the order they're written, so put bars first and lines after, or the bars cover the lines.
+
+```tsx
+<ComposedChart data={quarters}>
+  <Bar dataKey="revenue" fill={chartFill("revenue")} />
+  <Line dataKey="margin" stroke={chartColor("margin")} strokeWidth={2} />
+  <ReferenceLine y={60} label="Target" />
+</ComposedChart>
+```
+
+## A target line
+
+`ReferenceLine` draws a line at a value on an axis. It isn't a series: it has no entry in the config, the tooltip and the legend leave it out, and it takes its color from `--nuv-chart-axis`. Its `label` says what it is.
+
+Because it's in none of those, it isn't in the table either. Say the target in the chart's name, as the example does, or add it to the data as a column.
+
+## Two scales
+
+Recharts can put a second `YAxis` on the right, with `yAxisId` tying each series to one of them. Think twice. Where two lines on two scales cross means nothing, since moving either scale moves the crossing, and people read meaning into it anyway. Two charts one above the other, sharing an `XAxis`, say the same thing without that.
+
+## Accessibility
+
+- <kbd>←</kbd> and <kbd>→</kbd> move along the categories. The tooltip reads out every series there, bars and lines alike.
+- A bar and a line already differ in shape, which is a way to tell two series apart without color. Two lines, or two sets of bars, still need [dashes or patterns](/docs/charts/chart#patterns).
+- A reference line's label is text in the chart. Repeat what it says in the chart's name.
+- Give the chart a [table](/docs/charts/chart#the-same-numbers-as-a-table).
+
+Everything on the [ChartContainer page](/docs/charts/chart#accessibility) applies.

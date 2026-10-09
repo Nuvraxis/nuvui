@@ -1,0 +1,83 @@
+@use "../../styles/layers";
+@use "../../styles/mixins";
+
+@layer components {
+  // The edge is the 3:1 border color, so that where the bar ends can be
+  // seen. A pale fill by itself can't be told from the page.
+  .nuv-progress {
+    position: relative;
+    inline-size: var(--nuv-progress-width, 100%);
+    block-size: var(--nuv-progress-height, 0.5rem);
+    overflow: hidden;
+    border: var(--nuv-border-width) solid
+      var(--nuv-progress-border, var(--color-border-strong));
+    border-radius: var(--nuv-progress-radius, var(--radius-full));
+    background-color: var(--nuv-progress-track, var(--color-muted));
+  }
+
+  .nuv-progress--sm {
+    block-size: var(--nuv-progress-height, 0.375rem);
+  }
+
+  .nuv-progress--lg {
+    block-size: var(--nuv-progress-height, 0.75rem);
+  }
+
+  // It starts from the inline start, which is the right in a right-to-left
+  // layout.
+  .nuv-progress__indicator {
+    block-size: 100%;
+    border-radius: inherit;
+    background-color: var(--nuv-progress-indicator, var(--color-primary));
+
+    @include mixins.motion-safe {
+      transition: inline-size var(--nuv-duration-slow) var(--ease-out);
+    }
+
+    // Where the browser forces its own colors, backgrounds aren't drawn,
+    // and the bar is made of nothing else.
+    @media (forced-colors: active) {
+      background-color: highlight;
+      forced-color-adjust: none;
+    }
+
+    // The amount isn't known. Without motion it's a full bar, paler, which
+    // can't be mistaken for an amount.
+    &[data-state="indeterminate"] {
+      inline-size: 100%;
+      opacity: 0.5;
+
+      @include mixins.motion-safe {
+        inline-size: 40%;
+        opacity: 1;
+        animation: nuv-progress-slide 1.5s var(--ease-in-out) infinite;
+      }
+    }
+
+    &[data-state="indeterminate"]:dir(rtl) {
+      @include mixins.motion-safe {
+        animation-name: nuv-progress-slide-rtl;
+      }
+    }
+  }
+
+  @keyframes nuv-progress-slide {
+    from {
+      transform: translateX(-100%);
+    }
+
+    to {
+      transform: translateX(250%);
+    }
+  }
+
+  @keyframes nuv-progress-slide-rtl {
+    from {
+      transform: translateX(100%);
+    }
+
+    to {
+      transform: translateX(-250%);
+    }
+  }
+}

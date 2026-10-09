@@ -1,0 +1,33 @@
+[
+  {
+    "name": "@nuvui/table",
+    "path": "dist/index.js",
+    "limit": "8.5 kB"
+  },
+  {
+    "name": "@nuvui/table/table",
+    "path": "dist/components/table/index.js",
+    "limit": "1.2 kB"
+  },
+  {
+    "name": "@nuvui/table/data-table",
+    "path": "dist/components/data-table/index.js",
+    "limit": "8.5 kB"
+  },
+  {
+    "name": "@nuvui/table/full",
+    "path": "dist/full.js",
+    "limit": "4.5 kB"
+  },
+  {
+    "name": "@nuvui/table/virtual",
+    "path": "dist/virtual.js",
+    "limit": "8 kB"
+  },
+  {
+    "name": "styles.css",
+    "path": "dist/styles.css",
+    "rolldown": false,
+    "limit": "2.5 kB"
+  }
+]

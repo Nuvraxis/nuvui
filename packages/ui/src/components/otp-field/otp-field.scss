@@ -1,0 +1,56 @@
+@use "../../styles/layers";
+@use "../../styles/mixins";
+@use "../../styles/control";
+
+@layer components {
+  .nuv-otp-field {
+    display: inline-flex;
+    gap: var(--nuv-otp-field-gap, calc(var(--spacing) * 2));
+    align-items: center;
+    max-inline-size: 100%;
+  }
+
+  // A square, 44px on a touch screen and the density's height with a mouse.
+  // It may get narrower than it's tall, so six of them fit a small phone.
+  .nuv-otp-field__input {
+    flex: 0 1 var(--nuv-otp-field-size, var(--nuv-touch-size));
+    inline-size: var(--nuv-otp-field-size, var(--nuv-touch-size));
+    min-inline-size: 0;
+    block-size: var(--nuv-otp-field-size, var(--nuv-touch-size));
+    padding: 0;
+    font-family: inherit;
+
+    // Above the 16px under which iOS zooms in on a field.
+    font-size: var(--nuv-otp-field-font-size, var(--text-lg));
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+
+    @include control.box("otp-field");
+    @include mixins.focus-ring;
+    @include control.invalid;
+    @include control.disabled;
+
+    @include mixins.motion-safe {
+      transition: border-color var(--nuv-duration-fast) var(--ease-out);
+    }
+
+    @include mixins.fine-pointer {
+      flex-basis: var(--nuv-otp-field-size, var(--nuv-control-height-md));
+      inline-size: var(--nuv-otp-field-size, var(--nuv-control-height-md));
+      block-size: var(--nuv-otp-field-size, var(--nuv-control-height-md));
+    }
+
+    &[readonly] {
+      background-color: var(--nuv-otp-field-readonly-bg, var(--color-muted));
+    }
+  }
+
+  // A border and not a background, so it's still drawn where the browser
+  // forces its own colors.
+  .nuv-otp-field__separator {
+    flex: none;
+    inline-size: calc(var(--spacing) * 2);
+    border-block-start: calc(var(--nuv-border-width) * 2) solid
+      var(--nuv-otp-field-separator, var(--color-border-strong));
+  }
+}

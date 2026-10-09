@@ -1,0 +1,9 @@
+{
+  "name": "sidebar-icons",
+  "title": "Sidebar that folds to icons",
+  "description": "An app's navigation with a workspace at the top and the person's menu at the bottom. It folds down to a strip of icons, and is a panel on a phone.",
+  "category": "layout",
+  "files": ["sidebar-icons.tsx", "sidebar-icons.scss"],
+  "install": ["@nuvui/react", "lucide-react"],
+  "height": 720
+}

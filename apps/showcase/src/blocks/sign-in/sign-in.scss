@@ -1,0 +1,146 @@
+@use "@nuvui/react/scss/mixins";
+
+.sign-in {
+  display: grid;
+  min-block-size: 100svh;
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+
+  @include mixins.breakpoint("lg") {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
+
+// The side with the product's name on it. There's room for it from the lg
+// breakpoint up. Below that the form has the screen to itself.
+.sign-in__aside {
+  position: relative;
+  isolation: isolate;
+  display: none;
+  flex-direction: column;
+  gap: calc(var(--spacing) * 8);
+  justify-content: space-between;
+  overflow: hidden;
+  padding: calc(var(--spacing) * 12);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+
+  // A wash of the brand color, from one corner.
+  &::before {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(
+      ellipse 80% 60% at 0% 100%,
+      color-mix(in oklab, var(--color-primary) 35%, transparent),
+      transparent 70%
+    );
+    content: "";
+  }
+
+  @include mixins.breakpoint("lg") {
+    display: flex;
+  }
+}
+
+.sign-in__brand {
+  display: flex;
+  gap: calc(var(--spacing) * 2);
+  align-items: center;
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--tracking-tight);
+}
+
+// The name over the form, for the widths where the side isn't shown.
+.sign-in__brand--top {
+  @include mixins.breakpoint("lg") {
+    display: none;
+  }
+}
+
+.sign-in__statement {
+  max-inline-size: 22ch;
+  margin: 0;
+  font-size: clamp(1.75rem, 1.2rem + 1.6vw, 2.5rem);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.15;
+  letter-spacing: var(--tracking-tight);
+  text-wrap: balance;
+}
+
+.sign-in__small {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+}
+
+.sign-in__panel {
+  display: grid;
+  place-items: center;
+  padding: calc(var(--spacing) * 10) calc(var(--spacing) * 5);
+}
+
+.sign-in__box {
+  display: grid;
+  gap: calc(var(--spacing) * 8);
+  inline-size: 100%;
+  max-inline-size: 24rem;
+}
+
+.sign-in__intro {
+  display: grid;
+  gap: calc(var(--spacing) * 2);
+}
+
+.sign-in__title {
+  margin: 0;
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-2xl--line-height);
+  letter-spacing: var(--tracking-tight);
+}
+
+.sign-in__text {
+  margin: 0;
+  color: var(--color-muted-foreground);
+}
+
+.sign-in__form {
+  display: grid;
+  gap: calc(var(--spacing) * 5);
+}
+
+// The label, with the way out for someone who has forgotten.
+.sign-in__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 2);
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+// A link in a line of text is underlined: color alone doesn't tell it from
+// the words around it.
+.sign-in__link {
+  border-radius: var(--radius-sm);
+  color: var(--color-foreground);
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+
+  @include mixins.focus-ring;
+}
+
+.sign-in__check {
+  display: flex;
+  gap: calc(var(--spacing) * 2);
+  align-items: center;
+  font-size: var(--text-sm);
+}
+
+.sign-in__submit {
+  inline-size: 100%;
+}

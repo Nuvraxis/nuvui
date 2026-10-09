@@ -7,10 +7,16 @@
     "build": "next build"
   },
   "dependencies": {
+    "@nuvui/charts": "file:../../packages/charts",
+    "@nuvui/date-picker": "file:../../packages/date-picker",
     "@nuvui/react": "file:../../packages/ui",
+    "@nuvui/table": "file:../../packages/table",
+    "@tanstack/react-table": "^9.2.6",
     "next": "^16.3.8",
     "react": "^19.3.0",
-    "react-dom": "^19.3.0"
+    "react-dom": "^19.3.0",
+    "react-is": "^19.3.0",
+    "recharts": "^3.10.1"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

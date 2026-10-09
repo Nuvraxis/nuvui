@@ -1,12 +1,12 @@
 import "../../styles/index.scss";
+import { axe, behindOpenList } from "@nuvui/tooling/test/axe";
+import { contrast } from "@nuvui/tooling/test/contrast";
+import { emulateMedia, setViewport } from "@nuvui/tooling/test/media";
+import { setPageTheme, themes } from "@nuvui/tooling/test/themed";
 import { type CSSProperties, createRef, useState } from "react";
 import { describe, expect, test, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
-import { axe, behindOpenList } from "../../../test/axe";
-import { contrast } from "../../../test/contrast";
-import { emulateMedia, setViewport } from "../../../test/media";
-import { setPageTheme, themes } from "../../../test/themed";
 import { Button } from "../button";
 import {
   DropdownMenu,
@@ -19,6 +19,7 @@ import {
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
   DropdownMenuSeparator,
+  DropdownMenuShortcut,
   DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
@@ -512,6 +513,44 @@ describe("layout", () => {
     const button = document.querySelector(".nuv-button") as Element;
 
     expect(rect(panel).bottom).toBeLessThanOrEqual(rect(button).top);
+  });
+
+  test("a shortcut sits at the end of its row, and stays out of the item's name", async () => {
+    await emulateMedia({ reducedMotion: "reduce" });
+    await render(
+      <DropdownMenu defaultOpen>
+        <DropdownMenuTrigger>Options</DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuItem aria-keyshortcuts="F2">
+            Rename
+            <DropdownMenuShortcut className="keys">F2</DropdownMenuShortcut>
+          </DropdownMenuItem>
+          <DropdownMenuCheckboxItem checked>
+            Show grid
+            <DropdownMenuShortcut>Ctrl+G</DropdownMenuShortcut>
+          </DropdownMenuCheckboxItem>
+        </DropdownMenuContent>
+      </DropdownMenu>,
+    );
+    await expect.element(item("Rename")).toBeVisible();
+    const row = rect(item("Rename").element());
+    const keys = page.getByText("F2").element();
+
+    await expect.element(item("Rename")).toHaveAccessibleName("Rename");
+    expect(keys.className).toBe("nuv-dropdown-menu__shortcut keys");
+    // The row's 12px of padding, give or take the panel's fractional width.
+    expect(row.right - rect(keys).right).toBeCloseTo(12, 0);
+    expect(getComputedStyle(keys).fontSize).toBe("12px");
+
+    // With a check after it, the check keeps the end of the row and the
+    // shortcut sits right before it.
+    const checked = page.getByRole("menuitemcheckbox").element();
+    const mark = rect(
+      checked.querySelector(".nuv-dropdown-menu__indicator") as Element,
+    );
+    const combo = rect(page.getByText("Ctrl+G").element());
+    expect(rect(checked).right - mark.right).toBeCloseTo(12, 0);
+    expect(mark.left - combo.right).toBeCloseTo(8, 0);
   });
 
   test("a variable changes the row height", async () => {

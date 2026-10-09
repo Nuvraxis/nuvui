@@ -1,0 +1,124 @@
+---
+title: Dates
+description: The @nuvui/date-picker package. A calendar, a date field and a date range field, installed next to @nuvui/react, with locales and time zones.
+---
+
+Dates are a package of their own, `@nuvui/date-picker`. It has three components:
+
+| Component | What it is |
+| --- | --- |
+| [Calendar](/docs/date-picker/calendar) | A month of days to pick from: one day, several, or a range. |
+| [DatePicker](/docs/date-picker/date-picker) | A field a date is typed into, with a button that opens a calendar. |
+| [DateRangePicker](/docs/date-picker/date-range-picker) | Two fields, for the first and the last day, and one calendar for both. |
+
+It's separate from `@nuvui/react` because of what it brings with it. The calendar is [react-day-picker](https://daypicker.dev), which depends on [date-fns](https://date-fns.org). An app that only wants buttons and dialogs shouldn't have to install, review and update a date library.
+
+<Callout type="warn" title="Not published yet">
+  `@nuvui/date-picker` isn't on the registry yet, so the install command below won't find it.
+</Callout>
+
+## Install
+
+```sh
+pnpm add @nuvui/date-picker @nuvui/react
+```
+
+`@nuvui/react` is a peer dependency: the date fields are built from its input group, popover and dialog, so your app has to have it. `react-day-picker`, `date-fns` and `@date-fns/tz` come along as ordinary dependencies. You don't install them yourself.
+
+## Load the styles
+
+Import the package's stylesheet once, after the core's:
+
+```tsx title="app/layout.tsx"
+import "@nuvui/react/styles.css";
+import "@nuvui/date-picker/styles.css";
+```
+
+It holds the calendar and what the two fields add to an input group. It reads the same tokens as every other component, so a [theme](/docs/theming), a preset or a density you've set applies to it with nothing more to do.
+
+Both files open with the same line naming the cascade layers, so the order you import them in doesn't decide which rule wins. To load one component's styles on their own, there's `@nuvui/date-picker/css/calendar.css` and `@nuvui/date-picker/css/date-picker.css`. The second needs the first, and the core's input, input group, popover and dialog styles.
+
+The package doesn't use react-day-picker's own stylesheet. Don't import it.
+
+## Use a component
+
+```tsx
+import { DatePicker } from "@nuvui/date-picker";
+
+export default function Page() {
+  return <DatePicker aria-label="Due date" name="due" />;
+}
+```
+
+Each component also has an entry of its own, `@nuvui/date-picker/calendar` and `@nuvui/date-picker/date-picker`, for a bundler that doesn't remove unused code from the main one.
+
+## Dates are `Date` objects
+
+What you pass in and what you get back are JavaScript `Date`s, set to midnight at the start of the day. An empty date field is `null`.
+
+A form doesn't get a `Date`. Give a field a `name` and it submits the day as `yyyy-MM-dd`, such as `2026-10-15`, which is what a `<input type="date">` sends and what a database's date column takes.
+
+Don't turn one of these dates into text with `toISOString()`. That gives the day in UTC, which is the day before for anyone east of Greenwich looking at midnight. Use date-fns' `format(date, "yyyy-MM-dd")`, or the form value.
+
+## Languages
+
+Everything a calendar shows and says comes from a locale: the names of months and days, the day a week starts on, the order a date is typed in, and the labels a screen reader hears on the buttons. English as used in the United States is the default.
+
+```tsx
+import { DatePicker } from "@nuvui/date-picker";
+import { de } from "@nuvui/date-picker/locale";
+
+<DatePicker locale={de} />;
+```
+
+`@nuvui/date-picker/locale` has every locale that react-day-picker has. Import the ones you use by name and a bundler leaves the rest out.
+
+A locale doesn't translate the few strings the fields add themselves. Those are props, with English defaults:
+
+| Prop | Default | On |
+| --- | --- | --- |
+| `calendarLabel` | `"Choose date"`, or `"Choose dates"` for a range | The button that opens the calendar. |
+| `title` | The same | The calendar's panel, and the heading of the sheet on a phone. |
+| `closeLabel` | `"Close"` | The sheet's close button. |
+| `invalidMessage` | `"Enter a valid date."` | What the browser shows for text that isn't a date. |
+| `startLabel` and `endLabel` | `"Start date"` and `"End date"` | The two fields of a range. |
+| `orderMessage` | `"The end date is before the start date."` | A range typed the wrong way round. |
+
+## Time zones
+
+Left alone, a day is a day in the browser's time zone. That's right for most forms: a due date, a birthday, a booking at a place the person is in.
+
+It's wrong when the day belongs to somewhere else, such as a launch at midnight in Tokyo or a report for a company's financial day in New York. Pass `timeZone` with an [IANA name](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones):
+
+```tsx
+<DatePicker timeZone="Asia/Tokyo" name="launch" />
+```
+
+Today is then today in Tokyo, the dates you're handed are midnight in Tokyo, and the form value is the day in Tokyo. The dates are `TZDate` objects, from [`@date-fns/tz`](https://github.com/date-fns/tz). A `TZDate` is a `Date` that knows its zone, so `date.getDate()` and date-fns' functions answer for Tokyo. Its `toISOString()` gives the time with Tokyo's offset on the end, not in UTC. `date.getTime()` is the same moment either way.
+
+With `timeZone` set, give `value`, `min` and `max` as `TZDate`s in the same zone. The package exports the class:
+
+```tsx
+import { DatePicker, TZDate } from "@nuvui/date-picker";
+
+<DatePicker
+  timeZone="Asia/Tokyo"
+  min={new TZDate(2026, 9, 1, "Asia/Tokyo")}
+/>;
+```
+
+A plain `Date` is read as the moment it is. One moment is two different days in two places, so `new Date(2026, 9, 1)` made in London is still 30 September in Honolulu.
+
+## Server components
+
+All three are client components. They carry `"use client"`, and the build checks that the directive is still there in the published files. You can render any of them from a server component. A client component of your own is only needed where you pass a function, such as `onValueChange`.
+
+A server can't know what day it is for the person who'll look at the page, which may have been rendered hours earlier or in another time zone. The components allow for that. The date fields render no calendar until one is opened, in the browser. A [calendar that's on the page from the start](/docs/date-picker/calendar#server-rendering) marks today once the browser has taken over.
+
+A `Date` made on a server is midnight in the server's time zone. Sent to a browser in another zone as `defaultValue`, it's a different time of day there, and can be the day before. For a date that a server component passes down, say which zone it's in on both sides: make it with `Date.UTC` and set `timeZone="UTC"`, or make the `Date` in a client component from the `yyyy-MM-dd` text.
+
+## What's not here
+
+- **A time of day.** These pick days. A time picker is planned for after 1.0.
+- **A month or year picker** on its own.
+- **A field with a part for each of day, month and year**, where the arrow keys step through them. The fields here are one text field each, which is simpler to paste into and to correct.

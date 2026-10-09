@@ -7,6 +7,7 @@ import {
   forwardRef,
 } from "react";
 import { cx } from "../../utils/cx";
+import type { PartProps } from "../../utils/part-props";
 
 export type SelectProps = SelectPrimitive.SelectProps;
 export type SelectGroupProps = SelectPrimitive.SelectGroupProps;
@@ -35,19 +36,24 @@ function Chevron({ d }: { d: string }) {
 const down = "M4 6l4 4 4-4";
 const up = "M4 10l4-4 4 4";
 
-export type SelectTriggerProps = ComponentPropsWithoutRef<
-  typeof SelectPrimitive.Trigger
->;
+export type SelectTriggerProps = PartProps<typeof SelectPrimitive.Trigger>;
 
 export const SelectTrigger = forwardRef<
   ComponentRef<typeof SelectPrimitive.Trigger>,
   SelectTriggerProps
 >(function SelectTrigger({ className, children, ...props }, ref) {
+  // Field passes `required` to whatever control it holds. On a select it
+  // belongs on Select, where the form value lives, and a button has no such
+  // attribute.
+  const { required: _required, ...triggerProps } = props as typeof props & {
+    required?: boolean;
+  };
+
   return (
     <SelectPrimitive.Trigger
       ref={ref}
       className={cx("nuv-select", className)}
-      {...props}
+      {...triggerProps}
     >
       {children}
       <SelectPrimitive.Icon className="nuv-select__icon">
@@ -74,7 +80,7 @@ export const SelectValue = forwardRef<
   );
 });
 
-type ContentProps = ComponentPropsWithoutRef<typeof SelectPrimitive.Content>;
+type ContentProps = PartProps<typeof SelectPrimitive.Content>;
 
 export interface SelectContentOwnProps {
   /**
@@ -149,9 +155,7 @@ export const SelectContent = forwardRef<
   );
 });
 
-export type SelectItemProps = ComponentPropsWithoutRef<
-  typeof SelectPrimitive.Item
->;
+export type SelectItemProps = PartProps<typeof SelectPrimitive.Item>;
 
 export const SelectItem = forwardRef<
   ComponentRef<typeof SelectPrimitive.Item>,

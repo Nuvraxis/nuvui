@@ -1,0 +1,68 @@
+@use "../../styles/layers";
+@use "../../styles/mixins";
+@use "../../styles/control";
+
+// Room for the arrow: its own 16px, and the same space on either side of it
+// as the text has from the edge.
+$arrow-room: calc(var(--spacing) * 6 + 1rem);
+
+@layer components {
+  .nuv-native-select {
+    position: relative;
+    display: inline-flex;
+    inline-size: var(--nuv-native-select-width, 100%);
+    max-inline-size: 100%;
+  }
+
+  .nuv-native-select__control {
+    flex: 1;
+    min-inline-size: 0;
+    padding-block: 0;
+    padding-inline: calc(var(--spacing) * 3) $arrow-room;
+    cursor: pointer;
+
+    // Takes the browser's own arrow away. The options still open in the
+    // system's picker.
+    appearance: none;
+
+    @include control.box("native-select");
+    @include control.height("native-select");
+    @include control.text("native-select");
+    @include mixins.focus-ring;
+    @include control.invalid;
+    @include control.disabled;
+
+    @include mixins.motion-safe {
+      transition: border-color var(--nuv-duration-fast) var(--ease-out);
+    }
+
+    // A list box shows its options in the page, so it has no arrow and
+    // takes the height its rows need.
+    &[multiple],
+    &[size]:not([size="1"]) {
+      padding-block: var(--spacing);
+      padding-inline: var(--spacing);
+    }
+  }
+
+  .nuv-native-select__icon {
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-end: calc(var(--spacing) * 3);
+    transform: translateY(-50%);
+    color: var(--nuv-native-select-icon, var(--color-muted-foreground));
+
+    // Clicks go through to the select under it.
+    pointer-events: none;
+  }
+
+  .nuv-native-select__control:disabled + .nuv-native-select__icon {
+    opacity: var(--nuv-disabled-opacity);
+  }
+
+  .nuv-native-select__control[multiple] + .nuv-native-select__icon,
+  .nuv-native-select__control[size]:not([size="1"])
+    + .nuv-native-select__icon {
+    display: none;
+  }
+}

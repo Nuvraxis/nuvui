@@ -1,13 +1,32 @@
 import { createGenerator, type Generator } from "fumadocs-typescript";
 import { AutoTypeTable } from "fumadocs-typescript/ui";
 import { codeHighlight } from "@/lib/code-themes";
-import { library } from "@/lib/library";
+import { type Addon, packageOf } from "@/lib/library";
 
-const generator = createGenerator({ tsconfigPath: library.tsconfig });
+// One for each package, made the first time a page asks for it. Each reads
+// its package's own tsconfig.
+const generators = new Map<string, Generator>();
+
+function generatorFor(tsconfigPath: string): Generator {
+  let generator = generators.get(tsconfigPath);
+  if (!generator) {
+    generator = createGenerator({ tsconfigPath });
+    generators.set(tsconfigPath, generator);
+  }
+  return generator;
+}
 
 interface PropsTableProps {
   /** Folder name of the component, such as `button`. */
   component: string;
+  /** The add-on package the component is in. Left out, it's the core. */
+  package?: Addon;
+  /**
+   * The file in the component's folder that the type is in. Without an
+   * extension it's a .tsx file. Left out, it's the one named after the
+   * component.
+   */
+  file?: string;
   /** Exported type to document, such as `ButtonOwnProps`. */
   name: string;
   /**
@@ -26,7 +45,11 @@ interface PropsTableProps {
 // The types in the table still come from the source. Only the choice of rows
 // and their wording are written by hand, and the build fails if one of them
 // names a prop the type no longer has.
-function only(props: Record<string, string>, name: string): Generator {
+function only(
+  generator: Generator,
+  props: Record<string, string>,
+  name: string,
+): Generator {
   return {
     ...generator,
     async generateTypeTable(table, options) {
@@ -49,11 +72,20 @@ function only(props: Record<string, string>, name: string): Generator {
 
 // Built from the component's TypeScript types and their doc comments at build
 // time, so the table can't fall behind the code.
-export function PropsTable({ component, name, type, props }: PropsTableProps) {
+export function PropsTable({
+  component,
+  package: addon,
+  file,
+  name,
+  type,
+  props,
+}: PropsTableProps) {
+  const source = packageOf(addon);
+  const generator = generatorFor(source.tsconfig);
   return (
     <AutoTypeTable
-      generator={props ? only(props, name) : generator}
-      path={library.source(component)}
+      generator={props ? only(generator, props, name) : generator}
+      path={source.source(component, file)}
       name={name}
       type={type}
       shiki={codeHighlight}

@@ -1,0 +1,73 @@
+@use "../../styles/layers";
+@use "../../styles/mixins";
+
+@layer components {
+  .nuv-scroll-area {
+    position: relative;
+    block-size: var(--nuv-scroll-area-height, auto);
+    max-block-size: var(--nuv-scroll-area-max-height, none);
+    overflow: hidden;
+    border-radius: var(--nuv-scroll-area-radius, 0);
+  }
+
+  // The maximum is inherited, so that a box with only a maximum height
+  // scrolls once its content passes it.
+  .nuv-scroll-area__viewport {
+    inline-size: 100%;
+    block-size: 100%;
+    max-block-size: inherit;
+    border-radius: inherit;
+
+    // The ring is drawn inside, where the box doesn't cut it off.
+    @include mixins.focus-ring(-2px);
+  }
+
+  .nuv-scroll-area__scrollbar {
+    display: flex;
+    padding: var(--nuv-scroll-area-scrollbar-padding, 2px);
+
+    // A drag on the bar moves the content and not the page.
+    touch-action: none;
+    user-select: none;
+
+    &[data-orientation="vertical"] {
+      inline-size: var(--nuv-scroll-area-scrollbar-size, 0.625rem);
+    }
+
+    &[data-orientation="horizontal"] {
+      flex-direction: column;
+      block-size: var(--nuv-scroll-area-scrollbar-size, 0.625rem);
+    }
+  }
+
+  // The 3:1 border color, because a scrollbar is how someone sees that
+  // there's more to read.
+  .nuv-scroll-area__thumb {
+    position: relative;
+    flex: 1;
+    border-radius: var(--radius-full);
+    background-color: var(--nuv-scroll-area-thumb, var(--color-border-strong));
+
+    @include mixins.motion-safe {
+      transition: background-color var(--nuv-duration-fast) var(--ease-out);
+    }
+
+    @include mixins.hover {
+      background-color: var(
+        --nuv-scroll-area-thumb-hover,
+        var(--color-muted-foreground)
+      );
+    }
+
+    // Where the browser forces its own colors, backgrounds aren't drawn,
+    // and the thumb is made of nothing else.
+    @media (forced-colors: active) {
+      background-color: buttontext;
+      forced-color-adjust: none;
+    }
+  }
+
+  .nuv-scroll-area__corner {
+    background-color: transparent;
+  }
+}

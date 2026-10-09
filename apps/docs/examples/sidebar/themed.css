@@ -1,0 +1,23 @@
+/* The primary color as the background. The text and the group label take
+   the color that's made to be read on it. */
+.brand-sidebar {
+  --nuv-sidebar-bg: var(--color-primary);
+  --nuv-sidebar-fg: var(--color-primary-foreground);
+  --nuv-sidebar-muted-fg: var(--color-primary-foreground);
+  --nuv-sidebar-border: var(--color-primary);
+  --nuv-focus-ring-color: var(--color-primary-foreground);
+
+  /* The fills a row gets by default are a little of the text color mixed
+     in, which on a color this strong would bring the two too close to
+     read. These go the other way: away from the text. */
+  --nuv-sidebar-item-bg-hover: color-mix(
+    in oklab,
+    var(--color-primary) 88%,
+    oklch(from var(--color-primary-foreground) calc(1 - l) 0 0)
+  );
+  --nuv-sidebar-item-bg-active: color-mix(
+    in oklab,
+    var(--color-primary) 80%,
+    oklch(from var(--color-primary-foreground) calc(1 - l) 0 0)
+  );
+}

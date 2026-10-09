@@ -1,0 +1,44 @@
+---
+title: Bar chart
+description: Bar charts with Recharts' BarChart in a ChartContainer. Grouped, stacked with totals, and horizontal bars, colored from the theme, with pattern fills.
+---
+
+A bar chart compares amounts across categories. Lengths are what people compare most accurately, which makes it the chart to reach for first.
+
+<Preview name="charts/basic" wide />
+
+## How it's made
+
+`BarChart` and `Bar` come from Recharts. Each `Bar` is a series, and bars of different series sit side by side in each category.
+
+```tsx
+<Bar dataKey="desktop" fill={chartFill("desktop")} radius={4} />
+```
+
+Start the value axis at zero, which Recharts does by default. A bar's length is its value, and a bar cut off at the bottom shows a difference that isn't there.
+
+## Stacked, with totals
+
+Give each `Bar` the same `stackId`. A stack shows the parts and the whole at once, and a `LabelList` on the top series can write the whole above it.
+
+<Preview name="charts/bar-stacked" wide />
+
+The total is a field of each row, worked out before the chart is drawn. The top series rounds its top corners and the bottom one its bottom corners, so the stack reads as one bar.
+
+## Horizontal
+
+`layout="vertical"` turns the chart on its side: the categories go down the `YAxis` and the values run along the `XAxis`. Use it when the category names are long, or when there are many of them.
+
+<Preview name="charts/bar-horizontal" wide />
+
+Here each bar is a category of its own, so the color comes from the row: a `fill` field in the data, set with `chartFill`. A value written at the end of each bar means the value axis can go. Every bar is read from the same field, so `nameKey="browser"` tells the tooltip which field of the row holds the config's key.
+
+## Accessibility
+
+- <kbd>←</kbd> and <kbd>→</kbd> move from category to category. The tooltip reads out every series in that category.
+- In a horizontal chart the keys are still <kbd>←</kbd> and <kbd>→</kbd>, and it's <kbd>←</kbd> that moves down the list. <kbd>↑</kbd> and <kbd>↓</kbd> do nothing. That's Recharts' keyboard layer at this version, measured on the example above.
+- Bars that touch, as in a stack, are told apart only by their fill. Turn on [`patterns`](/docs/charts/chart#patterns).
+- A label written on a bar is in the theme's text color, on the page and not on the bar, so it keeps its contrast whatever the bar's color is. Put it above or beside the bar, not inside.
+- Give the chart a [table](/docs/charts/chart#the-same-numbers-as-a-table). For a stacked chart, include the total as a column.
+
+Everything on the [ChartContainer page](/docs/charts/chart#accessibility) applies.

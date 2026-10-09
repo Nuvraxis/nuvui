@@ -1,0 +1,126 @@
+@use "../../styles/layers";
+@use "../../styles/mixins";
+
+@layer components {
+  .nuv-toggle {
+    display: inline-flex;
+    gap: var(--nuv-toggle-gap, calc(var(--spacing) * 2));
+    align-items: center;
+    justify-content: center;
+    padding-block: 0;
+
+    // A little under what a button has, so that one holding only a 16px icon
+    // comes out square.
+    padding-inline: var(
+      --nuv-toggle-padding-inline,
+      calc(var(--spacing) * 2.5)
+    );
+    border: var(--nuv-border-width) solid var(--nuv-toggle-border, transparent);
+    border-radius: var(--nuv-toggle-radius, var(--radius-md));
+    background-color: var(--nuv-toggle-bg, transparent);
+    color: var(--nuv-toggle-fg, var(--color-foreground));
+    font-family: inherit;
+    font-size: var(--nuv-toggle-font-size, var(--text-sm));
+    font-weight: var(--font-weight-medium);
+    line-height: var(--text-sm--line-height);
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+
+    @include mixins.touch-target(
+      var(--nuv-toggle-height, var(--nuv-touch-size))
+    );
+    @include mixins.focus-ring;
+
+    @include mixins.motion-safe {
+      transition:
+        background-color var(--nuv-duration-fast) var(--ease-out),
+        border-color var(--nuv-duration-fast) var(--ease-out),
+        color var(--nuv-duration-fast) var(--ease-out);
+    }
+
+    @include mixins.hover {
+      background-color: var(--nuv-toggle-bg-hover, var(--color-muted));
+    }
+
+    // Pressed is the primary fill. A paler fill wouldn't reach the 3:1 a
+    // state needs to be told apart from the one next to it.
+    &[data-state="on"] {
+      border-color: var(--nuv-toggle-on-bg, var(--color-primary));
+      background-color: var(--nuv-toggle-on-bg, var(--color-primary));
+      color: var(--nuv-toggle-on-fg, var(--color-primary-foreground));
+
+      // Where the browser forces its own colors, the fill isn't drawn.
+      // These are the system's colors for something selected.
+      @media (forced-colors: active) {
+        border-color: highlight;
+        background-color: highlight;
+        color: highlighttext;
+        forced-color-adjust: none;
+      }
+    }
+
+    &:disabled,
+    &[data-disabled] {
+      opacity: var(--nuv-disabled-opacity);
+      pointer-events: none;
+    }
+  }
+
+  .nuv-toggle--outline {
+    border-color: var(--nuv-toggle-border, var(--color-border));
+
+    &[data-state="on"] {
+      border-color: var(--nuv-toggle-on-bg, var(--color-primary));
+
+      @media (forced-colors: active) {
+        border-color: highlight;
+      }
+    }
+  }
+
+  // Sizes. Each is the touch size until a mouse or trackpad is the main
+  // input.
+
+  .nuv-toggle--sm {
+    padding-inline: var(
+      --nuv-toggle-padding-inline,
+      calc(var(--spacing) * 1.5)
+    );
+
+    @include mixins.fine-pointer {
+      min-block-size: var(--nuv-toggle-height, var(--nuv-control-height-sm));
+      min-inline-size: var(--nuv-toggle-height, var(--nuv-control-height-sm));
+    }
+  }
+
+  .nuv-toggle--md {
+    @include mixins.fine-pointer {
+      min-block-size: var(--nuv-toggle-height, var(--nuv-control-height-md));
+      min-inline-size: var(--nuv-toggle-height, var(--nuv-control-height-md));
+    }
+  }
+
+  .nuv-toggle--lg {
+    padding-inline: var(
+      --nuv-toggle-padding-inline,
+      calc(var(--spacing) * 3.5)
+    );
+    font-size: var(--nuv-toggle-font-size, var(--text-base));
+    line-height: var(--text-base--line-height);
+
+    // Never under the touch size on a touch screen, whatever the density.
+    @include mixins.touch-target(
+      var(
+        --nuv-toggle-height,
+        max(var(--nuv-touch-size), var(--nuv-control-height-lg))
+      )
+    );
+
+    @include mixins.fine-pointer {
+      min-block-size: var(--nuv-toggle-height, var(--nuv-control-height-lg));
+      min-inline-size: var(--nuv-toggle-height, var(--nuv-control-height-lg));
+    }
+  }
+}

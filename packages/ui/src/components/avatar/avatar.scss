@@ -1,0 +1,76 @@
+@use "../../styles/layers";
+
+@layer components {
+  .nuv-avatar {
+    position: relative;
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--nuv-avatar-size, 2.5rem);
+    block-size: var(--nuv-avatar-size, 2.5rem);
+    overflow: hidden;
+    border-radius: var(--nuv-avatar-radius, var(--radius-full));
+    font-size: var(--nuv-avatar-font-size, var(--text-sm));
+    vertical-align: middle;
+    user-select: none;
+  }
+
+  .nuv-avatar--sm {
+    inline-size: var(--nuv-avatar-size, 2rem);
+    block-size: var(--nuv-avatar-size, 2rem);
+    font-size: var(--nuv-avatar-font-size, var(--text-xs));
+  }
+
+  .nuv-avatar--lg {
+    inline-size: var(--nuv-avatar-size, 3.5rem);
+    block-size: var(--nuv-avatar-size, 3.5rem);
+    font-size: var(--nuv-avatar-font-size, var(--text-lg));
+  }
+
+  .nuv-avatar--square {
+    border-radius: var(--nuv-avatar-radius, var(--radius-md));
+  }
+
+  .nuv-avatar__image {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+  }
+
+  // The edge can't be seen against the fill. It shows where the browser
+  // forces its own colors, which is where the fill isn't drawn.
+  .nuv-avatar__fallback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 100%;
+    block-size: 100%;
+    border: var(--nuv-border-width) solid transparent;
+    border-radius: inherit;
+    background-color: var(--nuv-avatar-bg, var(--color-muted));
+    color: var(--nuv-avatar-fg, var(--color-foreground));
+    font-weight: var(--font-weight-medium);
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .nuv-avatar-group {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  // The ring is in the page's color, which reads as a gap between two
+  // avatars that overlap.
+  .nuv-avatar-group > .nuv-avatar {
+    box-shadow: 0 0 0 var(--nuv-avatar-group-ring-width, 2px)
+      var(--nuv-avatar-group-ring, var(--color-background));
+  }
+
+  .nuv-avatar-group > :not(:first-child) {
+    margin-inline-start: var(
+      --nuv-avatar-group-overlap,
+      calc(var(--spacing) * -2)
+    );
+  }
+}

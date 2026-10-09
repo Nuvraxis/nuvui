@@ -1,0 +1,338 @@
+@use "../../styles/layers";
+@use "@nuvui/react/scss/mixins";
+
+// A day is 44px on a touch screen, and the density's control height with a
+// mouse. Everything else in the calendar is sized from it.
+$touch: var(--nuv-calendar-cell-size, var(--nuv-touch-size));
+$mouse: var(--nuv-calendar-cell-size, var(--nuv-control-height-md));
+
+@mixin cell-width {
+  inline-size: $touch;
+
+  @include mixins.fine-pointer {
+    inline-size: $mouse;
+  }
+}
+
+@mixin cell-height {
+  block-size: $touch;
+
+  @include mixins.fine-pointer {
+    block-size: $mouse;
+  }
+}
+
+@layer components {
+  .nuv-calendar {
+    display: inline-block;
+    max-inline-size: 100%;
+    color: var(--nuv-calendar-fg, var(--color-foreground));
+    font-size: var(--nuv-calendar-font-size, var(--text-sm));
+    line-height: var(--text-sm--line-height);
+  }
+
+  // Drawn by a server that couldn't know which month it is for the person
+  // looking. It keeps its place and shows nothing until the browser knows.
+  .nuv-calendar[data-pending] {
+    visibility: hidden;
+  }
+
+  .nuv-calendar__months {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--nuv-calendar-months-gap, calc(var(--spacing) * 6));
+  }
+
+  // The two month buttons sit either side of the month's name, in the order
+  // they're in the page, so Tab goes through them as they read. The side
+  // columns are there even when a month has no button of its own, which
+  // keeps the name over the middle of the days.
+  .nuv-calendar__month {
+    display: grid;
+    grid-template-areas:
+      "previous caption next"
+      "grid grid grid";
+    grid-template-columns: $touch 1fr $touch;
+    row-gap: calc(var(--spacing) * 2);
+
+    @include mixins.fine-pointer {
+      grid-template-columns: $mouse 1fr $mouse;
+    }
+  }
+
+  .nuv-calendar__caption {
+    display: flex;
+    grid-area: caption;
+    align-items: center;
+    justify-content: center;
+    min-block-size: $touch;
+    font-weight: var(--font-weight-medium);
+
+    @include mixins.fine-pointer {
+      min-block-size: $mouse;
+    }
+  }
+
+  // Only there with navLayout="after", or with none set.
+  .nuv-calendar__nav {
+    display: flex;
+    grid-area: next;
+    align-items: center;
+    justify-content: flex-end;
+  }
+
+  .nuv-calendar__nav-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    @include cell-width;
+    @include cell-height;
+
+    padding: 0;
+    border: 0;
+    border-radius: var(--nuv-calendar-radius, var(--radius-md));
+    background-color: transparent;
+    color: inherit;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+
+    @include mixins.focus-ring;
+
+    @include mixins.hover {
+      background-color: var(--nuv-calendar-day-bg-hover, var(--color-muted));
+    }
+
+    // The month can't go further this way. It stays a button so that focus
+    // isn't thrown out of the calendar when the last month is reached.
+    &[aria-disabled="true"] {
+      opacity: var(--nuv-disabled-opacity);
+      cursor: not-allowed;
+    }
+  }
+
+  .nuv-calendar__nav-button--previous {
+    grid-area: previous;
+  }
+
+  .nuv-calendar__nav-button--next {
+    grid-area: next;
+  }
+
+  .nuv-calendar__chevron {
+    flex: none;
+  }
+
+  .nuv-calendar__dropdowns {
+    display: inline-flex;
+    gap: calc(var(--spacing) * 2);
+    align-items: center;
+  }
+
+  // A month or year to choose from: the trigger of a Select. Its size is
+  // set through the Select's variables, which work whichever of the two
+  // stylesheets is loaded first.
+  .nuv-calendar__select {
+    --nuv-select-width: 0;
+    --nuv-select-height: #{$touch};
+
+    font-weight: var(--font-weight-medium);
+
+    @include mixins.fine-pointer {
+      --nuv-select-height: #{$mouse};
+    }
+  }
+
+  // A hundred years is a long list. It scrolls in a box no taller than the
+  // calendar instead of running to the bottom of the screen.
+  .nuv-calendar__options {
+    --nuv-select-content-max-height: var(--nuv-calendar-options-height, 18rem);
+  }
+
+  .nuv-calendar__caption-label {
+    display: inline-flex;
+    gap: var(--spacing);
+    align-items: center;
+    white-space: nowrap;
+  }
+
+  .nuv-calendar__grid {
+    grid-area: grid;
+    border-collapse: collapse;
+    border-spacing: 0;
+  }
+
+  .nuv-calendar__weekday {
+    @include cell-width;
+
+    padding: 0;
+    padding-block-end: var(--spacing);
+    color: var(--nuv-calendar-weekday-fg, var(--color-muted-foreground));
+    font-size: var(--text-xs);
+    font-weight: var(--font-weight-normal);
+    line-height: var(--text-xs--line-height);
+    text-align: center;
+  }
+
+  .nuv-calendar__week-number-header,
+  .nuv-calendar__week-number {
+    @include cell-width;
+
+    padding: 0;
+    color: var(--nuv-calendar-weekday-fg, var(--color-muted-foreground));
+    font-size: var(--text-xs);
+    font-weight: var(--font-weight-normal);
+    line-height: var(--text-xs--line-height);
+    text-align: center;
+  }
+
+  .nuv-calendar__day {
+    @include cell-width;
+    @include cell-height;
+
+    padding: 0;
+    text-align: center;
+  }
+
+  .nuv-calendar__day-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    @include cell-width;
+    @include cell-height;
+
+    padding: 0;
+
+    // No edge at all, where a see-through one would do for the layout.
+    // Where the browser forces its colors, a see-through edge is drawn,
+    // and every day would have the ring that marks today.
+    border: 0;
+    border-radius: var(--nuv-calendar-radius, var(--radius-md));
+    background-color: transparent;
+    color: inherit;
+    font: inherit;
+    font-variant-numeric: tabular-nums;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+
+    @include mixins.focus-ring;
+
+    @include mixins.hover {
+      background-color: var(--nuv-calendar-day-bg-hover, var(--color-muted));
+    }
+
+    &:disabled,
+    &[aria-disabled="true"] {
+      cursor: not-allowed;
+    }
+  }
+
+  // Today has a ring around it. Color alone wouldn't tell it from the days
+  // either side for someone who can't see the difference.
+  .nuv-calendar__day--today > .nuv-calendar__day-button {
+    border: var(--nuv-border-width) solid
+      var(--nuv-calendar-today-border, var(--color-border-strong));
+    font-weight: var(--font-weight-semibold);
+  }
+
+  .nuv-calendar__day--outside {
+    color: var(--nuv-calendar-outside-fg, var(--color-muted-foreground));
+  }
+
+  // Struck through as well as faded, so that it doesn't take good eyesight
+  // to see which days can't be picked.
+  .nuv-calendar__day--disabled {
+    opacity: var(--nuv-disabled-opacity);
+    text-decoration: line-through;
+  }
+
+  .nuv-calendar__day--hidden {
+    visibility: hidden;
+  }
+
+  // The days between the two ends of a range. The fill is on the cell, so
+  // that it runs unbroken from one day to the next.
+  .nuv-calendar__day--range-middle {
+    background-color: var(--nuv-calendar-range-bg, var(--color-muted));
+
+    @media (forced-colors: active) {
+      background-color: highlight;
+      color: highlighttext;
+      forced-color-adjust: none;
+    }
+  }
+
+  // The fill reaches the start of a range from the right and its end from
+  // the left, and stops at the middle of the day itself.
+  .nuv-calendar__day--range-start {
+    background-image: linear-gradient(
+      to right,
+      transparent 50%,
+      var(--nuv-calendar-range-bg, var(--color-muted)) 50%
+    );
+
+    &:dir(rtl) {
+      background-image: linear-gradient(
+        to left,
+        transparent 50%,
+        var(--nuv-calendar-range-bg, var(--color-muted)) 50%
+      );
+    }
+  }
+
+  .nuv-calendar__day--range-end {
+    background-image: linear-gradient(
+      to left,
+      transparent 50%,
+      var(--nuv-calendar-range-bg, var(--color-muted)) 50%
+    );
+
+    &:dir(rtl) {
+      background-image: linear-gradient(
+        to right,
+        transparent 50%,
+        var(--nuv-calendar-range-bg, var(--color-muted)) 50%
+      );
+    }
+  }
+
+  // A range of one day has no run to join up with.
+  .nuv-calendar__day--range-start.nuv-calendar__day--range-end {
+    background-image: none;
+  }
+
+  // A picked day is the primary fill, as a pressed toggle is.
+  .nuv-calendar__day--selected > .nuv-calendar__day-button {
+    border-color: var(--nuv-calendar-selected-bg, var(--color-primary));
+    background-color: var(--nuv-calendar-selected-bg, var(--color-primary));
+    color: var(--nuv-calendar-selected-fg, var(--color-primary-foreground));
+
+    // Where the browser forces its own colors, the fill isn't drawn. These
+    // are the system's colors for something selected.
+    @media (forced-colors: active) {
+      border-color: highlight;
+      background-color: highlight;
+      color: highlighttext;
+      forced-color-adjust: none;
+    }
+  }
+
+  // Inside a range the run is the fill, and the day on it is plain. Today
+  // keeps its ring there.
+  .nuv-calendar__day--range-middle > .nuv-calendar__day-button {
+    border-color: var(--nuv-calendar-today-border, var(--color-border-strong));
+    background-color: transparent;
+    color: inherit;
+
+    @include mixins.hover {
+      border: var(--nuv-border-width) solid
+        var(--nuv-calendar-today-border, var(--color-border-strong));
+    }
+  }
+
+  .nuv-calendar__footer {
+    padding-block-start: calc(var(--spacing) * 2);
+    color: var(--nuv-calendar-footer-fg, var(--color-muted-foreground));
+  }
+}

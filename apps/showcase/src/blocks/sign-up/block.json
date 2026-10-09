@@ -1,0 +1,9 @@
+{
+  "name": "sign-up",
+  "title": "Sign up",
+  "description": "Name, work email and a new password, with the terms to agree to.",
+  "category": "accounts",
+  "files": ["sign-up.tsx", "sign-up.scss"],
+  "install": ["@nuvui/react", "lucide-react"],
+  "height": 800
+}

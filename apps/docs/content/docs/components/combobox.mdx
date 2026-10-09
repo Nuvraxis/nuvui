@@ -1,0 +1,304 @@
+---
+title: Combobox
+description: A select with a search field. It holds one value or several, filters as you type, and works with a label, the keyboard and forms.
+---
+
+Use a combobox to pick from a list that's too long to scan: a country, a customer, a teammate. It looks like a [select](/docs/components/select) until it's opened, and then there's a field to type in and the list shrinks to what matches.
+
+With a dozen options or fewer, a select is simpler to use. With three or four, show them all.
+
+<Preview name="combobox/basic" />
+
+## Install
+
+```sh
+pnpm add @nuvui/react
+```
+
+## Import
+
+```tsx
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxItem,
+  ComboboxTrigger,
+  ComboboxValue,
+} from "@nuvui/react";
+```
+
+The styles come from `@nuvui/react/styles.css`, which you load once for the whole app. [Getting started](/docs) covers that, and how to load only this component's CSS.
+
+## Parts
+
+| Part | What it is |
+| --- | --- |
+| `Combobox` | Holds the value and the open state. Renders nothing itself, apart from a hidden input when it has a `name`. |
+| `ComboboxTrigger` | The control on the page. It shows the value and an arrow. |
+| `ComboboxValue` | The text inside the trigger: what's picked, or the placeholder. |
+| `ComboboxContent` | The popup. It holds the search field, and the list its children go in. |
+| `ComboboxItem` | One option. |
+| `ComboboxGroup` | Options that belong together, under a heading. |
+| `ComboboxSeparator` | A line between groups. |
+| `ComboboxEmpty` | What's shown while nothing matches. |
+| `ComboboxLoading` | What's shown while the options are being fetched. |
+
+These are separate exports, not properties of `Combobox`. `Combobox.Item` isn't available, because property access on a client component doesn't work from a server component.
+
+## Try it
+
+<ComboboxPlayground />
+
+## Props
+
+### Combobox
+
+<PropsTable component="combobox" name="ComboboxSingleProps" />
+
+With `multiple`, `value` and `defaultValue` are arrays of strings, and `onValueChange` is called with one.
+
+### ComboboxValue
+
+<PropsTable component="combobox" name="ComboboxValueOwnProps" />
+
+### ComboboxContent
+
+<PropsTable component="combobox" name="ComboboxContentOwnProps" />
+
+It also takes what Radix's popover content takes, such as `side` and `onEscapeKeyDown`. The [Radix Popover reference](https://www.radix-ui.com/primitives/docs/components/popover#content) lists them.
+
+### ComboboxItem
+
+<PropsTable component="combobox" name="ComboboxItemOwnProps" />
+
+### ComboboxGroup
+
+<PropsTable component="combobox" name="ComboboxGroupOwnProps" />
+
+### ComboboxSeparator
+
+<PropsTable component="combobox" name="ComboboxSeparatorOwnProps" />
+
+### ComboboxLoading
+
+<PropsTable component="combobox" name="ComboboxLoadingOwnProps" />
+
+`ComboboxTrigger` is a `button` and takes what a button takes. `ComboboxEmpty` is a `div`.
+
+## Values and what's shown for them
+
+An option's `value` is what your code and the form get. Its children are what people see. In the first example the two are the same, so the trigger can show the value as it is.
+
+When they differ, say what to show. The list isn't on the page while it's closed, so the component can't look an option's text up for you: pass it to `ComboboxValue` as children.
+
+<Preview name="combobox/labels" />
+
+Each option's `value` has to differ from every other option's.
+
+## Several values
+
+With `multiple`, the value is a list. Picking an option adds it, picking it again takes it out, and the list stays open.
+
+<Preview name="combobox/multiple" />
+
+The trigger is a button, so it can't hold a remove button for each value. Show what's picked next to it, as the badges are here, if people need to see all of it at once.
+
+## Groups
+
+<Preview name="combobox/groups" />
+
+A group whose options have all been filtered out goes with them. The separators go while there's something in the search field, because the groups they were between may have gone.
+
+## How the search matches
+
+An option stays while its text contains what was typed. Upper and lower case are the same, and so are letters with and without accents: `jose` finds José. The options keep the order you wrote them in.
+
+The text that's searched is the option's children when they're a string. When they aren't, give `textValue`. `keywords` adds other words that should find the option. The `value` itself isn't searched, so an id doesn't turn up by accident.
+
+<Preview name="combobox/rich" />
+
+Pass `filter` to match some other way. It's called with the value, the search and the keywords, where the first keyword is the option's text, and returns a number: zero hides the option, and options with a higher number come first.
+
+```tsx
+<ComboboxContent
+  // Only options that start with what was typed.
+  filter={(value, search, keywords) =>
+    keywords?.[0]?.toLowerCase().startsWith(search.toLowerCase()) ? 1 : 0
+  }
+>
+```
+
+`comboboxFilter` is the filter used by default, exported so that yours can fall back on it.
+
+## Options from a server
+
+For a list too long to send in one go, fetch the matches as the person types. Control the search text with `search` and `onSearchChange`, and turn `shouldFilter` off, because what comes back is already the matches.
+
+<Preview name="combobox/async" />
+
+Render `ComboboxLoading` while a request is out. `ComboboxEmpty` waits while it's there: nothing has been found yet, which isn't the same as nothing matching.
+
+The component keeps every option on the page, so a list of thousands is slow to open. Fetching as you type is the way to handle a list that long.
+
+## In a form
+
+Give `Combobox` a `name` and it renders a hidden input that carries the value. With `multiple` there's one input for each value, all under the same name. A single combobox with nothing picked sends an empty value, as a select does.
+
+Inside a [field](/docs/components/field), wrap the trigger in `FieldControl`. The label, the description and the error are then tied to it.
+
+<Preview name="combobox/field" />
+
+The hidden input can't be `required` in the way the browser checks, so a required combobox is checked by your own code or your form library, as this example does.
+
+## Width
+
+The trigger is at least 12rem wide and grows with the text in it, up to the width of its container. Set `--nuv-combobox-width: 100%` to make it fill the container.
+
+A value that's still too long is cut short with an ellipsis. The popup is at least as wide as the trigger.
+
+## On small screens
+
+The trigger is 44 pixels tall on a touch screen and 40 with a mouse. Options are 44 and 32. The search field's text is 16 pixels on a touch screen, because iOS zooms the page in when a field with smaller text takes focus.
+
+The popup is never taller than the room around the trigger, and the list scrolls inside it under the search field. On a phone the keyboard comes up once the field has focus and covers part of the screen, so less of the list shows there. That's the price of a search field, and a reason to use a [native select](/docs/components/native-select) for a short list on a form that's mostly filled in on phones.
+
+## Accessibility
+
+### Keyboard
+
+| Key | What it does |
+| --- | --- |
+| <kbd>Enter</kbd>, <kbd>Space</kbd>, <kbd>↓</kbd> or <kbd>↑</kbd> | On the trigger, opens the list with focus in the search field. |
+| Typing | Filters the list. The first match becomes the active option. |
+| <kbd>↓</kbd> and <kbd>↑</kbd> | Move to the next or previous option. Disabled options are skipped. |
+| <kbd>Home</kbd> and <kbd>End</kbd> | Move to the first or last option. They don't move the caret in the search field. |
+| <kbd>Enter</kbd> | Picks the active option. With one value that closes the list. With `multiple` it stays open. |
+| <kbd>Esc</kbd> | Closes the list and keeps the value it had. |
+| <kbd>Tab</kbd> | Closes the list and puts focus back on the trigger. The next <kbd>Tab</kbd> moves on from there. |
+
+### What the component handles
+
+- The trigger has `role="combobox"`, with `aria-expanded` and `aria-haspopup="dialog"`. A plain button that's named by a label loses its own text to a screen reader. With this role the label is the name and the text is the value, the way a select is read.
+- The popup is a dialog that holds the search field and the list. The field has `role="combobox"` and controls the list, which has `role="listbox"`. Each group is named by its heading.
+- Focus stays in the search field. The field's `aria-activedescendant` says which option the arrow keys are on, and that option has `aria-selected`. The library that does the filtering, cmdk, leaves that attribute empty until an arrow key is pressed. This component keeps it right from the moment the list opens.
+- The picked option has `aria-checked`. With `multiple`, every option says whether it's checked.
+- When nothing matches, the text of `ComboboxEmpty` is put in a status region next to the list, so a screen reader says it. The copy that's drawn inside the list is hidden from screen readers, because a list of options may only hold options. `ComboboxLoading` works the same way.
+- The active option is filled with the primary color. That fill has at least 3:1 contrast with the popup, and the text on it keeps 4.5:1. Where the browser forces its own colors, as Windows high contrast does, the option has an outline instead.
+- The search field shows that it has focus with a line in the ring color along the bottom of its row.
+- <kbd>Tab</kbd> closes the list. The popup is rendered at the end of the page, so without that, the next stop would be the browser's own buttons.
+- The popup only animates when the visitor hasn't asked for reduced motion.
+
+### What you need to handle
+
+- Give the trigger a name. Use a `<label>` whose `htmlFor` matches the trigger's `id`, a [field](/docs/components/field), or `aria-label`.
+- Don't use the placeholder as the label. It goes away once something is picked.
+- `label` on `ComboboxContent` names the search field, and the popup too. Give the popup an `aria-label` of its own, such as the field's name, if hearing "Search" twice isn't what you want.
+- Translate `label`, `listLabel` and the text of `ComboboxEmpty` and `ComboboxLoading` with the rest of your interface.
+- When the value is wrong, set `aria-invalid` on the trigger and say what's wrong in text. A field does both.
+
+### What hasn't been checked
+
+The tests check the roles, names and states that a browser passes on to a screen reader. What each screen reader then says hasn't been checked by a person. `aria-checked` on an option is in the ARIA standard, and screen readers differ in how they read it.
+
+## CSS variables
+
+The trigger sits in the page, so its variables can be set on it or on anything around it. The popup renders at the end of `<body>`, so set the others on `:root` or `body`, or straight on `ComboboxContent`.
+
+```css
+.filters {
+  --nuv-combobox-width: 100%;
+}
+```
+
+<CssVariables
+  component="combobox"
+  descriptions={{
+    "--nuv-combobox-width":
+      "The narrowest the trigger gets. Set it to 100% to fill the container.",
+    "--nuv-combobox-height":
+      "Minimum height of the trigger. The default differs between touch screens and a mouse.",
+    "--nuv-combobox-border": "Border color of the trigger.",
+    "--nuv-combobox-radius": "Corner radius of the trigger.",
+    "--nuv-combobox-bg": "Background color of the trigger.",
+    "--nuv-combobox-fg": "Text color of the trigger once something is picked.",
+    "--nuv-combobox-content-border":
+      "Border color of the popup, and the color of the lines inside it.",
+    "--nuv-combobox-content-radius": "Corner radius of the popup.",
+    "--nuv-combobox-content-bg": "Background color of the popup.",
+    "--nuv-combobox-content-shadow": "Shadow under the popup.",
+    "--nuv-combobox-content-fg": "Text color of the popup.",
+    "--nuv-combobox-input-height":
+      "Minimum height of the search field. The default differs between touch screens and a mouse.",
+    "--nuv-combobox-input-font-size":
+      "Size of the search field's text. Keep it at 16 pixels or more on touch screens.",
+    "--nuv-combobox-input-placeholder":
+      "Color of the search field's placeholder.",
+    "--nuv-combobox-list-height":
+      "The tallest the list gets before it scrolls. It's shorter when there's less room.",
+    "--nuv-combobox-item-height":
+      "Minimum height of an option. The default differs between touch screens and a mouse.",
+    "--nuv-combobox-highlight-bg":
+      "Background of the active option, from the pointer or the arrow keys. Keep it at 3:1 against the popup.",
+    "--nuv-combobox-highlight-fg": "Text color of that option.",
+  }}
+/>
+
+## Classes
+
+<BemClasses
+  component="combobox"
+  descriptions={{
+    "nuv-combobox": "ComboboxTrigger.",
+    "nuv-combobox__value":
+      "ComboboxValue. It's what cuts a long value short.",
+    "nuv-combobox__icon": "The arrow in the trigger.",
+    "nuv-combobox__content": "ComboboxContent, the popup.",
+    "nuv-combobox__body":
+      "The element inside the popup that holds the search field and the list.",
+    "nuv-combobox__search": "The row the search field is in.",
+    "nuv-combobox__search-icon": "The magnifying glass in that row.",
+    "nuv-combobox__input": "The search field.",
+    "nuv-combobox__list": "The part that scrolls, with the options in it.",
+    "nuv-combobox__item": "ComboboxItem.",
+    "nuv-combobox__indicator": "The check at the end of a picked option.",
+    "nuv-combobox__label": "A group's heading.",
+    "nuv-combobox__separator": "ComboboxSeparator.",
+    "nuv-combobox__empty": "ComboboxEmpty.",
+    "nuv-combobox__loading": "ComboboxLoading.",
+    "nuv-combobox__status":
+      "The region a screen reader hears \"no results\" and \"loading\" from. It isn't drawn.",
+  }}
+/>
+
+The trigger has `data-state`, which is `open` or `closed`, and its value part has `data-placeholder` while nothing is picked. An option has `data-selected="true"` while it's the active one, `data-state`, which is `checked` or `unchecked`, and `data-disabled="true"` when it can't be picked.
+
+## Server components
+
+The combobox parts are client components. They carry `"use client"`, and the build checks that the directive is still there in the published files.
+
+You can put a combobox together inside a server component, as the first example on this page does. It only needs a client component of your own when you control `value` or `search`, or pass a function such as `onValueChange` or `filter`.
+
+## Themed sections
+
+A popup opened from inside a `data-theme="dark"` section doesn't inherit that theme, because it isn't rendered inside the section. Pass the section's element as `container` to `ComboboxContent` and it will be.
+
+## What it's built on
+
+The list and its filtering are [cmdk](https://github.com/pacocoursey/cmdk), and the popup is Radix's popover. Both are installed with the library. Radix has no combobox of its own.
+
+Four things are done differently from cmdk on its own. The active option is always announced. The match is on letters in a row and not on scattered ones. The separator is hidden from screen readers. And a screen reader is told when nothing matches. The [command](/docs/components/command) page says more about the first.
+
+## Do and don't
+
+**Do**
+
+- Put a visible label above or beside it.
+- Order the options in a way people can predict: alphabetical, or most used first.
+- Write `ComboboxEmpty` so that it says what wasn't found: "No customer found", not "No results".
+
+**Don't**
+
+- Don't use one for a handful of options. A [select](/docs/components/select) or a [radio group](/docs/components/radio-group) is quicker.
+- Don't use one for actions. That's a [command](/docs/components/command) palette or a [dropdown menu](/docs/components/dropdown-menu).
+- Don't put thousands of options in it. Fetch the matches as the person types.

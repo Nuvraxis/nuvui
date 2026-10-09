@@ -17,6 +17,25 @@ export default function Example() {
       <Button
         intent="secondary"
         onClick={() =>
+          toast("A new version is ready", {
+            intent: "info",
+            description: "Reload the page to get it.",
+          })
+        }
+      >
+        Info
+      </Button>
+      <Button
+        intent="secondary"
+        onClick={() =>
+          toast("Your trial ends in three days", { intent: "warning" })
+        }
+      >
+        Warning
+      </Button>
+      <Button
+        intent="secondary"
+        onClick={() =>
           toast("Couldn't send the invitation", {
             intent: "danger",
             description: "Check the address and try again.",

@@ -62,6 +62,7 @@ $fine-height: 1.25rem;
       background-color: var(--nuv-switch-checked-bg, var(--color-primary));
     }
 
+    &:disabled,
     &[data-disabled] {
       opacity: var(--nuv-disabled-opacity);
       cursor: not-allowed;

@@ -5,24 +5,33 @@
   "type": "module",
   "scripts": {
     "dev": "next dev",
-    "build": "next build && node scripts/fix-export.mjs",
-    "start": "serve out",
+    "build": "next build && node ../../scripts/fix-next-export.mjs out",
+    "start": "node ../../scripts/serve-static.mjs 3000 out --under /docs",
     "typecheck": "next typegen && tsc --noEmit",
     "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@nuvui/charts": "workspace:*",
+    "@nuvui/date-picker": "workspace:*",
     "@nuvui/react": "workspace:*",
+    "@nuvui/table": "workspace:*",
     "@nuvui/theme": "workspace:*",
+    "@tanstack/react-table": "^9.2.6",
+    "@tanstack/react-virtual": "^3.14.13",
     "fumadocs-core": "16.16.0",
     "fumadocs-mdx": "15.4.6",
     "fumadocs-typescript": "^5.4.1",
     "fumadocs-ui": "16.16.0",
     "next": "^16.3.8",
     "react": "catalog:",
-    "react-dom": "catalog:"
+    "react-dom": "catalog:",
+    "react-hook-form": "^7.89.0",
+    "react-is": "catalog:",
+    "recharts": "^3.10.1"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
+    "@nuvui/tooling": "workspace:*",
     "@nuvui/typescript-config": "workspace:*",
     "@playwright/test": "catalog:",
     "@tailwindcss/postcss": "^4.3.3",
@@ -32,7 +41,6 @@
     "@types/react-dom": "catalog:",
     "postcss": "^8.5.28",
     "sass-embedded": "^1.105.1",
-    "serve": "^14.2.6",
     "tailwindcss": "^4.3.3",
     "typescript": "catalog:"
   }

@@ -1,0 +1,122 @@
+---
+title: Virtual rows
+description: A data table that draws only the rows in view, for thousands of rows in one scroll. Real table rows, a sticky header, keyboard focus that survives scrolling, and row counts for screen readers.
+---
+
+A browser slows down long before it runs out of rows it could hold. Ten thousand table rows with five cells each is sixty thousand elements before anything is put in a cell. A virtual table keeps all the rows in memory and puts only the ones in view, and a few either side, in the page.
+
+<Preview name="data-table/virtual" wide />
+
+## Install
+
+```sh
+pnpm add @tanstack/react-virtual
+```
+
+It's an optional peer dependency of `@nuvui/table`, so it's only needed by an app that uses this entry.
+
+## Import
+
+```tsx
+import { DataTableVirtual } from "@nuvui/table/virtual";
+```
+
+It's an entry of its own, so that the main one can be imported without `@tanstack/react-virtual` installed.
+
+## Use it
+
+`DataTableVirtual` takes what [`DataTable`](/docs/table/data-table#props) takes, and these:
+
+<PropsTable
+  package="table"
+  component="data-table"
+  file="../../virtual"
+  name="DataTableVirtualOwnProps"
+/>
+
+```tsx
+<DataTableVirtual
+  table={table}
+  caption="Events"
+  rowHeader="name"
+  height={480}
+  pagination={false}
+/>
+```
+
+`height` is the most the table takes before it scrolls. It has to be set to something: with no limit every row would be in view, and all of them would be drawn.
+
+The header stays at the top while the rows scroll. Pass `stickyHeader={false}` to let it scroll away.
+
+## Without pages
+
+Virtual rows are an answer to the same problem as pages, so a table usually has one or the other. With a hook of your own, leave `rowPaginationFeature` out. `@nuvui/table/full` has it, so there, give the table one page that holds everything, and hide the bar:
+
+```tsx
+const table = useDataTable({
+  columns,
+  data,
+  initialState: { pagination: { pageIndex: 0, pageSize: data.length } },
+});
+
+<DataTableVirtual table={table} caption="Events" pagination={false} />;
+```
+
+Sorting, filtering and selection work on every row, in view or not. They're TanStack's, and it has all the rows.
+
+## Row heights
+
+Rows don't have to be the same height. `estimateRowHeight` is used for rows that haven't been drawn, and each row is measured when it is, so the scroll bar gets more exact as the table is scrolled. A guess that's close keeps it from jumping. The default, 40, is a one-line row with a mouse at the default density. On a touch screen a row is 44, and rows with two lines of text are taller: set it to what your rows are.
+
+A row's [open panel](/docs/table/expanding) is counted in its height.
+
+## How it's drawn
+
+The rows in view are ordinary `tr` elements in the `tbody`, in their usual flow. An empty row above them and one below stand in for the rows that aren't drawn, and are as tall as those rows would be. Nothing is positioned by hand, so the browser lays the columns out as it does for any table, and the columns line up with their headings whatever is in them.
+
+The column widths come from the rows that are drawn. With `layout="auto"` a column can change width as rows with longer content scroll in. Use [`layout="fixed"`](/docs/table/column-resizing) with a `size` on each column to keep them still.
+
+## Loading more as it scrolls
+
+This draws a window over rows that are already loaded. For rows that arrive as the table is scrolled, load them in your own code and add them to `data`. With TanStack Query that's `useInfiniteQuery`, with `fetchNextPage` called from an effect that watches the table's box scroll near its end.
+
+For a table too big to load at all, use [the server mode](/docs/table/server) with pages.
+
+## Accessibility
+
+### Keyboard
+
+| Key | Where | What it does |
+| --- | --- | --- |
+| <kbd>↑</kbd> <kbd>↓</kbd> <kbd>Page Up</kbd> <kbd>Page Down</kbd> | The table's box | Scroll the rows. |
+| <kbd>Home</kbd> and <kbd>End</kbd> | The table's box | Go to the first and the last row. |
+| <kbd>Tab</kbd> | Anywhere | Moves through the controls of the rows that are drawn. |
+
+### What the component handles
+
+- The table has `aria-rowcount` with the number of rows there really are, and each row has `aria-rowindex` with its place. A screen reader can then say "row 5,012 of 10,001" where it would otherwise count only the rows in the page.
+- The row that holds keyboard focus stays in the page when it's scrolled out of view. If it were taken out, focus would fall to the page, and the next <kbd>Tab</kbd> would start from the top of the document. It's let go once focus has moved on.
+- The table's box takes keyboard focus, so the rows can be scrolled without a mouse.
+- The rows that stand in for the ones not drawn are hidden from screen readers.
+
+### What you need to handle
+
+- <kbd>Tab</kbd> only reaches rows that are drawn. To get to a row far away by keyboard, scroll the box first, or give people a search field. A table of thousands of rows needs one anyway.
+- A browser's own find, <kbd>Ctrl</kbd> <kbd>F</kbd>, only finds text in rows that are drawn. Say so, or provide the search.
+- Printing prints the rows in view. Offer an export if people need all of them on paper.
+
+### What hasn't been checked
+
+The tests check the row counts and that focus is kept. How each screen reader moves through a table whose rows come and go hasn't been checked by a person.
+
+## Do and don't
+
+**Do**
+
+- Use it for a table people scan or scroll: a log, a feed, a long list they recognize things in.
+- Set `getRowId`, so a row keeps its state when it leaves the page and comes back.
+
+**Don't**
+
+- Don't use it for a few hundred rows. A plain table draws those without trouble and has none of the limits above.
+- Don't hold state inside a row's cells. A row that scrolls out of view is taken out of the page, and its state goes with it. Keep it in your data.

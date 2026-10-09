@@ -1,0 +1,9 @@
+{
+  "name": "sign-in",
+  "title": "Sign in",
+  "description": "Email and password, with the product's name beside the form on a wide screen.",
+  "category": "accounts",
+  "files": ["sign-in.tsx", "sign-in.scss"],
+  "install": ["@nuvui/react", "lucide-react"],
+  "height": 720
+}

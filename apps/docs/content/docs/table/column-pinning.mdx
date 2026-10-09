@@ -1,0 +1,83 @@
+---
+title: Column pinning
+description: Keep columns in view while a data table scrolls sideways. Pin to the start or the end, several to a side, with offsets that are measured for you and follow the direction of the text.
+---
+
+A pinned column stays at the edge of the table while the others scroll past it. Pin the column that says which row is which, so it's never out of view.
+
+<Preview name="data-table/pinning" wide />
+
+Scroll that table sideways: the checkboxes and the names stay at the start, and the seats at the end.
+
+## What to register
+
+`@nuvui/table/full` has it. In a hook of your own:
+
+```tsx
+import { columnPinningFeature, tableFeatures } from "@tanstack/react-table";
+
+tableFeatures({ columnPinningFeature });
+```
+
+## Pin columns
+
+Pinning is two lists of column ids:
+
+```tsx
+const table = useDataTable({
+  columns,
+  data,
+  initialState: {
+    columnPinning: { start: ["select", "name"], end: ["seats"] },
+  },
+});
+```
+
+The pinned columns are drawn in the order of the lists, before and after the rest, wherever they were in `columns`.
+
+`start` and `end` follow the direction of the text. In a right-to-left layout the start is the right edge. TanStack Table 8 called these `left` and `right`.
+
+To pin from a control of your own, call `column.pin("start")`, `column.pin("end")` or `column.pin(false)`. `enablePinning: false` on a column stops it being pinned.
+
+## How wide a pinned column is
+
+A second pinned column has to sit where the first one ends, so the table needs to know how wide the first one is. `DataTable` measures the pinned headings in the browser and places each column from that. It measures again when one changes width, so it works with columns sized by their content, with [resized columns](/docs/table/column-resizing), and when a web font arrives late.
+
+TanStack's own examples take the offsets from the widths it holds in state, which needs `columnSizingFeature` and a fixed layout. Here neither is needed.
+
+On a page rendered by a server, the offsets aren't known until the browser has the page. Until then every pinned column sits at its own edge, which only shows if the table is scrolled sideways in that moment.
+
+## Don't pin too much
+
+Pinned columns take their width from what's left for the others. On a phone, two pinned columns can leave no room to scroll anything through. Pin one narrow column on small screens, or none.
+
+Nothing here changes the pinning by screen size for you. Hold the state yourself and set it from a media query if you need that.
+
+## With a sticky header
+
+`stickyHeader` and pinned columns work together. The heading of a pinned column stays in the corner, over both the rows that scroll up under the header and the columns that scroll sideways under it.
+
+## Accessibility
+
+### What the component handles
+
+- Pinning changes where a column is drawn, and where it is in the markup with it, so the order a screen reader reads the cells in is the order they're seen in.
+- A pinned cell is painted, so the cells that scroll under it don't show through its text.
+- The last column pinned to the start, and the first pinned to the end, have a line at their edge. A shadow would be lost where the browser forces its own colors, and a line isn't.
+- The table's box takes keyboard focus while it scrolls, and the arrow keys scroll it.
+
+### What you need to handle
+
+- Leave room. Check the table at 320 pixels wide with the columns you've pinned.
+
+## Do and don't
+
+**Do**
+
+- Pin the column that names the row, and the checkbox column next to it.
+- Pin a column of row actions to the end, so it can be reached without scrolling.
+
+**Don't**
+
+- Don't pin more than two columns to a side.
+- Don't pin a column whose content can be very wide.

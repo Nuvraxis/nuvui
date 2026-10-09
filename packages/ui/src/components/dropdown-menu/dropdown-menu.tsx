@@ -5,8 +5,10 @@ import {
   type ComponentPropsWithoutRef,
   type ComponentRef,
   forwardRef,
+  type HTMLAttributes,
 } from "react";
 import { cx } from "../../utils/cx";
+import type { PartProps } from "../../utils/part-props";
 
 export type DropdownMenuProps = MenuPrimitive.DropdownMenuProps;
 export type DropdownMenuTriggerProps = MenuPrimitive.DropdownMenuTriggerProps;
@@ -84,9 +86,9 @@ export const DropdownMenuContent = forwardRef<
 export interface DropdownMenuItemOwnProps {
   /**
    * Use `"danger"` for an action that destroys something.
-   * @default "default"
+   * @default "neutral"
    */
-  intent?: "default" | "danger";
+  intent?: "neutral" | "danger";
 }
 
 export interface DropdownMenuItemProps
@@ -96,7 +98,7 @@ export interface DropdownMenuItemProps
 export const DropdownMenuItem = forwardRef<
   ComponentRef<typeof MenuPrimitive.Item>,
   DropdownMenuItemProps
->(function DropdownMenuItem({ intent = "default", className, ...props }, ref) {
+>(function DropdownMenuItem({ intent = "neutral", className, ...props }, ref) {
   return (
     <MenuPrimitive.Item
       ref={ref}
@@ -133,7 +135,7 @@ function Indicator() {
   );
 }
 
-export type DropdownMenuCheckboxItemProps = ComponentPropsWithoutRef<
+export type DropdownMenuCheckboxItemProps = PartProps<
   typeof MenuPrimitive.CheckboxItem
 >;
 
@@ -153,7 +155,7 @@ export const DropdownMenuCheckboxItem = forwardRef<
   );
 });
 
-export type DropdownMenuRadioItemProps = ComponentPropsWithoutRef<
+export type DropdownMenuRadioItemProps = PartProps<
   typeof MenuPrimitive.RadioItem
 >;
 
@@ -190,6 +192,28 @@ export const DropdownMenuLabel = forwardRef<
   );
 });
 
+export type DropdownMenuShortcutProps = HTMLAttributes<HTMLSpanElement>;
+
+/**
+ * The keys that do the same thing as an item, shown at the end of its row.
+ * It only shows them: listening for the keys is up to you. It's hidden from
+ * screen readers, so that it doesn't run into the item's name. Put the same
+ * keys in `aria-keyshortcuts` on the item to have them announced.
+ */
+export const DropdownMenuShortcut = forwardRef<
+  HTMLSpanElement,
+  DropdownMenuShortcutProps
+>(function DropdownMenuShortcut({ className, ...props }, ref) {
+  return (
+    <span
+      ref={ref}
+      aria-hidden="true"
+      className={cx("nuv-dropdown-menu__shortcut", className)}
+      {...props}
+    />
+  );
+});
+
 export type DropdownMenuSeparatorProps = ComponentPropsWithoutRef<
   typeof MenuPrimitive.Separator
 >;
@@ -207,7 +231,7 @@ export const DropdownMenuSeparator = forwardRef<
   );
 });
 
-export type DropdownMenuSubTriggerProps = ComponentPropsWithoutRef<
+export type DropdownMenuSubTriggerProps = PartProps<
   typeof MenuPrimitive.SubTrigger
 >;
 

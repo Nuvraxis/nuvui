@@ -1,0 +1,160 @@
+@use "@nuvui/react/scss/mixins";
+@use "layout";
+
+// What's behind the top of a page: a wash of the brand color that fades
+// out, over a grid of fine lines. Both are mixed from tokens, so a theme
+// changes them with everything else. It's decoration, drawn by a
+// pseudo-element. No text depends on it for contrast: the wash is a few
+// percent of the brand color over the page's own.
+.site-backdrop {
+  position: relative;
+  isolation: isolate;
+  overflow: clip;
+
+  &::before {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+      radial-gradient(
+        ellipse 50rem 26rem at 50% -6rem,
+        color-mix(in oklab, var(--color-primary) 14%, transparent),
+        transparent 72%
+      ),
+      linear-gradient(
+          to right,
+          color-mix(in oklab, var(--color-border) 55%, transparent) 1px,
+          transparent 1px
+        )
+        center top / 4rem 4rem,
+      linear-gradient(
+          to bottom,
+          color-mix(in oklab, var(--color-border) 55%, transparent) 1px,
+          transparent 1px
+        )
+        center top / 4rem 4rem;
+    content: "";
+    mask-image: radial-gradient(
+      ellipse 75% 70% at 50% 0%,
+      var(--color-black) 25%,
+      transparent 78%
+    );
+    pointer-events: none;
+  }
+
+  // A forced-colors theme has its own page color and wants nothing over it.
+  @media (forced-colors: active) {
+    &::before {
+      display: none;
+    }
+  }
+}
+
+.site-hero {
+  @include layout.container;
+
+  display: grid;
+  gap: calc(var(--spacing) * 6);
+  justify-items: center;
+  padding-block: calc(var(--spacing) * 14) calc(var(--spacing) * 12);
+  text-align: center;
+
+  @include mixins.breakpoint("md") {
+    gap: calc(var(--spacing) * 7);
+    padding-block: calc(var(--spacing) * 24) calc(var(--spacing) * 16);
+  }
+}
+
+// The line above the title: a small pill with a dot.
+.site-hero__eyebrow {
+  display: inline-flex;
+  gap: calc(var(--spacing) * 2);
+  align-items: center;
+  margin: 0;
+  padding: calc(var(--spacing) * 1.5) calc(var(--spacing) * 3.5);
+  border: var(--nuv-border-width) solid var(--color-border);
+  border-radius: var(--radius-full);
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-xs);
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+  text-align: start;
+}
+
+.site-hero__dot {
+  flex: none;
+  inline-size: calc(var(--spacing) * 2);
+  block-size: calc(var(--spacing) * 2);
+  border-radius: var(--radius-full);
+  background-color: var(--color-success);
+}
+
+.site-hero__title {
+  max-inline-size: 18ch;
+  margin: 0;
+  font-size: clamp(2.25rem, 1.3rem + 4.6vw, 4.5rem);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.04;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+
+.site-hero__lead {
+  max-inline-size: 58ch;
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-lg);
+  line-height: var(--leading-relaxed);
+  text-wrap: pretty;
+
+  @include mixins.breakpoint("md") {
+    font-size: var(--text-xl);
+  }
+}
+
+.site-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 3);
+  justify-content: center;
+}
+
+// The library in four numbers, under the buttons.
+.site-facts {
+  display: grid;
+  gap: calc(var(--spacing) * 6) calc(var(--spacing) * 4);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  inline-size: 100%;
+  max-inline-size: 52rem;
+  margin: calc(var(--spacing) * 6) 0 0;
+  padding-block-start: calc(var(--spacing) * 8);
+  border-block-start: var(--nuv-border-width) solid var(--color-border);
+
+  @include mixins.breakpoint("md") {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+// The number is drawn above its label, and comes after it in the markup,
+// where a description list wants it.
+.site-facts__item {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: calc(var(--spacing) * 1);
+}
+
+.site-facts__label {
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+.site-facts__value {
+  margin: 0;
+  font-size: clamp(1.75rem, 1.4rem + 1.4vw, 2.5rem);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.1;
+  letter-spacing: var(--tracking-tight);
+  font-variant-numeric: tabular-nums;
+}

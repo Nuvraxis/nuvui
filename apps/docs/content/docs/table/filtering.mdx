@@ -1,0 +1,124 @@
+---
+title: Filtering
+description: Filter a data table with a search field over every column, a filter on one column, or both. With a debounce, a count read out for screen readers, and a way back when nothing matches.
+---
+
+There are two kinds of filter, and a table can have both. The global filter is one search field over every column. A column filter narrows one column.
+
+<Preview name="data-table/filtering" wide />
+
+## What to register
+
+`@nuvui/table/full` has both. In a hook of your own:
+
+```tsx
+import {
+  columnFilteringFeature,
+  createFilteredRowModel,
+  filterFn_equals,
+  filterFn_includesString,
+  globalFilteringFeature,
+  tableFeatures,
+} from "@tanstack/react-table";
+
+tableFeatures({
+  columnFilteringFeature,
+  globalFilteringFeature,
+  filteredRowModel: createFilteredRowModel(),
+  filterFns: {
+    includesString: filterFn_includesString,
+    equals: filterFn_equals,
+  },
+});
+```
+
+`columnFilteringFeature` comes first: the global filter is built on it. `filteredRowModel` is what takes rows out, and is left out when [a server filters](/docs/table/server). `filterFns` are the tests. TanStack picks one for a column from its values, `includesString` for text, and you can name one on a column with `filterFn`.
+
+## The search field
+
+A table with the global filter gets a search field above it. It matches text anywhere in a column, ignoring case, in every column whose values are text or numbers.
+
+To leave a column out of the search, set `enableGlobalFilter: false` on it.
+
+`DataTableFilter`, or `table.Filter`, is the field on its own, for a toolbar you lay out yourself. It takes an input's props, so `placeholder` and `aria-label` can be changed, and:
+
+<PropsTable
+  package="table"
+  component="data-table"
+  file="toolbar"
+  name="DataTableFilterOwnProps"
+/>
+
+## Filtering one column
+
+A column's filter is whatever control suits its values. `column.setFilterValue` sets it, and `undefined` takes it off. The example at the top uses a select for the role:
+
+```tsx
+const role = table.getColumn("role");
+
+<NativeSelect
+  aria-label="Role"
+  value={(role?.getFilterValue() as string) ?? ""}
+  onChange={(event) => role?.setFilterValue(event.target.value || undefined)}
+>
+  <option value="">Every role</option>
+  <option>Admin</option>
+</NativeSelect>;
+```
+
+That column has `filterFn: "equals"`. Left to itself a text column matches part of a word, which is right for a search and wrong for a list of choices.
+
+For a text filter there's `DataTableColumnFilter`, which is `header.ColumnFilter` inside a column's `header`:
+
+<Preview name="data-table/column-filter" wide />
+
+It's named "Filter Name" for screen readers, from the column's label. Outside a header, pass it the column: `<DataTableColumnFilter column={table.getColumn("name")} />`.
+
+## When nothing matches
+
+The table says "No rows match." and shows a "Clear filters" button, which empties the search field and takes off every column filter. Without it, someone who's filtered everything away has to work out which filter did it.
+
+## Back to the first page
+
+When a filter changes, the table goes back to its first page. The fourth page of the old results may not exist in the new ones. TanStack does this when it does the paging. With a server doing it, [`useDataTableRequest`](/docs/table/server) does the same.
+
+## Filtered to begin with
+
+```tsx
+const table = useDataTable({
+  columns,
+  data,
+  initialState: {
+    globalFilter: "design",
+    columnFilters: [{ id: "role", value: "Admin" }],
+  },
+});
+```
+
+To hold the filters yourself, pass `state: { globalFilter, columnFilters }` with `onGlobalFilterChange` and `onColumnFiltersChange`.
+
+## Accessibility
+
+### What the component handles
+
+- The search field is an `input` of type `search` named "Search". A column's filter is named for its column.
+- After a filter changes, a polite live region says how many rows are left: "4 rows". With pages, that's the count across all of them.
+- "No rows match." is in the table, in a cell that spans it, so it's found where the rows would be.
+
+### What you need to handle
+
+- A filter control of your own needs a label: an `aria-label`, or a visible one.
+- Set `debounce` on the search field when each change is a request. Around 300 milliseconds is usual. Without it, the count is read out after every key.
+- Show which filters are on. A select that says "Admin" does. A filter set from somewhere else on the page, with nothing showing it near the table, leaves people wondering where the rows went.
+
+## Do and don't
+
+**Do**
+
+- Use the search field for "find this one", and column filters for "show me this kind".
+- Use a control that fits the column: a select for a few fixed values, a text field for names.
+
+**Don't**
+
+- Don't put a filter in every heading by default. It makes the header tall and is rarely used on most columns.
+- Don't filter on a formatted value. Filter the value the column reads, and format it in `cell`.

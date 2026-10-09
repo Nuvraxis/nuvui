@@ -1,4 +1,6 @@
 import "../src/styles/index.scss";
+import { emulateMedia, setViewport } from "@nuvui/tooling/test/media";
+import { hitAt } from "@nuvui/tooling/test/themed";
 import { afterEach, describe, expect, test } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { cleanup, render } from "vitest-browser-react";
@@ -7,8 +9,28 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
   Button,
   Checkbox,
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+  Combobox,
+  ComboboxContent,
+  ComboboxItem,
+  ComboboxTrigger,
+  ComboboxValue,
+  Command,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
   Dialog,
   DialogContent,
   DialogDescription,
@@ -17,21 +39,71 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  FileUpload,
+  Input,
+  InputGroup,
+  InputGroupButton,
+  Menubar,
+  MenubarContent,
+  MenubarItem,
+  MenubarMenu,
+  MenubarTrigger,
+  NativeSelect,
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+  OtpField,
+  Pagination,
+  PaginationItem,
+  PaginationLink,
+  PaginationList,
+  PaginationNext,
+  PasswordInput,
+  RadioGroup,
+  RadioGroupItem,
+  ScrollArea,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetTitle,
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarMain,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
+  SidebarProvider,
+  SidebarTrigger,
+  Slider,
   Switch,
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
+  Textarea,
   Toaster,
+  Toggle,
+  ToggleGroup,
+  ToggleGroupItem,
+  Toolbar,
+  ToolbarButton,
+  ToolbarLink,
+  ToolbarToggleGroup,
+  ToolbarToggleItem,
   toast,
 } from "../src";
-import { emulateMedia } from "./media";
-import { hitAt } from "./themed";
 
 // This file runs in a browser context of its own, one that reports a touch
 // screen. vitest.config.ts sets that up and says why. What a control measures
@@ -243,6 +315,645 @@ describe("toast", () => {
   });
 });
 
+describe("fields", () => {
+  test("an input, a native select and a password input are 44px tall", async () => {
+    await render(
+      <>
+        <Input aria-label="Name" />
+        <NativeSelect aria-label="Country">
+          <option>Norway</option>
+        </NativeSelect>
+        <PasswordInput aria-label="Password" />
+      </>,
+    );
+
+    for (const name of ["Name", "Country"]) {
+      expect(box(page.getByLabelText(name).element()).height).toBe(44);
+    }
+    expect(
+      box(document.querySelector(".nuv-password-input") as Element).height,
+    ).toBe(44);
+  });
+
+  // Under 16px, iOS zooms the page in when a field takes focus.
+  test("their text is 16px", async () => {
+    await render(
+      <>
+        <Input aria-label="Name" />
+        <Textarea aria-label="Notes" />
+        <NativeSelect aria-label="Country">
+          <option>Norway</option>
+        </NativeSelect>
+        <PasswordInput aria-label="Password" />
+        <OtpField aria-label="Code" length={1} />
+      </>,
+    );
+
+    for (const field of document.querySelectorAll(
+      'input:not([type="hidden"]), textarea, select',
+    )) {
+      expect(
+        Number.parseFloat(getComputedStyle(field).fontSize),
+      ).toBeGreaterThanOrEqual(16);
+    }
+  });
+
+  test("a one-time code box is 44px each way", async () => {
+    await render(<OtpField aria-label="Code" />);
+    const first = box(page.getByRole("textbox").first().element());
+
+    expect(first.width).toBe(44);
+    expect(first.height).toBe(44);
+  });
+
+  test("six boxes still fit a narrow phone", async () => {
+    await render(
+      <div style={{ inlineSize: 280 }}>
+        <OtpField aria-label="Code" />
+      </div>,
+    );
+    const group = box(page.getByRole("group").element());
+
+    expect(group.width).toBeLessThanOrEqual(280);
+    expect(box(page.getByRole("textbox").first().element()).height).toBe(44);
+  });
+
+  test("a button inside a field takes a tap from just outside it", async () => {
+    await render(
+      <div style={padded}>
+        <InputGroup>
+          <Input aria-label="Site" />
+          <InputGroupButton>Copy</InputGroupButton>
+        </InputGroup>
+        <PasswordInput aria-label="Password" />
+      </div>,
+    );
+
+    for (const name of ["Copy", "Show password"]) {
+      const element = page.getByRole("button", { name }).element();
+      // Drawn 36px tall. 20px up from its center is outside it and inside
+      // a 44px target.
+      expect(box(element).height).toBe(36);
+      expect(hitAt(element, 0, -20)).toBe(element);
+    }
+  });
+});
+
+describe("radio group", () => {
+  test("a tap just outside the circle still lands on it", async () => {
+    await render(
+      <div style={padded}>
+        <RadioGroup aria-label="Plan">
+          <RadioGroupItem value="free" aria-label="Free" />
+        </RadioGroup>
+      </div>,
+    );
+    const element = page.getByRole("radio").element();
+
+    expect(box(element).width).toBe(20);
+    expect(hitAt(element, 0, -18)).toBe(element);
+  });
+
+  test("the rows are far enough apart that two tap areas don't overlap", async () => {
+    await render(
+      <div style={padded}>
+        <RadioGroup aria-label="Plan">
+          <RadioGroupItem value="free" aria-label="Free" />
+          <RadioGroupItem value="team" aria-label="Team" />
+        </RadioGroup>
+      </div>,
+    );
+    const first = page.getByRole("radio", { name: "Free" }).element();
+    const second = page.getByRole("radio", { name: "Team" }).element();
+
+    expect(box(second).top - box(first).top).toBe(44);
+    // The halfway point between them is 22px down from the first.
+    expect(hitAt(first, 0, 21)).toBe(first);
+    expect(hitAt(first, 0, 23)).toBe(second);
+  });
+});
+
+describe("slider", () => {
+  test("a tap just outside the handle still lands on it", async () => {
+    await render(
+      <div style={padded}>
+        <Slider aria-label="Volume" defaultValue={[50]} />
+      </div>,
+    );
+    const element = page.getByRole("slider").element();
+
+    expect(box(element).width).toBe(20);
+    expect(hitAt(element, 0, -18)).toBe(element);
+    expect(hitAt(element, 18, 0)).toBe(element);
+  });
+});
+
+describe("toggle", () => {
+  test.each([
+    ["sm", 44],
+    ["md", 44],
+    ["lg", 48],
+  ] as const)(
+    "size %s is %ipx tall and at least 44px wide",
+    async (size, height) => {
+      await render(<Toggle size={size}>B</Toggle>);
+      const toggle = box(page.getByRole("button").element());
+
+      expect(toggle.height).toBe(height);
+      expect(toggle.width).toBeGreaterThanOrEqual(44);
+    },
+  );
+
+  test("a button in a toggle group is 44px tall", async () => {
+    await render(
+      <ToggleGroup type="single" aria-label="Alignment" size="sm">
+        <ToggleGroupItem value="left">Left</ToggleGroupItem>
+      </ToggleGroup>,
+    );
+
+    expect(box(page.getByRole("radio").element()).height).toBe(44);
+  });
+
+  test("doesn't change color under a finger that has moved on", async () => {
+    await render(<Toggle>Bold</Toggle>);
+    const toggle = page.getByRole("button");
+    const before = getComputedStyle(toggle.element()).backgroundColor;
+
+    await userEvent.hover(toggle);
+
+    expect(getComputedStyle(toggle.element()).backgroundColor).toBe(before);
+  });
+});
+
+describe("file upload", () => {
+  test("a file's row is 44px tall, and its button takes a tap from just outside", async () => {
+    await render(
+      <div style={padded}>
+        <FileUpload aria-label="Attachments" />
+      </div>,
+    );
+    await userEvent.upload(
+      page.getByLabelText("Attachments"),
+      new File(["x"], "a.txt", { type: "text/plain" }),
+    );
+    await expect
+      .element(page.getByRole("button", { name: "Remove a.txt" }))
+      .toBeVisible();
+    const button = page.getByRole("button", { name: "Remove a.txt" }).element();
+
+    expect(
+      box(document.querySelector(".nuv-file-upload__item") as Element).height,
+    ).toBe(44);
+    expect(hitAt(button, 0, -20)).toBe(button);
+  });
+});
+
+describe("sheet", () => {
+  test("the close button is at least 44px each way", async () => {
+    await emulateMedia({ reducedMotion: "reduce" });
+    await render(
+      <Sheet defaultOpen>
+        <SheetContent>
+          <SheetTitle>Filters</SheetTitle>
+          <SheetDescription>Narrow down the list of orders.</SheetDescription>
+        </SheetContent>
+      </Sheet>,
+    );
+    const close = box(
+      page.getByRole("button", { name: "Close", exact: true }).element(),
+    );
+
+    expect(close.width).toBeGreaterThanOrEqual(44);
+    expect(close.height).toBeGreaterThanOrEqual(44);
+  });
+});
+
+describe("context menu", () => {
+  // There's no right click on a touch screen. Radix opens the menu when a
+  // finger stays down for 700ms.
+  test("a long press opens it, with rows 44px tall", async () => {
+    await emulateMedia({ reducedMotion: "reduce" });
+    await render(
+      <ContextMenu>
+        <ContextMenuTrigger
+          data-testid="area"
+          style={{ display: "block", inlineSize: 240, blockSize: 120 }}
+        >
+          report.pdf
+        </ContextMenuTrigger>
+        <ContextMenuContent aria-label="File">
+          <ContextMenuItem>Rename</ContextMenuItem>
+          <ContextMenuItem>Duplicate</ContextMenuItem>
+        </ContextMenuContent>
+      </ContextMenu>,
+    );
+    const area = page.getByTestId("area").element();
+    const press = (type: string) =>
+      area.dispatchEvent(
+        new PointerEvent(type, {
+          pointerType: "touch",
+          bubbles: true,
+          clientX: 60,
+          clientY: 40,
+        }),
+      );
+
+    press("pointerdown");
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    expect(page.getByRole("menu").query()).toBeNull();
+
+    const row = page.getByRole("menuitem", { name: "Rename" });
+    await expect.element(row).toBeVisible();
+    press("pointerup");
+
+    expect(box(row.element()).height).toBe(44);
+  });
+
+  test("a finger that lifts early opens nothing", async () => {
+    await render(
+      <ContextMenu>
+        <ContextMenuTrigger data-testid="area">report.pdf</ContextMenuTrigger>
+        <ContextMenuContent aria-label="File">
+          <ContextMenuItem>Rename</ContextMenuItem>
+        </ContextMenuContent>
+      </ContextMenu>,
+    );
+    const area = page.getByTestId("area").element();
+    const press = (type: string) =>
+      area.dispatchEvent(
+        new PointerEvent(type, { pointerType: "touch", bubbles: true }),
+      );
+
+    press("pointerdown");
+    await new Promise((resolve) => setTimeout(resolve, 200));
+    press("pointerup");
+    await new Promise((resolve) => setTimeout(resolve, 700));
+
+    expect(page.getByRole("menu").query()).toBeNull();
+  });
+});
+
+describe("menubar", () => {
+  test("an entry and a row are each 44px tall", async () => {
+    await emulateMedia({ reducedMotion: "reduce" });
+    await render(
+      <Menubar defaultValue="file" aria-label="Document">
+        <MenubarMenu value="file">
+          <MenubarTrigger>File</MenubarTrigger>
+          <MenubarContent>
+            <MenubarItem>New tab</MenubarItem>
+          </MenubarContent>
+        </MenubarMenu>
+      </Menubar>,
+    );
+    const row = page.getByRole("menu").getByRole("menuitem");
+    await expect.element(row).toBeVisible();
+    const entry = box(
+      document.querySelector(".nuv-menubar__trigger") as Element,
+    );
+
+    expect(entry.height).toBe(44);
+    expect(entry.width).toBeGreaterThanOrEqual(44);
+    expect(box(row.element()).height).toBe(44);
+  });
+});
+
+describe("navigation menu", () => {
+  test("a button, a link and a link in the panel are each at least 44px tall", async () => {
+    await emulateMedia({ reducedMotion: "reduce" });
+    await render(
+      <NavigationMenu defaultValue="products">
+        <NavigationMenuList>
+          <NavigationMenuItem value="products">
+            <NavigationMenuTrigger>Products</NavigationMenuTrigger>
+            <NavigationMenuContent>
+              <NavigationMenuLink href="#billing">Billing</NavigationMenuLink>
+            </NavigationMenuContent>
+          </NavigationMenuItem>
+          <NavigationMenuItem>
+            <NavigationMenuLink href="#docs">Docs</NavigationMenuLink>
+          </NavigationMenuItem>
+        </NavigationMenuList>
+      </NavigationMenu>,
+    );
+    await expect
+      .element(page.getByRole("link", { name: "Billing" }))
+      .toBeVisible();
+
+    expect(box(page.getByRole("button").element()).height).toBe(44);
+    for (const name of ["Docs", "Billing"]) {
+      expect(
+        box(page.getByRole("link", { name }).element()).height,
+      ).toBeGreaterThanOrEqual(44);
+    }
+  });
+
+  test("a tap on a button shows its panel", async () => {
+    await render(
+      <NavigationMenu>
+        <NavigationMenuList>
+          <NavigationMenuItem>
+            <NavigationMenuTrigger>Products</NavigationMenuTrigger>
+            <NavigationMenuContent>
+              <NavigationMenuLink href="#billing">Billing</NavigationMenuLink>
+            </NavigationMenuContent>
+          </NavigationMenuItem>
+        </NavigationMenuList>
+      </NavigationMenu>,
+    );
+
+    await page.getByRole("button").click();
+
+    await expect
+      .element(page.getByRole("link", { name: "Billing" }))
+      .toBeVisible();
+  });
+});
+
+describe("breadcrumb", () => {
+  test("a link is 44px tall, and its text hasn't moved off the line", async () => {
+    await render(
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="#home">Home</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbItem>
+            <span data-testid="plain">Atlas</span>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>,
+    );
+    const link = box(page.getByRole("link").element());
+    const plain = box(page.getByTestId("plain").element());
+
+    expect(link.height).toBe(44);
+    // Centered on the same line as the text beside it.
+    expect(link.top + link.height / 2).toBeCloseTo(
+      plain.top + plain.height / 2,
+      0,
+    );
+  });
+});
+
+describe("pagination", () => {
+  test("a page link and Next are each 44px each way", async () => {
+    await render(
+      <Pagination>
+        <PaginationList>
+          <PaginationItem>
+            <PaginationLink href="#1">1</PaginationLink>
+          </PaginationItem>
+          <PaginationItem>
+            <PaginationNext href="#2" />
+          </PaginationItem>
+        </PaginationList>
+      </Pagination>,
+    );
+
+    for (const link of page.getByRole("link").elements()) {
+      expect(box(link).width).toBeGreaterThanOrEqual(44);
+      expect(box(link).height).toBe(44);
+    }
+  });
+});
+
+describe("toolbar", () => {
+  test("a button, a link and a toggle are each 44px each way", async () => {
+    await render(
+      <Toolbar aria-label="Formatting">
+        <ToolbarToggleGroup type="multiple" aria-label="Text style">
+          <ToolbarToggleItem value="bold">B</ToolbarToggleItem>
+        </ToolbarToggleGroup>
+        <ToolbarLink href="#help">?</ToolbarLink>
+        <ToolbarButton>S</ToolbarButton>
+      </Toolbar>,
+    );
+
+    for (const selector of [
+      ".nuv-toolbar__toggle-item",
+      ".nuv-toolbar__link",
+      ".nuv-toolbar__button",
+    ]) {
+      const control = box(document.querySelector(selector) as Element);
+      expect(control.height).toBe(44);
+      expect(control.width).toBeGreaterThanOrEqual(44);
+    }
+  });
+
+  test("a row of them wraps and doesn't widen the page", async () => {
+    await render(
+      <Toolbar aria-label="Formatting">
+        {["Undo", "Redo", "Cut", "Copy", "Paste", "Find", "Print"].map(
+          (name) => (
+            <ToolbarButton key={name}>{name}</ToolbarButton>
+          ),
+        )}
+      </Toolbar>,
+    );
+
+    expect(document.documentElement.scrollWidth).toBe(
+      document.documentElement.clientWidth,
+    );
+  });
+
+  test("doesn't change color under a finger that has moved on", async () => {
+    await render(
+      <Toolbar aria-label="Formatting">
+        <ToolbarButton>Share</ToolbarButton>
+      </Toolbar>,
+    );
+    const button = page.getByRole("button");
+    const before = getComputedStyle(button.element()).backgroundColor;
+
+    await userEvent.hover(button);
+
+    expect(getComputedStyle(button.element()).backgroundColor).toBe(before);
+  });
+});
+
+describe("scroll area", () => {
+  test("a finger scrolls the content, and the scrollbar keeps out of the way of taps", async () => {
+    await render(
+      <ScrollArea aria-label="Releases" style={{ height: 120 }}>
+        <div style={{ height: 600 }}>Tall content</div>
+      </ScrollArea>,
+    );
+    const viewport = document.querySelector(
+      ".nuv-scroll-area__viewport",
+    ) as HTMLElement;
+    await expect
+      .poll(() => document.querySelector(".nuv-scroll-area__thumb"))
+      .not.toBeNull();
+
+    // Scrolling is the browser's own, so a swipe works as it does anywhere.
+    expect(getComputedStyle(viewport).overflowY).toBe("scroll");
+    expect(getComputedStyle(viewport).touchAction).toBe("auto");
+    expect(
+      box(document.querySelector(".nuv-scroll-area__scrollbar") as Element)
+        .width,
+    ).toBe(10);
+  });
+});
+
+describe("collapsible", () => {
+  test("a Button as its trigger is 44px tall", async () => {
+    await render(
+      <Collapsible>
+        <CollapsibleTrigger asChild>
+          <Button size="sm">Show details</Button>
+        </CollapsibleTrigger>
+        <CollapsibleContent>Text</CollapsibleContent>
+      </Collapsible>,
+    );
+
+    expect(box(page.getByRole("button").element()).height).toBe(44);
+  });
+});
+
+describe("combobox", () => {
+  function Fruit({ defaultOpen = false }: { defaultOpen?: boolean }) {
+    return (
+      <Combobox defaultOpen={defaultOpen}>
+        <ComboboxTrigger aria-label="Fruit">
+          <ComboboxValue placeholder="Pick a fruit" />
+        </ComboboxTrigger>
+        <ComboboxContent label="Search fruit">
+          <ComboboxItem value="Apple">Apple</ComboboxItem>
+          <ComboboxItem value="Banana">Banana</ComboboxItem>
+        </ComboboxContent>
+      </Combobox>
+    );
+  }
+
+  test("the trigger is 44px tall", async () => {
+    await render(<Fruit />);
+
+    expect(
+      box(page.getByRole("combobox", { name: "Fruit", exact: true }).element())
+        .height,
+    ).toBe(44);
+  });
+
+  test("an option and the search field are 44px tall, and the field's text is 16px", async () => {
+    await emulateMedia({ reducedMotion: "reduce" });
+    await render(<Fruit defaultOpen />);
+    const option = page.getByRole("option", { name: "Apple" });
+    await expect.element(option).toBeVisible();
+    const field = page.getByRole("combobox", { name: "Search fruit" });
+
+    expect(box(option.element()).height).toBe(44);
+    expect(box(field.element()).height).toBe(44);
+    // iOS zooms the page in when a field with smaller text takes focus.
+    expect(getComputedStyle(field.element()).fontSize).toBe("16px");
+  });
+});
+
+describe("command", () => {
+  test("an item and the search field are 44px tall, and the field's text is 16px", async () => {
+    await render(
+      <Command label="Commands">
+        <CommandInput />
+        <CommandList>
+          <CommandItem>Open file</CommandItem>
+        </CommandList>
+      </Command>,
+    );
+    const field = page.getByRole("combobox", { name: "Commands" });
+
+    expect(box(page.getByRole("option").element()).height).toBe(44);
+    expect(box(field.element()).height).toBe(44);
+    expect(getComputedStyle(field.element()).fontSize).toBe("16px");
+  });
+});
+
+describe("sidebar", () => {
+  function Layout({ defaultOpen = true }: { defaultOpen?: boolean }) {
+    return (
+      <SidebarProvider
+        cookieName={null}
+        defaultOpen={defaultOpen}
+        style={{ "--nuv-sidebar-height": "400px" } as never}
+      >
+        <Sidebar>
+          <SidebarContent>
+            <SidebarGroup>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton>
+                    <svg aria-hidden="true" viewBox="0 0 16 16" />
+                    <span>Inbox</span>
+                  </SidebarMenuButton>
+                  <SidebarMenuSub>
+                    <SidebarMenuSubItem>
+                      <SidebarMenuSubButton href="#today">
+                        Today
+                      </SidebarMenuSubButton>
+                    </SidebarMenuSubItem>
+                  </SidebarMenuSub>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroup>
+          </SidebarContent>
+        </Sidebar>
+        <SidebarMain>
+          <SidebarTrigger />
+        </SidebarMain>
+      </SidebarProvider>
+    );
+  }
+  const trigger = () => page.getByRole("button", { name: "Toggle sidebar" });
+  const inbox = () => page.getByRole("button", { name: "Inbox" });
+
+  test("the trigger is 44px each way", async () => {
+    await render(<Layout />);
+
+    expect(box(trigger().element()).width).toBe(44);
+    expect(box(trigger().element()).height).toBe(44);
+  });
+
+  test("in the panel a phone gets, the rows and the close button are 44px", async () => {
+    await emulateMedia({ reducedMotion: "reduce" });
+    await render(<Layout />);
+    await trigger().click();
+    await expect.element(inbox()).toBeVisible();
+    const close = box(page.getByRole("button", { name: "Close" }).element());
+
+    expect(box(inbox().element()).height).toBe(44);
+    expect(
+      box(page.getByRole("link", { name: "Today" }).element()).height,
+    ).toBe(44);
+    expect(close.width).toBe(44);
+    expect(close.height).toBe(44);
+  });
+
+  test("on a wide touch screen the rows are 44px, and so is what's left of one on the strip of icons", async () => {
+    await setViewport("desktop");
+    await emulateMedia({ reducedMotion: "reduce" });
+    await render(<Layout defaultOpen={false} />);
+    const button = box(inbox().element());
+    const icon = box(inbox().element().querySelector("svg") as Element);
+
+    expect(button.width).toBe(44);
+    expect(button.height).toBe(44);
+    expect(icon.left + icon.width / 2).toBe(button.left + 22);
+    expect(box(document.querySelector(".nuv-sidebar") as Element).width).toBe(
+      44 + 16 + 1,
+    );
+  });
+
+  test("a row doesn't change color under a finger that has moved on", async () => {
+    await setViewport("desktop");
+    await render(<Layout />);
+    const before = getComputedStyle(inbox().element()).backgroundColor;
+
+    await userEvent.hover(inbox());
+
+    expect(inbox().element().matches(":hover")).toBe(true);
+    expect(getComputedStyle(inbox().element()).backgroundColor).toBe(before);
+  });
+});
+
 // Density makes controls shorter or taller with a mouse. A finger is the
 // same size whatever the layout, so nothing here may drop under 44px.
 describe.each([
@@ -290,6 +1001,26 @@ describe.each([
     );
   });
 
+  test("fields and toggles are at least 44px tall", async () => {
+    setOnPage();
+    await render(
+      <>
+        <Input aria-label="Name" />
+        <NativeSelect aria-label="Country">
+          <option>Norway</option>
+        </NativeSelect>
+        <OtpField aria-label="Code" length={1} />
+        <Toggle size="sm">Bold</Toggle>
+      </>,
+    );
+
+    for (const control of document.querySelectorAll(
+      'input:not([type="hidden"]), select, button',
+    )) {
+      expect(box(control).height).toBeGreaterThanOrEqual(44);
+    }
+  });
+
   test("a menu row and a tab are at least 44px tall", async () => {
     setOnPage();
     await emulateMedia({ reducedMotion: "reduce" });
@@ -316,5 +1047,119 @@ describe.each([
     expect(
       box(document.querySelector(".nuv-tabs__trigger") as Element).height,
     ).toBeGreaterThanOrEqual(44);
+  });
+
+  test("the entries of a menu bar, a navigation menu and a row of page links are at least 44px tall", async () => {
+    setOnPage();
+    await render(
+      <>
+        <Menubar aria-label="Document">
+          <MenubarMenu>
+            <MenubarTrigger>File</MenubarTrigger>
+            <MenubarContent>
+              <MenubarItem>New tab</MenubarItem>
+            </MenubarContent>
+          </MenubarMenu>
+        </Menubar>
+        <NavigationMenu>
+          <NavigationMenuList>
+            <NavigationMenuItem>
+              <NavigationMenuTrigger>Products</NavigationMenuTrigger>
+              <NavigationMenuContent>Text</NavigationMenuContent>
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              <NavigationMenuLink href="#docs">Docs</NavigationMenuLink>
+            </NavigationMenuItem>
+          </NavigationMenuList>
+        </NavigationMenu>
+        <Pagination>
+          <PaginationList>
+            <PaginationItem>
+              <PaginationLink href="#1">1</PaginationLink>
+            </PaginationItem>
+          </PaginationList>
+        </Pagination>
+      </>,
+    );
+
+    for (const selector of [
+      ".nuv-menubar__trigger",
+      ".nuv-navigation-menu__trigger",
+      ".nuv-navigation-menu__link",
+      ".nuv-pagination__link",
+    ]) {
+      expect(
+        box(document.querySelector(selector) as Element).height,
+      ).toBeGreaterThanOrEqual(44);
+    }
+  });
+
+  test("a command's rows and a sidebar's are at least 44px tall", async () => {
+    setOnPage();
+    await setViewport("desktop");
+    await render(
+      <>
+        <Command label="Commands">
+          <CommandInput />
+          <CommandList>
+            <CommandItem>Open file</CommandItem>
+          </CommandList>
+        </Command>
+        <SidebarProvider cookieName={null}>
+          <Sidebar>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton>Inbox</SidebarMenuButton>
+                <SidebarMenuSub>
+                  <SidebarMenuSubItem>
+                    <SidebarMenuSubButton href="#today">
+                      Today
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                </SidebarMenuSub>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </Sidebar>
+          <SidebarMain>
+            <SidebarTrigger />
+          </SidebarMain>
+        </SidebarProvider>
+      </>,
+    );
+
+    for (const selector of [
+      ".nuv-command__input",
+      ".nuv-command__item",
+      ".nuv-sidebar__menu-button",
+      ".nuv-sidebar__menu-sub-button",
+      ".nuv-sidebar__trigger",
+    ]) {
+      expect(
+        box(document.querySelector(selector) as Element).height,
+      ).toBeGreaterThanOrEqual(44);
+    }
+  });
+
+  test("what's in a toolbar is at least 44px tall", async () => {
+    setOnPage();
+    await render(
+      <Toolbar aria-label="Formatting">
+        <ToolbarToggleGroup type="multiple" aria-label="Text style">
+          <ToolbarToggleItem value="bold">B</ToolbarToggleItem>
+        </ToolbarToggleGroup>
+        <ToolbarLink href="#help">?</ToolbarLink>
+        <ToolbarButton>S</ToolbarButton>
+      </Toolbar>,
+    );
+
+    for (const selector of [
+      ".nuv-toolbar__toggle-item",
+      ".nuv-toolbar__link",
+      ".nuv-toolbar__button",
+    ]) {
+      expect(
+        box(document.querySelector(selector) as Element).height,
+      ).toBeGreaterThanOrEqual(44);
+    }
   });
 });

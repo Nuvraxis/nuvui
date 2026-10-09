@@ -1,0 +1,59 @@
+@use "@nuvui/react/scss/mixins";
+
+// One column that may not grow past the room it has. The table is wider
+// than a phone, and scrolls in its own box.
+.audit-log {
+  display: grid;
+  gap: calc(var(--spacing) * 6);
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  min-block-size: 100svh;
+  padding: calc(var(--spacing) * 6) calc(var(--spacing) * 4);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+
+  @include mixins.breakpoint("md") {
+    padding: calc(var(--spacing) * 8);
+  }
+}
+
+.audit-log__head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 4);
+  align-items: end;
+  justify-content: space-between;
+}
+
+.audit-log__about {
+  display: grid;
+  gap: calc(var(--spacing) * 1);
+}
+
+.audit-log__title {
+  margin: 0;
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-2xl--line-height);
+  letter-spacing: var(--tracking-tight);
+}
+
+.audit-log__text {
+  max-inline-size: 60ch;
+  margin: 0;
+  color: var(--color-muted-foreground);
+}
+
+// The whole row on a phone, and a set width from the sm breakpoint.
+.audit-log__dates {
+  flex: 1 1 100%;
+
+  @include mixins.breakpoint("sm") {
+    flex: 0 1 19rem;
+  }
+}
+
+// Pushes the column chooser to the far end.
+.audit-log__gap {
+  flex: 1 1 0;
+}

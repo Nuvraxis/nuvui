@@ -1,0 +1,94 @@
+---
+title: Column visibility
+description: Let people choose which columns a data table shows, from a menu with a tick for each column. Columns can start hidden, and some can be kept from being hidden.
+---
+
+A table with column visibility gets a "Columns" button above it. It opens a menu with every column and a tick by the ones that are showing.
+
+<Preview name="data-table/visibility" wide />
+
+## What to register
+
+`@nuvui/table/full` has it. In a hook of your own:
+
+```tsx
+import { columnVisibilityFeature, tableFeatures } from "@tanstack/react-table";
+
+tableFeatures({ columnVisibilityFeature });
+```
+
+## Hidden to begin with
+
+Visibility is a map from a column's id to `false` for the hidden ones. A column that isn't in it is showing.
+
+```tsx
+const table = useDataTable({
+  columns,
+  data,
+  initialState: { columnVisibility: { joined: false } },
+});
+```
+
+A column's id is its accessor key, such as `"joined"`, unless it has an `id` of its own.
+
+To remember what someone chose, hold the state yourself with `state: { columnVisibility }` and `onColumnVisibilityChange`, and save it.
+
+## Columns that stay
+
+`enableHiding: false` on a column keeps it in the table and out of the menu. Do that for the column that names the row: a table of people with the names hidden is a table of nothing.
+
+`helper.select()` and `helper.expand()` can't be hidden.
+
+## What the menu calls a column
+
+The column's `header`, when that's a string. A column whose `header` is a function needs `meta.label`:
+
+```tsx
+helper.accessor("seats", {
+  meta: { label: "Seats" },
+  header: () => <abbr title="Seats in use">Seats</abbr>,
+});
+```
+
+Without either, the menu shows the column's id.
+
+## The button
+
+`DataTableColumnChooser`, or `table.ColumnChooser`, is the button on its own, for a toolbar you lay out yourself. With no column that can be hidden, it isn't shown.
+
+## Hiding and searching
+
+A hidden column is still searched by the [search field](/docs/table/filtering), and still sorts the table if it was sorted by. That's TanStack's behavior. If a match in a column nobody can see would confuse, set `enableGlobalFilter: false` on columns that start hidden.
+
+## Accessibility
+
+### Keyboard
+
+| Key | What it does |
+| --- | --- |
+| <kbd>Enter</kbd>, <kbd>Space</kbd> or <kbd>↓</kbd> | On the button, opens the menu. |
+| <kbd>↑</kbd> and <kbd>↓</kbd> | Move through the columns. |
+| <kbd>Enter</kbd> or <kbd>Space</kbd> | Shows or hides the column. The menu stays open. |
+| <kbd>Esc</kbd> | Closes the menu and returns focus to the button. |
+
+### What the component handles
+
+- The menu is the core's [dropdown menu](/docs/components/dropdown-menu), and each column is a `menuitemcheckbox` that says whether it's ticked.
+- The menu stays open after a choice, so several columns can be set without opening it again each time.
+- A hidden column is taken out of the table, headings and cells both, so a screen reader's count of columns is right.
+
+### What you need to handle
+
+- Give every column a name the menu can show: a string `header` or a `meta.label`.
+
+## Do and don't
+
+**Do**
+
+- Start with the columns most people need, and let the rest be turned on.
+- Remember the choice between visits for a table people come back to.
+
+**Don't**
+
+- Don't let the column that names the row be hidden.
+- Don't use hidden columns to keep data out of sight. It's still in the page's data.

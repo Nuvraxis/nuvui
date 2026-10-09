@@ -21,15 +21,18 @@ Run these from the repository root.
 
 | Command | What it does |
 | --- | --- |
-| `pnpm dev` | Builds the library in watch mode and serves the docs at http://localhost:3000. |
+| `pnpm dev` | Builds the packages in watch mode and serves the website at http://localhost:3001, with the docs under `/docs`. The docs app's own server is on port 3000, and the website passes `/docs` on to it. |
 | `pnpm lint` | Biome for TypeScript and JSON, Stylelint for SCSS. |
 | `pnpm lint:fix` | Lets Biome fix what it can, formatting included. |
 | `pnpm typecheck` | TypeScript, in every workspace. |
-| `pnpm test` | The component tests in Chromium, Firefox and WebKit, and the theme generator's tests. About three minutes. |
-| `pnpm build` | Builds the theme generator and the library, checks the result, then builds the docs site. |
-| `pnpm test:e2e` | Builds first, then runs Playwright against the exported docs site, in five browser setups. |
+| `pnpm test` | The component tests of every package in Chromium, Firefox and WebKit, and the theme generator's tests. About fourteen minutes. |
+| `pnpm build` | Builds the theme generator and the packages, checks the result, then builds the docs and the website. `apps/showcase/out` is then the whole site: the website, with the docs copied in under `/docs`. |
+| `pnpm test:e2e` | Builds first, then runs Playwright against the exported site, in five browser setups. The docs' tests run against the docs alone, and the website's against the two together. The two suites run one after the other: each already uses every core, and together they starve each other into timeouts. |
 | `pnpm size` | Builds first, then checks each entry point against its size budget. |
-| `pnpm test:consumers` | Packs the library and installs it into a Vite app and a Next.js app. Run `pnpm build` first. |
+| `pnpm check:package` | Checks what each package would publish: its `exports` map and its types. Run `pnpm build` first. |
+| `pnpm check:licenses` | Fails on a dependency whose license isn't on the lists in `scripts/check-licenses.mjs`: a short one for what the published packages depend on, and a longer one for the tools. |
+| `pnpm check:audit` | Fails on a dependency with a known vulnerability rated high or worse. What it leaves out is in `pnpm-workspace.yaml`, each with why. |
+| `pnpm test:consumers` | Packs the packages and installs them into a Vite app and a Next.js app. Run `pnpm build` first. |
 
 To run part of a suite:
 
@@ -41,6 +44,14 @@ pnpm --filter @nuvui/react test:watch
 # One browser, which is much quicker while you're working on something.
 # Set the variable the way your shell does it. This is a POSIX shell.
 NUVUI_BROWSERS=chromium pnpm --filter @nuvui/react exec vitest run
+
+# The same for an add-on package
+NUVUI_BROWSERS=chromium pnpm --filter @nuvui/date-picker exec vitest run
+
+# The end-to-end tests in Chrome only, on a desktop and on a phone. That's
+# two of the five setups, and well under half the time. Run all five before
+# a pull request, which is what CI does.
+NUVUI_BROWSERS=chromium pnpm test:e2e
 
 # One end-to-end file. It tests the files in apps/docs/out, so build first.
 pnpm build
@@ -55,12 +66,32 @@ pnpm --filter @nuvui/docs exec playwright test --project=firefox
 ```
 packages/ui                   the library, published as @nuvui/react
   src/components/<name>/      <name>.tsx, <name>.scss, <name>.test.tsx, index.ts
-  src/styles/                 tokens, mixins, the layer order, base styles
+  src/direction/              DirectionProvider, which has no styles
+  src/styles/                 tokens, mixins, the layer order, base styles,
+                              and the styles that fields and floating panels share
   src/utils/                  small helpers shared by components
-  scripts/build-css.mjs       compiles the SCSS and copies the source into dist
-  scripts/check-dist.mjs      fails the build if the package is put together wrong
-  test/                       test helpers, and the tests that cut across components
+  scripts/build-css.mjs       says which stylesheets this package builds
+  scripts/check-dist.mjs      says what to check in what was built
+  test/                       the tests that cut across components
   .size-limit.json            the size budget of each entry point
+packages/date-picker          an add-on, published as @nuvui/date-picker
+  src/components/<name>/      the same four files as in the library
+  src/locale.ts               the locales, passed on from react-day-picker
+  src/utils/                  reading and writing dates, and the typed text
+packages/table                an add-on, published as @nuvui/table
+  src/components/table/       the styled table elements
+  src/components/data-table/  the data table and its controls, one file each
+  src/full.ts                 the hook with every feature, an entry of its own
+  src/virtual.tsx             the virtual table, an entry of its own
+packages/charts               an add-on, published as @nuvui/charts
+  src/components/chart/       the container, tooltip, legend and table, one file each
+packages/tooling              what every published package is built with, private
+  tsdown.mjs                  the build
+  build-css.mjs               compiles the SCSS, and copies the source into dist
+  check-dist.mjs              fails the build if a package is put together wrong
+  stylelint.mjs               the SCSS rules
+  vitest.mjs                  the browser tests' setup
+  test/                       test helpers: axe, contrast, themes, the viewport
 packages/theme                the theme generator, private for now
   src/theme.ts                picks every color of a theme by measuring contrast
   src/css.ts                  writes a theme as CSS, SCSS or for Tailwind
@@ -71,8 +102,16 @@ apps/docs                     the documentation site (Next.js and Fumadocs)
   examples/<name>/            the examples the pages render and print
   components/                 previews, props tables, playgrounds, reference tables
   e2e/                        Playwright tests
+apps/showcase                 the website (Next.js, SCSS and the library's tokens)
+  src/app/                    its pages, the sitemap index, robots and share images
+  src/components/             the header, the search, the theme control, the dashboard
+  src/styles/                 its own styles, BEM with the prefix "site"
+  scripts/add-docs.mjs        copies the built docs into its export, under /docs
+  e2e/                        Playwright tests, of its pages and of where the two apps meet
+scripts/serve-static.mjs      serves an exported site, for the e2e tests and for pnpm start
+scripts/fix-next-export.mjs   puts right what Next's export gets wrong on Windows
 packages/typescript-config    shared tsconfig presets
-fixtures                      two apps that install the packed library
+fixtures                      two apps that install the packed packages
 scripts/test-consumers.mjs    builds those two apps
 .changeset                    release notes waiting for the next version
 ```
@@ -86,6 +125,8 @@ A few decisions shape most changes. Each one has a reason, and a change that goe
 - **Exports are flat.** It's `DialogContent`, not `Dialog.Content`. Reading a property off a client component fails inside a server component.
 - **`"use client"` goes on line 1 of any file that uses state, effects or a Radix primitive that does.** A component that's only markup, like Button, has no directive and can render on the server. The build checks that the directive in `dist` matches the source.
 - **Components use `forwardRef`,** because React 18 is supported and it doesn't pass `ref` as a prop.
+- **A part that draws something of its own beside its children doesn't take `asChild`.** Type its props with `PartProps<typeof Primitive.Part>`, from `utils/part-props`, in place of `ComponentPropsWithoutRef`, and add it to the list in `utils/part-props.test.tsx`. Radix merges a part into its one child, and such a part has more than one.
+- **Text a component writes itself has a prop,** with an English default and a comment that says "Translate it with the rest of your interface." Add the prop to `apps/docs/content/docs/translation.mdx`. A test fails if a default with that comment isn't on the page.
 - **Dark mode is opt-in.** A page with no `data-theme` is light.
 - **A theme is token values and nothing else.** No component reads a color, a border width or a control height that isn't a token. That's what lets one stylesheet restyle everything, and what lets the theme generator check a theme's contrast without rendering a component.
 
@@ -103,6 +144,9 @@ Stylelint enforces the first five. The rest are checked in review and by the tes
 - **A component's own variables are fallbacks at the point of use.** Write `border-radius: var(--nuv-button-radius, var(--radius-md))` and never declare `--nuv-button-radius` anywhere. A consumer can then set it on `:root` or on any wrapper and it wins. The names follow `--nuv-<component>-<property>`.
 - **The base size is the touch size.** Controls are 44 pixels by default, through the `touch-target` mixin. Denser sizes go inside the `fine-pointer` mixin, so they apply with a mouse or trackpad and nowhere else.
 - **Sizes that several components share are tokens.** A control's height with a mouse is `--nuv-control-height-sm`, `-md` or `-lg`, which is what density changes. A border is `var(--nuv-border-width)` wide, and a disabled control fades to `var(--nuv-disabled-opacity)`. A size only one component has, such as a dialog's width, is that component's own variable with the number as its fallback.
+- **Anything typed into uses the shared field styles.** `src/styles/_control.scss` has the box, the height, the 16 pixel text that keeps iOS from zooming, and the group that puts a button inside a field. A new kind of field includes those mixins with its own name, which gives it variables of its own.
+- **Components that look alike share a partial, not a class.** `src/styles/_modal.scss` is behind Dialog, AlertDialog and Sheet, `_menu.scss` behind DropdownMenu, ContextMenu and Menubar, and `_floating.scss` behind every panel Radix places next to a trigger. Each mixin is the inside of one rule and takes the component's name, so the component still writes its own selectors and gets its own variables.
+- **Disabled styles go by `:disabled` as well as `[data-disabled]`,** on anything that's a form control. Inside a `<fieldset disabled>` the browser disables a control without the component's own attribute being set.
 - **A filled control's hover color moves away from its text.** Button's `filled-hover` mixin does it. Mixing in a fixed dark color makes dark text harder to read, and a theme decides whether the text is dark.
 - **Mobile first.** Base styles are for the smallest screen. Larger screens are added with the `breakpoint` mixin, which only has a minimum-width form.
 - **Use the mixins for hover, focus and motion.** `hover` keeps hover styles off touch screens. `focus-ring` draws the same ring everywhere. Animations and transitions go inside `motion-safe`, so they don't exist for someone who has asked for reduced motion.
@@ -150,6 +194,63 @@ Button is the smallest example to copy from, and Dialog the fullest.
 
 7. **Add a changeset.** See below.
 
+## Add-on packages
+
+A component goes in a package of its own when it needs a library the core doesn't have. `@nuvui/date-picker` is the first, for react-day-picker and date-fns, `@nuvui/table` the second, for TanStack Table, and `@nuvui/charts` the third, for Recharts. An app that doesn't use the component then never installs that library.
+
+An add-on is laid out like the core and built with the same tooling, from `packages/tooling`. Its own config files only say what's particular to it. What differs from the core:
+
+- **`@nuvui/react` is a peer dependency,** written `workspace:^0.0.0`, and a dev dependency so the workspace has it. Changesets rewrites the range when the core's version moves. The add-on imports core components from their own entries, `@nuvui/react/popover` and not `@nuvui/react`.
+- **Its SCSS loads the core's mixins by package name:** `@use "@nuvui/react/scss/mixins"`. The core's other partials, such as `_control.scss`, aren't exported. Build from the core's components instead of from its partials.
+- **It ships compiled CSS only:** `styles.css` and one file per component in `css/`. It has no tokens, no presets and no SCSS source of its own.
+- **A rule can't count on being loaded after the core's stylesheet.** Both are in the `components` layer, and the app decides the order. To change how a core component looks inside an add-on, set that component's CSS variables on the element. That's the one place where a `--nuv-*` variable is declared.
+- **Its tests import the core's built stylesheet,** `@nuvui/react/styles.css`, and then its own SCSS. So the core has to be built first, which `pnpm test` sees to.
+- **Its docs pages are in a folder of their own** under `apps/docs/content/docs/`. `PropsTable`, `CssVariables` and `BemClasses` take a `package` prop that says which package to read.
+
+- **The library it's built on is a dependency or a peer, depending on who writes code against it.** Nobody uses react-day-picker's own API to use the date picker, so it's a dependency. Columns for a table are written with TanStack's helpers and types, so TanStack Table is a peer, and the app owns its version. Charts are built from Recharts' own parts, so Recharts is a peer too.
+- **Markup that a library draws, and that takes no class of ours, is styled through the container around it.** Recharts' axes and grid lines are the one case: `chart.scss` reaches them by Recharts' class names, one level deeper than the linter allows, in a block with the two rules switched off and a comment that says why. Everything this library draws itself stays BEM.
+- **It ships CommonJS as well as ES modules, unless its peer doesn't.** `@tanstack/react-table` is ES modules only, so `@nuvui/table` is too: `library({ format: ["esm"] })` in its `tsdown.config.ts`, and the `esm-only` profile in `.attw.json`.
+- **An entry that needs an optional peer, or that pulls in a lot, is a file at the top of `src`** and not a folder in `src/components`, so the package's main entry doesn't re-export it. `src/virtual.tsx` and `src/full.ts` in the table package are the two there are.
+
+A new add-on also has to be added in three places: `addons` in `apps/docs/lib/library.ts`, `published` in `scripts/test-consumers.mjs`, and the dependencies of `apps/docs` and of the two apps in `fixtures`.
+
+## The website and the docs
+
+The site is two Next.js apps on one address. `apps/showcase` is served at `/` and `apps/docs` under `/docs`. Each is a static export, and the website's build copies the docs' into its own, so one folder holds everything.
+
+The docs app has `basePath: "/docs"`. What that means when you write a link:
+
+- **In a docs page's MDX, write the address a visitor sees:** `[Button](/docs/components/button)`. The page route takes the prefix off before Next's link puts it back.
+- **In a docs example or component that uses `next/link`, leave the prefix out:** `<Link href="/forms">`. Next adds it. A plain `<a href>` isn't touched, so there it's written in full.
+- **Next doesn't add the prefix to a URL in metadata, a sitemap, JSON-LD or a `fetch`.** `docsPath()` in `apps/docs/lib/site.ts` does.
+- **A link from one app to the other is a plain `<a>`,** never the router's link. The page it leads to belongs to another app, and the router would ask that app's files of this one.
+
+`robots.txt`, the sitemap index and the 404 page are the website's, because a crawler and a static host look for one of each, at the root. The docs list their own pages in `/docs/sitemap.xml`, which the index points to.
+
+The theme a visitor picks is kept in `localStorage` under `theme`, by both apps, with the same three values. That's all it takes for a choice on one to hold on the other.
+
+The website's own styles are in `apps/showcase/src/styles`: SCSS, the library's tokens, and BEM classes that start with `site`. Stylelint holds it to the same rules as the library, with that prefix.
+
+Both apps show the same header. Its links are listed twice, in `apps/showcase/src/lib/site.ts` and in `apps/docs/lib/site.ts`, and a test fails if the two lists differ.
+
+## Adding a block
+
+A block is a folder under `apps/showcase/src/blocks`, named for the block, with three files:
+
+- `<name>.tsx`, the component, as the default export. It imports its stylesheet and nothing else from this repository.
+- `<name>.scss`, its styles. Every class starts with the block's name, such as `.sign-in__title`, with no `nuv` or `site` prefix: a block is copied into someone's app, and from then on it's their code. Stylelint checks this, and that every color is a token.
+- `block.json`, which says what the block is: its name, title, description, category, files, the packages to install, and the height of its preview.
+
+Then add the manifest to the list in `apps/showcase/src/lib/blocks.ts`. That's all the pages, the search, the sitemap, the registry and the tests need: every block gets the same tests from its manifest. Add one of your own to `e2e/blocks.spec.ts` for what the block does that the others don't.
+
+The tests every block gets ask for a heading, and for at least one thing Tab can reach, each with a name. They run axe in light and dark, and look for sideways scrolling at a phone's width and a tablet's.
+
+The site's build writes each block to `out/r/<name>.json`, in the format shadcn's command line tool reads, from `apps/showcase/scripts/add-registry.mjs`. Nothing is added by hand.
+
+A block that uses a package the website doesn't load yet needs that package in `apps/showcase/package.json`, and its stylesheet in `apps/showcase/src/app/layout.tsx`.
+
+Names, figures and companies in a block are made up, and look it.
+
 ## Changing a component
 
 The same rules apply on a smaller scale. If a change adds a class or a CSS variable, the docs build will tell you which page needs a description for it. If it changes what a prop does, update the JSDoc comment, because that's what the docs page shows.
@@ -168,7 +269,7 @@ Docs, comments, test names and changesets are all written the same way: plain se
 
 ## Changesets
 
-If a pull request changes what gets published in `@nuvui/react`, it needs a changeset:
+If a pull request changes what gets published, in `@nuvui/react` or in an add-on, it needs a changeset:
 
 ```sh
 pnpm changeset
@@ -182,10 +283,14 @@ Before 1.0, a breaking change is a minor bump, and its changeset has to say what
 
 A pull request needs:
 
-- `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build` and `pnpm test:e2e` passing. CI runs the same commands on Linux for every pull request. It then checks the package that would be published, the size of each entry point, and that the packed library installs and builds in a Vite app and a Next.js app.
+- `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build` and `pnpm test:e2e` passing. CI runs on Linux, in two workflows:
+  - `ci.yml` runs for every pull request: an audit of the dependencies and a check of their licenses, then lint, typecheck, build and the component tests, then a check of the package that would be published and of the size of each entry point.
+  - `e2e.yml` runs only for a pull request with the `invoke-e2e` label: the end-to-end tests, and a check that the packed library installs and builds in a Vite app and a Next.js app. A maintainer adds the label when a change is ready for it. Without the label nothing runs these for you, so run `pnpm test:e2e` yourself.
 - Tests for what changed.
 - The docs page updated, if behavior, props, CSS variables or class names changed.
 - A changeset, if the change reaches the published package.
+
+The workflows name each action by a commit, with its version in a comment, and Dependabot proposes the next one. Don't change one back to a tag.
 
 Keep a pull request to one change. A fix and an unrelated cleanup are easier to review, and to revert, as two.
 

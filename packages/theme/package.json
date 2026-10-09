@@ -28,8 +28,8 @@
     "@nuvui/typescript-config": "workspace:*",
     "@types/node": "catalog:",
     "tailwindcss": "^4.3.3",
-    "tsdown": "0.23.0",
+    "tsdown": "catalog:",
     "typescript": "catalog:",
-    "vitest": "^5.0.3"
+    "vitest": "catalog:"
   }
 }

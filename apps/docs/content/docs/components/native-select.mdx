@@ -1,0 +1,140 @@
+---
+title: NativeSelect
+description: The browser's own select, styled to match the other fields. On a phone it opens the system picker.
+---
+
+Use a native select to pick one value from a list when the options are plain text. It opens the picker people already know from their phone or computer, and it works before any JavaScript has loaded.
+
+Reach for [Select](/docs/components/select) when the options need styling of their own, icons, or anything else a native `<option>` can't hold.
+
+<Preview name="native-select/basic" />
+
+## Install
+
+```sh
+pnpm add @nuvui/react
+```
+
+## Import
+
+```tsx
+import { NativeSelect } from "@nuvui/react";
+```
+
+The styles come from `@nuvui/react/styles.css`, which you load once for the whole app. [Getting started](/docs) covers that, and how to load only this component's CSS.
+
+## Try it
+
+<NativeSelectPlayground />
+
+## Props
+
+NativeSelect adds no props of its own. These are the ones you'll reach for most.
+
+<PropsTable
+  component="native-select"
+  name="NativeSelectProps"
+  props={{
+    value: "The chosen option, when you control it yourself. Use it with `onChange`.",
+    defaultValue: "The option chosen at first, when you don't control it.",
+    disabled: "Stops it from being focused or changed.",
+    required:
+      "Inside a form, the browser won't submit while the chosen option's value is empty.",
+    name: "The name the value is submitted under in a form.",
+    multiple: "Lets several options be chosen. The options then show in the page as a list.",
+  }}
+/>
+
+The options are plain `<option>` and `<optgroup>` elements.
+
+`className` goes on the wrapper that carries the arrow. Everything else, `ref` and `id` included, goes to the `<select>` itself.
+
+## Groups
+
+<Preview name="native-select/groups" />
+
+## States
+
+<Preview name="native-select/states" />
+
+## A placeholder
+
+A select has no placeholder. The usual stand-in is a first option with an empty value, as in the first example on this page. Mark it `disabled` so it can't be chosen again, and add `required` to the select if a real choice is needed: the browser won't submit while the empty one is chosen.
+
+## Accessibility
+
+### Keyboard
+
+The keys are the browser's and the operating system's own, so they vary a little. These hold everywhere.
+
+| Key | What it does |
+| --- | --- |
+| <kbd>Tab</kbd> | Moves focus to the select. Disabled ones are skipped. |
+| <kbd>↓</kbd> and <kbd>↑</kbd> | Change the chosen option. |
+| A letter | Chooses the next option that starts with it. |
+
+### What the component handles
+
+- It renders a native `<select>`, so the role, the keyboard, the system picker and form submission come from the browser.
+- The browser's arrow is replaced with one drawn in the theme's colors. It sits at the end of the box, so in a right-to-left layout it's on the left. A click on it goes through to the select.
+- The edge uses `--color-border-strong`, which has at least 3:1 contrast with the page in every theme.
+- Text is 16 pixels on a touch screen, so iOS doesn't zoom in when it takes focus.
+- With `multiple`, or a `size` above 1, the browser shows the options as a list in the page. The arrow is hidden then.
+
+### What you need to handle
+
+- Give it a name. Use a [label](/docs/components/label) whose `htmlFor` matches its `id`, or `aria-label` when there's no visible text.
+- When the value is wrong, set `aria-invalid` and describe the problem in text.
+
+## CSS variables
+
+Set any of these on the select, or on anything around it. The open list of options belongs to the operating system and can't be styled.
+
+```css
+.filters {
+  --nuv-native-select-width: 12rem;
+}
+```
+
+<CssVariables
+  component="native-select"
+  descriptions={{
+    "--nuv-native-select-width": "Width. It fills its container by default.",
+    "--nuv-native-select-border": "Border color.",
+    "--nuv-native-select-radius": "Corner radius.",
+    "--nuv-native-select-bg": "Background color.",
+    "--nuv-native-select-fg": "Text color.",
+    "--nuv-native-select-height":
+      "Minimum height. The default differs between touch screens and a mouse.",
+    "--nuv-native-select-font-size":
+      "Font size. The default differs between touch screens and a mouse.",
+    "--nuv-native-select-icon": "Color of the arrow.",
+  }}
+/>
+
+## Classes
+
+<BemClasses
+  component="native-select"
+  descriptions={{
+    "nuv-native-select": "The wrapper. It's what `className` is added to.",
+    "nuv-native-select__control": "The select.",
+    "nuv-native-select__icon": "The arrow.",
+  }}
+/>
+
+## Server components
+
+NativeSelect has no `"use client"` directive and uses no state, so it renders in a server component as it is. An `onChange` handler is the usual reason to need a client component around it.
+
+## Do and don't
+
+**Do**
+
+- Use it on forms that are mostly filled in on phones.
+- Order the options in a way people can predict.
+
+**Don't**
+
+- Don't use a select for two or three options. Show them as [radio buttons](/docs/components/radio-group).
+- Don't use `multiple` for more than a handful of options. Few people know how to pick several from a list box, and [checkboxes](/docs/components/checkbox) are clearer.

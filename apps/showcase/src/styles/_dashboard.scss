@@ -1,0 +1,61 @@
+@use "@nuvui/react/scss/mixins";
+
+.site-dashboard {
+  display: grid;
+  gap: calc(var(--spacing) * 4);
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.site-dashboard__figures {
+  display: grid;
+  gap: calc(var(--spacing) * 4);
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.site-dashboard__figure {
+  block-size: 100%;
+}
+
+.site-dashboard__value {
+  margin: 0;
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-2xl--line-height);
+  font-variant-numeric: tabular-nums;
+}
+
+.site-dashboard__change {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 2);
+  align-items: center;
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+}
+
+.site-dashboard__charts {
+  display: grid;
+  gap: calc(var(--spacing) * 4);
+  grid-template-columns: minmax(0, 1fr);
+
+  @include mixins.breakpoint("lg") {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  }
+}
+
+// A card is a surface, a shade off the page in a dark theme. The gaps in a
+// chart that show what's behind it should show the card.
+.site-dashboard__chart {
+  --nuv-chart-backdrop: var(--color-surface);
+  --nuv-chart-aspect-ratio: 16 / 10;
+
+  // Side by side, the two charts are the same height whatever their widths.
+  @include mixins.breakpoint("lg") {
+    --nuv-chart-height: 22rem;
+    --nuv-chart-aspect-ratio: auto;
+  }
+}

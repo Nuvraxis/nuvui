@@ -1,0 +1,73 @@
+@use "../../styles/layers";
+@use "../../styles/mixins";
+
+@layer components {
+  // A long trail wraps onto a second line on a phone, and a long name
+  // breaks instead of pushing the page wider.
+  .nuv-breadcrumb__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--nuv-breadcrumb-gap, calc(var(--spacing) * 1.5));
+    align-items: center;
+    margin: 0;
+    padding: 0;
+    color: var(--nuv-breadcrumb-fg, var(--color-muted-foreground));
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+    overflow-wrap: anywhere;
+    list-style: none;
+  }
+
+  .nuv-breadcrumb__item {
+    display: inline-flex;
+    gap: var(--nuv-breadcrumb-gap, calc(var(--spacing) * 1.5));
+    align-items: center;
+  }
+
+  .nuv-breadcrumb__link {
+    display: inline-flex;
+    align-items: center;
+
+    // Tall enough for a finger. The text stays where it was.
+    min-block-size: var(--nuv-touch-size);
+    border-radius: var(--radius-sm);
+    color: inherit;
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+
+    @include mixins.focus-ring;
+
+    @include mixins.hover {
+      color: var(--nuv-breadcrumb-current-fg, var(--color-foreground));
+      text-decoration: underline;
+    }
+
+    @include mixins.fine-pointer {
+      min-block-size: 0;
+    }
+  }
+
+  .nuv-breadcrumb__page {
+    color: var(--nuv-breadcrumb-current-fg, var(--color-foreground));
+    font-weight: var(--font-weight-medium);
+  }
+
+  .nuv-breadcrumb__separator {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+  }
+
+  .nuv-breadcrumb__chevron {
+    &:dir(rtl) {
+      transform: scaleX(-1);
+    }
+  }
+
+  .nuv-breadcrumb__ellipsis {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+  }
+}

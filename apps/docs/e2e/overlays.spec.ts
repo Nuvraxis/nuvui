@@ -1,22 +1,5 @@
-import { expect, type Locator, type Page, test } from "@playwright/test";
-import { open } from "./helpers";
-
-// On the phone project a press is a real touch, which takes a different path
-// through Radix than a mouse click does.
-function press(locator: Locator, isMobile: boolean) {
-  return isMobile ? locator.tap() : locator.click();
-}
-
-async function expectOnScreen(page: Page, locator: Locator) {
-  const box = await locator.boundingBox();
-  const viewport = page.viewportSize();
-  if (!box || !viewport) throw new Error("nothing to measure");
-
-  expect(box.x).toBeGreaterThanOrEqual(0);
-  expect(box.y).toBeGreaterThanOrEqual(0);
-  expect(box.x + box.width).toBeLessThanOrEqual(viewport.width);
-  expect(box.y + box.height).toBeLessThanOrEqual(viewport.height);
-}
+import { expect, type Page, test } from "@playwright/test";
+import { expectOnScreen, open, press, scrollSettled } from "./helpers";
 
 test.describe("popover page", () => {
   test.beforeEach(async ({ page }) => {
@@ -164,10 +147,15 @@ test.describe("tooltip page", () => {
       .locator('[data-preview="tooltip/basic"]')
       .getByRole("button", { name: "Archive" });
 
-    // A tooltip closes when the page scrolls, and focusing something that's
-    // off the screen scrolls to it.
+    // A tooltip closes when the page scrolls. So the button is brought into
+    // view first, the scrolling is left to finish, and focus is then given
+    // without the scroll that focus brings by itself when any of the
+    // button is out of view.
     await trigger.scrollIntoViewIfNeeded();
-    await trigger.focus();
+    await scrollSettled(page);
+    await trigger.evaluate((button: HTMLElement) =>
+      button.focus({ preventScroll: true }),
+    );
     const tooltip = page.getByRole("tooltip");
     await expect(tooltip).toContainText("Takes the project out of your list");
     await expect(trigger).toHaveAccessibleDescription(
@@ -411,6 +399,44 @@ test.describe("toast page", () => {
     await press(toasts(page).getByRole("button", { name: "Close" }), isMobile);
 
     await expect(toasts(page)).toHaveCount(0);
+  });
+
+  test("each intent has its own edge color, and a warning interrupts as a danger does", async ({
+    page,
+    isMobile,
+  }) => {
+    const example = page.locator('[data-preview="toast/intents"]');
+    const edge = () =>
+      toasts(page)
+        .last()
+        .evaluate((toast) => getComputedStyle(toast).borderInlineStartColor);
+    const seen = new Set<string>();
+
+    for (const [name, modifier] of [
+      ["Info", "info"],
+      ["Success", "success"],
+      ["Warning", "warning"],
+      ["Danger", "danger"],
+    ] as const) {
+      await press(example.getByRole("button", { name }), isMobile);
+      await expect(toasts(page).last()).toHaveClass(
+        new RegExp(`nuv-toast--${modifier}`),
+      );
+      seen.add(await edge());
+      await press(
+        toasts(page).last().getByRole("button", { name: "Close" }),
+        isMobile,
+      );
+      await expect(toasts(page)).toHaveCount(0);
+    }
+    expect(seen.size).toBe(4);
+
+    // Radix puts a toast that interrupts in an assertive live region for a
+    // moment, and one that waits in a polite one.
+    await press(example.getByRole("button", { name: "Warning" }), isMobile);
+    await expect(
+      page.locator('[role="status"][aria-live="assertive"]'),
+    ).toContainText("Your trial ends in three days");
   });
 
   test("toasts span a phone's screen and sit in the corner on a desktop", async ({

@@ -1,0 +1,26 @@
+@use "../../styles/layers";
+
+@layer components {
+  .nuv-aspect-ratio {
+    position: relative;
+    inline-size: 100%;
+    overflow: hidden;
+    border-radius: var(--nuv-aspect-ratio-radius, 0);
+    aspect-ratio: var(--nuv-aspect-ratio-value, 1);
+  }
+
+  // Whatever is inside fills the box. It's taken out of the flow, so that
+  // content taller than the box can't stretch it out of shape.
+  .nuv-aspect-ratio > * {
+    position: absolute;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+  }
+
+  // A picture or a video keeps its own proportions and is cropped.
+  .nuv-aspect-ratio > img,
+  .nuv-aspect-ratio > video {
+    object-fit: var(--nuv-aspect-ratio-fit, cover);
+  }
+}

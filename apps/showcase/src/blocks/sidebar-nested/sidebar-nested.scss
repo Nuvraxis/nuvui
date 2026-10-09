@@ -1,0 +1,63 @@
+@use "@nuvui/react/scss/mixins";
+
+.sidebar-nested {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+}
+
+.sidebar-nested__brand {
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--tracking-tight);
+}
+
+// The arrow at the far end of a section's row. It points down while the
+// section is open.
+.sidebar-nested__arrow {
+  margin-inline-start: auto;
+
+  @include mixins.motion-safe {
+    transition: transform var(--nuv-duration-fast) var(--ease-out);
+  }
+}
+
+.sidebar-nested__section[data-state="open"] > .sidebar-nested__arrow {
+  transform: rotate(90deg);
+}
+
+.sidebar-nested__main {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  min-inline-size: 0;
+}
+
+.sidebar-nested__bar {
+  display: flex;
+  gap: calc(var(--spacing) * 3);
+  align-items: center;
+  padding: calc(var(--spacing) * 3) calc(var(--spacing) * 4);
+  border-block-end: var(--nuv-border-width) solid var(--color-border);
+}
+
+.sidebar-nested__title {
+  margin: 0;
+  font-size: var(--text-base);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--leading-snug);
+}
+
+.sidebar-nested__page {
+  display: grid;
+  place-items: center;
+  margin: calc(var(--spacing) * 4);
+  padding: calc(var(--spacing) * 6);
+  border: var(--nuv-border-width) dashed var(--color-border-strong);
+  border-radius: var(--radius-lg);
+}
+
+.sidebar-nested__hint {
+  max-inline-size: 40ch;
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  text-align: center;
+}

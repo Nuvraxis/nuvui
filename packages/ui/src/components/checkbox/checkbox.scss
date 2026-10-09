@@ -36,6 +36,7 @@
       background-color: var(--nuv-checkbox-checked-bg, var(--color-primary));
     }
 
+    &:disabled,
     &[data-disabled] {
       opacity: var(--nuv-disabled-opacity);
       cursor: not-allowed;

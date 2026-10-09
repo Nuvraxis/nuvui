@@ -1,0 +1,119 @@
+---
+title: Spinner
+description: A ring that turns while something is being done and there's no way to say how far along it is.
+---
+
+Use a spinner for a short wait with no known length: a button that's saving, a panel that's fetching. When you know how far along the work is, a [progress bar](/docs/components/progress) says more. When content is loading into a known layout, a [skeleton](/docs/components/skeleton) keeps the page from jumping.
+
+<Preview name="spinner/basic" />
+
+## Install
+
+```sh
+pnpm add @nuvui/react
+```
+
+## Import
+
+```tsx
+import { Spinner } from "@nuvui/react";
+```
+
+The styles come from `@nuvui/react/styles.css`, which you load once for the whole app. [Getting started](/docs) covers that, and how to load only this component's CSS.
+
+## Try it
+
+<SpinnerPlayground />
+
+## Props
+
+<PropsTable component="spinner" name="SpinnerOwnProps" />
+
+Everything else is passed to the `<span>`, including `ref` and `className`.
+
+## In a button
+
+A spinner takes the color of the text around it, so inside a button it has the button's text color whatever the intent.
+
+<Preview name="spinner/button" />
+
+The button in the example is marked with `aria-disabled` while it saves, and not with `disabled`. A disabled button drops out of the tab order, and focus that was on it is lost. With `aria-disabled` it keeps focus, says it's unavailable, and the example ignores presses in the meantime.
+
+## Next to text that says the same
+
+Where visible text already says what's happening, the spinner is decoration. Pass an empty `label`, and it has no role and is hidden from screen readers.
+
+<Preview name="spinner/region" />
+
+## Accessibility
+
+A spinner has no keyboard behavior. It can't take focus.
+
+### What the component handles
+
+- It has `role="status"` and its label is text in the page, hidden from view. A screen reader reads the label when the spinner is added to the page, at the next pause in what it's saying.
+- With an empty `label` it has no role and `aria-hidden="true"`.
+- It only turns when the visitor hasn't asked for reduced motion. With reduced motion it stands still: a ring with a quarter of it drawn darker, which still reads as a spinner.
+- It's drawn in the text color, which keeps it visible where the browser forces its own colors.
+
+### What you need to handle
+
+- **Say what's loading.** "Loading" is the default because it's always true. "Saving the report" is better.
+- **Render the spinner when the wait starts.** A screen reader notices a status that's added to the page. One that's always there and shown with CSS may not be announced.
+- **Say when it's over, if nothing visible changes.** Taking a spinner away isn't announced.
+- Translate the label with the rest of your interface.
+
+## CSS variables
+
+Set any of these on the spinner, or on anything around it.
+
+```css
+.page-loader {
+  --nuv-spinner-size: 3rem;
+  --nuv-spinner-color: var(--color-primary);
+}
+```
+
+<CssVariables
+  component="spinner"
+  descriptions={{
+    "--nuv-spinner-size": "Width and height. Differs by size.",
+    "--nuv-spinner-color":
+      "Color of the ring. The color of the text around it by default.",
+    "--nuv-spinner-duration": "How long one turn takes.",
+    "--nuv-spinner-track-opacity":
+      "How strongly the part of the ring that isn't the moving arc is drawn, from 0 to 1.",
+  }}
+/>
+
+## Classes
+
+<BemClasses
+  component="spinner"
+  descriptions={{
+    "nuv-spinner": "Every spinner.",
+    "nuv-spinner--sm": "size=\"sm\"",
+    "nuv-spinner--lg": "size=\"lg\"",
+    "nuv-spinner__ring": "The drawing, which is what turns.",
+    "nuv-spinner__track": "The pale full circle behind the arc.",
+    "nuv-spinner__label": "The text for screen readers.",
+  }}
+/>
+
+A medium spinner also has the class `nuv-spinner--md`. It has no rules of its own, because medium is how every spinner starts.
+
+## Server components
+
+Spinner has no `"use client"` directive and uses no state, so it renders in a server component as it is.
+
+## Do and don't
+
+**Do**
+
+- Put it where the result will show up, or in the button that started the work.
+- Use one spinner for one piece of work.
+
+**Don't**
+
+- Don't cover the whole page with a spinner for something that affects one part of it.
+- Don't show a spinner for longer than a few seconds without saying more. Past that, people want to know what's happening and whether they can leave.

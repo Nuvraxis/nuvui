@@ -1,0 +1,61 @@
+.sidebar-icons {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+}
+
+.sidebar-icons__brand {
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--tracking-tight);
+}
+
+// The person's picture stands where an item's icon would, at a size that
+// still fits the strip when the sidebar is folded.
+.sidebar-icons__avatar {
+  --nuv-avatar-size: 1.5rem;
+  --nuv-avatar-font-size: 0.625rem;
+
+  flex: none;
+}
+
+// The arrows go to the far end of the row.
+.sidebar-icons__person > svg {
+  margin-inline-start: auto;
+}
+
+.sidebar-icons__main {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  min-inline-size: 0;
+}
+
+.sidebar-icons__bar {
+  display: flex;
+  gap: calc(var(--spacing) * 3);
+  align-items: center;
+  padding: calc(var(--spacing) * 3) calc(var(--spacing) * 4);
+  border-block-end: var(--nuv-border-width) solid var(--color-border);
+}
+
+.sidebar-icons__title {
+  margin: 0;
+  font-size: var(--text-base);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--leading-snug);
+}
+
+.sidebar-icons__page {
+  display: grid;
+  place-items: center;
+  margin: calc(var(--spacing) * 4);
+  padding: calc(var(--spacing) * 6);
+  border: var(--nuv-border-width) dashed var(--color-border-strong);
+  border-radius: var(--radius-lg);
+}
+
+.sidebar-icons__hint {
+  max-inline-size: 40ch;
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  text-align: center;
+}

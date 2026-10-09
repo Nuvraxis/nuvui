@@ -1,0 +1,112 @@
+---
+title: Separator
+description: A thin line between two pieces of content, across or upright.
+---
+
+Use a separator to set two things apart where space alone doesn't do it: sections of a panel, groups in a row of links. Menus and toolbars have a separator part of their own.
+
+<Preview name="separator/basic" />
+
+## Install
+
+```sh
+pnpm add @nuvui/react
+```
+
+## Import
+
+```tsx
+import { Separator } from "@nuvui/react";
+```
+
+The styles come from `@nuvui/react/styles.css`, which you load once for the whole app. [Getting started](/docs) covers that, and how to load only this component's CSS.
+
+## Try it
+
+<SeparatorPlayground />
+
+## Props
+
+<PropsTable component="separator" name="SeparatorOwnProps" />
+
+Everything else is passed to the `<div>` Radix renders, including `ref`, `className` and `style`.
+
+## Vertical
+
+An upright separator is as tall as the row it's in, when that row is a flex or grid container. Anywhere else it's as tall as a letter.
+
+<Preview name="separator/vertical" />
+
+## Space around it
+
+A separator has no margin. Give it one with `style` or a class, or let the `gap` of the container it's in do the spacing. That way the same component works in a tight toolbar and between two page sections.
+
+## Decorative, or not
+
+By default a separator is decoration. It has `role="none"`, and a screen reader says nothing for it. That's right for nearly every line on a page: the headings and lists around it already say where one thing ends and the next begins.
+
+Pass `decorative={false}` where the line is the only thing that marks a change, such as a break between two parts of a text with no heading for the second. It then has `role="separator"`, and a screen reader announces it.
+
+<Preview name="separator/semantic" />
+
+Radix's own default is the other way round. This library flips it, because a line that's announced when it means nothing adds a stop to every pass through the page.
+
+## Accessibility
+
+A separator has no keyboard behavior. It can't take focus.
+
+### What the component handles
+
+- `role="none"` when it's decorative, and `role="separator"` when it isn't, with `aria-orientation` on an upright one. This part is Radix.
+- The line is a border, so it's still drawn where the browser forces its own colors, as Windows high contrast does.
+- An upright line is drawn with a logical property, so it works the same in a right-to-left layout.
+
+### What you need to handle
+
+- Decide whether the line means something. If taking it away would lose information for someone who can see it, a screen reader user needs it too.
+- The default color is `--color-border`, which is pale on purpose and not meant to reach 3:1. That's fine for decoration. A line that carries meaning should use `--color-border-strong`, through `--nuv-separator-color`.
+
+## CSS variables
+
+Set either of these on the separator, or on anything around it.
+
+```css
+.section-break {
+  --nuv-separator-color: var(--color-border-strong);
+}
+```
+
+<CssVariables
+  component="separator"
+  descriptions={{
+    "--nuv-separator-color": "Color of the line.",
+    "--nuv-separator-size": "Thickness of the line.",
+  }}
+/>
+
+## Classes
+
+<BemClasses
+  component="separator"
+  descriptions={{
+    "nuv-separator": "Every separator.",
+  }}
+/>
+
+Radix sets `data-orientation` to `horizontal` or `vertical`, which is what the styles go by.
+
+## Server components
+
+Separator carries `"use client"`, because the Radix primitive it wraps does. It has no state and renders the same on the server as in the browser. You can render it from a server component, as the examples on this page do.
+
+## Do and don't
+
+**Do**
+
+- Try more space first. Fewer lines make a calmer page.
+- Use one inside a [card](/docs/components/card) in place of a second card.
+
+**Don't**
+
+- Don't use a separator between the items of a list. Put a border on the items.
+- Don't use it as a heading's underline. Style the heading.

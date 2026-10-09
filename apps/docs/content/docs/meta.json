@@ -1,3 +1,17 @@
 {
-  "pages": ["index", "theming", "tailwind", "scss", "components", "changelog"]
+  "pages": [
+    "index",
+    "theming",
+    "tailwind",
+    "scss",
+    "forms",
+    "right-to-left",
+    "translation",
+    "support",
+    "components",
+    "date-picker",
+    "table",
+    "charts",
+    "changelog"
+  ]
 }

@@ -1,0 +1,176 @@
+@use "@nuvui/react/scss/mixins";
+@use "layout";
+
+// A block alone on a page, which is what a preview's frame shows. The room
+// kept for a scrollbar on the site's own pages would be an empty strip
+// down the side of every frame.
+html:has(.site-frame) {
+  scrollbar-gutter: auto;
+}
+
+// The blocks of a category, one under the other. A block wants the width:
+// its preview is a whole screen.
+.site-block-list {
+  @include layout.container(layout.$width-wide);
+
+  display: grid;
+  gap: calc(var(--spacing) * 16);
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.site-block {
+  display: grid;
+  gap: calc(var(--spacing) * 4);
+  grid-template-columns: minmax(0, 1fr);
+  min-inline-size: 0;
+}
+
+.site-block__head {
+  display: grid;
+  gap: calc(var(--spacing) * 4);
+
+  @include mixins.breakpoint("lg") {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+  }
+}
+
+.site-block__about {
+  display: grid;
+  gap: calc(var(--spacing) * 1);
+}
+
+.site-block__title {
+  margin: 0;
+  font-size: var(--text-xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-xl--line-height);
+  letter-spacing: var(--tracking-tight);
+}
+
+.site-block__text {
+  max-inline-size: 65ch;
+  margin: 0;
+  color: var(--color-muted-foreground);
+}
+
+.site-block__tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 2);
+  align-items: center;
+}
+
+// The widths to try are for a screen wide enough to hold them. On a phone
+// the preview is the phone's own width, and there's nothing to choose.
+.site-block__widths {
+  display: none;
+
+  @include mixins.breakpoint("lg") {
+    display: inline-flex;
+  }
+}
+
+// What the frame stands on: a muted ground with a grid of dots, so a frame
+// narrower than the page reads as a screen and not as a gap.
+.site-block__stage {
+  display: grid;
+  justify-items: center;
+  overflow-x: auto;
+  border: var(--nuv-border-width) solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background-color: var(--color-muted);
+  background-image: radial-gradient(
+    color-mix(in oklab, var(--color-border-strong) 45%, transparent) 1px,
+    transparent 1px
+  );
+  background-size: 1.25rem 1.25rem;
+
+  // The preview stays in the page while the code is shown, and the grid
+  // above would otherwise undo the browser's own hiding of it.
+  &[hidden] {
+    display: none;
+  }
+
+  @include mixins.focus-ring(-2px);
+
+  @include mixins.breakpoint("lg") {
+    padding: calc(var(--spacing) * 6);
+  }
+}
+
+.site-block__frame {
+  display: block;
+  inline-size: 100%;
+  block-size: var(--site-block-height, 40rem);
+  border: 0;
+  border-radius: calc(var(--radius-xl) - var(--nuv-border-width));
+  background-color: var(--color-background);
+
+  @include mixins.breakpoint("lg") {
+    border: var(--nuv-border-width) solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xl);
+  }
+
+  @include mixins.motion-safe {
+    transition: inline-size var(--nuv-duration-slow) var(--ease-out);
+  }
+}
+
+// A phone and a tablet, by the widths their blocks are tested at.
+.site-block__frame[data-width="phone"] {
+  @include mixins.breakpoint("lg") {
+    inline-size: 24.375rem;
+  }
+}
+
+.site-block__frame[data-width="tablet"] {
+  @include mixins.breakpoint("lg") {
+    inline-size: 48rem;
+  }
+}
+
+.site-block__code {
+  display: grid;
+  gap: calc(var(--spacing) * 4);
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.site-block__install {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 2) calc(var(--spacing) * 3);
+  align-items: center;
+  padding: calc(var(--spacing) * 3) calc(var(--spacing) * 4);
+  border: var(--nuv-border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-surface);
+  color: var(--color-surface-foreground);
+}
+
+.site-block__note {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+}
+
+.site-block__command {
+  flex: 1;
+  min-inline-size: 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  overflow-wrap: anywhere;
+}
+
+.site-block__file {
+  display: grid;
+  gap: calc(var(--spacing) * 2);
+  grid-template-columns: minmax(0, 1fr);
+  margin-block-start: calc(var(--spacing) * 3);
+}
+
+.site-block__copy {
+  display: flex;
+  justify-content: flex-end;
+}

@@ -1,0 +1,9 @@
+{
+  "name": "pricing",
+  "title": "Pricing table",
+  "description": "Three plans side by side with what each includes, and a switch between paying by the month and by the year.",
+  "category": "marketing",
+  "files": ["pricing.tsx", "pricing.scss"],
+  "install": ["@nuvui/react", "lucide-react"],
+  "height": 820
+}

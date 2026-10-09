@@ -1,0 +1,9 @@
+{
+  "name": "danger-zone",
+  "title": "Danger zone",
+  "description": "The actions that can't be taken back, with a dialog that asks for the workspace's name to be typed before it deletes.",
+  "category": "settings",
+  "files": ["danger-zone.tsx", "danger-zone.scss"],
+  "install": ["@nuvui/react"],
+  "height": 400
+}

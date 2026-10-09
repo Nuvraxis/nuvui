@@ -1,0 +1,9 @@
+{
+  "name": "faq",
+  "title": "Questions and answers",
+  "description": "A heading beside a list of questions, each one opening to its answer, one at a time.",
+  "category": "marketing",
+  "files": ["faq.tsx", "faq.scss"],
+  "install": ["@nuvui/react"],
+  "height": 620
+}

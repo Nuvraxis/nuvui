@@ -1,0 +1,179 @@
+---
+title: Hover card
+description: A card with a preview of where a link leads, shown when the pointer rests on the link. It doesn't appear on touch screens.
+---
+
+Use a hover card to show a little about what's behind a link before someone follows it: who a name refers to, what a document is about. Everything in the card should also be on the page the link leads to.
+
+Hover cards don't show on touch screens, where there's no hover, and the keyboard can't reach inside one. Never put anything in one that people need.
+
+<Preview name="hover-card/basic" />
+
+## Install
+
+```sh
+pnpm add @nuvui/react
+```
+
+## Import
+
+```tsx
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@nuvui/react";
+```
+
+The styles come from `@nuvui/react/styles.css`, which you load once for the whole app. [Getting started](/docs) covers that, and how to load only this component's CSS.
+
+## Parts
+
+| Part | What it is |
+| --- | --- |
+| `HoverCard` | Holds the open state and the timing. Renders nothing itself. |
+| `HoverCardTrigger` | The link the card belongs to. It renders an `a`, and takes `href` like one. |
+| `HoverCardContent` | The card. |
+
+These are separate exports, not properties of `HoverCard`. `HoverCard.Content` isn't available, because property access on a client component doesn't work from a server component.
+
+## Try it
+
+<HoverCardPlayground />
+
+## Props
+
+### HoverCardContent
+
+<PropsTable component="hover-card" name="HoverCardContentOwnProps" />
+
+These come from Radix and are the ones you're most likely to set:
+
+<PropsTable
+  component="hover-card"
+  name="HoverCardContentProps"
+  props={{
+    side: "The side of the link the card opens on. It's `\"bottom\"` unless you say otherwise, and it flips to the opposite side when there isn't room.",
+    align: "How the card lines up with the link along that side. It's `\"center\"` unless you say otherwise.",
+  }}
+/>
+
+### HoverCard
+
+<PropsTable
+  component="hover-card"
+  name="HoverCardProps"
+  props={{
+    openDelay:
+      "How long the pointer has to rest on the link before the card shows, in milliseconds. It's 700 unless you say otherwise.",
+    closeDelay:
+      "How long the card stays after the pointer leaves, in milliseconds. It's 300 unless you say otherwise.",
+    open: "Whether it's showing, when you control it yourself. Use it with `onOpenChange`.",
+    defaultOpen: "Whether it starts out showing, when you don't control it.",
+    onOpenChange: "Called when it shows or hides.",
+  }}
+/>
+
+`HoverCardTrigger` takes what an `a` takes, and `asChild` to render your router's link in its place. The [Radix Hover Card reference](https://www.radix-ui.com/primitives/docs/components/hover-card#api-reference) has the full list.
+
+## Sides
+
+<Preview name="hover-card/sides" />
+
+## Timing
+
+The card waits 700 milliseconds before it shows, so that it doesn't flash up under a pointer that's only passing over. It stays for 300 after the pointer leaves, which is what lets the pointer cross the gap from the link to the card.
+
+<Preview name="hover-card/timing" />
+
+Shorten `openDelay` where the cards are the point of the page. Don't set `closeDelay` to zero: the card would close before the pointer could reach it.
+
+## On touch screens
+
+A tap on the link doesn't open the card. The link goes where it goes. That's how Radix handles touch, and this library doesn't change it.
+
+So treat the card as a preview and nothing more. Whatever it shows has to be on the page the link opens.
+
+## Accessibility
+
+### Keyboard
+
+| Key | What it does |
+| --- | --- |
+| <kbd>Tab</kbd> | Moves focus to the link, which shows the card after the same delay as the pointer. Moving on hides it. |
+| <kbd>Enter</kbd> | Follows the link. |
+| <kbd>Esc</kbd> | Hides the card. Focus stays on the link. |
+
+<kbd>Tab</kbd> doesn't go into the card. Radix takes any link or button inside it out of the tab order, because the card closes as soon as focus leaves its link.
+
+### What the component handles
+
+Most of this is Radix. The library doesn't change it.
+
+- The card shows on keyboard focus as well as on hover.
+- It stays while the pointer moves from the link onto the card, and <kbd>Esc</kbd> hides it without moving the pointer. WCAG 1.4.13 asks for both.
+- Text in the card can be selected with the mouse, and the card stays open while it is.
+- It never runs off the screen. A card with more in it than fits scrolls inside itself.
+- It only fades in when the visitor hasn't asked for reduced motion.
+
+### What you need to handle
+
+- The card isn't tied to its link for screen readers: it has no role, and the link isn't described by it. Someone using a screen reader may never come across it. This is the main reason the card can only repeat what the linked page says.
+- Don't put the only way to do something in the card. A "Follow" button there can't be reached by keyboard or on a phone.
+- The link needs text that makes sense without the card.
+- Style the link yourself. `HoverCardTrigger` adds no class, so it looks like the other links on your page.
+
+## CSS variables
+
+Hover cards render at the end of `<body>`, so set these on `:root` or `body`, or straight on `HoverCardContent` with `style` or a class.
+
+```css
+:root {
+  --nuv-hover-card-width: 22rem;
+}
+```
+
+<CssVariables
+  component="hover-card"
+  descriptions={{
+    "--nuv-hover-card-width":
+      "Width of the card. It's never wider than the room beside the link.",
+    "--nuv-hover-card-padding": "Padding inside the card.",
+    "--nuv-hover-card-border": "Border color.",
+    "--nuv-hover-card-radius": "Corner radius.",
+    "--nuv-hover-card-bg": "Background color.",
+    "--nuv-hover-card-shadow": "Shadow under the card.",
+    "--nuv-hover-card-fg": "Text color.",
+  }}
+/>
+
+## Classes
+
+<BemClasses
+  component="hover-card"
+  descriptions={{
+    "nuv-hover-card": "HoverCardContent.",
+  }}
+/>
+
+Radix sets `data-state="open"` or `data-state="closed"` on the link and the card, and `data-side` on the card for where it ended up. The animation hangs off `data-state`.
+
+## Server components
+
+The hover card parts are client components. They carry `"use client"`, and the build checks that the directive is still there in the published files.
+
+You can put a hover card together inside a server component, as the examples on this page do.
+
+## Themed sections
+
+A card opened from inside a `data-theme="dark"` section doesn't inherit that theme, because it isn't rendered inside the section. Pass the section's element as `container` and it will be.
+
+## Do and don't
+
+**Do**
+
+- Keep the card to a few lines: a name, a role, a sentence.
+- Use it on links, where there's a page to fall back on.
+- Load what the card shows before it opens, or keep its size steady while it loads.
+
+**Don't**
+
+- Don't put anything in the card that isn't on the linked page.
+- Don't put buttons, forms or menus in it. For those, use a [popover](/docs/components/popover), which opens on a click.
+- Don't use one to explain a button. That's a [tooltip](/docs/components/tooltip).

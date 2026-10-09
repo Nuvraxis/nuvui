@@ -1,0 +1,317 @@
+@use "../../styles/layers";
+@use "@nuvui/react/scss/mixins";
+
+@layer components {
+  // The toolbar, the table and the pagination bar, one under the other.
+  .nuv-data-table {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nuv-data-table-gap, calc(var(--spacing) * 3));
+    min-inline-size: 0;
+    color: var(--nuv-data-table-fg, var(--color-foreground));
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+  }
+
+  // What's read out after a sort, a filter or a change of page. In the page
+  // for screen readers, and not on show.
+  .nuv-data-table__status {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .nuv-data-table__toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(var(--spacing) * 2);
+    align-items: center;
+  }
+
+  // Pushes what follows it to the far end.
+  .nuv-data-table__toolbar-gap {
+    flex: 1 1 0;
+  }
+
+  // The whole row on a phone, and a field of a set width from there up.
+  .nuv-data-table__filter {
+    flex: 1 1 100%;
+
+    @include mixins.breakpoint("sm") {
+      flex: 0 1 var(--nuv-data-table-filter-width, 16rem);
+    }
+  }
+
+  .nuv-data-table__column-filter {
+    inline-size: 100%;
+    min-inline-size: var(--nuv-data-table-column-filter-min-width, 6rem);
+  }
+
+  .nuv-data-table__bulk {
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(var(--spacing) * 2);
+    align-items: center;
+    padding: calc(var(--spacing) * 2) calc(var(--spacing) * 3);
+    border: var(--nuv-border-width) solid var(--nuv-data-table-bulk-border, var(--color-border));
+    border-radius: var(--nuv-data-table-bulk-radius, var(--radius-lg));
+    background-color: var(--nuv-data-table-bulk-bg, var(--color-muted));
+
+    // The attribute alone loses to the display above.
+    &[hidden] {
+      display: none;
+    }
+  }
+
+  .nuv-data-table__bulk-count {
+    font-weight: var(--font-weight-medium);
+  }
+
+  .nuv-data-table__bulk-actions {
+    display: flex;
+    flex: 1 1 auto;
+    flex-wrap: wrap;
+    gap: calc(var(--spacing) * 2);
+    align-items: center;
+  }
+
+  // A heading that sorts. It looks like the heading it is, and takes the
+  // whole cell's height so a finger has something to land on.
+  // The text of a heading. In a column narrower than it, it's cut short.
+  .nuv-data-table__heading {
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .nuv-data-table__sort {
+    display: inline-flex;
+    max-inline-size: 100%;
+    gap: calc(var(--spacing) * 1);
+    align-items: center;
+    min-block-size: var(--nuv-touch-size);
+    margin-block: calc(var(--spacing) * -1);
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: inherit;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+
+    @include mixins.focus-ring;
+
+    @include mixins.fine-pointer {
+      min-block-size: var(--nuv-control-height-sm);
+    }
+
+    @include mixins.hover {
+      color: var(--nuv-data-table-sort-hover-fg, var(--color-foreground));
+    }
+
+    &[data-sorted] {
+      color: var(--nuv-data-table-sorted-fg, var(--color-foreground));
+    }
+  }
+
+  .nuv-data-table__sort-icon {
+    flex: none;
+    opacity: 0.6;
+
+    &[data-direction] {
+      opacity: 1;
+    }
+  }
+
+  .nuv-data-table__sort-index {
+    font-size: var(--text-xs);
+  }
+
+  // Room for the grip to be placed against the heading's edge.
+  .nuv-data-table__head--resizable {
+    position: relative;
+  }
+
+  // The grip is wider than the line it shows, so there's something to
+  // catch. Wider again for a finger.
+  .nuv-data-table__resize {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-end: 0;
+    inline-size: calc(var(--spacing) * 4);
+    cursor: col-resize;
+    touch-action: none;
+    user-select: none;
+
+    @include mixins.focus-ring(-2px);
+
+    @include mixins.fine-pointer {
+      inline-size: calc(var(--spacing) * 2);
+    }
+
+    &::after {
+      position: absolute;
+      inset-block: 25%;
+      inset-inline-end: 0;
+      inline-size: 2px;
+      background-color: var(--nuv-data-table-resize-color, var(--color-border-strong));
+      content: "";
+    }
+
+    &[data-resizing]::after {
+      inset-block: 0;
+      background-color: var(--nuv-data-table-resize-active-color, var(--color-primary));
+    }
+
+    @include mixins.hover {
+      &::after {
+        inset-block: 0;
+        background-color: var(--nuv-data-table-resize-active-color, var(--color-primary));
+      }
+    }
+  }
+
+  // A column that only holds a checkbox or a button is as narrow as that.
+  .nuv-data-table__cell--control {
+    inline-size: 1%;
+    white-space: nowrap;
+  }
+
+  .nuv-data-table__expand,
+  .nuv-data-table__expand-gap {
+    display: inline-flex;
+    flex: none;
+    inline-size: var(--nuv-data-table-expand-size, 1.5rem);
+    block-size: var(--nuv-data-table-expand-size, 1.5rem);
+    margin-inline-start: calc(var(--nuv-data-table-indent, 1.25rem) * var(--nuv-data-table-depth, 0));
+    vertical-align: middle;
+  }
+
+  .nuv-data-table__expand {
+    position: relative;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: none;
+    color: var(--nuv-data-table-expand-fg, var(--color-muted-foreground));
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+
+    @include mixins.touch-area;
+    @include mixins.focus-ring;
+
+    @include mixins.hover {
+      color: var(--color-foreground);
+    }
+  }
+
+  .nuv-data-table__expand-icon {
+    @include mixins.motion-safe {
+      transition: transform var(--nuv-duration-fast) var(--ease-out);
+    }
+
+    &:dir(rtl) {
+      transform: scaleX(-1);
+    }
+  }
+
+  .nuv-data-table__expand[aria-expanded="true"] > .nuv-data-table__expand-icon {
+    transform: rotate(90deg);
+  }
+
+  // The rows that aren't data: a row's open panel, the placeholders while
+  // rows load, and what's said when there are none. None of them is a row
+  // to point at, so pointing changes nothing. The table's own variables are
+  // set here, where a rule for the background would be the usual way: a
+  // rule in this stylesheet only beats the table's if this stylesheet is
+  // loaded second, and a variable works either way.
+  .nuv-data-table__detail-row {
+    --nuv-table-row-bg: var(--nuv-data-table-detail-bg, var(--color-background));
+    --nuv-table-row-hover-bg: var(--nuv-data-table-detail-bg, var(--color-background));
+  }
+
+  .nuv-data-table__message-row,
+  .nuv-data-table__loading-row {
+    --nuv-table-row-hover-bg: var(--nuv-table-bg, var(--color-surface));
+  }
+
+  .nuv-data-table__detail {
+    --nuv-table-cell-padding-x: var(--nuv-data-table-detail-padding, calc(var(--spacing) * 4));
+    --nuv-table-cell-padding-y: var(--nuv-data-table-detail-padding, calc(var(--spacing) * 4));
+  }
+
+  // Nothing here, nothing matches, or the rows couldn't be loaded.
+  .nuv-data-table__message {
+    --nuv-table-cell-padding-y: var(--nuv-data-table-message-padding, calc(var(--spacing) * 10));
+
+    color: var(--nuv-data-table-message-fg, var(--color-muted-foreground));
+    text-align: center;
+
+    > * + * {
+      margin-inline-start: calc(var(--spacing) * 3);
+    }
+  }
+
+  .nuv-data-table__pagination {
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(var(--spacing) * 2) calc(var(--spacing) * 4);
+    align-items: center;
+    justify-content: space-between;
+    color: var(--nuv-data-table-pagination-fg, var(--color-muted-foreground));
+
+    @include mixins.breakpoint("sm") {
+      justify-content: flex-end;
+    }
+  }
+
+  .nuv-data-table__page-size {
+    display: flex;
+    white-space: nowrap;
+    gap: calc(var(--spacing) * 2);
+    align-items: center;
+  }
+
+  .nuv-data-table__page-range,
+  .nuv-data-table__page {
+    white-space: nowrap;
+  }
+
+  // The four buttons and the page between them stay on one line, and take
+  // a line of their own on a phone.
+  .nuv-data-table__pages {
+    display: flex;
+    flex: 1 1 100%;
+    gap: calc(var(--spacing) * 1);
+    align-items: center;
+    justify-content: space-between;
+
+    @include mixins.breakpoint("sm") {
+      flex: none;
+      justify-content: flex-start;
+    }
+  }
+
+  .nuv-data-table__page-button {
+    --nuv-button-padding-inline: 0;
+
+    // It keeps focus when there's no page to go to, so it can't be
+    // `disabled`. This is what that looks like.
+    &[aria-disabled="true"] {
+      opacity: var(--nuv-disabled-opacity);
+      cursor: not-allowed;
+    }
+  }
+
+  .nuv-data-table__page-icon:dir(rtl) {
+    transform: scaleX(-1);
+  }
+}

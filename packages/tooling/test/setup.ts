@@ -1,0 +1,47 @@
+import { afterEach, expect } from "vitest";
+import { userEvent } from "vitest/browser";
+import { axeMatchers } from "./axe";
+import { emulateMedia, setViewport } from "./media";
+import { loadPresets } from "./presets";
+
+expect.extend(axeMatchers);
+
+// Every test file has the presets, so any of them can render in one.
+loadPresets();
+
+// The mouse pointer stays where the last test left it, and test files share
+// a page. A button rendered under it by the next test is hovered, and shows
+// its hover color instead of the one being checked. The bottom corner is the
+// spot least likely to have anything under it.
+const tidyTimeout = 30_000;
+
+async function parkPointer() {
+  await userEvent.hover(document.documentElement, {
+    position: { x: window.innerWidth - 1, y: window.innerHeight - 1 },
+    // The point is outside the element's own box once the page is empty.
+    force: true,
+    // An action in a test gets five seconds, so that a click on something
+    // that's gone fails soon. This is tidying up, not a test, and it has
+    // nothing to wait for but the page itself. On a CI runner with two
+    // cores and several browsers open, a page can take longer than five
+    // seconds to answer, and that failed a test that had passed.
+    timeout: tidyTimeout,
+  });
+}
+
+// All of this lives on the page rather than in the rendered component, so
+// it would leak into the next test.
+afterEach(async () => {
+  for (const name of ["data-theme", "data-preset", "data-density"]) {
+    document.documentElement.removeAttribute(name);
+  }
+  document.body.style.removeProperty("background-color");
+  document.body.style.removeProperty("color");
+  await emulateMedia({
+    colorScheme: null,
+    reducedMotion: null,
+    forcedColors: null,
+  });
+  await setViewport("phone");
+  await parkPointer();
+});

@@ -1,5 +1,6 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
+import AxeBuilder from "@axe-core/playwright";
 import { createTheme, presetNames, presets } from "@nuvui/theme";
 import { expect, type Locator, test } from "@playwright/test";
 import { open, rootStyle, sameColor } from "./helpers";
@@ -357,6 +358,131 @@ test.describe("density on the theming page", () => {
       const box = await button.boundingBox();
 
       expect(box?.height, density).toBe(isMobile ? 44 : height);
+    }
+  });
+});
+
+// A table in a page is in a box that scrolls sideways when the table is
+// wider than the screen. Whether that happens on a phone depends on the
+// fonts, so this makes the screen narrow enough that it always does.
+test.describe("a wide table on a narrow screen", () => {
+  test.use({ viewport: { width: 300, height: 700 } });
+
+  test("can be scrolled from the keyboard, and one that fits adds no tab stop", async ({
+    page,
+  }) => {
+    await open(page, "/docs/right-to-left");
+    const boxes = page.getByRole("group", { name: "Table" });
+    await expect(boxes.first()).toHaveAttribute("tabindex", "0");
+    const box = boxes.first();
+
+    await box.focus();
+    await page.keyboard.press("ArrowRight");
+    await page.keyboard.press("ArrowRight");
+    await expect
+      .poll(() => box.evaluate((element) => element.scrollLeft))
+      .toBeGreaterThan(0);
+
+    // The page itself still doesn't scroll sideways.
+    expect(
+      await page.evaluate(
+        () =>
+          document.documentElement.scrollWidth <=
+          document.documentElement.clientWidth,
+      ),
+    ).toBe(true);
+
+    const results = await new AxeBuilder({ page })
+      .withRules(["scrollable-region-focusable"])
+      .analyze();
+    expect(results.violations).toEqual([]);
+  });
+});
+
+test("a table that fits its page is not a tab stop", async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(isMobile, "On a phone most tables don't fit.");
+  await open(page, "/docs/right-to-left");
+
+  await expect(page.locator("table").first()).toBeVisible();
+  await expect(page.getByRole("group", { name: "Table" })).toHaveCount(0);
+});
+
+test.describe("translation page", () => {
+  test("has every default the components' comments say to translate", async ({
+    page,
+  }) => {
+    // A prop whose comment says "Translate it" has text that reaches a
+    // person. Its default has to be on the page that lists them all.
+    const components = path.join(library, "src/components");
+    const defaults = new Set<string>();
+    for (const folder of readdirSync(components)) {
+      const file = path.join(components, folder, `${folder}.tsx`);
+      if (!existsSync(file)) continue;
+      const source = readFileSync(file, "utf8");
+      for (const [comment] of source.matchAll(/\/\*\*[\s\S]*?\*\//g)) {
+        if (!comment.includes("Translate")) continue;
+        const text = comment.match(/@default "([^"]+)"/)?.[1];
+        if (text) defaults.add(text);
+      }
+    }
+    expect(defaults.size).toBeGreaterThan(10);
+
+    await open(page, "/docs/translation");
+    // A row's default is drawn when the row is opened, so every row is.
+    const article = page.locator("article").first();
+    const closed = article.locator(
+      '[id^="type-table-"] > button[aria-expanded="false"]',
+    );
+    const rows = await closed.count();
+    expect(rows).toBeGreaterThan(20);
+    await closed.evaluateAll((buttons) => {
+      for (const button of buttons) (button as HTMLButtonElement).click();
+    });
+    await expect(closed).toHaveCount(0);
+    const content = await article.innerText();
+    for (const text of defaults) {
+      expect(content, text).toContain(text);
+    }
+  });
+
+  test("has the data table's labels, and the dates' own strings", async ({
+    page,
+  }) => {
+    await open(page, "/docs/translation");
+    const article = page.locator("article").first();
+    for (const name of ["clearFilters", "rowsPerPage", "calendarLabel"]) {
+      // A row's id ends in the prop it's for.
+      await expect(article.locator(`[id$="-${name}"]`)).toHaveCount(1);
+    }
+  });
+});
+
+test.describe("support policy page", () => {
+  test("says what the packages themselves declare", async ({ page }) => {
+    const packages = path.join(library, "..");
+    const manifest = (name: string) =>
+      JSON.parse(
+        readFileSync(path.join(packages, name, "package.json"), "utf8"),
+      );
+
+    await open(page, "/docs/support");
+    const article = page.locator("article").first();
+    await expect(article).toContainText(manifest("ui").peerDependencies.react);
+
+    // Each row of the Node table is the package's own `engines`.
+    for (const [folder, name] of [
+      ["ui", "@nuvui/react"],
+      ["date-picker", "@nuvui/date-picker"],
+      ["charts", "@nuvui/charts"],
+      ["table", "@nuvui/table"],
+    ] as const) {
+      const oldest = manifest(folder).engines.node.replace(">=", "");
+      await expect(
+        article.getByRole("row").filter({ hasText: name }),
+      ).toContainText(`${oldest} or newer`);
     }
   });
 });

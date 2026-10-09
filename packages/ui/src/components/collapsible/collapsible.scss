@@ -1,0 +1,47 @@
+@use "../../styles/layers";
+@use "../../styles/mixins";
+
+@layer components {
+  // The content's height is animated, so anything taller than the moment's
+  // height has to be cut off. Padding on this element would make it jump at
+  // the end: put it on something inside.
+  .nuv-collapsible__content {
+    overflow: hidden;
+
+    @include mixins.motion-safe {
+      &[data-state="open"] {
+        animation: nuv-collapsible-down
+          var(--nuv-collapsible-duration, var(--nuv-duration-slow))
+          var(--ease-out);
+      }
+
+      &[data-state="closed"] {
+        animation: nuv-collapsible-up
+          var(--nuv-collapsible-duration, var(--nuv-duration-base))
+          var(--ease-in);
+      }
+    }
+  }
+
+  // Radix measures the content and exposes its height as a variable, which
+  // is what makes animating to "auto" possible.
+  @keyframes nuv-collapsible-down {
+    from {
+      block-size: 0;
+    }
+
+    to {
+      block-size: var(--radix-collapsible-content-height);
+    }
+  }
+
+  @keyframes nuv-collapsible-up {
+    from {
+      block-size: var(--radix-collapsible-content-height);
+    }
+
+    to {
+      block-size: 0;
+    }
+  }
+}

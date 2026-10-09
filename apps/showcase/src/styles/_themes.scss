@@ -1,0 +1,294 @@
+@use "@nuvui/react/scss/mixins";
+@use "layout";
+
+// The theme builder: the controls, and beside them from the lg breakpoint
+// up, the previews.
+.site-builder {
+  @include layout.container(layout.$width-wide);
+
+  display: grid;
+  gap: calc(var(--spacing) * 8);
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+
+  @include mixins.breakpoint("lg") {
+    grid-template-columns: 20rem minmax(0, 1fr);
+  }
+}
+
+.site-builder__panel {
+  display: grid;
+  gap: calc(var(--spacing) * 8);
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.site-builder__heading {
+  margin: 0 0 calc(var(--spacing) * 3);
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-sm--line-height);
+}
+
+.site-builder__starts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 2);
+}
+
+.site-builder__controls {
+  display: grid;
+  gap: calc(var(--spacing) * 4);
+}
+
+// The heading already has its room below, and the grid adds its own.
+.site-builder__controls > .site-builder__heading {
+  margin-block-end: 0;
+}
+
+.site-builder__control {
+  display: grid;
+  gap: calc(var(--spacing) * 1.5);
+}
+
+.site-builder__row {
+  display: flex;
+  gap: calc(var(--spacing) * 2);
+  align-items: center;
+}
+
+// A lock is a square, at the size of the control it's beside.
+.site-builder__lock {
+  flex: none;
+  aspect-ratio: 1;
+  padding: 0;
+}
+
+.site-builder__swatch {
+  flex: none;
+  inline-size: calc(var(--spacing) * 6);
+  block-size: calc(var(--spacing) * 6);
+  border: var(--nuv-border-width) solid var(--color-border-strong);
+  border-radius: var(--radius-full);
+}
+
+// The browser's own color control, sized like the library's controls.
+.site-builder__color {
+  flex: none;
+  inline-size: var(--nuv-touch-size);
+  block-size: var(--nuv-touch-size);
+  padding: 0;
+  border: var(--nuv-border-width) solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background-color: transparent;
+  cursor: pointer;
+
+  @include mixins.focus-ring;
+
+  @include mixins.fine-pointer {
+    inline-size: var(--nuv-control-height-md);
+    block-size: var(--nuv-control-height-md);
+  }
+}
+
+.site-builder__hex {
+  color: var(--color-muted-foreground);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+}
+
+.site-builder__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 2);
+  align-items: center;
+}
+
+.site-builder__code {
+  margin: calc(var(--spacing) * 3) 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  overflow-wrap: anywhere;
+}
+
+.site-builder__note {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+}
+
+// The contrast report under the controls.
+.site-contrast__summary {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+.site-contrast__closest {
+  margin: calc(var(--spacing) * 1) 0 calc(var(--spacing) * 3);
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+}
+
+.site-contrast__table {
+  margin-block-start: calc(var(--spacing) * 3);
+  font-size: var(--text-sm);
+}
+
+// What the tokens dialog has in each of its tabs.
+.site-tokens {
+  display: grid;
+  gap: calc(var(--spacing) * 3);
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.site-tokens__where {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+}
+
+.site-tokens__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 2);
+}
+
+// The previews. The element with this class is the preset the theme being
+// made is written for.
+.site-preview {
+  display: grid;
+  gap: calc(var(--spacing) * 4);
+  grid-template-columns: minmax(0, 1fr);
+  min-inline-size: 0;
+}
+
+.site-preview__bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 3);
+  align-items: center;
+  justify-content: space-between;
+}
+
+.site-preview__frames {
+  display: grid;
+  gap: calc(var(--spacing) * 4);
+  grid-template-columns: minmax(0, 1fr);
+
+  // Side by side once there's room for two.
+  &[data-shown="both"] {
+    @include mixins.breakpoint("xl") {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+}
+
+// One mode of the theme. It has data-theme, so everything in it, this box
+// included, takes that mode's colors.
+.site-preview__frame {
+  min-inline-size: 0;
+  padding: calc(var(--spacing) * 4);
+  border: var(--nuv-border-width) solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+
+  @include mixins.breakpoint("sm") {
+    padding: calc(var(--spacing) * 6);
+  }
+}
+
+// The dashboard lays itself out by the width of the screen, and in here it
+// has a part of it. Its charts stay one above the other.
+.site-preview__frame .site-dashboard__charts {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.site-preview__frame .site-dashboard__chart {
+  --nuv-chart-height: auto;
+  --nuv-chart-aspect-ratio: 16 / 9;
+}
+
+.site-preview__forms {
+  display: grid;
+  gap: calc(var(--spacing) * 4);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+  align-items: start;
+}
+
+.site-preview__form {
+  display: grid;
+  gap: calc(var(--spacing) * 4);
+}
+
+.site-preview__group {
+  display: grid;
+  gap: calc(var(--spacing) * 2);
+}
+
+.site-preview__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-variant-numeric: tabular-nums;
+}
+
+.site-preview__choice {
+  display: flex;
+  gap: calc(var(--spacing) * 2);
+  align-items: center;
+}
+
+.site-preview__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 2);
+  justify-content: flex-end;
+}
+
+.site-preview__parts {
+  display: grid;
+  gap: calc(var(--spacing) * 8);
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.site-preview__part-name {
+  margin: 0 0 calc(var(--spacing) * 3);
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+.site-preview__part-body {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 3);
+  align-items: center;
+}
+
+.site-preview__stack {
+  display: grid;
+  flex: 1 1 100%;
+  gap: calc(var(--spacing) * 3);
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.site-preview__line {
+  display: flex;
+  gap: calc(var(--spacing) * 3);
+  align-items: center;
+}
+
+.site-preview__wide {
+  flex: 1 1 100%;
+  min-inline-size: 0;
+}
+
+.site-preview__rule {
+  align-self: stretch;
+}
+
+.site-preview__text {
+  margin: 0;
+}

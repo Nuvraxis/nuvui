@@ -1,0 +1,154 @@
+---
+title: Input
+description: A one-line text field. It's the browser's own input with the library's styles, so every type and attribute works.
+---
+
+Use an input for a short piece of text: a name, an email address, a number, a date. For several lines, use a [textarea](/docs/components/textarea). To give it a label, a hint and an error message that screen readers tie together, put it in a [Field](/docs/components/field).
+
+<Preview name="input/basic" />
+
+## Install
+
+```sh
+pnpm add @nuvui/react
+```
+
+## Import
+
+```tsx
+import { Input } from "@nuvui/react";
+```
+
+The styles come from `@nuvui/react/styles.css`, which you load once for the whole app. [Getting started](/docs) covers that, and how to load only this component's CSS.
+
+## Try it
+
+<InputPlayground />
+
+## Props
+
+Input adds no props of its own. These are the ones you'll reach for most.
+
+<PropsTable
+  component="input"
+  name="InputProps"
+  props={{
+    type: "What kind of value it takes. The browser picks the keyboard and the checks to match.",
+    value: "The text, when you control it yourself. Use it with `onChange`.",
+    defaultValue: "The text it starts with, when you don't control it.",
+    placeholder: "An example of what to type, shown while it's empty.",
+    disabled: "Stops it from being focused or changed, and leaves it out of the form.",
+    readOnly: "Lets the text be selected and copied and not changed. It's still submitted.",
+    required: "Inside a form, the browser won't submit while it's empty.",
+    name: "The name the value is submitted under in a form.",
+    autoComplete: "What the browser may fill in, such as `\"email\"` or `\"name\"`.",
+  }}
+/>
+
+Everything else is passed to the `<input>` element, including `ref`, `id`, `className` and event handlers.
+
+## Types
+
+`type` goes straight to the browser. On a phone it decides which keyboard opens.
+
+<Preview name="input/types" />
+
+`type="file"` gets the browser's own button, styled to match. For a drop area and a list of the chosen files, use [FileUpload](/docs/components/file-upload). For a password with a button that shows it, use [PasswordInput](/docs/components/password-input).
+
+## States
+
+<Preview name="input/states" />
+
+Set `aria-invalid` and the edge turns to the danger color. Color isn't enough to go on, so say what's wrong in words too, and tie the message to the input with `aria-describedby`. [Field](/docs/components/field) does both.
+
+A read-only input is filled with the muted color, so it's clear that it isn't waiting for input.
+
+## Width
+
+An input fills the width of its container. Give the container a width, or set `--nuv-input-width`.
+
+## On small screens
+
+An input is 44 pixels tall on a touch screen and 40 with a mouse, where [density](/docs/theming#density) moves it.
+
+Its text is 16 pixels on a touch screen and 14 with a mouse. iOS zooms the page in when a field with text under 16 pixels takes focus, and doesn't zoom back out.
+
+## Accessibility
+
+### Keyboard
+
+| Key | What it does |
+| --- | --- |
+| <kbd>Tab</kbd> | Moves focus to the input. Disabled ones are skipped. |
+
+Everything else is the browser's own text editing.
+
+### What the component handles
+
+- It renders a native `<input>`, so the role, the keyboard and form submission come from the browser.
+- The edge uses `--color-border-strong`, which has at least 3:1 contrast with the page in every theme, so an empty input is still visible as a control.
+- The placeholder uses `--color-muted-foreground` at full opacity, which has at least 4.5:1 against the input. Firefox would otherwise fade it.
+- Focus shows a 2 pixel ring in `--color-ring`.
+- The edge only animates when the visitor hasn't asked for reduced motion.
+
+### What you need to handle
+
+- Give it a name. Use a [label](/docs/components/label) whose `htmlFor` matches the input's `id`, or `aria-label` when there's no visible text.
+- Set `autoComplete` on fields about the person, such as name, email and address. It lets the browser fill them in, and WCAG asks for it.
+- When the value is wrong, set `aria-invalid` and describe the problem in text.
+
+## CSS variables
+
+Set any of these on the input, or on anything around it.
+
+```css
+.search {
+  --nuv-input-radius: var(--radius-full);
+}
+```
+
+<CssVariables
+  component="input"
+  descriptions={{
+    "--nuv-input-width": "Width. It fills its container by default.",
+    "--nuv-input-padding-inline": "Padding left and right.",
+    "--nuv-input-border": "Border color.",
+    "--nuv-input-radius": "Corner radius.",
+    "--nuv-input-bg": "Background color.",
+    "--nuv-input-fg": "Text color.",
+    "--nuv-input-height":
+      "Minimum height. The default differs between touch screens and a mouse.",
+    "--nuv-input-font-size":
+      "Font size. The default differs between touch screens and a mouse. Keep it at 16px or more on phones.",
+    "--nuv-input-placeholder": "Color of the placeholder.",
+    "--nuv-input-readonly-bg": "Background color while read-only.",
+  }}
+/>
+
+## Classes
+
+<BemClasses
+  component="input"
+  descriptions={{
+    "nuv-input": "The input.",
+  }}
+/>
+
+States are attributes, not modifier classes: `:disabled`, `[readonly]` and `[aria-invalid="true"]`.
+
+## Server components
+
+Input has no `"use client"` directive and uses no state, so it renders in a server component as it is. An `onChange` handler is the usual reason to need a client component around it.
+
+## Do and don't
+
+**Do**
+
+- Pick the `type` that matches the value. It costs nothing and gives phone users the right keyboard.
+- Size the input to what goes in it. A postcode doesn't need the full width of the page.
+
+**Don't**
+
+- Don't use the placeholder for instructions. It's gone once someone starts typing.
+- Don't disable an input without saying why somewhere on the page.
+- Don't set the font size under 16 pixels on pages people use on phones.

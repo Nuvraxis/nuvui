@@ -1,0 +1,87 @@
+@use "@nuvui/react/scss/mixins";
+
+.page-header {
+  display: grid;
+  gap: calc(var(--spacing) * 5);
+  padding: calc(var(--spacing) * 6) calc(var(--spacing) * 4);
+  border-block-end: var(--nuv-border-width) solid var(--color-border);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+
+  @include mixins.breakpoint("md") {
+    padding: calc(var(--spacing) * 8);
+  }
+}
+
+// The title on one side and the actions on the other, once there's room.
+// Before that the actions go under the title.
+.page-header__row {
+  display: grid;
+  gap: calc(var(--spacing) * 5);
+
+  @include mixins.breakpoint("md") {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+  }
+}
+
+.page-header__about {
+  display: grid;
+  gap: calc(var(--spacing) * 2);
+}
+
+.page-header__heading {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 2) calc(var(--spacing) * 3);
+  align-items: center;
+}
+
+.page-header__title {
+  margin: 0;
+  font-size: clamp(1.5rem, 1.25rem + 1.2vw, 2rem);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.2;
+  letter-spacing: var(--tracking-tight);
+  overflow-wrap: anywhere;
+}
+
+.page-header__text {
+  max-inline-size: 60ch;
+  margin: 0;
+  color: var(--color-muted-foreground);
+}
+
+.page-header__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 2);
+}
+
+.page-header__facts {
+  display: grid;
+  gap: calc(var(--spacing) * 4) calc(var(--spacing) * 10);
+  margin: 0;
+  padding-block-start: calc(var(--spacing) * 5);
+  border-block-start: var(--nuv-border-width) solid var(--color-border);
+
+  @include mixins.breakpoint("sm") {
+    grid-template-columns: repeat(3, max-content);
+  }
+}
+
+.page-header__fact {
+  display: grid;
+  gap: calc(var(--spacing) * 1);
+}
+
+.page-header__label {
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+.page-header__value {
+  margin: 0;
+  font-weight: var(--font-weight-medium);
+}

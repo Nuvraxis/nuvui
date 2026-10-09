@@ -3,7 +3,9 @@ import { site } from "./site";
 
 export function baseOptions(): BaseLayoutProps {
   return {
-    nav: { title: site.name },
+    // The site's name is in the header above, with the way back to the
+    // website. This names the part of the site the sidebar is for.
+    nav: { title: "Documentation" },
     // Not the built-in `githubUrl` option. Its icon is an <svg role="img">
     // with no text alternative, which fails WCAG 1.1.1.
     links: [

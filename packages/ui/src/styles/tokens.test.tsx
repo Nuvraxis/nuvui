@@ -7,11 +7,11 @@ import {
   systemFont,
   toHex,
 } from "@nuvui/theme";
+import { axe } from "@nuvui/tooling/test/axe";
+import { contrast, toRgb } from "@nuvui/tooling/test/contrast";
+import { emulateMedia } from "@nuvui/tooling/test/media";
 import { describe, expect, test } from "vitest";
 import { render } from "vitest-browser-react";
-import { axe } from "../../test/axe";
-import { contrast, toRgb } from "../../test/contrast";
-import { emulateMedia } from "../../test/media";
 
 const root = document.documentElement;
 

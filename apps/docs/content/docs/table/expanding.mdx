@@ -1,0 +1,147 @@
+---
+title: Expanding rows
+description: Open a data table's row to show a panel of details under it, or the rows nested under it in a tree. With a named button that says whether the row is open.
+---
+
+A row can open in two ways. It can show a panel of your own under itself, or it can show the rows nested under it.
+
+## A panel under the row
+
+<Preview name="data-table/expanding" wide />
+
+Three things make that table:
+
+```tsx
+const columns = helper.columns([
+  helper.expand(),
+  helper.accessor("name", { header: "Name" }),
+]);
+
+const table = useDataTable({
+  columns,
+  data,
+  getRowCanExpand: () => true,
+});
+
+<DataTable
+  table={table}
+  caption="People"
+  rowHeader="name"
+  renderDetail={(row) => <Details person={row.original} />}
+/>;
+```
+
+- `helper.expand()` is a column with a button in each row.
+- `getRowCanExpand` says which rows can open. TanStack only lets a row open by itself when it has rows under it, so a table with panels has to say so. Return `false` for rows that have nothing more to show, and they get no button.
+- `renderDetail` draws the panel. It's given the row, and what it returns goes in one cell that spans the table.
+
+The panel is only in the page while the row is open.
+
+## Rows under a row
+
+<Preview name="data-table/tree" wide />
+
+For a tree, tell TanStack where a row's children are with `getSubRows`, and put the button in the cell that names the row:
+
+```tsx
+helper.accessor("name", {
+  header: "Name",
+  cell: ({ cell, getValue }) => (
+    <>
+      <cell.ExpandToggle /> {getValue()}
+    </>
+  ),
+});
+
+const table = useDataTable({
+  columns,
+  data: folders,
+  getSubRows: (folder) => folder.children,
+});
+```
+
+`cell.ExpandToggle` indents itself by how deep its row is. A row with nothing under it gets a gap the width of the button in its place, so the names line up.
+
+`--nuv-data-table-indent` is how far each level goes in. It's 1.25rem.
+
+## What to register
+
+`@nuvui/table/full` has it. In a hook of your own:
+
+```tsx
+import {
+  createExpandedRowModel,
+  rowExpandingFeature,
+  tableFeatures,
+} from "@tanstack/react-table";
+
+tableFeatures({
+  rowExpandingFeature,
+  expandedRowModel: createExpandedRowModel(),
+});
+```
+
+`expandedRowModel` is what puts a tree's nested rows into the list. A table that only has panels can leave it out.
+
+## Open to begin with
+
+Which rows are open is a map from row id to `true`, or just `true` for all of them:
+
+```tsx
+initialState: { expanded: { "person-2": true } }
+```
+
+Set `getRowId` so the ids are your own. Without it a row's id is its position, and a nested row's is its parent's and its own joined with a dot, such as `"0.1"`.
+
+`table.toggleAllRowsExpanded()` opens or closes every row, for a button of your own.
+
+## With other features
+
+- **Sorting and filtering** apply to every level of a tree. A filter keeps a parent whose own values match. To keep a parent because something under it matches, pass `filterFromLeafRows: true` to the hook.
+- **Pagination** counts the rows of an open tree. A page of ten holds ten rows, nested ones included, so opening a row pushes others to the next page. `paginateExpandedRows: false` keeps a parent's rows with it, and lets a page grow.
+- **Selection**: selecting a parent selects the rows under it. Its checkbox shows a dash while some of them are selected.
+
+## Accessibility
+
+### Keyboard
+
+| Key | What it does |
+| --- | --- |
+| <kbd>Tab</kbd> | Moves to the next button. |
+| <kbd>Enter</kbd> or <kbd>Space</kbd> | Opens or closes the row. |
+
+### What the component handles
+
+- The button has `aria-expanded`, and is named for its row: "Show details for Ada Lovelace", then "Hide details for Ada Lovelace".
+- A panel is a row of the same table, directly after the row it belongs to, so it's read in order.
+- On a touch screen the button answers a tap anywhere in 44 pixels around it.
+- The arrow points the other way in a right-to-left layout.
+
+### What you need to handle
+
+- The names say "details". For a tree, rename them with `labels`, as below.
+- A tree here is a table with indented rows, not a `treegrid`. A screen reader isn't told a row's level or how many rows are under it. Where that matters, say it in the row: "Design, 2 folders".
+- Keep a panel short. It sits inside a table, and a long form or another table in it is hard to move through.
+
+```tsx
+<DataTable
+  table={table}
+  caption="Folders"
+  labels={{
+    expandRow: (row) => `Open ${row}`,
+    collapseRow: (row) => `Close ${row}`,
+  }}
+/>
+```
+
+## Do and don't
+
+**Do**
+
+- Put in a panel what's too long for a cell and not needed to compare rows.
+- Keep a tree to two or three levels.
+
+**Don't**
+
+- Don't hide in a panel something people need in order to choose a row.
+- Don't put the open button at the end of the row. It's expected at the start.

@@ -3,7 +3,9 @@ import { expect, test } from "@playwright/test";
 import { site } from "../lib/site";
 import { docsPages, open } from "./helpers";
 
-const pages = ["/", ...docsPages];
+// Every page of this app. The home page is the website's, apps/showcase,
+// which has the same checks of its own.
+const pages = docsPages;
 
 for (const path of pages) {
   test.describe(path, () => {
@@ -69,7 +71,7 @@ for (const path of pages) {
 
     // Chiefly the files Next's router fetches ahead of a navigation, one for
     // each link in view. An export made on Windows puts them where the
-    // router doesn't look, which scripts/fix-export.mjs puts right.
+    // router doesn't look, which scripts/fix-next-export.mjs puts right.
     test("asks for nothing that isn't there", async ({ page }) => {
       const missing: string[] = [];
       page.on("response", (response) => {
@@ -117,6 +119,8 @@ for (const path of pages) {
 }
 
 test("no two pages share a title or a description", async ({ page }) => {
+  // One test opens every page in turn, so its time grows with the site.
+  test.setTimeout(30_000 + pages.length * 2_000);
   const titles: string[] = [];
   const descriptions: string[] = [];
 

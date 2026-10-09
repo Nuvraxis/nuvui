@@ -7,6 +7,7 @@ import {
   forwardRef,
 } from "react";
 import { cx } from "../../utils/cx";
+import type { PartProps } from "../../utils/part-props";
 
 export type AccordionProps = ComponentPropsWithoutRef<
   typeof AccordionPrimitive.Root
@@ -53,7 +54,7 @@ export interface AccordionTriggerOwnProps {
 
 export interface AccordionTriggerProps
   extends AccordionTriggerOwnProps,
-    ComponentPropsWithoutRef<typeof AccordionPrimitive.Trigger> {}
+    PartProps<typeof AccordionPrimitive.Trigger> {}
 
 export const AccordionTrigger = forwardRef<
   ComponentRef<typeof AccordionPrimitive.Trigger>,
@@ -93,7 +94,7 @@ export const AccordionTrigger = forwardRef<
   );
 });
 
-export type AccordionContentProps = ComponentPropsWithoutRef<
+export type AccordionContentProps = PartProps<
   typeof AccordionPrimitive.Content
 >;
 

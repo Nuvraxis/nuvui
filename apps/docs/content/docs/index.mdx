@@ -6,7 +6,7 @@ description: Install nuvui, load its stylesheet once, and render your first comp
 nuvui is a set of React components that wrap [Radix UI](https://www.radix-ui.com/primitives) primitives. Radix handles the behavior: focus, keyboard support, ARIA. nuvui adds the styles, written in SCSS with BEM class names and themed through CSS custom properties.
 
 <Callout type="warn" title="Not published yet">
-  `@nuvui/react` isn't on the registry yet, so the install command below won't find it. There are eleven components so far, listed under Components in the menu.
+  `@nuvui/react` isn't on the registry yet, so the install command below won't find it. There are fifty-two components so far, listed under Components in the menu. Three more, for dates, are in a package of their own, [`@nuvui/date-picker`](/docs/date-picker), tables are in another, [`@nuvui/table`](/docs/table), and charts in a third, [`@nuvui/charts`](/docs/charts).
 </Callout>
 
 ## Install
@@ -36,6 +36,20 @@ export default function Page() {
   return <Button>Save changes</Button>;
 }
 ```
+
+## Rendering another element
+
+Many parts take `asChild`. With it, the part doesn't render an element of its own. It gives its props, its classes and its behavior to the one child you put inside:
+
+```tsx
+<Button asChild>
+  <a href="/pricing">See pricing</a>
+</Button>
+```
+
+That's a link that looks like a button, and it's how a trigger takes your own button: `<DialogTrigger asChild><Button>Open</Button></DialogTrigger>`.
+
+It only works where there's one child to become. A part that draws something of its own beside what you give it doesn't take `asChild`, and TypeScript says so: a dialog's content has its close button, a checkbox has its tick, a select's trigger has its arrow. Style those with `className`, or with the CSS variables on the component's page.
 
 ## Dark mode
 
@@ -77,6 +91,8 @@ import { Button } from "@nuvui/react/button";
 
 The styles use cascade layers, `oklch()` colors, `color-mix()` and `dvh` units. That means Chrome and Edge 111, Firefox 113 and Safari 16.4, or newer. There's no fallback for older browsers.
 
+The [support policy](/docs/support) has the versions of React and Node as well, and says which of them the tests run on.
+
 ## With Tailwind or Sass
 
 Neither is needed. If your app already uses one, there's a guide for each:
@@ -84,8 +100,10 @@ Neither is needed. If your app already uses one, there's a guide for each:
 - [Using with Tailwind](/docs/tailwind) covers the layer order and how to get utilities such as `bg-primary`.
 - [Using with SCSS](/docs/scss) covers the mixins and changing the breakpoints.
 
+For Arabic, Hebrew and other languages that read from the right, see [Right-to-left](/docs/right-to-left). The few words the components write themselves, and the prop for each, are listed in [Translation](/docs/translation).
+
 ## What isn't here yet
 
 - A released version. The [changelog](/docs/changelog) lists what the first one will contain.
 - Testing in Safari itself. The tests run in Chromium, Firefox and the WebKit build that Playwright ships, which is close to Safari and isn't Safari.
-- More components. There are eleven, and no date for the next ones.
+- More components. There are fifty-two, and no date for the next ones.

@@ -1,0 +1,232 @@
+@use "mixins";
+
+// Shared by everything built on Radix's dialog: dialog, alert dialog and
+// sheet. It's internal, so the public mixins don't forward it, but it ships
+// with the SCSS source because the components need it.
+
+// $name is the component, and becomes part of each variable's and each
+// animation's name, so one kind of panel can be restyled on its own.
+
+// The layer that dims the page.
+@mixin overlay($name) {
+  position: fixed;
+  z-index: var(--nuv-z-overlay);
+  inset: 0;
+  background-color: var(--nuv-#{$name}-overlay-bg, var(--color-overlay));
+
+  @include mixins.motion-safe {
+    &[data-state="open"] {
+      animation: nuv-#{$name}-fade-in var(--nuv-duration-base) var(--ease-out);
+    }
+
+    &[data-state="closed"] {
+      animation: nuv-#{$name}-fade-out var(--nuv-duration-fast) var(--ease-in);
+    }
+  }
+}
+
+// What every panel has, wherever on the screen it sits.
+@mixin surface($name) {
+  position: fixed;
+  z-index: var(--nuv-z-overlay);
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing) * 2);
+  padding: var(--nuv-#{$name}-padding, calc(var(--spacing) * 6));
+  overflow-y: auto;
+  border: var(--nuv-border-width) solid var(--nuv-#{$name}-border, var(--color-border));
+  background-color: var(--nuv-#{$name}-bg, var(--color-surface));
+  box-shadow: var(--nuv-#{$name}-shadow, var(--shadow-xl));
+  color: var(--nuv-#{$name}-fg, var(--color-surface-foreground));
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+
+  // Radix moves focus to the panel itself when nothing inside can take it.
+  // That's a container, not a control, so it gets no ring.
+  &:focus {
+    outline: none;
+  }
+}
+
+// On a phone the panel is attached to the bottom edge, where a thumb can
+// reach it. From the sm breakpoint up it sits in the middle of the screen.
+@mixin centered($name, $width: 32rem) {
+  inset-block-end: 0;
+  inset-inline: 0;
+  max-block-size: calc(100dvh - var(--spacing) * 8);
+
+  // Keeps the last row clear of the home indicator on phones.
+  padding-block-end: max(
+    var(--nuv-#{$name}-padding, calc(var(--spacing) * 6)),
+    env(safe-area-inset-bottom)
+  );
+  border-radius: var(--nuv-#{$name}-radius, var(--radius-xl));
+  border-end-start-radius: 0;
+  border-end-end-radius: 0;
+
+  @include mixins.motion-safe {
+    &[data-state="open"] {
+      animation: nuv-#{$name}-sheet-in var(--nuv-duration-slow) var(--ease-out);
+    }
+
+    &[data-state="closed"] {
+      animation: nuv-#{$name}-sheet-out var(--nuv-duration-base) var(--ease-in);
+    }
+  }
+
+  @include mixins.breakpoint("sm") {
+    inset: 0;
+    block-size: fit-content;
+    margin: auto;
+    border-radius: var(--nuv-#{$name}-radius, var(--radius-xl));
+
+    @include width($name, $width);
+
+    @include mixins.motion-safe {
+      &[data-state="open"] {
+        animation: nuv-#{$name}-pop-in var(--nuv-duration-base) var(--ease-out);
+      }
+
+      &[data-state="closed"] {
+        animation: nuv-#{$name}-pop-out var(--nuv-duration-fast) var(--ease-in);
+      }
+    }
+  }
+}
+
+// The widest a centered panel gets. Meant for inside the sm breakpoint.
+@mixin width($name, $width) {
+  inline-size: min(
+    100% - var(--spacing) * 8,
+    var(--nuv-#{$name}-width, #{$width})
+  );
+}
+
+// $close says whether a close button sits in the corner next to it.
+@mixin title($close: true) {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-lg--line-height);
+
+  @if $close {
+    // Leaves room for the close button in the corner.
+    padding-inline-end: calc(var(--spacing) * 10);
+  }
+}
+
+@mixin description {
+  margin: 0;
+  color: var(--color-muted-foreground);
+}
+
+// The title and description as one block, so that what sits between it
+// and the footer can be a body that scrolls.
+@mixin header {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  gap: calc(var(--spacing) * 2);
+}
+
+// Takes the height the header and footer leave, and scrolls inside it.
+// Without a body the panel scrolls as a whole. The negative margin, and
+// the padding that makes up for it, put the scrollbar on the panel's edge
+// and not inside its padding.
+@mixin body($name) {
+  flex: 1 1 auto;
+  min-block-size: 0;
+  margin-inline: calc(var(--nuv-#{$name}-padding, calc(var(--spacing) * 6)) * -1);
+  padding-inline: var(--nuv-#{$name}-padding, calc(var(--spacing) * 6));
+  overflow-y: auto;
+
+  // It only takes focus when it scrolls and holds nothing else that could.
+  @include mixins.focus-ring(-2px);
+}
+
+// Stacked on a phone with the main action on top, in a row from sm up.
+@mixin footer {
+  display: flex;
+  flex: none;
+  flex-direction: column-reverse;
+  gap: calc(var(--spacing) * 2);
+  margin-block-start: calc(var(--spacing) * 4);
+
+  @include mixins.breakpoint("sm") {
+    flex-direction: row;
+    justify-content: flex-end;
+  }
+}
+
+// The button in the panel's corner.
+@mixin close {
+  position: absolute;
+  inset-block-start: calc(var(--spacing) * 2);
+  inset-inline-end: calc(var(--spacing) * 2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-md);
+  background-color: transparent;
+  color: var(--color-muted-foreground);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+
+  @include mixins.touch-target;
+  @include mixins.focus-ring;
+
+  @include mixins.hover {
+    background-color: var(--color-muted);
+    color: var(--color-foreground);
+  }
+
+  @include mixins.fine-pointer {
+    min-block-size: var(--nuv-control-height-sm);
+    min-inline-size: var(--nuv-control-height-sm);
+  }
+}
+
+// Keyframes can't sit inside a rule, so they're separate includes.
+@mixin overlay-keyframes($name) {
+  @keyframes nuv-#{$name}-fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes nuv-#{$name}-fade-out {
+    to {
+      opacity: 0;
+    }
+  }
+}
+
+@mixin centered-keyframes($name) {
+  @keyframes nuv-#{$name}-sheet-in {
+    from {
+      transform: translateY(100%);
+    }
+  }
+
+  @keyframes nuv-#{$name}-sheet-out {
+    to {
+      transform: translateY(100%);
+    }
+  }
+
+  @keyframes nuv-#{$name}-pop-in {
+    from {
+      transform: scale(0.96);
+      opacity: 0;
+    }
+  }
+
+  @keyframes nuv-#{$name}-pop-out {
+    to {
+      transform: scale(0.96);
+      opacity: 0;
+    }
+  }
+}

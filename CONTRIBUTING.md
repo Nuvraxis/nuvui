@@ -112,6 +112,7 @@ apps/Dockerfile               builds the site's image: both apps as static files
 apps/nginx.conf               how that image serves them
 apps/otel-collector.example.yaml  an example collector for what the pages send
 scripts/check-site-image.mjs  asks a running container of that image for the site
+scripts/make-icons.mjs        draws the favicon and the home screen icons from one SVG
 scripts/serve-static.mjs      serves an exported site, for the e2e tests and for pnpm start
 scripts/fix-next-export.mjs   puts right what Next's export gets wrong on Windows
 packages/telemetry            sends the site's web vitals to an OpenTelemetry collector (private)
@@ -237,6 +238,14 @@ The theme a visitor picks is kept in `localStorage` under `theme`, by both apps,
 The website's own styles are in `apps/showcase/src/styles`: SCSS, the library's tokens, and BEM classes that start with `site`. Stylelint holds it to the same rules as the library, with that prefix.
 
 Both apps show the same header. Its links are listed twice, in `apps/showcase/src/lib/site.ts` and in `apps/docs/lib/site.ts`, and a test fails if the two lists differ.
+
+### Icons, and what a page's head says
+
+Every icon of the site is drawn from one file, `apps/showcase/src/app/icon.svg`, which is the mark in the header. After changing it, run `node scripts/make-icons.mjs` and commit what it writes: the `.ico` and the home screen icons of the website, and the docs' copies of all of them. The docs have their own because they're served under `/docs` and have to be whole when run alone. Next finds `icon.svg`, `favicon.ico` and `apple-icon.png` by name and writes the `<link>` tags.
+
+What a search engine and a shared link read is in `lib/seo.ts`, once in each app, and the two files are kept the same but for their first comment. `baseMetadata` and `viewport` go in the root layout. A page adds its own with `share()`, which takes the page's address and its picture. Use it for every page that has a picture: a page's `openGraph` replaces the layout's, so one written by hand loses the site's name.
+
+A page that shouldn't be found by a search, such as a block's preview, says `robots: { index: false }` in its metadata.
 
 ## Adding a block
 

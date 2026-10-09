@@ -148,6 +148,16 @@
         "default": "./dist/components/checkbox/index.cjs"
       }
     },
+    "./choice-card": {
+      "import": {
+        "types": "./dist/components/choice-card/index.d.ts",
+        "default": "./dist/components/choice-card/index.js"
+      },
+      "require": {
+        "types": "./dist/components/choice-card/index.d.cts",
+        "default": "./dist/components/choice-card/index.cjs"
+      }
+    },
     "./collapsible": {
       "import": {
         "types": "./dist/components/collapsible/index.d.ts",
@@ -348,6 +358,16 @@
         "default": "./dist/components/navigation-menu/index.cjs"
       }
     },
+    "./number-field": {
+      "import": {
+        "types": "./dist/components/number-field/index.d.ts",
+        "default": "./dist/components/number-field/index.js"
+      },
+      "require": {
+        "types": "./dist/components/number-field/index.d.cts",
+        "default": "./dist/components/number-field/index.cjs"
+      }
+    },
     "./otp-field": {
       "import": {
         "types": "./dist/components/otp-field/index.d.ts",
@@ -406,6 +426,16 @@
       "require": {
         "types": "./dist/components/radio-group/index.d.cts",
         "default": "./dist/components/radio-group/index.cjs"
+      }
+    },
+    "./rating": {
+      "import": {
+        "types": "./dist/components/rating/index.d.ts",
+        "default": "./dist/components/rating/index.js"
+      },
+      "require": {
+        "types": "./dist/components/rating/index.d.cts",
+        "default": "./dist/components/rating/index.cjs"
       }
     },
     "./scroll-area": {
@@ -496,6 +526,16 @@
       "require": {
         "types": "./dist/components/stat/index.d.cts",
         "default": "./dist/components/stat/index.cjs"
+      }
+    },
+    "./stepper": {
+      "import": {
+        "types": "./dist/components/stepper/index.d.ts",
+        "default": "./dist/components/stepper/index.js"
+      },
+      "require": {
+        "types": "./dist/components/stepper/index.d.cts",
+        "default": "./dist/components/stepper/index.cjs"
       }
     },
     "./switch": {

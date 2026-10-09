@@ -1,0 +1,28 @@
+@use "../../styles/layers";
+@use "../../styles/control";
+
+@layer components {
+  .nuv-number-field {
+    inline-size: var(--nuv-number-field-width, 100%);
+
+    @include control.group("number-field", "> .nuv-number-field__control");
+  }
+
+  // In the middle, between the two buttons. Digits of one width, so the
+  // number doesn't shift as it's stepped.
+  .nuv-number-field__control {
+    padding-block: 0;
+    padding-inline: calc(var(--spacing) * 2);
+    color: inherit;
+    font-variant-numeric: tabular-nums;
+    text-align: var(--nuv-number-field-align, center);
+
+    @include control.group-field;
+    @include control.text("number-field");
+    @include control.placeholder("number-field");
+  }
+
+  .nuv-number-field__button {
+    @include control.group-button("number-field");
+  }
+}

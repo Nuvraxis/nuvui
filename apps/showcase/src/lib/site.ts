@@ -17,6 +17,8 @@ export const site = {
   // test holds the two together.
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://nuvui.nuvraxis.com",
   repo: "https://github.com/Nuvraxis/nuvui",
+  // Who makes it, as the packages' own manifests say.
+  author: { name: "Nuvraxis", url: "https://github.com/Nuvraxis" },
 };
 
 export function absoluteUrl(path: string): string {

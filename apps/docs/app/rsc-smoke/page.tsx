@@ -31,6 +31,8 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  CheckboxCard,
+  ChoiceCardTitle,
   Combobox,
   ComboboxContent,
   ComboboxItem,
@@ -64,6 +66,7 @@ import {
   ItemTitle,
   Kbd,
   NativeSelect,
+  NumberField,
   Pagination,
   PaginationEllipsis,
   PaginationItem,
@@ -71,6 +74,7 @@ import {
   PaginationList,
   Progress,
   paginationRange,
+  Rating,
   Sidebar,
   SidebarMain,
   SidebarMenu,
@@ -84,6 +88,11 @@ import {
   StatDescription,
   StatLabel,
   StatValue,
+  Stepper,
+  StepperContent,
+  StepperIndicator,
+  StepperItem,
+  StepperTitle,
   Tabs,
   TabsContent,
   TabsList,
@@ -260,6 +269,31 @@ export default function RscSmokePage() {
           </ItemContent>
         </Item>
       </ItemGroup>
+      {/* These four are client components, given plain props and
+          server-rendered content. */}
+      <NumberField
+        aria-label="Seats from the server"
+        defaultValue={1234.5}
+        format={{ locale: "de-DE" }}
+      />
+      <Rating readOnly value={2.5} data-testid="server-rating" />
+      <Stepper value={2} aria-label="Steps from the server">
+        <StepperItem step={1}>
+          <StepperIndicator />
+          <StepperContent>
+            <StepperTitle>First</StepperTitle>
+          </StepperContent>
+        </StepperItem>
+        <StepperItem step={2}>
+          <StepperIndicator />
+          <StepperContent>
+            <StepperTitle>Second</StepperTitle>
+          </StepperContent>
+        </StepperItem>
+      </Stepper>
+      <CheckboxCard defaultChecked>
+        <ChoiceCardTitle>Card from the server</ChoiceCardTitle>
+      </CheckboxCard>
       <div style={{ width: 120 }}>
         <AspectRatio ratio={2} data-testid="server-ratio" />
         <Skeleton data-testid="server-skeleton" />

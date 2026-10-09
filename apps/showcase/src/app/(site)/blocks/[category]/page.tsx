@@ -4,6 +4,7 @@ import { BlockCard } from "@/components/blocks/block-card";
 import { CategoryNav } from "@/components/blocks/category-nav";
 import { JsonLd } from "@/components/json-ld";
 import { blocksHome, blocksIn, categories, categoryPath } from "@/lib/blocks";
+import { share } from "@/lib/seo";
 import { absoluteUrl, docs, pages } from "@/lib/site";
 
 // Only the categories listed are pages. Anything else is the 404 page.
@@ -26,8 +27,12 @@ export async function generateMetadata({
   return {
     title: page?.title,
     description: page?.description,
-    alternates: { canonical: path },
-    openGraph: { url: path, images: `/og/blocks-${category.slug}.png` },
+    ...share({
+      path,
+      image: `/og/blocks-${category.slug}.png`,
+      title: page?.title ?? category.title,
+      description: page?.description,
+    }),
   };
 }
 

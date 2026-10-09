@@ -15,6 +15,7 @@
 @use "../components/button-group/button-group";
 @use "../components/card/card";
 @use "../components/checkbox/checkbox";
+@use "../components/choice-card/choice-card";
 @use "../components/collapsible/collapsible";
 @use "../components/combobox/combobox";
 @use "../components/command/command";
@@ -35,12 +36,14 @@
 @use "../components/menubar/menubar";
 @use "../components/native-select/native-select";
 @use "../components/navigation-menu/navigation-menu";
+@use "../components/number-field/number-field";
 @use "../components/otp-field/otp-field";
 @use "../components/pagination/pagination";
 @use "../components/password-input/password-input";
 @use "../components/popover/popover";
 @use "../components/progress/progress";
 @use "../components/radio-group/radio-group";
+@use "../components/rating/rating";
 @use "../components/scroll-area/scroll-area";
 @use "../components/select/select";
 @use "../components/separator/separator";
@@ -50,6 +53,7 @@
 @use "../components/slider/slider";
 @use "../components/spinner/spinner";
 @use "../components/stat/stat";
+@use "../components/stepper/stepper";
 @use "../components/switch/switch";
 @use "../components/tabs/tabs";
 @use "../components/textarea/textarea";

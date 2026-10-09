@@ -6,7 +6,7 @@ import {
   themes,
 } from "@nuvui/tooling/test/themed";
 import { Component, createRef, type ReactNode, useState } from "react";
-import { describe, expect, test, vi } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 import { page } from "vitest/browser";
 import { render } from "vitest-browser-react";
 import { Button } from "../button";
@@ -204,6 +204,12 @@ describe("open", () => {
 });
 
 describe("where it is", () => {
+  // The bar slides up into its place. Measured on the way, it's still a
+  // few pixels low.
+  beforeEach(async () => {
+    await emulateMedia({ reducedMotion: "reduce" });
+  });
+
   test("fixed, it's along the bottom of the window, in the middle", async () => {
     await render(<Example />);
     const box = rect(bar().element());

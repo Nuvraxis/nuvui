@@ -347,7 +347,7 @@ describe("styles", () => {
     await render(<Delete duration={2000} />);
     // Browsers write the same shape out in slightly different words.
     expect(style(progress()).clipPath).toMatch(
-      /^inset(0(px)? 100% 0(px)? 0(px)?)$/,
+      /^inset\(0(px)? 100% 0(px)? 0(px)?\)$/,
     );
 
     pointer("pointerdown");
@@ -368,7 +368,7 @@ describe("styles", () => {
     );
 
     expect(style(progress()).clipPath).toMatch(
-      /^inset(0(px)? 0(px)? 0(px)? 100%)$/,
+      /^inset\(0(px)? 0(px)? 0(px)? 100%\)$/,
     );
   });
 

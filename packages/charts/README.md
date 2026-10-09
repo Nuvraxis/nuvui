@@ -1,8 +1,8 @@
 # @nuvui/charts
 
-Charts for [`@nuvui/react`](https://github.com/Nuvraxis/nuvui/tree/main/packages/ui): a container, a tooltip, a legend and a data table for charts built from [Recharts](https://recharts.github.io) 3's own parts.
+Charts for [`@nuvui/react`](https://www.npmjs.com/package/@nuvui/react): a container, a tooltip, a legend and a data table for charts built from [Recharts](https://recharts.github.io) 3's own parts.
 
-This is early, and the package hasn't been released. See the [repository README](https://github.com/Nuvraxis/nuvui#readme) for where things stand.
+This is early: the package is on npm as a 0.x version, and before 1.0 a minor version may rename or remove things. The [changelog](https://nuvui.nuvraxis.com/docs/changelog) says where one does, and the [repository README](https://github.com/Nuvraxis/nuvui#readme) says where things stand.
 
 ```sh
 pnpm add @nuvui/charts @nuvui/react recharts
@@ -69,7 +69,7 @@ A chart is a client component. Put `"use client"` at the top of the file it's wr
 
 It's a package of its own so that an app which only wants buttons and dialogs doesn't have to install a charting library.
 
-Docs will live at https://nuvui.nuvraxis.com.
+The docs are at https://nuvui.nuvraxis.com/docs/charts.
 
 ## License
 

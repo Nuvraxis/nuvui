@@ -10,6 +10,13 @@ name: Apps Docker
 # and pushes nothing. So does a run started by hand on a branch other than
 # main.
 #
+# The pages send their web vitals to an OpenTelemetry collector at /otlp on
+# the site's own address, which the ingress has to pass on to one. To send
+# them somewhere else, give the repository a variable named
+# SITE_OTLP_ENDPOINT (Settings, Secrets and variables, Actions, Variables):
+# another path, or a full address. A pull request from a fork can't read
+# the variable, and builds with /otlp.
+#
 # Every image pushed has the tag sha-<commit>, which never moves, and
 # `latest`, which does. Deploy the first, or the digest in the run's
 # summary.
@@ -47,6 +54,11 @@ permissions:
 env:
   # The registry wants lowercase, and the organization's name has a capital.
   IMAGE: ghcr.io/nuvraxis/nuvui-site
+  # The same for both builds below. With other arguments the second would
+  # build the site again and push one that was never checked.
+  BUILD_ARGS: |
+    OTLP_ENDPOINT=${{ vars.SITE_OTLP_ENDPOINT || '/otlp' }}
+    SITE_VERSION=${{ github.sha }}
   PUSH: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main' }}
 
 jobs:
@@ -85,6 +97,7 @@ jobs:
           file: apps/Dockerfile
           load: true
           tags: nuvui-site:check
+          build-args: ${{ env.BUILD_ARGS }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -123,6 +136,7 @@ jobs:
           file: apps/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
+          build-args: ${{ env.BUILD_ARGS }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           # Stored in the registry with the image: how it was built, and a

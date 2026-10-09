@@ -1,10 +1,29 @@
 # nuvui
 
-React components built on [Radix UI](https://www.radix-ui.com/primitives) primitives and styled with plain SCSS. Class names follow BEM, and the look is controlled through CSS custom properties named after Tailwind v4's theme variables. It will be published as `@nuvui/react`, with add-on packages next to it for the parts that need a library of their own. There are three so far: `@nuvui/date-picker`, `@nuvui/table` and `@nuvui/charts`.
+React components built on [Radix UI](https://www.radix-ui.com/primitives) primitives and styled with plain SCSS. Class names follow BEM, and the look is controlled through CSS custom properties named after Tailwind v4's theme variables. It's published as `@nuvui/react`, with add-on packages next to it for the parts that need a library of their own. There are three so far: `@nuvui/date-picker`, `@nuvui/table` and `@nuvui/charts`.
+
+The website and the docs are at [nuvui.nuvraxis.com](https://nuvui.nuvraxis.com).
+
+## Install
+
+```sh
+pnpm add @nuvui/react
+```
+
+It needs React 18 or 19. Each add-on is installed next to it, with the library it's built on where that's a peer dependency:
+
+| Package | What it adds | Install |
+| --- | --- | --- |
+| [`@nuvui/react`](https://www.npmjs.com/package/@nuvui/react) | The components, the tokens and the presets | `pnpm add @nuvui/react` |
+| [`@nuvui/date-picker`](https://www.npmjs.com/package/@nuvui/date-picker) | A calendar, a date field and a date range field | `pnpm add @nuvui/date-picker` |
+| [`@nuvui/table`](https://www.npmjs.com/package/@nuvui/table) | Tables, and a data table on TanStack Table 9 | `pnpm add @nuvui/table @tanstack/react-table` |
+| [`@nuvui/charts`](https://www.npmjs.com/package/@nuvui/charts) | Charts on Recharts 3 | `pnpm add @nuvui/charts recharts` |
+
+[Getting started](https://nuvui.nuvraxis.com/docs) has the rest.
 
 ## Status
 
-Early. The packages are on npm as 0.x versions: `pnpm add @nuvui/react`. Before 1.0 a minor version may rename or remove things, and each package's changelog says where one does.
+Early. The packages are on npm as 0.x versions. Before 1.0 a minor version may rename or remove things, and each package's [changelog](https://nuvui.nuvraxis.com/docs/changelog) says where one does.
 
 What exists today:
 
@@ -16,13 +35,12 @@ What exists today:
 - `DirectionProvider`, for apps in languages that read from the right.
 - The design tokens: color scales, semantic colors for both themes, chart colors, type, spacing, radius, shadow, motion and control sizes. They build to CSS custom properties, and the SCSS source ships alongside.
 - Five presets, each a stylesheet that restyles everything, and three densities.
-- A docs site with a page for each component, a getting started page, and search that runs in the browser.
-- A website around the docs, built with the library's own tokens: a home page with a live dashboard, 39 charts in ten families, each one file to copy, a theme builder that shows a theme on real components in light and dark and gives it back as CSS, and 27 blocks in six groups. A block is a part of an app, such as a sign-in screen, a dashboard or a pricing table, as a TSX file and an SCSS file to copy. The site also serves them as a registry for shadcn's command line tool, at `/r`. The docs carry the website's header, so either leads to the other.
+- A [docs site](https://nuvui.nuvraxis.com/docs) with a page for each component, a getting started page, and search that runs in the browser.
+- A [website](https://nuvui.nuvraxis.com) around the docs, built with the library's own tokens: a home page with a live dashboard, [39 charts](https://nuvui.nuvraxis.com/charts) in ten families, each one file to copy, a [theme builder](https://nuvui.nuvraxis.com/themes) that shows a theme on real components in light and dark and gives it back as CSS, and [27 blocks](https://nuvui.nuvraxis.com/blocks) in six groups. A block is a part of an app, such as a sign-in screen, a dashboard or a pricing table, as a TSX file and an SCSS file to copy. The site also serves them as a registry for shadcn's command line tool, at `/r`. The docs carry the website's header, so either leads to the other.
 - Guides for theming, for using the tokens with Tailwind v4, for using the SCSS source, for building forms, with React Hook Form as the worked example, and for right-to-left layouts. The theming page has an editor that changes tokens in the browser and prints the CSS for what you changed.
 
 What's missing:
 
-- A deployed docs site. To read the docs you run them locally.
 - Testing in Safari itself. WebKit is covered through the build Playwright ships, which is close to Safari and isn't Safari.
 - Compiling the whole library from its SCSS source in Next.js with Turbopack on Windows. That's a [known problem in Next.js](https://github.com/vercel/next.js/issues/87243). Loading only the mixins works there, and so does everything on Linux, and under webpack and Vite. The SCSS guide has the details.
 
@@ -34,8 +52,8 @@ The releases so far are 0.x. One becomes 1.0 when all of this is true:
 
 - Every component in the four packages has its page in the docs, its tests in three browser engines, and axe passing in every theme. That's done.
 - The names are frozen: props, variants, CSS variables and class names. A pass over them was made in October 2026, and from 1.0 a rename needs a major version.
-- Every piece of text the library writes has a prop, and one page lists them. That's done: [translation](apps/docs/content/docs/translation.mdx).
-- The [support policy](apps/docs/content/docs/support.mdx) is written, and what it calls supported is tested. React 18 isn't tested yet.
+- Every piece of text the library writes has a prop, and one page lists them. That's done: [translation](https://nuvui.nuvraxis.com/docs/translation).
+- The [support policy](https://nuvui.nuvraxis.com/docs/support) is written, and what it calls supported is tested. React 18 isn't tested yet.
 - Every component has been checked in a forced-colors theme and in a right-to-left layout by a test, and with a screen reader by a person.
 - The policy a site with a strict Content Security Policy needs is written down.
 - The packages have been used in at least one real app. They're published under 0.x, which is what makes that possible.
@@ -90,10 +108,14 @@ pnpm dev         # packages in watch mode plus the website and the docs
 
 ## Layout
 
-- `packages/ui` is the library that gets published.
+- `packages/ui` is the library, published as `@nuvui/react`.
+- `packages/date-picker`, `packages/table` and `packages/charts` are the add-ons, each published under its folder's name.
 - `packages/theme` is the theme generator. It turns a choice of brand color, base color, radius and density into token values and checks their contrast. The presets are written by it. It isn't published.
 - `apps/showcase` is the website: the home page, the charts, the theme builder and the blocks. It's built with the library's own tokens, in SCSS, with no Tailwind. A block is a folder under `apps/showcase/src/blocks`, with a `block.json` that says what it is.
 - `apps/docs` is the documentation, served under `/docs` of the same address. Its build is copied into the website's, so the two are one folder of static files.
+- `apps/Dockerfile` builds the two apps into one image, nginx serving the static files.
+- `packages/telemetry` sends the site's web vitals to an OpenTelemetry collector. It isn't published.
+- `packages/tooling` is what the published packages are built, checked and tested with. It isn't published.
 - `packages/typescript-config` holds the shared tsconfig presets.
 - `fixtures` holds two small apps that install the packed library the way a stranger would.
 

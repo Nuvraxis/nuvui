@@ -16,6 +16,7 @@
     "@nuvui/date-picker": "workspace:*",
     "@nuvui/react": "workspace:*",
     "@nuvui/table": "workspace:*",
+    "@nuvui/telemetry": "workspace:*",
     "@nuvui/theme": "workspace:*",
     "@tanstack/react-table": "^9.2.6",
     "fumadocs-core": "16.16.0",

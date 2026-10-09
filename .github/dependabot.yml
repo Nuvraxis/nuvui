@@ -3,6 +3,9 @@
 # releases, which is what this does: once a week it opens a pull request
 # that moves an action to its latest release, commit and comment both.
 #
+# The site's image names its two base images by digest for the same reason,
+# and they're followed the same way.
+#
 # npm dependencies aren't here. They're updated by hand, a group at a time,
 # because several of them have to move together.
 version: 2
@@ -13,5 +16,13 @@ updates:
       interval: weekly
     groups:
       actions:
+        patterns:
+          - "*"
+  - package-ecosystem: docker
+    directory: /apps
+    schedule:
+      interval: weekly
+    groups:
+      images:
         patterns:
           - "*"

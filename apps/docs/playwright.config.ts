@@ -16,6 +16,9 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: isCI,
   retries: isCI ? 2 : 0,
+  // Left alone, Playwright uses half the cores. A CI runner has two, and
+  // one worker would take twice as long over the same tests.
+  workers: isCI ? "100%" : undefined,
   reporter: isCI ? [["github"], ["html", { open: "never" }]] : "list",
   use: {
     baseURL: `http://localhost:${port}`,

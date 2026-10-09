@@ -4,7 +4,7 @@ React components built on [Radix UI](https://www.radix-ui.com/primitives) primit
 
 ## Status
 
-Early, and not published. You can't install it from the registry yet.
+Early. The packages are on npm as 0.x versions: `pnpm add @nuvui/react`. Before 1.0 a minor version may rename or remove things, and each package's changelog says where one does.
 
 What exists today:
 
@@ -22,7 +22,7 @@ What exists today:
 
 What's missing:
 
-- A release. The docs site isn't deployed either, so to read the docs you run them locally.
+- A deployed docs site. To read the docs you run them locally.
 - Testing in Safari itself. WebKit is covered through the build Playwright ships, which is close to Safari and isn't Safari.
 - Compiling the whole library from its SCSS source in Next.js with Turbopack on Windows. That's a [known problem in Next.js](https://github.com/vercel/next.js/issues/87243). Loading only the mixins works there, and so does everything on Linux, and under webpack and Vite. The SCSS guide has the details.
 
@@ -30,7 +30,7 @@ This section gets updated as things land.
 
 ## What 1.0 means
 
-The first release will be a 0.x. It becomes 1.0 when all of this is true:
+The releases so far are 0.x. One becomes 1.0 when all of this is true:
 
 - Every component in the four packages has its page in the docs, its tests in three browser engines, and axe passing in every theme. That's done.
 - The names are frozen: props, variants, CSS variables and class names. A pass over them was made in October 2026, and from 1.0 a rename needs a major version.
@@ -38,7 +38,7 @@ The first release will be a 0.x. It becomes 1.0 when all of this is true:
 - The [support policy](apps/docs/content/docs/support.mdx) is written, and what it calls supported is tested. React 18 isn't tested yet.
 - Every component has been checked in a forced-colors theme and in a right-to-left layout by a test, and with a screen reader by a person.
 - The policy a site with a strict Content Security Policy needs is written down.
-- The packages have been published under 0.x and used in at least one real app.
+- The packages have been used in at least one real app. They're published under 0.x, which is what makes that possible.
 
 Until then a minor version may rename or remove things, and the changelog says so where one does.
 

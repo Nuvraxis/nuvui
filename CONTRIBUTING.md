@@ -285,7 +285,7 @@ A pull request needs:
 
 - `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build` and `pnpm test:e2e` passing. CI runs on Linux, in two workflows:
   - `ci.yml` runs for every pull request: an audit of the dependencies and a check of their licenses, then lint, typecheck, build and the component tests, then a check of the package that would be published and of the size of each entry point.
-  - `e2e.yml` runs only for a pull request with the `invoke-e2e` label: the end-to-end tests, and a check that the packed library installs and builds in a Vite app and a Next.js app. A maintainer adds the label when a change is ready for it. Without the label nothing runs these for you, so run `pnpm test:e2e` yourself.
+  - `e2e.yml` runs only for a pull request with the `invoke-e2e` label: the end-to-end tests, and a check that the packed library installs and builds in a Vite app and a Next.js app. A maintainer adds the label when a change is ready for it. Without the label nothing runs these for you, so run `pnpm test:e2e` yourself. The workflow builds the site once and cuts the tests into 17 slices, each on a runner of its own, because one runner would need hours for all of them. A last job named E2E passes when every slice has.
 - Tests for what changed.
 - The docs page updated, if behavior, props, CSS variables or class names changed.
 - A changeset, if the change reaches the published package.

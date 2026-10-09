@@ -6,11 +6,18 @@ name: E2E
 #
 # Adding the label starts a run. While the label stays on, so does every push
 # to the pull request. Take the label off to stop that.
+#
+# There are about 7,750 tests: the docs' and the website's, each in five
+# browser setups. One runner has two cores, and would need hours for them.
+# So the site is built once, and the tests are cut into slices that each run
+# on a runner of their own, at the same time. How many slices is the two
+# lists under `matrix` below. If a slice gets near its time limit, add one
+# to its list and raise `of` to match.
 on:
   pull_request:
     types: [opened, reopened, synchronize, labeled]
 
-# A label other than invoke-e2e also starts this workflow, with its one job
+# A label other than invoke-e2e also starts this workflow, with its jobs
 # skipped. Such a run gets a group of its own, so it can't cancel a run that
 # is doing the work.
 concurrency:
@@ -21,12 +28,67 @@ permissions:
   contents: read
 
 jobs:
-  e2e:
+  build:
+    name: Build the site
     if: >-
       contains(github.event.pull_request.labels.*.name, 'invoke-e2e') &&
       (github.event.action != 'labeled' || github.event.label.name == 'invoke-e2e')
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+
+      # What the other jobs need and can't make without building: the
+      # packages' dist folders, and the two exported sites.
+      - name: Keep what was built for the other jobs
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: built
+          path: |
+            packages/*/dist
+            apps/docs/out
+            apps/showcase/out
+          if-no-files-found: error
+          retention-days: 1
+
+  test:
+    name: ${{ matrix.app }} ${{ matrix.slice }} of ${{ matrix.of }}
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      # One slice failing says nothing about the others. Let them finish, so
+      # one run shows everything that's wrong.
+      fail-fast: false
+      matrix:
+        include:
+          - { app: docs, slice: 1, of: 12 }
+          - { app: docs, slice: 2, of: 12 }
+          - { app: docs, slice: 3, of: 12 }
+          - { app: docs, slice: 4, of: 12 }
+          - { app: docs, slice: 5, of: 12 }
+          - { app: docs, slice: 6, of: 12 }
+          - { app: docs, slice: 7, of: 12 }
+          - { app: docs, slice: 8, of: 12 }
+          - { app: docs, slice: 9, of: 12 }
+          - { app: docs, slice: 10, of: 12 }
+          - { app: docs, slice: 11, of: 12 }
+          - { app: docs, slice: 12, of: 12 }
+          - { app: showcase, slice: 1, of: 5 }
+          - { app: showcase, slice: 2, of: 5 }
+          - { app: showcase, slice: 3, of: 5 }
+          - { app: showcase, slice: 4, of: 5 }
+          - { app: showcase, slice: 5, of: 5 }
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -39,26 +101,68 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      - name: Get what was built
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: built
+
       - name: Install Playwright's browsers
         run: pnpm --filter @nuvui/react exec playwright install --with-deps chromium firefox webkit
 
-      # Both steps below need the built packages. test:e2e would build by
-      # itself, test:consumers wouldn't.
-      - run: pnpm build
-      - run: pnpm test:e2e
-
-      - name: Install the packed library into a Vite and a Next.js app
-        run: pnpm test:consumers
+      # Playwright is run directly, not through `pnpm test:e2e`: that task
+      # builds first, and the build is already here.
+      - name: Run slice ${{ matrix.slice }} of ${{ matrix.of }}
+        run: pnpm --filter @nuvui/${{ matrix.app }} exec playwright test --shard=${{ matrix.slice }}/${{ matrix.of }}
 
       - name: Upload Playwright output
         if: failure()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: playwright-output
+          name: playwright-${{ matrix.app }}-${{ matrix.slice }}
           path: |
-            apps/docs/playwright-report
-            apps/docs/test-results
-            apps/showcase/playwright-report
-            apps/showcase/test-results
+            apps/${{ matrix.app }}/playwright-report
+            apps/${{ matrix.app }}/test-results
           if-no-files-found: ignore
           retention-days: 7
+
+  consumers:
+    name: Install the packed library into a Vite and a Next.js app
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Get what was built
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: built
+
+      - run: pnpm test:consumers
+
+  # One job that says how all of it went, to name in a branch protection
+  # rule. A rule can't name the slices: there's one check for each, and the
+  # names change when a slice is added.
+  e2e:
+    name: E2E
+    if: always() && needs.build.result != 'skipped'
+    needs: [build, test, consumers]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Fail if anything before this did
+        if: >-
+          needs.build.result != 'success' ||
+          needs.test.result != 'success' ||
+          needs.consumers.result != 'success'
+        run: exit 1
+      - run: echo "Every slice passed, and the consumer apps built."

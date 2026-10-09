@@ -486,3 +486,34 @@ test.describe("support policy page", () => {
     }
   });
 });
+
+test.describe("the notice that a package isn't published", () => {
+  // Each package's start page has it until the package has a version, and
+  // not after. The version is the one in the repository.
+  for (const [folder, name, address] of [
+    ["ui", "@nuvui/react", "/docs"],
+    ["date-picker", "@nuvui/date-picker", "/docs/date-picker"],
+    ["table", "@nuvui/table", "/docs/table"],
+    ["charts", "@nuvui/charts", "/docs/charts"],
+  ] as const) {
+    test(`is on ${address} only while ${name} has never been released`, async ({
+      page,
+    }) => {
+      const { version } = JSON.parse(
+        readFileSync(path.join(library, "..", folder, "package.json"), "utf8"),
+      );
+      await open(page, address);
+      const notice = page
+        .locator("article")
+        .first()
+        .getByText(`${name} isn't on the registry yet`);
+
+      if (version === "0.0.0") await expect(notice).toBeVisible();
+      else await expect(notice).toHaveCount(0);
+      // The command is there either way.
+      await expect(
+        page.locator("article").first().getByText(`pnpm add ${name}`).first(),
+      ).toBeVisible();
+    });
+  }
+});

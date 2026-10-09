@@ -18,6 +18,7 @@ import { JsonLd } from "@/components/json-ld";
 import { blockCount, blocksHome } from "@/lib/blocks";
 import { chartCount, chartsHome } from "@/lib/charts";
 import { docs, site, themesHome } from "@/lib/site";
+import { libraryVersion } from "@/lib/version";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
@@ -90,6 +91,8 @@ const parts = [
 ];
 
 export default function HomePage() {
+  const version = libraryVersion();
+
   return (
     <div className="site-home">
       <JsonLd
@@ -105,7 +108,9 @@ export default function HomePage() {
         <section className="site-hero">
           <p className="site-hero__eyebrow">
             <span className="site-hero__dot" aria-hidden="true" />
-            Open source, and early: nothing is on npm yet
+            {version
+              ? `Open source, and early: version ${version}`
+              : "Open source, and early: nothing is on npm yet"}
           </p>
           <h1 className="site-hero__title">
             React components on Radix UI, styled with plain SCSS

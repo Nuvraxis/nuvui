@@ -1,6 +1,7 @@
 import defaultMdxComponents from "fumadocs-ui/mdx";
 import type { MDXComponents } from "mdx/types";
 import { Changelog } from "@/components/changelog";
+import { NotPublished } from "@/components/not-published";
 import { AccordionPlayground } from "@/components/playground/accordion";
 import { AlertPlayground } from "@/components/playground/alert";
 import { AlertDialogPlayground } from "@/components/playground/alert-dialog";
@@ -82,6 +83,7 @@ export function getMDXComponents(components?: MDXComponents) {
     table: ScrollTable,
     Preview,
     PropsTable,
+    NotPublished,
     CssVariables,
     BemClasses,
     TokenEditor,

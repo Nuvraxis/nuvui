@@ -94,9 +94,14 @@ describe("rendering", () => {
   });
 
   test("asks a phone for digits only where nothing else can be typed", async () => {
-    const screen = await render(<Seats min={0} />);
+    const screen = await render(
+      <Seats min={0} format={{ maximumFractionDigits: 0 }} />,
+    );
     expect(input().inputMode).toBe("numeric");
 
+    // A number with no format can have decimals, so the keypad has a point.
+    await screen.rerender(<Seats min={0} />);
+    expect(input().inputMode).toBe("decimal");
     await screen.rerender(<Seats min={0} step={0.5} />);
     expect(input().inputMode).toBe("decimal");
 
@@ -360,7 +365,8 @@ describe("the buttons", () => {
     button.dispatchEvent(
       new PointerEvent("pointerdown", { bubbles: true, button: 0 }),
     );
-    expect(input().value).toBe("1");
+    // React takes an event that a script sends a moment after it's sent.
+    await expect.poll(() => input().value).toBe("1");
     // Nothing more until it's been held a while.
     await wait(200);
     expect(input().value).toBe("1");
@@ -395,6 +401,8 @@ describe("the buttons", () => {
       .dispatchEvent(
         new PointerEvent("pointerdown", { bubbles: true, button: 2 }),
       );
+    // Long enough for a step to have shown, had there been one.
+    await wait(50);
 
     expect(input().value).toBe("5");
   });
@@ -402,10 +410,13 @@ describe("the buttons", () => {
   test("a press with no pointer, as a screen reader's, is one step", async () => {
     await render(<Seats defaultValue={5} />);
 
-    // A click the browser makes for an activation has no count of presses.
-    (up().element() as HTMLButtonElement).click();
+    // A click the browser makes for an activation has no pointer before it
+    // and no count of presses.
+    up()
+      .element()
+      .dispatchEvent(new MouseEvent("click", { bubbles: true, detail: 0 }));
 
-    expect(input().value).toBe("6");
+    await expect.poll(() => input().value).toBe("6");
   });
 
   test("a field that's disabled or read-only has no working buttons or keys", async () => {

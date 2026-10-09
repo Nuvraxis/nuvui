@@ -1,4 +1,5 @@
 import "../../styles/index.scss";
+import { axe } from "@nuvui/tooling/test/axe";
 import { contrast } from "@nuvui/tooling/test/contrast";
 import {
   expectNoViolations,
@@ -503,12 +504,30 @@ describe.each(themes)("accessibility in %s", (theme) => {
       <>
         <Audit />
         <Audit defaultChecked indicator="end" />
-        <Audit disabled />
         <Plans />
       </>,
     );
 
     await expectNoViolations(screen.container);
+  });
+
+  test("passes axe disabled, but for the contrast of what's faded", async () => {
+    const screen = await renderThemed(
+      theme,
+      <>
+        <Audit disabled />
+        <Plans disabled />
+      </>,
+    );
+
+    // A control that can't be used is let off the contrast rule, and its
+    // text with it. axe lets off the name of a disabled control by itself,
+    // and doesn't know that the description is the same control's.
+    expect(
+      await axe(screen.container, {
+        rules: { "color-contrast": { enabled: false } },
+      }),
+    ).toHaveNoViolations();
   });
 
   test("the card's edge reaches 3:1 against the page, chosen and not", async () => {

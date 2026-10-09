@@ -10,6 +10,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { flushSync } from "react-dom";
 import { cx } from "../../utils/cx";
 import {
   type FormatNumberOptions,
@@ -288,9 +289,11 @@ export const NumberField = forwardRef<HTMLInputElement, NumberFieldProps>(
         event.preventDefault();
         move();
       }
-      // Not prevented: Enter still submits the form, with the number that
-      // was just taken.
-      if (event.key === "Enter") commit();
+      // Not prevented: Enter still submits the form. The number is taken
+      // and drawn at once, because the form reads the hidden input as soon
+      // as this handler returns, which in Firefox is before React would
+      // otherwise have drawn it.
+      if (event.key === "Enter") flushSync(commit);
     };
 
     const text = draft ?? (value === null ? "" : formatNumber(value, format));

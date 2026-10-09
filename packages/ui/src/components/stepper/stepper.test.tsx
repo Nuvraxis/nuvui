@@ -203,7 +203,11 @@ describe("rendering", () => {
         return { message: error.message };
       }
       override render() {
-        return this.state.message || this.props.children;
+        return this.state.message ? (
+          <p role="alert">{this.state.message}</p>
+        ) : (
+          this.props.children
+        );
       }
     }
     const quiet = vi.spyOn(console, "error").mockImplementation(() => {});
@@ -221,12 +225,19 @@ describe("rendering", () => {
       </>,
     );
 
+    // One element for each message. Side by side as bare text they'd be one
+    // run of text, which neither message matches alone.
     await expect
-      .element(page.getByText("StepperItem has to be inside a Stepper."))
-      .toBeVisible();
-    await expect
-      .element(page.getByText("StepperTitle has to be inside a StepperItem."))
-      .toBeVisible();
+      .poll(() =>
+        page
+          .getByRole("alert")
+          .elements()
+          .map((alert) => alert.textContent),
+      )
+      .toEqual([
+        "StepperItem has to be inside a Stepper.",
+        "StepperTitle has to be inside a StepperItem.",
+      ]);
     quiet.mockRestore();
   });
 });

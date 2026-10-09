@@ -154,7 +154,8 @@ export const Rating = forwardRef<HTMLDivElement, RatingProps>(function Rating(
   return (
     <RadioGroupPrimitive.Root
       ref={ref}
-      orientation="horizontal"
+      // No orientation: Radix then takes all four arrow keys, as a radio
+      // group does, where a horizontal one would ignore up and down.
       // An empty string is no star, which Radix takes as nothing chosen.
       value={value > 0 ? String(value) : ""}
       onValueChange={(next) => {

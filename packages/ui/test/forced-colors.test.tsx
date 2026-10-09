@@ -70,6 +70,9 @@ import {
   HoverCardTrigger,
   Input,
   InputGroup,
+  Item,
+  ItemGroup,
+  ItemMedia,
   Kbd,
   Menubar,
   MenubarContent,
@@ -121,12 +124,19 @@ import {
   Skeleton,
   Slider,
   Spinner,
+  Stat,
+  StatValue,
   Switch,
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
   Textarea,
+  Timeline,
+  TimelineContent,
+  TimelineItem,
+  TimelineMarker,
+  TimelineTitle,
   Toaster,
   Toggle,
   Toolbar,
@@ -137,6 +147,7 @@ import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
+  Trend,
   toast,
 } from "../src";
 
@@ -1377,5 +1388,126 @@ describe("focus", () => {
     const button = style(page.getByRole("button").element());
 
     expect(contrast(button.borderTopColor, canvas())).toBeGreaterThan(3);
+  });
+});
+
+describe("trend, stat, timeline and item", () => {
+  test("a trend keeps its arrow and its edge, whichever way it points", async () => {
+    await render(
+      <>
+        <Trend data-testid="up" value={0.1} variant="outline" />
+        <Trend data-testid="down" value={-0.1} variant="outline" />
+        <Trend data-testid="flat" value={0} variant="outline" />
+      </>,
+    );
+
+    for (const id of ["up", "down", "flat"]) {
+      const trend = style(page.getByTestId(id).element());
+      // The arrow is drawn in the text's color.
+      expect(contrast(trend.color, canvas()), id).toBeGreaterThan(4.5);
+      expect(contrast(trend.borderTopColor, canvas()), id).toBeGreaterThan(3);
+    }
+  });
+
+  test("a stat card keeps its edge", async () => {
+    await render(
+      <Stat data-testid="stat">
+        <StatValue>12</StatValue>
+      </Stat>,
+    );
+
+    expect(
+      contrast(
+        style(page.getByTestId("stat").element()).borderTopColor,
+        canvas(),
+      ),
+    ).toBeGreaterThan(3);
+  });
+
+  test("a timeline's markers have an edge in place of their fill, and the line is still drawn", async () => {
+    await render(
+      <Timeline>
+        {(["neutral", "primary", "success", "warning", "danger"] as const).map(
+          (intent) => (
+            <TimelineItem key={intent} data-testid={`${intent}-item`}>
+              <TimelineMarker data-testid={intent} intent={intent} />
+              <TimelineContent>
+                <TimelineTitle>{intent}</TimelineTitle>
+              </TimelineContent>
+            </TimelineItem>
+          ),
+        )}
+      </Timeline>,
+    );
+
+    for (const intent of [
+      "neutral",
+      "primary",
+      "success",
+      "warning",
+      "danger",
+    ]) {
+      expect(
+        contrast(
+          style(page.getByTestId(intent).element()).borderTopColor,
+          canvas(),
+        ),
+        intent,
+      ).toBeGreaterThan(3);
+    }
+    const line = getComputedStyle(
+      page.getByTestId("neutral-item").element(),
+      "::before",
+    );
+    expect(line.borderInlineStartStyle).toBe("solid");
+    expect(contrast(line.borderInlineStartColor, canvas())).toBeGreaterThan(3);
+  });
+
+  test("a filled item, an icon's square and an outlined group keep their edges", async () => {
+    await render(
+      <>
+        <Item data-testid="muted" variant="muted">
+          <ItemMedia data-testid="media" variant="icon" />
+          Row
+        </Item>
+        <ItemGroup data-testid="group" variant="outline" aria-label="Rows">
+          <Item>One</Item>
+          <Item data-testid="second">Two</Item>
+        </ItemGroup>
+      </>,
+    );
+    const edge = (element: Element | null) =>
+      style(element as Element).borderTopColor;
+
+    expect(
+      contrast(edge(page.getByTestId("muted").element()), canvas()),
+    ).toBeGreaterThan(3);
+    expect(
+      contrast(edge(page.getByTestId("media").element()), canvas()),
+    ).toBeGreaterThan(3);
+    expect(
+      contrast(edge(page.getByTestId("group").element()), canvas()),
+    ).toBeGreaterThan(3);
+    // The line between two rows.
+    expect(
+      contrast(
+        edge(page.getByTestId("second").element().parentElement),
+        canvas(),
+      ),
+    ).toBeGreaterThan(3);
+  });
+
+  test("a row that's a link keeps its focus ring", async () => {
+    await render(
+      <Item asChild>
+        <a href="#billing">Billing</a>
+      </Item>,
+    );
+
+    await userEvent.keyboard("{Tab}");
+
+    const row = style(page.getByRole("link", { name: "Billing" }).element());
+    expect(row.outlineStyle).toBe("solid");
+    expect(contrast(row.outlineColor, canvas())).toBeGreaterThan(3);
   });
 });

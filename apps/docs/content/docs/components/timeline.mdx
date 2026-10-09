@@ -1,0 +1,162 @@
+---
+title: Timeline
+description: Events in the order they happened, each with a marker on a line, a title, a time and a description.
+---
+
+Use a timeline for the history of one thing: an invoice, a deploy, an order, a support ticket. It's an ordered list with a line down its side.
+
+<Preview name="timeline/basic" />
+
+## Install
+
+```sh
+pnpm add @nuvui/react
+```
+
+## Import
+
+```tsx
+import {
+  Timeline,
+  TimelineContent,
+  TimelineDescription,
+  TimelineItem,
+  TimelineMarker,
+  TimelineTime,
+  TimelineTitle,
+} from "@nuvui/react";
+```
+
+The styles come from `@nuvui/react/styles.css`, which you load once for the whole app. [Getting started](/docs) covers that, and how to load only this component's CSS.
+
+## Parts
+
+| Part | What it is |
+| --- | --- |
+| `Timeline` | The list. An `ol`. |
+| `TimelineItem` | One event. An `li`, holding a marker and then the content. |
+| `TimelineMarker` | The point on the line. A ring, or a filled circle with an icon in it. |
+| `TimelineContent` | Everything beside the marker. |
+| `TimelineTitle` | What happened, in a line. |
+| `TimelineDescription` | More about it. |
+| `TimelineTime` | When. A `time` element. |
+
+`TimelineItem` needs its marker first and its content second. Inside the content, any of the three parts can be left out, and they can go in any order.
+
+## Try it
+
+<TimelinePlayground />
+
+## Props
+
+### TimelineMarker
+
+<PropsTable component="timeline" name="TimelineMarkerOwnProps" />
+
+The other parts add no props of their own. Each takes what its element takes, including `ref` and `className`. `TimelineTime` takes `dateTime`.
+
+## Kinds of event
+
+A marker's `intent` fills it with one of the theme's colors, and an icon can go inside. With no intent it's a ring.
+
+<Preview name="timeline/intents" />
+
+The marker is hidden from screen readers. Its color and its icon are for the eye, and the title has to say the same thing in words: "Deploy failed", not "Deploy" beside a red cross.
+
+## The time
+
+`TimelineTime` is a `time` element. Write the time the way people read it as its children, and give the exact one in `dateTime`, in ISO 8601. The children can be relative, such as "Yesterday, 16:30", as long as `dateTime` isn't.
+
+The component doesn't format dates. Whatever writes dates in the rest of your app writes these, so they're in the same language and time zone.
+
+## Order
+
+The list is read in the order it's written. Newest first suits a history someone checks for what just happened. Oldest first suits the steps something went through. Pick one for the whole app.
+
+For a long history, show the latest events and a button that loads more. The component has no paging of its own.
+
+## Accessibility
+
+A timeline has no keyboard behavior of its own. Links and buttons inside an event work as they do anywhere.
+
+### What the component handles
+
+- It's an ordered list, so a screen reader says how many events there are and where it is among them. The list says it's a list in so many words, because Safari stops treating a list as one once its numbers are styled away.
+- The marker has `aria-hidden="true"`.
+- The line is a border, and a filled marker has a border that can't be seen until the browser forces its own colors. Both are still drawn there.
+- The description and the time have at least 4.5:1 against the page in every theme.
+
+### What you need to handle
+
+- Name the list with `aria-label` or `aria-labelledby`, such as "History of invoice 1042".
+- Say in the title what the marker's color and icon show.
+- Give every `TimelineTime` a `dateTime`.
+- An event added while the page is open isn't announced. If it matters, say it in a [toast](/docs/components/toast) or an element with `role="status"`.
+
+## CSS variables
+
+Set any of these on the `Timeline`, or on anything around it.
+
+```css
+.compact-history {
+  --nuv-timeline-space: calc(var(--spacing) * 3);
+  --nuv-timeline-marker-size: 1rem;
+}
+```
+
+<CssVariables
+  component="timeline"
+  descriptions={{
+    "--nuv-timeline-fg": "Text color.",
+    "--nuv-timeline-marker-size":
+      "Width and height of a marker. The line and the text move with it.",
+    "--nuv-timeline-gap": "Space between the marker and the text.",
+    "--nuv-timeline-space": "Space between one event and the next.",
+    "--nuv-timeline-line-width": "Thickness of the line.",
+    "--nuv-timeline-line": "Color of the line.",
+    "--nuv-timeline-marker-border":
+      "Border color of a marker. The strong border color on a ring, and transparent on a filled one.",
+    "--nuv-timeline-marker-radius": "Corner radius of a marker. A circle by default.",
+    "--nuv-timeline-marker-bg": "Background color of a marker. Differs by intent.",
+    "--nuv-timeline-marker-fg":
+      "Color of an icon in a marker. Differs by intent. Keep it at 3:1 against the marker.",
+    "--nuv-timeline-muted-fg":
+      "Color of the description and the time. Keep it at 4.5:1 against the background.",
+  }}
+/>
+
+## Classes
+
+<BemClasses
+  component="timeline"
+  descriptions={{
+    "nuv-timeline": "Timeline",
+    "nuv-timeline__item": "TimelineItem. The line is its `::before`.",
+    "nuv-timeline__marker": "TimelineMarker",
+    "nuv-timeline__marker--neutral": "intent=\"neutral\", the default: a ring.",
+    "nuv-timeline__marker--primary": "intent=\"primary\"",
+    "nuv-timeline__marker--success": "intent=\"success\"",
+    "nuv-timeline__marker--warning": "intent=\"warning\"",
+    "nuv-timeline__marker--danger": "intent=\"danger\"",
+    "nuv-timeline__content": "TimelineContent",
+    "nuv-timeline__title": "TimelineTitle",
+    "nuv-timeline__description": "TimelineDescription",
+    "nuv-timeline__time": "TimelineTime",
+  }}
+/>
+
+## Server components
+
+No part has a `"use client"` directive or uses state, so all of them render in a server component as they are.
+
+## Do and don't
+
+**Do**
+
+- Keep a title to one line that says what happened and, where it matters, who did it.
+- Use an intent for the events that need to be found, and leave the rest as rings.
+
+**Don't**
+
+- Don't use it for steps someone still has to take. A timeline is for what has already happened, and has no way to say which step is the current one.
+- Don't put the only copy of a fact in the marker. It's hidden from screen readers.

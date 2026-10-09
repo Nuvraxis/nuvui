@@ -9,8 +9,10 @@ import "@/styles/index.scss";
 import { Toaster } from "@nuvui/react/toast";
 import type { Metadata } from "next";
 import { Hydrated } from "@/components/hydrated";
+import { Telemetry } from "@/components/telemetry";
 import { site } from "@/lib/site";
 import { siteThemeScript } from "@/lib/site-theme";
+import { telemetry } from "@/lib/telemetry";
 import { themeScript } from "@/lib/theme";
 
 export const metadata: Metadata = {
@@ -54,6 +56,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             site's own pages. A block's preview has neither. */}
         {children}
         <Toaster />
+        {telemetry.enabled && <Telemetry />}
         <Hydrated />
       </body>
     </html>

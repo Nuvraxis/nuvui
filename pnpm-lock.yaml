@@ -205,6 +205,9 @@ importers:
       '@nuvui/table':
         specifier: workspace:*
         version: link:../../packages/table
+      '@nuvui/telemetry':
+        specifier: workspace:*
+        version: link:../../packages/telemetry
       '@nuvui/theme':
         specifier: workspace:*
         version: link:../../packages/theme
@@ -299,6 +302,9 @@ importers:
       '@nuvui/table':
         specifier: workspace:*
         version: link:../../packages/table
+      '@nuvui/telemetry':
+        specifier: workspace:*
+        version: link:../../packages/telemetry
       '@nuvui/theme':
         specifier: workspace:*
         version: link:../../packages/theme
@@ -580,6 +586,24 @@ importers:
       vitest-browser-react:
         specifier: 'catalog:'
         version: 2.3.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(vitest@5.0.3)
+
+  packages/telemetry:
+    devDependencies:
+      '@nuvui/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
+      '@types/node':
+        specifier: 'catalog:'
+        version: 24.19.1
+      tsdown:
+        specifier: 'catalog:'
+        version: 0.23.0(@arethetypeswrong/core@0.18.5)(publint@0.3.25)(typescript@7.0.2)
+      typescript:
+        specifier: 'catalog:'
+        version: 7.0.2
+      vitest:
+        specifier: 'catalog:'
+        version: 5.0.3(@types/node@24.19.1)(@vitest/browser-playwright@5.0.3)(@vitest/ui@5.0.3)(vite@8.3.2(@types/node@24.19.1)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.105.1)(sass@1.105.1)(yaml@2.9.1))
 
   packages/theme:
     devDependencies:

@@ -33,6 +33,19 @@ RUN pnpm fetch
 
 COPY . .
 RUN pnpm install --frozen-lockfile --offline
+
+# Where the pages send their web vitals, and what to call this build. Next
+# writes both into the pages, so they're decided here and not when the
+# container starts. /otlp is a path on the site's own address, which the
+# ingress has to pass on to a collector. With an empty one the pages
+# measure nothing and send nothing. "Telemetry" in CONTRIBUTING.md has the
+# rest.
+#
+#   docker build --build-arg OTLP_ENDPOINT= --build-arg SITE_VERSION=abc123 ...
+ARG OTLP_ENDPOINT="/otlp"
+ARG SITE_VERSION=""
+ENV NEXT_PUBLIC_OTLP_ENDPOINT=$OTLP_ENDPOINT     NEXT_PUBLIC_SITE_VERSION=$SITE_VERSION
+
 RUN pnpm build
 
 # Runs as a user that isn't root, and listens on 8080. It writes only to

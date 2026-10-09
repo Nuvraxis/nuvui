@@ -110,9 +110,11 @@ apps/showcase                 the website (Next.js, SCSS and the library's token
   e2e/                        Playwright tests, of its pages and of where the two apps meet
 apps/Dockerfile               builds the site's image: both apps as static files, behind nginx
 apps/nginx.conf               how that image serves them
+apps/otel-collector.example.yaml  an example collector for what the pages send
 scripts/check-site-image.mjs  asks a running container of that image for the site
 scripts/serve-static.mjs      serves an exported site, for the e2e tests and for pnpm start
 scripts/fix-next-export.mjs   puts right what Next's export gets wrong on Windows
+packages/telemetry            sends the site's web vitals to an OpenTelemetry collector (private)
 packages/typescript-config    shared tsconfig presets
 fixtures                      two apps that install the packed packages
 scripts/test-consumers.mjs    builds those two apps
@@ -309,6 +311,44 @@ node scripts/check-site-image.mjs http://localhost:8080
 The end-to-end tests don't run against nginx. They run against `scripts/serve-static.mjs`, and `apps/nginx.conf` is written to answer the way it does. If you change how one of them answers, change the other, and add what you changed to `scripts/check-site-image.mjs`.
 
 Keep a pull request to one change. A fix and an unrelated cleanup are easier to review, and to revert, as two.
+
+### Telemetry
+
+The website and the docs can send their web vitals to an OpenTelemetry collector. The image does, to `/otlp` on the site's own address. A build made with `pnpm build`, on your machine or for the tests, sends nothing unless it's given a collector.
+
+Two variables, read when the site is built:
+
+| Variable | What it is |
+| --- | --- |
+| `NEXT_PUBLIC_OTLP_ENDPOINT` | Where the collector is, without `/v1/metrics`. A path on the site's own address, such as `/otlp`, or a full address. Empty means off. |
+| `NEXT_PUBLIC_SITE_VERSION` | What to call the build, sent as `service.version`. Optional. |
+
+`apps/Dockerfile` takes them as the build arguments `OTLP_ENDPOINT` and `SITE_VERSION`. The first is `/otlp` unless you pass another, and passing an empty one turns telemetry off. `apps-docker.yaml` fills it from a repository variable named `SITE_OTLP_ENDPOINT`, or with `/otlp` when there's no such variable, and fills the second with the commit.
+
+What's sent, as histograms over OTLP/HTTP in JSON:
+
+| Metric | Unit | What it measures |
+| --- | --- | --- |
+| `web_vital.ttfb` | ms | Time to First Byte |
+| `web_vital.fcp` | ms | First Contentful Paint |
+| `web_vital.lcp` | ms | Largest Contentful Paint |
+| `web_vital.inp` | ms | Interaction to Next Paint |
+| `web_vital.cls` | none | Cumulative Layout Shift |
+| `navigation.duration` | ms | A move from one page to another inside the app, from its start to the new page's first paint |
+
+Each value has the page's path as `url.path`, and how the page was reached as `navigation.type`. A web vital also has its rating as `web_vital.rating`. The website's values are under the service name `nuvui-website` and the docs' under `nuvui-docs`. Nothing identifies a visitor: no cookie is set or sent, and no id is made. The collector does see the address a request came from, as any server does.
+
+The code is in three places:
+
+- `packages/telemetry` turns a value into what the collector takes, and sends it. It has the unit tests.
+- `components/telemetry.tsx` in each app gets the web vitals from Next's `useReportWebVitals`, and measures a navigation's end.
+- `instrumentation-client.ts` in each app marks a navigation's start.
+
+A page inside a frame, such as a block's preview, sends nothing. Layout shift and interaction delay are counted once for each page load, with the value from the first time the visitor left the page.
+
+With `/otlp` as the endpoint, the pages post to the site's own address and the ingress has to send `/otlp` to the collector. That needs no CORS setup. Until the ingress does, the posts reach nginx, which answers each with 405 and drops it. `apps/otel-collector.example.yaml` is a collector config that takes the values and offers them to Prometheus. The values are deltas, one visitor's at a time, and the example has the two steps that Prometheus needs for that.
+
+On Windows, Git Bash rewrites a value that starts with a slash into a path under its own folder. To try a build with `/otlp` from there, set `MSYS_NO_PATHCONV=1` as well.
 
 ## License
 

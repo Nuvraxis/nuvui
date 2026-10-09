@@ -15,7 +15,9 @@ import { Toaster } from "@nuvui/react";
 import type { Metadata } from "next";
 import { Provider } from "@/components/provider";
 import { SiteHeader } from "@/components/site-header";
+import { Telemetry } from "@/components/telemetry";
 import { site } from "@/lib/site";
+import { telemetry } from "@/lib/telemetry";
 
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
@@ -46,6 +48,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         {/* One for the whole site. The examples on the Toast page call
             toast() and this is where they show up. */}
         <Toaster />
+        {telemetry.enabled && <Telemetry />}
       </body>
     </html>
   );

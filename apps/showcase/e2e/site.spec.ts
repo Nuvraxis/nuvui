@@ -631,3 +631,39 @@ test("the home page says which version there is, or that there's none yet", asyn
       : `Open source, and early: version ${version}`,
   );
 });
+
+test.describe("telemetry", () => {
+  // The site is built with a collector to send to only when it's asked
+  // for, with NEXT_PUBLIC_OTLP_ENDPOINT. These tests are for the build
+  // nobody asked: the one on your machine, and the one CI tests.
+  test.skip(
+    Boolean(process.env.NEXT_PUBLIC_OTLP_ENDPOINT),
+    "the site was built to send its numbers somewhere",
+  );
+
+  test("sends nothing from a build that wasn't given a collector", async ({
+    page,
+  }) => {
+    const sent: string[] = [];
+    page.on("request", (request) => {
+      if (request.method() !== "GET" && request.method() !== "HEAD") {
+        sent.push(`${request.method()} ${request.url()}`);
+      }
+    });
+
+    await open(page, "/");
+    // A move inside the app, which is the other thing that's measured.
+    await page.goto("/blocks", { waitUntil: "networkidle" });
+    await page.goBack({ waitUntil: "networkidle" });
+    // What's left is sent when the page is hidden.
+    await page.evaluate(() => {
+      Object.defineProperty(document, "visibilityState", {
+        value: "hidden",
+        configurable: true,
+      });
+      document.dispatchEvent(new Event("visibilitychange"));
+    });
+
+    expect(sent).toEqual([]);
+  });
+});

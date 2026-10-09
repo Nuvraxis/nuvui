@@ -1,0 +1,66 @@
+# An example, not what the site runs on: an OpenTelemetry Collector that
+# takes what the site's pages send and offers it to Prometheus. It needs
+# the contrib build of the collector, which has the two processors below.
+#
+#   docker run --rm --publish 4318:4318 --publish 9464:9464 \
+#     --volume ./apps/otel-collector.example.yaml:/etc/otelcol-contrib/config.yaml \
+#     otel/opentelemetry-collector-contrib:0.162.0
+#
+# The pages post to <endpoint>/v1/metrics, where the endpoint is what the
+# site was built with (see "Telemetry" in CONTRIBUTING.md). Built with
+# /otlp, they post to the site's own address, and the ingress has to send
+# /otlp there to this collector's port 4318.
+receivers:
+  otlp:
+    protocols:
+      http:
+        endpoint: 0.0.0.0:4318
+        # The path as the ingress passes it on, so that it needs no rewrite.
+        metrics_url_path: /otlp/v1/metrics
+        # Only for a site built with a full address, on another origin
+        # than its own. Name the site, and nothing wider.
+        # cors:
+        #   allowed_origins:
+        #     - https://nuvui.example.com
+
+processors:
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: 256
+
+  # Every point carries the time on a visitor's clock, which can be wrong
+  # by any amount and is never in order with the next visitor's. The step
+  # after this one drops a point that's older than the last it saw, so
+  # they're given the time they arrived instead.
+  transform/arrival:
+    error_mode: ignore
+    metric_statements:
+      - context: datapoint
+        statements:
+          - set(datapoint.start_time, Now())
+          - set(datapoint.time, Now())
+
+  # Each visitor sends its own values and nothing else (delta). Prometheus
+  # wants totals that only grow (cumulative). This adds them up.
+  delta_to_cumulative:
+    max_stale: 24h
+
+  batch:
+
+exporters:
+  # Scraped at :9464/metrics. A histogram named web_vital.lcp, in
+  # milliseconds, becomes web_vital_lcp_milliseconds_bucket, _sum and _count.
+  prometheus:
+    endpoint: 0.0.0.0:9464
+    # Keeps service.version as a label on every series. The service's name
+    # is there already, as the job label.
+    resource_constant_labels:
+      included:
+        - service.version
+
+service:
+  pipelines:
+    metrics:
+      receivers: [otlp]
+      processors: [memory_limiter, transform/arrival, delta_to_cumulative, batch]
+      exporters: [prometheus]

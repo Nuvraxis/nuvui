@@ -1,0 +1,148 @@
+name: Apps Docker
+
+# Builds the site's image from apps/Dockerfile, starts it, checks that it
+# serves the site, and pushes it to GitHub's container registry as
+# ghcr.io/nuvraxis/nuvui-site. One image holds both apps: the website at /
+# and the docs at /docs.
+#
+# A push to main that changes what the site is built from pushes an image.
+# A pull request that changes how the image is made builds and checks one,
+# and pushes nothing. So does a run started by hand on a branch other than
+# main.
+#
+# Every image pushed has the tag sha-<commit>, which never moves, and
+# `latest`, which does. Deploy the first, or the digest in the run's
+# summary.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/**"
+      - "packages/**"
+      - "scripts/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "turbo.json"
+      - ".dockerignore"
+      - ".github/workflows/apps-docker.yaml"
+  pull_request:
+    paths:
+      - "apps/Dockerfile"
+      - "apps/nginx.conf"
+      - "scripts/check-site-image.mjs"
+      - ".dockerignore"
+      - ".github/workflows/apps-docker.yaml"
+  workflow_dispatch:
+
+# On main every run finishes, so each commit that changes the site has an
+# image. On a pull request only the newest push matters.
+concurrency:
+  group: apps-docker-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+env:
+  # The registry wants lowercase, and the organization's name has a capital.
+  IMAGE: ghcr.io/nuvraxis/nuvui-site
+  PUSH: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main' }}
+
+jobs:
+  image:
+    name: Build, check and push the site's image
+    # Forks have no registry of this name to push to.
+    if: github.repository == 'Nuvraxis/nuvui'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+
+      - name: Work out the tags and labels
+        id: meta
+        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
+        with:
+          images: ${{ env.IMAGE }}
+          tags: |
+            type=sha
+            type=raw,value=latest,enable={{is_default_branch}}
+          labels: |
+            org.opencontainers.image.title=nuvui site
+            org.opencontainers.image.description=The nuvui website and docs, as static files behind nginx.
+
+      # For this runner only, and kept on it. An image for two
+      # architectures can't be loaded into Docker to be run.
+      - name: Build the image
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          file: apps/Dockerfile
+          load: true
+          tags: nuvui-site:check
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # Started the way a locked-down pod would be: a read-only root
+      # filesystem, no capabilities, and a user that isn't root.
+      - name: Start it
+        run: >-
+          docker run --detach --name site --publish 8080:8080
+          --read-only --tmpfs /tmp --cap-drop ALL
+          --security-opt no-new-privileges
+          nuvui-site:check
+
+      - name: Check that it serves the site
+        run: node scripts/check-site-image.mjs http://localhost:8080
+
+      - name: Show the container's log
+        if: failure()
+        run: docker logs site
+
+      - name: Sign in to the registry
+        if: env.PUSH == 'true'
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # The build stage is the one made above, taken from the builder's
+      # cache. Only the nginx layers differ between the two architectures.
+      - name: Push it, for amd64 and arm64
+        id: push
+        if: env.PUSH == 'true'
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          file: apps/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          # Stored in the registry with the image: how it was built, and a
+          # list of what's in it.
+          provenance: mode=max
+          sbom: true
+          cache-from: type=gha
+
+      - name: Say what was pushed
+        if: env.PUSH == 'true'
+        env:
+          TAGS: ${{ steps.meta.outputs.tags }}
+          DIGEST: ${{ steps.push.outputs.digest }}
+        run: |
+          {
+            echo "### Pushed"
+            echo
+            echo '```'
+            echo "$TAGS"
+            echo
+            echo "$IMAGE@$DIGEST"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

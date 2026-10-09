@@ -108,6 +108,9 @@ apps/showcase                 the website (Next.js, SCSS and the library's token
   src/styles/                 its own styles, BEM with the prefix "site"
   scripts/add-docs.mjs        copies the built docs into its export, under /docs
   e2e/                        Playwright tests, of its pages and of where the two apps meet
+apps/Dockerfile               builds the site's image: both apps as static files, behind nginx
+apps/nginx.conf               how that image serves them
+scripts/check-site-image.mjs  asks a running container of that image for the site
 scripts/serve-static.mjs      serves an exported site, for the e2e tests and for pnpm start
 scripts/fix-next-export.mjs   puts right what Next's export gets wrong on Windows
 packages/typescript-config    shared tsconfig presets
@@ -283,14 +286,27 @@ Before 1.0, a breaking change is a minor bump, and its changeset has to say what
 
 A pull request needs:
 
-- `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build` and `pnpm test:e2e` passing. CI runs on Linux, in two workflows:
+- `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build` and `pnpm test:e2e` passing. CI runs on Linux, in three workflows:
   - `ci.yml` runs for every pull request: an audit of the dependencies and a check of their licenses, then lint, typecheck, build and the component tests, then a check of the package that would be published and of the size of each entry point.
   - `e2e.yml` runs only for a pull request with the `invoke-e2e` label: the end-to-end tests, and a check that the packed library installs and builds in a Vite app and a Next.js app. A maintainer adds the label when a change is ready for it. Without the label nothing runs these for you, so run `pnpm test:e2e` yourself. The workflow builds the site once and cuts the tests into 17 slices, each on a runner of its own, because one runner would need hours for all of them. A last job named E2E passes when every slice has.
+  - `apps-docker.yaml` runs for a pull request that changes `apps/Dockerfile`, `apps/nginx.conf`, `scripts/check-site-image.mjs` or `.dockerignore`. It builds the site's image, starts it and runs `scripts/check-site-image.mjs` against it. On `main` the same workflow also pushes the image to `ghcr.io/nuvraxis/nuvui-site`.
 - Tests for what changed.
 - The docs page updated, if behavior, props, CSS variables or class names changed.
 - A changeset, if the change reaches the published package.
 
 The workflows name each action by a commit, with its version in a comment, and Dependabot proposes the next one. Don't change one back to a tag.
+
+### The site's image
+
+The website and the docs are deployed as one image, nginx serving the files `pnpm build` writes to `apps/showcase/out`. To build and look at it, with Docker running:
+
+```sh
+docker build --file apps/Dockerfile --tag nuvui-site .
+docker run --rm --publish 8080:8080 nuvui-site
+node scripts/check-site-image.mjs http://localhost:8080
+```
+
+The end-to-end tests don't run against nginx. They run against `scripts/serve-static.mjs`, and `apps/nginx.conf` is written to answer the way it does. If you change how one of them answers, change the other, and add what you changed to `scripts/check-site-image.mjs`.
 
 Keep a pull request to one change. A fix and an unrelated cleanup are easier to review, and to revert, as two.
 

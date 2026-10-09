@@ -1,0 +1,25 @@
+# What apps/Dockerfile doesn't need, and what it makes itself. A build
+# folder from this machine, copied in, could be used in place of a fresh one.
+.git
+.github
+.claude
+**/node_modules
+**/dist
+**/out
+**/.next
+**/.turbo
+**/.source
+**/coverage
+**/*.tsbuildinfo
+**/test-results
+**/playwright-report
+**/blob-report
+**/__screenshots__
+**/.vitest
+**/.env*
+fixtures
+
+# Notes kept out of git.
+checklist.md
+phases.md
+plan.md

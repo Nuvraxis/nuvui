@@ -17,17 +17,20 @@ import { Dashboard } from "@/components/dashboard/dashboard";
 import { JsonLd } from "@/components/json-ld";
 import { blockCount, blocksHome } from "@/lib/blocks";
 import { chartCount, chartsHome } from "@/lib/charts";
+import { share } from "@/lib/seo";
 import { docs, site, themesHome } from "@/lib/site";
 import { libraryVersion } from "@/lib/version";
 
-export const metadata: Metadata = {
-  alternates: { canonical: "/" },
-  openGraph: { url: "/", images: "/og/home.png" },
-};
+export const metadata: Metadata = share({
+  path: "/",
+  image: "/og/home.png",
+  title: `${site.name}: React components on Radix UI, styled with SCSS`,
+  description: site.description,
+});
 
 // Counted from the packages: the README lists the components by name.
 const facts = [
-  { value: "52", label: "Components in the core" },
+  { value: "61", label: "Components in the core" },
   { value: "3", label: "Add-on packages" },
   { value: String(chartCount), label: "Charts to copy" },
   { value: "5", label: "Presets, each in light and dark" },

@@ -1,0 +1,141 @@
+@use "../../styles/layers";
+@use "../../styles/mixins";
+
+@layer components {
+  // The edge is always there, and can't be seen until a variant gives it a
+  // color. A filled row then has one where the browser forces its own
+  // colors, which is where the fill isn't drawn.
+  .nuv-item {
+    display: flex;
+    gap: var(--nuv-item-gap, calc(var(--spacing) * 3));
+    align-items: center;
+    box-sizing: border-box;
+    inline-size: 100%;
+    min-inline-size: 0;
+    padding-block: var(--nuv-item-padding-block, calc(var(--spacing) * 3));
+    padding-inline: var(--nuv-item-padding-inline, calc(var(--spacing) * 4));
+    border: var(--nuv-border-width) solid var(--nuv-item-border, transparent);
+    border-radius: var(--nuv-item-radius, var(--radius-md));
+    background-color: var(--nuv-item-bg, transparent);
+    color: var(--nuv-item-fg, inherit);
+    font: inherit;
+    text-align: start;
+    text-decoration: none;
+
+    // A row that's a link or a button. The ring is drawn inside the row, so
+    // a group that clips its corners doesn't clip it.
+    &:is(a, button) {
+      cursor: pointer;
+
+      // Tall enough for a finger at either size. With a mouse the small
+      // size goes back to what its padding makes it.
+      @include mixins.touch-target;
+
+      @include mixins.fine-pointer {
+        min-block-size: 0;
+      }
+
+      @include mixins.focus-ring(-2px);
+
+      @include mixins.hover {
+        background-color: var(--nuv-item-hover-bg, var(--color-muted));
+      }
+    }
+  }
+
+  .nuv-item--outline {
+    border-color: var(--nuv-item-border, var(--color-border));
+  }
+
+  .nuv-item--muted {
+    background-color: var(--nuv-item-bg, var(--color-muted));
+  }
+
+  .nuv-item--sm {
+    gap: var(--nuv-item-gap, calc(var(--spacing) * 2));
+    padding-block: var(--nuv-item-padding-block, calc(var(--spacing) * 2));
+    padding-inline: var(--nuv-item-padding-inline, calc(var(--spacing) * 3));
+  }
+
+  .nuv-item__media {
+    display: flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .nuv-item__media--icon {
+    inline-size: var(--nuv-item-media-size, 2.25rem);
+    block-size: var(--nuv-item-media-size, 2.25rem);
+    border: var(--nuv-border-width) solid transparent;
+    border-radius: var(--radius-md);
+    background-color: var(--nuv-item-media-bg, var(--color-muted));
+    color: var(--nuv-item-media-fg, var(--color-foreground));
+  }
+
+  .nuv-item__content {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 0.5);
+    min-inline-size: 0;
+  }
+
+  .nuv-item__title {
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--text-sm--line-height);
+    overflow-wrap: anywhere;
+  }
+
+  .nuv-item__description {
+    margin: 0;
+    color: var(--nuv-item-muted-fg, var(--color-muted-foreground));
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+    overflow-wrap: anywhere;
+  }
+
+  .nuv-item__actions {
+    display: flex;
+    flex: none;
+    gap: calc(var(--spacing) * 2);
+    align-items: center;
+  }
+
+  .nuv-item-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nuv-item-group-gap, calc(var(--spacing) * 1));
+    min-inline-size: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  // One box around every row. The rows lose their own corners, and the
+  // box clips what's left of them.
+  .nuv-item-group--outline {
+    gap: 0;
+    overflow: hidden;
+    border: var(--nuv-border-width) solid
+      var(--nuv-item-group-border, var(--color-border));
+    border-radius: var(--nuv-item-group-radius, var(--radius-lg));
+    background-color: var(--nuv-item-group-bg, var(--color-surface));
+    color: var(--nuv-item-group-fg, var(--color-surface-foreground));
+  }
+
+  .nuv-item-group--outline .nuv-item {
+    border-radius: 0;
+  }
+
+  .nuv-item-group__row {
+    min-inline-size: 0;
+  }
+
+  // A line between two rows, and none above the first.
+  .nuv-item-group--outline > .nuv-item-group__row:not(:first-child) {
+    border-block-start: var(--nuv-border-width) solid
+      var(--nuv-item-group-border, var(--color-border));
+  }
+}

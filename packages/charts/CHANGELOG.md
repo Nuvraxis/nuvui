@@ -1,5 +1,20 @@
 # @nuvui/charts
 
+## 0.1.2
+
+### Patch Changes
+
+- Updated dependencies [[`adfcd97`](https://github.com/Nuvraxis/nuvui/commit/adfcd978c029bfa747be1d3ca2952d4b8df5d409), [`5489f1e`](https://github.com/Nuvraxis/nuvui/commit/5489f1e191c9ad8325e26c0c03fdf9b81c56f74a)]:
+  - @nuvui/react@0.2.0
+
+## 0.1.1
+
+### Patch Changes
+
+- [#26](https://github.com/Nuvraxis/nuvui/pull/26) [`3e9922d`](https://github.com/Nuvraxis/nuvui/commit/3e9922d8100e8fba75ae5cc354d8d79fb00bfdf1) Thanks [@sajanv88](https://github.com/sajanv88)! - Each package's README said the package hadn't been released and that the docs would live at nuvui.nuvraxis.com. It now gives the install command and links to the docs, which are there.
+- Updated dependencies [[`3e9922d`](https://github.com/Nuvraxis/nuvui/commit/3e9922d8100e8fba75ae5cc354d8d79fb00bfdf1)]:
+  - @nuvui/react@0.1.1
+
 ## 0.1.0
 
 ### Minor Changes

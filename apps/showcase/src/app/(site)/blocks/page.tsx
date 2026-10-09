@@ -12,6 +12,7 @@ import {
   categories,
   categoryPath,
 } from "@/lib/blocks";
+import { share } from "@/lib/seo";
 import { absoluteUrl, docs, pages, site } from "@/lib/site";
 
 const page = pages.find((entry) => entry.path === blocksHome);
@@ -23,8 +24,12 @@ const featured = blocks.find((block) => block.name === "dashboard");
 export const metadata: Metadata = {
   title: "Blocks",
   description,
-  alternates: { canonical: blocksHome },
-  openGraph: { url: blocksHome, images: "/og/blocks.png" },
+  ...share({
+    path: blocksHome,
+    image: "/og/blocks.png",
+    title: "Blocks",
+    description,
+  }),
 };
 
 export default function BlocksPage() {

@@ -1,0 +1,191 @@
+---
+title: Item
+description: A row with a picture, a title, a description and something to do at its end, and a list that groups rows into a panel.
+---
+
+Use an item for one thing in a list of things: a setting with its switch, a person with their role, a page to go to. `ItemGroup` turns several into a list.
+
+<Preview name="item/basic" />
+
+## Install
+
+```sh
+pnpm add @nuvui/react
+```
+
+## Import
+
+```tsx
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemGroup,
+  ItemMedia,
+  ItemTitle,
+} from "@nuvui/react";
+```
+
+The styles come from `@nuvui/react/styles.css`, which you load once for the whole app. [Getting started](/docs) covers that, and how to load only this component's CSS.
+
+## Parts
+
+| Part | What it is |
+| --- | --- |
+| `Item` | The row. |
+| `ItemMedia` | What's at the start: an icon, an avatar or a picture. |
+| `ItemContent` | The title and the description. It takes the room the rest leaves. |
+| `ItemTitle` | The row's name. |
+| `ItemDescription` | A line or two under it. |
+| `ItemActions` | What's at the end: a switch, a button, a badge, an arrow. |
+| `ItemGroup` | A list of items. A `ul`, with each item in an `li`. |
+
+Only `Item` is needed, and it can hold anything. The parts are there for the usual layout.
+
+## Try it
+
+<ItemPlayground />
+
+## Props
+
+### Item
+
+<PropsTable component="item" name="ItemOwnProps" />
+
+### ItemMedia
+
+<PropsTable component="item" name="ItemMediaOwnProps" />
+
+### ItemGroup
+
+<PropsTable component="item" name="ItemGroupOwnProps" />
+
+The other parts add no props of their own. Each takes what its element takes, including `ref` and `className`.
+
+## Variants and sizes
+
+`variant` is how one row is drawn: `"plain"` with nothing around it, `"outline"` with an edge, `"muted"` with a fill. `size="sm"` takes padding off, for a dense list.
+
+<Preview name="item/variants" />
+
+## A settings panel
+
+An `ItemGroup` with `variant="outline"` puts one edge around all its rows and a line between them. Leave the items plain inside it: the group draws the edges.
+
+<Preview name="item/settings" />
+
+A control in `ItemActions` has no label of its own. Give the title an `id` and point the control at it with `aria-labelledby`, and the title is the control's name. `aria-describedby` does the same for the description.
+
+Any control works at the end of a row: a [switch](/docs/components/switch), a [native select](/docs/components/native-select), a [slider](/docs/components/slider). Give `ItemActions` a width when the control fills what it's given, as a slider does.
+
+## Rows that go somewhere
+
+With `asChild`, the row is the element you give it. A row that's a link or a button gets a hover color, a pointer and a focus ring, and is at least 44 pixels tall on a touch screen.
+
+<Preview name="item/links" />
+
+Don't put another control inside such a row. A button inside a link can't be reached by itself, and a screen reader reads the whole row as one name. If a row needs both, leave it a plain row and put a link in its title.
+
+## In a group
+
+`ItemGroup` is a list, and a screen reader says how many rows it has. Inside one, each `Item` is wrapped in an `li` for you. That works however deep the item is: a component of your own that renders an `Item` is still a row of the list.
+
+Put only items in a group. A heading goes above it, and names it through `aria-labelledby`.
+
+## Accessibility
+
+An item has no keyboard behavior of its own. A row that's a link or a button is reached with Tab and works as that element does.
+
+### What the component handles
+
+- A group is a `ul` with an `li` around each row. It says it's a list in so many words, because Safari stops treating a list as one once its bullets are styled away.
+- A row that's a link stays a link: the list item is the box around it, not the row.
+- The focus ring of a row is drawn inside it, so a group that clips its corners doesn't clip the ring.
+- A filled row and the square behind an icon each have a border that can't be seen until the browser forces its own colors. It's drawn there in place of the fill.
+- The description has at least 4.5:1 against the page, a surface and a filled row in every theme.
+
+### What you need to handle
+
+- Name a group, with `aria-label` or `aria-labelledby`.
+- Name each control in `ItemActions` by the row's title, with `aria-labelledby`.
+- An icon in `ItemMedia` that only decorates needs `aria-hidden="true"`. A picture that says something needs an `alt`.
+
+## On small screens
+
+The row doesn't wrap. The text takes what's left after the picture and the action, and wraps inside its own column, so the action stays at the end of the row. Keep what's in `ItemActions` small: one control, or a badge and an arrow.
+
+## CSS variables
+
+Set any of these on an `Item`, on an `ItemGroup`, or on anything around them.
+
+```css
+.member-list {
+  --nuv-item-padding-inline: 0;
+  --nuv-item-group-gap: 0;
+}
+```
+
+<CssVariables
+  component="item"
+  descriptions={{
+    "--nuv-item-gap": "Space between the picture, the text and the action.",
+    "--nuv-item-padding-block": "Padding above and below. Less at size=\"sm\".",
+    "--nuv-item-padding-inline": "Padding left and right. Less at size=\"sm\".",
+    "--nuv-item-border":
+      "Border color. Transparent unless the variant is \"outline\".",
+    "--nuv-item-radius": "Corner radius of a row. Square inside an outlined group.",
+    "--nuv-item-bg": "Background color. Transparent unless the variant is \"muted\".",
+    "--nuv-item-fg": "Text color. The color of what's around it by default.",
+    "--nuv-item-hover-bg":
+      "Background color of a row that's a link or a button, under the pointer.",
+    "--nuv-item-media-size": "Width and height of the square behind an icon.",
+    "--nuv-item-media-bg": "Background color of that square.",
+    "--nuv-item-media-fg": "Color of the icon in it.",
+    "--nuv-item-muted-fg":
+      "Color of the description. Keep it at 4.5:1 against the background.",
+    "--nuv-item-group-gap": "Space between rows in a plain group.",
+    "--nuv-item-group-border":
+      "Color of an outlined group's edge and of the lines between its rows.",
+    "--nuv-item-group-radius": "Corner radius of an outlined group.",
+    "--nuv-item-group-bg": "Background color of an outlined group.",
+    "--nuv-item-group-fg": "Text color in an outlined group.",
+  }}
+/>
+
+## Classes
+
+<BemClasses
+  component="item"
+  descriptions={{
+    "nuv-item": "Every item.",
+    "nuv-item--outline": "variant=\"outline\"",
+    "nuv-item--muted": "variant=\"muted\"",
+    "nuv-item--sm": "size=\"sm\"",
+    "nuv-item__media": "ItemMedia",
+    "nuv-item__media--icon": "ItemMedia with variant=\"icon\"",
+    "nuv-item__content": "ItemContent",
+    "nuv-item__title": "ItemTitle",
+    "nuv-item__description": "ItemDescription",
+    "nuv-item__actions": "ItemActions",
+    "nuv-item-group": "ItemGroup",
+    "nuv-item-group--outline": "ItemGroup with variant=\"outline\"",
+    "nuv-item-group__row": "The `li` around each item in a group.",
+  }}
+/>
+
+## Server components
+
+`Item` and `ItemGroup` start with `"use client"`: an item has to find out whether it's in a group. You can still use them from a server component, with server-rendered content inside. The other parts are in the same file, so they're client components too.
+
+## Do and don't
+
+**Do**
+
+- Keep one kind of thing at the end of every row in a list: all switches, or all arrows.
+- Use an outlined group for settings, and plain rows for a list of people or files.
+
+**Don't**
+
+- Don't nest a control in a row that's a link.
+- Don't use an item where the rows have columns to compare. That's a [table](/docs/table).

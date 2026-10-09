@@ -124,6 +124,14 @@ for (const [path, wanted] of [
   ["/site.json", "application/json"],
   ["/sitemap.xml", "xml"],
   ["/robots.txt", "text/plain"],
+  // The icons, for a tab and for a home screen, of both apps.
+  ["/favicon.ico", "image/"],
+  ["/icon.svg", "image/svg+xml"],
+  ["/apple-icon.png", "image/png"],
+  ["/docs/icon.svg", "image/svg+xml"],
+  ["/docs/favicon.ico", "image/"],
+  ["/icons/icon-512.png", "image/png"],
+  ["/manifest.webmanifest", "application/manifest+json"],
 ]) {
   const response = await get(path);
   const type = response.headers.get("content-type") ?? "";

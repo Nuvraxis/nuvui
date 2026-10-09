@@ -29,6 +29,61 @@ for (const path of pages) {
       expect(url.pathname).toBe(path);
     });
 
+    test("says what a search engine and a shared link need", async ({
+      page,
+      request,
+    }) => {
+      await page.goto(path);
+      const meta = (selector: string) =>
+        page.locator(selector).first().getAttribute("content");
+
+      // A shared link: the site's name, and a picture with its size and
+      // what it shows in words.
+      expect(await meta('meta[property="og:site_name"]')).toBe(site.name);
+      expect(await meta('meta[property="og:locale"]')).toBe("en_US");
+      expect(await meta('meta[property="og:image:width"]')).toBe("1200");
+      expect(await meta('meta[property="og:image:height"]')).toBe("630");
+      expect(await meta('meta[property="og:image:alt"]')).toMatch(/.{3,}/);
+      expect(await meta('meta[name="twitter:card"]')).toBe(
+        "summary_large_image",
+      );
+      expect(await meta('meta[property="og:url"]')).toBe(
+        await page.locator('link[rel="canonical"]').getAttribute("href"),
+      );
+
+      // A search engine: the page can be indexed, with a large picture.
+      expect(await meta('meta[name="robots"]')).toBe("index, follow");
+      expect(await meta('meta[name="googlebot"]')).toContain(
+        "max-image-preview:large",
+      );
+
+      // A browser: the color around the page, light and dark.
+      await expect(page.locator('meta[name="theme-color"]')).toHaveCount(2);
+
+      // A page of the docs is an article. The icons are the docs' own
+      // copies, under /docs, so the docs are whole when run alone.
+      expect(await meta('meta[property="og:type"]')).toBe("article");
+      expect(
+        await page
+          .locator('link[rel="icon"][type="image/svg+xml"]')
+          .getAttribute("href"),
+      ).toMatch(/^\/docs\/icon\.svg/);
+
+      // The icons, each of which loads: an SVG, an .ico for what can't
+      // draw one, and one for an iPhone's home screen.
+      for (const [selector, type] of [
+        ['link[rel="icon"][type="image/svg+xml"]', "image/svg+xml"],
+        ['link[rel="icon"][type="image/x-icon"]', "image/"],
+        ['link[rel="apple-touch-icon"]', "image/png"],
+      ] as const) {
+        const href = await page.locator(selector).getAttribute("href");
+        expect(href, selector).not.toBeNull();
+        const response = await request.get(href ?? "");
+        expect(response.ok(), selector).toBe(true);
+        expect(response.headers()["content-type"], selector).toContain(type);
+      }
+    });
+
     test("has an Open Graph image that loads", async ({ page, request }) => {
       await page.goto(path);
 

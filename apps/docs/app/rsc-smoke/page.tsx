@@ -31,6 +31,8 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  CheckboxCard,
+  ChoiceCardTitle,
   Combobox,
   ComboboxContent,
   ComboboxItem,
@@ -56,9 +58,15 @@ import {
   FieldLabel,
   Fieldset,
   FieldsetLegend,
+  FormattedNumber,
   Input,
+  Item,
+  ItemContent,
+  ItemGroup,
+  ItemTitle,
   Kbd,
   NativeSelect,
+  NumberField,
   Pagination,
   PaginationEllipsis,
   PaginationItem,
@@ -66,6 +74,7 @@ import {
   PaginationList,
   Progress,
   paginationRange,
+  Rating,
   Sidebar,
   SidebarMain,
   SidebarMenu,
@@ -75,10 +84,26 @@ import {
   SidebarTrigger,
   Skeleton,
   Spinner,
+  Stat,
+  StatDescription,
+  StatLabel,
+  StatValue,
+  Stepper,
+  StepperContent,
+  StepperIndicator,
+  StepperItem,
+  StepperTitle,
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
+  Timeline,
+  TimelineContent,
+  TimelineItem,
+  TimelineMarker,
+  TimelineTime,
+  TimelineTitle,
+  Trend,
   VisuallyHidden,
 } from "@nuvui/react";
 import { Button as ButtonEntry } from "@nuvui/react/button";
@@ -213,6 +238,62 @@ export default function RscSmokePage() {
       <Empty>
         <EmptyTitle>Empty from the server</EmptyTitle>
       </Empty>
+      <Stat data-testid="server-stat">
+        <StatLabel>Seats from the server</StatLabel>
+        <StatValue>
+          <FormattedNumber
+            data-testid="server-number"
+            value={1234.5}
+            locale="de-DE"
+            currency="EUR"
+          />
+        </StatValue>
+        <StatDescription>
+          <Trend data-testid="server-trend" value={-0.25} good="down" />
+        </StatDescription>
+      </Stat>
+      <Timeline aria-label="Timeline from the server">
+        <TimelineItem>
+          <TimelineMarker intent="success" />
+          <TimelineContent>
+            <TimelineTitle>Rendered on the server</TimelineTitle>
+            <TimelineTime dateTime="2026-10-09">9 October</TimelineTime>
+          </TimelineContent>
+        </TimelineItem>
+      </Timeline>
+      {/* Item is a client component, given server-rendered content. */}
+      <ItemGroup aria-label="Items from the server">
+        <Item>
+          <ItemContent>
+            <ItemTitle>Row from the server</ItemTitle>
+          </ItemContent>
+        </Item>
+      </ItemGroup>
+      {/* These four are client components, given plain props and
+          server-rendered content. */}
+      <NumberField
+        aria-label="Seats from the server"
+        defaultValue={1234.5}
+        format={{ locale: "de-DE" }}
+      />
+      <Rating readOnly value={2.5} data-testid="server-rating" />
+      <Stepper value={2} aria-label="Steps from the server">
+        <StepperItem step={1}>
+          <StepperIndicator />
+          <StepperContent>
+            <StepperTitle>First</StepperTitle>
+          </StepperContent>
+        </StepperItem>
+        <StepperItem step={2}>
+          <StepperIndicator />
+          <StepperContent>
+            <StepperTitle>Second</StepperTitle>
+          </StepperContent>
+        </StepperItem>
+      </Stepper>
+      <CheckboxCard defaultChecked>
+        <ChoiceCardTitle>Card from the server</ChoiceCardTitle>
+      </CheckboxCard>
       <div style={{ width: 120 }}>
         <AspectRatio ratio={2} data-testid="server-ratio" />
         <Skeleton data-testid="server-skeleton" />

@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { JsonLd } from "@/components/json-ld";
 import { chartCount, chartsHome, families, familyPath } from "@/lib/charts";
+import { share } from "@/lib/seo";
 import { absoluteUrl, docs, pages, site } from "@/lib/site";
 
 const page = pages.find((entry) => entry.path === chartsHome);
@@ -11,8 +12,12 @@ const description = page?.description ?? site.description;
 export const metadata: Metadata = {
   title: "Charts",
   description,
-  alternates: { canonical: chartsHome },
-  openGraph: { url: chartsHome, images: "/og/charts.png" },
+  ...share({
+    path: chartsHome,
+    image: "/og/charts.png",
+    title: "Charts",
+    description,
+  }),
 };
 
 export default function ChartsPage() {

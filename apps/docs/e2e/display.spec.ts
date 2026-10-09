@@ -756,3 +756,326 @@ test.describe("right-to-left page", () => {
     expect(filled.x + filled.width).toBeCloseTo(bar.x + bar.width - 1, 0);
   });
 });
+
+test.describe("formatted number page", () => {
+  test.beforeEach(async ({ page }) => {
+    await open(page, "/docs/components/formatted-number");
+  });
+
+  test("writes each kind of number, with the plain one beside it", async ({
+    page,
+  }) => {
+    const numbers = preview(page, "formatted-number/basic").locator(
+      ".nuv-formatted-number",
+    );
+
+    await expect(numbers).toHaveText(["12,480", "$48,250.50", "7.3%", "3.5M"]);
+    await expect(numbers.nth(1)).toHaveAttribute("value", "48250.5");
+  });
+
+  test("writes one number five ways for five places", async ({ page }) => {
+    const numbers = preview(page, "formatted-number/locales").locator(
+      ".nuv-formatted-number",
+    );
+    // A region's space can be a narrow or a non-breaking one.
+    const texts = (await numbers.allTextContents()).map((text) =>
+      text.replace(/\s/g, " "),
+    );
+
+    expect(texts[0]).toBe("$1,234,567.50");
+    expect(texts[1]).toBe("1.234.567,50 €");
+    expect(texts[3]).toBe("₹12,34,567.50");
+    expect(new Set(texts).size).toBe(5);
+  });
+
+  test("the same text names a progress bar", async ({ page }) => {
+    await expect(
+      preview(page, "formatted-number/as-text").getByRole("progressbar", {
+        name: "Storage: 37.4 GB of 50 GB used",
+      }),
+    ).toBeVisible();
+  });
+
+  test("the playground changes the number and the code together", async ({
+    page,
+  }) => {
+    const area = playground(page);
+    const number = area.locator(".nuv-formatted-number");
+    await expect(number).toHaveText("1,234,567.891");
+
+    await area.getByLabel("locale").selectOption("de-DE");
+    await area.getByLabel("format").selectOption("currency");
+    await area.getByLabel("compact").check();
+
+    await expect(number).toHaveText(/^1,2\sMio\.\s\$$/);
+    await expect(area.locator("pre")).toContainText(
+      '<FormattedNumber value={1234567.891} locale="de-DE" currency="USD" compact />',
+    );
+  });
+});
+
+test.describe("trend page", () => {
+  test.beforeEach(async ({ page }) => {
+    await open(page, "/docs/components/trend");
+  });
+
+  test("says the direction in words that aren't drawn", async ({ page }) => {
+    const trends = preview(page, "trend/basic").locator(".nuv-trend");
+
+    await expect(trends).toHaveText(["Up 12.5%", "Down 4%", "No change 0%"]);
+    await expect(trends.nth(0)).toHaveAttribute("data-direction", "up");
+    await expect(trends.nth(1)).toHaveAttribute("data-direction", "down");
+    await expect(trends.nth(2)).toHaveAttribute("data-direction", "flat");
+    const label = await trends
+      .nth(0)
+      .locator(".nuv-trend__label")
+      .boundingBox();
+    expect(label?.width).toBeLessThanOrEqual(1);
+  });
+
+  test("a fall is the good color where less is better", async ({ page }) => {
+    const trends = preview(page, "trend/good-down").locator(".nuv-trend");
+
+    await expect(trends.nth(0)).toHaveClass(/nuv-trend--good/);
+    // Fewer failed payments.
+    await expect(trends.nth(1)).toHaveClass(/nuv-trend--good/);
+    await expect(trends.nth(1)).toHaveAttribute("data-direction", "down");
+    // A slower first reply.
+    await expect(trends.nth(2)).toHaveClass(/nuv-trend--bad/);
+    await expect(trends.nth(2)).toHaveAttribute("data-direction", "up");
+  });
+
+  test("text of your own replaces the amount", async ({ page }) => {
+    await expect(
+      preview(page, "trend/own-text").locator(".nuv-trend"),
+    ).toHaveText(["Up 12 more seats", "Down 3 fewer open tickets", "Up 1.8"]);
+  });
+
+  test("the playground changes the trend and the code together", async ({
+    page,
+  }) => {
+    const area = playground(page);
+    const trend = area.locator(".nuv-trend");
+
+    await area.getByLabel("value").fill("-0.2");
+    await area.getByLabel("good").selectOption("down");
+    await area.getByLabel("variant").selectOption("outline");
+
+    await expect(trend).toHaveText("Down 20%");
+    await expect(trend).toHaveClass(/nuv-trend--good/);
+    await expect(trend).toHaveClass(/nuv-trend--outline/);
+    await expect(area.locator("pre")).toContainText(
+      '<Trend value={-0.2} good="down" variant="outline" />',
+    );
+  });
+});
+
+test.describe("stat page", () => {
+  test.beforeEach(async ({ page }) => {
+    await open(page, "/docs/components/stat");
+  });
+
+  test("three stats are a row on a wide screen and a column on a phone", async ({
+    page,
+    isMobile,
+  }) => {
+    const stats = preview(page, "stat/basic").locator(".nuv-stat");
+    await expect(stats).toHaveCount(3);
+    const first = await stats.nth(0).boundingBox();
+    const second = await stats.nth(1).boundingBox();
+    if (!first || !second) throw new Error("nothing to measure");
+
+    if (isMobile) {
+      expect(first.y + first.height).toBeLessThanOrEqual(second.y);
+    } else {
+      expect(second.y).toBe(first.y);
+      expect(Math.round(second.width)).toBe(Math.round(first.width));
+    }
+  });
+
+  test("a stat reads as its label, its number, then its change", async ({
+    page,
+  }) => {
+    await expect(
+      preview(page, "stat/basic").locator(".nuv-stat").first(),
+    ).toHaveText("Revenue$48,250Up 12.5% against last month");
+  });
+
+  test("the chart has its room, and is hidden from screen readers", async ({
+    page,
+  }) => {
+    const chart = preview(page, "stat/with-chart").locator(".nuv-stat__chart");
+
+    expect((await chart.boundingBox())?.height).toBe(48);
+    await expect(chart.locator("svg")).toHaveAttribute("aria-hidden", "true");
+  });
+
+  test("a plain stat in a card has no edge of its own", async ({ page }) => {
+    const stat = preview(page, "stat/plain").locator(".nuv-stat").first();
+
+    await expect(stat).not.toHaveClass(/nuv-stat--card/);
+    expect(
+      await stat.evaluate(
+        (element) => getComputedStyle(element).borderTopWidth,
+      ),
+    ).toBe("0px");
+  });
+
+  test("the playground changes the stat and the code together", async ({
+    page,
+  }) => {
+    const area = playground(page);
+
+    await area.getByLabel("variant").selectOption("plain");
+    await area.getByLabel("StatLabel").fill("Open tickets");
+    await area.getByLabel("StatDescription").uncheck();
+
+    await expect(area.locator(".nuv-stat")).not.toHaveClass(/nuv-stat--card/);
+    await expect(area.locator(".nuv-stat__label")).toHaveText("Open tickets");
+    await expect(area.locator(".nuv-stat__description")).toHaveCount(0);
+    await expect(area.locator("pre")).toContainText('<Stat variant="plain">');
+    await expect(area.locator("pre")).not.toContainText("StatDescription");
+  });
+});
+
+test.describe("timeline page", () => {
+  test.beforeEach(async ({ page }) => {
+    await open(page, "/docs/components/timeline");
+  });
+
+  test("is a named list of events, each with its time", async ({ page }) => {
+    const list = preview(page, "timeline/basic").getByRole("list", {
+      name: "History of invoice 1042",
+    });
+
+    await expect(list.getByRole("listitem")).toHaveCount(3);
+    await expect(list.locator(".nuv-timeline__title")).toHaveText([
+      "Paid in full",
+      "Reminder sent",
+      "Invoice created",
+    ]);
+    await expect(list.locator("time").first()).toHaveAttribute(
+      "datetime",
+      "2026-10-06T14:12:00Z",
+    );
+  });
+
+  test("the markers are in a column, hidden from screen readers", async ({
+    page,
+  }) => {
+    const markers = preview(page, "timeline/intents").locator(
+      ".nuv-timeline__marker",
+    );
+    await expect(markers).toHaveCount(4);
+    const boxes = await markers.evaluateAll((elements) =>
+      elements.map((element) => element.getBoundingClientRect().left),
+    );
+
+    expect(new Set(boxes.map(Math.round)).size).toBe(1);
+    for (const marker of await markers.all()) {
+      await expect(marker).toHaveAttribute("aria-hidden", "true");
+    }
+    await expect(markers.first()).toHaveClass(/nuv-timeline__marker--danger/);
+  });
+
+  test("the playground changes the marker and the code together", async ({
+    page,
+  }) => {
+    const area = playground(page);
+
+    await area.getByLabel("intent").selectOption("warning");
+    await area.getByLabel("TimelineTitle").fill("Payment retried");
+
+    await expect(area.locator(".nuv-timeline__marker").first()).toHaveClass(
+      /nuv-timeline__marker--warning/,
+    );
+    await expect(area.locator(".nuv-timeline__title").first()).toHaveText(
+      "Payment retried",
+    );
+    await expect(area.locator("pre")).toContainText(
+      '<TimelineMarker intent="warning" />',
+    );
+  });
+});
+
+test.describe("item page", () => {
+  test.beforeEach(async ({ page }) => {
+    await open(page, "/docs/components/item");
+  });
+
+  test("the picture, the text and the button are a row", async ({ page }) => {
+    const item = preview(page, "item/basic").locator(".nuv-item");
+    const media = await item.locator(".nuv-item__media").boundingBox();
+    const content = await item.locator(".nuv-item__content").boundingBox();
+    const button = await item
+      .getByRole("button", { name: "Set up" })
+      .boundingBox();
+    if (!media || !content || !button) throw new Error("nothing to measure");
+
+    expect(media.x + media.width).toBeLessThanOrEqual(content.x);
+    expect(content.x + content.width).toBeLessThanOrEqual(button.x);
+  });
+
+  test("each setting's control is named by its row", async ({
+    page,
+    isMobile,
+  }) => {
+    const area = preview(page, "item/settings");
+    const list = area.getByRole("list", { name: "Notifications" });
+    await expect(list.getByRole("listitem")).toHaveCount(3);
+
+    const digest = area.getByRole("switch", { name: "Weekly digest" });
+    await expect(digest).toBeChecked();
+    await expect(digest).toHaveAccessibleDescription(
+      "A summary of your team's week, every Monday.",
+    );
+    await press(digest, isMobile);
+    await expect(digest).not.toBeChecked();
+
+    await expect(area.getByRole("combobox", { name: "Mentions" })).toHaveValue(
+      "email",
+    );
+
+    const volume = area.getByRole("slider", { name: "Alert volume" });
+    await volume.focus();
+    await page.keyboard.press("ArrowRight");
+    await expect(volume).toHaveAttribute("aria-valuenow", "70");
+    await expect(area.getByText("70%")).toBeVisible();
+  });
+
+  test("a row that's a link is one link, in a list item", async ({ page }) => {
+    const area = preview(page, "item/links");
+    const billing = area.getByRole("link", { name: /Billing/ });
+
+    await expect(area.getByRole("list", { name: "Settings" })).toBeVisible();
+    await expect(area.getByRole("link")).toHaveCount(3);
+    await expect(billing).toHaveClass(/nuv-item/);
+    await expect(billing).toHaveAttribute("href", "#billing");
+    expect(
+      await billing.evaluate((element) => element.parentElement?.tagName),
+    ).toBe("LI");
+
+    await billing.focus();
+    await page.keyboard.press("Tab");
+    await expect(area.getByRole("link", { name: /Members/ })).toBeFocused();
+  });
+
+  test("the playground changes the row and the code together", async ({
+    page,
+  }) => {
+    const area = playground(page);
+    const item = area.locator(".nuv-item");
+    await expect(item).toHaveClass(/nuv-item--outline/);
+
+    await area.getByLabel("variant").selectOption("muted");
+    await area.getByLabel("size").selectOption("sm");
+    await area.getByLabel("ItemActions").uncheck();
+
+    await expect(item).toHaveClass(/nuv-item--muted/);
+    await expect(item).toHaveClass(/nuv-item--sm/);
+    await expect(item.getByRole("button")).toHaveCount(0);
+    await expect(area.locator("pre")).toContainText(
+      '<Item variant="muted" size="sm">',
+    );
+  });
+});

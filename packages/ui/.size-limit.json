@@ -2,7 +2,7 @@
   {
     "name": "@nuvui/react",
     "path": "dist/index.js",
-    "limit": "74 kB"
+    "limit": "80 kB"
   },
   {
     "name": "@nuvui/react/accordion",
@@ -60,6 +60,11 @@
     "limit": "5.5 kB"
   },
   {
+    "name": "@nuvui/react/choice-card",
+    "path": "dist/components/choice-card/index.js",
+    "limit": "11 kB"
+  },
+  {
     "name": "@nuvui/react/collapsible",
     "path": "dist/components/collapsible/index.js",
     "limit": "4.8 kB"
@@ -110,6 +115,11 @@
     "limit": "1.9 kB"
   },
   {
+    "name": "@nuvui/react/formatted-number",
+    "path": "dist/components/formatted-number/index.js",
+    "limit": "470 B"
+  },
+  {
     "name": "@nuvui/react/hover-card",
     "path": "dist/components/hover-card/index.js",
     "limit": "16.5 kB"
@@ -123,6 +133,11 @@
     "name": "@nuvui/react/input",
     "path": "dist/components/input/index.js",
     "limit": "200 B"
+  },
+  {
+    "name": "@nuvui/react/item",
+    "path": "dist/components/item/index.js",
+    "limit": "1.8 kB"
   },
   {
     "name": "@nuvui/react/kbd",
@@ -148,6 +163,11 @@
     "name": "@nuvui/react/navigation-menu",
     "path": "dist/components/navigation-menu/index.js",
     "limit": "12 kB"
+  },
+  {
+    "name": "@nuvui/react/number-field",
+    "path": "dist/components/number-field/index.js",
+    "limit": "2.1 kB"
   },
   {
     "name": "@nuvui/react/otp-field",
@@ -178,6 +198,11 @@
     "name": "@nuvui/react/radio-group",
     "path": "dist/components/radio-group/index.js",
     "limit": "9.5 kB"
+  },
+  {
+    "name": "@nuvui/react/rating",
+    "path": "dist/components/rating/index.js",
+    "limit": "9.4 kB"
   },
   {
     "name": "@nuvui/react/scroll-area",
@@ -220,6 +245,16 @@
     "limit": "400 B"
   },
   {
+    "name": "@nuvui/react/stat",
+    "path": "dist/components/stat/index.js",
+    "limit": "300 B"
+  },
+  {
+    "name": "@nuvui/react/stepper",
+    "path": "dist/components/stepper/index.js",
+    "limit": "870 B"
+  },
+  {
     "name": "@nuvui/react/switch",
     "path": "dist/components/switch/index.js",
     "limit": "4.5 kB"
@@ -233,6 +268,11 @@
     "name": "@nuvui/react/textarea",
     "path": "dist/components/textarea/index.js",
     "limit": "750 B"
+  },
+  {
+    "name": "@nuvui/react/timeline",
+    "path": "dist/components/timeline/index.js",
+    "limit": "370 B"
   },
   {
     "name": "@nuvui/react/toast",
@@ -260,6 +300,11 @@
     "limit": "18 kB"
   },
   {
+    "name": "@nuvui/react/trend",
+    "path": "dist/components/trend/index.js",
+    "limit": "900 B"
+  },
+  {
     "name": "@nuvui/react/visually-hidden",
     "path": "dist/components/visually-hidden/index.js",
     "limit": "1.5 kB"
@@ -273,7 +318,7 @@
     "name": "styles.css",
     "path": "dist/styles.css",
     "rolldown": false,
-    "limit": "15.5 kB"
+    "limit": "17.5 kB"
   },
   {
     "name": "tokens.css",
@@ -285,7 +330,7 @@
     "name": "every stylesheet in css/",
     "path": "dist/css/*.css",
     "rolldown": false,
-    "limit": "35 kB"
+    "limit": "39 kB"
   },
   {
     "name": "every preset in themes/",

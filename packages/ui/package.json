@@ -1,6 +1,6 @@
 {
   "name": "@nuvui/react",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "React components built on Radix UI primitives, styled with SCSS and BEM class names.",
   "license": "MIT",
   "author": "Nuvraxis",
@@ -148,6 +148,16 @@
         "default": "./dist/components/checkbox/index.cjs"
       }
     },
+    "./choice-card": {
+      "import": {
+        "types": "./dist/components/choice-card/index.d.ts",
+        "default": "./dist/components/choice-card/index.js"
+      },
+      "require": {
+        "types": "./dist/components/choice-card/index.d.cts",
+        "default": "./dist/components/choice-card/index.cjs"
+      }
+    },
     "./collapsible": {
       "import": {
         "types": "./dist/components/collapsible/index.d.ts",
@@ -248,6 +258,16 @@
         "default": "./dist/components/file-upload/index.cjs"
       }
     },
+    "./formatted-number": {
+      "import": {
+        "types": "./dist/components/formatted-number/index.d.ts",
+        "default": "./dist/components/formatted-number/index.js"
+      },
+      "require": {
+        "types": "./dist/components/formatted-number/index.d.cts",
+        "default": "./dist/components/formatted-number/index.cjs"
+      }
+    },
     "./hover-card": {
       "import": {
         "types": "./dist/components/hover-card/index.d.ts",
@@ -276,6 +296,16 @@
       "require": {
         "types": "./dist/components/input-group/index.d.cts",
         "default": "./dist/components/input-group/index.cjs"
+      }
+    },
+    "./item": {
+      "import": {
+        "types": "./dist/components/item/index.d.ts",
+        "default": "./dist/components/item/index.js"
+      },
+      "require": {
+        "types": "./dist/components/item/index.d.cts",
+        "default": "./dist/components/item/index.cjs"
       }
     },
     "./kbd": {
@@ -326,6 +356,16 @@
       "require": {
         "types": "./dist/components/navigation-menu/index.d.cts",
         "default": "./dist/components/navigation-menu/index.cjs"
+      }
+    },
+    "./number-field": {
+      "import": {
+        "types": "./dist/components/number-field/index.d.ts",
+        "default": "./dist/components/number-field/index.js"
+      },
+      "require": {
+        "types": "./dist/components/number-field/index.d.cts",
+        "default": "./dist/components/number-field/index.cjs"
       }
     },
     "./otp-field": {
@@ -386,6 +426,16 @@
       "require": {
         "types": "./dist/components/radio-group/index.d.cts",
         "default": "./dist/components/radio-group/index.cjs"
+      }
+    },
+    "./rating": {
+      "import": {
+        "types": "./dist/components/rating/index.d.ts",
+        "default": "./dist/components/rating/index.js"
+      },
+      "require": {
+        "types": "./dist/components/rating/index.d.cts",
+        "default": "./dist/components/rating/index.cjs"
       }
     },
     "./scroll-area": {
@@ -468,6 +518,26 @@
         "default": "./dist/components/spinner/index.cjs"
       }
     },
+    "./stat": {
+      "import": {
+        "types": "./dist/components/stat/index.d.ts",
+        "default": "./dist/components/stat/index.js"
+      },
+      "require": {
+        "types": "./dist/components/stat/index.d.cts",
+        "default": "./dist/components/stat/index.cjs"
+      }
+    },
+    "./stepper": {
+      "import": {
+        "types": "./dist/components/stepper/index.d.ts",
+        "default": "./dist/components/stepper/index.js"
+      },
+      "require": {
+        "types": "./dist/components/stepper/index.d.cts",
+        "default": "./dist/components/stepper/index.cjs"
+      }
+    },
     "./switch": {
       "import": {
         "types": "./dist/components/switch/index.d.ts",
@@ -496,6 +566,16 @@
       "require": {
         "types": "./dist/components/textarea/index.d.cts",
         "default": "./dist/components/textarea/index.cjs"
+      }
+    },
+    "./timeline": {
+      "import": {
+        "types": "./dist/components/timeline/index.d.ts",
+        "default": "./dist/components/timeline/index.js"
+      },
+      "require": {
+        "types": "./dist/components/timeline/index.d.cts",
+        "default": "./dist/components/timeline/index.cjs"
       }
     },
     "./toast": {
@@ -546,6 +626,16 @@
       "require": {
         "types": "./dist/components/tooltip/index.d.cts",
         "default": "./dist/components/tooltip/index.cjs"
+      }
+    },
+    "./trend": {
+      "import": {
+        "types": "./dist/components/trend/index.d.ts",
+        "default": "./dist/components/trend/index.js"
+      },
+      "require": {
+        "types": "./dist/components/trend/index.d.cts",
+        "default": "./dist/components/trend/index.cjs"
       }
     },
     "./visually-hidden": {

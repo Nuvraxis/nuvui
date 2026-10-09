@@ -32,6 +32,8 @@ import {
   Card,
   CardContent,
   Checkbox,
+  CheckboxCard,
+  ChoiceCardTitle,
   Combobox,
   ComboboxContent,
   ComboboxItem,
@@ -70,6 +72,9 @@ import {
   HoverCardTrigger,
   Input,
   InputGroup,
+  Item,
+  ItemGroup,
+  ItemMedia,
   Kbd,
   Menubar,
   MenubarContent,
@@ -83,6 +88,7 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
+  NumberField,
   OtpField,
   Pagination,
   PaginationItem,
@@ -96,6 +102,7 @@ import {
   Progress,
   RadioGroup,
   RadioGroupItem,
+  Rating,
   ScrollArea,
   Select,
   SelectContent,
@@ -121,12 +128,24 @@ import {
   Skeleton,
   Slider,
   Spinner,
+  Stat,
+  StatValue,
+  Stepper,
+  StepperContent,
+  StepperIndicator,
+  StepperItem,
+  StepperTitle,
   Switch,
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
   Textarea,
+  Timeline,
+  TimelineContent,
+  TimelineItem,
+  TimelineMarker,
+  TimelineTitle,
   Toaster,
   Toggle,
   Toolbar,
@@ -137,6 +156,7 @@ import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
+  Trend,
   toast,
 } from "../src";
 
@@ -1377,5 +1397,230 @@ describe("focus", () => {
     const button = style(page.getByRole("button").element());
 
     expect(contrast(button.borderTopColor, canvas())).toBeGreaterThan(3);
+  });
+});
+
+describe("trend, stat, timeline and item", () => {
+  test("a trend keeps its arrow and its edge, whichever way it points", async () => {
+    await render(
+      <>
+        <Trend data-testid="up" value={0.1} variant="outline" />
+        <Trend data-testid="down" value={-0.1} variant="outline" />
+        <Trend data-testid="flat" value={0} variant="outline" />
+      </>,
+    );
+
+    for (const id of ["up", "down", "flat"]) {
+      const trend = style(page.getByTestId(id).element());
+      // The arrow is drawn in the text's color.
+      expect(contrast(trend.color, canvas()), id).toBeGreaterThan(4.5);
+      expect(contrast(trend.borderTopColor, canvas()), id).toBeGreaterThan(3);
+    }
+  });
+
+  test("a stat card keeps its edge", async () => {
+    await render(
+      <Stat data-testid="stat">
+        <StatValue>12</StatValue>
+      </Stat>,
+    );
+
+    expect(
+      contrast(
+        style(page.getByTestId("stat").element()).borderTopColor,
+        canvas(),
+      ),
+    ).toBeGreaterThan(3);
+  });
+
+  test("a timeline's markers have an edge in place of their fill, and the line is still drawn", async () => {
+    await render(
+      <Timeline>
+        {(["neutral", "primary", "success", "warning", "danger"] as const).map(
+          (intent) => (
+            <TimelineItem key={intent} data-testid={`${intent}-item`}>
+              <TimelineMarker data-testid={intent} intent={intent} />
+              <TimelineContent>
+                <TimelineTitle>{intent}</TimelineTitle>
+              </TimelineContent>
+            </TimelineItem>
+          ),
+        )}
+      </Timeline>,
+    );
+
+    for (const intent of [
+      "neutral",
+      "primary",
+      "success",
+      "warning",
+      "danger",
+    ]) {
+      expect(
+        contrast(
+          style(page.getByTestId(intent).element()).borderTopColor,
+          canvas(),
+        ),
+        intent,
+      ).toBeGreaterThan(3);
+    }
+    const line = getComputedStyle(
+      page.getByTestId("neutral-item").element(),
+      "::before",
+    );
+    expect(line.borderInlineStartStyle).toBe("solid");
+    expect(contrast(line.borderInlineStartColor, canvas())).toBeGreaterThan(3);
+  });
+
+  test("a filled item, an icon's square and an outlined group keep their edges", async () => {
+    await render(
+      <>
+        <Item data-testid="muted" variant="muted">
+          <ItemMedia data-testid="media" variant="icon" />
+          Row
+        </Item>
+        <ItemGroup data-testid="group" variant="outline" aria-label="Rows">
+          <Item>One</Item>
+          <Item data-testid="second">Two</Item>
+        </ItemGroup>
+      </>,
+    );
+    const edge = (element: Element | null) =>
+      style(element as Element).borderTopColor;
+
+    expect(
+      contrast(edge(page.getByTestId("muted").element()), canvas()),
+    ).toBeGreaterThan(3);
+    expect(
+      contrast(edge(page.getByTestId("media").element()), canvas()),
+    ).toBeGreaterThan(3);
+    expect(
+      contrast(edge(page.getByTestId("group").element()), canvas()),
+    ).toBeGreaterThan(3);
+    // The line between two rows.
+    expect(
+      contrast(
+        edge(page.getByTestId("second").element().parentElement),
+        canvas(),
+      ),
+    ).toBeGreaterThan(3);
+  });
+
+  test("a row that's a link keeps its focus ring", async () => {
+    await render(
+      <Item asChild>
+        <a href="#billing">Billing</a>
+      </Item>,
+    );
+
+    await userEvent.keyboard("{Tab}");
+
+    const row = style(page.getByRole("link", { name: "Billing" }).element());
+    expect(row.outlineStyle).toBe("solid");
+    expect(contrast(row.outlineColor, canvas())).toBeGreaterThan(3);
+  });
+});
+
+describe("number field, rating, stepper and choice card", () => {
+  test("a number field keeps its edge, and its buttons can be seen", async () => {
+    await render(<NumberField aria-label="Seats" defaultValue={5} />);
+    const field = page.getByRole("spinbutton").element();
+
+    expect(
+      contrast(style(field.parentElement as Element).borderTopColor, canvas()),
+    ).toBeGreaterThan(3);
+    // The minus and the plus are drawn in the button's text color.
+    for (const name of ["Decrease", "Increase"]) {
+      expect(
+        contrast(
+          style(page.getByRole("button", { name }).element()).color,
+          canvas(),
+        ),
+        name,
+      ).toBeGreaterThan(3);
+    }
+  });
+
+  test("a chosen star is filled and the others are outlines", async () => {
+    await render(<Rating aria-label="Delivery" defaultValue={2} />);
+    const star = (name: string) =>
+      style(
+        page
+          .getByRole("radio", { name })
+          .element()
+          .querySelector("svg") as Element,
+      );
+
+    expect(star("2 stars").fill).not.toBe("none");
+    expect(star("3 stars").fill).toBe("none");
+    expect(contrast(star("2 stars").color, canvas())).toBeGreaterThan(3);
+    expect(contrast(star("3 stars").color, canvas())).toBeGreaterThan(3);
+  });
+
+  test("a stepper's circles and lines are still drawn, and a done step keeps its tick", async () => {
+    await render(
+      <Stepper value={2} aria-label="Setting up">
+        {["Account", "Team", "Billing"].map((title, index) => (
+          <StepperItem key={title} step={index + 1} data-testid={title}>
+            <StepperIndicator data-testid={`${title}-indicator`} />
+            <StepperContent>
+              <StepperTitle>{title}</StepperTitle>
+            </StepperContent>
+          </StepperItem>
+        ))}
+      </Stepper>,
+    );
+
+    for (const title of ["Account", "Team", "Billing"]) {
+      const circle = style(page.getByTestId(`${title}-indicator`).element());
+      expect(contrast(circle.borderTopColor, canvas()), title).toBeGreaterThan(
+        3,
+      );
+      // The tick or the number, against what's behind it there.
+      expect(contrast(circle.color, canvas()), title).toBeGreaterThan(4.5);
+    }
+    const line = getComputedStyle(
+      page.getByTestId("Account").element(),
+      "::after",
+    );
+    expect(line.borderTopStyle).toBe("solid");
+    expect(contrast(line.borderTopColor, canvas())).toBeGreaterThan(3);
+    // What says a step is done without any color at all.
+    expect(
+      page.getByTestId("Account-indicator").element().querySelector("svg"),
+    ).not.toBeNull();
+    await expect.element(page.getByText("Completed")).toBeInTheDocument();
+  });
+
+  test("a choice card keeps its edge, and the control inside says which is chosen", async () => {
+    await render(
+      <>
+        <CheckboxCard defaultChecked>
+          <ChoiceCardTitle>Audit log</ChoiceCardTitle>
+        </CheckboxCard>
+        <CheckboxCard>
+          <ChoiceCardTitle>Single sign-on</ChoiceCardTitle>
+        </CheckboxCard>
+      </>,
+    );
+    const on = page.getByRole("checkbox", { name: "Audit log" }).element();
+    const off = page
+      .getByRole("checkbox", { name: "Single sign-on" })
+      .element();
+
+    for (const control of [on, off]) {
+      expect(
+        contrast(
+          style(control.closest(".nuv-choice-card") as Element).borderTopColor,
+          canvas(),
+        ),
+      ).toBeGreaterThan(3);
+    }
+    expect(on.getAttribute("data-state")).toBe("checked");
+    expect(off.getAttribute("data-state")).toBe("unchecked");
+    // The tick is drawn in a color that can be seen here.
+    expect(
+      contrast(style(on).color, style(on).backgroundColor),
+    ).toBeGreaterThan(3);
   });
 });

@@ -9,6 +9,8 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
+  ActionBar,
+  ActionBarSelection,
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
@@ -42,6 +44,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
   FileUpload,
+  HoldToConfirm,
   Input,
   InputGroup,
   InputGroupButton,
@@ -95,6 +98,7 @@ import {
   SidebarTrigger,
   Slider,
   Switch,
+  TableOfContents,
   Tabs,
   TabsContent,
   TabsList,
@@ -1265,5 +1269,66 @@ describe("choice card", () => {
     expect(box(card).height).toBeGreaterThanOrEqual(44);
     await page.getByText("Audit log").click();
     await expect.element(control).toBeChecked();
+  });
+});
+
+describe("hold to confirm", () => {
+  test("is 44px tall, as any button is", async () => {
+    await render(
+      <div style={padded}>
+        <HoldToConfirm onConfirm={() => {}}>Hold to delete</HoldToConfirm>
+      </div>,
+    );
+
+    expect(box(page.getByRole("button").element()).height).toBe(44);
+  });
+});
+
+describe("table of contents", () => {
+  test("each link is at least 44px tall", async () => {
+    await render(
+      <div style={padded}>
+        <TableOfContents
+          aria-label="On this page"
+          items={[
+            { id: "install", title: "Install" },
+            { id: "usage", title: "Usage", depth: 2 },
+          ]}
+        />
+      </div>,
+    );
+
+    for (const link of page.getByRole("link").elements()) {
+      expect(box(link).height).toBeGreaterThanOrEqual(44);
+    }
+  });
+});
+
+describe("action bar", () => {
+  test("its buttons keep their touch size, and wrap on a phone", async () => {
+    await render(
+      <ActionBar open aria-label="Selected messages">
+        <ActionBarSelection>12 selected</ActionBarSelection>
+        <Button intent="secondary" size="sm">
+          Archive
+        </Button>
+        <Button intent="secondary" size="sm">
+          Mark as read
+        </Button>
+        <Button intent="danger" size="sm">
+          Delete
+        </Button>
+      </ActionBar>,
+    );
+    const bar = page.getByRole("group").element();
+
+    for (const button of page.getByRole("button").elements()) {
+      expect(box(button).height).toBeGreaterThanOrEqual(44);
+    }
+    expect(box(bar).left).toBeGreaterThanOrEqual(0);
+    expect(box(bar).right).toBeLessThanOrEqual(
+      document.documentElement.clientWidth,
+    );
+    expect(Math.round(box(bar).bottom)).toBeLessThanOrEqual(window.innerHeight);
   });
 });

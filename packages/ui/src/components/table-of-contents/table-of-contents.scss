@@ -1,0 +1,84 @@
+@use "../../styles/layers";
+@use "../../styles/mixins";
+
+@layer components {
+  .nuv-table-of-contents {
+    min-inline-size: 0;
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+  }
+
+  // A line down the start edge, which the marked link draws over.
+  .nuv-table-of-contents__list {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    border-inline-start: var(--nuv-table-of-contents-line-width, 2px) solid
+      var(--nuv-table-of-contents-line, var(--color-border));
+    list-style: none;
+  }
+
+  .nuv-table-of-contents__item {
+    display: flex;
+  }
+
+  // The link reaches over the list's line, so the bar of the marked one
+  // can be drawn on it. A link is as tall as a finger needs unless a mouse
+  // is in use.
+  .nuv-table-of-contents__link {
+    display: flex;
+    position: relative;
+    flex: 1;
+    align-items: center;
+    box-sizing: border-box;
+    min-inline-size: 0;
+    min-block-size: var(--nuv-table-of-contents-item-height, var(--nuv-touch-size));
+    margin-inline-start: calc(var(--nuv-table-of-contents-line-width, 2px) * -1);
+    padding-block: var(--spacing);
+    padding-inline: calc(var(--spacing) * 3) var(--spacing);
+    color: var(--nuv-table-of-contents-fg, var(--color-muted-foreground));
+    text-decoration: none;
+    overflow-wrap: anywhere;
+
+    @include mixins.focus-ring(-2px);
+
+    @include mixins.fine-pointer {
+      min-block-size: var(--nuv-table-of-contents-item-height, calc(var(--spacing) * 8));
+    }
+
+    @include mixins.motion-safe {
+      transition: color var(--nuv-duration-fast) var(--ease-out);
+    }
+
+    @include mixins.hover {
+      color: var(--nuv-table-of-contents-active-fg, var(--color-foreground));
+    }
+
+    // The heading being read: a bar beside it and heavier text, as well as
+    // a stronger color. The bar is a border, which is still drawn where
+    // the browser forces its own colors.
+    &[aria-current] {
+      color: var(--nuv-table-of-contents-active-fg, var(--color-foreground));
+      font-weight: var(--font-weight-medium);
+    }
+
+    // How far in a deeper heading is set. It's read from an attribute and
+    // not from a style on the element, which a strict content security
+    // policy would throw away.
+    @for $depth from 2 through 4 {
+      &[data-depth="#{$depth}"] {
+        padding-inline-start: calc(var(--spacing) * 3 + var(--nuv-table-of-contents-indent, calc(var(--spacing) * 3)) * #{$depth - 1});
+      }
+    }
+
+    &[aria-current]::before {
+      position: absolute;
+      inset-block: 0;
+      inset-inline-start: 0;
+      border-inline-start: var(--nuv-table-of-contents-line-width, 2px) solid
+        var(--nuv-table-of-contents-active-line, var(--color-primary));
+      content: "";
+    }
+  }
+}

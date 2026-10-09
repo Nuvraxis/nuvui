@@ -93,10 +93,12 @@ import {
   StepperIndicator,
   StepperItem,
   StepperTitle,
+  TableOfContents,
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
+  TextShimmer,
   Timeline,
   TimelineContent,
   TimelineItem,
@@ -294,6 +296,18 @@ export default function RscSmokePage() {
       <CheckboxCard defaultChecked>
         <ChoiceCardTitle>Card from the server</ChoiceCardTitle>
       </CheckboxCard>
+      {/* TextShimmer has no "use client". TableOfContents is a client
+          component, given a list of plain objects. */}
+      <TextShimmer data-testid="server-shimmer">
+        Shimmer from the server
+      </TextShimmer>
+      <TableOfContents
+        aria-label="Contents from the server"
+        items={[
+          { id: "server-first", title: "First heading" },
+          { id: "server-second", title: "Second heading", depth: 2 },
+        ]}
+      />
       <div style={{ width: 120 }}>
         <AspectRatio ratio={2} data-testid="server-ratio" />
         <Skeleton data-testid="server-skeleton" />

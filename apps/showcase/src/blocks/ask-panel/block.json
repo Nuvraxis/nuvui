@@ -1,0 +1,9 @@
+{
+  "name": "ask-panel",
+  "title": "Ask a question",
+  "description": "A question in a field or from a list of examples, words that shimmer while it's worked on, and the answer in their place.",
+  "category": "dashboard",
+  "files": ["ask-panel.tsx", "ask-panel.scss"],
+  "install": ["@nuvui/react"],
+  "height": 520
+}

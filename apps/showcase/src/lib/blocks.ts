@@ -1,4 +1,6 @@
 import activity from "@/blocks/activity/block.json" with { type: "json" };
+import article from "@/blocks/article/block.json" with { type: "json" };
+import askPanel from "@/blocks/ask-panel/block.json" with { type: "json" };
 import auditLog from "@/blocks/audit-log/block.json" with { type: "json" };
 import billing from "@/blocks/billing/block.json" with { type: "json" };
 import dangerZone from "@/blocks/danger-zone/block.json" with { type: "json" };
@@ -16,16 +18,19 @@ import forgotPassword from "@/blocks/forgot-password/block.json" with {
   type: "json",
 };
 import hero from "@/blocks/hero/block.json" with { type: "json" };
+import inbox from "@/blocks/inbox/block.json" with { type: "json" };
 import navBar from "@/blocks/nav-bar/block.json" with { type: "json" };
 import notifications from "@/blocks/notifications/block.json" with {
   type: "json",
 };
+import onboarding from "@/blocks/onboarding/block.json" with { type: "json" };
 import pageHeader from "@/blocks/page-header/block.json" with { type: "json" };
 import pageStates from "@/blocks/page-states/block.json" with { type: "json" };
 import pricing from "@/blocks/pricing/block.json" with { type: "json" };
 import profileForm from "@/blocks/profile-form/block.json" with {
   type: "json",
 };
+import reviews from "@/blocks/reviews/block.json" with { type: "json" };
 import sidebarIcons from "@/blocks/sidebar-icons/block.json" with {
   type: "json",
 };
@@ -78,28 +83,28 @@ export const categories: BlockCategory[] = [
     label: "Accounts",
     title: "Sign in and accounts",
     description:
-      "The screens in front of an app: signing in with a password or a company account, signing up, a forgotten password, and a code sent by email.",
+      "The screens in front of an app: signing in with a password or a company account, signing up, a forgotten password, a code sent by email, and setting up in steps.",
   },
   {
     slug: "layout",
     label: "App layout",
     title: "App layout",
     description:
-      "What goes around every screen of an app: a sidebar that folds down to icons, one with sections that open, a top bar with search, and a page header.",
+      "What goes around every screen of an app: a sidebar that folds down to icons, one with sections that open, a top bar with search, a page header, and a long page with a list of its headings.",
   },
   {
     slug: "dashboard",
     label: "Dashboard",
     title: "Dashboard",
     description:
-      "A whole dashboard with a sidebar, figures, a chart and a table, and two of its parts on their own: figures with trends, and a list of recent activity.",
+      "A whole dashboard with a sidebar, figures, a chart and a table, two of its parts on their own, figures with trends and a list of recent activity, and a panel to ask a question in.",
   },
   {
     slug: "data",
     label: "Data",
     title: "Data",
     description:
-      "Rows to work with: a table with search, a filter, a column chooser and actions for several rows, a panel that opens beside a list, and a page in each state it can be in.",
+      "Rows to work with: a table with search, a filter, a column chooser and actions for several rows, a list with a bar of actions for the ticked rows, a panel that opens beside a list, and a page in each state it can be in.",
   },
   {
     slug: "settings",
@@ -113,7 +118,7 @@ export const categories: BlockCategory[] = [
     label: "Marketing",
     title: "Marketing pages",
     description:
-      "A product's public pages in six parts: a navigation bar, a hero, a grid of features, a pricing table, questions and answers, and a footer.",
+      "A product's public pages in seven parts: a navigation bar, a hero, a grid of features, a pricing table, reviews, questions and answers, and a footer.",
   },
 ];
 
@@ -126,14 +131,18 @@ export const blocks: BlockManifest[] = [
   signUp,
   forgotPassword,
   verifyCode,
+  onboarding,
   sidebarIcons,
   sidebarNested,
   topBar,
   pageHeader,
+  article,
   dashboard,
   figures,
   activity,
+  askPanel,
   tableToolbar,
+  inbox,
   detailPanel,
   pageStates,
   profileForm,
@@ -146,6 +155,7 @@ export const blocks: BlockManifest[] = [
   hero,
   featureGrid,
   pricing,
+  reviews,
   faq,
   footer,
 ];

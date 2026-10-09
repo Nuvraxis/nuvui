@@ -1641,19 +1641,18 @@ describe("text shimmer, hold to confirm, action bar and table of contents", () =
     expect(text.animationName).toBe("none");
   });
 
-  test("the wait on a held button is a bar along its bottom", async () => {
+  test("the bar on a held button is drawn, in the highlight color", async () => {
     await render(
       <HoldToConfirm onConfirm={() => {}}>Hold to delete</HoldToConfirm>,
     );
     const button = page.getByRole("button").element();
-    const wash = button.querySelector(
+    const bar = button.querySelector(
       ".nuv-hold-to-confirm__progress",
     ) as Element;
 
-    expect(style(wash).height).toBe("4px");
-    expect(style(wash).opacity).toBe("1");
-    expect(style(wash).backgroundColor).toBe(system("highlight"));
-    expect(Math.round(wash.getBoundingClientRect().bottom)).toBeLessThanOrEqual(
+    expect(style(bar).height).toBe("4px");
+    expect(style(bar).backgroundColor).toBe(system("highlight"));
+    expect(Math.round(bar.getBoundingClientRect().bottom)).toBeLessThanOrEqual(
       Math.round(button.getBoundingClientRect().bottom),
     );
   });

@@ -1,6 +1,6 @@
 ---
 title: HoldToConfirm
-description: A button that acts only after it's been held down, with the wait drawn across it, for things that can't be undone.
+description: A button that acts only after it's been held down, with the wait drawn along its edge, for things that can't be undone.
 ---
 
 Use hold to confirm for something that can't be undone and isn't worth stopping for: removing a row, discarding a draft, ending a session. Holding takes a moment of intent, which a stray click doesn't have. For something with consequences worth reading first, use an [alert dialog](/docs/components/alert-dialog).
@@ -35,7 +35,7 @@ It's a [`Button`](/docs/components/button), and takes what one takes: `intent`, 
 
 `duration` is in milliseconds, and 1500 by default. Shorter than about 800 and a slow click gets through. Longer than about 3000 and people give up, or wonder whether it's working.
 
-Letting go before the time is up cancels, and the wash drains away. So does moving the pointer off the button, and moving focus away.
+Letting go before the time is up cancels, and the bar along the bottom of the button drains away. So does moving the pointer off the button, and moving focus away.
 
 ## Pressing without holding
 
@@ -60,9 +60,10 @@ The button's text is yours, and it's the only instruction a sighted person gets.
 - The button is described by `hint`, "Hold down to confirm.", which a screen reader reads after its name.
 - Letting go too soon says the hint again, in a status that's in the page from the start.
 - A press that can't be held is asked for twice, and the first one says "Press again to confirm."
-- The wash is a picture and is hidden from screen readers.
-- The wash moves for everyone, including a visitor who asked for less motion. It's the only thing that shows how much longer to hold, and it's one slow fill, not a decoration.
-- Where the browser forces its own colors the wash is a bar along the bottom of the button, in the highlight color.
+- The bar is a picture and is hidden from screen readers.
+- The bar is under the button's text and not behind it, so the text is as easy to read while it's held as when it isn't.
+- The bar moves for everyone, including a visitor who asked for less motion. It's the only thing that shows how much longer to hold, and it's one slow fill, not a decoration.
+- Where the browser forces its own colors the bar is drawn in the highlight color.
 - A finger held on the button doesn't scroll the page or open the phone's menu.
 
 ### What you need to handle
@@ -74,7 +75,7 @@ The button's text is yours, and it's the only instruction a sighted person gets.
 
 ## On small screens
 
-The button is 44 pixels tall with a finger, as any button is. A held finger covers a small button's text, so leave room for the wash to be seen: let the button be as wide as its text and more.
+The button is 44 pixels tall with a finger, as any button is. A held finger covers a small button, and the bar with it, so let the button be as wide as its text and more.
 
 ## CSS variables
 
@@ -82,7 +83,7 @@ Set any of these on the `HoldToConfirm`, or on anything around it. The [button's
 
 ```css
 .danger-zone {
-  --nuv-hold-to-confirm-progress-opacity: 0.4;
+  --nuv-hold-to-confirm-progress-size: 6px;
 }
 ```
 
@@ -90,9 +91,8 @@ Set any of these on the `HoldToConfirm`, or on anything around it. The [button's
   component="hold-to-confirm"
   descriptions={{
     "--nuv-hold-to-confirm-progress":
-      "Color of the wash. The button's text color by default, so it suits every intent.",
-    "--nuv-hold-to-confirm-progress-opacity":
-      "How strong the wash is. Keep the button's text readable over it.",
+      "Color of the bar. The button's text color by default, so it suits every intent. Keep it at 3:1 against the button.",
+    "--nuv-hold-to-confirm-progress-size": "Thickness of the bar.",
   }}
 />
 
@@ -102,8 +102,8 @@ Set any of these on the `HoldToConfirm`, or on anything around it. The [button's
   component="hold-to-confirm"
   descriptions={{
     "nuv-hold-to-confirm": "HoldToConfirm. On the button, with the button's own classes.",
-    "nuv-hold-to-confirm__progress": "The wash.",
-    "nuv-hold-to-confirm__label": "What wraps the button's content, over the wash.",
+    "nuv-hold-to-confirm__progress": "The bar.",
+    "nuv-hold-to-confirm__label": "What wraps the button's content.",
     "nuv-hold-to-confirm__status":
       "What's said to a screen reader, drawn for nobody. It comes after the button.",
   }}

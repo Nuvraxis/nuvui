@@ -1,0 +1,9 @@
+{
+  "name": "onboarding",
+  "title": "Set up in steps",
+  "description": "Three steps to a new workspace: a plan chosen from cards, seats and extras, and a summary to check, with a stepper that says where you are.",
+  "category": "accounts",
+  "files": ["onboarding.tsx", "onboarding.scss"],
+  "install": ["@nuvui/react"],
+  "height": 760
+}

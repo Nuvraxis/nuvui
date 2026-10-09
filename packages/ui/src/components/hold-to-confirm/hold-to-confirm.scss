@@ -1,0 +1,70 @@
+@use "../../styles/layers";
+
+@layer components {
+  // A finger that's held still drifts, and the browser would take the
+  // drift for the start of a scroll and end the press.
+  .nuv-hold-to-confirm {
+    position: relative;
+    touch-action: none;
+    -webkit-touch-callout: none;
+  }
+
+  // The wait, drawn as a wash over the button in the color of its text,
+  // which works on any intent. It's uncovered from the start edge. The
+  // transition is here for everyone, less motion or not: it's the only
+  // thing that says how much longer to hold. While the button is held its
+  // length is the `duration` prop, which the component sets on the element.
+  .nuv-hold-to-confirm__progress {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background-color: var(--nuv-hold-to-confirm-progress, currentcolor);
+    opacity: var(--nuv-hold-to-confirm-progress-opacity, 0.25);
+    clip-path: inset(0 100% 0 0);
+    transition: clip-path var(--nuv-duration-fast) var(--ease-out);
+    pointer-events: none;
+
+    &:dir(rtl) {
+      clip-path: inset(0 0 0 100%);
+    }
+
+    // Backgrounds aren't drawn where the browser forces its own colors.
+    // There it's a bar along the bottom, under the text and not behind it.
+    @media (forced-colors: active) {
+      inset-block-start: auto;
+      block-size: 4px;
+      border-radius: 0;
+      background-color: highlight;
+      opacity: 1;
+      forced-color-adjust: none;
+    }
+  }
+
+  .nuv-hold-to-confirm[data-state="holding"] > .nuv-hold-to-confirm__progress {
+    clip-path: inset(0);
+    transition-timing-function: linear;
+  }
+
+  // After the first of two presses it's full, and waits for the second.
+  .nuv-hold-to-confirm[data-state="armed"] > .nuv-hold-to-confirm__progress {
+    clip-path: inset(0);
+  }
+
+  // Over the wash, and laid out as the button's own content would be.
+  .nuv-hold-to-confirm__label {
+    display: inline-flex;
+    position: relative;
+    gap: inherit;
+    align-items: center;
+  }
+
+  // In the page for screen readers, and drawn for nobody.
+  .nuv-hold-to-confirm__status {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}

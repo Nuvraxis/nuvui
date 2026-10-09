@@ -133,6 +133,19 @@ An alert dialog has no close button, and nothing of its own to translate.
 
 Why a file was refused is yours to say. `onReject` gives you the reason as `"type"`, `"size"` or `"count"`.
 
+### HoldToConfirm
+
+<PropsTable
+  component="hold-to-confirm"
+  name="HoldToConfirmOwnProps"
+  props={{
+    hint: "What a screen reader says about the button, and says again when it's let go of too soon.",
+    againLabel: "What a screen reader says after the first of two presses.",
+  }}
+/>
+
+What the button says is its children, which you write. Start it with the words for "Hold to".
+
 ### NumberField
 
 <PropsTable

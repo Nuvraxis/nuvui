@@ -4,6 +4,7 @@ import { ChartCard } from "@/components/charts/chart-card";
 import { FamilyNav } from "@/components/charts/family-nav";
 import { JsonLd } from "@/components/json-ld";
 import { chartsHome, families, familyPath } from "@/lib/charts";
+import { share } from "@/lib/seo";
 import { absoluteUrl, docs } from "@/lib/site";
 
 // Only the families listed are pages. Anything else is the 404 page.
@@ -25,8 +26,12 @@ export async function generateMetadata({
   return {
     title: family.title,
     description: family.description,
-    alternates: { canonical: path },
-    openGraph: { url: path, images: `/og/charts-${family.slug}.png` },
+    ...share({
+      path,
+      image: `/og/charts-${family.slug}.png`,
+      title: family.title,
+      description: family.description,
+    }),
   };
 }
 

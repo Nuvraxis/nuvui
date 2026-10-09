@@ -13,6 +13,7 @@ import { ButtonPlayground } from "@/components/playground/button";
 import { ButtonGroupPlayground } from "@/components/playground/button-group";
 import { CardPlayground } from "@/components/playground/card";
 import { CheckboxPlayground } from "@/components/playground/checkbox";
+import { ChoiceCardPlayground } from "@/components/playground/choice-card";
 import { CollapsiblePlayground } from "@/components/playground/collapsible";
 import { ComboboxPlayground } from "@/components/playground/combobox";
 import { CommandPlayground } from "@/components/playground/command";
@@ -38,12 +39,14 @@ import { LabelPlayground } from "@/components/playground/label";
 import { MenubarPlayground } from "@/components/playground/menubar";
 import { NativeSelectPlayground } from "@/components/playground/native-select";
 import { NavigationMenuPlayground } from "@/components/playground/navigation-menu";
+import { NumberFieldPlayground } from "@/components/playground/number-field";
 import { OtpFieldPlayground } from "@/components/playground/otp-field";
 import { PaginationPlayground } from "@/components/playground/pagination";
 import { PasswordInputPlayground } from "@/components/playground/password-input";
 import { PopoverPlayground } from "@/components/playground/popover";
 import { ProgressPlayground } from "@/components/playground/progress";
 import { RadioGroupPlayground } from "@/components/playground/radio-group";
+import { RatingPlayground } from "@/components/playground/rating";
 import { ScrollAreaPlayground } from "@/components/playground/scroll-area";
 import { SelectPlayground } from "@/components/playground/select";
 import { SeparatorPlayground } from "@/components/playground/separator";
@@ -53,6 +56,7 @@ import { SkeletonPlayground } from "@/components/playground/skeleton";
 import { SliderPlayground } from "@/components/playground/slider";
 import { SpinnerPlayground } from "@/components/playground/spinner";
 import { StatPlayground } from "@/components/playground/stat";
+import { StepperPlayground } from "@/components/playground/stepper";
 import { SwitchPlayground } from "@/components/playground/switch";
 import {
   DataTablePlayground,
@@ -112,6 +116,7 @@ export function getMDXComponents(components?: MDXComponents) {
     CalendarPlayground,
     CardPlayground,
     CheckboxPlayground,
+    ChoiceCardPlayground,
     CollapsiblePlayground,
     ComboboxPlayground,
     CommandPlayground,
@@ -124,7 +129,10 @@ export function getMDXComponents(components?: MDXComponents) {
     EmptyPlayground,
     FormattedNumberPlayground,
     ItemPlayground,
+    NumberFieldPlayground,
+    RatingPlayground,
     StatPlayground,
+    StepperPlayground,
     TimelinePlayground,
     TrendPlayground,
     FieldPlayground,

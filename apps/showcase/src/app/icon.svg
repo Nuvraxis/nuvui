@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+  <title>Nuvui</title>
+  <!-- The site's mark, as in components/logo.tsx: a square with an arch in
+       it, for the n of the name. A tab can be light or dark, so the two
+       colors swap with it. scripts/make-icons.mjs draws every other icon
+       from this file. -->
+  <style>
+    rect { fill: #030712; }
+    path { stroke: #ffffff; }
+    @media (prefers-color-scheme: dark) {
+      rect { fill: #f9fafb; }
+      path { stroke: #030712; }
+    }
+  </style>
+  <rect width="24" height="24" rx="6" />
+  <path d="M8 16.5v-5a4 4 0 0 1 8 0v5" fill="none" stroke-width="2.25" stroke-linecap="round" />
+</svg>

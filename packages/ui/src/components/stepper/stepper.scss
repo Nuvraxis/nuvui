@@ -1,0 +1,182 @@
+@use "../../styles/layers";
+@use "../../styles/mixins";
+
+@layer components {
+  .nuv-stepper {
+    display: flex;
+    min-inline-size: 0;
+    margin: 0;
+    padding: 0;
+    color: var(--nuv-stepper-fg, var(--color-foreground));
+    list-style: none;
+  }
+
+  .nuv-stepper--vertical {
+    flex-direction: column;
+  }
+
+  // Across: each step takes an equal share, with its text under its
+  // circle. The line to the next step runs from beside the circle to the
+  // end of the share.
+  .nuv-stepper__item {
+    display: flex;
+    position: relative;
+    flex: 1;
+    flex-direction: column;
+    gap: var(--nuv-stepper-gap, calc(var(--spacing) * 2));
+    min-inline-size: 0;
+    padding-inline-end: var(--nuv-stepper-space, calc(var(--spacing) * 2));
+
+    // The line. It's a border, which is still drawn where the browser
+    // forces its own colors.
+    &::after {
+      position: absolute;
+      inset-block-start: calc(
+        (var(--nuv-stepper-indicator-size, 2rem) - var(--nuv-stepper-line-width, 2px)) / 2
+      );
+      inset-inline: calc(
+          var(--nuv-stepper-indicator-size, 2rem) + var(--nuv-stepper-space, calc(var(--spacing) * 2))
+        )
+        var(--nuv-stepper-space, calc(var(--spacing) * 2));
+      border-block-start: var(--nuv-stepper-line-width, 2px) solid
+        var(--nuv-stepper-line, var(--color-border));
+      content: "";
+    }
+
+    // After a step that's done, the line is done too.
+    &[data-state="complete"]::after {
+      border-color: var(--nuv-stepper-line-complete, var(--color-primary));
+    }
+
+    // Nothing comes after the last step, and it takes only the room it
+    // needs.
+    &:last-child {
+      flex: none;
+      padding-inline-end: 0;
+
+      &::after {
+        content: none;
+      }
+    }
+  }
+
+  // Down: the circle and the text side by side, and the line under the
+  // circle.
+  .nuv-stepper--vertical > .nuv-stepper__item {
+    flex: none;
+    flex-direction: row;
+    gap: var(--nuv-stepper-gap, calc(var(--spacing) * 3));
+    padding-block-end: var(--nuv-stepper-space, calc(var(--spacing) * 6));
+    padding-inline-end: 0;
+
+    &::after {
+      inset-block: calc(var(--nuv-stepper-indicator-size, 2rem) + var(--spacing))
+        var(--spacing);
+      inset-inline: calc(
+          (var(--nuv-stepper-indicator-size, 2rem) - var(--nuv-stepper-line-width, 2px)) / 2
+        )
+        auto;
+      border-block-start: 0;
+      border-inline-start: var(--nuv-stepper-line-width, 2px) solid
+        var(--nuv-stepper-line, var(--color-border));
+    }
+
+    &[data-state="complete"]::after {
+      border-color: var(--nuv-stepper-line-complete, var(--color-primary));
+    }
+
+    &:last-child {
+      padding-block-end: 0;
+    }
+  }
+
+  // A step still to come: a ring, in the edge color that's held to 3:1.
+  .nuv-stepper__indicator {
+    display: flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    inline-size: var(--nuv-stepper-indicator-size, 2rem);
+    block-size: var(--nuv-stepper-indicator-size, 2rem);
+    border: var(--nuv-stepper-line-width, 2px) solid
+      var(--nuv-stepper-indicator-border, var(--color-border-strong));
+    border-radius: var(--nuv-stepper-indicator-radius, var(--radius-full));
+    background-color: var(--nuv-stepper-indicator-bg, var(--color-surface));
+    color: var(--nuv-stepper-indicator-fg, var(--color-muted-foreground));
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-medium);
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+  }
+
+  .nuv-stepper--dot .nuv-stepper__indicator {
+    inline-size: var(--nuv-stepper-indicator-size, 0.875rem);
+    block-size: var(--nuv-stepper-indicator-size, 0.875rem);
+  }
+
+  // The current step: the ring in the primary color, and its number in
+  // the color of the text.
+  .nuv-stepper__item[data-state="current"] .nuv-stepper__indicator {
+    border-color: var(--nuv-stepper-indicator-border, var(--color-primary));
+    color: var(--nuv-stepper-indicator-fg, var(--color-surface-foreground));
+  }
+
+  // A step that's done: filled.
+  .nuv-stepper__item[data-state="complete"] .nuv-stepper__indicator {
+    border-color: var(--nuv-stepper-indicator-border, var(--color-primary));
+    background-color: var(--nuv-stepper-indicator-bg, var(--color-primary));
+    color: var(--nuv-stepper-indicator-fg, var(--color-primary-foreground));
+  }
+
+  .nuv-stepper__check {
+    inline-size: 1rem;
+    block-size: 1rem;
+  }
+
+  .nuv-stepper__content {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 0.5);
+    min-inline-size: 0;
+  }
+
+  // Beside a circle, the first line of text is level with its middle. The
+  // line height token is a ratio, so the line's height is that many times
+  // the font size.
+  .nuv-stepper--vertical .nuv-stepper__content {
+    padding-block-start: calc(
+      (var(--nuv-stepper-indicator-size, 2rem) - var(--text-sm) * var(--text-sm--line-height)) / 2
+    );
+  }
+
+  .nuv-stepper__title {
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--text-sm--line-height);
+    overflow-wrap: anywhere;
+  }
+
+  // A step still to come is quieter than the one someone is on.
+  .nuv-stepper__item[data-state="upcoming"] .nuv-stepper__title {
+    color: var(--nuv-stepper-muted-fg, var(--color-muted-foreground));
+  }
+
+  .nuv-stepper__description {
+    margin: 0;
+    color: var(--nuv-stepper-muted-fg, var(--color-muted-foreground));
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+    overflow-wrap: anywhere;
+  }
+
+  // In the page for screen readers, and drawn for nobody.
+  .nuv-stepper__status {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}

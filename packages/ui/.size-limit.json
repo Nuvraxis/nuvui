@@ -2,7 +2,7 @@
   {
     "name": "@nuvui/react",
     "path": "dist/index.js",
-    "limit": "74 kB"
+    "limit": "80 kB"
   },
   {
     "name": "@nuvui/react/accordion",
@@ -58,6 +58,11 @@
     "name": "@nuvui/react/checkbox",
     "path": "dist/components/checkbox/index.js",
     "limit": "5.5 kB"
+  },
+  {
+    "name": "@nuvui/react/choice-card",
+    "path": "dist/components/choice-card/index.js",
+    "limit": "11 kB"
   },
   {
     "name": "@nuvui/react/collapsible",
@@ -160,6 +165,11 @@
     "limit": "12 kB"
   },
   {
+    "name": "@nuvui/react/number-field",
+    "path": "dist/components/number-field/index.js",
+    "limit": "2.1 kB"
+  },
+  {
     "name": "@nuvui/react/otp-field",
     "path": "dist/components/otp-field/index.js",
     "limit": "9.7 kB"
@@ -188,6 +198,11 @@
     "name": "@nuvui/react/radio-group",
     "path": "dist/components/radio-group/index.js",
     "limit": "9.5 kB"
+  },
+  {
+    "name": "@nuvui/react/rating",
+    "path": "dist/components/rating/index.js",
+    "limit": "9.4 kB"
   },
   {
     "name": "@nuvui/react/scroll-area",
@@ -233,6 +248,11 @@
     "name": "@nuvui/react/stat",
     "path": "dist/components/stat/index.js",
     "limit": "300 B"
+  },
+  {
+    "name": "@nuvui/react/stepper",
+    "path": "dist/components/stepper/index.js",
+    "limit": "870 B"
   },
   {
     "name": "@nuvui/react/switch",
@@ -298,7 +318,7 @@
     "name": "styles.css",
     "path": "dist/styles.css",
     "rolldown": false,
-    "limit": "15.5 kB"
+    "limit": "17.5 kB"
   },
   {
     "name": "tokens.css",

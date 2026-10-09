@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { JsonLd } from "@/components/json-ld";
 import { ThemeBuilder } from "@/components/themes/theme-builder";
+import { share } from "@/lib/seo";
 import { absoluteUrl, docs, pages, site, themesHome } from "@/lib/site";
 
 const page = pages.find((entry) => entry.path === themesHome);
@@ -9,8 +10,12 @@ const description = page?.description ?? site.description;
 export const metadata: Metadata = {
   title: "Themes",
   description,
-  alternates: { canonical: themesHome },
-  openGraph: { url: themesHome, images: "/og/themes.png" },
+  ...share({
+    path: themesHome,
+    image: "/og/themes.png",
+    title: "Themes",
+    description,
+  }),
 };
 
 export default function ThemesPage() {

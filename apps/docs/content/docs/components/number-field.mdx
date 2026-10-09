@@ -1,0 +1,144 @@
+---
+title: NumberField
+description: A field for a number that can be typed or stepped, with limits, a step size, and the number written for a language and region.
+---
+
+Use a number field for a quantity someone sets: seats, a budget, a discount. It takes typing, a button at each end, and the arrow keys. For a number picked by feel from a range, use a [slider](/docs/components/slider).
+
+<Preview name="number-field/basic" />
+
+## Install
+
+```sh
+pnpm add @nuvui/react
+```
+
+## Import
+
+```tsx
+import { NumberField } from "@nuvui/react";
+```
+
+The styles come from `@nuvui/react/styles.css`, which you load once for the whole app. [Getting started](/docs) covers that, and how to load only this component's CSS.
+
+## Try it
+
+<NumberFieldPlayground />
+
+## Props
+
+<PropsTable component="number-field" name="NumberFieldOwnProps" />
+
+Everything else is passed to the `<input>`, including `ref`, `id`, `disabled`, `readOnly`, `required` and `placeholder`. `className` goes on the box around it.
+
+## When the number changes
+
+`onValueChange` is called when the number changes, and not on every key. A press of a button or an arrow key changes it at once. Typing changes it when the typing is finished: on Enter, and on leaving the field. Until then "12" on its way to "125" isn't reported as twelve.
+
+What's typed is tidied when it's taken. A number past `min` or `max` is moved to the limit, a number with more decimals than the format shows is rounded to what it shows, and text that isn't a number is dropped, which puts the last number back. An emptied field is `null`.
+
+## Formats
+
+`format` takes what [`FormattedNumber`](/docs/components/formatted-number) does: a locale, a currency, a percentage, a number of decimals, a unit. The field shows the number that way when it isn't being typed into.
+
+<Preview name="number-field/formats" />
+
+Typing is read by the same rules. With a German locale `1.234,5` is one thousand two hundred and thirty-four and a half, and a currency sign or a unit that's typed along with the digits is ignored. A percentage is typed as people say it: 15 for 15%, which gives the value 0.15.
+
+Give every field the locale your app is in. Left out, it's `"en-US"`, and never the visitor's own, so that the server and the browser write the same text.
+
+## In a form
+
+With a `name`, the number is submitted as plain digits, such as `1250`, however it's written on the screen. Inside a [field](/docs/components/field), the label, the description and the error are connected for you.
+
+<Preview name="number-field/in-a-form" />
+
+`required` stops the form while the field is empty. `min` and `max` can't fail: a number outside them is moved inside when it's taken.
+
+## Accessibility
+
+| Key | What it does |
+| --- | --- |
+| Arrow up, Arrow down | One step up or down. |
+| Page up, Page down | A large step, ten steps unless `largeStep` says otherwise. |
+| Home, End | To `min` or `max`, when there is one. |
+| Enter | Takes what's typed. In a form it submits, as in any field. |
+
+### What the component handles
+
+- The input has `role="spinbutton"`, with the number, the limits, and the number as it's written on the screen, so a screen reader says "$2,500" and not "2500".
+- The two buttons are named "Decrease" and "Increase". Tab doesn't stop on them, because the arrow keys do the same from the field. A screen reader and a switch can still reach and press them.
+- A button is disabled at its limit.
+- Holding a button repeats the step.
+- The keyboard a phone shows has digits only, where a negative number can't be typed.
+- The focus ring goes around the whole box, and the box's edge turns red while the field is invalid.
+
+### What you need to handle
+
+- Give it a label, with a [`Label`](/docs/components/label) and an `id`, or a [`Field`](/docs/components/field).
+- Translate the two button names. [Translation](/docs/translation) lists them.
+- Say the unit somewhere a screen reader gets it, when the format doesn't write one: in the label, as in "Weight in kilograms".
+- Say the limits in a description when they aren't obvious. A number that's quietly moved to a limit is confusing without one.
+
+## On small screens
+
+Each button is 44 pixels to a finger, though it's drawn smaller. The text is 16 pixels on a touch screen, which keeps iOS from zooming the page in when the field takes focus.
+
+## CSS variables
+
+Set any of these on the field, or on anything around it.
+
+```css
+.quantity {
+  --nuv-number-field-width: 8rem;
+}
+```
+
+<CssVariables
+  component="number-field"
+  descriptions={{
+    "--nuv-number-field-width": "Width. It fills its container by default.",
+    "--nuv-number-field-border": "Border color of the box.",
+    "--nuv-number-field-radius": "Corner radius of the box.",
+    "--nuv-number-field-bg": "Background color of the box.",
+    "--nuv-number-field-fg": "Text color.",
+    "--nuv-number-field-height":
+      "Minimum height of the box. The buttons are sized from it. The default differs between touch screens and a mouse.",
+    "--nuv-number-field-align":
+      "Where the number sits between the buttons. In the middle by default. Set it to `end` to line numbers up in a column.",
+    "--nuv-number-field-font-size":
+      "Font size. The default differs between touch screens and a mouse.",
+    "--nuv-number-field-placeholder": "Color of the placeholder.",
+    "--nuv-number-field-button-radius": "Corner radius of the buttons.",
+    "--nuv-number-field-button-fg": "Color of the minus and the plus.",
+    "--nuv-number-field-button-bg-hover":
+      "Background of a button while hovered.",
+  }}
+/>
+
+## Classes
+
+<BemClasses
+  component="number-field"
+  descriptions={{
+    "nuv-number-field": "The box around the input and the buttons.",
+    "nuv-number-field__control": "The input.",
+    "nuv-number-field__button": "Each of the two buttons.",
+  }}
+/>
+
+## Server components
+
+NumberField starts with `"use client"`, because it keeps what's being typed. You can still render it from a server component, with plain props. `onValueChange` needs a client component.
+
+## Do and don't
+
+**Do**
+
+- Set `min` and `max` wherever the number has them.
+- Pick a `step` that matches how people change the number: 1 for seats, 50 for a budget.
+
+**Don't**
+
+- Don't use it for a number that isn't a quantity, such as a phone number, a postcode or a card number. Those are text: use an [input](/docs/components/input).
+- Don't rely on the buttons for a large change. Typing has to work, and does.

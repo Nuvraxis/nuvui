@@ -1,0 +1,136 @@
+---
+title: Rating
+description: Stars to rate something with, or to show how it was rated, down to part of a star.
+---
+
+Use a rating to ask how good something was, or to show the answer. To choose from, it's a radio group drawn as stars. To show, it's a picture with a name.
+
+<Preview name="rating/basic" />
+
+## Install
+
+```sh
+pnpm add @nuvui/react
+```
+
+## Import
+
+```tsx
+import { Rating } from "@nuvui/react";
+```
+
+The styles come from `@nuvui/react/styles.css`, which you load once for the whole app. [Getting started](/docs) covers that, and how to load only this component's CSS.
+
+## Try it
+
+<RatingPlayground />
+
+## Props
+
+<PropsTable component="rating" name="RatingOwnProps" />
+
+Everything else is passed to the group, including `ref`, `className`, `name`, `required` and `disabled`. With a `name`, the number of the chosen star is submitted with a form.
+
+## Showing a rating
+
+`readOnly` is for a rating nobody changes here: an average, or someone else's review. The value can have a fraction, and the star it falls in is filled that far.
+
+<Preview name="rating/read-only" />
+
+A read-only rating is one picture to a screen reader, named "4.5 out of 5". It isn't a set of disabled controls, which would be read one star at a time and say nothing of the half. Put the number beside it as text when it matters: part of a star is hard to judge by eye.
+
+## Sizes, and more stars
+
+`size` changes the stars, and `max` how many there are.
+
+<Preview name="rating/sizes" />
+
+## Taking a rating back
+
+A radio group has no way to choose nothing once something is chosen. When a rating is optional, put a button beside it that sets the value to 0, which is no stars.
+
+## Accessibility
+
+| Key | What it does |
+| --- | --- |
+| Tab | Moves to the chosen star, or to the first when none is. |
+| Arrow right, Arrow down | Chooses the next star. |
+| Arrow left, Arrow up | Chooses the one before. |
+| Space | Chooses the star that has focus. |
+
+In a right-to-left page the left and right arrows swap, as the stars do.
+
+### What the component handles
+
+- To choose from, it's a `radiogroup`, and each star is a radio button named "1 star", "2 stars" and so on.
+- A star is 44 pixels to a finger on a touch screen. With a mouse the stars close up.
+- A chosen star is filled and the others are outlines. That's a difference of shape, so it's still there where the browser forces its own colors, and for someone who can't tell the two colors apart.
+- The outline of an empty star has at least 3:1 against the page in every theme.
+- Under the pointer, the stars up to it fill, to show what a click would choose. A finger doesn't do this, since it would leave them filled after it lifts.
+- Read-only, it has `role="img"` and a name made from the value.
+
+### What you need to handle
+
+- Name the group with `aria-label` or `aria-labelledby`, such as "How was the delivery?".
+- Translate the two labels. Both are functions, since the words change with the number. [Translation](/docs/translation) lists them.
+- When the page shows the average as stars, show it as a number too.
+
+## CSS variables
+
+Set any of these on the rating, or on anything around it.
+
+```css
+.reviews {
+  --nuv-rating-on: var(--color-warning);
+}
+```
+
+<CssVariables
+  component="rating"
+  descriptions={{
+    "--nuv-rating-gap":
+      "Space around each star. Twice this is the space between two.",
+    "--nuv-rating-size":
+      "Width and height of a star. Differs by size.",
+    "--nuv-rating-off":
+      "Color of an empty star's outline. Keep it at 3:1 against the background.",
+    "--nuv-rating-on":
+      "Color of a filled star. The primary color by default. Keep it at 3:1 against the background.",
+    "--nuv-rating-part":
+      "How much of a star is filled, from 0 to 1. The component sets it on each star of a read-only rating. It's not one to set yourself.",
+  }}
+/>
+
+## Classes
+
+<BemClasses
+  component="rating"
+  descriptions={{
+    "nuv-rating": "Every rating.",
+    "nuv-rating--sm": "size=\"sm\"",
+    "nuv-rating--lg": "size=\"lg\"",
+    "nuv-rating--read-only": "A rating with readOnly.",
+    "nuv-rating__item":
+      "One star and the room around it. A radio button, or a span when read-only.",
+    "nuv-rating__star": "The star itself, an outline.",
+    "nuv-rating__star--on": "A filled star.",
+    "nuv-rating__fill":
+      "The filled star over the empty one in a read-only rating, cut off at the part the value covers.",
+  }}
+/>
+
+## Server components
+
+Rating starts with `"use client"`. A read-only one can still be rendered from a server component: it takes plain props. `itemLabel`, `valueLabel` and `onValueChange` are functions, and need a client component.
+
+## Do and don't
+
+**Do**
+
+- Use five stars unless you have a reason. It's what people expect.
+- Say what one star and five stars mean when it isn't obvious, in the text beside it.
+
+**Don't**
+
+- Don't use stars for a count or a level, such as a password's strength. That's a [progress bar](/docs/components/progress).
+- Don't make people rate to get past a form. Leave it optional, or say why it's needed.

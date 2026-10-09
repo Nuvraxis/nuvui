@@ -11,6 +11,7 @@ import type { ComponentProps } from "react";
 import { JsonLd } from "@/components/json-ld";
 import { getMDXComponents } from "@/components/mdx";
 import { changelogToc } from "@/lib/changelog";
+import { share } from "@/lib/seo";
 import { absoluteUrl, docsBase, docsPath, site } from "@/lib/site";
 import { getPageImage, source } from "@/lib/source";
 
@@ -109,13 +110,12 @@ export async function generateMetadata(
   return {
     title: page.data.title,
     description: page.data.description,
-    alternates: { canonical: url },
-    openGraph: {
+    ...share({
+      path: url,
+      image: docsPath(getPageImage(page).url),
       title: page.data.title,
       description: page.data.description,
-      url,
       type: "article",
-      images: docsPath(getPageImage(page).url),
-    },
+    }),
   };
 }

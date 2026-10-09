@@ -133,6 +133,19 @@ An alert dialog has no close button, and nothing of its own to translate.
 
 Why a file was refused is yours to say. `onReject` gives you the reason as `"type"`, `"size"` or `"count"`.
 
+### NumberField
+
+<PropsTable
+  component="number-field"
+  name="NumberFieldOwnProps"
+  props={{
+    incrementLabel: "The name of the button that raises the number.",
+    decrementLabel: "The name of the button that lowers it.",
+  }}
+/>
+
+How the number is written, and how what's typed is read, follows its `format`, which takes a `locale`.
+
 ### OtpField
 
 <PropsTable
@@ -166,6 +179,18 @@ The bar is a landmark named "Pagination". Pass `aria-label` to `Pagination` to c
   }}
 />
 
+### Rating
+
+<PropsTable
+  component="rating"
+  name="RatingOwnProps"
+  props={{
+    itemLabel: "The name of one star, given its number and how many there are.",
+    valueLabel:
+      "The name of a rating that can't be changed, given its value and how many stars there are.",
+  }}
+/>
+
 ### Sidebar
 
 <PropsTable
@@ -192,6 +217,16 @@ The bar is a landmark named "Pagination". Pass `aria-label` to `Pagination` to c
   name="SpinnerOwnProps"
   props={{
     label: "What a screen reader hears when the spinner appears.",
+  }}
+/>
+
+### Stepper
+
+<PropsTable
+  component="stepper"
+  name="StepperOwnProps"
+  props={{
+    completedLabel: "What a screen reader says after the title of a step that's done.",
   }}
 />
 

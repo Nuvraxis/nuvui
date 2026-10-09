@@ -1,0 +1,144 @@
+---
+title: ChoiceCard
+description: A checkbox or a radio button drawn as a card, with room for a title and a description, where the whole card can be pressed.
+---
+
+Use choice cards where each option needs a few words to explain it: plans, add-ons, ways to pay. `RadioCard` is for one of several and `CheckboxCard` for any number. For options that are a word each, a plain [radio group](/docs/components/radio-group) or [checkbox](/docs/components/checkbox) takes less room.
+
+<Preview name="choice-card/radio" />
+
+## Install
+
+```sh
+pnpm add @nuvui/react
+```
+
+## Import
+
+```tsx
+import {
+  CheckboxCard,
+  ChoiceCardDescription,
+  ChoiceCardTitle,
+  RadioCard,
+  RadioGroup,
+} from "@nuvui/react";
+```
+
+The styles come from `@nuvui/react/styles.css`, which you load once for the whole app. [Getting started](/docs) covers that, and how to load only this component's CSS.
+
+## Parts
+
+| Part | What it is |
+| --- | --- |
+| `RadioCard` | A card with a radio button in it. It goes in a `RadioGroup`. |
+| `CheckboxCard` | A card with a checkbox in it. It stands alone. |
+| `ChoiceCardTitle` | The choice's name, which names the control. |
+| `ChoiceCardDescription` | More about it, which a screen reader reads after the name. |
+
+A card can hold anything else as well: a price, a badge, an icon.
+
+## Try it
+
+<ChoiceCardPlayground />
+
+## Props
+
+<PropsTable component="choice-card" name="ChoiceCardOwnProps" />
+
+`RadioCard` also takes everything a [`RadioGroupItem`](/docs/components/radio-group) does, such as `value` and `disabled`, and `CheckboxCard` everything a [`Checkbox`](/docs/components/checkbox) does, such as `checked`, `defaultChecked`, `onCheckedChange`, `name` and `disabled`. `ref` is the control's. `className` goes on the card.
+
+## One of several
+
+`RadioCard`s go in a [`RadioGroup`](/docs/components/radio-group), which holds the value, the name for a form and the arrow keys. The group lays its children out in a column. Give it a grid of your own for cards side by side.
+
+## Any number
+
+A `CheckboxCard` is a checkbox with a card around it, and each one stands alone. Group related ones in a `fieldset` with a `legend`, which is what names them together.
+
+<Preview name="choice-card/checkbox" wide />
+
+Here `indicator="end"` puts the checkbox at the far end of the card.
+
+## Accessibility
+
+The keys are the control's own. A radio card is reached with Tab and changed with the arrow keys. A checkbox card is reached with Tab and changed with Space.
+
+### What the component handles
+
+- The card is a `label`, so pressing anywhere on it presses the control.
+- The control is named by the `ChoiceCardTitle` and described by the `ChoiceCardDescription`. A screen reader says "Team, radio button, 2 of 3", then "Up to 50 people", and doesn't run the two together as one long name.
+- With no `ChoiceCardTitle`, the control is named by everything in the card.
+- A chosen card has a thicker edge in the primary color. The checkbox or the radio button inside says the same thing without color, and where the browser forces its own colors.
+- The card's edge has at least 3:1 against the page in every theme.
+- A disabled card fades as a whole and can't be pressed.
+
+### What you need to handle
+
+- Name the group: `aria-labelledby` on a `RadioGroup`, a `legend` in a `fieldset` of checkbox cards.
+- Don't put a link or a button in a card. Pressing it would press the card as well.
+
+## On small screens
+
+A card is at least 44 pixels tall with one line in it, and the whole of it takes a tap. Stack cards in one column on a phone: side by side, descriptions wrap into tall narrow cards.
+
+## CSS variables
+
+Set any of these on a card, or on anything around it.
+
+```css
+.plans {
+  --nuv-choice-card-padding: calc(var(--spacing) * 6);
+}
+```
+
+<CssVariables
+  component="choice-card"
+  descriptions={{
+    "--nuv-choice-card-gap": "Space between the control and the content.",
+    "--nuv-choice-card-padding": "Padding of the card.",
+    "--nuv-choice-card-border":
+      "Border color. Keep it at 3:1 against the background: it's what says the card is a control.",
+    "--nuv-choice-card-radius": "Corner radius.",
+    "--nuv-choice-card-bg": "Background color.",
+    "--nuv-choice-card-fg": "Text color.",
+    "--nuv-choice-card-hover-bg": "Background color under the pointer.",
+    "--nuv-choice-card-checked-border":
+      "Color of a chosen card's edge, which is twice as thick.",
+    "--nuv-choice-card-muted-fg":
+      "Color of the description. Keep it at 4.5:1 against the background.",
+  }}
+/>
+
+The control inside keeps its own variables: [`--nuv-checkbox-*`](/docs/components/checkbox#css-variables) and [`--nuv-radio-group-*`](/docs/components/radio-group#css-variables).
+
+## Classes
+
+<BemClasses
+  component="choice-card"
+  descriptions={{
+    "nuv-choice-card": "Every card. A `label`.",
+    "nuv-choice-card--end": "indicator=\"end\"",
+    "nuv-choice-card__control":
+      "The checkbox or the radio button, next to its own class.",
+    "nuv-choice-card__body": "The box around the card's content.",
+    "nuv-choice-card__title": "ChoiceCardTitle",
+    "nuv-choice-card__description": "ChoiceCardDescription",
+  }}
+/>
+
+## Server components
+
+All four parts start with `"use client"`. You can render them from a server component with server-rendered content inside. `onCheckedChange` needs a client component.
+
+## Do and don't
+
+**Do**
+
+- Keep every card in a set to the same parts, in the same order.
+- Choose one for people when there's a sensible default, as with a plan.
+
+**Don't**
+
+- Don't use cards for a long list. Past six or so, a [select](/docs/components/select) or a [combobox](/docs/components/combobox) is easier to scan.
+- Don't hide what a choice costs or does behind the card. Say it in the description.

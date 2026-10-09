@@ -1,0 +1,88 @@
+@use "../../styles/layers";
+@use "../../styles/mixins";
+
+@layer components {
+  .nuv-rating {
+    display: inline-flex;
+    align-items: center;
+    vertical-align: middle;
+
+    &[data-disabled] {
+      opacity: var(--nuv-disabled-opacity);
+    }
+  }
+
+  // One star and the room around it. A finger needs 44 pixels, so that's
+  // what each takes on a touch screen. With a mouse they close up.
+  .nuv-rating__item {
+    position: relative;
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    padding: var(--nuv-rating-gap, calc(var(--spacing) * 0.5));
+    border: 0;
+    border-radius: var(--radius-sm);
+    background-color: transparent;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+
+    @include mixins.touch-target;
+    @include mixins.focus-ring(0);
+
+    @include mixins.fine-pointer {
+      min-inline-size: 0;
+      min-block-size: 0;
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+    }
+  }
+
+  // An empty star is an outline, in the edge color that's held to 3:1,
+  // because the outline is all there is to see of it.
+  .nuv-rating__star {
+    display: block;
+    inline-size: var(--nuv-rating-size, 1.5rem);
+    block-size: var(--nuv-rating-size, 1.5rem);
+    color: var(--nuv-rating-off, var(--color-border-strong));
+    fill: none;
+  }
+
+  // A chosen star is filled. Filled and not is a difference of shape, so
+  // it's still there where the browser forces its own colors.
+  .nuv-rating__star--on {
+    color: var(--nuv-rating-on, var(--color-primary));
+    fill: currentcolor;
+  }
+
+  .nuv-rating--sm .nuv-rating__star {
+    inline-size: var(--nuv-rating-size, 1rem);
+    block-size: var(--nuv-rating-size, 1rem);
+  }
+
+  .nuv-rating--lg .nuv-rating__star {
+    inline-size: var(--nuv-rating-size, 2rem);
+    block-size: var(--nuv-rating-size, 2rem);
+  }
+
+  // A rating that only shows: no pointer, no room for a finger.
+  .nuv-rating--read-only .nuv-rating__item {
+    min-inline-size: 0;
+    min-block-size: 0;
+    cursor: auto;
+  }
+
+  // The filled star over the empty one, cut off at the part of it the
+  // value covers. It starts from the side the text starts from.
+  .nuv-rating__fill {
+    position: absolute;
+    inset-block: var(--nuv-rating-gap, calc(var(--spacing) * 0.5));
+    inset-inline-start: var(--nuv-rating-gap, calc(var(--spacing) * 0.5));
+    inline-size: calc(
+      (100% - 2 * var(--nuv-rating-gap, calc(var(--spacing) * 0.5))) * var(--nuv-rating-part, 1)
+    );
+    overflow: hidden;
+  }
+}

@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 import {
@@ -601,4 +603,31 @@ test.describe("where the two apps meet", () => {
       ).toHaveAttribute("href", "/docs");
     }
   });
+});
+
+test("the home page says which version there is, or that there's none yet", async ({
+  page,
+}) => {
+  // The version in the repository, which Changesets sets in the pull
+  // request a release is published from. "0.0.0" is before the first.
+  const { version } = JSON.parse(
+    readFileSync(
+      path.join(
+        import.meta.dirname,
+        "..",
+        "..",
+        "..",
+        "packages",
+        "ui",
+        "package.json",
+      ),
+      "utf8",
+    ),
+  );
+  await open(page, "/");
+  await expect(page.locator(".site-hero__eyebrow")).toHaveText(
+    version === "0.0.0"
+      ? "Open source, and early: nothing is on npm yet"
+      : `Open source, and early: version ${version}`,
+  );
 });

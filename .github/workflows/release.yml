@@ -1,8 +1,21 @@
 name: Release
 
+# Only for a push that changes a package or a changeset. Those are the two
+# things this workflow acts on: a changeset is what makes it open the
+# "Version packages" pull request, and merging that pull request changes
+# every package's version and changelog, which is what makes it publish. A
+# push that only touches the docs, the website or the workflows doesn't run
+# it.
+#
+# It can also be started by hand from the Actions tab, for a run that
+# failed for a reason outside the repository, such as an expired token.
 on:
   push:
     branches: [main]
+    paths:
+      - "packages/**"
+      - ".changeset/**"
+  workflow_dispatch:
 
 concurrency:
   group: release
@@ -13,8 +26,9 @@ permissions:
 
 jobs:
   release:
-    # Forks shouldn't try to publish.
-    if: github.repository == 'Nuvraxis/nuvui'
+    # Forks shouldn't try to publish, and a run started by hand on another
+    # branch shouldn't publish what isn't on main.
+    if: github.repository == 'Nuvraxis/nuvui' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -50,9 +64,7 @@ jobs:
           pr-title: Version packages
           commit-message: Version packages
         env:
-          # TODO(Nuvraxis): add an NPM_TOKEN repository secret with publish
-          # rights to the @nuvui scope, or switch this job to trusted
-          # publishing and remove this line.
+          # A repository secret, with publish rights to the @nuvui scope.
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           # The registry only accepts provenance from a public repository.
           NPM_CONFIG_PROVENANCE: true

@@ -2,7 +2,7 @@
 
 ## Supported versions
 
-Nothing has been published yet, so there are no supported versions. Once `@nuvui/react` is on the registry, fixes will go into the latest release only.
+Fixes go into the latest release of each package: `@nuvui/react`, `@nuvui/date-picker`, `@nuvui/table` and `@nuvui/charts`. Older versions aren't patched.
 
 ## Reporting a vulnerability
 

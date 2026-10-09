@@ -10,6 +10,11 @@
     "limit": "8.5 kB"
   },
   {
+    "name": "@nuvui/react/action-bar",
+    "path": "dist/components/action-bar/index.js",
+    "limit": "600 B"
+  },
+  {
     "name": "@nuvui/react/alert-dialog",
     "path": "dist/components/alert-dialog/index.js",
     "limit": "13.5 kB"
@@ -118,6 +123,11 @@
     "name": "@nuvui/react/formatted-number",
     "path": "dist/components/formatted-number/index.js",
     "limit": "470 B"
+  },
+  {
+    "name": "@nuvui/react/hold-to-confirm",
+    "path": "dist/components/hold-to-confirm/index.js",
+    "limit": "2.3 kB"
   },
   {
     "name": "@nuvui/react/hover-card",
@@ -260,9 +270,19 @@
     "limit": "4.5 kB"
   },
   {
+    "name": "@nuvui/react/table-of-contents",
+    "path": "dist/components/table-of-contents/index.js",
+    "limit": "800 B"
+  },
+  {
     "name": "@nuvui/react/tabs",
     "path": "dist/components/tabs/index.js",
     "limit": "8.5 kB"
+  },
+  {
+    "name": "@nuvui/react/text-shimmer",
+    "path": "dist/components/text-shimmer/index.js",
+    "limit": "300 B"
   },
   {
     "name": "@nuvui/react/textarea",
@@ -330,7 +350,7 @@
     "name": "every stylesheet in css/",
     "path": "dist/css/*.css",
     "rolldown": false,
-    "limit": "39 kB"
+    "limit": "42 kB"
   },
   {
     "name": "every preset in themes/",

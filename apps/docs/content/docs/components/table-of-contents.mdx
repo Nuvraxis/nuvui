@@ -1,0 +1,147 @@
+---
+title: TableOfContents
+description: The headings of a page as a list of links, with the one being read marked as the page scrolls.
+---
+
+Use a table of contents on a long page with headings: documentation, a policy, a report. It shows what's on the page and where the reader is in it. The example below lists the headings of this page, and follows it.
+
+<Preview name="table-of-contents/basic" />
+
+## Install
+
+```sh
+pnpm add @nuvui/react
+```
+
+## Import
+
+```tsx
+import { TableOfContents } from "@nuvui/react";
+```
+
+The styles come from `@nuvui/react/styles.css`, which you load once for the whole app. [Getting started](/docs) covers that, and how to load only this component's CSS.
+
+## Try it
+
+<TableOfContentsPlayground />
+
+## Props
+
+<PropsTable component="table-of-contents" name="TableOfContentsOwnProps" />
+
+It also takes what a `nav` takes, including `ref` and `className`.
+
+### An item
+
+<PropsTable component="table-of-contents" name="TableOfContentsItem" />
+
+## Where the headings come from
+
+`items` is yours to build. Most things that turn Markdown into pages hand you the headings with their ids, and a page written by hand can list its own. The component doesn't look through the page for headings: which ones belong in the list, and how deep to go, is a decision about your content.
+
+Each heading in the page needs the `id` its item names. An item whose heading isn't in the page is still a link, and is never marked.
+
+## Which heading is marked
+
+The marked heading is the last one to have reached the top of the window, or more exactly a line `offset` pixels down from it. Above the first heading none is marked. At the end of the page, where the last headings can't get to the top, the last one is marked, or the one whose link was just followed.
+
+Set `offset` to the height of whatever is stuck to the top of your page, and a little more. Give your headings a `scroll-margin-top` no larger than that, so a heading that a link jumps to lands above the line and not under your header. The example above sets `offset={128}`, because this site's headings stop 112 pixels down.
+
+```css
+h2,
+h3 {
+  scroll-margin-top: 5rem;
+}
+```
+
+It follows the window, and anything inside the page that scrolls by itself.
+
+## Controlling it
+
+`value` marks the heading you say and stops the component deciding. `onValueChange` still reports what the page has scrolled to, so you can follow it and overrule it where you need to.
+
+## Behind a button
+
+On a narrow screen there's no room beside the page. Put the same list in a [popover](/docs/components/popover) or a [collapsible](/docs/components/collapsible) with a button that says "On this page". It's the same component with the same items, so it stays in step.
+
+## Accessibility
+
+A table of contents has no keyboard behavior of its own. Its links are reached with Tab and followed with Enter.
+
+### What the component handles
+
+- It's a navigation landmark, which a screen reader can jump to.
+- It's an ordered list, so a screen reader says how many headings there are. The list says it's a list in so many words, because Safari stops treating a list as one once its numbers are styled away.
+- The marked link has `aria-current="location"`.
+- The marked link differs by more than color: a bar beside it and heavier text. The bar is a border, which is still drawn where the browser forces its own colors.
+- It measures once a frame at most while the page scrolls, and listens passively, so it doesn't slow scrolling down.
+
+### What you need to handle
+
+- Name the landmark with `aria-label`, such as "On this page". A page usually has other navigation, and they have to be told apart.
+- Keep the list in the order of the page.
+- Following a link moves the page and leaves focus on the link. To have a screen reader start reading at the section, give each heading `tabindex="-1"` and move focus to it yourself when its link is followed.
+
+## On small screens
+
+A link is 44 pixels tall with a finger and 32 with a mouse, and a long title wraps. The list is as wide as you make it.
+
+## CSS variables
+
+Set any of these on the `TableOfContents`, or on anything around it.
+
+```css
+.docs {
+  --nuv-table-of-contents-indent: 1rem;
+}
+```
+
+<CssVariables
+  component="table-of-contents"
+  descriptions={{
+    "--nuv-table-of-contents-line-width":
+      "Thickness of the line down the side, and of the bar on the marked link.",
+    "--nuv-table-of-contents-line": "Color of the line.",
+    "--nuv-table-of-contents-item-height":
+      "Least height of a link. Taller by default with a finger than with a mouse.",
+    "--nuv-table-of-contents-fg":
+      "Color of a link that isn't marked. Keep it at 4.5:1 against the background.",
+    "--nuv-table-of-contents-active-fg":
+      "Color of the marked link, and of a link under the pointer.",
+    "--nuv-table-of-contents-indent":
+      "How much further in each depth is set.",
+    "--nuv-table-of-contents-active-line":
+      "Color of the bar on the marked link. Keep it at 3:1 against the background.",
+  }}
+/>
+
+## Classes
+
+<BemClasses
+  component="table-of-contents"
+  descriptions={{
+    "nuv-table-of-contents": "TableOfContents",
+    "nuv-table-of-contents__list": "The list. The line is its border.",
+    "nuv-table-of-contents__item": "One heading's place in the list.",
+    "nuv-table-of-contents__link":
+      "The link. The bar on the marked one is its `::before`.",
+  }}
+/>
+
+The marked link is the one with `aria-current`. A link's depth is in its `data-depth` attribute, from 1 to 4.
+
+## Server components
+
+TableOfContents starts with `"use client"`: it watches the page scroll. You can render it from a server component, with a list of plain objects for `items`. On the server no heading is marked. The first measurement is made when the page has loaded.
+
+## Do and don't
+
+**Do**
+
+- List two levels of heading, three at most.
+- Use the headings' own words.
+
+**Don't**
+
+- Don't use it for moving between pages. That's a [sidebar](/docs/components/sidebar) or a [navigation menu](/docs/components/navigation-menu).
+- Don't put it on a page with two or three headings. The page is its own table of contents.

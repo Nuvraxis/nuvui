@@ -5,6 +5,7 @@
 @use "tokens";
 @use "base";
 @use "../components/accordion/accordion";
+@use "../components/action-bar/action-bar";
 @use "../components/alert/alert";
 @use "../components/alert-dialog/alert-dialog";
 @use "../components/aspect-ratio/aspect-ratio";
@@ -27,6 +28,7 @@
 @use "../components/fieldset/fieldset";
 @use "../components/file-upload/file-upload";
 @use "../components/formatted-number/formatted-number";
+@use "../components/hold-to-confirm/hold-to-confirm";
 @use "../components/hover-card/hover-card";
 @use "../components/input/input";
 @use "../components/input-group/input-group";
@@ -55,7 +57,9 @@
 @use "../components/stat/stat";
 @use "../components/stepper/stepper";
 @use "../components/switch/switch";
+@use "../components/table-of-contents/table-of-contents";
 @use "../components/tabs/tabs";
+@use "../components/text-shimmer/text-shimmer";
 @use "../components/textarea/textarea";
 @use "../components/timeline/timeline";
 @use "../components/toast/toast";

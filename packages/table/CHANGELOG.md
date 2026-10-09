@@ -1,5 +1,13 @@
 # @nuvui/table
 
+## 0.1.1
+
+### Patch Changes
+
+- [#26](https://github.com/Nuvraxis/nuvui/pull/26) [`3e9922d`](https://github.com/Nuvraxis/nuvui/commit/3e9922d8100e8fba75ae5cc354d8d79fb00bfdf1) Thanks [@sajanv88](https://github.com/sajanv88)! - Each package's README said the package hadn't been released and that the docs would live at nuvui.nuvraxis.com. It now gives the install command and links to the docs, which are there.
+- Updated dependencies [[`3e9922d`](https://github.com/Nuvraxis/nuvui/commit/3e9922d8100e8fba75ae5cc354d8d79fb00bfdf1)]:
+  - @nuvui/react@0.1.1
+
 ## 0.1.0
 
 ### Minor Changes

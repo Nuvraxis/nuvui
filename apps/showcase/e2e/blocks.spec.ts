@@ -912,6 +912,227 @@ test.describe("what the blocks do", () => {
     await expect(page.getByRole("heading", { level: 2 })).toHaveCount(1);
     await expect(page.getByRole("heading", { level: 3 })).toHaveCount(6);
   });
+
+  test("set up in steps: each step says where you are, focus follows it, and the summary adds up", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/blocks/view/onboarding");
+    const steps = page
+      .getByRole("list", { name: "Setting up" })
+      .getByRole("listitem");
+    await expect(steps.nth(0)).toHaveAttribute("aria-current", "step");
+    await expect(
+      page.getByRole("radio", { name: "Team", exact: true }),
+    ).toBeChecked();
+    await expect(page.getByRole("button", { name: "Back" })).toBeDisabled();
+
+    await press(page.getByRole("button", { name: "Continue" }), isMobile);
+    await expect(steps.nth(1)).toHaveAttribute("aria-current", "step");
+    await expect(steps.nth(0)).toHaveText("Plan Completed");
+    await expect(
+      page.getByRole("heading", { name: "Your team" }),
+    ).toBeFocused();
+
+    const seats = page.getByRole("spinbutton", { name: "Seats" });
+    await expect(seats).toHaveValue("5");
+    await press(page.getByRole("button", { name: "Increase" }), isMobile);
+    await expect(seats).toHaveValue("6");
+    await expect(
+      page.getByRole("checkbox", { name: "Audit log" }),
+    ).toBeChecked();
+
+    await press(page.getByRole("button", { name: "Continue" }), isMobile);
+    // Six seats at $12, and $20 for the audit log.
+    await expect(page.locator(".onboarding__row--total")).toHaveText(
+      "Each month$92",
+    );
+
+    await press(page.getByRole("button", { name: "Back" }), isMobile);
+    await expect(seats).toHaveValue("6");
+    await press(page.getByRole("button", { name: "Continue" }), isMobile);
+    await press(
+      page.getByRole("button", { name: "Create workspace" }),
+      isMobile,
+    );
+    await expect(
+      page.getByRole("heading", { name: "Your workspace is ready" }),
+    ).toBeFocused();
+    await expect(page.locator('[aria-current="step"]')).toHaveCount(0);
+  });
+
+  test("list with an action bar: the bar follows what's ticked, and says what was done", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/blocks/view/inbox");
+    const bar = page.getByRole("group", { name: "Selected messages" });
+    const rows = page
+      .getByRole("list", { name: "Messages" })
+      .getByRole("listitem");
+    await expect(rows).toHaveCount(5);
+    await expect(bar).toHaveAccessibleDescription("1 selected");
+
+    await press(page.getByRole("checkbox", { name: "Select all" }), isMobile);
+    await expect(bar).toHaveAccessibleDescription("5 selected");
+    await press(page.getByRole("checkbox", { name: "Select all" }), isMobile);
+    await expect(bar).toHaveCount(0);
+
+    await press(
+      page.getByRole("checkbox", {
+        name: 'Select "Refund for order ORD-7228"',
+      }),
+      isMobile,
+    );
+    await press(bar.getByRole("button", { name: "Archive" }), isMobile);
+    await expect(page.getByText("1 message archived.")).toBeVisible();
+    await expect(rows).toHaveCount(4);
+    await expect(bar).toHaveCount(0);
+  });
+
+  test("list with an action bar: deleting takes a hold, and an emptied list says so", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/blocks/view/inbox");
+    const bar = page.getByRole("group", { name: "Selected messages" });
+    await press(page.getByRole("checkbox", { name: "Select all" }), isMobile);
+    const hold = bar.getByRole("button", { name: "Hold to delete" });
+
+    // A press isn't enough.
+    await hold.focus();
+    await page.keyboard.press("Enter");
+    await expect(
+      page.getByRole("list", { name: "Messages" }).getByRole("listitem"),
+    ).toHaveCount(5);
+
+    await page.keyboard.down("Enter");
+    await expect(page.getByText("5 messages deleted.")).toBeVisible({
+      timeout: 4000,
+    });
+    await page.keyboard.up("Enter");
+    await expect(page.getByText("Nothing left")).toBeVisible();
+
+    await press(
+      page.getByRole("button", { name: "Show the examples again" }),
+      isMobile,
+    );
+    await expect(
+      page.getByRole("list", { name: "Messages" }).getByRole("listitem"),
+    ).toHaveCount(5);
+  });
+
+  test("reviews: the average is one picture with a name, and a review needs its stars", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/blocks/view/reviews");
+    await expect(page.getByRole("img", { name: "4.4 out of 5" })).toBeVisible();
+    await expect(
+      page.getByRole("progressbar", { name: "5 stars" }),
+    ).toHaveAttribute("aria-valuetext", "62% of reviews");
+
+    await press(page.getByRole("button", { name: "Send review" }), isMobile);
+    // Next has an alert of its own in every page, so this one is found
+    // by its words.
+    const missing = page.getByText("Choose a number of stars.");
+    await expect(missing).toHaveAttribute("role", "alert");
+    const stars = page.getByRole("radiogroup", { name: "Your rating" });
+    await expect(stars).toHaveAttribute("aria-invalid", "true");
+
+    await press(stars.getByRole("radio", { name: "4 stars" }), isMobile);
+    await expect(missing).toHaveCount(0);
+    await press(page.getByRole("button", { name: "Send review" }), isMobile);
+    await expect(
+      page.getByText("Thanks. Your review is waiting to be checked."),
+    ).toBeVisible();
+  });
+
+  test("page with its contents: the list is beside the text on a wide screen, and marks the heading being read", async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(isMobile, "A phone isn't this wide.");
+    await page.setViewportSize({ width: 1280, height: 700 });
+    await open(page, "/blocks/view/article");
+    const nav = page.getByRole("navigation", { name: "On this page" });
+    await expect(nav).toHaveCount(1);
+    await expect(nav.getByRole("link")).toHaveCount(6);
+    await expect(
+      page.getByRole("button", { name: "On this page" }),
+    ).toHaveCount(0);
+
+    await nav.getByRole("link", { name: "Claiming it back" }).click();
+    await expect(page).toHaveURL(/#claiming$/);
+    await expect(nav.locator('[aria-current="location"]')).toHaveText(
+      "Claiming it back",
+    );
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await expect(nav.locator('[aria-current="location"]')).toHaveCount(0);
+  });
+
+  test("page with its contents: on a narrow screen the list is behind a button", async ({
+    page,
+    isMobile,
+  }) => {
+    await page.setViewportSize(phone);
+    await open(page, "/blocks/view/article");
+    const nav = page.getByRole("navigation", { name: "On this page" });
+    await expect(nav).toHaveCount(0);
+
+    const toggle = page.getByRole("button", { name: "On this page" });
+    await expect(toggle).toHaveAttribute("aria-expanded", "false");
+    await press(toggle, isMobile);
+    await expect(nav).toHaveCount(1);
+    await expect(nav.getByRole("link", { name: "Limits" })).toHaveAttribute(
+      "data-depth",
+      "2",
+    );
+  });
+
+  test("ask a question: the wait is said in a status, and the answer takes its place", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/blocks/view/ask-panel");
+    const status = page.getByRole("status");
+    await expect(status).toHaveText("");
+
+    await press(
+      page.getByRole("button", { name: "How many refunds are still open?" }),
+      isMobile,
+    );
+    await expect(status).toHaveText("Reading last month's orders");
+    await expect(status.locator(".nuv-text-shimmer")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Ask" })).toBeDisabled();
+
+    await expect(status).toContainText("Seven, worth $1,284 together.", {
+      timeout: 8000,
+    });
+    await expect(status.locator(".nuv-text-shimmer")).toHaveCount(0);
+    await expect(
+      page.getByRole("textbox", { name: "Your question" }),
+    ).toHaveValue("How many refunds are still open?");
+    await expect(page.getByRole("button", { name: "Ask" })).toBeEnabled();
+  });
+
+  test("figures: each has its trend in words, and a falling refund rate is good news", async ({
+    page,
+  }) => {
+    await open(page, "/blocks/view/figures");
+    const figures = page.getByRole("listitem");
+    await expect(figures).toHaveCount(4);
+    await expect(figures.locator(".nuv-trend")).toHaveCount(4);
+
+    // The arrow is a picture. The word is in the page for screen readers.
+    await expect(figures.nth(0).locator(".nuv-trend")).toHaveText(/Up\s*4\.7%/);
+    const refunds = figures.nth(3).locator(".nuv-trend");
+    await expect(refunds).toHaveText(/Down\s*0\.4 pts/);
+    const customers = figures.nth(2).locator(".nuv-trend");
+    expect(await refunds.getAttribute("class")).not.toBe(
+      await customers.getAttribute("class"),
+    );
+  });
 });
 
 test.describe("the blocks page", () => {

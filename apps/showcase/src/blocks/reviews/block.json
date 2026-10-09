@@ -1,0 +1,9 @@
+{
+  "name": "reviews",
+  "title": "Reviews",
+  "description": "An average rating with how the stars are shared out, a few reviews, and a form to leave one that asks for a number of stars.",
+  "category": "marketing",
+  "files": ["reviews.tsx", "reviews.scss"],
+  "install": ["@nuvui/react"],
+  "height": 900
+}

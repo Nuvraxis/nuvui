@@ -1,0 +1,9 @@
+{
+  "name": "inbox",
+  "title": "List with an action bar",
+  "description": "Messages to tick, and a bar that appears with what can be done to the ticked ones: mark as read, archive, and delete by holding the button down.",
+  "category": "data",
+  "files": ["inbox.tsx", "inbox.scss"],
+  "install": ["@nuvui/react", "lucide-react"],
+  "height": 640
+}

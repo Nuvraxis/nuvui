@@ -58,17 +58,24 @@ describe("rendering", () => {
     expect(status().textContent).toBe("");
   });
 
-  test("the wash is hidden from screen readers, and the text is over it", async () => {
+  test("the bar is hidden from screen readers, and is under the text, not behind it", async () => {
     await render(<Delete />);
     const label = button().querySelector(
       ".nuv-hold-to-confirm__label",
     ) as Element;
+    const bar = progress().getBoundingClientRect();
+    const box = button().getBoundingClientRect();
 
     expect(progress().getAttribute("aria-hidden")).toBe("true");
     expect(label.textContent).toBe("Hold to delete");
-    expect(style(progress()).position).toBe("absolute");
-    expect(style(label).position).toBe("relative");
     expect(style(progress()).pointerEvents).toBe("none");
+    // Along the bottom edge, the whole width of the button.
+    expect(bar.height).toBe(4);
+    expect(bar.top).toBeGreaterThanOrEqual(
+      label.getBoundingClientRect().bottom,
+    );
+    expect(bar.bottom).toBeLessThanOrEqual(box.bottom);
+    expect(bar.width).toBeGreaterThan(box.width - 4);
   });
 
   test("takes a button's props, and keeps a description of your own", async () => {
@@ -336,7 +343,7 @@ describe("disabled", () => {
 });
 
 describe("styles", () => {
-  test("the wash is covered at rest, and uncovered over the time it's held for", async () => {
+  test("the bar is covered at rest, and uncovered over the time it's held for", async () => {
     await render(<Delete duration={2000} />);
     // Browsers write the same shape out in slightly different words.
     expect(style(progress()).clipPath).toMatch(
@@ -365,11 +372,12 @@ describe("styles", () => {
     );
   });
 
-  test("it's the color of the button's text, and faint", async () => {
-    await render(<Delete />);
-
+  test("it's the color of the button's text, whatever the intent", async () => {
+    const screen = await render(<Delete />);
     expect(style(progress()).backgroundColor).toBe(style(button()).color);
-    expect(style(progress()).opacity).toBe("0.25");
+
+    await screen.rerender(<Delete intent="secondary" />);
+    expect(style(progress()).backgroundColor).toBe(style(button()).color);
   });
 
   test("a finger held on it doesn't scroll the page", async () => {
@@ -378,13 +386,13 @@ describe("styles", () => {
     expect(style(button()).touchAction).toBe("none");
   });
 
-  test("component variables change the wash", async () => {
+  test("component variables change the bar", async () => {
     await render(
       <div
         style={
           {
             "--nuv-hold-to-confirm-progress": "rgb(10, 20, 30)",
-            "--nuv-hold-to-confirm-progress-opacity": "0.5",
+            "--nuv-hold-to-confirm-progress-size": "7px",
           } as never
         }
       >
@@ -393,7 +401,7 @@ describe("styles", () => {
     );
 
     expect(style(progress()).backgroundColor).toBe("rgb(10, 20, 30)");
-    expect(style(progress()).opacity).toBe("0.5");
+    expect(progress().getBoundingClientRect().height).toBe(7);
   });
 
   test("what's said to a screen reader is drawn for nobody", async () => {
@@ -419,6 +427,8 @@ describe.each(themes)("accessibility in %s", (theme) => {
       </>,
     );
     click(0);
+    // The bar is full here, which is when it's most in the way if it's in
+    // the way at all.
     await expect.poll(state).toBe("armed");
 
     await expectNoViolations(screen.container);

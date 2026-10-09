@@ -1,0 +1,75 @@
+@use "../../styles/layers";
+@use "../../styles/mixins";
+
+@layer components {
+  .nuv-stat {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nuv-stat-gap, calc(var(--spacing) * 1.5));
+    min-inline-size: 0;
+    color: var(--nuv-stat-fg, var(--color-foreground));
+  }
+
+  .nuv-stat--card {
+    padding: var(--nuv-stat-padding, calc(var(--spacing) * 4));
+    border: var(--nuv-border-width) solid
+      var(--nuv-stat-border, var(--color-border));
+    border-radius: var(--nuv-stat-radius, var(--radius-lg));
+    background-color: var(--nuv-stat-bg, var(--color-surface));
+    box-shadow: var(--nuv-stat-shadow, var(--shadow-xs));
+    color: var(--nuv-stat-fg, var(--color-surface-foreground));
+
+    @include mixins.breakpoint("sm") {
+      padding: var(--nuv-stat-padding, calc(var(--spacing) * 5));
+    }
+  }
+
+  .nuv-stat__label {
+    color: var(--nuv-stat-muted-fg, var(--color-muted-foreground));
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--text-sm--line-height);
+    overflow-wrap: anywhere;
+  }
+
+  // Digits of one width, so a number that updates doesn't shift.
+  .nuv-stat__value {
+    font-size: var(--nuv-stat-value-size, var(--text-2xl));
+    font-weight: var(--font-weight-semibold);
+    font-variant-numeric: tabular-nums;
+    line-height: var(--text-2xl--line-height);
+    overflow-wrap: anywhere;
+  }
+
+  // A row, so a trend and the words after it share a baseline and wrap
+  // together when there's no room.
+  .nuv-stat__description {
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(var(--spacing) * 1.5);
+    align-items: center;
+    margin: 0;
+    color: var(--nuv-stat-muted-fg, var(--color-muted-foreground));
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+  }
+
+  // After everything else, however the parts are ordered in the markup.
+  .nuv-stat__chart {
+    block-size: var(--nuv-stat-chart-height, 3rem);
+    min-inline-size: 0;
+    margin-block-start: calc(var(--spacing) * 1.5);
+  }
+
+  // As many columns as fit at the least width, each as wide as the others.
+  // The `min()` keeps one column from being wider than a narrow container.
+  .nuv-stat-group {
+    display: grid;
+    grid-template-columns: repeat(
+      auto-fit,
+      minmax(min(var(--nuv-stat-group-min, 13rem), 100%), 1fr)
+    );
+    gap: var(--nuv-stat-group-gap, calc(var(--spacing) * 4));
+    min-inline-size: 0;
+  }
+}

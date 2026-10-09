@@ -1,0 +1,136 @@
+@use "../../styles/layers";
+
+@layer components {
+  .nuv-timeline {
+    display: flex;
+    flex-direction: column;
+    min-inline-size: 0;
+    margin: 0;
+    padding: 0;
+    color: var(--nuv-timeline-fg, var(--color-foreground));
+    list-style: none;
+  }
+
+  // Two columns: the marker, and the text. The space between two events is
+  // padding and not a gap, so that the line can run through it.
+  .nuv-timeline__item {
+    display: grid;
+    position: relative;
+    grid-template-columns: var(--nuv-timeline-marker-size, 1.5rem) minmax(0, 1fr);
+    column-gap: var(--nuv-timeline-gap, calc(var(--spacing) * 3));
+    align-items: start;
+    padding-block-end: var(--nuv-timeline-space, calc(var(--spacing) * 6));
+
+    // The line, from under this marker to the top of the next one. It's a
+    // border, which is still drawn where the browser forces its colors.
+    &::before {
+      position: absolute;
+      inset-block: calc(
+          var(--nuv-timeline-marker-size, 1.5rem) + var(--spacing)
+        )
+        var(--spacing);
+
+      // Half the marker in, less half the line, puts it under the middle.
+      inset-inline-start: calc(
+        (
+            var(--nuv-timeline-marker-size, 1.5rem) - var(
+                --nuv-timeline-line-width,
+                var(--nuv-border-width)
+              )
+          ) / 2
+      );
+      border-inline-start: var(
+          --nuv-timeline-line-width,
+          var(--nuv-border-width)
+        )
+        solid var(--nuv-timeline-line, var(--color-border));
+      content: "";
+    }
+
+    // Nothing comes after the last event.
+    &:last-child {
+      padding-block-end: 0;
+
+      &::before {
+        content: none;
+      }
+    }
+  }
+
+  // A filled marker's edge can't be seen against its fill. It shows where
+  // the browser forces its own colors, which is where the fill isn't drawn.
+  .nuv-timeline__marker {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--nuv-timeline-marker-size, 1.5rem);
+    block-size: var(--nuv-timeline-marker-size, 1.5rem);
+    border: var(--nuv-border-width) solid
+      var(--nuv-timeline-marker-border, transparent);
+    border-radius: var(--nuv-timeline-marker-radius, var(--radius-full));
+    font-size: var(--text-xs);
+    line-height: 1;
+  }
+
+  // A ring: the surface inside a strong edge.
+  .nuv-timeline__marker--neutral {
+    border-color: var(--nuv-timeline-marker-border, var(--color-border-strong));
+    background-color: var(--nuv-timeline-marker-bg, var(--color-surface));
+    color: var(--nuv-timeline-marker-fg, var(--color-surface-foreground));
+  }
+
+  .nuv-timeline__marker--primary {
+    background-color: var(--nuv-timeline-marker-bg, var(--color-primary));
+    color: var(--nuv-timeline-marker-fg, var(--color-primary-foreground));
+  }
+
+  .nuv-timeline__marker--success {
+    background-color: var(--nuv-timeline-marker-bg, var(--color-success));
+    color: var(--nuv-timeline-marker-fg, var(--color-background));
+  }
+
+  .nuv-timeline__marker--warning {
+    background-color: var(--nuv-timeline-marker-bg, var(--color-warning));
+    color: var(--nuv-timeline-marker-fg, var(--color-background));
+  }
+
+  .nuv-timeline__marker--danger {
+    background-color: var(--nuv-timeline-marker-bg, var(--color-danger));
+    color: var(--nuv-timeline-marker-fg, var(--color-danger-foreground));
+  }
+
+  // The first line of text sits level with the middle of the marker. The
+  // line height token is a ratio, so the line's height is that many times
+  // the font size.
+  .nuv-timeline__content {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 0.5);
+    min-inline-size: 0;
+    padding-block-start: calc(
+      (var(--nuv-timeline-marker-size, 1.5rem) - var(--text-sm) * var(--text-sm--line-height)) / 2
+    );
+  }
+
+  .nuv-timeline__title {
+    margin: 0;
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--text-sm--line-height);
+    overflow-wrap: anywhere;
+  }
+
+  .nuv-timeline__description {
+    margin: 0;
+    color: var(--nuv-timeline-muted-fg, var(--color-muted-foreground));
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+    overflow-wrap: anywhere;
+  }
+
+  .nuv-timeline__time {
+    color: var(--nuv-timeline-muted-fg, var(--color-muted-foreground));
+    font-size: var(--text-xs);
+    line-height: var(--text-xs--line-height);
+  }
+}

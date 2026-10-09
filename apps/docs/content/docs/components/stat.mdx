@@ -1,0 +1,157 @@
+---
+title: Stat
+description: One figure for a dashboard, with what it counts, the number, how it changed, and room for a small chart.
+---
+
+Use a stat for a number someone checks at a glance: revenue this month, tickets open, seats in use. `StatGroup` sets several side by side.
+
+<Preview name="stat/basic" wide />
+
+## Install
+
+```sh
+pnpm add @nuvui/react
+```
+
+## Import
+
+```tsx
+import {
+  Stat,
+  StatChart,
+  StatDescription,
+  StatGroup,
+  StatLabel,
+  StatValue,
+} from "@nuvui/react";
+```
+
+The styles come from `@nuvui/react/styles.css`, which you load once for the whole app. [Getting started](/docs) covers that, and how to load only this component's CSS.
+
+## Parts
+
+| Part | What it is |
+| --- | --- |
+| `Stat` | One figure. A card unless you say otherwise. |
+| `StatLabel` | What the number counts. |
+| `StatValue` | The number, large. |
+| `StatDescription` | A line under it: how it changed, and against what. |
+| `StatChart` | Room for a small chart, 48 pixels high. |
+| `StatGroup` | Several stats, as many to a row as fit. |
+
+Only `Stat`, `StatLabel` and `StatValue` are needed. Put the label first: a screen reader reads the parts in the order they're written, and "Revenue, $48,250" makes sense where "$48,250, Revenue" makes someone wait.
+
+## Try it
+
+<StatPlayground />
+
+## Props
+
+### Stat
+
+<PropsTable component="stat" name="StatOwnProps" />
+
+The other parts add no props of their own. Each takes what its element takes, including `ref` and `className`.
+
+## The number and its change
+
+The parts take any children. [`FormattedNumber`](/docs/components/formatted-number) writes the number for a language and region, and [`Trend`](/docs/components/trend) says which way it moved. Neither is required: a value can be plain text, such as "4m 12s".
+
+## With a chart
+
+`StatChart` is a box with a height, after the rest. What's drawn in it is yours: a sparkline from [`@nuvui/charts`](/docs/charts), or a few lines of SVG as here. The core doesn't depend on a charting library, so it draws nothing itself.
+
+<Preview name="stat/with-chart" />
+
+When the number and the trend already say what the chart shows, hide the chart from screen readers with `aria-hidden="true"`. When the chart says more, give it a name and a table of its numbers, as the [charts](/docs/charts) pages describe.
+
+## Plain, inside something else
+
+`variant="plain"` draws no edge, no fill and no padding, for a stat that sits in a [card](/docs/components/card) or a table cell that already has them.
+
+<Preview name="stat/plain" wide />
+
+## In a group
+
+`StatGroup` is a grid that fits as many columns as it can at a least width of 13rem, all the same width. On a phone that's one column. It sets no number of columns, so it works in a full-width page and in a narrow panel without a breakpoint. Change the least width with `--nuv-stat-group-min`.
+
+## Accessibility
+
+A stat has no keyboard behavior. It isn't a control and can't take focus.
+
+### What the component handles
+
+- The parts are read in the order they're written, with nothing hidden and nothing added.
+- The number's digits are one width each, so a value that updates doesn't shift.
+- A card's edge is a border, which is still drawn where the browser forces its own colors.
+- The label and the description have at least 4.5:1 against the card in every theme.
+
+### What you need to handle
+
+- Write the label first, then the value.
+- Say what a change is measured against, in `StatDescription`.
+- A group of stats under a heading is found by that heading. Give the section one.
+- A value that changes while the page is open isn't announced. For one that matters, such as an error count passing a limit, say it in a [toast](/docs/components/toast) or an element with `role="status"`.
+
+## CSS variables
+
+Set any of these on a `Stat`, on a `StatGroup`, or on anything around them.
+
+```css
+.dashboard {
+  --nuv-stat-group-min: 16rem;
+  --nuv-stat-shadow: none;
+}
+```
+
+<CssVariables
+  component="stat"
+  descriptions={{
+    "--nuv-stat-gap": "Space between the parts.",
+    "--nuv-stat-fg": "Text color.",
+    "--nuv-stat-padding":
+      "Padding of a card. 16 pixels on a phone and 20 from the `sm` breakpoint up.",
+    "--nuv-stat-border": "Border color of a card.",
+    "--nuv-stat-radius": "Corner radius of a card.",
+    "--nuv-stat-bg": "Background color of a card.",
+    "--nuv-stat-shadow": "Shadow of a card.",
+    "--nuv-stat-muted-fg":
+      "Color of the label and the description. Keep it at 4.5:1 against the background.",
+    "--nuv-stat-value-size": "Font size of the number.",
+    "--nuv-stat-chart-height": "Height of the chart's box.",
+    "--nuv-stat-group-min":
+      "The least width of a column in a group. A narrower group has one column.",
+    "--nuv-stat-group-gap": "Space between the stats in a group.",
+  }}
+/>
+
+## Classes
+
+<BemClasses
+  component="stat"
+  descriptions={{
+    "nuv-stat": "Every stat.",
+    "nuv-stat--card": "variant=\"card\", the default.",
+    "nuv-stat__label": "StatLabel",
+    "nuv-stat__value": "StatValue",
+    "nuv-stat__description": "StatDescription",
+    "nuv-stat__chart": "StatChart",
+    "nuv-stat-group": "StatGroup",
+  }}
+/>
+
+## Server components
+
+No part has a `"use client"` directive or uses state, so all of them render in a server component as they are. A chart from `@nuvui/charts` is a client component, in a file of its own.
+
+## Do and don't
+
+**Do**
+
+- Keep a group to the few numbers that matter on the page. Four is easy to take in, and twelve isn't.
+- Use the same order of parts in every stat of a group.
+
+**Don't**
+
+- Don't make a stat a link without saying where it goes. Wrap it in a link whose name says so, or put a link in the description.
+- Don't use a stat for a number that needs a sentence to explain. That's text.

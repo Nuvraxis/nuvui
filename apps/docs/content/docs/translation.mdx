@@ -216,6 +216,20 @@ On `Toaster`:
   }}
 />
 
+### Trend
+
+<PropsTable
+  component="trend"
+  name="TrendOwnProps"
+  props={{
+    upLabel: "What a screen reader says before the amount of a rise.",
+    downLabel: "What a screen reader says before the amount of a fall.",
+    flatLabel: "What a screen reader says for no change, in place of the amount.",
+  }}
+/>
+
+How the amount itself is written follows its `format`, which takes a `locale`. So does every [`FormattedNumber`](/docs/components/formatted-number): pass it the language your app is in.
+
 ## Dates
 
 A calendar's month and day names, and the names a screen reader hears on its buttons, come from a `locale`. [Dates](/docs/date-picker#languages) has how to pass one. These are what the two fields add, on `DatePicker` and `DateRangePicker`:

@@ -1,0 +1,57 @@
+@use "../../styles/layers";
+
+@layer components {
+  .nuv-trend {
+    display: inline-flex;
+    gap: var(--nuv-trend-gap, calc(var(--spacing) * 0.5));
+    align-items: center;
+    font-size: var(--nuv-trend-font-size, var(--text-sm));
+    font-weight: var(--font-weight-medium);
+    font-variant-numeric: tabular-nums;
+    line-height: var(--text-sm--line-height);
+    white-space: nowrap;
+    vertical-align: middle;
+  }
+
+  // The success and danger colors are picked to be readable as text on the
+  // page and on a surface, so they can be the text here.
+  .nuv-trend--good {
+    color: var(--nuv-trend-fg, var(--color-success));
+  }
+
+  .nuv-trend--bad {
+    color: var(--nuv-trend-fg, var(--color-danger));
+  }
+
+  .nuv-trend--neutral {
+    color: var(--nuv-trend-fg, var(--color-muted-foreground));
+  }
+
+  // The edge takes the text's color, whichever that is.
+  .nuv-trend--outline {
+    padding-block: var(--nuv-trend-padding-block, calc(var(--spacing) * 0.5));
+    padding-inline: var(--nuv-trend-padding-inline, calc(var(--spacing) * 2));
+    border: var(--nuv-border-width) solid
+      var(--nuv-trend-border, currentcolor);
+    border-radius: var(--nuv-trend-radius, var(--radius-full));
+    background-color: var(--nuv-trend-bg, var(--color-surface));
+    font-size: var(--nuv-trend-font-size, var(--text-xs));
+    line-height: var(--text-xs--line-height);
+  }
+
+  .nuv-trend__icon {
+    flex: none;
+    inline-size: var(--nuv-trend-icon-size, 0.875em);
+    block-size: var(--nuv-trend-icon-size, 0.875em);
+  }
+
+  // In the page for screen readers, and drawn for nobody.
+  .nuv-trend__label {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}

@@ -248,6 +248,16 @@
         "default": "./dist/components/file-upload/index.cjs"
       }
     },
+    "./formatted-number": {
+      "import": {
+        "types": "./dist/components/formatted-number/index.d.ts",
+        "default": "./dist/components/formatted-number/index.js"
+      },
+      "require": {
+        "types": "./dist/components/formatted-number/index.d.cts",
+        "default": "./dist/components/formatted-number/index.cjs"
+      }
+    },
     "./hover-card": {
       "import": {
         "types": "./dist/components/hover-card/index.d.ts",
@@ -276,6 +286,16 @@
       "require": {
         "types": "./dist/components/input-group/index.d.cts",
         "default": "./dist/components/input-group/index.cjs"
+      }
+    },
+    "./item": {
+      "import": {
+        "types": "./dist/components/item/index.d.ts",
+        "default": "./dist/components/item/index.js"
+      },
+      "require": {
+        "types": "./dist/components/item/index.d.cts",
+        "default": "./dist/components/item/index.cjs"
       }
     },
     "./kbd": {
@@ -468,6 +488,16 @@
         "default": "./dist/components/spinner/index.cjs"
       }
     },
+    "./stat": {
+      "import": {
+        "types": "./dist/components/stat/index.d.ts",
+        "default": "./dist/components/stat/index.js"
+      },
+      "require": {
+        "types": "./dist/components/stat/index.d.cts",
+        "default": "./dist/components/stat/index.cjs"
+      }
+    },
     "./switch": {
       "import": {
         "types": "./dist/components/switch/index.d.ts",
@@ -496,6 +526,16 @@
       "require": {
         "types": "./dist/components/textarea/index.d.cts",
         "default": "./dist/components/textarea/index.cjs"
+      }
+    },
+    "./timeline": {
+      "import": {
+        "types": "./dist/components/timeline/index.d.ts",
+        "default": "./dist/components/timeline/index.js"
+      },
+      "require": {
+        "types": "./dist/components/timeline/index.d.cts",
+        "default": "./dist/components/timeline/index.cjs"
       }
     },
     "./toast": {
@@ -546,6 +586,16 @@
       "require": {
         "types": "./dist/components/tooltip/index.d.cts",
         "default": "./dist/components/tooltip/index.cjs"
+      }
+    },
+    "./trend": {
+      "import": {
+        "types": "./dist/components/trend/index.d.ts",
+        "default": "./dist/components/trend/index.js"
+      },
+      "require": {
+        "types": "./dist/components/trend/index.d.cts",
+        "default": "./dist/components/trend/index.cjs"
       }
     },
     "./visually-hidden": {

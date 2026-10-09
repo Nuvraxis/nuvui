@@ -43,6 +43,9 @@ import {
   Input,
   InputGroup,
   InputGroupButton,
+  Item,
+  ItemContent,
+  ItemTitle,
   Menubar,
   MenubarContent,
   MenubarItem,
@@ -1161,5 +1164,35 @@ describe.each([
         box(document.querySelector(selector) as Element).height,
       ).toBeGreaterThanOrEqual(44);
     }
+  });
+});
+
+describe("item", () => {
+  test("a row that's a link or a button is at least 44px tall, at either size", async () => {
+    await render(
+      <div style={padded}>
+        <Item asChild>
+          <a href="#billing">
+            <ItemContent>
+              <ItemTitle>Billing</ItemTitle>
+            </ItemContent>
+          </a>
+        </Item>
+        <Item asChild size="sm">
+          <button type="button">
+            <ItemContent>
+              <ItemTitle>Export</ItemTitle>
+            </ItemContent>
+          </button>
+        </Item>
+      </div>,
+    );
+
+    expect(
+      box(page.getByRole("link", { name: "Billing" }).element()).height,
+    ).toBeGreaterThanOrEqual(44);
+    expect(
+      box(page.getByRole("button", { name: "Export" }).element()).height,
+    ).toBeGreaterThanOrEqual(44);
   });
 });

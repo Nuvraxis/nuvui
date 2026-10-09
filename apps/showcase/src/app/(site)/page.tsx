@@ -27,7 +27,7 @@ export const metadata: Metadata = {
 
 // Counted from the packages: the README lists the components by name.
 const facts = [
-  { value: "52", label: "Components in the core" },
+  { value: "57", label: "Components in the core" },
   { value: "3", label: "Add-on packages" },
   { value: String(chartCount), label: "Charts to copy" },
   { value: "5", label: "Presets, each in light and dark" },

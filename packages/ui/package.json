@@ -1,6 +1,6 @@
 {
   "name": "@nuvui/react",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "React components built on Radix UI primitives, styled with SCSS and BEM class names.",
   "license": "MIT",
   "author": "Nuvraxis",

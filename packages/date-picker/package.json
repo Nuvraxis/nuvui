@@ -1,6 +1,6 @@
 {
   "name": "@nuvui/date-picker",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "A calendar, a date field and a date range field for @nuvui/react, built on react-day-picker.",
   "license": "MIT",
   "author": "Nuvraxis",
@@ -82,7 +82,7 @@
     "size": "size-limit"
   },
   "peerDependencies": {
-    "@nuvui/react": "workspace:^0.0.0",
+    "@nuvui/react": "workspace:^0.1.0",
     "react": "^18.2.0 || ^19.0.0",
     "react-dom": "^18.2.0 || ^19.0.0"
   },

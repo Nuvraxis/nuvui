@@ -16,25 +16,11 @@ import type { Metadata } from "next";
 import { Provider } from "@/components/provider";
 import { SiteHeader } from "@/components/site-header";
 import { Telemetry } from "@/components/telemetry";
-import { site } from "@/lib/site";
+import { baseMetadata, viewport } from "@/lib/seo";
 import { telemetry } from "@/lib/telemetry";
 
-export const metadata: Metadata = {
-  metadataBase: new URL(site.url),
-  title: {
-    default: `${site.name}: React components on Radix UI, styled with SCSS`,
-    template: `%s | ${site.name}`,
-  },
-  description: site.description,
-  openGraph: {
-    siteName: site.name,
-    type: "website",
-    locale: "en",
-  },
-  twitter: {
-    card: "summary_large_image",
-  },
-};
+export const metadata: Metadata = baseMetadata;
+export { viewport };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (

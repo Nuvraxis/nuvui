@@ -74,6 +74,40 @@ test("components used from a server component hydrate and work", async ({
   await expect(
     page.getByRole("heading", { name: "Empty from the server" }),
   ).toBeVisible();
+  // A number, a trend and a timeline have no directive, and are written
+  // on the server with a region and a direction of their own.
+  await expect(page.getByTestId("server-number")).toHaveText(/^1\.234,50\s€$/);
+  await expect(page.getByTestId("server-trend")).toHaveText("Down 25%");
+  await expect(page.getByTestId("server-trend")).toHaveClass(/nuv-trend--good/);
+  await expect(page.getByTestId("server-stat")).toHaveClass(/nuv-stat--card/);
+  await expect(
+    page
+      .getByRole("list", { name: "Timeline from the server" })
+      .getByRole("listitem"),
+  ).toHaveText(/Rendered on the server/);
+  // An item is a client component, and still knows it's in a list.
+  await expect(
+    page
+      .getByRole("list", { name: "Items from the server" })
+      .getByRole("listitem"),
+  ).toHaveText("Row from the server");
+
+  // Four client components, rendered from the server with plain props.
+  const seats = page.getByRole("spinbutton", { name: "Seats from the server" });
+  await expect(seats).toHaveValue("1.234,5");
+  await seats.focus();
+  await page.keyboard.press("ArrowUp");
+  await expect(seats).toHaveValue("1.235,5");
+  await expect(page.getByRole("img", { name: "2.5 out of 5" })).toBeVisible();
+  const steps = page
+    .getByRole("list", { name: "Steps from the server" })
+    .getByRole("listitem");
+  await expect(steps.nth(0)).toHaveText("First Completed");
+  await expect(steps.nth(1)).toHaveAttribute("aria-current", "step");
+  await expect(
+    page.getByRole("checkbox", { name: "Card from the server" }),
+  ).toBeChecked();
+
   const ratio = await page.getByTestId("server-ratio").boundingBox();
   expect(ratio?.width).toBe(120);
   expect(ratio?.height).toBe(60);

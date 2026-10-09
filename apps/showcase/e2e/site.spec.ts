@@ -35,6 +35,58 @@ for (const { path } of pages) {
       expect(url.pathname).toBe(path);
     });
 
+    test("says what a search engine and a shared link need", async ({
+      page,
+      request,
+    }) => {
+      await page.goto(path);
+      const meta = (selector: string) =>
+        page.locator(selector).first().getAttribute("content");
+
+      // A shared link: the site's name, and a picture with its size and
+      // what it shows in words.
+      expect(await meta('meta[property="og:site_name"]')).toBe(site.name);
+      expect(await meta('meta[property="og:locale"]')).toBe("en_US");
+      expect(await meta('meta[property="og:image:width"]')).toBe("1200");
+      expect(await meta('meta[property="og:image:height"]')).toBe("630");
+      expect(await meta('meta[property="og:image:alt"]')).toMatch(/.{3,}/);
+      expect(await meta('meta[name="twitter:card"]')).toBe(
+        "summary_large_image",
+      );
+      expect(await meta('meta[property="og:url"]')).toBe(
+        await page.locator('link[rel="canonical"]').getAttribute("href"),
+      );
+
+      // A search engine: the page can be indexed, with a large picture.
+      expect(await meta('meta[name="robots"]')).toBe("index, follow");
+      expect(await meta('meta[name="googlebot"]')).toContain(
+        "max-image-preview:large",
+      );
+
+      // A browser: the color around the page, light and dark.
+      await expect(page.locator('meta[name="theme-color"]')).toHaveCount(2);
+
+      expect(await meta('meta[property="og:type"]')).toBe("website");
+      await expect(page.locator('link[rel="manifest"]')).toHaveAttribute(
+        "href",
+        "/manifest.webmanifest",
+      );
+
+      // The icons, each of which loads: an SVG, an .ico for what can't
+      // draw one, and one for an iPhone's home screen.
+      for (const [selector, type] of [
+        ['link[rel="icon"][type="image/svg+xml"]', "image/svg+xml"],
+        ['link[rel="icon"][type="image/x-icon"]', "image/"],
+        ['link[rel="apple-touch-icon"]', "image/png"],
+      ] as const) {
+        const href = await page.locator(selector).getAttribute("href");
+        expect(href, selector).not.toBeNull();
+        const response = await request.get(href ?? "");
+        expect(response.ok(), selector).toBe(true);
+        expect(response.headers()["content-type"], selector).toContain(type);
+      }
+    });
+
     test("has an Open Graph image that loads", async ({ page, request }) => {
       await page.goto(path);
 
@@ -158,6 +210,89 @@ test.describe("how the site is built", () => {
     // The docs are built with Fumadocs, which is Tailwind. This is the
     // check that the check above can tell.
     expect(await sheets("/docs")).toContain("--tw-");
+  });
+
+  test("both apps say the same things in a page's head", () => {
+    // One site to a search engine, in two apps. The two files are the same
+    // but for the comment at the top, which names the other one.
+    const body = (file: string) => {
+      const source = readFileSync(file, "utf8");
+      return source.slice(source.indexOf("// The icons aren't here."));
+    };
+    const website = path.join(process.cwd(), "src", "lib", "seo.ts");
+    const docs = path.join(process.cwd(), "..", "docs", "lib", "seo.ts");
+
+    expect(body(website).length).toBeGreaterThan(1000);
+    expect(body(docs)).toBe(body(website));
+  });
+
+  test("both apps have the same icons, drawn from one file", () => {
+    const website = path.join(process.cwd(), "src", "app");
+    const docs = path.join(process.cwd(), "..", "docs", "app");
+
+    for (const name of ["icon.svg", "favicon.ico", "apple-icon.png"]) {
+      expect(
+        readFileSync(path.join(docs, name)).equals(
+          readFileSync(path.join(website, name)),
+        ),
+        name,
+      ).toBe(true);
+    }
+    // The icon swaps its colors in a dark tab.
+    expect(readFileSync(path.join(website, "icon.svg"), "utf8")).toContain(
+      "prefers-color-scheme: dark",
+    );
+  });
+
+  test("the manifest names the site and icons that load", async ({
+    request,
+  }) => {
+    const response = await request.get("/manifest.webmanifest");
+    expect(response.ok()).toBe(true);
+    expect(response.headers()["content-type"]).toContain(
+      "application/manifest+json",
+    );
+    const manifest = await response.json();
+
+    expect(manifest.name).toBe(site.name);
+    expect(manifest.start_url).toBe("/");
+    expect(manifest.icons.length).toBeGreaterThanOrEqual(3);
+    expect(
+      manifest.icons.some(
+        (icon: { purpose?: string }) => icon.purpose === "maskable",
+      ),
+    ).toBe(true);
+    for (const icon of manifest.icons) {
+      const picture = await request.get(icon.src);
+      expect(picture.ok(), icon.src).toBe(true);
+      expect(picture.headers()["content-type"], icon.src).toContain(
+        "image/png",
+      );
+    }
+  });
+
+  test("a browser that asks for /favicon.ico gets one", async ({ request }) => {
+    const response = await request.get("/favicon.ico");
+
+    expect(response.ok()).toBe(true);
+    // An .ico file starts with these four bytes.
+    expect([...(await response.body()).subarray(0, 4)]).toEqual([0, 0, 1, 0]);
+  });
+
+  test("a page that isn't to be found says so to a search engine", async ({
+    page,
+  }) => {
+    await page.goto("/nothing-here");
+
+    await expect(page.locator('meta[name="robots"]').first()).toHaveAttribute(
+      "content",
+      "noindex",
+    );
+    await page.goto("/blocks/view/sign-in");
+    await expect(page.locator('meta[name="robots"]').first()).toHaveAttribute(
+      "content",
+      "noindex",
+    );
   });
 
   test("both apps agree on the site's address", () => {

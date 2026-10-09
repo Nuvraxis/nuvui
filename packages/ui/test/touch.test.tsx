@@ -15,6 +15,8 @@ import {
   BreadcrumbList,
   Button,
   Checkbox,
+  CheckboxCard,
+  ChoiceCardTitle,
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
@@ -43,6 +45,9 @@ import {
   Input,
   InputGroup,
   InputGroupButton,
+  Item,
+  ItemContent,
+  ItemTitle,
   Menubar,
   MenubarContent,
   MenubarItem,
@@ -55,6 +60,7 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
+  NumberField,
   OtpField,
   Pagination,
   PaginationItem,
@@ -64,6 +70,7 @@ import {
   PasswordInput,
   RadioGroup,
   RadioGroupItem,
+  Rating,
   ScrollArea,
   Select,
   SelectContent,
@@ -1161,5 +1168,102 @@ describe.each([
         box(document.querySelector(selector) as Element).height,
       ).toBeGreaterThanOrEqual(44);
     }
+  });
+});
+
+describe("item", () => {
+  test("a row that's a link or a button is at least 44px tall, at either size", async () => {
+    await render(
+      <div style={padded}>
+        <Item asChild>
+          <a href="#billing">
+            <ItemContent>
+              <ItemTitle>Billing</ItemTitle>
+            </ItemContent>
+          </a>
+        </Item>
+        <Item asChild size="sm">
+          <button type="button">
+            <ItemContent>
+              <ItemTitle>Export</ItemTitle>
+            </ItemContent>
+          </button>
+        </Item>
+      </div>,
+    );
+
+    expect(
+      box(page.getByRole("link", { name: "Billing" }).element()).height,
+    ).toBeGreaterThanOrEqual(44);
+    expect(
+      box(page.getByRole("button", { name: "Export" }).element()).height,
+    ).toBeGreaterThanOrEqual(44);
+  });
+});
+
+describe("number field", () => {
+  test("is 44px tall, with 16px text, and each button takes a tap 44px wide", async () => {
+    await render(
+      <div style={padded}>
+        <NumberField aria-label="Seats" defaultValue={5} />
+      </div>,
+    );
+    const field = page.getByRole("spinbutton").element();
+    const up = page.getByRole("button", { name: "Increase" }).element();
+
+    expect(box(field.parentElement as Element).height).toBe(44);
+    expect(getComputedStyle(field).fontSize).toBe("16px");
+    // The button is drawn smaller than a finger. The area around it that
+    // answers is not.
+    expect(box(up).height).toBeLessThan(44);
+    expect(hitAt(up, 0, 20)).toBe(up);
+    expect(hitAt(up, 0, -20)).toBe(up);
+  });
+});
+
+describe("rating", () => {
+  test("each star is at least 44px each way, and they don't overlap", async () => {
+    await render(
+      <div style={padded}>
+        <Rating aria-label="Delivery" />
+      </div>,
+    );
+    const stars = page.getByRole("radio").elements();
+
+    for (const star of stars) {
+      expect(box(star).width).toBeGreaterThanOrEqual(44);
+      expect(box(star).height).toBeGreaterThanOrEqual(44);
+    }
+    expect(box(stars[1] as Element).left).toBeGreaterThanOrEqual(
+      box(stars[0] as Element).right,
+    );
+  });
+
+  test("a rating that only shows takes no extra room", async () => {
+    await render(<Rating readOnly value={3} />);
+    const item = page
+      .getByRole("img")
+      .element()
+      .querySelector(".nuv-rating__item") as Element;
+
+    expect(box(item).width).toBe(28);
+  });
+});
+
+describe("choice card", () => {
+  test("the whole card takes the tap, and is at least 44px tall", async () => {
+    await render(
+      <div style={padded}>
+        <CheckboxCard>
+          <ChoiceCardTitle>Audit log</ChoiceCardTitle>
+        </CheckboxCard>
+      </div>,
+    );
+    const control = page.getByRole("checkbox", { name: "Audit log" });
+    const card = control.element().closest(".nuv-choice-card") as Element;
+
+    expect(box(card).height).toBeGreaterThanOrEqual(44);
+    await page.getByText("Audit log").click();
+    await expect.element(control).toBeChecked();
   });
 });

@@ -1,0 +1,11 @@
+@use "../../styles/layers";
+
+@layer components {
+  // Digits of one width, so a column of numbers lines up and a number that
+  // changes doesn't move what's next to it. Never broken across two lines:
+  // a currency sign alone at the end of one reads as a mistake.
+  .nuv-formatted-number {
+    font-variant-numeric: var(--nuv-formatted-number-numeric, tabular-nums);
+    white-space: nowrap;
+  }
+}

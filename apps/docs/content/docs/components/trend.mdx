@@ -1,0 +1,137 @@
+---
+title: Trend
+description: Which way a number moved and by how much, as an arrow, an amount and a color, with the direction in words for a screen reader.
+---
+
+Use a trend next to a figure to say how it compares with the one before: revenue against last month, open tickets against last week. It's text, not a control.
+
+<Preview name="trend/basic" />
+
+## Install
+
+```sh
+pnpm add @nuvui/react
+```
+
+## Import
+
+```tsx
+import { Trend } from "@nuvui/react";
+```
+
+The styles come from `@nuvui/react/styles.css`, which you load once for the whole app. [Getting started](/docs) covers that, and how to load only this component's CSS.
+
+## Try it
+
+<TrendPlayground />
+
+## Props
+
+<PropsTable component="trend" name="TrendOwnProps" />
+
+Everything else is passed to the `<span>`, including `ref` and `className`.
+
+## The value
+
+`value` is a ratio, so `0.125` is written as 12.5%. Its sign chooses the arrow: above zero points up, below zero points down, and zero is a level line.
+
+The amount is written without its sign. The arrow shows the direction, and a screen reader hears it in words, so "Down 4%" isn't followed by a minus that would be read as well.
+
+## When down is good
+
+Green for a rise and red for a fall is right for revenue and wrong for costs. `good="down"` swaps the two colors and leaves the arrows as they are.
+
+<Preview name="trend/good-down" />
+
+## Outline
+
+`variant="outline"` puts an edge around the trend, in its own color. Use it for a trend that stands alone, away from the number it belongs to.
+
+<Preview name="trend/outline" />
+
+## Your own text
+
+Children replace the amount. The value still chooses the arrow and the color, so it can be any number with the right sign. To keep the number and write it another way, pass `format`, which takes what [`FormattedNumber`](/docs/components/formatted-number) does.
+
+<Preview name="trend/own-text" />
+
+## Accessibility
+
+A trend has no keyboard behavior. It isn't a control and can't take focus.
+
+### What the component handles
+
+- The direction is in the page as words: "Up", "Down" or "No change". Nobody sees them, and a screen reader reads them before the amount. The arrow is hidden from it.
+- With no change, the words are read in place of "0%".
+- The colors are the theme's success and danger colors, which have at least 4.5:1 as text on the page and on a surface in every theme.
+- The arrow is drawn in the text's color, so it's still there where the browser forces its own colors.
+
+### What you need to handle
+
+- Translate the three labels. [Translation](/docs/translation) lists them with every other piece of text the library writes.
+- Say what the change is measured against. "Up 12.5%" needs "against last month" beside it.
+- Color isn't the message. The arrow and the words carry it, so a trend still works for someone who can't tell green from red. Don't hide the arrow.
+
+## CSS variables
+
+Set any of these on the trend, or on anything around it.
+
+```css
+.quiet-trend {
+  --nuv-trend-fg: var(--color-muted-foreground);
+}
+```
+
+<CssVariables
+  component="trend"
+  descriptions={{
+    "--nuv-trend-gap": "Space between the arrow and the amount.",
+    "--nuv-trend-font-size":
+      "Font size. Smaller by default on an outlined trend.",
+    "--nuv-trend-fg":
+      "Color of the text and the arrow. Differs by direction. Keep it at 4.5:1 against what's behind it.",
+    "--nuv-trend-padding-block":
+      "Padding above and below, on an outlined trend.",
+    "--nuv-trend-padding-inline":
+      "Padding left and right, on an outlined trend.",
+    "--nuv-trend-border":
+      "Border color of an outlined trend. The text's color by default.",
+    "--nuv-trend-radius": "Corner radius of an outlined trend. A pill by default.",
+    "--nuv-trend-bg": "Background color of an outlined trend.",
+    "--nuv-trend-icon-size": "Width and height of the arrow.",
+  }}
+/>
+
+## Classes
+
+<BemClasses
+  component="trend"
+  descriptions={{
+    "nuv-trend": "Every trend.",
+    "nuv-trend--good":
+      "The value moved the good way: up, or down with good=\"down\".",
+    "nuv-trend--bad": "The value moved the other way.",
+    "nuv-trend--neutral": "The value is zero.",
+    "nuv-trend--outline": "variant=\"outline\", next to the direction's class.",
+    "nuv-trend__icon": "The arrow.",
+    "nuv-trend__label": "The direction in words, drawn for nobody.",
+  }}
+/>
+
+The direction itself is in a `data-direction` attribute: `up`, `down` or `flat`.
+
+## Server components
+
+Trend has no `"use client"` directive and uses no state, so it renders in a server component as it is.
+
+## Do and don't
+
+**Do**
+
+- Put it right after the figure it's about, or in a [stat](/docs/components/stat)'s description.
+- Use `good="down"` for anything where less is better.
+
+**Don't**
+
+- Don't pass a percentage as the value. 12.5 is a rise of 1,250%.
+- Don't use it as a badge for a state. A state that isn't a change is a [badge](/docs/components/badge).

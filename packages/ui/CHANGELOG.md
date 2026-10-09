@@ -1,5 +1,24 @@
 # @nuvui/react
 
+## 0.2.0
+
+### Minor Changes
+
+- [#29](https://github.com/Nuvraxis/nuvui/pull/29) [`adfcd97`](https://github.com/Nuvraxis/nuvui/commit/adfcd978c029bfa747be1d3ca2952d4b8df5d409) Thanks [@sajanv88](https://github.com/sajanv88)! - Five new components, for dashboards and lists.
+  
+  - `FormattedNumber` writes a number for a language and region: grouped digits, a currency, a percentage or a short form. `formatNumber` gives the same text as a string.
+  - `Trend` says which way a number moved and by how much, with an arrow, a color and the direction in words for a screen reader. `good="down"` is for numbers where less is better.
+  - `Stat`, with `StatLabel`, `StatValue`, `StatDescription` and `StatChart`, is one figure on a dashboard, and `StatGroup` sets several side by side.
+  - `Timeline`, with `TimelineItem`, `TimelineMarker`, `TimelineContent`, `TimelineTitle`, `TimelineDescription` and `TimelineTime`, is a list of events on a line.
+  - `Item`, with `ItemMedia`, `ItemContent`, `ItemTitle`, `ItemDescription` and `ItemActions`, is a row with something at each end, and `ItemGroup` is a list of them.
+
+- [#30](https://github.com/Nuvraxis/nuvui/pull/30) [`5489f1e`](https://github.com/Nuvraxis/nuvui/commit/5489f1e191c9ad8325e26c0c03fdf9b81c56f74a) Thanks [@sajanv88](https://github.com/sajanv88)! - Four new components, for forms and for progress through one.
+  
+  - `NumberField` is a field for a number that can be typed or stepped, with a button at each end, limits, a step size, and the number written for a language and region. It reads what's typed by the same rules, and submits the plain number.
+  - `Rating` is stars to choose from, as a radio group, or with `readOnly` a picture of a rating that can fill part of a star.
+  - `Stepper`, with `StepperItem`, `StepperIndicator`, `StepperContent`, `StepperTitle` and `StepperDescription`, shows which steps are done, which is current and which are still to come, across or down.
+  - `CheckboxCard` and `RadioCard`, with `ChoiceCardTitle` and `ChoiceCardDescription`, are a checkbox and a radio button drawn as a card that can be pressed anywhere.
+
 ## 0.1.1
 
 ### Patch Changes

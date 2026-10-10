@@ -73,6 +73,9 @@ describe("layout", () => {
     ["md", 20],
     ["lg", 32],
   ] as const)("size %s is %ipx each way", async (size, pixels) => {
+    // Standing still. A ring that's part way through a turn is measured
+    // across its corners, which is wider than it is.
+    await emulateMedia({ reducedMotion: "reduce" });
     await render(<Spinner size={size} />);
 
     expect(rect(spinner().element()).width).toBe(pixels);

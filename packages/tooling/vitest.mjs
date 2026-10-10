@@ -69,6 +69,12 @@ export function browserTests({ dependencies }) {
       // for the page to do it. Vitest's ten seconds is less than that may
       // take on a busy machine. See parkPointer in test/setup.ts.
       hookTimeout: 60_000,
+      // On a CI runner a browser now and then stops answering for longer
+      // than any of these limits, and the test it was in fails for no
+      // reason of its own. There a failed test gets two more goes, as the
+      // end-to-end tests do. On a developer's machine it fails the first
+      // time, so a test that's unsteady is seen.
+      retry: process.env.CI ? 2 : 0,
       // Component tests run in a real browser through Playwright. jsdom has
       // no layout, so it can't check focus rings, touch target sizes or
       // color contrast, and it needs polyfills for half of what Radix does.

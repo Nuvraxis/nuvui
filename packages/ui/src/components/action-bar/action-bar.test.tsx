@@ -353,6 +353,9 @@ describe("styles", () => {
 
 describe.each(themes)("accessibility in %s", (theme) => {
   test("passes axe, open and closed", async () => {
+    // The bar fades in. Looked at part way through, its colors are faint
+    // ones it never rests at.
+    await emulateMedia({ reducedMotion: "reduce" });
     const screen = await renderThemed(
       theme,
       <>

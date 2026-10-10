@@ -11,15 +11,17 @@ name: E2E
 # browser setups. The site is built once, and the tests are cut into slices
 # that run at the same time.
 #
-# The runners are eight containers on one machine. So there are seven jobs
-# after the build, and none waits for a runner: six slices, and the consumer
-# apps. The slices share the machine's cores, which is why each runs a sixth
-# of them as workers, and no more. With every slice left to use every core,
-# browsers stop answering and tests fail that aren't wrong. Each also has a
-# port of its own for its server, in case the runners share a network.
+# The runners are six containers on two machines, each given three CPUs.
+# So there are six slices, one to a runner, and each runs as many workers
+# as its own container has CPUs. With a slice left to use every core of the
+# machine it's on, browsers stop answering and tests fail that aren't
+# wrong. The consumer apps are a seventh job, which takes a minute and has
+# the first runner that's free. Each slice also has a port of its own for
+# its server, in case two runners share a network.
 #
-# How long a run takes is the cores the containers are given, more than
-# anything here: each slice's log says how many it found.
+# How long a run takes is the CPUs the containers are given, more than
+# anything here: each slice's log says how many it found. If the runners
+# change, change the slices to match: as many as there are runners.
 #
 # Only for a pull request from a branch of this repository. One from a fork
 # is a stranger's code, and these runners are a machine of ours that isn't
@@ -97,7 +99,7 @@ jobs:
       matrix:
         include:
           # The docs have about twice the website's tests, so twice its
-          # slices. Six in all: SLICES below has to say the same.
+          # slices. Six in all, one to a runner.
           - { app: docs, slice: 1, of: 4, port: 3101 }
           - { app: docs, slice: 2, of: 4, port: 3102 }
           - { app: docs, slice: 3, of: 4, port: 3103 }
@@ -127,21 +129,22 @@ jobs:
       # Playwright is run directly, not through `pnpm test:e2e`: that task
       # builds first, and the build is already here.
       #
-      # Each slice runs a sixth of the cores as workers, so the six of them
-      # use the machine and no more. It's the cores that are really here: a
-      # container can be given part of the machine, and the log says how
-      # many it was.
+      # As many workers as the container has CPUs. Not as many as `nproc`
+      # says: a container given three CPUs of a twelve-thread machine is
+      # told twelve, and it's the limit Docker wrote down that's true. With
+      # no limit, it's every core, as on a runner with a machine to itself.
       - name: Run slice ${{ matrix.slice }} of ${{ matrix.of }}
         run: |
-          cores=$(nproc)
-          workers=$(( cores / SLICES ))
+          workers=$(nproc)
+          if read -r quota period < /sys/fs/cgroup/cpu.max 2> /dev/null && [ "$quota" != "max" ]; then
+            workers=$(( quota / period ))
+          fi
           if [ "$workers" -lt 1 ]; then workers=1; fi
-          echo "$cores cores here. Running with $workers workers."
+          echo "$(nproc) cores on the machine, and $workers CPUs for this runner. Running with $workers workers."
           NUVUI_E2E_WORKERS=$workers pnpm --filter "@nuvui/$APP" exec playwright test --shard="$SLICE"
         env:
           APP: ${{ matrix.app }}
           SLICE: ${{ matrix.slice }}/${{ matrix.of }}
-          SLICES: 6
           NUVUI_E2E_PORT: ${{ matrix.port }}
 
       # Passed or failed. e2e-report.yml reads these to write what failed

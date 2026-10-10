@@ -1,0 +1,97 @@
+name: E2E retry
+
+# Runs the end-to-end tests again when someone who can write to the
+# repository comments on the pull request:
+#
+#   retry:failed   the jobs that failed, and nothing that passed
+#   retry:all      every job, the build included
+#
+# The comment has to start with one of those. It's the run for the pull
+# request's newest commit that's started again.
+#
+# Only someone with write access, because a run is the pull request's code
+# on our runners, the same thing the invoke-e2e label allows.
+#
+# Like every workflow started by a comment, it's the copy on the default
+# branch that runs. A change to it does nothing until it's merged.
+on:
+  issue_comment:
+    types: [created]
+
+permissions: {}
+
+jobs:
+  retry:
+    name: Run the tests again
+    # A comment on a pull request, not on an issue. The words are looked
+    # for here and nowhere else: the comment's text never reaches a command.
+    if: >-
+      github.event.issue.pull_request &&
+      (startsWith(github.event.comment.body, 'retry:failed') ||
+      startsWith(github.event.comment.body, 'retry:all'))
+    # It asks GitHub to start a run and runs nothing itself.
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      # To start a run again.
+      actions: write
+      # To answer on the pull request.
+      pull-requests: write
+      issues: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+      PR: ${{ github.event.issue.number }}
+      WHO: ${{ github.event.comment.user.login }}
+      COMMENT: ${{ github.event.comment.id }}
+      MODE: ${{ startsWith(github.event.comment.body, 'retry:all') && 'all' || 'failed' }}
+    steps:
+      - name: Check who asked
+        id: who
+        run: |
+          permission=$(gh api "repos/$REPO/collaborators/$WHO/permission" --jq .permission 2>/dev/null || echo none)
+          case "$permission" in
+            admin | maintain | write) echo "allowed=true" >> "$GITHUB_OUTPUT" ;;
+            *)
+              echo "allowed=false" >> "$GITHUB_OUTPUT"
+              echo "$WHO has '$permission' on the repository, which isn't enough to start a run."
+              ;;
+          esac
+
+      - name: Start the run again
+        if: steps.who.outputs.allowed == 'true'
+        run: |
+          say() { gh pr comment "$PR" --repo "$REPO" --body "$1"; }
+
+          sha=$(gh pr view "$PR" --repo "$REPO" --json headRefOid --jq .headRefOid)
+          # A label other than invoke-e2e starts a run too, with every job
+          # skipped. Those aren't what's wanted.
+          run=$(gh run list --repo "$REPO" --workflow e2e.yml --commit "$sha" \
+            --event pull_request --limit 30 --json databaseId,status,conclusion \
+            --jq '[.[] | select(.conclusion != "skipped" and .conclusion != "cancelled")][0] // empty')
+
+          if [ -z "$run" ]; then
+            say "There's no end-to-end run for the newest commit, \`${sha:0:7}\`. Adding the \`invoke-e2e\` label starts one."
+            exit 0
+          fi
+          id=$(jq -r .databaseId <<< "$run")
+          status=$(jq -r .status <<< "$run")
+          conclusion=$(jq -r .conclusion <<< "$run")
+          url="https://github.com/$REPO/actions/runs/$id"
+
+          if [ "$status" != "completed" ]; then
+            say "[The run]($url) hasn't finished. It can be started again once it has."
+            exit 0
+          fi
+          if [ "$MODE" = "failed" ] && [ "$conclusion" = "success" ]; then
+            say "Nothing failed in [the run]($url). \`retry:all\` runs all of it again."
+            exit 0
+          fi
+
+          if [ "$MODE" = "all" ]; then
+            gh run rerun "$id" --repo "$REPO"
+          else
+            gh run rerun "$id" --repo "$REPO" --failed
+          fi
+          # A thumbs up on the comment that asked, so it's seen to be heard.
+          gh api --method POST "repos/$REPO/issues/comments/$COMMENT/reactions" -f content=+1 > /dev/null

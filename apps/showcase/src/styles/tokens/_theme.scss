@@ -1,54 +1,82 @@
-// The website's own theme: token values over the library's defaults. This is
-// what the theme builder writes, pasted in. It's in the tokens folder because
+// The website's own theme: token values over the library's defaults. The
+// values are what the theme builder writes. It's in the tokens folder because
 // that's the one place a color may be written out. Everything else takes its
 // colors from these.
-@use "@nuvui/react/scss/mixins" as nuv;
+//
+// The colors are given the way a preset gives them, as both modes in
+// --nuv-preset-light-* and --nuv-preset-dark-* variables, and in the tokens
+// layer. Written as plain --color-* values outside a layer, they'd win over
+// every preset on the page: the previews on the Themes page, and a theme put
+// on the whole site, would all come out in these colors.
+@use "sass:map";
 
-:root {
-  --radius-xs: 0.1875rem;
-  --radius-sm: 0.375rem;
-  --radius-md: 0.5625rem;
-  --radius-lg: 0.75rem;
-  --radius-xl: 1.125rem;
-  --nuv-control-height-sm: 2rem;
-  --nuv-control-height-md: 2.5rem;
-  --nuv-control-height-lg: 3rem;
-}
+$light: (
+  "background": #fff,
+  "foreground": oklch(14.5% 0 0),
+  "surface": #fff,
+  "surface-foreground": oklch(14.5% 0 0),
+  "muted": oklch(97% 0 0),
+  "muted-foreground": oklch(43.9% 0 0),
+  "primary": oklch(55.4% 0.135 66.442),
+  "primary-foreground": #fff,
+  "danger": oklch(57.7% 0.245 27.325),
+  "danger-foreground": #fff,
+  "success": oklch(52.7% 0.154 150.069),
+  "warning": oklch(55.5% 0.163 48.998),
+  "border": oklch(92.2% 0 0),
+  "border-strong": oklch(55.6% 0 0),
+  "ring": oklch(55.4% 0.135 66.442),
+);
+$dark: (
+  "background": oklch(14.5% 0 0),
+  "foreground": oklch(98.5% 0 0),
+  "surface": oklch(20.5% 0 0),
+  "surface-foreground": oklch(98.5% 0 0),
+  "muted": oklch(26.9% 0 0),
+  "muted-foreground": oklch(70.8% 0 0),
+  "primary": oklch(85.2% 0.199 91.936),
+  "primary-foreground": oklch(14.5% 0 0),
+  "danger": oklch(70.4% 0.191 22.216),
+  "danger-foreground": oklch(14.5% 0 0),
+  "success": oklch(79.2% 0.209 151.711),
+  "warning": oklch(82.8% 0.189 84.429),
+  "border": oklch(26.9% 0 0),
+  "border-strong": oklch(55.6% 0 0),
+  "ring": oklch(85.2% 0.199 91.936),
+);
 
-:root,
-[data-theme="light"],
-[data-theme="system"] {
-  --color-background: #fff;
-  --color-foreground: oklch(14.5% 0 0);
-  --color-surface: #fff;
-  --color-surface-foreground: oklch(14.5% 0 0);
-  --color-muted: oklch(97% 0 0);
-  --color-muted-foreground: oklch(43.9% 0 0);
-  --color-primary: oklch(55.4% 0.135 66.442);
-  --color-primary-foreground: #fff;
-  --color-danger: oklch(57.7% 0.245 27.325);
-  --color-danger-foreground: #fff;
-  --color-success: oklch(52.7% 0.154 150.069);
-  --color-warning: oklch(55.5% 0.163 48.998);
-  --color-border: oklch(92.2% 0 0);
-  --color-border-strong: oklch(55.6% 0 0);
-  --color-ring: oklch(55.4% 0.135 66.442);
-}
+@layer tokens {
+  :root {
+    --radius-xs: 0.1875rem;
+    --radius-sm: 0.375rem;
+    --radius-md: 0.5625rem;
+    --radius-lg: 0.75rem;
+    --radius-xl: 1.125rem;
 
-@include nuv.dark {
-  --color-background: oklch(14.5% 0 0);
-  --color-foreground: oklch(98.5% 0 0);
-  --color-surface: oklch(20.5% 0 0);
-  --color-surface-foreground: oklch(98.5% 0 0);
-  --color-muted: oklch(26.9% 0 0);
-  --color-muted-foreground: oklch(70.8% 0 0);
-  --color-primary: oklch(85.2% 0.199 91.936);
-  --color-primary-foreground: oklch(14.5% 0 0);
-  --color-danger: oklch(70.4% 0.191 22.216);
-  --color-danger-foreground: oklch(14.5% 0 0);
-  --color-success: oklch(79.2% 0.209 151.711);
-  --color-warning: oklch(82.8% 0.189 84.429);
-  --color-border: oklch(26.9% 0 0);
-  --color-border-strong: oklch(55.6% 0 0);
-  --color-ring: oklch(85.2% 0.199 91.936);
+    @each $name, $value in $light {
+      --nuv-preset-light-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $dark {
+      --nuv-preset-dark-#{$name}: #{$value};
+    }
+  }
+
+  // Left out where the page sets a density, as a preset leaves it out.
+  :root:not([data-density]) {
+    --nuv-control-height-sm: 2rem;
+    --nuv-control-height-md: 2.5rem;
+    --nuv-control-height-lg: 3rem;
+  }
+
+  // The library's own rule for a preset, for a page that has none. A preset
+  // sets the same variables on its own element, so on an element this rule
+  // and the library's both reach, either gives the preset's colors.
+  :root,
+  [data-theme] {
+    @each $name in map.keys($light) {
+      --color-#{$name}: var(--nuv-light, var(--nuv-preset-light-#{$name}))
+        var(--nuv-dark, var(--nuv-preset-dark-#{$name}));
+    }
+  }
 }

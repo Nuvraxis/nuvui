@@ -1,8 +1,15 @@
+import {
+  Navbar,
+  NavbarActions,
+  NavbarBrand,
+  NavbarLink,
+  NavbarMenu,
+  NavbarNav,
+} from "@nuvui/react/navbar";
 import { VisuallyHidden } from "@nuvui/react/visually-hidden";
 import Link from "next/link";
 import { Logo } from "@/components/logo";
 import { NavLink } from "@/components/nav-link";
-import { SiteMenu } from "@/components/site-menu";
 import { SiteSearch } from "@/components/site-search";
 import { ThemeControl } from "@/components/theme-control";
 import { navigation, site } from "@/lib/site";
@@ -26,31 +33,36 @@ export function GitHubLink() {
 
 export function SiteHeader() {
   return (
-    <header className="site-header">
+    // The library's own bar. The links are in it on a wide screen, and in a
+    // panel behind its button on a narrow one.
+    <Navbar sticky className="site-header">
       <a className="site-header__skip" href="#content">
         Skip to the content
       </a>
-      <div className="site-header__inner">
-        <SiteMenu />
+      <NavbarMenu side="start">
+        <NavbarLink asChild>
+          <Link href="/">Home</Link>
+        </NavbarLink>
+        {navigation.map((item) => (
+          <NavLink key={item.href} item={item} />
+        ))}
+      </NavbarMenu>
+      <NavbarBrand>
         <Link href="/" className="site-header__name">
           <Logo />
           {site.name}
         </Link>
-        <nav className="site-header__nav" aria-label="Main">
-          <ul className="site-header__list">
-            {navigation.map((item) => (
-              <li key={item.href}>
-                <NavLink item={item} className="site-header__link" />
-              </li>
-            ))}
-          </ul>
-        </nav>
-        <div className="site-header__tools">
-          <SiteSearch />
-          <GitHubLink />
-          <ThemeControl />
-        </div>
-      </div>
-    </header>
+      </NavbarBrand>
+      <NavbarNav aria-label="Main">
+        {navigation.map((item) => (
+          <NavLink key={item.href} item={item} />
+        ))}
+      </NavbarNav>
+      <NavbarActions className="site-header__tools">
+        <SiteSearch />
+        <GitHubLink />
+        <ThemeControl />
+      </NavbarActions>
+    </Navbar>
   );
 }

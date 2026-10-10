@@ -85,6 +85,9 @@ import {
   MenubarMenu,
   MenubarTrigger,
   NativeSelect,
+  Navbar,
+  NavbarLink,
+  NavbarNav,
   NavigationMenu,
   NavigationMenuContent,
   NavigationMenuItem,
@@ -116,6 +119,7 @@ import {
   Sheet,
   SheetContent,
   SheetDescription,
+  SheetHandle,
   SheetTitle,
   Sidebar,
   SidebarContent,
@@ -1686,5 +1690,71 @@ describe("text shimmer, hold to confirm, action bar and table of contents", () =
     expect(bar("Usage").borderLeftStyle).toBe("solid");
     expect(contrast(bar("Usage").borderLeftColor, canvas())).toBeGreaterThan(3);
     expect(bar("Install").content).toBe("none");
+  });
+});
+
+describe("a select in a sentence, a navbar and a sheet's handle", () => {
+  test("a select in a sentence keeps the line under it", async () => {
+    await render(
+      <p>
+        From{" "}
+        <Select defaultValue="30">
+          <SelectTrigger variant="inline" aria-label="Period">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="30">the last 30 days</SelectItem>
+          </SelectContent>
+        </Select>
+      </p>,
+    );
+    const trigger = style(page.getByRole("combobox").element());
+
+    expect(trigger.textDecorationLine).toBe("underline");
+    expect(contrast(trigger.textDecorationColor, canvas())).toBeGreaterThan(3);
+    expect(contrast(trigger.color, canvas())).toBeGreaterThan(4.5);
+  });
+
+  test("the open page's link in a navbar is underlined, and the bar keeps its edge", async () => {
+    await setViewport("desktop");
+    await render(
+      <Navbar data-testid="bar">
+        <NavbarNav aria-label="Main">
+          <NavbarLink href="#orders" current>
+            Orders
+          </NavbarLink>
+          <NavbarLink href="#reports">Reports</NavbarLink>
+        </NavbarNav>
+      </Navbar>,
+    );
+    const link = (name: string) =>
+      style(page.getByRole("link", { name }).element());
+
+    expect(link("Orders").textDecorationLine).toBe("underline");
+    expect(link("Reports").textDecorationLine).toBe("none");
+    expect(
+      contrast(
+        style(page.getByTestId("bar").element()).borderBottomColor,
+        canvas(),
+      ),
+    ).toBeGreaterThan(3);
+  });
+
+  test("a sheet's handle is still drawn", async () => {
+    await render(
+      <Sheet defaultOpen>
+        <SheetContent side="bottom" swipe aria-describedby={undefined}>
+          <SheetHandle />
+          <SheetTitle>Filters</SheetTitle>
+        </SheetContent>
+      </Sheet>,
+    );
+    const handle = style(
+      page.getByRole("button", { name: "Dismiss" }).element(),
+    );
+
+    expect(handle.borderTopStyle).toBe("solid");
+    expect(handle.borderTopWidth).toBe("4px");
+    expect(contrast(handle.borderTopColor, canvas())).toBeGreaterThan(3);
   });
 });

@@ -383,7 +383,7 @@ test.describe("what the blocks do", () => {
     await expect(button).toBeFocused();
   });
 
-  test("top bar: the pages are in the bar on a wide screen and in a menu on a narrow one", async ({
+  test("top bar: the pages are in the bar on a wide screen and in a panel on a narrow one", async ({
     page,
     isMobile,
   }) => {
@@ -391,16 +391,42 @@ test.describe("what the blocks do", () => {
     const inBar = page
       .getByRole("navigation", { name: "Main" })
       .getByRole("link", { name: "Orders" });
-    const menu = page.getByRole("button", { name: "Pages" });
+    const menu = page.getByRole("button", { name: "Menu" });
 
     if (!isMobile) {
       await expect(inBar).toBeVisible();
+      await expect(inBar).not.toHaveAttribute("aria-current");
+      await expect(
+        page
+          .getByRole("navigation", { name: "Main" })
+          .getByRole("link", { name: "Overview" }),
+      ).toHaveAttribute("aria-current", "page");
       await expect(menu).toBeHidden();
       return;
     }
     await expect(inBar).toBeHidden();
     await menu.tap();
-    await expect(page.getByRole("menuitem", { name: "Orders" })).toBeVisible();
+    const panel = page.getByRole("dialog", { name: "Menu" });
+    await expect(panel.getByRole("link")).toHaveText([
+      "Overview",
+      "Orders",
+      "Customers",
+      "Reports",
+    ]);
+    // Following a link takes the panel with it.
+    await panel.getByRole("link", { name: "Orders" }).tap();
+    await expect(panel).toBeHidden();
+    await expect(page).toHaveURL(/#orders$/);
+  });
+
+  test("top bar: the bar stays at the top while the page scrolls", async ({
+    page,
+  }) => {
+    await open(page, "/blocks/view/top-bar");
+    const bar = page.locator(".nuv-navbar");
+    await expect(bar).toHaveClass(/nuv-navbar--sticky/);
+    await expect(bar).toHaveCSS("position", "sticky");
+    await expect(bar).toHaveCSS("top", "0px");
   });
 
   test("dashboard: the table sorts and the chart has its numbers", async ({
@@ -420,6 +446,32 @@ test.describe("what the blocks do", () => {
       name: "Revenue by month against target, November to October",
     });
     await expect(numbers.getByRole("row")).toHaveCount(13);
+  });
+
+  test("dashboard: each figure says which way it went, in words", async ({
+    page,
+  }) => {
+    await open(page, "/blocks/view/dashboard");
+    const figure = (name: string) =>
+      page.locator(".nuv-stat").filter({ hasText: name });
+
+    await expect(page.locator(".nuv-stat")).toHaveCount(4);
+    await expect(figure("Revenue")).toContainText(
+      "$73,400Up 4.7% against September",
+    );
+    // A rise is drawn as good news, and so is a refund rate that fell.
+    await expect(figure("Revenue").locator(".nuv-trend")).toHaveClass(
+      /nuv-trend--good/,
+    );
+    await expect(figure("New customers").locator(".nuv-trend")).toHaveClass(
+      /nuv-trend--bad/,
+    );
+    await expect(figure("Refund rate")).toContainText(
+      "Down 0.4 pts against September",
+    );
+    await expect(figure("Refund rate").locator(".nuv-trend")).toHaveClass(
+      /nuv-trend--good/,
+    );
   });
 
   test("activity: cleared, it says there's nothing, and the list comes back", async ({
@@ -1132,6 +1184,105 @@ test.describe("what the blocks do", () => {
     expect(await refunds.getAttribute("class")).not.toBe(
       await customers.getAttribute("class"),
     );
+  });
+
+  test("filters in a sentence and a sheet: the selects in the sentence narrow the list", async ({
+    page,
+    isMobile,
+  }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await open(page, "/blocks/view/filter-sheet");
+    const rows = page
+      .getByRole("list", { name: "Orders" })
+      .getByRole("listitem");
+    const count = page.getByRole("status");
+    await expect(rows).toHaveCount(7);
+    await expect(count).toHaveText("7 orders");
+
+    await press(page.getByRole("combobox", { name: "Status" }), isMobile);
+    await press(
+      page.getByRole("option", { name: "refunded orders" }),
+      isMobile,
+    );
+    await expect(rows).toHaveCount(2);
+    await expect(count).toHaveText("2 orders");
+
+    await press(page.getByRole("combobox", { name: "Period" }), isMobile);
+    await press(
+      page.getByRole("option", { name: "the last 7 days" }),
+      isMobile,
+    );
+    await expect(rows).toHaveCount(1);
+    await expect(count).toHaveText("1 order");
+    await expect(page.getByRole("combobox", { name: "Period" })).toHaveText(
+      "the last 7 days",
+    );
+  });
+
+  test("filters in a sentence and a sheet: the sheet opens half way up, its handle makes it taller, and its filters count", async ({
+    page,
+    isMobile,
+  }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await open(page, "/blocks/view/filter-sheet");
+    const more = page.getByRole("button", { name: /More filters/ });
+    await press(more, isMobile);
+    const sheet = page.getByRole("dialog", { name: "More filters" });
+    await expect(sheet).toBeVisible();
+    const height = async () => (await sheet.boundingBox())?.height ?? 0;
+    const screen = page.viewportSize()?.height ?? 0;
+    expect(Math.abs((await height()) - screen * 0.5)).toBeLessThanOrEqual(2);
+
+    await sheet.getByRole("button", { name: "Change size" }).focus();
+    await page.keyboard.press("Enter");
+    await expect
+      .poll(async () => Math.abs((await height()) - screen * 0.92))
+      .toBeLessThanOrEqual(2);
+
+    await press(sheet.getByRole("checkbox", { name: "Card" }), isMobile);
+    const show = sheet.getByRole("button", { name: /^Show \d+ orders?$/ });
+    await expect(show).toHaveText("Show 3 orders");
+    await press(show, isMobile);
+    await expect(sheet).toBeHidden();
+    await expect(page.getByRole("status")).toHaveText("3 orders");
+    await expect(more).toHaveText(/More filters\s*1 in use/);
+  });
+
+  test("filters in a sentence and a sheet: a finger swipes the sheet away", async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(!isMobile, "A swipe is a finger's.");
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await open(page, "/blocks/view/filter-sheet");
+    await page.getByRole("button", { name: /More filters/ }).tap();
+    const sheet = page.getByRole("dialog", { name: "More filters" });
+    await expect(sheet).toBeVisible();
+
+    // What a finger sends, dragged from the heading most of the way down.
+    await sheet
+      .getByRole("heading", { name: "More filters" })
+      .evaluate(async (heading) => {
+        const send = (type: string, y: number) =>
+          heading.dispatchEvent(
+            new PointerEvent(type, {
+              bubbles: true,
+              button: 0,
+              pointerId: 9,
+              pointerType: "touch",
+              clientX: 100,
+              clientY: y,
+            }),
+          );
+        send("pointerdown", 100);
+        send("pointermove", 250);
+        send("pointermove", 500);
+        await new Promise((resolve) => setTimeout(resolve, 40));
+        send("pointermove", 500);
+        send("pointerup", 500);
+      });
+
+    await expect(sheet).toBeHidden();
   });
 });
 

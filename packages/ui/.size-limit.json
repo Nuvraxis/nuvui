@@ -170,6 +170,11 @@
     "limit": "350 B"
   },
   {
+    "name": "@nuvui/react/navbar",
+    "path": "dist/components/navbar/index.js",
+    "limit": "15 kB"
+  },
+  {
     "name": "@nuvui/react/navigation-menu",
     "path": "dist/components/navigation-menu/index.js",
     "limit": "12 kB"
@@ -232,7 +237,7 @@
   {
     "name": "@nuvui/react/sheet",
     "path": "dist/components/sheet/index.js",
-    "limit": "13.5 kB"
+    "limit": "14.5 kB"
   },
   {
     "name": "@nuvui/react/sidebar",
@@ -338,7 +343,7 @@
     "name": "styles.css",
     "path": "dist/styles.css",
     "rolldown": false,
-    "limit": "17.5 kB"
+    "limit": "18.5 kB"
   },
   {
     "name": "tokens.css",
@@ -350,7 +355,7 @@
     "name": "every stylesheet in css/",
     "path": "dist/css/*.css",
     "rolldown": false,
-    "limit": "42 kB"
+    "limit": "44 kB"
   },
   {
     "name": "every preset in themes/",

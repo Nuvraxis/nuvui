@@ -31,6 +31,7 @@ export * from "./components/kbd";
 export * from "./components/label";
 export * from "./components/menubar";
 export * from "./components/native-select";
+export * from "./components/navbar";
 export * from "./components/navigation-menu";
 export * from "./components/number-field";
 export * from "./components/otp-field";

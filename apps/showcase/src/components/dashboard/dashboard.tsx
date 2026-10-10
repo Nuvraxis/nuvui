@@ -1,4 +1,3 @@
-import { Badge } from "@nuvui/react/badge";
 import {
   Card,
   CardContent,
@@ -6,12 +5,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@nuvui/react/card";
+import { Stat, StatDescription, StatLabel, StatValue } from "@nuvui/react/stat";
+import { Trend } from "@nuvui/react/trend";
 import { ChannelsChart, RevenueChart } from "./charts";
 import { figures } from "./data";
 import { OrdersTable } from "./orders";
 
 // A dashboard for a made-up shop, built from the library and nothing else:
-// cards, badges, two charts and a data table. It isn't a picture of one. It
+// figures, cards, two charts and a data table. It isn't a picture of one. It
 // takes its colors from the page's theme like any other part of the page.
 export function Dashboard() {
   return (
@@ -19,25 +20,16 @@ export function Dashboard() {
       <ul className="site-dashboard__figures">
         {figures.map((figure) => (
           <li key={figure.label}>
-            <Card className="site-dashboard__figure">
-              <CardHeader>
-                <CardDescription>{figure.label}</CardDescription>
-                <CardTitle asChild>
-                  <p className="site-dashboard__value">{figure.value}</p>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="site-dashboard__change">
-                  <Badge
-                    intent={figure.good ? "success" : "warning"}
-                    variant="outline"
-                  >
-                    {figure.change}
-                  </Badge>
-                  <span>{figure.note}</span>
-                </p>
-              </CardContent>
-            </Card>
+            <Stat className="site-dashboard__figure">
+              <StatLabel>{figure.label}</StatLabel>
+              <StatValue>{figure.value}</StatValue>
+              <StatDescription>
+                <Trend value={figure.change} good={figure.good}>
+                  {figure.said}
+                </Trend>{" "}
+                {figure.note}
+              </StatDescription>
+            </Stat>
           </li>
         ))}
       </ul>

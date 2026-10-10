@@ -8,11 +8,31 @@ name: E2E
 # to the pull request. Take the label off to stop that.
 #
 # There are about 7,750 tests: the docs' and the website's, each in five
-# browser setups. One runner has two cores, and would need hours for them.
-# So the site is built once, and the tests are cut into slices that each run
-# on a runner of their own, at the same time. How many slices is the two
-# lists under `matrix` below. If a slice gets near its time limit, add one
-# to its list and raise `of` to match.
+# browser setups. The site is built once, and the tests are cut into slices
+# that run at the same time.
+#
+# The runners are six containers on two machines, each given three CPUs.
+# So there are six slices, one to a runner, and each runs as many workers
+# as its own container has CPUs. With a slice left to use every core of the
+# machine it's on, browsers stop answering and tests fail that aren't
+# wrong. The consumer apps are a seventh job, which takes a minute and has
+# the first runner that's free. Each slice also has a port of its own for
+# its server, in case two runners share a network.
+#
+# How long a run takes is the CPUs the containers are given, more than
+# anything here: each slice's log says how many it found. If the runners
+# change, change the slices to match: as many as there are runners.
+#
+# Only for a pull request from a branch of this repository. One from a fork
+# is a stranger's code, and these runners are a machine of ours that isn't
+# thrown away after a job.
+#
+# On GitHub's own runners it's the other way about: two cores each, and as
+# many runners as there are jobs. There, more slices with `workers` left
+# out is what's quick.
+#
+# What failed is written on the pull request by e2e-report.yml, and a
+# comment there of `retry:failed` runs it again, through e2e-retry.yml.
 on:
   pull_request:
     types: [opened, reopened, synchronize, labeled]
@@ -30,10 +50,12 @@ permissions:
 jobs:
   build:
     name: Build the site
+    # The other jobs need this one, so what stops it stops them all.
     if: >-
+      github.event.pull_request.head.repo.full_name == github.repository &&
       contains(github.event.pull_request.labels.*.name, 'invoke-e2e') &&
       (github.event.action != 'labeled' || github.event.label.name == 'invoke-e2e')
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, laptop]
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -60,35 +82,30 @@ jobs:
             apps/showcase/out
           if-no-files-found: error
           retention-days: 1
+          # A run that's started again builds again, under the same name.
+          overwrite: true
 
   test:
     name: ${{ matrix.app }} ${{ matrix.slice }} of ${{ matrix.of }}
     needs: build
-    runs-on: ubuntu-latest
-    timeout-minutes: 40
+    runs-on: [self-hosted, laptop]
+    # A docs slice is some 1,700 tests. With two workers, which is what a
+    # runner given 12 cores gets, that has come close to forty minutes.
+    timeout-minutes: 60
     strategy:
       # One slice failing says nothing about the others. Let them finish, so
       # one run shows everything that's wrong.
       fail-fast: false
       matrix:
         include:
-          - { app: docs, slice: 1, of: 12 }
-          - { app: docs, slice: 2, of: 12 }
-          - { app: docs, slice: 3, of: 12 }
-          - { app: docs, slice: 4, of: 12 }
-          - { app: docs, slice: 5, of: 12 }
-          - { app: docs, slice: 6, of: 12 }
-          - { app: docs, slice: 7, of: 12 }
-          - { app: docs, slice: 8, of: 12 }
-          - { app: docs, slice: 9, of: 12 }
-          - { app: docs, slice: 10, of: 12 }
-          - { app: docs, slice: 11, of: 12 }
-          - { app: docs, slice: 12, of: 12 }
-          - { app: showcase, slice: 1, of: 5 }
-          - { app: showcase, slice: 2, of: 5 }
-          - { app: showcase, slice: 3, of: 5 }
-          - { app: showcase, slice: 4, of: 5 }
-          - { app: showcase, slice: 5, of: 5 }
+          # The docs have about twice the website's tests, so twice its
+          # slices. Six in all, one to a runner.
+          - { app: docs, slice: 1, of: 4, port: 3101 }
+          - { app: docs, slice: 2, of: 4, port: 3102 }
+          - { app: docs, slice: 3, of: 4, port: 3103 }
+          - { app: docs, slice: 4, of: 4, port: 3104 }
+          - { app: showcase, slice: 1, of: 2, port: 3201 }
+          - { app: showcase, slice: 2, of: 2, port: 3202 }
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -107,12 +124,49 @@ jobs:
           name: built
 
       - name: Install Playwright's browsers
-        run: pnpm --filter @nuvui/react exec playwright install --with-deps chromium firefox webkit
+        run: node scripts/playwright-browsers.mjs --with-deps
 
       # Playwright is run directly, not through `pnpm test:e2e`: that task
       # builds first, and the build is already here.
+      #
+      # As many workers as the container has CPUs. Not as many as `nproc`
+      # says: a container given three CPUs of a twelve-thread machine is
+      # told twelve, and it's the limit Docker wrote down that's true. With
+      # no limit, it's every core, as on a runner with a machine to itself.
+      #
+      # Where the machine's CPUs are two threads to a core, three of them
+      # aren't three cores, and with every runner on it at work they're
+      # nearer half that. Three browsers on them ran out of time in tests
+      # that aren't wrong. There it's two workers for three CPUs.
       - name: Run slice ${{ matrix.slice }} of ${{ matrix.of }}
-        run: pnpm --filter @nuvui/${{ matrix.app }} exec playwright test --shard=${{ matrix.slice }}/${{ matrix.of }}
+        run: |
+          workers=$(nproc)
+          if [ -r /sys/fs/cgroup/cpu.max ] && read -r quota period < /sys/fs/cgroup/cpu.max && [ "$quota" != "max" ]; then
+            workers=$(( quota / period ))
+          fi
+          cpus=$workers
+          threads=$(lscpu 2> /dev/null | awk -F: '/^Thread\(s\) per core/ { gsub(/ /, "", $2); print $2 }')
+          if [ "${threads:-1}" -gt 1 ]; then workers=$(( (workers * 2 + 2) / 3 )); fi
+          if [ "$workers" -lt 1 ]; then workers=1; fi
+          echo "$(nproc) CPUs on the machine, ${threads:-1} to a core, and $cpus for this runner. Running with $workers workers."
+          NUVUI_E2E_WORKERS=$workers pnpm --filter "@nuvui/$APP" exec playwright test --shard="$SLICE"
+        env:
+          APP: ${{ matrix.app }}
+          SLICE: ${{ matrix.slice }}/${{ matrix.of }}
+          NUVUI_E2E_PORT: ${{ matrix.port }}
+
+      # Passed or failed. e2e-report.yml reads these to write what failed
+      # on the pull request.
+      - name: Keep the slice's results
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: e2e-report-${{ matrix.app }}-${{ matrix.slice }}
+          path: apps/${{ matrix.app }}/test-results/results.json
+          if-no-files-found: ignore
+          retention-days: 7
+          # A slice that's run again replaces what it said the first time.
+          overwrite: true
 
       - name: Upload Playwright output
         if: failure()
@@ -124,11 +178,12 @@ jobs:
             apps/${{ matrix.app }}/test-results
           if-no-files-found: ignore
           retention-days: 7
+          overwrite: true
 
   consumers:
     name: Install the packed library into a Vite and a Next.js app
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, laptop]
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

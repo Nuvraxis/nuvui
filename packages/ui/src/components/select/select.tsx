@@ -36,12 +36,26 @@ function Chevron({ d }: { d: string }) {
 const down = "M4 6l4 4 4-4";
 const up = "M4 10l4-4 4 4";
 
-export type SelectTriggerProps = PartProps<typeof SelectPrimitive.Trigger>;
+export interface SelectTriggerOwnProps {
+  /**
+   * `"inline"` is a select that sits in a sentence: no box, the size of
+   * the text around it, as wide as the option it shows.
+   * @default "field"
+   */
+  variant?: "field" | "inline";
+}
+
+export interface SelectTriggerProps
+  extends SelectTriggerOwnProps,
+    PartProps<typeof SelectPrimitive.Trigger> {}
 
 export const SelectTrigger = forwardRef<
   ComponentRef<typeof SelectPrimitive.Trigger>,
   SelectTriggerProps
->(function SelectTrigger({ className, children, ...props }, ref) {
+>(function SelectTrigger(
+  { variant = "field", className, children, ...props },
+  ref,
+) {
   // Field passes `required` to whatever control it holds. On a select it
   // belongs on Select, where the form value lives, and a button has no such
   // attribute.
@@ -52,7 +66,11 @@ export const SelectTrigger = forwardRef<
   return (
     <SelectPrimitive.Trigger
       ref={ref}
-      className={cx("nuv-select", className)}
+      className={cx(
+        "nuv-select",
+        variant === "inline" && "nuv-select--inline",
+        className,
+      )}
       {...triggerProps}
     >
       {children}

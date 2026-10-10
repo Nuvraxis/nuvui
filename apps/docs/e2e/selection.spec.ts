@@ -142,7 +142,11 @@ test.describe("hold to confirm page", () => {
     await area.getByLabel("intent").selectOption("secondary");
     await area.getByLabel("duration").selectOption("800");
 
-    await expect(area.getByRole("button")).toHaveClass(/nuv-button--secondary/);
+    // By its class: the playground has a button of its own, to copy the
+    // code.
+    await expect(area.locator(".nuv-hold-to-confirm")).toHaveClass(
+      /nuv-button--secondary/,
+    );
     await expect(area.locator("pre")).toContainText(
       '<HoldToConfirm onConfirm={remove} intent="secondary" duration={800}>',
     );
@@ -212,12 +216,16 @@ test.describe("action bar page", () => {
     page,
   }) => {
     const area = playground(page);
-    await expect(area.getByRole("group")).toBeVisible();
+    // By its name: the playground's controls are a group too.
+    const bar = area.getByRole("group", { name: "Selected messages" });
+    await expect(bar).toBeVisible();
 
-    await area.getByLabel("selected").selectOption("0");
-    await expect(area.getByRole("group")).toHaveCount(0);
+    // Exactly that label: the bar's own name has the word in it.
+    const selected = area.getByLabel("selected", { exact: true });
+    await selected.selectOption("0");
+    await expect(bar).toHaveCount(0);
 
-    await area.getByLabel("selected").selectOption("12");
+    await selected.selectOption("12");
     await area.getByLabel("position").selectOption("sticky");
     await expect(area.locator(".nuv-action-bar")).toHaveClass(
       /nuv-action-bar--sticky/,

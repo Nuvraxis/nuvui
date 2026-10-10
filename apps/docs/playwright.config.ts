@@ -2,7 +2,13 @@ import { askedProjects } from "@nuvui/tooling/browsers";
 import { defineConfig, devices } from "@playwright/test";
 
 // Not 3000, so a running `next dev` doesn't get tested by accident.
-const port = 3100;
+//
+// In CI the tests are cut into slices that run at the same time, and on a
+// self-hosted machine they share its network and its cores. So each slice
+// is given a port of its own and a number of workers, by .github/workflows/
+// e2e.yml.
+const port = Number(process.env.NUVUI_E2E_PORT ?? 3100);
+const workers = Number(process.env.NUVUI_E2E_WORKERS) || undefined;
 const isCI = Boolean(process.env.CI);
 
 // For the test that presses a code block's copy button. Only Chromium has
@@ -16,10 +22,19 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: isCI,
   retries: isCI ? 2 : 0,
-  // Left alone, Playwright uses half the cores. A CI runner has two, and
-  // one worker would take twice as long over the same tests.
-  workers: isCI ? "100%" : undefined,
-  reporter: isCI ? [["github"], ["html", { open: "never" }]] : "list",
+  // Left alone, Playwright uses half the cores. A CI runner with a slice
+  // to itself has two, and one worker would take twice as long over the
+  // same tests.
+  workers: workers ?? (isCI ? "100%" : undefined),
+  // The JSON is what scripts/e2e-comment.mjs reads, to write the failures
+  // on the pull request.
+  reporter: isCI
+    ? [
+        ["github"],
+        ["html", { open: "never" }],
+        ["json", { outputFile: "test-results/results.json" }],
+      ]
+    : "list",
   use: {
     baseURL: `http://localhost:${port}`,
     trace: "on-first-retry",

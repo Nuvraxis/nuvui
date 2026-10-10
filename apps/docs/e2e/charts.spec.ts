@@ -41,6 +41,11 @@ for (const path of pages) {
     test(`/docs/charts${path} has no accessibility violations in ${colorScheme} and doesn't scroll sideways`, async ({
       page,
     }) => {
+      // Three times as long as other tests get. A page of charts is
+      // thousands of SVG elements, and axe looks at every one. On a phone's
+      // browser, on a machine that's running other slices too, that has
+      // taken longer than the thirty seconds a test has.
+      test.slow();
       await page.emulateMedia({ colorScheme, reducedMotion: "reduce" });
       await open(page, `/docs/charts${path}`);
       // Every chart on the page drawn, so axe sees them.

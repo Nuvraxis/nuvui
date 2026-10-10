@@ -1,7 +1,7 @@
 {
   "name": "dashboard",
   "title": "Dashboard",
-  "description": "A whole screen: a sidebar, four figures, a chart of revenue against target, and a table of recent orders.",
+  "description": "A whole screen: a sidebar, four figures with how each has changed, a chart of revenue against target, and a table of recent orders.",
   "category": "dashboard",
   "files": ["dashboard.tsx", "dashboard.scss"],
   "install": [

@@ -69,6 +69,10 @@ These are separate exports, not properties of `Select`. `Select.Item` isn't avai
   }}
 />
 
+### SelectTrigger
+
+<PropsTable component="select" name="SelectTriggerOwnProps" />
+
 ### SelectValue
 
 <PropsTable
@@ -121,6 +125,14 @@ Give `Select` a `name` and the value is submitted with the form. Inside a `<form
 The trigger is at least 12rem wide and grows with the text in it, up to the width of its container. Set `--nuv-select-width: 100%` to make it fill the container.
 
 A value that's still too long is cut short with an ellipsis. The full text is in the list.
+
+## In a sentence
+
+`variant="inline"` on the trigger is a select with no box, for a choice that reads as part of a sentence: "164 orders in the last 30 days". It takes the size, the weight and the color of the text around it, and is as wide as the option it shows.
+
+<Preview name="select/inline" />
+
+It has no label beside it, so name it with `aria-label`. Keep it to one in a sentence, or two: every one is a stop for the eye, and a sentence full of them is a form.
 
 ## Where the list opens
 
@@ -191,6 +203,10 @@ The trigger sits in the page, so its variables can be set on it or on anything a
     "--nuv-select-radius": "Corner radius of the trigger.",
     "--nuv-select-bg": "Background color of the trigger.",
     "--nuv-select-fg": "Text color of the trigger once something is chosen.",
+    "--nuv-select-inline-font-weight":
+      "Weight of an inline trigger's text. Medium by default, so it stands out from the sentence.",
+    "--nuv-select-inline-line":
+      "Color of the line under an inline trigger. Keep it at 3:1 against the background.",
     "--nuv-select-content-border":
       "Border color of the list, and the color of the separators.",
     "--nuv-select-content-radius": "Corner radius of the list.",
@@ -213,6 +229,7 @@ The trigger sits in the page, so its variables can be set on it or on anything a
   component="select"
   descriptions={{
     "nuv-select": "SelectTrigger.",
+    "nuv-select--inline": "SelectTrigger with variant=\"inline\".",
     "nuv-select__value":
       "The wrapper around SelectValue. It's what cuts a long value short.",
     "nuv-select__icon": "The arrow in the trigger.",

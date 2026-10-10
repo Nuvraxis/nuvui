@@ -559,3 +559,159 @@ describe.each(themes)("accessibility in %s", (theme) => {
     expect(checked?.nodes.length).toBeGreaterThanOrEqual(4);
   });
 });
+
+function Sentence({ dir }: { dir?: "rtl" }) {
+  return (
+    <p data-testid="sentence" dir={dir} style={{ fontSize: 20, padding: 40 }}>
+      Showing orders from{" "}
+      <Select defaultValue="30">
+        <SelectTrigger variant="inline" aria-label="Period">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="7">the last 7 days</SelectItem>
+          <SelectItem value="30">the last 30 days</SelectItem>
+          <SelectItem value="365">the last year</SelectItem>
+        </SelectContent>
+      </Select>
+      , newest first.
+    </p>
+  );
+}
+
+describe("in a sentence", () => {
+  const period = () => page.getByRole("combobox", { name: "Period" });
+  const style = (element: Element) => getComputedStyle(element);
+
+  test("the inline variant has no box, and takes the size and color of the text around it", async () => {
+    await render(<Sentence />);
+    const element = period().element();
+    const around = style(page.getByTestId("sentence").element());
+
+    expect(element.className).toBe("nuv-select nuv-select--inline");
+    expect(style(element).borderTopWidth).toBe("0px");
+    expect(style(element).backgroundColor).toBe("rgba(0, 0, 0, 0)");
+    expect(style(element).fontSize).toBe("20px");
+    expect(style(element).color).toBe(around.color);
+    expect(style(element).paddingLeft).toBe("0px");
+  });
+
+  test("it's as wide as what it shows, and sits on the line of the sentence", async () => {
+    // Wide enough for the sentence to be one line in any font.
+    await setViewport("desktop");
+    await render(<Sentence />);
+    const element = period().element();
+    const sentence = page.getByTestId("sentence").element();
+    const value = element.querySelector(".nuv-select__value") as Element;
+    const icon = element.querySelector(".nuv-select__icon") as Element;
+
+    // No wider than its words, the gap and the chevron. How wide that is
+    // depends on the font, so it's measured and not written down. And not
+    // held to the 12rem a select in a field is at least.
+    expect(style(element).minWidth).toBe("0px");
+    expect(rect(value).width).toBeGreaterThan(0);
+    expect(rect(element).width).toBeLessThanOrEqual(
+      rect(value).width + rect(icon).width + 4 + 1,
+    );
+    // One line of text between the paragraph's 40px above and below, and
+    // the select doesn't make that line taller.
+    const line = rect(sentence).height - 80;
+    expect(line).toBeLessThan(20 * 2);
+    expect(rect(element).height).toBeLessThanOrEqual(line + 0.5);
+  });
+
+  test("a line under it says it can be pressed, and the chevron is still there", async () => {
+    await render(<Sentence />);
+    const element = period().element();
+
+    expect(style(element).textDecorationLine).toBe("underline");
+    expect(element.querySelector(".nuv-select__icon svg")).not.toBeNull();
+    expect(style(element).cursor).toBe("pointer");
+  });
+
+  test("it opens and chooses as any select does, and grows to fit the new value", async () => {
+    await emulateMedia({ reducedMotion: "reduce" });
+    await render(<Sentence />);
+    const before = rect(period().element()).width;
+
+    await period().click();
+    await page.getByRole("option", { name: "the last 7 days" }).click();
+
+    await expect.element(period()).toHaveTextContent("the last 7 days");
+    expect(rect(period().element()).width).not.toBe(before);
+  });
+
+  test("the keyboard opens it and moves through it", async () => {
+    await emulateMedia({ reducedMotion: "reduce" });
+    await render(<Sentence />);
+
+    await userEvent.tab();
+    await expect.element(period()).toHaveFocus();
+    await userEvent.keyboard("{Enter}");
+    await expect.element(page.getByRole("listbox")).toBeVisible();
+    // The list takes focus a moment after it's drawn, and a key pressed
+    // before then goes nowhere.
+    await expect
+      .element(page.getByRole("option", { name: "the last 30 days" }))
+      .toHaveFocus();
+    await userEvent.keyboard("{ArrowDown}");
+    await expect
+      .element(page.getByRole("option", { name: "the last year" }))
+      .toHaveFocus();
+    await userEvent.keyboard("{Enter}");
+
+    await expect.element(period()).toHaveTextContent("the last year");
+  });
+
+  test("an invalid one has a red line that's thicker, not a red line alone", async () => {
+    await render(
+      <p>
+        From{" "}
+        <Select>
+          <SelectTrigger
+            variant="inline"
+            aria-label="Period"
+            aria-invalid="true"
+          >
+            <SelectValue placeholder="choose a period" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="7">the last 7 days</SelectItem>
+          </SelectContent>
+        </Select>
+      </p>,
+    );
+
+    expect(style(period().element()).textDecorationThickness).toBe("2px");
+  });
+
+  test("the list is at least as wide as its longest option, not as narrow as the trigger", async () => {
+    await emulateMedia({ reducedMotion: "reduce" });
+    await render(<Sentence />);
+
+    await period().click();
+    const list = page.getByRole("listbox").element();
+
+    expect(list.scrollWidth).toBeLessThanOrEqual(list.clientWidth);
+  });
+});
+
+describe.each(themes)("in a sentence, accessibility in %s", (theme) => {
+  test("passes axe, and the line under it reaches 3:1", async () => {
+    setPageTheme(theme);
+    await render(
+      <main>
+        <Sentence />
+      </main>,
+    );
+    const element = page.getByRole("combobox", { name: "Period" }).element();
+
+    expect(await axe(document.body)).toHaveNoViolations();
+    expect(
+      contrast(
+        getComputedStyle(element).textDecorationColor,
+        getComputedStyle(document.body).backgroundColor,
+      ),
+    ).toBeGreaterThanOrEqual(3);
+  });
+});

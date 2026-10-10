@@ -9,6 +9,8 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
+  ActionBar,
+  ActionBarSelection,
   Alert,
   AlertDescription,
   AlertDialog,
@@ -67,6 +69,7 @@ import {
   FieldError,
   FieldLabel,
   FileUpload,
+  HoldToConfirm,
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
@@ -136,11 +139,13 @@ import {
   StepperItem,
   StepperTitle,
   Switch,
+  TableOfContents,
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
   Textarea,
+  TextShimmer,
   Timeline,
   TimelineContent,
   TimelineItem,
@@ -1622,5 +1627,64 @@ describe("number field, rating, stepper and choice card", () => {
     expect(
       contrast(style(on).color, style(on).backgroundColor),
     ).toBeGreaterThan(3);
+  });
+});
+
+describe("text shimmer, hold to confirm, action bar and table of contents", () => {
+  test("shimmering text is drawn in a color that can be read, and stands still", async () => {
+    await emulateMedia({ forcedColors: "active", reducedMotion: null });
+    await render(<TextShimmer>Thinking</TextShimmer>);
+    const text = style(page.getByText("Thinking").element());
+
+    expect(contrast(text.color, canvas())).toBeGreaterThan(4.5);
+    expect(text.backgroundImage).toBe("none");
+    expect(text.animationName).toBe("none");
+  });
+
+  test("the bar on a held button is drawn, in the highlight color", async () => {
+    await render(
+      <HoldToConfirm onConfirm={() => {}}>Hold to delete</HoldToConfirm>,
+    );
+    const button = page.getByRole("button").element();
+    const bar = button.querySelector(
+      ".nuv-hold-to-confirm__progress",
+    ) as Element;
+
+    expect(style(bar).height).toBe("4px");
+    expect(style(bar).backgroundColor).toBe(system("highlight"));
+    expect(Math.round(bar.getBoundingClientRect().bottom)).toBeLessThanOrEqual(
+      Math.round(button.getBoundingClientRect().bottom),
+    );
+  });
+
+  test("an action bar keeps its edge", async () => {
+    await render(
+      <ActionBar open position="static" aria-label="Selected messages">
+        <ActionBarSelection>3 selected</ActionBarSelection>
+      </ActionBar>,
+    );
+    const bar = style(page.getByRole("group").element());
+
+    expect(bar.borderTopStyle).toBe("solid");
+    expect(contrast(bar.borderTopColor, canvas())).toBeGreaterThan(3);
+  });
+
+  test("the marked link of a table of contents keeps its bar, and no other link has one", async () => {
+    await render(
+      <TableOfContents
+        aria-label="On this page"
+        value="usage"
+        items={[
+          { id: "install", title: "Install" },
+          { id: "usage", title: "Usage" },
+        ]}
+      />,
+    );
+    const bar = (name: string) =>
+      getComputedStyle(page.getByRole("link", { name }).element(), "::before");
+
+    expect(bar("Usage").borderLeftStyle).toBe("solid");
+    expect(contrast(bar("Usage").borderLeftColor, canvas())).toBeGreaterThan(3);
+    expect(bar("Install").content).toBe("none");
   });
 });

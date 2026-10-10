@@ -1,0 +1,121 @@
+@use "@nuvui/react/scss/mixins";
+
+// One column on a phone. From the lg breakpoint, the text and a list of
+// its headings beside it.
+.article {
+  display: grid;
+  gap: calc(var(--spacing) * 10);
+  inline-size: 100%;
+  max-inline-size: 64rem;
+  margin-inline: auto;
+  padding: calc(var(--spacing) * 6) calc(var(--spacing) * 4);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+
+  @include mixins.breakpoint("lg") {
+    grid-template-columns: minmax(0, 1fr) 14rem;
+    padding: calc(var(--spacing) * 12) calc(var(--spacing) * 8);
+  }
+}
+
+.article__main {
+  display: grid;
+  gap: calc(var(--spacing) * 8);
+  align-content: start;
+  min-inline-size: 0;
+  max-inline-size: 42rem;
+}
+
+.article__head {
+  display: grid;
+  gap: calc(var(--spacing) * 2);
+}
+
+.article__kicker {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+.article__title {
+  margin: 0;
+  font-size: clamp(1.75rem, 1.25rem + 2.2vw, 2.5rem);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+}
+
+.article__lead {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-lg);
+  line-height: var(--text-lg--line-height);
+}
+
+// The list behind a button is for a narrow screen only. Hidden this way,
+// it's out of the page for everyone, screen readers included.
+.article__drawer {
+  @include mixins.breakpoint("lg") {
+    display: none;
+  }
+}
+
+.article__toggle {
+  justify-content: space-between;
+  inline-size: 100%;
+}
+
+.article__contents {
+  padding-block-start: calc(var(--spacing) * 3);
+}
+
+.article__section {
+  display: grid;
+  gap: calc(var(--spacing) * 3);
+}
+
+// A heading that a link jumps to stops a little short of the top.
+.article__heading {
+  margin: 0;
+  font-size: var(--text-xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-xl--line-height);
+  letter-spacing: var(--tracking-tight);
+  scroll-margin-block-start: calc(var(--spacing) * 6);
+}
+
+.article__subheading {
+  margin: 0;
+  font-size: var(--text-base);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-base--line-height);
+  scroll-margin-block-start: calc(var(--spacing) * 6);
+}
+
+.article__text {
+  margin: 0;
+  line-height: var(--leading-relaxed);
+  overflow-wrap: anywhere;
+}
+
+// The list beside the text, which stays where it is while the text
+// scrolls.
+.article__side {
+  display: none;
+
+  @include mixins.breakpoint("lg") {
+    display: grid;
+    position: sticky;
+    inset-block-start: calc(var(--spacing) * 6);
+    gap: calc(var(--spacing) * 3);
+    align-content: start;
+    align-self: start;
+  }
+}
+
+.article__label {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+}

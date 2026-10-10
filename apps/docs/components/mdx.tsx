@@ -3,6 +3,7 @@ import type { MDXComponents } from "mdx/types";
 import { Changelog } from "@/components/changelog";
 import { NotPublished } from "@/components/not-published";
 import { AccordionPlayground } from "@/components/playground/accordion";
+import { ActionBarPlayground } from "@/components/playground/action-bar";
 import { AlertPlayground } from "@/components/playground/alert";
 import { AlertDialogPlayground } from "@/components/playground/alert-dialog";
 import { AspectRatioPlayground } from "@/components/playground/aspect-ratio";
@@ -30,6 +31,7 @@ import { FieldPlayground } from "@/components/playground/field";
 import { FieldsetPlayground } from "@/components/playground/fieldset";
 import { FileUploadPlayground } from "@/components/playground/file-upload";
 import { FormattedNumberPlayground } from "@/components/playground/formatted-number";
+import { HoldToConfirmPlayground } from "@/components/playground/hold-to-confirm";
 import { HoverCardPlayground } from "@/components/playground/hover-card";
 import { InputPlayground } from "@/components/playground/input";
 import { InputGroupPlayground } from "@/components/playground/input-group";
@@ -62,7 +64,9 @@ import {
   DataTablePlayground,
   TablePlayground,
 } from "@/components/playground/table";
+import { TableOfContentsPlayground } from "@/components/playground/table-of-contents";
 import { TabsPlayground } from "@/components/playground/tabs";
+import { TextShimmerPlayground } from "@/components/playground/text-shimmer";
 import { TextareaPlayground } from "@/components/playground/textarea";
 import { TimelinePlayground } from "@/components/playground/timeline";
 import { ToastPlayground } from "@/components/playground/toast";
@@ -132,6 +136,10 @@ export function getMDXComponents(components?: MDXComponents) {
     NumberFieldPlayground,
     RatingPlayground,
     StatPlayground,
+    ActionBarPlayground,
+    HoldToConfirmPlayground,
+    TableOfContentsPlayground,
+    TextShimmerPlayground,
     StepperPlayground,
     TimelinePlayground,
     TrendPlayground,

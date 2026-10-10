@@ -48,6 +48,16 @@
         "default": "./dist/components/accordion/index.cjs"
       }
     },
+    "./action-bar": {
+      "import": {
+        "types": "./dist/components/action-bar/index.d.ts",
+        "default": "./dist/components/action-bar/index.js"
+      },
+      "require": {
+        "types": "./dist/components/action-bar/index.d.cts",
+        "default": "./dist/components/action-bar/index.cjs"
+      }
+    },
     "./alert": {
       "import": {
         "types": "./dist/components/alert/index.d.ts",
@@ -266,6 +276,16 @@
       "require": {
         "types": "./dist/components/formatted-number/index.d.cts",
         "default": "./dist/components/formatted-number/index.cjs"
+      }
+    },
+    "./hold-to-confirm": {
+      "import": {
+        "types": "./dist/components/hold-to-confirm/index.d.ts",
+        "default": "./dist/components/hold-to-confirm/index.js"
+      },
+      "require": {
+        "types": "./dist/components/hold-to-confirm/index.d.cts",
+        "default": "./dist/components/hold-to-confirm/index.cjs"
       }
     },
     "./hover-card": {
@@ -548,6 +568,16 @@
         "default": "./dist/components/switch/index.cjs"
       }
     },
+    "./table-of-contents": {
+      "import": {
+        "types": "./dist/components/table-of-contents/index.d.ts",
+        "default": "./dist/components/table-of-contents/index.js"
+      },
+      "require": {
+        "types": "./dist/components/table-of-contents/index.d.cts",
+        "default": "./dist/components/table-of-contents/index.cjs"
+      }
+    },
     "./tabs": {
       "import": {
         "types": "./dist/components/tabs/index.d.ts",
@@ -556,6 +586,16 @@
       "require": {
         "types": "./dist/components/tabs/index.d.cts",
         "default": "./dist/components/tabs/index.cjs"
+      }
+    },
+    "./text-shimmer": {
+      "import": {
+        "types": "./dist/components/text-shimmer/index.d.ts",
+        "default": "./dist/components/text-shimmer/index.js"
+      },
+      "require": {
+        "types": "./dist/components/text-shimmer/index.d.cts",
+        "default": "./dist/components/text-shimmer/index.cjs"
       }
     },
     "./textarea": {

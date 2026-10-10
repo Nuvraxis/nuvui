@@ -1,0 +1,9 @@
+{
+  "name": "article",
+  "title": "Page with its contents",
+  "description": "A long page with a list of its headings that marks the one being read: beside the text on a wide screen, and behind a button on a narrow one.",
+  "category": "layout",
+  "files": ["article.tsx", "article.scss"],
+  "install": ["@nuvui/react", "lucide-react"],
+  "height": 760
+}

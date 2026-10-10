@@ -1,8 +1,6 @@
 "use client";
 
 import {
-  Avatar,
-  AvatarFallback,
   Button,
   Card,
   CardAction,
@@ -15,6 +13,12 @@ import {
   EmptyDescription,
   EmptyMedia,
   EmptyTitle,
+  Timeline,
+  TimelineContent,
+  TimelineItem,
+  TimelineMarker,
+  TimelineTime,
+  TimelineTitle,
 } from "@nuvui/react";
 import { BellOff } from "lucide-react";
 import { useState } from "react";
@@ -26,7 +30,6 @@ const events = [
   {
     id: "1",
     who: "Grace Hopper",
-    initials: "GH",
     what: "approved invoice",
     subject: "INV-2041",
     at: "2026-10-08T09:42",
@@ -35,7 +38,6 @@ const events = [
   {
     id: "2",
     who: "Alan Turing",
-    initials: "AT",
     what: "refunded order",
     subject: "ORD-7228",
     at: "2026-10-08T08:55",
@@ -44,7 +46,6 @@ const events = [
   {
     id: "3",
     who: "Katherine Johnson",
-    initials: "KJ",
     what: "invited",
     subject: "dorothy@example.com",
     at: "2026-10-08T07:10",
@@ -53,7 +54,6 @@ const events = [
   {
     id: "4",
     who: "Ada Lovelace",
-    initials: "AL",
     what: "changed the plan to",
     subject: "Business, yearly",
     at: "2026-10-07T16:31",
@@ -62,7 +62,6 @@ const events = [
   {
     id: "5",
     who: "Edsger Dijkstra",
-    initials: "ED",
     what: "exported",
     subject: "the September report",
     at: "2026-10-06T11:02",
@@ -91,23 +90,23 @@ export default function Activity() {
         </CardHeader>
         <CardContent>
           {shown.length > 0 ? (
-            <ol className="activity__list">
+            <Timeline aria-label="Recent activity">
               {shown.map((event) => (
-                <li key={event.id} className="activity__item">
-                  <Avatar size="sm">
-                    <AvatarFallback>{event.initials}</AvatarFallback>
-                  </Avatar>
-                  <p className="activity__text">
-                    <span className="activity__strong">{event.who}</span>{" "}
-                    {event.what}{" "}
-                    <span className="activity__strong">{event.subject}</span>
-                  </p>
-                  <time className="activity__time" dateTime={event.at}>
-                    {event.when}
-                  </time>
-                </li>
+                <TimelineItem key={event.id}>
+                  <TimelineMarker />
+                  <TimelineContent>
+                    <TimelineTitle className="activity__text">
+                      <span className="activity__strong">{event.who}</span>{" "}
+                      {event.what}{" "}
+                      <span className="activity__strong">{event.subject}</span>
+                    </TimelineTitle>
+                    <TimelineTime dateTime={event.at}>
+                      {event.when}
+                    </TimelineTime>
+                  </TimelineContent>
+                </TimelineItem>
               ))}
-            </ol>
+            </Timeline>
           ) : (
             <Empty>
               <EmptyMedia>

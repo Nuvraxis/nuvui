@@ -1,0 +1,146 @@
+---
+title: ActionBar
+description: A bar that appears while something is selected, with what can be done to it, and tells a screen reader how much is selected.
+---
+
+Use an action bar for what can be done to a selection: messages ticked in a list, files in a grid, cards on a board. It's there while something is selected and gone when nothing is. A [data table](/docs/table) has a bar of its own for selected rows.
+
+<Preview name="action-bar/basic" />
+
+## Install
+
+```sh
+pnpm add @nuvui/react
+```
+
+## Import
+
+```tsx
+import { ActionBar, ActionBarSelection } from "@nuvui/react";
+```
+
+The styles come from `@nuvui/react/styles.css`, which you load once for the whole app. [Getting started](/docs) covers that, and how to load only this component's CSS.
+
+## Parts
+
+| Part | What it is |
+| --- | --- |
+| `ActionBar` | The bar: a named group. It's told whether it's open. |
+| `ActionBarSelection` | How much is selected, in words. |
+
+The rest is yours: [buttons](/docs/components/button), a [separator](/docs/components/separator), a [menu](/docs/components/dropdown-menu) for what doesn't fit.
+
+## Try it
+
+<ActionBarPlayground />
+
+## Props
+
+<PropsTable component="action-bar" name="ActionBarOwnProps" />
+
+`ActionBar` also takes what a `div` takes. `ref`, `className` and the rest go on the bar itself, which is in the page only while it's open. `ActionBarSelection` adds no props of its own.
+
+## Where the bar is
+
+`position` has three values.
+
+- `"fixed"`, the default, puts the bar along the bottom of the window, over the page. Leave room at the end of the page so the bar doesn't cover the last row.
+- `"sticky"` keeps it at the bottom of whatever scrolls around it, and it takes room there.
+- `"static"` leaves it where you put it.
+
+<Preview name="action-bar/sticky" />
+
+A closed bar takes no room in any of the three.
+
+## What's selected is yours
+
+The bar keeps no state. `open` is usually whether your selection has anything in it, and the buttons call your own functions. Clear the selection when an action is done, and the bar closes.
+
+## Accessibility
+
+An action bar has no keyboard behavior of its own. Its buttons are reached with Tab, in the order they're written.
+
+### What the component handles
+
+- The bar is a group with the name you give it.
+- What `ActionBarSelection` says is read out when the bar appears, and again whenever it changes. The element a screen reader listens to is in the page all the time, open or not, because a change is only read out from something that was already there.
+- The same words describe the group, so someone who tabs into the bar hears its name and how much is selected.
+- The words that are drawn are hidden from screen readers, so they aren't read twice.
+- The bar slides in. For a visitor who asked for less motion it appears.
+
+### What you need to handle
+
+- Name the bar with `aria-label`, such as "Selected messages".
+- Put the bar in the page right after what it acts on. Tab goes from the list to the bar, wherever the bar is drawn.
+- Give it a way to clear the selection: a button in the bar, and Escape in your list.
+- Keep `ActionBarSelection` to text. It's in the page twice, so an `id` inside it would be too.
+- When an action removes what was selected, move focus back to the list.
+
+## On small screens
+
+The bar is as wide as its content and no wider than the screen, and its buttons wrap onto a second row when they don't fit. Three actions is about what fits beside the count on a phone. Put the rest in a menu.
+
+A fixed bar keeps clear of the home indicator on a phone.
+
+## CSS variables
+
+Set any of these on anything around the `ActionBar`. Some are read by the bar and some by what holds it, so a wrapper is the place.
+
+```css
+.inbox {
+  --nuv-action-bar-offset: 1.5rem;
+}
+```
+
+<CssVariables
+  component="action-bar"
+  descriptions={{
+    "--nuv-action-bar-z":
+      "Stacking order of a fixed bar. Under a dialog by default.",
+    "--nuv-action-bar-offset":
+      "Space between a fixed or sticky bar and the edges it's against.",
+    "--nuv-action-bar-gap": "Space between the things in the bar.",
+    "--nuv-action-bar-padding": "Space inside the bar.",
+    "--nuv-action-bar-border": "Border color.",
+    "--nuv-action-bar-radius": "Corner radius.",
+    "--nuv-action-bar-bg": "Background color.",
+    "--nuv-action-bar-shadow":
+      "Shadow. None by default with position=\"static\".",
+    "--nuv-action-bar-fg": "Text color.",
+  }}
+/>
+
+## Classes
+
+<BemClasses
+  component="action-bar"
+  descriptions={{
+    "nuv-action-bar":
+      "What holds the bar, and is in the page whether it's open or not.",
+    "nuv-action-bar--fixed": "position=\"fixed\"",
+    "nuv-action-bar--sticky": "position=\"sticky\"",
+    "nuv-action-bar--static": "position=\"static\"",
+    "nuv-action-bar__content": "The bar. `className` is added here.",
+    "nuv-action-bar__selection": "ActionBarSelection",
+    "nuv-action-bar__status":
+      "What a screen reader listens to, drawn for nobody.",
+  }}
+/>
+
+Whether the bar is open is in a `data-state` attribute on what holds it: `open` or `closed`.
+
+## Server components
+
+ActionBar starts with `"use client"`: it hands the element that's listened to on to `ActionBarSelection`. A selection is state in any case, so the component that renders the bar is a client component.
+
+## Do and don't
+
+**Do**
+
+- Put the count first and the most used action next to it.
+- Keep destructive actions last, and in the danger intent.
+
+**Don't**
+
+- Don't use it for actions that don't need a selection. Those go in a [toolbar](/docs/components/toolbar).
+- Don't cover the thing being selected. Leave room under a list for a fixed bar.

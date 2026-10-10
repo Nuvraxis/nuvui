@@ -108,6 +108,24 @@ test("components used from a server component hydrate and work", async ({
     page.getByRole("checkbox", { name: "Card from the server" }),
   ).toBeChecked();
 
+  // One with no "use client", and one given plain objects from the server.
+  await expect(page.getByTestId("server-shimmer")).toHaveText(
+    "Shimmer from the server",
+  );
+  await expect(page.getByTestId("server-shimmer")).toHaveClass(
+    /nuv-text-shimmer--active/,
+  );
+  const contents = page.getByRole("navigation", {
+    name: "Contents from the server",
+  });
+  await expect(contents.getByRole("link")).toHaveText([
+    "First heading",
+    "Second heading",
+  ]);
+  await expect(
+    contents.getByRole("link", { name: "Second heading" }),
+  ).toHaveAttribute("href", "#server-second");
+
   const ratio = await page.getByTestId("server-ratio").boundingBox();
   expect(ratio?.width).toBe(120);
   expect(ratio?.height).toBe(60);

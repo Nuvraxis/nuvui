@@ -1,0 +1,124 @@
+@use "@nuvui/react/scss/mixins";
+
+.onboarding {
+  display: grid;
+  gap: calc(var(--spacing) * 8);
+  align-content: start;
+  inline-size: 100%;
+  max-inline-size: 40rem;
+  min-block-size: 100svh;
+  margin-inline: auto;
+  padding: calc(var(--spacing) * 6) calc(var(--spacing) * 4);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+
+  @include mixins.breakpoint("md") {
+    padding: calc(var(--spacing) * 10) calc(var(--spacing) * 8);
+  }
+}
+
+.onboarding__head {
+  display: grid;
+  gap: calc(var(--spacing) * 1);
+}
+
+.onboarding__title {
+  margin: 0;
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-2xl--line-height);
+  letter-spacing: var(--tracking-tight);
+}
+
+.onboarding__text {
+  margin: 0;
+  color: var(--color-muted-foreground);
+}
+
+.onboarding__form {
+  display: grid;
+  gap: calc(var(--spacing) * 5);
+}
+
+// Focus is moved here when the step changes. It can't be tabbed to, and
+// shows no ring: nobody pressed anything to get here.
+.onboarding__step {
+  margin: 0;
+  outline: none;
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-lg--line-height);
+}
+
+// One card under another on a phone, and side by side from the sm
+// breakpoint.
+.onboarding__choices {
+  display: grid;
+  gap: calc(var(--spacing) * 3);
+
+  @include mixins.breakpoint("sm") {
+    grid-auto-columns: minmax(0, 1fr);
+    grid-auto-flow: column;
+  }
+}
+
+.onboarding__seats {
+  max-inline-size: 14rem;
+}
+
+.onboarding__extras {
+  display: grid;
+  gap: calc(var(--spacing) * 3);
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.onboarding__legend {
+  padding: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+.onboarding__summary {
+  display: grid;
+  margin: 0;
+  border: var(--nuv-border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-surface);
+  color: var(--color-surface-foreground);
+}
+
+.onboarding__row {
+  display: flex;
+  gap: calc(var(--spacing) * 4);
+  justify-content: space-between;
+  padding: calc(var(--spacing) * 3) calc(var(--spacing) * 4);
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+
+  & + & {
+    border-block-start: var(--nuv-border-width) solid var(--color-border);
+  }
+}
+
+.onboarding__term {
+  color: var(--color-muted-foreground);
+}
+
+.onboarding__value {
+  margin: 0;
+  font-weight: var(--font-weight-medium);
+  text-align: end;
+}
+
+.onboarding__row--total {
+  font-size: var(--text-base);
+}
+
+.onboarding__actions {
+  display: flex;
+  gap: calc(var(--spacing) * 3);
+  justify-content: space-between;
+}

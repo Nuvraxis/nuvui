@@ -1,0 +1,66 @@
+@use "@nuvui/react/scss/mixins";
+
+// The room at the bottom is for the bar, which sits over the page while
+// something is selected. Without it the bar would cover the last row.
+.inbox {
+  display: grid;
+  gap: calc(var(--spacing) * 4);
+  align-content: start;
+  inline-size: 100%;
+  max-inline-size: 44rem;
+  min-block-size: 100svh;
+  margin-inline: auto;
+  padding: calc(var(--spacing) * 6) calc(var(--spacing) * 4) calc(var(--spacing) * 40);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+
+  @include mixins.breakpoint("md") {
+    padding: calc(var(--spacing) * 8) calc(var(--spacing) * 8) calc(var(--spacing) * 28);
+  }
+}
+
+.inbox__head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 3);
+  align-items: center;
+  justify-content: space-between;
+}
+
+.inbox__title {
+  margin: 0;
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-2xl--line-height);
+  letter-spacing: var(--tracking-tight);
+}
+
+.inbox__all {
+  display: flex;
+  gap: calc(var(--spacing) * 2);
+  align-items: center;
+}
+
+// It keeps a line's height when it's empty, so the list doesn't jump when
+// it speaks.
+.inbox__said {
+  min-block-size: calc(var(--text-sm) * var(--text-sm--line-height));
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+.inbox__unread {
+  font-weight: var(--font-weight-semibold);
+}
+
+// In the page for screen readers, and drawn for nobody.
+.inbox__hidden {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

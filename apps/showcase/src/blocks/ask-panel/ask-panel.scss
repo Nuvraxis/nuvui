@@ -1,0 +1,71 @@
+@use "@nuvui/react/scss/mixins";
+
+.ask-panel {
+  inline-size: 100%;
+  max-inline-size: 40rem;
+  margin-inline: auto;
+  padding: calc(var(--spacing) * 4);
+  color: var(--color-foreground);
+}
+
+.ask-panel__body {
+  display: grid;
+  gap: calc(var(--spacing) * 4);
+}
+
+// The field over the button on a phone. From the sm breakpoint the button
+// is at the end of the field, level with its box.
+.ask-panel__form {
+  display: grid;
+  gap: calc(var(--spacing) * 3);
+
+  @include mixins.breakpoint("sm") {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+  }
+}
+
+.ask-panel__field {
+  min-inline-size: 0;
+}
+
+.ask-panel__examples {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+// A question is longer than a phone is wide at one size of text or
+// another, so its button wraps.
+.ask-panel__example {
+  padding-block: calc(var(--spacing) * 1.5);
+  text-align: start;
+  white-space: normal;
+}
+
+// It keeps its room while it's empty, so nothing under it moves when the
+// wait begins.
+.ask-panel__answer {
+  display: grid;
+  gap: calc(var(--spacing) * 1);
+  align-content: start;
+  min-block-size: calc(var(--spacing) * 20);
+  padding: calc(var(--spacing) * 4);
+  border-radius: var(--radius-md);
+  background-color: var(--color-muted);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+.ask-panel__asked {
+  margin: 0;
+  color: var(--color-muted-foreground);
+}
+
+.ask-panel__text {
+  margin: 0;
+  overflow-wrap: anywhere;
+}

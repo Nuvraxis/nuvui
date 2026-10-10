@@ -17,8 +17,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
   Kbd,
+  Navbar,
+  NavbarActions,
+  NavbarBrand,
+  NavbarLink,
+  NavbarMenu,
+  NavbarNav,
 } from "@nuvui/react";
-import { Bell, Hexagon, Menu, Search } from "lucide-react";
+import { Bell, Hexagon, Search } from "lucide-react";
 import { useState } from "react";
 import "./top-bar.scss";
 
@@ -41,53 +47,26 @@ export default function TopBar() {
     setOpen(false);
   };
 
+  // Written once, and put in two places: in the bar on a wide screen, and
+  // in the panel behind the bar's button on a narrow one.
+  const links = pages.map((page) => (
+    <NavbarLink key={page.href} href={page.href} current={page.current}>
+      {page.label}
+    </NavbarLink>
+  ));
+
   return (
     <div className="top-bar">
-      <header className="top-bar__bar">
-        {/* The pages, for a screen too narrow for them in the bar. */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              intent="ghost"
-              className="top-bar__icon top-bar__menu"
-              aria-label="Pages"
-            >
-              <Menu aria-hidden="true" size={18} />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="start">
-            {pages.map((page) => (
-              <DropdownMenuItem key={page.href} asChild>
-                <a
-                  href={page.href}
-                  aria-current={page.current ? "page" : undefined}
-                >
-                  {page.label}
-                </a>
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-        <a className="top-bar__brand" href="#home">
-          <Hexagon aria-hidden="true" size={22} />
-          Acme
-        </a>
-        <nav className="top-bar__nav" aria-label="Main">
-          <ul className="top-bar__list">
-            {pages.map((page) => (
-              <li key={page.href}>
-                <a
-                  className="top-bar__link"
-                  href={page.href}
-                  aria-current={page.current ? "page" : undefined}
-                >
-                  {page.label}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </nav>
-        <div className="top-bar__tools">
+      <Navbar sticky className="top-bar__bar">
+        <NavbarMenu side="start">{links}</NavbarMenu>
+        <NavbarBrand>
+          <a className="top-bar__brand" href="#home">
+            <Hexagon aria-hidden="true" size={22} />
+            Acme
+          </a>
+        </NavbarBrand>
+        <NavbarNav aria-label="Main">{links}</NavbarNav>
+        <NavbarActions>
           <Button
             intent="secondary"
             className="top-bar__search"
@@ -132,8 +111,8 @@ export default function TopBar() {
               <DropdownMenuItem>Sign out</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-        </div>
-      </header>
+        </NavbarActions>
+      </Navbar>
       <CommandDialog
         open={open}
         onOpenChange={setOpen}

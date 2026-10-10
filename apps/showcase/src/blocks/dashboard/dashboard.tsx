@@ -30,6 +30,11 @@ import {
   SidebarMenuItem,
   SidebarProvider,
   SidebarTrigger,
+  Stat,
+  StatDescription,
+  StatLabel,
+  StatValue,
+  Trend,
 } from "@nuvui/react";
 import { DataTable } from "@nuvui/table";
 import { createColumnHelper, useDataTable } from "@nuvui/table/full";
@@ -64,13 +69,28 @@ const pages = [
   { label: "Settings", href: "#settings", Icon: Settings },
 ];
 
-// `good` says whether the change is the way you'd want it. A refund rate
-// going down is good news.
-const figures = [
-  { label: "Revenue", value: "$73,400", change: "+4.7%", good: true },
-  { label: "Orders", value: "899", change: "+6.1%", good: true },
-  { label: "New customers", value: "214", change: "-2.3%", good: false },
-  { label: "Refund rate", value: "1.8%", change: "-0.4 pts", good: true },
+interface Figure {
+  label: string;
+  value: string;
+  // Against the month before, as a ratio.
+  change: number;
+  // Which way is good news. A refund rate going down is.
+  good: "up" | "down";
+  // The change in words, where it isn't a percentage.
+  said?: string;
+}
+
+const figures: Figure[] = [
+  { label: "Revenue", value: "$73,400", change: 0.047, good: "up" },
+  { label: "Orders", value: "899", change: 0.061, good: "up" },
+  { label: "New customers", value: "214", change: -0.023, good: "up" },
+  {
+    label: "Refund rate",
+    value: "1.8%",
+    change: -0.004,
+    said: "0.4 pts",
+    good: "down",
+  },
 ];
 
 const months = [
@@ -249,7 +269,7 @@ export default function Dashboard() {
           <SidebarTrigger />
           <div className="dashboard__heading">
             <h1 className="dashboard__title">Overview</h1>
-            <p className="dashboard__period">October, against September</p>
+            <p className="dashboard__period">October</p>
           </div>
           <Button intent="secondary" size="sm">
             <Download aria-hidden="true" size={16} />
@@ -260,22 +280,18 @@ export default function Dashboard() {
           <ul className="dashboard__figures">
             {figures.map((figure) => (
               <li key={figure.label}>
-                <Card className="dashboard__figure">
-                  <CardHeader>
-                    <CardDescription>{figure.label}</CardDescription>
-                    <CardTitle asChild>
-                      <p className="dashboard__value">{figure.value}</p>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <Badge
-                      intent={figure.good ? "success" : "warning"}
-                      variant="outline"
-                    >
-                      {figure.change}
-                    </Badge>
-                  </CardContent>
-                </Card>
+                <Stat className="dashboard__figure">
+                  <StatLabel>{figure.label}</StatLabel>
+                  <StatValue>{figure.value}</StatValue>
+                  <StatDescription>
+                    {/* The arrow says which way, and the color says whether
+                        that's good. */}
+                    <Trend value={figure.change} good={figure.good}>
+                      {figure.said}
+                    </Trend>{" "}
+                    against September
+                  </StatDescription>
+                </Stat>
               </li>
             ))}
           </ul>

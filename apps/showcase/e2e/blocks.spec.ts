@@ -383,7 +383,7 @@ test.describe("what the blocks do", () => {
     await expect(button).toBeFocused();
   });
 
-  test("top bar: the pages are in the bar on a wide screen and in a menu on a narrow one", async ({
+  test("top bar: the pages are in the bar on a wide screen and in a panel on a narrow one", async ({
     page,
     isMobile,
   }) => {
@@ -391,16 +391,42 @@ test.describe("what the blocks do", () => {
     const inBar = page
       .getByRole("navigation", { name: "Main" })
       .getByRole("link", { name: "Orders" });
-    const menu = page.getByRole("button", { name: "Pages" });
+    const menu = page.getByRole("button", { name: "Menu" });
 
     if (!isMobile) {
       await expect(inBar).toBeVisible();
+      await expect(inBar).not.toHaveAttribute("aria-current");
+      await expect(
+        page
+          .getByRole("navigation", { name: "Main" })
+          .getByRole("link", { name: "Overview" }),
+      ).toHaveAttribute("aria-current", "page");
       await expect(menu).toBeHidden();
       return;
     }
     await expect(inBar).toBeHidden();
     await menu.tap();
-    await expect(page.getByRole("menuitem", { name: "Orders" })).toBeVisible();
+    const panel = page.getByRole("dialog", { name: "Menu" });
+    await expect(panel.getByRole("link")).toHaveText([
+      "Overview",
+      "Orders",
+      "Customers",
+      "Reports",
+    ]);
+    // Following a link takes the panel with it.
+    await panel.getByRole("link", { name: "Orders" }).tap();
+    await expect(panel).toBeHidden();
+    await expect(page).toHaveURL(/#orders$/);
+  });
+
+  test("top bar: the bar stays at the top while the page scrolls", async ({
+    page,
+  }) => {
+    await open(page, "/blocks/view/top-bar");
+    const bar = page.locator(".nuv-navbar");
+    await expect(bar).toHaveClass(/nuv-navbar--sticky/);
+    await expect(bar).toHaveCSS("position", "sticky");
+    await expect(bar).toHaveCSS("top", "0px");
   });
 
   test("dashboard: the table sorts and the chart has its numbers", async ({
@@ -420,6 +446,32 @@ test.describe("what the blocks do", () => {
       name: "Revenue by month against target, November to October",
     });
     await expect(numbers.getByRole("row")).toHaveCount(13);
+  });
+
+  test("dashboard: each figure says which way it went, in words", async ({
+    page,
+  }) => {
+    await open(page, "/blocks/view/dashboard");
+    const figure = (name: string) =>
+      page.locator(".nuv-stat").filter({ hasText: name });
+
+    await expect(page.locator(".nuv-stat")).toHaveCount(4);
+    await expect(figure("Revenue")).toContainText(
+      "$73,400Up 4.7% against September",
+    );
+    // A rise is drawn as good news, and so is a refund rate that fell.
+    await expect(figure("Revenue").locator(".nuv-trend")).toHaveClass(
+      /nuv-trend--good/,
+    );
+    await expect(figure("New customers").locator(".nuv-trend")).toHaveClass(
+      /nuv-trend--bad/,
+    );
+    await expect(figure("Refund rate")).toContainText(
+      "Down 0.4 pts against September",
+    );
+    await expect(figure("Refund rate").locator(".nuv-trend")).toHaveClass(
+      /nuv-trend--good/,
+    );
   });
 
   test("activity: cleared, it says there's nothing, and the list comes back", async ({

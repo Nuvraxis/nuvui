@@ -134,9 +134,12 @@ export const orders: Order[] = [
 export interface Figure {
   label: string;
   value: string;
-  change: string;
-  // Whether the change is the good direction, which isn't always up.
-  good: boolean;
+  // Against the month before, as a ratio.
+  change: number;
+  // Which way is good news, which isn't always up.
+  good: "up" | "down";
+  // The change in words, where it isn't a percentage.
+  said?: string;
   note: string;
 }
 
@@ -144,29 +147,30 @@ export const figures: Figure[] = [
   {
     label: "Revenue",
     value: "$73,400",
-    change: "+4.7%",
-    good: true,
+    change: 0.047,
+    good: "up",
     note: "against September",
   },
   {
     label: "Orders",
     value: "899",
-    change: "+6.1%",
-    good: true,
+    change: 0.061,
+    good: "up",
     note: "against September",
   },
   {
     label: "New customers",
     value: "214",
-    change: "-2.3%",
-    good: false,
+    change: -0.023,
+    good: "up",
     note: "against September",
   },
   {
     label: "Refund rate",
     value: "1.8%",
-    change: "-0.4 pts",
-    good: true,
+    change: -0.004,
+    said: "0.4 pts",
+    good: "down",
     note: "against September",
   },
 ];

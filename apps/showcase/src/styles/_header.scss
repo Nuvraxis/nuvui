@@ -1,17 +1,30 @@
 @use "@nuvui/react/scss/mixins";
 @use "layout";
 
+// The header is the library's Navbar, and what's the site's own is said
+// through that bar's variables. The room at its sides keeps what's in the
+// bar to the width the widest page stops at.
 .site-header {
-  position: sticky;
-  inset-block-start: 0;
-  z-index: 10;
-  border-block-end: var(--nuv-border-width) solid var(--color-border);
-  background-color: var(--color-background);
+  --nuv-navbar-z: 10;
+  --nuv-navbar-gap: calc(var(--spacing) * 2);
+  --nuv-navbar-padding: max(
+    #{layout.$gutter},
+    calc((100% - #{layout.$width-wide}) / 2 + #{layout.$gutter})
+  );
+
+  @include mixins.breakpoint("md") {
+    --nuv-navbar-gap: calc(var(--spacing) * 8);
+    --nuv-navbar-padding: max(
+      #{layout.$gutter-wide},
+      calc((100% - #{layout.$width-wide}) / 2 + #{layout.$gutter-wide})
+    );
+  }
 
   // The page shows through, blurred, where a browser can do that. Where it
   // can't, the header stays solid.
   @supports (backdrop-filter: blur(1px)) {
-    background-color: color-mix(in oklab, var(--color-background) 80%, transparent);
+    --nuv-navbar-bg: color-mix(in oklab, var(--color-background) 80%, transparent);
+
     backdrop-filter: saturate(160%) blur(14px);
   }
 }
@@ -38,19 +51,6 @@
   @include mixins.focus-ring;
 }
 
-.site-header__inner {
-  @include layout.container(layout.$width-wide);
-
-  display: flex;
-  gap: calc(var(--spacing) * 2);
-  align-items: center;
-  min-block-size: calc(var(--spacing) * 16);
-
-  @include mixins.breakpoint("md") {
-    gap: calc(var(--spacing) * 8);
-  }
-}
-
 .site-header__name {
   display: inline-flex;
   gap: calc(var(--spacing) * 2.5);
@@ -66,74 +66,9 @@
   @include mixins.focus-ring;
 }
 
-// The list of links is in the header from the md breakpoint up. Below it
-// the same links are in a sheet, behind the menu button.
-.site-header__nav {
-  display: none;
-
-  @include mixins.breakpoint("md") {
-    display: block;
-  }
-}
-
-.site-header__menu-button {
-  @include mixins.breakpoint("md") {
-    display: none;
-  }
-}
-
-.site-header__list {
-  display: flex;
-  gap: calc(var(--spacing) * 1);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.site-header__link {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  min-block-size: var(--nuv-control-height-sm);
-  padding-inline: calc(var(--spacing) * 3);
-  border-radius: var(--radius-md);
-  color: var(--color-muted-foreground);
-  font-size: var(--text-sm);
-  font-weight: var(--font-weight-medium);
-  text-decoration: none;
-
-  @include mixins.focus-ring;
-
-  @include mixins.motion-safe {
-    transition: color var(--nuv-duration-fast) var(--ease-out);
-  }
-
-  @include mixins.hover {
-    color: var(--color-foreground);
-  }
-
-  // The page that's open, or the section it's in.
-  &[aria-current="page"] {
-    color: var(--color-foreground);
-  }
-
-  // The line under it is there for anyone who can't tell the two shades
-  // apart. It's a border, which a forced-colors theme keeps where it would
-  // drop a background.
-  &[aria-current="page"]::after {
-    position: absolute;
-    inset-block-end: 0;
-    inset-inline: calc(var(--spacing) * 3);
-    border-block-end: 2px solid currentcolor;
-    content: "";
-  }
-}
-
+// The tools sit closer together than the bar would put them.
 .site-header__tools {
-  display: flex;
   gap: calc(var(--spacing) * 1);
-  align-items: center;
-  margin-inline-start: auto;
 }
 
 // A button that's only an icon: square, at the size of the button it is.

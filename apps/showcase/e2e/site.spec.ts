@@ -381,10 +381,53 @@ test.describe("the header", () => {
     }
     await expect(inHeader).toBeHidden();
     await menu.tap();
-    const sheet = page.getByRole("dialog", { name: site.name });
-    await expect(sheet.getByRole("link", { name: "Home" })).toBeVisible();
+    const sheet = page.getByRole("dialog", { name: "Menu" });
+    await expect(sheet.getByRole("link")).toHaveText([
+      "Home",
+      ...navigation.map((item) => item.label),
+    ]);
     await sheet.getByRole("link", { name: "Docs" }).tap();
     await expect(page).toHaveURL(/\/docs$/);
+  });
+
+  test("on a phone, a link to one of the site's own pages closes the menu and marks the page", async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(!isMobile, "On a wide screen there's no menu.");
+    await open(page, "/");
+    await page.getByRole("button", { name: "Menu" }).tap();
+    const sheet = page.getByRole("dialog", { name: "Menu" });
+    await sheet.getByRole("link", { name: "Charts" }).tap();
+    await expect(page).toHaveURL(/\/charts$/);
+    await expect(sheet).toBeHidden();
+
+    await page.getByRole("button", { name: "Menu" }).tap();
+    await expect(sheet.getByRole("link", { name: "Charts" })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+  });
+
+  test("the header is the library's bar, and stops at the width the page does", async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(isMobile, "A phone is narrower than the page's width.");
+    await page.setViewportSize({ width: 1900, height: 800 });
+    await open(page, "/");
+    const header = page.getByRole("banner");
+    await expect(header).toHaveClass(/nuv-navbar--sticky/);
+    // What's in it is 100rem across, in the middle, with 2rem of room
+    // inside each end. The header itself is as wide as the window, less a
+    // scrollbar where the browser draws one.
+    const width = (await header.boundingBox())?.width ?? 0;
+    expect(width).toBeGreaterThan(1800);
+    const name = await header
+      .getByRole("link", { name: site.name, exact: true })
+      .boundingBox();
+    const off = Math.abs((name?.x ?? 0) - ((width - 1600) / 2 + 32));
+    expect(off).toBeLessThanOrEqual(1);
   });
 
   test("everything in it is big enough to tap", async ({ page, isMobile }) => {
@@ -548,6 +591,27 @@ test.describe("search", () => {
 });
 
 test.describe("the dashboard", () => {
+  test("each figure says which way it went, in words", async ({ page }) => {
+    await open(page, "/");
+    const figure = (name: string) =>
+      page.locator(".site-dashboard .nuv-stat").filter({ hasText: name });
+
+    await expect(page.locator(".site-dashboard .nuv-stat")).toHaveCount(4);
+    await expect(figure("Revenue")).toContainText(
+      "$73,400Up 4.7% against September",
+    );
+    await expect(figure("Refund rate")).toContainText(
+      "Down 0.4 pts against September",
+    );
+    // A refund rate that fell is good news, and is drawn as such.
+    await expect(figure("Refund rate").locator(".nuv-trend")).toHaveClass(
+      /nuv-trend--good/,
+    );
+    await expect(figure("New customers").locator(".nuv-trend")).toHaveClass(
+      /nuv-trend--bad/,
+    );
+  });
+
   test("is the real components: the table sorts and the chart has its numbers", async ({
     page,
     isMobile,

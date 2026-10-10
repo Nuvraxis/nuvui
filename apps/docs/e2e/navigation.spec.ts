@@ -186,6 +186,19 @@ test.describe("navigation menu page", () => {
     ).toBe(true);
   });
 
+  // What the router asks for when it hasn't fetched the first page ahead.
+  // A 404 here is a whole page load where a change of page was meant.
+  test("the first page's data is at the address the router asks for", async ({
+    request,
+  }) => {
+    const asked = await request.get("/docs.txt");
+    expect(asked.status()).toBe(200);
+    expect(asked.headers()["content-type"]).toContain("text/plain");
+    expect(await asked.text()).toBe(
+      await (await request.get("/docs/index.txt")).text(),
+    );
+  });
+
   test("the playground centers the panel under the menu", async ({
     page,
     isMobile,

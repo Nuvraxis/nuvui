@@ -85,6 +85,11 @@ async function resolve(pathname) {
 function inside(pathname) {
   if (!base) return pathname;
   if (pathname === base) return "/";
+  // Next's router asks for a page's data at its address with .txt on the
+  // end, which for the first page is beside the folder and not in it. On
+  // the whole site that file is written by apps/showcase/scripts/
+  // add-docs.mjs.
+  if (pathname === `${base}.txt`) return "/index.txt";
   return pathname.startsWith(`${base}/`)
     ? pathname.slice(base.length)
     : undefined;

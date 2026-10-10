@@ -684,6 +684,19 @@ test.describe("where the two apps meet", () => {
     expect(missing).toEqual([]);
   });
 
+  // What the docs' router asks for when it hasn't fetched their first
+  // page ahead. A 404 here is a whole page load where a change of page was
+  // meant.
+  test("the docs' first page's data is at the address their router asks for", async ({
+    request,
+  }) => {
+    const asked = await request.get("/docs.txt");
+    expect(asked.status()).toBe(200);
+    expect(await asked.text()).toBe(
+      await (await request.get("/docs/index.txt")).text(),
+    );
+  });
+
   test("the docs have the website's header, and every link in it goes somewhere", async ({
     page,
     request,

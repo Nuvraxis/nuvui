@@ -4,7 +4,7 @@
 //
 // The docs are built with /docs as their base path, so every link and file
 // name in them already says /docs. Nothing is rewritten here.
-import { cp, readFile, rm, stat, writeFile } from "node:fs/promises";
+import { copyFile, cp, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -51,6 +51,13 @@ await cp(docs, target, { recursive: true });
 // app's. The docs' own would never be shown.
 await rm(join(target, "404.html"), { force: true });
 await rm(join(target, "_not-found.html"), { force: true });
+
+// Next's router asks for a page's data at the page's address with .txt on
+// the end. For the docs' first page that's /docs.txt, beside the folder and
+// not in it, where the export has nothing: its copy is /docs/index.txt.
+// Without this a link to the docs' first page, followed before the router
+// had fetched it ahead, got a 404 and loaded the whole page again.
+await copyFile(join(target, "index.txt"), join(out, "docs.txt"));
 
 // The marker the e2e tests and anyone looking at the folder can read.
 await writeFile(

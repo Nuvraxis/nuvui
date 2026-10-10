@@ -220,10 +220,12 @@ test.describe("action bar page", () => {
     const bar = area.getByRole("group", { name: "Selected messages" });
     await expect(bar).toBeVisible();
 
-    await area.getByLabel("selected").selectOption("0");
+    // Exactly that label: the bar's own name has the word in it.
+    const selected = area.getByLabel("selected", { exact: true });
+    await selected.selectOption("0");
     await expect(bar).toHaveCount(0);
 
-    await area.getByLabel("selected").selectOption("12");
+    await selected.selectOption("12");
     await area.getByLabel("position").selectOption("sticky");
     await expect(area.locator(".nuv-action-bar")).toHaveClass(
       /nuv-action-bar--sticky/,

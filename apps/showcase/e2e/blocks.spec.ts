@@ -1133,6 +1133,105 @@ test.describe("what the blocks do", () => {
       await customers.getAttribute("class"),
     );
   });
+
+  test("filters in a sentence and a sheet: the selects in the sentence narrow the list", async ({
+    page,
+    isMobile,
+  }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await open(page, "/blocks/view/filter-sheet");
+    const rows = page
+      .getByRole("list", { name: "Orders" })
+      .getByRole("listitem");
+    const count = page.getByRole("status");
+    await expect(rows).toHaveCount(7);
+    await expect(count).toHaveText("7 orders");
+
+    await press(page.getByRole("combobox", { name: "Status" }), isMobile);
+    await press(
+      page.getByRole("option", { name: "refunded orders" }),
+      isMobile,
+    );
+    await expect(rows).toHaveCount(2);
+    await expect(count).toHaveText("2 orders");
+
+    await press(page.getByRole("combobox", { name: "Period" }), isMobile);
+    await press(
+      page.getByRole("option", { name: "the last 7 days" }),
+      isMobile,
+    );
+    await expect(rows).toHaveCount(1);
+    await expect(count).toHaveText("1 order");
+    await expect(page.getByRole("combobox", { name: "Period" })).toHaveText(
+      "the last 7 days",
+    );
+  });
+
+  test("filters in a sentence and a sheet: the sheet opens half way up, its handle makes it taller, and its filters count", async ({
+    page,
+    isMobile,
+  }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await open(page, "/blocks/view/filter-sheet");
+    const more = page.getByRole("button", { name: /More filters/ });
+    await press(more, isMobile);
+    const sheet = page.getByRole("dialog", { name: "More filters" });
+    await expect(sheet).toBeVisible();
+    const height = async () => (await sheet.boundingBox())?.height ?? 0;
+    const screen = page.viewportSize()?.height ?? 0;
+    expect(Math.abs((await height()) - screen * 0.5)).toBeLessThanOrEqual(2);
+
+    await sheet.getByRole("button", { name: "Change size" }).focus();
+    await page.keyboard.press("Enter");
+    await expect
+      .poll(async () => Math.abs((await height()) - screen * 0.92))
+      .toBeLessThanOrEqual(2);
+
+    await press(sheet.getByRole("checkbox", { name: "Card" }), isMobile);
+    const show = sheet.getByRole("button", { name: /^Show \d+ orders?$/ });
+    await expect(show).toHaveText("Show 3 orders");
+    await press(show, isMobile);
+    await expect(sheet).toBeHidden();
+    await expect(page.getByRole("status")).toHaveText("3 orders");
+    await expect(more).toHaveText(/More filters\s*1 in use/);
+  });
+
+  test("filters in a sentence and a sheet: a finger swipes the sheet away", async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(!isMobile, "A swipe is a finger's.");
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await open(page, "/blocks/view/filter-sheet");
+    await page.getByRole("button", { name: /More filters/ }).tap();
+    const sheet = page.getByRole("dialog", { name: "More filters" });
+    await expect(sheet).toBeVisible();
+
+    // What a finger sends, dragged from the heading most of the way down.
+    await sheet
+      .getByRole("heading", { name: "More filters" })
+      .evaluate(async (heading) => {
+        const send = (type: string, y: number) =>
+          heading.dispatchEvent(
+            new PointerEvent(type, {
+              bubbles: true,
+              button: 0,
+              pointerId: 9,
+              pointerType: "touch",
+              clientX: 100,
+              clientY: y,
+            }),
+          );
+        send("pointerdown", 100);
+        send("pointermove", 250);
+        send("pointermove", 500);
+        await new Promise((resolve) => setTimeout(resolve, 40));
+        send("pointermove", 500);
+        send("pointerup", 500);
+      });
+
+    await expect(sheet).toBeHidden();
+  });
 });
 
 test.describe("the blocks page", () => {

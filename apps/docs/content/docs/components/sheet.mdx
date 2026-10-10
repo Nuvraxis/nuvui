@@ -23,6 +23,7 @@ import {
   SheetContent,
   SheetDescription,
   SheetFooter,
+  SheetHandle,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
@@ -44,6 +45,7 @@ The styles come from `@nuvui/react/styles.css`, which you load once for the whol
 | `SheetBody` | The part that scrolls when the content is taller than the screen. |
 | `SheetFooter` | A row for the action buttons, at the far edge of the panel. |
 | `SheetClose` | Closes the sheet when pressed. Wrap your own button with `asChild`. |
+| `SheetHandle` | The bar at the edge of a sheet that can be dragged. Optional. |
 
 These are separate exports, not properties of `Sheet`. `Sheet.Content` isn't available, because property access on a client component doesn't work from a server component.
 
@@ -58,6 +60,10 @@ These are separate exports, not properties of `Sheet`. `Sheet.Content` isn't ava
 <PropsTable component="sheet" name="SheetContentOwnProps" />
 
 `Sheet`, `SheetTrigger`, `SheetClose`, `SheetTitle` and `SheetDescription` are Radix's dialog parts, and take the same props, including `open`, `defaultOpen`, `onOpenChange`, `modal` and `asChild`. The [Radix Dialog reference](https://www.radix-ui.com/primitives/docs/components/dialog#api-reference) lists them.
+
+`SheetHandle` adds this to what a `button` takes:
+
+<PropsTable component="sheet" name="SheetHandleOwnProps" />
 
 `SheetHeader`, `SheetBody` and `SheetFooter` are plain `div` elements. They take `ref`, `className` and anything else a `div` does.
 
@@ -82,6 +88,32 @@ Put what scrolls in `SheetBody`. The header and the footer stay where they are, 
 <Preview name="sheet/long" />
 
 The footer sits at the far edge of the panel whether or not there's a body, and however little the sheet holds.
+
+## Swiping it away
+
+`swipe` lets a finger drag the sheet towards the edge it came from. Let go of past halfway, or flicked, it closes. Let go of sooner, it comes back.
+
+<Preview name="sheet/swipe" />
+
+A drag can start anywhere on the sheet but two places: on a control, where a finger is pressing, and, for a sheet on the top or bottom edge, in the part that scrolls, where a finger is scrolling. So give such a sheet a `SheetHeader` or a `SheetHandle` to drag by, and put what scrolls in a `SheetBody`. A sheet on the start or end edge is dragged sideways, which no scrolling gets in the way of.
+
+A mouse doesn't drag the sheet, because a mouse drags across text to select it. It can drag the `SheetHandle`.
+
+## Stops
+
+`stops` is a list of sizes the sheet rests at, each a share of the screen: `[0.35, 0.9]` is a sheet that opens a third of the way up and can be pulled nearly to the top. Dragging changes its size under the finger, and letting go settles it on the nearest stop. Dragged well under the smallest, it closes.
+
+<Preview name="sheet/stops" />
+
+The sheet is the height of its stop, not as tall as its content, so what's in it has to scroll: put it in a `SheetBody`.
+
+`stop` and `onStopChange` control which one it's at, and `defaultStop` sets where it opens. With stops, `swipe` is on unless you turn it off.
+
+## The handle
+
+`SheetHandle` is the short bar that says a sheet can be dragged. Put it first in a sheet on the bottom edge, and last in one on the top. On the start or end edge it stands up along the side that faces the page, wherever you write it.
+
+It's a button. Pressing it goes to the next stop, and round to the first, or closes a sheet that has none. That's how the keyboard, a switch and a screen reader do what a drag does, so a sheet with stops should have one.
 
 ## As a menu on a phone
 
@@ -114,13 +146,16 @@ Most of this is Radix. The library doesn't change it.
 - The close button is a real button with an accessible name, and is at least 44 pixels on touch screens. This matters on phones, where there's no <kbd>Esc</kbd> key.
 - A `SheetBody` that scrolls and has nothing inside that takes focus becomes a tab stop itself, named after the sheet. Without that, someone who doesn't use a mouse would have no way to scroll it. A body that fits, or that holds a field or a button, is left alone.
 - The first and last rows keep clear of a phone's notch and home indicator, on pages that draw under them.
-- The slide only runs when the visitor hasn't asked for reduced motion.
+- The slide only runs when the visitor hasn't asked for reduced motion. A sheet that's being dragged follows the finger either way, since the finger is what's moving it.
+- Nothing a swipe does is out of reach without one: the close button, Escape and a press outside all close the sheet, and `SheetHandle` changes its stop when pressed.
+- `SheetHandle` is a button with a name, drawn as a border so it's still there where the browser forces its own colors, and it answers to a press 44 pixels tall.
 
 ### What you need to handle
 
 - Always include a `SheetTitle`. If the design has no visible heading, hide it visually but keep it.
 - If you leave out `SheetDescription`, pass `aria-describedby={undefined}` to `SheetContent`, or Radix logs a warning.
-- Translate `closeLabel` along with the rest of your interface.
+- Translate `closeLabel`, and `label` on `SheetHandle`, along with the rest of your interface.
+- Give a sheet with `stops` a `SheetHandle`. Without one, only a drag changes its size.
 - In a right-to-left layout, set `dir="rtl"` on the page's root element. The sheet is rendered at the end of `<body>`, so that's where it takes its direction from.
 
 ## CSS variables
@@ -145,6 +180,12 @@ Sheets render at the end of `<body>`, so set these on `:root` or `body`, not on 
     "--nuv-sheet-bg": "Background color of the panel.",
     "--nuv-sheet-shadow": "Shadow under the panel.",
     "--nuv-sheet-fg": "Text color.",
+    "--nuv-sheet-stop":
+      "The share of the screen a sheet with stops takes. The component sets it on the panel from the stop it's at. It's not one to set yourself.",
+    "--nuv-sheet-handle-size": "Length of the handle.",
+    "--nuv-sheet-handle-width": "Thickness of the handle.",
+    "--nuv-sheet-handle":
+      "Color of the handle. Keep it at 3:1 against the panel.",
   }}
 />
 
@@ -162,6 +203,9 @@ The overlay and the panel sit next to each other in the page, not one inside the
     "nuv-sheet--bottom": "The panel with side=\"bottom\".",
     "nuv-sheet--sm": "The panel with size=\"sm\".",
     "nuv-sheet--lg": "The panel with size=\"lg\".",
+    "nuv-sheet--swipe": "The panel when it can be dragged.",
+    "nuv-sheet--stops": "The panel when it has stops.",
+    "nuv-sheet__handle": "SheetHandle.",
     "nuv-sheet__overlay": "The layer behind the panel.",
     "nuv-sheet__title": "SheetTitle.",
     "nuv-sheet__description": "SheetDescription.",
@@ -174,7 +218,7 @@ The overlay and the panel sit next to each other in the page, not one inside the
 
 The panel also gets `nuv-sheet--md` at the default size. No styles are attached to it, since medium is the base.
 
-Radix sets `data-state="open"` or `data-state="closed"` on the overlay and the panel. The animations hang off those.
+Radix sets `data-state="open"` or `data-state="closed"` on the overlay and the panel. The animations hang off those. The panel has a `data-dragging` attribute while it's being dragged.
 
 ## Server components
 

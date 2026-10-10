@@ -117,6 +117,14 @@ What `ComboboxEmpty` says is its children, which you write.
   }}
 />
 
+<PropsTable
+  component="sheet"
+  name="SheetHandleOwnProps"
+  props={{
+    label: "The name of the bar a sheet is dragged by, which says what pressing it does.",
+  }}
+/>
+
 An alert dialog has no close button, and nothing of its own to translate.
 
 ### FileUpload
@@ -145,6 +153,19 @@ Why a file was refused is yours to say. `onReject` gives you the reason as `"typ
 />
 
 What the button says is its children, which you write. Start it with the words for "Hold to".
+
+### Navbar
+
+On `NavbarMenu`:
+
+<PropsTable
+  component="navbar"
+  name="NavbarMenuOwnProps"
+  props={{
+    label: "The name of the button that opens the links on a narrow screen, and the title of the panel.",
+    closeLabel: "The name of the button that closes that panel.",
+  }}
+/>
 
 ### NumberField
 

@@ -40,6 +40,7 @@ import { KbdPlayground } from "@/components/playground/kbd";
 import { LabelPlayground } from "@/components/playground/label";
 import { MenubarPlayground } from "@/components/playground/menubar";
 import { NativeSelectPlayground } from "@/components/playground/native-select";
+import { NavbarPlayground } from "@/components/playground/navbar";
 import { NavigationMenuPlayground } from "@/components/playground/navigation-menu";
 import { NumberFieldPlayground } from "@/components/playground/number-field";
 import { OtpFieldPlayground } from "@/components/playground/otp-field";
@@ -133,6 +134,7 @@ export function getMDXComponents(components?: MDXComponents) {
     EmptyPlayground,
     FormattedNumberPlayground,
     ItemPlayground,
+    NavbarPlayground,
     NumberFieldPlayground,
     RatingPlayground,
     StatPlayground,

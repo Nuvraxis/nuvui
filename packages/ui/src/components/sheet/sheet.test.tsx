@@ -1,8 +1,15 @@
 import "../../styles/index.scss";
 import { axe } from "@nuvui/tooling/test/axe";
+import { contrast as ratio } from "@nuvui/tooling/test/contrast";
 import { emulateMedia, setViewport } from "@nuvui/tooling/test/media";
 import { setPageTheme, themes } from "@nuvui/tooling/test/themed";
-import { createRef, type ReactNode, type RefAttributes, useState } from "react";
+import {
+  Component,
+  createRef,
+  type ReactNode,
+  type RefAttributes,
+  useState,
+} from "react";
 import { afterEach, describe, expect, test, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
@@ -15,6 +22,7 @@ import {
   type SheetContentProps,
   SheetDescription,
   SheetFooter,
+  SheetHandle,
   SheetHeader,
   type SheetProps,
   SheetTitle,
@@ -574,5 +582,604 @@ describe.each(themes)("accessibility in %s", (theme) => {
     await expect.poll(() => body().tabIndex).toBe(0);
 
     expect(await axe(document.body)).toHaveNoViolations();
+  });
+});
+
+// A sheet with a handle at its top, for dragging.
+function Drawer({
+  content,
+  handle = true,
+  ...props
+}: SheetProps & {
+  content?: SheetContentProps & RefAttributes<HTMLDivElement>;
+  handle?: boolean | string;
+}) {
+  return (
+    <Sheet {...props}>
+      <SheetTrigger asChild>
+        <Button>Filters</Button>
+      </SheetTrigger>
+      <SheetContent side="bottom" {...content}>
+        {handle ? (
+          <SheetHandle
+            label={typeof handle === "string" ? handle : undefined}
+          />
+        ) : null}
+        <SheetHeader>
+          <SheetTitle>Filters</SheetTitle>
+          <SheetDescription>Narrow down the list of orders.</SheetDescription>
+        </SheetHeader>
+        <SheetBody>
+          <p>Line one</p>
+          <p>Line two</p>
+        </SheetBody>
+        <SheetFooter>
+          <Button>Apply</Button>
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
+  );
+}
+
+const wait = (milliseconds: number) =>
+  new Promise((resolve) => setTimeout(resolve, milliseconds));
+
+// What a finger sends, to the element it's on.
+const touch = (
+  target: Element,
+  type: string,
+  x: number,
+  y: number,
+  pointerType = "touch",
+) =>
+  target.dispatchEvent(
+    new PointerEvent(type, {
+      bubbles: true,
+      button: 0,
+      pointerId: 7,
+      pointerType,
+      clientX: x,
+      clientY: y,
+    }),
+  );
+
+// Presses, drags by this much and holds still there, so that letting go
+// isn't a flick. What's returned lets go.
+async function dragBy(
+  target: Element,
+  dx: number,
+  dy: number,
+  pointerType = "touch",
+) {
+  const x = 100;
+  const y = 100;
+  touch(target, "pointerdown", x, y, pointerType);
+  touch(target, "pointermove", x + dx / 2, y + dy / 2, pointerType);
+  touch(target, "pointermove", x + dx, y + dy, pointerType);
+  await wait(40);
+  touch(target, "pointermove", x + dx, y + dy, pointerType);
+  return (type = "pointerup") =>
+    touch(target, type, x + dx, y + dy, pointerType);
+}
+
+const title = () => page.getByText("Filters", { exact: true }).last().element();
+const handle = (name = "Change size") =>
+  page.getByRole("button", { name, exact: true });
+const height = (element: Element) => Math.round(rect(element).height);
+const share = (stop: number) => Math.round(stop * window.innerHeight);
+
+describe("swiping it away", () => {
+  test("a sheet can't be dragged unless it's told it can", async () => {
+    const panel = await openWithoutMotion(<Drawer handle={false} />);
+
+    const letGo = await dragBy(title(), 0, 600);
+
+    expect(panel.className).toBe("nuv-sheet nuv-sheet--bottom nuv-sheet--md");
+    expect((panel as HTMLElement).style.transform).toBe("");
+    letGo();
+    await wait(50);
+    await expect.element(sheet()).toBeVisible();
+  });
+
+  test("it follows the finger towards its edge, and comes back when let go of early", async () => {
+    const panel = (await openWithoutMotion(
+      <Drawer content={{ swipe: true }} />,
+    )) as HTMLElement;
+    expect(panel.classList.contains("nuv-sheet--swipe")).toBe(true);
+
+    const letGo = await dragBy(title(), 0, 40);
+    expect(panel.style.transform).toBe("translateY(40px)");
+    expect(panel.hasAttribute("data-dragging")).toBe(true);
+
+    letGo();
+    expect(panel.hasAttribute("data-dragging")).toBe(false);
+    await expect.poll(() => panel.style.transform).toBe("");
+    await expect.element(sheet()).toBeVisible();
+  });
+
+  test("let go of past halfway, it closes", async () => {
+    const onOpenChange = vi.fn();
+    const panel = await openWithoutMotion(
+      <Drawer content={{ swipe: true }} onOpenChange={onOpenChange} />,
+    );
+    onOpenChange.mockClear();
+
+    const letGo = await dragBy(title(), 0, rect(panel).height * 0.7);
+    letGo();
+
+    await expect.element(sheet()).not.toBeInTheDocument();
+    expect(onOpenChange).toHaveBeenCalledWith(false);
+  });
+
+  test("a flick closes it, though it didn't go far", async () => {
+    await openWithoutMotion(<Drawer content={{ swipe: true }} />);
+    const target = title();
+
+    touch(target, "pointerdown", 100, 100);
+    await wait(20);
+    touch(target, "pointermove", 100, 130);
+    await wait(10);
+    touch(target, "pointermove", 100, 190);
+    touch(target, "pointerup", 100, 190);
+
+    await expect.element(sheet()).not.toBeInTheDocument();
+  });
+
+  test("it doesn't follow the finger away from its edge", async () => {
+    const panel = (await openWithoutMotion(
+      <Drawer content={{ swipe: true }} />,
+    )) as HTMLElement;
+
+    const letGo = await dragBy(title(), 0, -80);
+
+    expect(panel.style.transform).toBe("translateY(0px)");
+    letGo();
+    await expect.element(sheet()).toBeVisible();
+  });
+
+  test("a drag across it isn't a drag of it", async () => {
+    const panel = (await openWithoutMotion(
+      <Drawer content={{ swipe: true }} />,
+    )) as HTMLElement;
+
+    const letGo = await dragBy(title(), 200, 30);
+
+    expect(panel.style.transform).toBe("");
+    expect(panel.hasAttribute("data-dragging")).toBe(false);
+    letGo();
+  });
+
+  test("on the end edge a finger can start in the part that scrolls up and down", async () => {
+    const panel = (await openWithoutMotion(
+      <Drawer content={{ side: "end", swipe: true }} handle={false} />,
+    )) as HTMLElement;
+
+    const letGo = await dragBy(page.getByText("Line one").element(), 40, 0);
+
+    expect(panel.style.transform).toBe("translateX(40px)");
+    letGo();
+  });
+
+  test("a finger in the part that scrolls scrolls it, and one on a button presses it", async () => {
+    const panel = (await openWithoutMotion(
+      <Drawer content={{ swipe: true }} />,
+    )) as HTMLElement;
+
+    (await dragBy(page.getByText("Line one").element(), 0, 300))();
+    expect(panel.style.transform).toBe("");
+    (
+      await dragBy(
+        page.getByRole("button", { name: "Apply" }).element(),
+        0,
+        300,
+      )
+    )();
+    expect(panel.style.transform).toBe("");
+    await wait(50);
+    await expect.element(sheet()).toBeVisible();
+  });
+
+  test("a mouse drags it by the handle, and not by anything else", async () => {
+    const panel = (await openWithoutMotion(
+      <Drawer content={{ swipe: true }} />,
+    )) as HTMLElement;
+
+    (await dragBy(title(), 0, 300, "mouse"))();
+    expect(panel.style.transform).toBe("");
+
+    const letGo = await dragBy(handle("Dismiss").element(), 0, 40, "mouse");
+    expect(panel.style.transform).toBe("translateY(40px)");
+    letGo();
+    await expect.poll(() => panel.style.transform).toBe("");
+  });
+
+  test("a press that the browser takes back leaves it open", async () => {
+    const panel = (await openWithoutMotion(
+      <Drawer content={{ swipe: true }} />,
+    )) as HTMLElement;
+
+    const letGo = await dragBy(title(), 0, rect(panel).height * 0.9);
+    letGo("pointercancel");
+
+    await expect.poll(() => panel.style.transform).toBe("");
+    await expect.element(sheet()).toBeVisible();
+  });
+
+  test("held open by its owner, it comes back", async () => {
+    await emulateMedia({ reducedMotion: "reduce" });
+    await render(<Drawer open content={{ swipe: true }} />);
+    await expect.element(sheet()).toBeVisible();
+    const panel = sheet().element() as HTMLElement;
+
+    const letGo = await dragBy(title(), 0, rect(panel).height * 0.9);
+    letGo();
+
+    await expect.poll(() => panel.style.transform).toBe("");
+    await expect.element(sheet()).toBeVisible();
+  });
+
+  test("on the end edge it's dragged to the right, and to the left where text is read from the right", async () => {
+    const panel = (await openWithoutMotion(
+      <Drawer content={{ side: "end", swipe: true }} handle={false} />,
+    )) as HTMLElement;
+
+    const letGo = await dragBy(title(), 40, 0);
+    expect(panel.style.transform).toBe("translateX(40px)");
+    letGo();
+    await expect.poll(() => panel.style.transform).toBe("");
+    (await dragBy(title(), 300, 0))();
+    await expect.element(sheet()).not.toBeInTheDocument();
+  });
+
+  test("where text is read from the right, the end edge is on the left", async () => {
+    document.documentElement.setAttribute("dir", "rtl");
+    const panel = (await openWithoutMotion(
+      <Drawer content={{ side: "end", swipe: true }} handle={false} />,
+    )) as HTMLElement;
+
+    const letGo = await dragBy(title(), -40, 0);
+    expect(panel.style.transform).toBe("translateX(-40px)");
+    letGo();
+    await expect.poll(() => panel.style.transform).toBe("");
+    (await dragBy(title(), 40, 0))();
+    await expect.element(sheet()).toBeVisible();
+  });
+
+  test("a sheet that's dragged up and down leaves scrolling sideways to nobody, and one dragged sideways leaves up and down to the browser", async () => {
+    const first = await render(
+      <Drawer defaultOpen content={{ swipe: true }} />,
+    );
+    expect(getComputedStyle(sheet().element()).touchAction).toBe("none");
+    await first.unmount();
+
+    await render(
+      <Drawer
+        defaultOpen
+        content={{ side: "end", swipe: true }}
+        handle={false}
+      />,
+    );
+    expect(getComputedStyle(sheet().element()).touchAction).toBe("pan-y");
+  });
+
+  test("handlers of your own still run", async () => {
+    const onPointerDown = vi.fn();
+    await openWithoutMotion(
+      <Drawer content={{ swipe: true, onPointerDown }} />,
+    );
+
+    (await dragBy(title(), 0, 20))();
+
+    expect(onPointerDown).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("stops", () => {
+  const stops = [0.4, 0.9];
+
+  test("it opens at the smallest stop, and can be dragged", async () => {
+    const panel = await openWithoutMotion(<Drawer content={{ stops }} />);
+
+    expect(panel.classList.contains("nuv-sheet--stops")).toBe(true);
+    expect(panel.classList.contains("nuv-sheet--swipe")).toBe(true);
+    expect(Math.abs(height(panel) - share(0.4))).toBeLessThanOrEqual(1);
+  });
+
+  test("the order they're written in doesn't matter", async () => {
+    const panel = await openWithoutMotion(
+      <Drawer content={{ stops: [0.9, 0.4] }} />,
+    );
+
+    expect(Math.abs(height(panel) - share(0.4))).toBeLessThanOrEqual(1);
+  });
+
+  test("it changes size under the finger, and settles on the nearest stop", async () => {
+    const onStopChange = vi.fn();
+    const panel = (await openWithoutMotion(
+      <Drawer content={{ stops, onStopChange }} />,
+    )) as HTMLElement;
+    const start = height(panel);
+
+    const letGo = await dragBy(title(), 0, -300);
+    expect(height(panel)).toBe(start + 300);
+    // It grows. It isn't moved.
+    expect(panel.style.transform).toBe("");
+
+    letGo();
+    await expect.poll(() => onStopChange.mock.lastCall?.[0]).toBe(0.9);
+    await expect
+      .poll(() => Math.abs(height(panel) - share(0.9)))
+      .toBeLessThanOrEqual(1);
+    // What the drag wrote on the element is gone, and the stylesheet has
+    // the size.
+    await expect.poll(() => panel.style.blockSize).toBe("");
+    expect(panel.style.getPropertyValue("--nuv-sheet-stop")).toBe("0.9");
+  });
+
+  test("it doesn't grow past the largest stop", async () => {
+    const panel = await openWithoutMotion(
+      <Drawer content={{ stops, defaultStop: 0.9 }} />,
+    );
+
+    const letGo = await dragBy(title(), 0, -200);
+
+    expect(Math.abs(height(panel) - share(0.9))).toBeLessThanOrEqual(1);
+    letGo();
+  });
+
+  test("a short drag goes back to the stop it was at, and reports nothing", async () => {
+    const onStopChange = vi.fn();
+    const panel = await openWithoutMotion(
+      <Drawer content={{ stops, defaultStop: 0.9, onStopChange }} />,
+    );
+
+    (await dragBy(title(), 0, 100))();
+
+    await expect
+      .poll(() => Math.abs(height(panel) - share(0.9)))
+      .toBeLessThanOrEqual(1);
+    expect(onStopChange).not.toHaveBeenCalled();
+  });
+
+  test("dragged down from the largest, it stops at the smallest before it closes", async () => {
+    const onStopChange = vi.fn();
+    const panel = await openWithoutMotion(
+      <Drawer content={{ stops, defaultStop: 0.9, onStopChange }} />,
+    );
+
+    (await dragBy(title(), 0, share(0.9) - share(0.4) - 20))();
+    await expect.poll(() => onStopChange.mock.lastCall?.[0]).toBe(0.4);
+    await expect.element(sheet()).toBeVisible();
+    await expect
+      .poll(() => Math.abs(height(panel) - share(0.4)))
+      .toBeLessThanOrEqual(1);
+  });
+
+  test("dragged well under the smallest, it closes", async () => {
+    await openWithoutMotion(<Drawer content={{ stops }} />);
+
+    (await dragBy(title(), 0, share(0.4) * 0.7))();
+
+    await expect.element(sheet()).not.toBeInTheDocument();
+  });
+
+  test("controlled, it's at the stop it's given, and asks for a change", async () => {
+    const onStopChange = vi.fn();
+    const panel = await openWithoutMotion(
+      <Drawer content={{ stops, stop: 0.9, onStopChange }} />,
+    );
+    expect(Math.abs(height(panel) - share(0.9))).toBeLessThanOrEqual(1);
+
+    (await dragBy(title(), 0, share(0.9) - share(0.4)))();
+
+    await expect.poll(() => onStopChange.mock.lastCall?.[0]).toBe(0.4);
+    // Not given the new one, it goes back.
+    await expect
+      .poll(() => Math.abs(height(panel) - share(0.9)))
+      .toBeLessThanOrEqual(1);
+  });
+
+  test("on the end edge a stop is a share of the width", async () => {
+    const panel = await openWithoutMotion(
+      <Drawer content={{ side: "end", stops: [0.5, 1] }} handle={false} />,
+    );
+
+    expect(
+      Math.abs(rect(panel).width - window.innerWidth * 0.5),
+    ).toBeLessThanOrEqual(1);
+  });
+
+  test("it moves between stops, and not for someone who asked for less motion", async () => {
+    await emulateMedia({ reducedMotion: "no-preference" });
+    const first = await render(<Drawer defaultOpen content={{ stops }} />);
+    await expect.element(sheet()).toBeVisible();
+    expect(getComputedStyle(sheet().element()).transitionProperty).toContain(
+      "block-size",
+    );
+    await first.unmount();
+
+    await emulateMedia({ reducedMotion: "reduce" });
+    await render(<Drawer defaultOpen content={{ stops }} />);
+    await expect.element(sheet()).toBeVisible();
+    expect(
+      getComputedStyle(sheet().element()).transitionProperty,
+    ).not.toContain("block-size");
+  });
+});
+
+describe("the handle", () => {
+  test("is a button that says what pressing it does", async () => {
+    const first = await render(
+      <Drawer defaultOpen content={{ stops: [0.4, 0.9] }} />,
+    );
+    await expect.element(handle("Change size")).toBeVisible();
+    expect(handle("Change size").element().className).toBe("nuv-sheet__handle");
+    await first.unmount();
+
+    await render(<Drawer defaultOpen content={{ swipe: true }} />);
+    await expect.element(handle("Dismiss")).toBeVisible();
+  });
+
+  test("pressing it goes to the next stop, and round to the first", async () => {
+    const onStopChange = vi.fn();
+    const panel = await openWithoutMotion(
+      <Drawer content={{ stops: [0.3, 0.6, 0.9], onStopChange }} />,
+    );
+
+    await handle().click();
+    await expect.poll(() => height(panel)).toBe(share(0.6));
+    await handle().click();
+    await handle().click();
+
+    expect(onStopChange.mock.calls.map(([stop]) => stop)).toEqual([
+      0.6, 0.9, 0.3,
+    ]);
+  });
+
+  test("the keyboard reaches it and presses it", async () => {
+    const onStopChange = vi.fn();
+    await openWithoutMotion(
+      <Drawer content={{ stops: [0.4, 0.9], onStopChange }} />,
+    );
+
+    (handle().element() as HTMLElement).focus();
+    await userEvent.keyboard("{Enter}");
+
+    await expect.poll(() => onStopChange.mock.lastCall?.[0]).toBe(0.9);
+  });
+
+  test("in a sheet with no stops, pressing it closes the sheet", async () => {
+    await openWithoutMotion(<Drawer content={{ swipe: true }} />);
+
+    await handle("Dismiss").click();
+
+    await expect.element(sheet()).not.toBeInTheDocument();
+  });
+
+  test("it closes a sheet that has no close button too", async () => {
+    await openWithoutMotion(
+      <Drawer content={{ swipe: true, showCloseButton: false }} />,
+    );
+    // The one a swipe presses is hidden from everyone.
+    expect(page.getByRole("button", { name: "Close" }).elements()).toHaveLength(
+      0,
+    );
+
+    await handle("Dismiss").click();
+
+    await expect.element(sheet()).not.toBeInTheDocument();
+  });
+
+  test("the click that ends a drag of it isn't a press of it", async () => {
+    const onStopChange = vi.fn();
+    await openWithoutMotion(
+      <Drawer content={{ stops: [0.3, 0.6, 0.9], onStopChange }} />,
+    );
+    const element = handle().element();
+
+    (await dragBy(element, 0, share(0.3) - share(0.6)))();
+    element.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    await wait(50);
+
+    // To the stop it was dragged to, and no further.
+    expect(onStopChange.mock.calls.map(([stop]) => stop)).toEqual([0.6]);
+
+    // The next press is a press again.
+    await handle().click();
+    await expect.poll(() => onStopChange.mock.lastCall?.[0]).toBe(0.9);
+  });
+
+  test("its name can be translated", async () => {
+    await render(
+      <Drawer
+        defaultOpen
+        content={{ stops: [0.4, 0.9] }}
+        handle="Größe ändern"
+      />,
+    );
+
+    await expect.element(handle("Größe ändern")).toBeVisible();
+  });
+
+  test("it's a bar drawn as a border, in the middle, and answers to a press around it", async () => {
+    const panel = await openWithoutMotion(<Drawer content={{ swipe: true }} />);
+    const element = handle("Dismiss").element();
+    const box = rect(element);
+    const around = getComputedStyle(element, "::after");
+
+    expect(getComputedStyle(element).borderTopStyle).toBe("solid");
+    expect(getComputedStyle(element).borderTopWidth).toBe("4px");
+    expect(box.width).toBe(40);
+    expect(
+      Math.abs(
+        box.left + box.width / 2 - (rect(panel).left + rect(panel).width / 2),
+      ),
+    ).toBeLessThanOrEqual(1);
+    expect(around.content).toBe('""');
+    expect(Number.parseFloat(around.height)).toBeGreaterThanOrEqual(44);
+  });
+
+  test("on the end edge it stands up, on the side that faces the page", async () => {
+    const panel = await openWithoutMotion(
+      <Drawer content={{ side: "end", swipe: true }} />,
+    );
+    const box = rect(handle("Dismiss").element());
+
+    expect(box.height).toBe(40);
+    expect(box.width).toBe(4);
+    expect(box.left - rect(panel).left).toBeLessThan(16);
+    expect(
+      Math.abs(
+        box.top + box.height / 2 - (rect(panel).top + rect(panel).height / 2),
+      ),
+    ).toBeLessThanOrEqual(1);
+  });
+
+  test("outside a sheet it says where it belongs", async () => {
+    class Boundary extends Component<
+      { children: ReactNode },
+      { message: string }
+    > {
+      override state = { message: "" };
+      static getDerivedStateFromError(error: Error) {
+        return { message: error.message };
+      }
+      override render() {
+        return this.state.message ? (
+          <p role="alert">{this.state.message}</p>
+        ) : (
+          this.props.children
+        );
+      }
+    }
+    const quiet = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    await render(
+      <Boundary>
+        <SheetHandle />
+      </Boundary>,
+    );
+
+    await expect
+      .poll(() => page.getByRole("alert").element().textContent)
+      .toBe("SheetHandle has to be inside a SheetContent.");
+    quiet.mockRestore();
+  });
+});
+
+describe.each(themes)("a sheet to drag, accessibility in %s", (theme) => {
+  test("passes axe, and the handle reaches 3:1 against the sheet", async () => {
+    setPageTheme(theme);
+    const panel = await openWithoutMotion(
+      <Drawer content={{ stops: [0.5, 0.9] }} />,
+    );
+
+    expect(await axe(document.body)).toHaveNoViolations();
+    expect(
+      ratio(
+        getComputedStyle(handle().element()).borderTopColor,
+        getComputedStyle(panel).backgroundColor,
+      ),
+    ).toBeGreaterThanOrEqual(3);
   });
 });

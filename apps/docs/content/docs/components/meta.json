@@ -35,6 +35,7 @@
     "label",
     "menubar",
     "native-select",
+    "navbar",
     "navigation-menu",
     "number-field",
     "otp-field",

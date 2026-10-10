@@ -13,6 +13,9 @@ import featureGrid from "@/blocks/feature-grid/block.json" with {
   type: "json",
 };
 import figures from "@/blocks/figures/block.json" with { type: "json" };
+import filterSheet from "@/blocks/filter-sheet/block.json" with {
+  type: "json",
+};
 import footer from "@/blocks/footer/block.json" with { type: "json" };
 import forgotPassword from "@/blocks/forgot-password/block.json" with {
   type: "json",
@@ -104,7 +107,7 @@ export const categories: BlockCategory[] = [
     label: "Data",
     title: "Data",
     description:
-      "Rows to work with: a table with search, a filter, a column chooser and actions for several rows, a list with a bar of actions for the ticked rows, a panel that opens beside a list, and a page in each state it can be in.",
+      "Rows to work with: a table with search, a filter, a column chooser and actions for several rows, a list with a bar of actions for the ticked rows, a list filtered from a sentence and a sheet, a panel that opens beside a list, and a page in each state it can be in.",
   },
   {
     slug: "settings",
@@ -143,6 +146,7 @@ export const blocks: BlockManifest[] = [
   askPanel,
   tableToolbar,
   inbox,
+  filterSheet,
   detailPanel,
   pageStates,
   profileForm,

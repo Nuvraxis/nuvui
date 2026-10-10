@@ -126,6 +126,98 @@
     }
   }
 
+  // A sheet that can be dragged. On the start or end edge the browser
+  // keeps the up and down of a finger, for scrolling, and the sheet gets
+  // the rest. On the top or bottom edge the sheet gets all of it, and the
+  // part that scrolls keeps its own.
+  .nuv-sheet--swipe {
+    touch-action: pan-y;
+
+    &[data-dragging] {
+      user-select: none;
+    }
+  }
+
+  .nuv-sheet--top.nuv-sheet--swipe,
+  .nuv-sheet--bottom.nuv-sheet--swipe {
+    touch-action: none;
+  }
+
+  // A sheet with stops is the size of the stop it's at, and moves to the
+  // next one. While it's dragged the component turns the movement off.
+  .nuv-sheet--stops {
+    inline-size: calc(var(--nuv-sheet-stop, 1) * 100dvw);
+    max-inline-size: 100%;
+
+    @include mixins.motion-safe {
+      transition:
+        block-size var(--nuv-duration-base) var(--ease-out),
+        inline-size var(--nuv-duration-base) var(--ease-out);
+    }
+  }
+
+  .nuv-sheet--top.nuv-sheet--stops,
+  .nuv-sheet--bottom.nuv-sheet--stops {
+    block-size: calc(var(--nuv-sheet-stop, 1) * 100dvh);
+    max-block-size: 100dvh;
+    inline-size: auto;
+  }
+
+  // The bar that says the sheet can be dragged. It's drawn as a border,
+  // which is still drawn where the browser forces its own colors, and it
+  // answers to a press well outside what's drawn.
+  .nuv-sheet__handle {
+    position: relative;
+    flex: none;
+    align-self: center;
+    box-sizing: content-box;
+    inline-size: var(--nuv-sheet-handle-size, calc(var(--spacing) * 10));
+    block-size: 0;
+    margin-block: calc(var(--spacing) * -2) calc(var(--spacing) * 2);
+    padding: 0;
+    border: 0;
+    border-block-start: var(--nuv-sheet-handle-width, 4px) solid
+      var(--nuv-sheet-handle, var(--color-border-strong));
+    border-radius: var(--radius-full);
+    background: none;
+    cursor: grab;
+    touch-action: none;
+
+    @include mixins.focus-ring(4px);
+
+    &::after {
+      position: absolute;
+      inset: calc(var(--nuv-touch-size) / -2) calc(var(--spacing) * -4);
+      content: "";
+    }
+  }
+
+  // On the start or end edge it stands up, half way down the edge that
+  // faces the page.
+  .nuv-sheet--start > .nuv-sheet__handle,
+  .nuv-sheet--end > .nuv-sheet__handle {
+    position: absolute;
+    inset-block: 0;
+    inline-size: 0;
+    block-size: var(--nuv-sheet-handle-size, calc(var(--spacing) * 10));
+    margin-block: auto;
+    border-block-start: 0;
+    border-inline-start: var(--nuv-sheet-handle-width, 4px) solid
+      var(--nuv-sheet-handle, var(--color-border-strong));
+
+    &::after {
+      inset: calc(var(--spacing) * -4) calc(var(--nuv-touch-size) / -2);
+    }
+  }
+
+  .nuv-sheet--start > .nuv-sheet__handle {
+    inset-inline-end: calc(var(--spacing) * 1.5);
+  }
+
+  .nuv-sheet--end > .nuv-sheet__handle {
+    inset-inline-start: calc(var(--spacing) * 1.5);
+  }
+
   .nuv-sheet__title {
     @include modal.title;
   }

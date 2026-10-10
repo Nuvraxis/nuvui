@@ -5,11 +5,11 @@ import {
   Blocks,
   Braces,
   FileCode2,
-  Layers,
-  Package,
+  Languages,
   Palette,
   ScanEye,
   SwatchBook,
+  Table2,
 } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -24,7 +24,7 @@ import { libraryVersion } from "@/lib/version";
 export const metadata: Metadata = share({
   path: "/",
   image: "/og/home.png",
-  title: `${site.name}: React components on Radix UI, styled with SCSS`,
+  title: `${site.name}: React components for enterprise applications`,
   description: site.description,
 });
 
@@ -38,24 +38,19 @@ const facts = [
 
 const features = [
   {
-    Icon: Layers,
-    title: "Radix underneath",
-    text: "Focus, keyboard and screen reader behavior come from Radix primitives. The library adds the styling, and the parts Radix leaves out.",
-  },
-  {
-    Icon: FileCode2,
-    title: "One plain stylesheet",
-    text: "Import it once. Nothing in the JavaScript imports CSS, so it works with server components and needs no build plugin.",
-  },
-  {
-    Icon: Braces,
-    title: "Every value is a variable",
-    text: "Colors, radius, spacing and sizes are CSS custom properties, named after Tailwind v4's theme variables. Set one and every component follows.",
+    Icon: Table2,
+    title: "Made for screens full of data",
+    text: "Data tables that sort, filter and select, forms with validation, charts and date pickers. The tables, the charts and the dates are packages of their own, so an app installs what it uses.",
   },
   {
     Icon: ScanEye,
-    title: "Tested in real browsers",
-    text: "Each component is tested in Chromium, Firefox and WebKit for keyboard use, touch sizes and contrast, in light, dark and forced colors.",
+    title: "Accessibility that's tested",
+    text: "Each component is tested in Chromium, Firefox and WebKit for keyboard use, touch sizes and contrast, in light, dark and forced colors. Focus and screen reader behavior come from Radix primitives.",
+  },
+  {
+    Icon: Braces,
+    title: "Your brand, in variables",
+    text: "Colors, radius, spacing and sizes are CSS custom properties, named after Tailwind v4's theme variables. Set one and every component follows.",
   },
   {
     Icon: SwatchBook,
@@ -63,9 +58,14 @@ const features = [
     text: "Five presets and three densities ship in the package. Each pair of colors in a theme is measured for contrast, not assumed to pass.",
   },
   {
-    Icon: Package,
-    title: "Add-ons kept apart",
-    text: "The date picker, the tables and the charts are packages of their own, so an app that wants buttons doesn't install a charting library.",
+    Icon: Languages,
+    title: "Ready for other languages",
+    text: "Every word a component says by itself is a prop you can translate, and layouts follow a page that reads right to left.",
+  },
+  {
+    Icon: FileCode2,
+    title: "One plain stylesheet",
+    text: "Import it once. Nothing in the JavaScript imports CSS, so it works with server components, needs no build plugin and can be read like any other CSS file.",
   },
 ];
 
@@ -116,13 +116,14 @@ export default function HomePage() {
               : "Open source, and early: nothing is on npm yet"}
           </p>
           <h1 className="site-hero__title">
-            React components on Radix UI, styled with plain SCSS
+            React components for enterprise applications
           </h1>
           <p className="site-hero__lead">
-            {site.name} wraps Radix primitives and styles them with BEM class
-            names and CSS custom properties. The stylesheet ships as a normal
-            CSS file, so it works with server components and needs no build
-            plugin.
+            {site.name} is an open source library for the software a business
+            runs on: data tables, forms, charts, dashboards and admin screens.
+            Every component is tested for keyboard use and accessibility, and
+            can be themed, translated and laid out right to left. It's built on
+            Radix UI and styled with plain SCSS.
           </p>
           <div className="site-hero__actions">
             <Button asChild size="lg">

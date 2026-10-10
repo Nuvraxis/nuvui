@@ -11,7 +11,7 @@ export const site = {
   name: "Nuvui",
   packageName: "@nuvui/react",
   description:
-    "React components built on Radix UI primitives, styled with SCSS and BEM class names.",
+    "An open source React library for business software: data tables, forms, charts and dashboards, tested for accessibility and themed with CSS variables.",
   // No trailing slash. Canonical URLs, the sitemap and OG images are all
   // built from this. The docs app's lib/site.ts has the same value, and a
   // test holds the two together.

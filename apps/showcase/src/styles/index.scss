@@ -2,6 +2,7 @@
 // SCSS with BEM class names that start with "site". There's no Tailwind and
 // no other CSS framework here: the site is styled the way it tells people
 // to style theirs.
+@use "tokens/theme";
 @use "base";
 @use "header";
 @use "footer";
@@ -14,54 +15,3 @@
 @use "code";
 @use "themes";
 @use "blocks";
-
-@use "@nuvui/react/scss/mixins" as nuv;
-
-:root {
-  --radius-xs: 0.1875rem;
-  --radius-sm: 0.375rem;
-  --radius-md: 0.5625rem;
-  --radius-lg: 0.75rem;
-  --radius-xl: 1.125rem;
-  --nuv-control-height-sm: 2rem;
-  --nuv-control-height-md: 2.5rem;
-  --nuv-control-height-lg: 3rem;
-}
-
-:root,
-[data-theme="light"],
-[data-theme="system"] {
-  --color-background: #fff;
-  --color-foreground: oklch(14.5% 0 0);
-  --color-surface: #fff;
-  --color-surface-foreground: oklch(14.5% 0 0);
-  --color-muted: oklch(97% 0 0);
-  --color-muted-foreground: oklch(43.9% 0 0);
-  --color-primary: oklch(55.4% 0.135 66.442);
-  --color-primary-foreground: #fff;
-  --color-danger: oklch(57.7% 0.245 27.325);
-  --color-danger-foreground: #fff;
-  --color-success: oklch(52.7% 0.154 150.069);
-  --color-warning: oklch(55.5% 0.163 48.998);
-  --color-border: oklch(92.2% 0 0);
-  --color-border-strong: oklch(55.6% 0 0);
-  --color-ring: oklch(55.4% 0.135 66.442);
-}
-
-@include nuv.dark {
-  --color-background: oklch(14.5% 0 0);
-  --color-foreground: oklch(98.5% 0 0);
-  --color-surface: oklch(20.5% 0 0);
-  --color-surface-foreground: oklch(98.5% 0 0);
-  --color-muted: oklch(26.9% 0 0);
-  --color-muted-foreground: oklch(70.8% 0 0);
-  --color-primary: oklch(85.2% 0.199 91.936);
-  --color-primary-foreground: oklch(14.5% 0 0);
-  --color-danger: oklch(70.4% 0.191 22.216);
-  --color-danger-foreground: oklch(14.5% 0 0);
-  --color-success: oklch(79.2% 0.209 151.711);
-  --color-warning: oklch(82.8% 0.189 84.429);
-  --color-border: oklch(26.9% 0 0);
-  --color-border-strong: oklch(55.6% 0 0);
-  --color-ring: oklch(85.2% 0.199 91.936);
-}

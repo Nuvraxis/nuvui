@@ -33,7 +33,7 @@ jobs:
 
       # The component tests run in real browsers.
       - name: Install Playwright's browsers
-        run: pnpm --filter @nuvui/react exec playwright install --with-deps chromium firefox webkit
+        run: node scripts/playwright-browsers.mjs --with-deps
 
       # Before anything is built: a dependency with a known vulnerability,
       # or with a license nobody has read, stops the run here. The list of

@@ -51,6 +51,47 @@
     }
   }
 
+  // In a sentence. It takes the size and the color of the text around it,
+  // and is as wide as what it shows. With no box, a line under it says it
+  // can be pressed, and the chevron says what pressing does. It's drawn as
+  // small as a word, and answers to a tap as large as a finger.
+  .nuv-select--inline {
+    position: relative;
+    gap: var(--spacing);
+    min-inline-size: 0;
+    min-block-size: 0;
+    padding: 0;
+    border: 0;
+    border-radius: var(--nuv-select-radius, var(--radius-sm));
+    background-color: transparent;
+    color: var(--nuv-select-fg, inherit);
+    font-size: inherit;
+    font-weight: var(--nuv-select-inline-font-weight, var(--font-weight-medium));
+    line-height: inherit;
+    text-decoration: underline;
+    text-decoration-color: var(--nuv-select-inline-line, var(--color-border-strong));
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+    vertical-align: baseline;
+
+    @include mixins.touch-area;
+
+    @include mixins.fine-pointer {
+      min-block-size: 0;
+    }
+
+    @include mixins.hover {
+      text-decoration-color: currentcolor;
+    }
+
+    // The line turns red, and thicker, because a red line alone can't be
+    // told from a grey one by everyone.
+    &[aria-invalid="true"] {
+      text-decoration-color: var(--color-danger);
+      text-decoration-thickness: 2px;
+    }
+  }
+
   // A long option is cut short in the trigger instead of stretching it.
   .nuv-select__value {
     min-inline-size: 0;

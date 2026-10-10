@@ -1,0 +1,109 @@
+@use "@nuvui/react/scss/mixins";
+
+.filter-sheet {
+  display: grid;
+  gap: calc(var(--spacing) * 4);
+  align-content: start;
+  inline-size: 100%;
+  max-inline-size: 44rem;
+  min-block-size: 100svh;
+  margin-inline: auto;
+  padding: calc(var(--spacing) * 6) calc(var(--spacing) * 4);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+
+  @include mixins.breakpoint("md") {
+    padding: calc(var(--spacing) * 8);
+  }
+}
+
+.filter-sheet__head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 3);
+  align-items: center;
+  justify-content: space-between;
+}
+
+.filter-sheet__title {
+  margin: 0;
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-2xl--line-height);
+  letter-spacing: var(--tracking-tight);
+}
+
+// Tall lines, so a select that wraps onto a second one has room to be
+// pressed.
+.filter-sheet__sentence {
+  margin: 0;
+  font-size: var(--text-lg);
+  line-height: var(--leading-relaxed);
+}
+
+.filter-sheet__count {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+}
+
+.filter-sheet__total {
+  font-weight: var(--font-weight-medium);
+  font-variant-numeric: tabular-nums;
+}
+
+.filter-sheet__none {
+  margin: 0;
+  padding: calc(var(--spacing) * 8) calc(var(--spacing) * 4);
+  border: var(--nuv-border-width) dashed var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  color: var(--color-muted-foreground);
+  text-align: center;
+}
+
+// In the sheet. One column on a phone, two from the sm breakpoint.
+.filter-sheet__fields {
+  display: grid;
+  gap: calc(var(--spacing) * 6);
+  align-items: start;
+  padding-block: calc(var(--spacing) * 2);
+
+  @include mixins.breakpoint("sm") {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.filter-sheet__group {
+  display: grid;
+  gap: calc(var(--spacing) * 2);
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.filter-sheet__legend {
+  padding: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+.filter-sheet__choice {
+  display: flex;
+  gap: calc(var(--spacing) * 2);
+  align-items: center;
+}
+
+.filter-sheet__least {
+  max-inline-size: 16rem;
+}
+
+// In the page for screen readers, and drawn for nobody.
+.filter-sheet__hidden {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

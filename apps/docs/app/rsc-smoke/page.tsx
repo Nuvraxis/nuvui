@@ -66,6 +66,10 @@ import {
   ItemTitle,
   Kbd,
   NativeSelect,
+  Navbar,
+  NavbarBrand,
+  NavbarLink,
+  NavbarNav,
   NumberField,
   Pagination,
   PaginationEllipsis,
@@ -308,6 +312,15 @@ export default function RscSmokePage() {
           { id: "server-second", title: "Second heading", depth: 2 },
         ]}
       />
+      {/* Navbar is a client component, given server-rendered links. */}
+      <Navbar collapse="sm" data-testid="server-navbar">
+        <NavbarBrand>Bar from the server</NavbarBrand>
+        <NavbarNav aria-label="Links from the server">
+          <NavbarLink href="#server-first" current>
+            First
+          </NavbarLink>
+        </NavbarNav>
+      </Navbar>
       <div style={{ width: 120 }}>
         <AspectRatio ratio={2} data-testid="server-ratio" />
         <Skeleton data-testid="server-skeleton" />

@@ -126,6 +126,13 @@ test("components used from a server component hydrate and work", async ({
     contents.getByRole("link", { name: "Second heading" }),
   ).toHaveAttribute("href", "#server-second");
 
+  await expect(page.getByTestId("server-navbar")).toContainText(
+    "Bar from the server",
+  );
+  await expect(
+    page.getByTestId("server-navbar").locator('[aria-current="page"]'),
+  ).toHaveText("First");
+
   const ratio = await page.getByTestId("server-ratio").boundingBox();
   expect(ratio?.width).toBe(120);
   expect(ratio?.height).toBe(60);

@@ -13,6 +13,7 @@ export {
   SelectSeparator,
   type SelectSeparatorProps,
   SelectTrigger,
+  type SelectTriggerOwnProps,
   type SelectTriggerProps,
   SelectValue,
   type SelectValueProps,

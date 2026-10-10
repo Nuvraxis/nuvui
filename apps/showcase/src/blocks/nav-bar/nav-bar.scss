@@ -8,21 +8,14 @@
   color: var(--color-foreground);
 }
 
+// The bar is the library's. What changes with the width of the screen is
+// said through its variables.
 .nav-bar__bar {
-  position: sticky;
-  inset-block-start: 0;
-  z-index: 1;
-  display: flex;
-  gap: calc(var(--spacing) * 2);
-  align-items: center;
-  min-block-size: calc(var(--spacing) * 16);
-  padding-inline: calc(var(--spacing) * 4);
-  border-block-end: var(--nuv-border-width) solid var(--color-border);
-  background-color: var(--color-background);
+  --nuv-navbar-gap: calc(var(--spacing) * 2);
 
   @include mixins.breakpoint("md") {
-    gap: calc(var(--spacing) * 6);
-    padding-inline: calc(var(--spacing) * 8);
+    --nuv-navbar-gap: calc(var(--spacing) * 6);
+    --nuv-navbar-padding: calc(var(--spacing) * 8);
   }
 }
 
@@ -33,20 +26,9 @@
   min-block-size: var(--nuv-touch-size);
   border-radius: var(--radius-sm);
   color: inherit;
-  font-size: var(--text-lg);
-  font-weight: var(--font-weight-semibold);
-  letter-spacing: var(--tracking-tight);
   text-decoration: none;
 
   @include mixins.focus-ring;
-}
-
-.nav-bar__menu {
-  display: none;
-
-  @include mixins.breakpoint("md") {
-    display: block;
-  }
 }
 
 .nav-bar__panel {
@@ -63,13 +45,6 @@
   font-weight: var(--font-weight-normal);
 }
 
-.nav-bar__actions {
-  display: flex;
-  gap: calc(var(--spacing) * 2);
-  align-items: center;
-  margin-inline-start: auto;
-}
-
 // In the bar from the md breakpoint. Below it, it's in the panel.
 .nav-bar__wide {
   display: none;
@@ -79,28 +54,9 @@
   }
 }
 
-// A button that's only an icon: square, at the size of the button it is.
-.nav-bar__toggle {
-  flex: none;
-  aspect-ratio: 1;
-  padding: 0;
-
-  @include mixins.breakpoint("md") {
-    display: none;
-  }
-}
-
-.nav-bar__list {
-  display: grid;
-  gap: calc(var(--spacing) * 1);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.nav-bar__entry {
-  justify-content: flex-start;
-  inline-size: 100%;
+// In the panel, under the links, with room between them.
+.nav-bar__sign-in {
+  margin-block-start: calc(var(--spacing) * 4);
 }
 
 .nav-bar__page {

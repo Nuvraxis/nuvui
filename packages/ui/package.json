@@ -368,6 +368,16 @@
         "default": "./dist/components/native-select/index.cjs"
       }
     },
+    "./navbar": {
+      "import": {
+        "types": "./dist/components/navbar/index.d.ts",
+        "default": "./dist/components/navbar/index.js"
+      },
+      "require": {
+        "types": "./dist/components/navbar/index.d.cts",
+        "default": "./dist/components/navbar/index.cjs"
+      }
+    },
     "./navigation-menu": {
       "import": {
         "types": "./dist/components/navigation-menu/index.d.ts",

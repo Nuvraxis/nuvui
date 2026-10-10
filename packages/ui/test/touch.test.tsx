@@ -57,6 +57,10 @@ import {
   MenubarMenu,
   MenubarTrigger,
   NativeSelect,
+  Navbar,
+  NavbarActions,
+  NavbarLink,
+  NavbarMenu,
   NavigationMenu,
   NavigationMenuContent,
   NavigationMenuItem,
@@ -83,6 +87,7 @@ import {
   Sheet,
   SheetContent,
   SheetDescription,
+  SheetHandle,
   SheetTitle,
   Sidebar,
   SidebarContent,
@@ -1330,5 +1335,73 @@ describe("action bar", () => {
       document.documentElement.clientWidth,
     );
     expect(Math.round(box(bar).bottom)).toBeLessThanOrEqual(window.innerHeight);
+  });
+});
+
+describe("a select in a sentence", () => {
+  test("is drawn the size of the text, and takes a tap 44px tall", async () => {
+    await render(
+      <p style={{ ...padded, fontSize: 16 }}>
+        From{" "}
+        <Select defaultValue="30">
+          <SelectTrigger variant="inline" aria-label="Period">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="30">the last 30 days</SelectItem>
+          </SelectContent>
+        </Select>
+      </p>,
+    );
+    const trigger = page.getByRole("combobox").element();
+
+    expect(box(trigger).height).toBeLessThan(30);
+    expect(hitAt(trigger, 0, 20)).toBe(trigger);
+    expect(hitAt(trigger, 0, -20)).toBe(trigger);
+  });
+});
+
+describe("navbar", () => {
+  test("the button for the menu is 44px square, and each link in the panel is 44px tall", async () => {
+    await render(
+      <Navbar>
+        <NavbarActions>
+          <NavbarMenu>
+            <NavbarLink href="#orders">Orders</NavbarLink>
+            <NavbarLink href="#reports">Reports</NavbarLink>
+          </NavbarMenu>
+        </NavbarActions>
+      </Navbar>,
+    );
+    const toggle = page.getByRole("button", { name: "Menu" });
+
+    expect(box(toggle.element()).width).toBe(44);
+    expect(box(toggle.element()).height).toBe(44);
+
+    await toggle.click();
+    await expect.element(page.getByRole("dialog")).toBeVisible();
+    for (const link of page.getByRole("link").elements()) {
+      expect(box(link).height).toBeGreaterThanOrEqual(44);
+    }
+  });
+});
+
+describe("a sheet's handle", () => {
+  test("is drawn thin, and takes a press 44px tall", async () => {
+    await render(
+      <Sheet defaultOpen>
+        <SheetContent side="bottom" swipe aria-describedby={undefined}>
+          <SheetHandle />
+          <SheetTitle>Filters</SheetTitle>
+          <p>Line</p>
+        </SheetContent>
+      </Sheet>,
+    );
+    const handle = page.getByRole("button", { name: "Dismiss" }).element();
+    const around = getComputedStyle(handle, "::after");
+
+    expect(box(handle).height).toBe(4);
+    expect(Number.parseFloat(around.height)).toBeGreaterThanOrEqual(44);
+    expect(Number.parseFloat(around.width)).toBeGreaterThanOrEqual(44);
   });
 });

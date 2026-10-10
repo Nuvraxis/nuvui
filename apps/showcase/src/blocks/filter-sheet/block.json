@@ -1,0 +1,9 @@
+{
+  "name": "filter-sheet",
+  "title": "Filters in a sentence and a sheet",
+  "description": "A list whose two main filters are selects in the sentence that describes it, with the rest in a sheet that opens half way up and can be pulled taller or swiped away.",
+  "category": "data",
+  "files": ["filter-sheet.tsx", "filter-sheet.scss"],
+  "install": ["@nuvui/react", "lucide-react"],
+  "height": 720
+}

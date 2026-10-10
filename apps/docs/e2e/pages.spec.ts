@@ -153,6 +153,10 @@ for (const path of pages) {
 
     for (const colorScheme of ["light", "dark"] as const) {
       test(`has no axe violations in ${colorScheme}`, async ({ page }) => {
+        // Three times as long as other tests get. axe looks at every
+        // element of a long page, and in WebKit, on a machine running
+        // other slices too, that has taken longer than thirty seconds.
+        test.slow();
         await page.emulateMedia({ colorScheme });
         await open(page, path);
         await expect(page.locator("html")).toHaveAttribute(

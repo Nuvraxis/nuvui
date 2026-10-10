@@ -1,6 +1,6 @@
 # nuvui
 
-React components built on [Radix UI](https://www.radix-ui.com/primitives) primitives and styled with plain SCSS. Class names follow BEM, and the look is controlled through CSS custom properties named after Tailwind v4's theme variables. It's published as `@nuvui/react`, with add-on packages next to it for the parts that need a library of their own. There are three so far: `@nuvui/date-picker`, `@nuvui/table` and `@nuvui/charts`.
+React components for enterprise applications: the data tables, forms, charts and dashboards that business software is made of. They're built on [Radix UI](https://www.radix-ui.com/primitives) primitives and styled with plain SCSS. Class names follow BEM, and the look is controlled through CSS custom properties named after Tailwind v4's theme variables. It's published as `@nuvui/react`, with add-on packages next to it for the parts that need a library of their own. There are three so far: `@nuvui/date-picker`, `@nuvui/table` and `@nuvui/charts`.
 
 The website and the docs are at [nuvui.nuvraxis.com](https://nuvui.nuvraxis.com).
 

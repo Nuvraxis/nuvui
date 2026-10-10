@@ -8,11 +8,22 @@ name: E2E
 # to the pull request. Take the label off to stop that.
 #
 # There are about 7,750 tests: the docs' and the website's, each in five
-# browser setups. One runner has two cores, and would need hours for them.
-# So the site is built once, and the tests are cut into slices that each run
-# on a runner of their own, at the same time. How many slices is the two
-# lists under `matrix` below. If a slice gets near its time limit, add one
-# to its list and raise `of` to match.
+# browser setups. The site is built once, and the tests are cut into slices
+# that run at the same time.
+#
+# The runners are eight on one machine with 24 cores. So there are eight
+# jobs after the build, and none waits for a runner: seven slices, and the
+# consumer apps. The slices share the machine, which is why each has a port
+# of its own for its server, and a number of workers that add up to the
+# cores and no more. With every slice left to use every core, browsers stop
+# answering and tests fail that aren't wrong.
+#
+# On GitHub's own runners it's the other way about: two cores each, and as
+# many runners as there are jobs. There, more slices with `workers` left
+# out is what's quick.
+#
+# What failed is written on the pull request by e2e-report.yml, and a
+# comment there of `retry:failed` runs it again, through e2e-retry.yml.
 on:
   pull_request:
     types: [opened, reopened, synchronize, labeled]
@@ -60,6 +71,8 @@ jobs:
             apps/showcase/out
           if-no-files-found: error
           retention-days: 1
+          # A run that's started again builds again, under the same name.
+          overwrite: true
 
   test:
     name: ${{ matrix.app }} ${{ matrix.slice }} of ${{ matrix.of }}
@@ -72,23 +85,16 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { app: docs, slice: 1, of: 12 }
-          - { app: docs, slice: 2, of: 12 }
-          - { app: docs, slice: 3, of: 12 }
-          - { app: docs, slice: 4, of: 12 }
-          - { app: docs, slice: 5, of: 12 }
-          - { app: docs, slice: 6, of: 12 }
-          - { app: docs, slice: 7, of: 12 }
-          - { app: docs, slice: 8, of: 12 }
-          - { app: docs, slice: 9, of: 12 }
-          - { app: docs, slice: 10, of: 12 }
-          - { app: docs, slice: 11, of: 12 }
-          - { app: docs, slice: 12, of: 12 }
-          - { app: showcase, slice: 1, of: 5 }
-          - { app: showcase, slice: 2, of: 5 }
-          - { app: showcase, slice: 3, of: 5 }
-          - { app: showcase, slice: 4, of: 5 }
-          - { app: showcase, slice: 5, of: 5 }
+          # The docs have about twice the website's tests. Five slices of
+          # three workers and two of four is 23 of the cores, and the
+          # consumer apps have the other.
+          - { app: docs, slice: 1, of: 5, port: 3101, workers: 3 }
+          - { app: docs, slice: 2, of: 5, port: 3102, workers: 3 }
+          - { app: docs, slice: 3, of: 5, port: 3103, workers: 3 }
+          - { app: docs, slice: 4, of: 5, port: 3104, workers: 3 }
+          - { app: docs, slice: 5, of: 5, port: 3105, workers: 3 }
+          - { app: showcase, slice: 1, of: 2, port: 3201, workers: 4 }
+          - { app: showcase, slice: 2, of: 2, port: 3202, workers: 4 }
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -113,6 +119,22 @@ jobs:
       # builds first, and the build is already here.
       - name: Run slice ${{ matrix.slice }} of ${{ matrix.of }}
         run: pnpm --filter @nuvui/${{ matrix.app }} exec playwright test --shard=${{ matrix.slice }}/${{ matrix.of }}
+        env:
+          NUVUI_E2E_PORT: ${{ matrix.port }}
+          NUVUI_E2E_WORKERS: ${{ matrix.workers }}
+
+      # Passed or failed. e2e-report.yml reads these to write what failed
+      # on the pull request.
+      - name: Keep the slice's results
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: e2e-report-${{ matrix.app }}-${{ matrix.slice }}
+          path: apps/${{ matrix.app }}/test-results/results.json
+          if-no-files-found: ignore
+          retention-days: 7
+          # A slice that's run again replaces what it said the first time.
+          overwrite: true
 
       - name: Upload Playwright output
         if: failure()
@@ -124,6 +146,7 @@ jobs:
             apps/${{ matrix.app }}/test-results
           if-no-files-found: ignore
           retention-days: 7
+          overwrite: true
 
   consumers:
     name: Install the packed library into a Vite and a Next.js app

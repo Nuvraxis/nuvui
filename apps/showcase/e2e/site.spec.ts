@@ -679,7 +679,7 @@ test.describe("where the two apps meet", () => {
     await header.getByRole("link", { name: site.name, exact: true }).click();
     await expect(page).toHaveURL(/:\d+\/$/);
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(
-      "React components on Radix UI, styled with plain SCSS",
+      "React components for enterprise applications",
     );
     expect(missing).toEqual([]);
   });

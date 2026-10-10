@@ -37,7 +37,9 @@ export async function GET(
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
         <div style={{ display: "flex", fontSize: 72, fontWeight: 700 }}>
-          {page.path === "/" ? "React components on Radix UI" : page.title}
+          {page.path === "/"
+            ? "React components for enterprise applications"
+            : page.title}
         </div>
         <div style={{ display: "flex", fontSize: 32, color: "#d1d5dc" }}>
           {page.description}

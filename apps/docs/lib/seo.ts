@@ -14,7 +14,7 @@ import { site } from "./site";
 // browser reads these before any stylesheet.
 const background = { light: "#ffffff", dark: "#030712" };
 
-const title = `${site.name}: React components on Radix UI, styled with SCSS`;
+const title = `${site.name}: React components for enterprise applications`;
 
 /** Goes in the root layout, as `metadata`. */
 export const baseMetadata: Metadata = {
@@ -32,6 +32,9 @@ export const baseMetadata: Metadata = {
   keywords: [
     "React components",
     "React UI library",
+    "enterprise UI components",
+    "business applications",
+    "admin dashboard",
     "Radix UI",
     "SCSS",
     "BEM",

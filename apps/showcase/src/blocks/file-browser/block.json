@@ -1,0 +1,9 @@
+{
+  "name": "file-browser",
+  "title": "File browser",
+  "description": "Folders and files in a tree, with the chosen one's details in a panel beside it. A folder's panel lists what's inside, and choosing from there opens the tree to it.",
+  "category": "data",
+  "files": ["file-browser.tsx", "file-browser.scss"],
+  "install": ["@nuvui/react", "lucide-react"],
+  "height": 640
+}

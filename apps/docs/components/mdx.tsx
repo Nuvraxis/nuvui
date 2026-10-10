@@ -75,6 +75,7 @@ import { TogglePlayground } from "@/components/playground/toggle";
 import { ToggleGroupPlayground } from "@/components/playground/toggle-group";
 import { ToolbarPlayground } from "@/components/playground/toolbar";
 import { TooltipPlayground } from "@/components/playground/tooltip";
+import { TreePlayground } from "@/components/playground/tree";
 import { TrendPlayground } from "@/components/playground/trend";
 import { VisuallyHiddenPlayground } from "@/components/playground/visually-hidden";
 import { PresetList } from "@/components/preset-reference";
@@ -142,6 +143,7 @@ export function getMDXComponents(components?: MDXComponents) {
     HoldToConfirmPlayground,
     TableOfContentsPlayground,
     TextShimmerPlayground,
+    TreePlayground,
     StepperPlayground,
     TimelinePlayground,
     TrendPlayground,

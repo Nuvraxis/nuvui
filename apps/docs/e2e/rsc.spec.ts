@@ -126,6 +126,14 @@ test("components used from a server component hydrate and work", async ({
     contents.getByRole("link", { name: "Second heading" }),
   ).toHaveAttribute("href", "#server-second");
 
+  const serverTree = page.getByRole("tree", { name: "Tree from the server" });
+  await expect(
+    serverTree.getByRole("treeitem", { name: "File from the server" }),
+  ).toBeVisible();
+  await expect(
+    serverTree.getByRole("treeitem", { name: "Folder from the server" }),
+  ).toHaveAttribute("aria-expanded", "true");
+
   await expect(page.getByTestId("server-navbar")).toContainText(
     "Bar from the server",
   );

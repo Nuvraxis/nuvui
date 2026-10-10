@@ -62,6 +62,7 @@ export * from "./components/toggle";
 export * from "./components/toggle-group";
 export * from "./components/toolbar";
 export * from "./components/tooltip";
+export * from "./components/tree";
 export * from "./components/trend";
 export * from "./components/visually-hidden";
 export * from "./direction";

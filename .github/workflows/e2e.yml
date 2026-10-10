@@ -133,14 +133,22 @@ jobs:
       # says: a container given three CPUs of a twelve-thread machine is
       # told twelve, and it's the limit Docker wrote down that's true. With
       # no limit, it's every core, as on a runner with a machine to itself.
+      #
+      # Where the machine's CPUs are two threads to a core, three of them
+      # aren't three cores, and with every runner on it at work they're
+      # nearer half that. Three browsers on them ran out of time in tests
+      # that aren't wrong. There it's two workers for three CPUs.
       - name: Run slice ${{ matrix.slice }} of ${{ matrix.of }}
         run: |
           workers=$(nproc)
-          if read -r quota period < /sys/fs/cgroup/cpu.max 2> /dev/null && [ "$quota" != "max" ]; then
+          if [ -r /sys/fs/cgroup/cpu.max ] && read -r quota period < /sys/fs/cgroup/cpu.max && [ "$quota" != "max" ]; then
             workers=$(( quota / period ))
           fi
+          cpus=$workers
+          threads=$(lscpu 2> /dev/null | awk -F: '/^Thread\(s\) per core/ { gsub(/ /, "", $2); print $2 }')
+          if [ "${threads:-1}" -gt 1 ]; then workers=$(( (workers * 2 + 2) / 3 )); fi
           if [ "$workers" -lt 1 ]; then workers=1; fi
-          echo "$(nproc) cores on the machine, and $workers CPUs for this runner. Running with $workers workers."
+          echo "$(nproc) CPUs on the machine, ${threads:-1} to a core, and $cpus for this runner. Running with $workers workers."
           NUVUI_E2E_WORKERS=$workers pnpm --filter "@nuvui/$APP" exec playwright test --shard="$SLICE"
         env:
           APP: ${{ matrix.app }}

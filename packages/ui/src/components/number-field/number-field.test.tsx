@@ -371,11 +371,14 @@ describe("the buttons", () => {
     await wait(200);
     expect(input().value).toBe("1");
     await wait(600);
-    const held = Number(input().value);
-    expect(held).toBeGreaterThan(2);
+    expect(Number(input().value)).toBeGreaterThan(2);
 
     button.dispatchEvent(new PointerEvent("pointerup", { bubbles: true }));
-    await wait(200);
+    // Read after letting go, and after a step that was already on its way
+    // has been drawn. Read before, a step can land in between.
+    await wait(50);
+    const held = Number(input().value);
+    await wait(300);
     expect(Number(input().value)).toBe(held);
   });
 

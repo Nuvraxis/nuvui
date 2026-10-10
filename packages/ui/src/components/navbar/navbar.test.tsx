@@ -55,7 +55,11 @@ function Example({
                 </NavbarLink>
               ))}
             </nav>
-            <button type="button">Not a link</button>
+            {/* The library's own button. A bare one is drawn by the browser,
+                and WebKit's doesn't follow a dark theme. */}
+            <Button intent="secondary" size="sm">
+              Not a link
+            </Button>
           </NavbarMenu>
         </NavbarActions>
       </Navbar>
@@ -130,6 +134,9 @@ describe("rendering", () => {
   });
 
   test("NavbarNav can be a nav you already have", async () => {
+    // Wide enough for the links to be in the bar. On a narrow screen the
+    // nav isn't shown, and has no role to be found by.
+    await setViewport("desktop");
     await render(
       <Navbar>
         <NavbarNav asChild>

@@ -638,7 +638,16 @@ describe("in a sentence", () => {
     await expect.element(period()).toHaveFocus();
     await userEvent.keyboard("{Enter}");
     await expect.element(page.getByRole("listbox")).toBeVisible();
-    await userEvent.keyboard("{ArrowDown}{Enter}");
+    // The list takes focus a moment after it's drawn, and a key pressed
+    // before then goes nowhere.
+    await expect
+      .element(page.getByRole("option", { name: "the last 30 days" }))
+      .toHaveFocus();
+    await userEvent.keyboard("{ArrowDown}");
+    await expect
+      .element(page.getByRole("option", { name: "the last year" }))
+      .toHaveFocus();
+    await userEvent.keyboard("{Enter}");
 
     await expect.element(period()).toHaveTextContent("the last year");
   });

@@ -87,7 +87,9 @@ jobs:
     name: ${{ matrix.app }} ${{ matrix.slice }} of ${{ matrix.of }}
     needs: build
     runs-on: [self-hosted, laptop]
-    timeout-minutes: 40
+    # A docs slice is some 1,700 tests. With two workers, which is what a
+    # runner given 12 cores gets, that has come close to forty minutes.
+    timeout-minutes: 60
     strategy:
       # One slice failing says nothing about the others. Let them finish, so
       # one run shows everything that's wrong.

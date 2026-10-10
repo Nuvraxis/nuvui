@@ -109,6 +109,8 @@ import {
   TimelineMarker,
   TimelineTime,
   TimelineTitle,
+  Tree,
+  TreeItem,
   Trend,
   VisuallyHidden,
 } from "@nuvui/react";
@@ -312,6 +314,12 @@ export default function RscSmokePage() {
           { id: "server-second", title: "Second heading", depth: 2 },
         ]}
       />
+      {/* Tree is a client component, given rows written on the server. */}
+      <Tree aria-label="Tree from the server" defaultExpanded={["server-a"]}>
+        <TreeItem value="server-a" label="Folder from the server">
+          <TreeItem value="server-b" label="File from the server" />
+        </TreeItem>
+      </Tree>
       {/* Navbar is a client component, given server-rendered links. */}
       <Navbar collapse="sm" data-testid="server-navbar">
         <NavbarBrand>Bar from the server</NavbarBrand>

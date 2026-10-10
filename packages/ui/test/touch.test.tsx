@@ -118,6 +118,8 @@ import {
   ToolbarLink,
   ToolbarToggleGroup,
   ToolbarToggleItem,
+  Tree,
+  TreeItem,
   toast,
 } from "../src";
 
@@ -1403,5 +1405,58 @@ describe("a sheet's handle", () => {
     expect(box(handle).height).toBe(4);
     expect(Number.parseFloat(around.height)).toBeGreaterThanOrEqual(44);
     expect(Number.parseFloat(around.width)).toBeGreaterThanOrEqual(44);
+  });
+});
+
+describe("tree", () => {
+  test("every row is 44px tall, and a tap on one opens it", async () => {
+    await render(
+      <Tree aria-label="Files">
+        <TreeItem value="src" label="src">
+          <TreeItem value="a" label="a.txt" />
+        </TreeItem>
+        <TreeItem value="b" label="b.txt" />
+      </Tree>,
+    );
+    const row = (name: string) =>
+      page
+        .getByRole("treeitem", { name })
+        .element()
+        .querySelector(".nuv-tree__row") as HTMLElement;
+
+    expect(box(row("src")).height).toBe(44);
+    expect(box(row("b.txt")).height).toBe(44);
+
+    await userEvent.click(row("src"));
+    await expect
+      .element(page.getByRole("treeitem", { name: "a.txt" }))
+      .toBeVisible();
+    expect(box(row("a.txt")).height).toBe(44);
+  });
+
+  test("with several to select, a tap adds a row and another takes it out", async () => {
+    await render(
+      <Tree aria-label="Files" selectionMode="multiple">
+        <TreeItem value="a" label="a.txt" />
+        <TreeItem value="b" label="b.txt" />
+      </Tree>,
+    );
+    const item = (name: string) => page.getByRole("treeitem", { name });
+    const row = (name: string) =>
+      item(name).element().querySelector(".nuv-tree__row") as HTMLElement;
+
+    await userEvent.click(row("a.txt"));
+    await userEvent.click(row("b.txt"));
+    await expect
+      .element(item("a.txt"))
+      .toHaveAttribute("aria-selected", "true");
+    await expect
+      .element(item("b.txt"))
+      .toHaveAttribute("aria-selected", "true");
+
+    await userEvent.click(row("a.txt"));
+    await expect
+      .element(item("a.txt"))
+      .toHaveAttribute("aria-selected", "false");
   });
 });

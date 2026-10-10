@@ -1286,6 +1286,119 @@ test.describe("what the blocks do", () => {
   });
 });
 
+test.describe("file browser", () => {
+  test.beforeEach(async ({ page }) => {
+    await open(page, "/blocks/view/file-browser");
+  });
+
+  const row = (page: Page, name: string) =>
+    page
+      .getByRole("tree", { name: "Folders and files" })
+      .getByRole("treeitem", { name, exact: true });
+  // The part of a row that's pressed, which isn't the rows inside it.
+  const face = (page: Page, name: string) =>
+    row(page, name).locator("> .nuv-tree__row");
+  const detail = (page: Page) => page.locator(".file-browser__detail");
+
+  test("file browser: the panel shows the file that's selected", async ({
+    page,
+    isMobile,
+  }) => {
+    await expect(row(page, "template.docx")).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+    await expect(detail(page).getByRole("heading")).toHaveText("template.docx");
+    await expect(detail(page)).toContainText("Files / Contracts");
+    await expect(detail(page)).toContainText("48 KB");
+
+    await press(face(page, "handbook.pdf"), isMobile);
+
+    await expect(detail(page).getByRole("heading")).toHaveText("handbook.pdf");
+    await expect(detail(page)).toContainText("2.4 MB");
+    await expect(row(page, "template.docx")).toHaveAttribute(
+      "aria-selected",
+      "false",
+    );
+  });
+
+  test("file browser: a folder opens when it's pressed, and its panel lists what's inside", async ({
+    page,
+    isMobile,
+  }) => {
+    await expect(row(page, "q3.xlsx")).toHaveCount(0);
+
+    await press(face(page, "Reports"), isMobile);
+
+    await expect(row(page, "Reports")).toHaveAttribute("aria-expanded", "true");
+    await expect(row(page, "q3.xlsx")).toBeVisible();
+    await expect(detail(page)).toContainText("2 items");
+    await expect(detail(page).getByRole("button")).toHaveText([
+      "q3.xlsx",
+      "q3-summary.pdf",
+    ]);
+  });
+
+  test("file browser: choosing from the panel opens the tree to it", async ({
+    page,
+    isMobile,
+  }) => {
+    await press(face(page, "Contracts"), isMobile);
+    // That closed the folder, which was open. Its panel still lists it.
+    await expect(row(page, "2026")).toHaveCount(0);
+
+    await press(detail(page).getByRole("button", { name: "2026" }), isMobile);
+    await expect(row(page, "2026")).toHaveAttribute("aria-selected", "true");
+    await press(
+      detail(page).getByRole("button", { name: "northwind.pdf" }),
+      isMobile,
+    );
+
+    await expect(row(page, "northwind.pdf")).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+    await expect(detail(page)).toContainText("Files / Contracts / 2026");
+    await expect(detail(page)).toContainText("Ada Lovelace");
+  });
+
+  test("file browser: a folder with nothing in it says so, and doesn't open", async ({
+    page,
+    isMobile,
+  }) => {
+    await press(face(page, "Archive"), isMobile);
+
+    await expect(row(page, "Archive")).not.toHaveAttribute("aria-expanded");
+    await expect(detail(page)).toContainText("There's nothing in this folder.");
+  });
+
+  test("file browser: the keyboard moves through the tree, opens a folder and selects a file", async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(isMobile, "A phone has no arrow keys.");
+    await row(page, "Contracts").focus();
+
+    await page.keyboard.press("ArrowDown");
+    await expect(row(page, "2026")).toBeFocused();
+    await page.keyboard.press("ArrowRight");
+    await expect(row(page, "2026")).toHaveAttribute("aria-expanded", "true");
+    await page.keyboard.press("ArrowRight");
+    await expect(row(page, "northwind.pdf")).toBeFocused();
+    await page.keyboard.press("Space");
+    await expect(detail(page).getByRole("heading")).toHaveText("northwind.pdf");
+
+    // A letter goes to the next name that starts with it.
+    await page.keyboard.press("h");
+    await expect(row(page, "handbook.pdf")).toBeFocused();
+    // And the tree is one stop for Tab: the next is in the panel.
+    await page.keyboard.press("Tab");
+    await expect(
+      detail(page).getByRole("button", { name: "Download" }),
+    ).toBeFocused();
+  });
+});
+
 test.describe("the blocks page", () => {
   test("lists every category, and each leads to its page", async ({
     page,

@@ -1,0 +1,192 @@
+---
+title: Tree
+description: Rows that open to show more rows, moved through with the arrow keys, with one or many of them selected.
+---
+
+Use a tree for things that are inside other things: files in folders, the teams of a company, the sections of a document. For a flat list of pages, use a [sidebar](/docs/components/sidebar). For one level that opens, an [accordion](/docs/components/accordion) is simpler.
+
+<Preview name="tree/basic" />
+
+## Install
+
+```sh
+pnpm add @nuvui/react
+```
+
+## Import
+
+```tsx
+import { Tree, TreeItem } from "@nuvui/react";
+```
+
+The styles come from `@nuvui/react/styles.css`, which you load once for the whole app. [Getting started](/docs) covers that, and how to load only this component's CSS.
+
+## Parts
+
+| Part | What it is |
+| --- | --- |
+| `Tree` | The tree. It keeps which rows are open and which are selected. |
+| `TreeItem` | A row. Put `TreeItem`s inside it for the rows under it. |
+
+A row with rows inside it can be opened. A row without can't, and has no chevron. Nothing else says which is which.
+
+## Try it
+
+<TreePlayground />
+
+## Selecting one row
+
+`selectionMode="single"` lets one row be selected at a time. `value` is a list in every mode, here with one value in it or none.
+
+<Preview name="tree/selection" />
+
+## Selecting several
+
+With `selectionMode="multiple"`, a press on a row adds it to the selection, and a press on a selected row takes it out. Nothing has to be held down, so it works the same with a finger. Shift and a press selects every row from the last one pressed to this one.
+
+<Preview name="tree/multiple" />
+
+## Opening rows yourself
+
+`expanded` and `onExpandedChange` put the open rows in your hands, for an "Open all" button or to remember them between visits. `defaultExpanded` says which are open at first and leaves the rest to the tree.
+
+<Preview name="tree/controlled" />
+
+The rows inside a closed row aren't in the page. A tree of thousands of rows costs what its open rows cost.
+
+## A label that isn't plain text
+
+`label` takes anything: an icon and a name, a name and a count. Typing a letter goes to the next row whose label starts with it. When the label's text doesn't start with the row's name, say what the name is with `textValue`.
+
+```tsx
+<TreeItem
+  value="inbox"
+  textValue="Inbox"
+  label={
+    <>
+      <Badge>12</Badge> Inbox
+    </>
+  }
+/>
+```
+
+Keep buttons and links out of a label. A row is one thing to press, and a screen reader in a tree reads rows, not what's inside them.
+
+## Tree props
+
+<PropsTable component="tree" name="TreeOwnProps" />
+
+It also takes what a `ul` takes, including `ref` and `className`.
+
+## TreeItem props
+
+<PropsTable component="tree" name="TreeItemOwnProps" />
+
+It also takes what an `li` takes, including `ref` and `className`.
+
+## Accessibility
+
+It follows the [tree view pattern](https://www.w3.org/WAI/ARIA/apg/patterns/treeview/) of the ARIA Authoring Practices.
+
+### Keyboard
+
+The tree is one stop for Tab. Inside it:
+
+| Key | What it does |
+| --- | --- |
+| Down, Up | Moves to the next or the previous row that's shown. |
+| Right | Opens a closed row. On an open one, moves to its first row. |
+| Left | Closes an open row. On a closed one or one that doesn't open, moves to the row it's inside. |
+| Home, End | Moves to the first or the last row that's shown. |
+| Enter | Opens or closes the row, and selects it when rows can be selected. |
+| Space | Selects the row, or with several, adds it or takes it out. With no selection, opens or closes it. |
+| A letter | Moves to the next row that starts with it. Letters typed quickly make a word. |
+| `*` | Opens every row beside this one. |
+| Shift and Down or Up | With several: moves, and selects the row it arrives at. |
+| Ctrl or Command and A | With several: selects every row that's shown. |
+
+In a right-to-left page Right and Left change places, as the tree does.
+
+### What the component handles
+
+- The roles: `tree`, `treeitem`, and `group` for the rows inside a row. A screen reader says how deep a row is and how many are beside it from where it is in the lists.
+- `aria-expanded` on a row that opens, and `aria-selected` on every row when rows can be selected.
+- A row's name is its own label, not that and every row inside it.
+- Tab stops at the row focus was last on. If that row goes, because its parent was closed or the data changed, Tab stops at the first row.
+- A selected row differs by more than its background: a bar at its start and heavier text. The bar is a border, which is still drawn where the browser forces its own colors.
+- A disabled row can still be reached with the arrow keys, so a screen reader can read it. It can't be selected, opened or closed.
+
+### What you need to handle
+
+- Name the tree with `aria-label` or `aria-labelledby`.
+- Give every row a `value` no other row has.
+- Selecting a row does nothing by itself. Show the file, or the team, from `onValueChange`.
+
+## On small screens
+
+A row is 44 pixels tall with a finger and 32 with a mouse. A long label is cut short, so the tree is as wide as you make it. A deep tree in a narrow space runs out of room for its labels: put it in a [scroll area](/docs/components/scroll-area), or make `--nuv-tree-indent` smaller.
+
+## CSS variables
+
+Set any of these on the `Tree`, or on anything around it.
+
+```css
+.files {
+  --nuv-tree-indent: 1.5rem;
+}
+```
+
+<CssVariables
+  component="tree"
+  descriptions={{
+    "--nuv-tree-gap": "Space between rows.",
+    "--nuv-tree-fg": "Color of the labels.",
+    "--nuv-tree-row-height":
+      "Least height of a row. Taller by default with a finger than with a mouse.",
+    "--nuv-tree-radius": "Corner radius of a row.",
+    "--nuv-tree-hover-bg": "Background of the row under the pointer.",
+    "--nuv-tree-selected-bg": "Background of a selected row.",
+    "--nuv-tree-selected-line-width":
+      "Thickness of the bar at the start of a selected row.",
+    "--nuv-tree-selected-line":
+      "Color of that bar. Keep it at 3:1 against the row.",
+    "--nuv-tree-chevron": "Color of the chevron.",
+    "--nuv-tree-indent": "How far in the rows inside a row are set.",
+    "--nuv-tree-line":
+      "Color of the line down the side of the rows inside a row.",
+  }}
+/>
+
+## Classes
+
+<BemClasses
+  component="tree"
+  descriptions={{
+    "nuv-tree": "Tree",
+    "nuv-tree__item": "TreeItem: the row and the rows inside it.",
+    "nuv-tree__row": "The row itself, which is what's pressed.",
+    "nuv-tree__chevron":
+      "The chevron, or its empty place in a row that doesn't open.",
+    "nuv-tree__label": "The label.",
+    "nuv-tree__group": "The list of rows inside a row.",
+  }}
+/>
+
+An open row has `aria-expanded="true"`, a selected one `aria-selected="true"` and a disabled one `aria-disabled="true"`.
+
+## Server components
+
+Tree starts with `"use client"`: it keeps which rows are open. You can render it from a server component with rows written there, as long as you leave `onValueChange` and `onExpandedChange` out, since a function can't be passed from the server.
+
+## Do and don't
+
+**Do**
+
+- Open the rows the reader most likely wants, with `defaultExpanded`.
+- Keep labels short. A path is already said by where the row is.
+
+**Don't**
+
+- Don't use a tree for a list with one level. That's a list.
+- Don't put buttons inside a row. Put what can be done to the selection beside the tree, or in an [action bar](/docs/components/action-bar).
+- Don't nest deeper than people can follow. Past four or five levels, think about a search.

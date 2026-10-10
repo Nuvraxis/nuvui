@@ -325,6 +325,11 @@
     "limit": "18 kB"
   },
   {
+    "name": "@nuvui/react/tree",
+    "path": "dist/components/tree/index.js",
+    "limit": "3.2 kB"
+  },
+  {
     "name": "@nuvui/react/trend",
     "path": "dist/components/trend/index.js",
     "limit": "900 B"

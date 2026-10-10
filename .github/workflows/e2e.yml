@@ -117,11 +117,23 @@ jobs:
 
       # Playwright is run directly, not through `pnpm test:e2e`: that task
       # builds first, and the build is already here.
+      #
+      # The workers in the matrix are a share of 24 cores. A runner may see
+      # fewer: a container can be given part of the machine. So the share is
+      # taken of the cores that are really here, and the log says how many
+      # that was.
       - name: Run slice ${{ matrix.slice }} of ${{ matrix.of }}
-        run: pnpm --filter @nuvui/${{ matrix.app }} exec playwright test --shard=${{ matrix.slice }}/${{ matrix.of }}
+        run: |
+          cores=$(nproc)
+          workers=$(( cores * SHARE / 24 ))
+          if [ "$workers" -lt 1 ]; then workers=1; fi
+          echo "$cores cores here. Running with $workers workers."
+          NUVUI_E2E_WORKERS=$workers pnpm --filter "@nuvui/$APP" exec playwright test --shard="$SLICE"
         env:
+          APP: ${{ matrix.app }}
+          SLICE: ${{ matrix.slice }}/${{ matrix.of }}
+          SHARE: ${{ matrix.workers }}
           NUVUI_E2E_PORT: ${{ matrix.port }}
-          NUVUI_E2E_WORKERS: ${{ matrix.workers }}
 
       # Passed or failed. e2e-report.yml reads these to write what failed
       # on the pull request.

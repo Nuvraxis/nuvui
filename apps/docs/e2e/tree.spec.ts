@@ -73,7 +73,8 @@ test.describe("tree page", () => {
       area.getByRole("treeitem", { name: "Guides", exact: true }),
     ).toBeFocused();
     await page.keyboard.press("Tab");
-    await expect(area.getByRole("treeitem")).not.toBeFocused();
+    // Focus has left the tree: none of its rows has it.
+    await expect(area.locator('[role="treeitem"]:focus')).toHaveCount(0);
   });
 
   test("one row is selected at a time, and what's shown follows it", async ({

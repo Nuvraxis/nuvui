@@ -1,0 +1,140 @@
+@use "@nuvui/react/scss/mixins";
+
+.file-browser {
+  display: grid;
+  gap: calc(var(--spacing) * 6);
+  align-content: start;
+  inline-size: 100%;
+  max-inline-size: 60rem;
+  min-block-size: 100svh;
+  margin-inline: auto;
+  padding: calc(var(--spacing) * 6) calc(var(--spacing) * 4);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+
+  @include mixins.breakpoint("md") {
+    padding: calc(var(--spacing) * 8);
+  }
+}
+
+.file-browser__head {
+  display: grid;
+  gap: calc(var(--spacing) * 1);
+}
+
+.file-browser__title {
+  margin: 0;
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-2xl--line-height);
+  letter-spacing: var(--tracking-tight);
+}
+
+.file-browser__text {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+// One under the other on a phone. Side by side from the md breakpoint, the
+// tree at a width that suits names and the panel with the rest.
+.file-browser__panes {
+  display: grid;
+  gap: calc(var(--spacing) * 4);
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+
+  @include mixins.breakpoint("md") {
+    gap: calc(var(--spacing) * 6);
+    grid-template-columns: 18rem minmax(0, 1fr);
+  }
+}
+
+.file-browser__tree {
+  padding: calc(var(--spacing) * 2);
+  border: var(--nuv-border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+// In a row's label, before its name.
+.file-browser__icon {
+  flex: none;
+  margin-inline-end: calc(var(--spacing) * 2);
+  color: var(--color-muted-foreground);
+  vertical-align: text-bottom;
+}
+
+.file-browser__detail {
+  display: grid;
+  gap: calc(var(--spacing) * 4);
+  align-content: start;
+  min-inline-size: 0;
+  padding: calc(var(--spacing) * 5);
+  border: var(--nuv-border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-surface);
+  color: var(--color-surface-foreground);
+}
+
+.file-browser__name {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 3);
+  align-items: center;
+}
+
+.file-browser__heading {
+  min-inline-size: 0;
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-lg--line-height);
+  overflow-wrap: anywhere;
+}
+
+.file-browser__path {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+  overflow-wrap: anywhere;
+}
+
+.file-browser__list {
+  display: grid;
+  gap: calc(var(--spacing) * 1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+// A row as wide as the panel, with its name at the start.
+.file-browser__entry {
+  justify-content: flex-start;
+  inline-size: 100%;
+}
+
+.file-browser__facts {
+  display: grid;
+  gap: calc(var(--spacing) * 3);
+  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+  margin: 0;
+}
+
+.file-browser__term {
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+.file-browser__value {
+  margin: 0;
+  font-weight: var(--font-weight-medium);
+}
+
+.file-browser__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 2);
+}

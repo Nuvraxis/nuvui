@@ -165,6 +165,8 @@ import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
+  Tree,
+  TreeItem,
   Trend,
   toast,
 } from "../src";
@@ -1756,5 +1758,49 @@ describe("a select in a sentence, a navbar and a sheet's handle", () => {
     expect(handle.borderTopStyle).toBe("solid");
     expect(handle.borderTopWidth).toBe("4px");
     expect(contrast(handle.borderTopColor, canvas())).toBeGreaterThan(3);
+  });
+});
+
+describe("tree", () => {
+  test("a selected row keeps the bar at its start, and the focused row its ring", async () => {
+    await render(
+      <Tree aria-label="Files" selectionMode="single" defaultValue={["b"]}>
+        <TreeItem value="a" label="a.txt" />
+        <TreeItem value="b" label="b.txt" />
+      </Tree>,
+    );
+    const row = (name: string) =>
+      page
+        .getByRole("treeitem", { name })
+        .element()
+        .querySelector(".nuv-tree__row") as Element;
+    const bar = getComputedStyle(row("b.txt"), "::before");
+
+    expect(bar.borderInlineStartStyle).toBe("solid");
+    expect(bar.borderInlineStartWidth).toBe("2px");
+    expect(contrast(bar.borderInlineStartColor, canvas())).toBeGreaterThan(3);
+    expect(getComputedStyle(row("a.txt"), "::before").content).toBe("none");
+
+    await userEvent.tab();
+    expect(style(row("a.txt")).outlineStyle).toBe("solid");
+    expect(
+      contrast(style(row("a.txt")).outlineColor, canvas()),
+    ).toBeGreaterThan(3);
+  });
+
+  test("the line down the side of the rows inside a row is still drawn", async () => {
+    await render(
+      <Tree aria-label="Files" defaultExpanded={["src"]}>
+        <TreeItem value="src" label="src">
+          <TreeItem value="a" label="a.txt" />
+        </TreeItem>
+      </Tree>,
+    );
+    const group = page.getByRole("group").element();
+
+    expect(style(group).borderInlineStartStyle).toBe("solid");
+    expect(
+      contrast(style(group).borderInlineStartColor, canvas()),
+    ).toBeGreaterThan(3);
   });
 });

@@ -678,6 +678,16 @@
         "default": "./dist/components/tooltip/index.cjs"
       }
     },
+    "./tree": {
+      "import": {
+        "types": "./dist/components/tree/index.d.ts",
+        "default": "./dist/components/tree/index.js"
+      },
+      "require": {
+        "types": "./dist/components/tree/index.d.cts",
+        "default": "./dist/components/tree/index.cjs"
+      }
+    },
     "./trend": {
       "import": {
         "types": "./dist/components/trend/index.d.ts",

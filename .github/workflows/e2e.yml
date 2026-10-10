@@ -113,7 +113,7 @@ jobs:
           name: built
 
       - name: Install Playwright's browsers
-        run: pnpm --filter @nuvui/react exec playwright install --with-deps chromium firefox webkit
+        run: node scripts/playwright-browsers.mjs --with-deps
 
       # Playwright is run directly, not through `pnpm test:e2e`: that task
       # builds first, and the build is already here.

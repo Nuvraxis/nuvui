@@ -597,16 +597,27 @@ describe("in a sentence", () => {
   });
 
   test("it's as wide as what it shows, and sits on the line of the sentence", async () => {
+    // Wide enough for the sentence to be one line in any font.
+    await setViewport("desktop");
     await render(<Sentence />);
     const element = period().element();
     const sentence = page.getByTestId("sentence").element();
+    const value = element.querySelector(".nuv-select__value") as Element;
+    const icon = element.querySelector(".nuv-select__icon") as Element;
 
-    // Not the 12rem a select in a field is at least.
-    expect(rect(element).width).toBeLessThan(192);
-    expect(rect(element).width).toBeGreaterThan(100);
-    // One line of text, and the select doesn't make it taller.
-    expect(rect(sentence).height).toBeLessThan(40 * 2 + 20 * 2.5);
-    expect(rect(element).height).toBeLessThanOrEqual(20 * 1.6);
+    // No wider than its words, the gap and the chevron. How wide that is
+    // depends on the font, so it's measured and not written down. And not
+    // held to the 12rem a select in a field is at least.
+    expect(style(element).minWidth).toBe("0px");
+    expect(rect(value).width).toBeGreaterThan(0);
+    expect(rect(element).width).toBeLessThanOrEqual(
+      rect(value).width + rect(icon).width + 4 + 1,
+    );
+    // One line of text between the paragraph's 40px above and below, and
+    // the select doesn't make that line taller.
+    const line = rect(sentence).height - 80;
+    expect(line).toBeLessThan(20 * 2);
+    expect(rect(element).height).toBeLessThanOrEqual(line + 0.5);
   });
 
   test("a line under it says it can be pressed, and the chevron is still there", async () => {

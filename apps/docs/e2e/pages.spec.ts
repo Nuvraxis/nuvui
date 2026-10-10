@@ -163,8 +163,16 @@ for (const path of pages) {
         // WCAG 2.2 A and AA. axe's extra "best practice" rules are left out
         // here because three of them fail inside Fumadocs' own markup, which
         // we can't change. The library's component tests run every rule.
+        //
+        // A disabled choice card fades as a whole, its description with it.
+        // WCAG asks no contrast of a control that can't be used, and axe
+        // lets off such a control's name but not the text that describes
+        // it. That text alone is left out.
         const results = await new AxeBuilder({ page })
           .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
+          .exclude(
+            ".nuv-choice-card:has(> .nuv-choice-card__control:disabled) .nuv-choice-card__description",
+          )
           .analyze();
 
         expect(results.violations).toEqual([]);

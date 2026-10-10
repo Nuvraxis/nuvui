@@ -33,7 +33,7 @@ jobs:
     if: >-
       contains(github.event.pull_request.labels.*.name, 'invoke-e2e') &&
       (github.event.action != 'labeled' || github.event.label.name == 'invoke-e2e')
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, laptop]
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -64,7 +64,7 @@ jobs:
   test:
     name: ${{ matrix.app }} ${{ matrix.slice }} of ${{ matrix.of }}
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, laptop]
     timeout-minutes: 40
     strategy:
       # One slice failing says nothing about the others. Let them finish, so
@@ -128,7 +128,7 @@ jobs:
   consumers:
     name: Install the packed library into a Vite and a Next.js app
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, laptop]
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -156,7 +156,7 @@ jobs:
     name: E2E
     if: always() && needs.build.result != 'skipped'
     needs: [build, test, consumers]
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, laptop]
     timeout-minutes: 5
     steps:
       - name: Fail if anything before this did

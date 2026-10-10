@@ -78,15 +78,6 @@
   block-size: 100%;
 }
 
-.dashboard__value {
-  margin: 0;
-  font-size: var(--text-2xl);
-  font-weight: var(--font-weight-semibold);
-  line-height: var(--text-2xl--line-height);
-  letter-spacing: var(--tracking-tight);
-  font-variant-numeric: tabular-nums;
-}
-
 // A card is a surface, a shade off the page in a dark theme. The gaps in
 // a chart that show what's behind it should show the card.
 .dashboard__chart {

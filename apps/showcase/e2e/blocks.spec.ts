@@ -2139,6 +2139,168 @@ test.describe("customer stories", () => {
   });
 });
 
+test.describe("shipping label", () => {
+  test.beforeEach(async ({ page }) => {
+    await open(page, "/blocks/view/shipping-label");
+  });
+
+  test("shipping label: the tracking number is a barcode named for what it is, with the number under it", async ({
+    page,
+  }) => {
+    const barcode = page.getByRole("img", {
+      name: "Tracking number NV7781204563",
+    });
+
+    await expect(barcode).toBeVisible();
+    await expect(barcode).toHaveAttribute("data-type", "code128");
+    await expect(barcode.locator(".nuv-barcode__text")).toHaveText(
+      "NV7781204563",
+    );
+    await expect(page.locator("[data-invalid]")).toHaveCount(0);
+  });
+
+  test("shipping label: the codes are black on white in the dark as well", async ({
+    page,
+  }) => {
+    for (const selector of [".nuv-barcode__bars", ".nuv-qrcode__squares"]) {
+      expect(
+        await page
+          .locator(selector)
+          .evaluate((element) => getComputedStyle(element).fill),
+      ).toBe("rgb(0, 0, 0)");
+    }
+    await page.emulateMedia({ colorScheme: "dark" });
+    await settleStyles(page);
+    for (const selector of [".nuv-barcode__ground", ".nuv-qrcode__ground"]) {
+      expect(
+        await page
+          .locator(selector)
+          .first()
+          .evaluate((element) => getComputedStyle(element).fill),
+      ).toBe("rgb(255, 255, 255)");
+    }
+  });
+
+  test("shipping label: the QR code opens the tracking page, and so does a link beside it", async ({
+    page,
+  }) => {
+    await expect(
+      page.getByRole("img", { name: "Tracking page for this parcel" }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: "Track this parcel" }),
+    ).toHaveAttribute("href", "https://example.com/track/NV7781204563");
+  });
+
+  test("shipping label: the barcode is saved as a file, and the page says so", async ({
+    page,
+    isMobile,
+  }) => {
+    const said = page.locator(".shipping-label__said");
+    await expect(said).toHaveText("");
+
+    const svg = page.waitForEvent("download");
+    await press(
+      page.getByRole("button", { name: "Save barcode as SVG" }),
+      isMobile,
+    );
+    expect((await svg).suggestedFilename()).toBe("parcel-7781.svg");
+    await expect(said).toHaveText("Saved the barcode as parcel-7781.svg.");
+
+    const png = page.waitForEvent("download");
+    await press(
+      page.getByRole("button", { name: "Save barcode as PNG" }),
+      isMobile,
+    );
+    expect((await png).suggestedFilename()).toBe("parcel-7781.png");
+    await expect(said).toHaveText("Saved the barcode as parcel-7781.png.");
+  });
+
+  test("shipping label: the barcode fits the label, however narrow the screen", async ({
+    page,
+  }) => {
+    const label = await page.locator(".shipping-label__label").boundingBox();
+    const barcode = await page.locator(".nuv-barcode").boundingBox();
+
+    expect(barcode?.x ?? 0).toBeGreaterThanOrEqual(label?.x ?? 0);
+    expect((barcode?.x ?? 0) + (barcode?.width ?? 0)).toBeLessThanOrEqual(
+      (label?.x ?? 0) + (label?.width ?? 0),
+    );
+  });
+});
+
+test.describe("event ticket", () => {
+  test.beforeEach(async ({ page }) => {
+    await open(page, "/blocks/view/event-ticket");
+  });
+
+  test("event ticket: the card is named by the event, and says when, where and which seat", async ({
+    page,
+  }) => {
+    const card = page.getByRole("article", { name: "Northwind Summit 2026" });
+
+    await expect(card).toBeVisible();
+    await expect(card.getByText("Ada Lovelace")).toBeVisible();
+    for (const [name, value] of [
+      ["Date", "Thursday 12 November 2026"],
+      ["Doors", "08:30"],
+      ["Venue", "Harbour Hall, Bristol"],
+      ["Seat", "Row F, seat 14"],
+    ]) {
+      await expect(
+        card.getByRole("term").filter({ hasText: name }),
+      ).toBeVisible();
+      await expect(card.getByText(value ?? "", { exact: true })).toBeVisible();
+    }
+  });
+
+  test("event ticket: the QR code is square, named for what it's for, and came from the server whole", async ({
+    page,
+  }) => {
+    const code = page.getByRole("img", {
+      name: "Ticket NS26-8841-KQ, to scan at the door",
+    });
+
+    await expect(code).toBeVisible();
+    await expect(code).toHaveAttribute("data-error-correction", "Q");
+    await expect(code.locator(".nuv-qrcode__squares")).toHaveAttribute(
+      "d",
+      /^M4 4h7v1h-7z/,
+    );
+    const box = await code.boundingBox();
+    expect(Math.round(box?.width ?? 0)).toBe(Math.round(box?.height ?? 1));
+  });
+
+  test("event ticket: the code is written under it, and a link opens the same ticket", async ({
+    page,
+  }) => {
+    await expect(page.locator(".event-ticket__code")).toHaveText(
+      "NS26-8841-KQ",
+    );
+    await expect(
+      page.getByRole("link", { name: "Open the ticket" }),
+    ).toHaveAttribute("href", "https://example.com/t/NS26-8841-KQ");
+  });
+
+  test("event ticket: the stub is beside the details on a wide screen and under them on a phone", async ({
+    page,
+  }) => {
+    const details = await page.locator(".event-ticket__details").boundingBox();
+    const stub = await page.locator(".event-ticket__stub").boundingBox();
+    const wide = (page.viewportSize()?.width ?? 0) >= 768;
+
+    if (wide) {
+      expect(stub?.x ?? 0).toBeGreaterThanOrEqual(
+        (details?.x ?? 0) + (details?.width ?? 0) - 1,
+      );
+    } else {
+      expect(stub?.y ?? 0).toBeGreaterThanOrEqual(
+        (details?.y ?? 0) + (details?.height ?? 0) - 1,
+      );
+    }
+  });
+});
+
 test.describe("the blocks page", () => {
   test("lists every category, and each leads to its page", async ({
     page,

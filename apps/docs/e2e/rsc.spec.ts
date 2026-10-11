@@ -149,6 +149,25 @@ test("components used from a server component hydrate and work", async ({
   );
   await page.keyboard.press("Escape");
 
+  // Neither of these two has any script of its own: what's checked is
+  // that the server drew them whole.
+  const serverBarcode = page.getByRole("img", {
+    name: "Barcode from the server",
+  });
+  await expect(serverBarcode).toHaveAttribute("data-type", "ean13");
+  await expect(serverBarcode.locator(".nuv-barcode__text")).toHaveText([
+    "5",
+    "901234",
+    "123457",
+  ]);
+  const serverCode = page.getByRole("img", { name: "QR code from the server" });
+  await expect(serverCode).toHaveAttribute("data-error-correction", "H");
+  await expect(serverCode.locator(".nuv-qrcode__squares")).toHaveAttribute(
+    "d",
+    /^M4 4h7v1h-7z/,
+  );
+  await expect(serverCode.locator(".nuv-qrcode__cross-arms")).toHaveCount(1);
+
   const serverCarousel = page.getByRole("region", {
     name: "Carousel from the server",
   });

@@ -18,6 +18,7 @@ It needs React 18 or 19. Each add-on is installed next to it, with the library i
 | [`@nuvui/date-picker`](https://www.npmjs.com/package/@nuvui/date-picker) | A calendar, a date field and a date range field | `pnpm add @nuvui/date-picker` |
 | [`@nuvui/table`](https://www.npmjs.com/package/@nuvui/table) | Tables, and a data table on TanStack Table 9 | `pnpm add @nuvui/table @tanstack/react-table` |
 | [`@nuvui/charts`](https://www.npmjs.com/package/@nuvui/charts) | Charts on Recharts 3 | `pnpm add @nuvui/charts recharts` |
+| [`@nuvui/barcodes`](https://www.npmjs.com/package/@nuvui/barcodes) | Barcodes and QR codes, drawn as SVG | `pnpm add @nuvui/barcodes` |
 
 [Getting started](https://nuvui.nuvraxis.com/docs) has the rest.
 
@@ -31,6 +32,7 @@ What exists today:
 - `@nuvui/date-picker`, a package of its own with three more: Calendar, DatePicker and DateRangePicker. It's built on react-day-picker and date-fns, which is why it isn't part of the core. It has locales, time zones, and dates that can be typed as well as picked.
 - `@nuvui/table`, another package of its own: the elements of a table, styled, and a data table on TanStack Table 9. Sorting, filtering, pagination, row selection, a column chooser, pinned and resizable columns, rows that open, a mode where a server does the sorting, filtering and paging, and virtual rows for tables of thousands. TanStack Table is a peer dependency, and a table only carries the features it's made with.
 - `@nuvui/charts`, a third: a container, a tooltip, a legend and a data table for charts built from Recharts 3's own parts. A chart takes its colors from the theme through CSS variables, so a new theme recolors it without drawing it again. Series can be told apart by pattern and dash as well as by color, and each chart can carry its numbers as a table for screen readers. Recharts is a peer dependency.
+- `@nuvui/barcodes`, a fourth: `Barcode` in seventeen kinds (Code 128, GS1-128, Code 39, EAN-13, EAN-8, UPC-A, UPC-E, ITF, ITF-14, MSI, Codabar and Pharmacode, some with check digits) and `QRCode` with four levels of error correction and room for a logo or the Swiss cross in the middle. Both are SVG with no state, so a server component can render them, and both stay black on white in a dark theme because that's what scans. A code can be saved as an SVG or a PNG. The encoders are JsBarcode's and uqr's. Not released yet.
 - A `toast()` function for showing toasts from anywhere, with a `Toaster` to render them.
 - `DirectionProvider`, for apps in languages that read from the right.
 - The design tokens: color scales, semantic colors for both themes, chart colors, type, spacing, radius, shadow, motion and control sizes. They build to CSS custom properties, and the SCSS source ships alongside.
@@ -109,7 +111,7 @@ pnpm dev         # packages in watch mode plus the website and the docs
 ## Layout
 
 - `packages/ui` is the library, published as `@nuvui/react`.
-- `packages/date-picker`, `packages/table` and `packages/charts` are the add-ons, each published under its folder's name.
+- `packages/date-picker`, `packages/table`, `packages/charts` and `packages/barcodes` are the add-ons, each published under its folder's name.
 - `packages/theme` is the theme generator. It turns a choice of brand color, base color, radius and density into token values and checks their contrast. The presets are written by it. It isn't published.
 - `apps/showcase` is the website: the home page, the charts, the theme builder and the blocks. It's built with the library's own tokens, in SCSS, with no Tailwind. A block is a folder under `apps/showcase/src/blocks`, with a `block.json` that says what it is.
 - `apps/docs` is the documentation, served under `/docs` of the same address. Its build is copied into the website's, so the two are one folder of static files.

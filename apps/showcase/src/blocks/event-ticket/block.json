@@ -1,0 +1,9 @@
+{
+  "name": "event-ticket",
+  "title": "Event ticket",
+  "description": "A ticket to show at the door: the event, when and where it is, the seat and who holds it, and a QR code to scan with the same code written under it and a link beside it.",
+  "category": "data",
+  "files": ["event-ticket.tsx", "event-ticket.scss"],
+  "install": ["@nuvui/barcodes", "@nuvui/react"],
+  "height": 640
+}

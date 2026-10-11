@@ -239,12 +239,15 @@ test.describe("changelog page", () => {
   });
 
   test("lists the changes waiting for a release", async ({ page }) => {
-    // Every changeset that names the package, the same ones the page reads.
+    // Every changeset that gives a bump to a package that's published, the
+    // same ones the page reads. One for an add-on alone counts as well.
     const dir = path.join(library, "..", "..", ".changeset");
+    const bumped =
+      /^["']?@nuvui\/(react|date-picker|table|charts|barcodes)["']?:\s*(major|minor|patch)\s*$/m;
     const notes = readdirSync(dir)
       .filter((name) => name.endsWith(".md") && name !== "README.md")
       .filter((name) =>
-        readFileSync(path.join(dir, name), "utf8").includes("@nuvui/react"),
+        bumped.test(readFileSync(path.join(dir, name), "utf8")),
       );
     test.skip(notes.length === 0, "nothing is waiting for a release");
 
@@ -478,6 +481,7 @@ test.describe("support policy page", () => {
       ["date-picker", "@nuvui/date-picker"],
       ["charts", "@nuvui/charts"],
       ["table", "@nuvui/table"],
+      ["barcodes", "@nuvui/barcodes"],
     ] as const) {
       const oldest = manifest(folder).engines.node.replace(">=", "");
       await expect(
@@ -495,6 +499,7 @@ test.describe("the notice that a package isn't published", () => {
     ["date-picker", "@nuvui/date-picker", "/docs/date-picker"],
     ["table", "@nuvui/table", "/docs/table"],
     ["charts", "@nuvui/charts", "/docs/charts"],
+    ["barcodes", "@nuvui/barcodes", "/docs/barcodes"],
   ] as const) {
     test(`is on ${address} only while ${name} has never been released`, async ({
       page,

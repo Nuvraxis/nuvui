@@ -9,6 +9,10 @@ import { AlertDialogPlayground } from "@/components/playground/alert-dialog";
 import { AspectRatioPlayground } from "@/components/playground/aspect-ratio";
 import { AvatarPlayground } from "@/components/playground/avatar";
 import { BadgePlayground } from "@/components/playground/badge";
+import {
+  BarcodePlayground,
+  QRCodePlayground,
+} from "@/components/playground/barcodes";
 import { BreadcrumbPlayground } from "@/components/playground/breadcrumb";
 import { ButtonPlayground } from "@/components/playground/button";
 import { ButtonGroupPlayground } from "@/components/playground/button-group";
@@ -125,6 +129,8 @@ export function getMDXComponents(components?: MDXComponents) {
     ButtonGroupPlayground,
     CalendarPlayground,
     CardPlayground,
+    BarcodePlayground,
+    QRCodePlayground,
     CarouselPlayground,
     CheckboxPlayground,
     ChoiceCardPlayground,

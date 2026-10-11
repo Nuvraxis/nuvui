@@ -7,6 +7,7 @@
     "build": "next build"
   },
   "dependencies": {
+    "@nuvui/barcodes": "file:../../packages/barcodes",
     "@nuvui/charts": "file:../../packages/charts",
     "@nuvui/date-picker": "file:../../packages/date-picker",
     "@nuvui/react": "file:../../packages/ui",

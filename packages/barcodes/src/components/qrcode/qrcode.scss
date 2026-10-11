@@ -1,0 +1,49 @@
+@use "../../styles/layers";
+
+@layer components {
+  // Dark squares on a light ground, whatever the theme: a scanner reads
+  // the difference between the two, and many don't read a light code on
+  // dark at all. So these are the palette's two ends and not the theme's
+  // colors. Forced colors are kept off it for the same reason.
+  .nuv-qrcode {
+    display: block;
+    max-inline-size: 100%;
+    block-size: auto;
+    forced-color-adjust: none;
+  }
+
+  // Under the code, and again under whatever is laid over its middle.
+  .nuv-qrcode__ground {
+    fill: var(--nuv-qrcode-bg, var(--color-white));
+  }
+
+  // The edges are left smoothed. At a size that puts an edge between
+  // two pixels, snapping it to one would make squares of two sizes. The
+  // squares are one shape, so smoothing leaves no line between two that
+  // touch.
+  .nuv-qrcode__squares {
+    fill: var(--nuv-qrcode-fg, var(--color-black));
+  }
+
+  // What's laid over the middle stays inside its box.
+  .nuv-qrcode__overlay {
+    overflow: hidden;
+  }
+
+  // The Swiss cross is black with a white cross whatever the code's own
+  // colors are: the rules for a QR-bill say so.
+  .nuv-qrcode__cross-ground {
+    fill: var(--color-black);
+  }
+
+  .nuv-qrcode__cross-arms {
+    fill: var(--color-white);
+  }
+
+  // A value that can't be a QR code: an edge and a line across, and
+  // nothing that scans.
+  .nuv-qrcode__mark {
+    fill: none;
+    stroke: var(--nuv-qrcode-invalid, var(--color-danger));
+  }
+}

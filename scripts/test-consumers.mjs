@@ -47,6 +47,7 @@ const published = {
   "@nuvui/date-picker": "date-picker",
   "@nuvui/table": "table",
   "@nuvui/charts": "charts",
+  "@nuvui/barcodes": "barcodes",
 };
 
 function expect(app, what, passed) {
@@ -114,6 +115,13 @@ const fixtures = {
       "the script has the chart's tooltip",
       script.includes("nuv-chart__tooltip"),
     );
+    expect("vite", "it has the codes' styles", css.includes(".nuv-barcode"));
+    expect(
+      "vite",
+      "the script has the barcode and the QR code",
+      script.includes("nuv-barcode__bars") &&
+        script.includes("nuv-qrcode__squares"),
+    );
   },
 
   next(dir) {
@@ -174,7 +182,24 @@ const fixtures = {
       ) && html.includes('<th scope="row">February</th><td>305</td>'),
     );
 
+    expect(
+      "next",
+      "the server drew a barcode, with the check digit it worked out",
+      /<svg\s(?=[^>]*class="nuv-barcode")(?=[^>]*data-type="ean13")(?=[^>]*aria-label="Item 5901234")/.test(
+        html,
+      ) &&
+        /<path class="nuv-barcode__bars" d="M[^"]{200,}"/.test(html) &&
+        />123457<\/text>/.test(html),
+    );
+    expect(
+      "next",
+      "the server drew a QR code",
+      /<svg\s(?=[^>]*class="nuv-qrcode")(?=[^>]*data-version="2")/.test(html) &&
+        /<path class="nuv-qrcode__squares" d="M4 4h7v1h-7z/.test(html),
+    );
+
     const css = read(files(join(dir, "out"), ".css"));
+    expect("next", "it has the codes' styles", css.includes(".nuv-barcode"));
     expect("next", "it has the charts' styles", css.includes(".nuv-chart"));
     expect(
       "next",

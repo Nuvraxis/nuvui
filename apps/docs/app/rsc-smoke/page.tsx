@@ -87,6 +87,9 @@ import {
   Progress,
   paginationRange,
   Rating,
+  Resizable,
+  ResizableHandle,
+  ResizablePanel,
   Sidebar,
   SidebarMain,
   SidebarMenu,
@@ -328,6 +331,19 @@ export default function RscSmokePage() {
           <TreeItem value="server-b" label="File from the server" />
         </TreeItem>
       </Tree>
+      {/* Resizable is a client component, given panels written on the
+          server and no function. */}
+      <div style={{ blockSize: 120 }}>
+        <Resizable>
+          <ResizablePanel defaultSize="40%" minSize="20%">
+            Panel from the server
+          </ResizablePanel>
+          <ResizableHandle aria-label="Handle from the server" />
+          <ResizablePanel minSize="20%">
+            Other panel from the server
+          </ResizablePanel>
+        </Resizable>
+      </div>
       {/* ColorPicker is a client component, with a name for a form and
           no function passed to it. */}
       <ColorPicker name="server-color" defaultValue="#2563eb">

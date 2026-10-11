@@ -7,32 +7,27 @@ name: E2E
 # Adding the label starts a run. While the label stays on, so does every push
 # to the pull request. Take the label off to stop that.
 #
-# There are about 9,900 tests: the docs' and the website's, each in five
-# browser setups. The site is built once, and the tests are cut into slices
-# that run at the same time.
+# There are about 6,000 tests: the docs' and the website's, each in three
+# browser setups, which are Chromium as a desktop and as a phone, and
+# Firefox. The site is built once, and the tests are cut into slices that
+# run at the same time.
 #
-# The runners are six containers on two machines, each given three CPUs:
-# four on a laptop whose CPUs are two threads to a core, and two on a Mac
-# mini whose CPUs are whole cores. So the slices are cut by engine as well.
-# Chromium and Firefox are four slices, and Safari's engine is six. On
-# Linux that engine draws in software, in several processes, and on the
-# laptop's shared cores it's the one that falls behind and fails tests that
-# aren't wrong.
+# Safari's engine isn't run here. On Linux it draws in software, in several
+# processes, and on these runners it managed eighteen tests a minute: its
+# slices ran out their hour and were cancelled, which says nothing about
+# the code. The Playwright configs still have its two projects, so it can
+# be run by hand: `playwright test --project=webkit`. The unit tests run
+# in it too, in ci.yml. To bring it back here, add slices whose `engines`
+# is `webkit`, of about 700 tests each.
 #
-# Which runners a slice goes to is two repository variables (Settings,
-# Secrets and variables, Actions, Variables), each the name of a label the
-# runners have:
+# The runners are containers on machines of ours, each given three CPUs.
+# Which of them the jobs go to is a repository variable (Settings, Secrets
+# and variables, Actions, Variables), the name of a label the runners have:
 #
-#   E2E_RUNNER          for the build, the consumer apps, and the Chromium
-#                       and Firefox slices. `laptop` when it isn't set.
-#   E2E_WEBKIT_RUNNER   for the WebKit slices. The same as E2E_RUNNER when
-#                       it isn't set.
+#   E2E_RUNNER   `laptop` when it isn't set.
 #
-# With neither set, every job goes to any runner labelled `laptop`, which
-# is how it was before the slices were cut by engine. To keep WebKit off
-# the laptop, give the Mac mini's runners a label of their own and set
-# E2E_WEBKIT_RUNNER to it. A label no runner has leaves its jobs waiting
-# until the run is cancelled, so add the label before the variable.
+# A label no runner has leaves its jobs waiting until the run is cancelled,
+# so add the label before the variable.
 #
 # Each slice runs as many workers as its own container has CPUs. With a
 # slice left to use every core of the machine it's on, browsers stop
@@ -109,9 +104,7 @@ jobs:
   test:
     name: ${{ matrix.app }} ${{ matrix.name }} ${{ matrix.slice }} of ${{ matrix.of }}
     needs: build
-    runs-on:
-      - self-hosted
-      - ${{ matrix.webkit && (vars.E2E_WEBKIT_RUNNER || vars.E2E_RUNNER || 'laptop') || (vars.E2E_RUNNER || 'laptop') }}
+    runs-on: [self-hosted, "${{ vars.E2E_RUNNER || 'laptop' }}"]
     # A slice is some 1,400 tests. With two workers, which is what a
     # runner given three of the laptop's CPUs gets, the 1,700 of a slice
     # as they were cut before took fifty-four minutes.
@@ -129,22 +122,10 @@ jobs:
           # `id` is the slice's number among its app's, which is what its
           # results are kept under: scripts/e2e-comment.mjs adds up
           # e2e-report-<app>-<number>.
-          - { app: docs, name: Chromium and Firefox, engines: "chromium,firefox", webkit: false, slice: 1, of: 3, port: 3101, id: 1 }
-          - { app: docs, name: Chromium and Firefox, engines: "chromium,firefox", webkit: false, slice: 2, of: 3, port: 3102, id: 2 }
-          - { app: docs, name: Chromium and Firefox, engines: "chromium,firefox", webkit: false, slice: 3, of: 3, port: 3103, id: 3 }
-          - { app: showcase, name: Chromium and Firefox, engines: "chromium,firefox", webkit: false, slice: 1, of: 1, port: 3201, id: 1 }
-          # Safari's engine, as a desktop and as an iPhone: 2,858 of the
-          # docs' tests and 1,112 of the website's. It's the slow one. On
-          # the laptop a slice of 1,429 had passed some 1,090 when its hour
-          # ran out, which is eighteen tests a minute, so a slice is kept
-          # to about 700. That's more slices than there are runners, and
-          # the later ones wait for a runner to be free.
-          - { app: docs, name: WebKit, engines: webkit, webkit: true, slice: 1, of: 4, port: 3111, id: 4 }
-          - { app: docs, name: WebKit, engines: webkit, webkit: true, slice: 2, of: 4, port: 3112, id: 5 }
-          - { app: docs, name: WebKit, engines: webkit, webkit: true, slice: 3, of: 4, port: 3113, id: 6 }
-          - { app: docs, name: WebKit, engines: webkit, webkit: true, slice: 4, of: 4, port: 3114, id: 7 }
-          - { app: showcase, name: WebKit, engines: webkit, webkit: true, slice: 1, of: 2, port: 3211, id: 2 }
-          - { app: showcase, name: WebKit, engines: webkit, webkit: true, slice: 2, of: 2, port: 3212, id: 3 }
+          - { app: docs, name: Chromium and Firefox, engines: "chromium,firefox", slice: 1, of: 3, port: 3101, id: 1 }
+          - { app: docs, name: Chromium and Firefox, engines: "chromium,firefox", slice: 2, of: 3, port: 3102, id: 2 }
+          - { app: docs, name: Chromium and Firefox, engines: "chromium,firefox", slice: 3, of: 3, port: 3103, id: 3 }
+          - { app: showcase, name: Chromium and Firefox, engines: "chromium,firefox", slice: 1, of: 1, port: 3201, id: 1 }
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 

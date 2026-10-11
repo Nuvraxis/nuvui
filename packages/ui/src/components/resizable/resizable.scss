@@ -1,0 +1,96 @@
+@use "../../styles/layers";
+@use "../../styles/mixins";
+
+@layer components {
+  // The panels' sizes and how they're set out are written on the elements
+  // by the library that does the resizing. What's here is how it looks.
+  .nuv-resizable {
+    color: var(--nuv-resizable-fg, var(--color-foreground));
+  }
+
+  // The box around a panel's content. It scrolls what doesn't fit.
+  .nuv-resizable__panel {
+    box-sizing: border-box;
+    min-inline-size: 0;
+    min-block-size: 0;
+    outline: none;
+
+    // It takes focus when it scrolls and holds nothing else that can. The
+    // ring is inside, where the panels around it can't cover it.
+    &:focus-visible {
+      outline: var(--nuv-focus-ring-width, 2px) solid
+        var(--nuv-focus-ring-color, var(--color-ring));
+      outline-offset: calc(var(--nuv-focus-ring-width, 2px) * -1);
+    }
+  }
+
+  // The line between two panels. It's a border and has no size of its own,
+  // so it's still drawn where the browser forces its own colors. What
+  // takes a press is wider than this, and isn't drawn.
+  .nuv-resizable__handle {
+    display: flex;
+    position: relative;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    border: 0 solid var(--nuv-resizable-line, var(--color-border));
+    outline: none;
+
+    @include mixins.motion-safe {
+      transition: border-color var(--nuv-duration-fast) var(--ease-out);
+    }
+
+    &:focus-visible {
+      outline: var(--nuv-focus-ring-width, 2px) solid
+        var(--nuv-focus-ring-color, var(--color-ring));
+      outline-offset: var(--nuv-focus-ring-offset, 0);
+    }
+  }
+
+  // Between panels side by side the line stands up, and between panels
+  // one above another it lies flat. The attribute says which the line is.
+  .nuv-resizable__handle[aria-orientation="vertical"] {
+    inline-size: 0;
+    border-inline-start-width: var(--nuv-resizable-line-width, 1px);
+  }
+
+  .nuv-resizable__handle[aria-orientation="horizontal"] {
+    block-size: 0;
+    border-block-start-width: var(--nuv-resizable-line-width, 1px);
+  }
+
+  // Under the pointer, and while it's dragged.
+  .nuv-resizable__handle[data-separator="hover"],
+  .nuv-resizable__handle[data-separator="active"] {
+    border-color: var(--nuv-resizable-line-active, var(--color-primary));
+  }
+
+  // The mark in the middle of the line. It's over the line and wider than
+  // it, so it takes no room from the panels.
+  .nuv-resizable__grip {
+    display: flex;
+    position: absolute;
+    z-index: 1;
+    align-items: center;
+    justify-content: center;
+    inline-size: calc(var(--spacing) * 3);
+    block-size: calc(var(--spacing) * 5);
+    border: var(--nuv-border-width) solid
+      var(--nuv-resizable-line, var(--color-border));
+    border-radius: var(--radius-sm);
+    background-color: var(--nuv-resizable-grip-bg, var(--color-background));
+    color: var(--nuv-resizable-grip-fg, var(--color-muted-foreground));
+  }
+
+  // The handle has no width, so its middle is the line's far edge. Half
+  // the line back puts the grip's middle on the line's.
+  .nuv-resizable__handle[aria-orientation="vertical"] > .nuv-resizable__grip {
+    margin-inline-start: calc(var(--nuv-resizable-line-width, 1px) * -1);
+  }
+
+  // Lying flat with its line.
+  .nuv-resizable__handle[aria-orientation="horizontal"] > .nuv-resizable__grip {
+    margin-block-start: calc(var(--nuv-resizable-line-width, 1px) * -1);
+    transform: rotate(90deg);
+  }
+}

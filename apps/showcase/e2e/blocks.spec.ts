@@ -1777,6 +1777,108 @@ test.describe("appearance", () => {
   });
 });
 
+test.describe("query editor", () => {
+  test.beforeEach(async ({ page }) => {
+    await open(page, "/blocks/view/query-editor");
+  });
+
+  const handle = (page: Page) =>
+    page.getByRole("separator", { name: "Resize the query" });
+
+  test("query editor: a saved query fills the box, and Run shows its rows", async ({
+    page,
+    isMobile,
+  }) => {
+    const sql = page.getByRole("textbox", { name: "SQL" });
+    await expect(sql).toHaveValue(/where status = 'overdue'/);
+    await expect(page.getByRole("status")).toHaveText(
+      "Overdue invoices: 4 rows",
+    );
+
+    await press(page.getByRole("combobox", { name: "Saved query" }), isMobile);
+    await press(
+      page.getByRole("option", { name: "Largest customers" }),
+      isMobile,
+    );
+    await expect(sql).toHaveValue(/group by customer/);
+    // Choosing isn't running: the rows are still the last query's.
+    await expect(page.getByRole("status")).toHaveText(
+      "Overdue invoices: 4 rows",
+    );
+
+    await press(page.getByRole("button", { name: "Run" }), isMobile);
+    await expect(page.getByRole("status")).toHaveText(
+      "Largest customers: 5 rows",
+    );
+    await expect(page.getByRole("columnheader")).toHaveText([
+      "customer",
+      "invoices",
+      "total",
+    ]);
+    await expect(page.getByRole("row")).toHaveCount(6);
+  });
+
+  test("query editor: the query is above its rows, with a handle between that says how much it has", async ({
+    page,
+  }) => {
+    await expect(handle(page)).toHaveAttribute(
+      "aria-orientation",
+      "horizontal",
+    );
+    await expect(handle(page)).toHaveAttribute("aria-valuenow", "45");
+    await expect(handle(page)).toHaveAttribute("aria-valuemin", "30");
+    await expect(handle(page)).toHaveAttribute("aria-valuemax", "75");
+
+    const sql = await page.getByRole("textbox", { name: "SQL" }).boundingBox();
+    const rows = await page.getByRole("table").boundingBox();
+    const line = await handle(page).boundingBox();
+    if (!sql || !rows || !line) throw new Error("nothing to measure");
+    expect(sql.y + sql.height).toBeLessThan(line.y);
+    expect(rows.y).toBeGreaterThan(line.y);
+  });
+
+  test("query editor: the arrow keys give the query more room, and it's still there after a reload", async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(isMobile, "A phone has no arrow keys.");
+    const box = page.getByRole("textbox", { name: "SQL" });
+    const before = (await box.boundingBox())?.height ?? 0;
+    await handle(page).focus();
+
+    await page.keyboard.press("ArrowDown");
+    await page.keyboard.press("ArrowDown");
+    await expect(handle(page)).toHaveAttribute("aria-valuenow", "55");
+    await expect
+      .poll(async () => (await box.boundingBox())?.height ?? 0)
+      .toBeGreaterThan(before);
+    await expect
+      .poll(() =>
+        page.evaluate(() => localStorage.getItem("nuv-resizable:query-editor")),
+      )
+      .toBe('{"query":55,"rows":45}');
+
+    await open(page, "/blocks/view/query-editor");
+
+    await expect(handle(page)).toHaveAttribute("aria-valuenow", "55");
+  });
+
+  test("query editor: the handle stops where either part would be too small", async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(isMobile, "A phone has no arrow keys.");
+    await handle(page).focus();
+
+    await page.keyboard.press("Home");
+    await expect(handle(page)).toHaveAttribute("aria-valuenow", "30");
+    await page.keyboard.press("End");
+    await expect(handle(page)).toHaveAttribute("aria-valuenow", "75");
+    await expect(page.getByRole("button", { name: "Run" })).toBeVisible();
+    await expect(page.getByRole("columnheader").first()).toBeVisible();
+  });
+});
+
 test.describe("the blocks page", () => {
   test("lists every category, and each leads to its page", async ({
     page,

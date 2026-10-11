@@ -135,22 +135,36 @@ export const ConversationContent = forwardRef<
   const { viewport, following, setAtBottom } = context;
   const content = useRef<HTMLDivElement>(null);
 
-  // The box's sizes as they were when last looked at, to tell where the
-  // reader was before a change of size. None yet before the first paint.
-  const sizes = useRef<{ height: number; room: number } | null>(null);
+  // The box as it was when last looked at, to tell where the reader was
+  // before a change of size, and which way they have moved since. None yet
+  // before the first paint.
+  const sizes = useRef<{ height: number; room: number; top: number } | null>(
+    null,
+  );
 
   // Goes to the end if the end is being followed, and says whether it is.
   // A browser tells of a scroll some time after it happens, and the
-  // messages can grow in between. So a reader who was at the end before
-  // they grew is followed, whether or not the scroll has been heard of.
+  // messages can grow in between. So where the reader is gets read here
+  // and not taken from the last scroll that was heard of: one who was at
+  // the end before the messages grew is followed, and one who has moved up
+  // since is left where they are.
   const follow = useCallback(
     (box: HTMLDivElement) => {
       const was = sizes.current;
       if (!was || was.height - box.scrollTop - was.room <= near) {
         following.current = true;
       }
+      // Up, in a box that hasn't got shorter. When it has, the browser
+      // moved the position, and the reader didn't.
+      else if (box.scrollTop < was.top - 1 && box.scrollHeight >= was.height) {
+        following.current = false;
+      }
       if (following.current) box.scrollTop = box.scrollHeight;
-      sizes.current = { height: box.scrollHeight, room: box.clientHeight };
+      sizes.current = {
+        height: box.scrollHeight,
+        room: box.clientHeight,
+        top: box.scrollTop,
+      };
     },
     [following],
   );

@@ -235,6 +235,7 @@ describe("the button to the latest message", () => {
     await render(<Chat count={10} />);
     const without = rect(log()).height;
     await scrollTo(0);
+    await expect.element(button()).toBeVisible();
     const box = rect(button().element());
     const messages = rect(log());
 
@@ -403,6 +404,7 @@ describe("styles", () => {
     await setViewport("desktop");
     await render(<Chat count={10} />);
     await scrollTo(0);
+    await expect.element(button()).toBeVisible();
     const element = button().element();
 
     expect(rect(element).width).toBe(36);
@@ -456,6 +458,7 @@ describe("styles", () => {
       </div>,
     );
     await scrollTo(0);
+    await expect.element(button()).toBeVisible();
     const one = rect(page.getByTestId("one").element());
     const element = button().element();
 

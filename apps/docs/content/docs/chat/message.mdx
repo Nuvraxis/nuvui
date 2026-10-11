@@ -1,0 +1,179 @@
+---
+title: Message
+description: One message in a conversation, from the person or from the assistant, with room for a picture, a line of details and a row of actions.
+added: "2026-10-12"
+---
+
+Use a message for each turn of a conversation. The person's own sit at the end of the row in a bubble. The assistant's sit at the start and take the row's width, since they're the ones that run long.
+
+<Preview name="message/basic" />
+
+## Install
+
+```sh
+pnpm add @nuvui/chat @nuvui/react
+```
+
+## Import
+
+```tsx
+import {
+  Message,
+  MessageAction,
+  MessageActions,
+  MessageContent,
+  MessageCopyAction,
+  MessageMeta,
+} from "@nuvui/chat";
+```
+
+The styles come from `@nuvui/chat/styles.css`, which you load once for the whole app, after `@nuvui/react/styles.css`. [Chat](/docs/chat) covers that.
+
+```tsx
+<Message from="assistant">
+  <MessageContent>Two invoices are overdue.</MessageContent>
+</Message>
+```
+
+## Parts
+
+| Part | What it is |
+| --- | --- |
+| `Message` | One message. `from` says whose it is. |
+| `MessageContent` | What it says. |
+| `MessageMeta` | A small line over or under it: a name, a time. |
+| `MessageActions` | A row of buttons under it. |
+| `MessageAction` | One of those buttons: an icon, named by `label`. |
+| `MessageCopyAction` | A button that copies the message. |
+
+## Try it
+
+<MessagePlayground />
+
+## What it says
+
+`MessageContent` shows text as it was written: line breaks are kept, and a long word or address breaks and doesn't push the row wider. It takes anything else as well. What a model writes is usually markdown, and a part that draws markdown is planned for this package. Until then, render it with what you already use and put the result in `MessageContent`.
+
+## A picture and a name
+
+`avatar` puts a picture beside the message, and a `MessageMeta` puts a line over it. Each message is already announced with who it's from. When the name is on the page, in the line, pass `label={null}` so it isn't said twice.
+
+<Preview name="message/avatar" />
+
+## A reply that's still arriving
+
+Set `streaming` while a reply is being written and take it off when it's done. Nothing looks different. It tells a screen reader to wait and read the message once it's whole, not each piece as it arrives. Before the first words, show a [`MessageLoader`](/docs/chat/message-loader) where they'll be.
+
+<Preview name="message/streaming" />
+
+## Actions
+
+`MessageActions` is a row of buttons under a message. Each `MessageAction` is an icon with a `label`, which is its name for a screen reader and the text of its tooltip. `MessageCopyAction` copies `text` and shows a tick for two seconds.
+
+<Preview name="message/actions" />
+
+The buttons are always there. Showing them only under the pointer would hide them from a touch screen and from the keyboard.
+
+Copying needs a page served over HTTPS, or `localhost`. Where the browser refuses, `onCopyError` is called and nothing is shown as copied.
+
+## Message props
+
+<PropsTable package="chat" component="message" name="MessageOwnProps" />
+
+## MessageAction props
+
+<PropsTable package="chat" component="message" name="MessageActionOwnProps" />
+
+## MessageCopyAction props
+
+<PropsTable package="chat" component="message" name="MessageCopyActionOwnProps" />
+
+## MessageActions props
+
+<PropsTable package="chat" component="message" name="MessageActionsOwnProps" />
+
+`MessageContent` and `MessageMeta` take the attributes of a `div`. Every part passes `ref` to its element.
+
+## Accessibility
+
+### What the component handles
+
+- Each message starts with who it's from, "You" or "Assistant", in text that's read and not seen. The side a message is on and its bubble are for the eye. This is the same thing for the ear.
+- A message with `streaming` has `aria-busy`, and loses it when it's done.
+- The picture is hidden from screen readers. Who the message is from has been said.
+- The actions are a group with a name. Each is a real button with a name, and its tooltip shows on focus as well as under the pointer.
+- When a message has been copied, the button's name changes and "Copied" is announced.
+- An action is 44 pixels on a touch screen and 32 with a mouse.
+
+### What you need to handle
+
+- Translate `label` with the rest of your app, and the actions' labels.
+- Give every `MessageAction` a `label` that says what it does: "Try again", not "Action 2".
+- Don't mark who a message is from by color alone if you restyle. Keep the side, the bubble or a name.
+
+## CSS variables
+
+Set any of these on a `Message`, or on anything around it.
+
+```css
+.chat {
+  --nuv-message-user-bg: var(--color-primary);
+  --nuv-message-user-fg: var(--color-primary-foreground);
+}
+```
+
+<CssVariables
+  package="chat"
+  component="message"
+  descriptions={{
+    "--nuv-message-fg": "Text color.",
+    "--nuv-message-font-size": "Size of the text.",
+    "--nuv-message-gap": "Space between the picture and the message.",
+    "--nuv-message-meta-fg": "Color of the small line. Keep it at 4.5:1.",
+    "--nuv-message-user-bg": "Background of the person's own message.",
+    "--nuv-message-user-fg":
+      "Color of its text. Keep it at 4.5:1 against the background.",
+    "--nuv-message-user-max-width":
+      "The most of the row the person's own message takes.",
+    "--nuv-message-user-radius": "Corner radius of the person's own message.",
+    "--nuv-message-action-fg": "Color of an action's icon. Keep it at 3:1.",
+    "--nuv-message-action-hover-bg": "Background of an action under the pointer.",
+    "--nuv-message-action-hover-fg": "Color of its icon under the pointer.",
+  }}
+/>
+
+## Classes
+
+<BemClasses
+  package="chat"
+  component="message"
+  descriptions={{
+    "nuv-message": "Message",
+    "nuv-message__avatar": "The picture, from the avatar prop.",
+    "nuv-message__body": "The column beside the picture, with everything else in it.",
+    "nuv-message__label":
+      "Who the message is from, and that it was copied. Read out and drawn for nobody.",
+    "nuv-message__content": "MessageContent",
+    "nuv-message__meta": "MessageMeta",
+    "nuv-message__actions": "MessageActions",
+    "nuv-message__action": "MessageAction and MessageCopyAction.",
+  }}
+/>
+
+A message has `data-from`, and `data-streaming` while it's being written. The copy button has `data-copied` for the two seconds after it has copied.
+
+## Server components
+
+Message starts with `"use client"`, for the copy button and the tooltips. A server component can render one, without the functions: `onClick`, `onCopy`.
+
+## Do and don't
+
+**Do**
+
+- Set `streaming` for exactly as long as the reply is being written.
+- Keep the actions to a few. Copy and try again cover most of it.
+
+**Don't**
+
+- Don't put a whole page in a message. A table or a form the assistant made belongs under the reply or beside the conversation.
+- Don't hide the actions until the pointer is over the message.

@@ -2301,6 +2301,154 @@ test.describe("event ticket", () => {
   });
 });
 
+test.describe("assistant chat", () => {
+  test.beforeEach(async ({ page }) => {
+    await open(page, "/blocks/view/assistant-chat");
+  });
+
+  const log = (page: Page) =>
+    page.getByRole("log", { name: "Conversation with the billing assistant" });
+  const field = (page: Page) =>
+    page.getByRole("textbox", { name: "Message to the billing assistant" });
+  const sendButton = (page: Page) => page.getByRole("button", { name: "Send" });
+  // How far the end of the messages is below what's in view.
+  const gapOf = (page: Page) =>
+    log(page).evaluate((box) =>
+      Math.round(box.scrollHeight - box.scrollTop - box.clientHeight),
+    );
+  const answers = (page: Page) =>
+    log(page).locator('.nuv-message[data-from="assistant"]');
+
+  test("assistant chat: it fills the screen and no more, with the box to write in at the bottom", async ({
+    page,
+  }) => {
+    const size = page.viewportSize();
+    const box = await page.locator(".nuv-prompt-input").boundingBox();
+
+    expect(
+      await page.evaluate(() => document.documentElement.scrollHeight),
+    ).toBeLessThanOrEqual((size?.height ?? 0) + 1);
+    expect((box?.y ?? 0) + (box?.height ?? 0)).toBeLessThanOrEqual(
+      size?.height ?? 0,
+    );
+    await expect(sendButton(page)).toHaveAttribute("aria-disabled", "true");
+  });
+
+  test("assistant chat: a suggestion starts the conversation, and the reply arrives busy and ends whole", async ({
+    page,
+    isMobile,
+  }) => {
+    await expect(
+      page.getByText("Ask about invoices, customers and what's overdue."),
+    ).toBeVisible();
+
+    await press(
+      page.getByRole("button", { name: "Who hasn't paid yet?" }),
+      isMobile,
+    );
+
+    await expect(page.locator(".nuv-conversation__empty")).toHaveCount(0);
+    await expect(
+      log(page).locator('.nuv-message[data-from="user"]'),
+    ).toHaveText("You: Who hasn't paid yet?");
+    await expect(log(page).locator('[aria-busy="true"]')).toHaveCount(1);
+    await expect(page.getByRole("button", { name: "Stop" })).toBeVisible();
+    await expect(sendButton(page)).toBeVisible({ timeout: 15_000 });
+    await expect(log(page).locator('[aria-busy="true"]')).toHaveCount(0);
+    await expect(answers(page)).toHaveCount(1);
+    await expect(answers(page)).toContainText(
+      "Everyone else has paid, or isn't due yet.",
+    );
+  });
+
+  test("assistant chat: a question that's typed is answered by what it asks about, and the end stays in view", async ({
+    page,
+    isMobile,
+  }) => {
+    for (const question of [
+      "Summarize September",
+      "Draft a reminder please",
+      "Who hasn't paid?",
+    ]) {
+      await field(page).fill(question);
+      await press(sendButton(page), isMobile);
+      await expect(field(page)).toHaveValue("");
+      await expect(sendButton(page)).toBeVisible({ timeout: 15_000 });
+    }
+
+    await expect(answers(page)).toHaveCount(3);
+    await expect(answers(page).nth(0)).toContainText("38 invoices");
+    // Line breaks in an answer are kept.
+    await expect(answers(page).nth(1)).toContainText("Kind regards,");
+    expect(await gapOf(page)).toBe(0);
+  });
+
+  test("assistant chat: stopping keeps what had arrived, and trying again asks the same again", async ({
+    page,
+    isMobile,
+  }) => {
+    await field(page).fill("Summarize September");
+    await press(sendButton(page), isMobile);
+    await expect(
+      log(page).locator('[aria-busy="true"] .nuv-message__content'),
+    ).toContainText("In September");
+    await press(page.getByRole("button", { name: "Stop" }), isMobile);
+
+    await expect(sendButton(page)).toBeVisible();
+    await expect(answers(page)).toHaveCount(1);
+    await expect(answers(page)).not.toContainText("Team plan.");
+
+    await press(page.getByRole("button", { name: "Try again" }), isMobile);
+    await expect(log(page).locator('[aria-busy="true"]')).toHaveCount(1);
+    await expect(sendButton(page)).toBeVisible({ timeout: 15_000 });
+
+    await expect(log(page).locator(".nuv-message")).toHaveCount(2);
+    await expect(answers(page)).toContainText("Team plan.");
+  });
+
+  test("assistant chat: each answer has a group of actions, and a question has none", async ({
+    page,
+    isMobile,
+  }) => {
+    await press(
+      page.getByRole("button", { name: "Who hasn't paid yet?" }),
+      isMobile,
+    );
+    await expect(sendButton(page)).toBeVisible({ timeout: 15_000 });
+    const group = answers(page).getByRole("group", { name: "Message actions" });
+
+    await expect(group.getByRole("button", { name: "Copy" })).toBeVisible();
+    await expect(
+      group.getByRole("button", { name: "Try again" }),
+    ).toBeVisible();
+    await expect(
+      log(page).locator('.nuv-message[data-from="user"]').getByRole("button"),
+    ).toHaveCount(0);
+  });
+
+  test("assistant chat: the box to write in is as wide as the messages, and the note under it is there", async ({
+    page,
+    isMobile,
+  }) => {
+    await press(
+      page.getByRole("button", { name: "Who hasn't paid yet?" }),
+      isMobile,
+    );
+    await expect(sendButton(page)).toBeVisible({ timeout: 15_000 });
+    const message = await log(page)
+      .locator(".nuv-message")
+      .first()
+      .boundingBox();
+    const box = await page.locator(".nuv-prompt-input").boundingBox();
+
+    expect(Math.round(box?.x ?? 0)).toBe(Math.round(message?.x ?? -1));
+    expect(Math.round(box?.width ?? 0)).toBe(Math.round(message?.width ?? -1));
+    await expect(
+      page.getByText("Answers are written by a model and can be wrong."),
+    ).toBeVisible();
+  });
+});
+
 test.describe("the blocks page", () => {
   test("lists every category, and each leads to its page", async ({
     page,

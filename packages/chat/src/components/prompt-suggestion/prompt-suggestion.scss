@@ -1,0 +1,52 @@
+@use "../../styles/layers";
+@use "@nuvui/react/scss/mixins";
+
+@layer components {
+  .nuv-prompt-suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--nuv-prompt-suggestion-gap, calc(var(--spacing) * 2));
+    justify-content: var(--nuv-prompt-suggestion-justify, center);
+  }
+
+  // A pill. Its text wraps when it's longer than the row, so the row
+  // never makes the page scroll sideways.
+  .nuv-prompt-suggestion {
+    display: inline-flex;
+    align-items: center;
+    box-sizing: border-box;
+    max-inline-size: 100%;
+    min-block-size: var(--nuv-touch-size);
+    padding: calc(var(--spacing) * 1.5) calc(var(--spacing) * 4);
+    border: var(--nuv-border-width) solid
+      var(--nuv-prompt-suggestion-border, var(--color-border-strong));
+    border-radius: var(--nuv-prompt-suggestion-radius, var(--radius-full));
+    background-color: var(--nuv-prompt-suggestion-bg, var(--color-background));
+    color: var(--nuv-prompt-suggestion-fg, var(--color-foreground));
+    font: inherit;
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+    text-align: start;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+
+    @include mixins.motion-safe {
+      transition: background-color var(--nuv-duration-fast) var(--ease-out);
+    }
+
+    @include mixins.fine-pointer {
+      min-block-size: calc(var(--spacing) * 9);
+    }
+
+    @include mixins.hover {
+      background-color: var(--nuv-prompt-suggestion-hover-bg, var(--color-muted));
+    }
+
+    @include mixins.focus-ring;
+
+    &:disabled {
+      opacity: var(--nuv-disabled-opacity);
+      cursor: not-allowed;
+    }
+  }
+}

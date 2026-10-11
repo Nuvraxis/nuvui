@@ -18,6 +18,10 @@ import { ButtonPlayground } from "@/components/playground/button";
 import { ButtonGroupPlayground } from "@/components/playground/button-group";
 import { CardPlayground } from "@/components/playground/card";
 import { CarouselPlayground } from "@/components/playground/carousel";
+import {
+  MessagePlayground,
+  PromptInputPlayground,
+} from "@/components/playground/chat";
 import { CheckboxPlayground } from "@/components/playground/checkbox";
 import { ChoiceCardPlayground } from "@/components/playground/choice-card";
 import { CollapsiblePlayground } from "@/components/playground/collapsible";
@@ -132,6 +136,8 @@ export function getMDXComponents(components?: MDXComponents) {
     BarcodePlayground,
     QRCodePlayground,
     CarouselPlayground,
+    MessagePlayground,
+    PromptInputPlayground,
     CheckboxPlayground,
     ChoiceCardPlayground,
     CollapsiblePlayground,

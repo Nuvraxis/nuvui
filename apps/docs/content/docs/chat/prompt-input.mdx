@@ -1,0 +1,201 @@
+---
+title: PromptInput
+description: The box a prompt is written in. A field that grows with the text, sends on Enter, and has a row under it for buttons, with a button that sends or stops.
+added: "2026-10-12"
+---
+
+Use it where someone writes to an assistant. It's a form with one growing field, so it behaves like the message box people already know: Enter sends, Shift with Enter starts a new line, and the box gets taller as the text does.
+
+<Preview name="prompt-input/basic" />
+
+## Install
+
+```sh
+pnpm add @nuvui/chat @nuvui/react
+```
+
+## Import
+
+```tsx
+import {
+  PromptInput,
+  PromptInputSubmit,
+  PromptInputTextarea,
+  PromptInputToolbar,
+  PromptInputTools,
+} from "@nuvui/chat";
+```
+
+The styles come from `@nuvui/chat/styles.css`, which you load once for the whole app, after `@nuvui/react/styles.css`. [Chat](/docs/chat) covers that.
+
+```tsx
+<PromptInput onSubmit={(text) => send(text)}>
+  <PromptInputTextarea aria-label="Message" placeholder="Ask anything" />
+  <PromptInputToolbar>
+    <PromptInputSubmit />
+  </PromptInputToolbar>
+</PromptInput>
+```
+
+## Parts
+
+| Part | What it is |
+| --- | --- |
+| `PromptInput` | The box. It's a `form`, and keeps the text. |
+| `PromptInputTextarea` | The field. |
+| `PromptInputToolbar` | The row under the field. |
+| `PromptInputTools` | Buttons at the start of that row. |
+| `PromptInputSubmit` | The button that sends, and stops. |
+
+## Try it
+
+<PromptInputPlayground />
+
+## Sending
+
+`onSubmit` is called with the text, and the box is emptied. Text that's only spaces isn't sent.
+
+With a keyboard, <kbd>Enter</kbd> sends and <kbd>Shift</kbd> with <kbd>Enter</kbd> starts a new line. On a touch screen it's the other way: the keyboard's Enter is the only way to start a line there, so it starts one, and the button sends. `submitOnEnter` on the field sets it one way for everyone.
+
+Enter that picks a word from an input method's list, as when writing Japanese or Chinese, doesn't send.
+
+## While a reply is on its way
+
+Set `busy` from the moment something is sent until the reply is done. Nothing more can be sent until then. The field stays open, so the next message can be written while the reply arrives.
+
+With `onStop`, the button to send becomes a button to stop for as long as the box is busy.
+
+<Preview name="prompt-input/busy" />
+
+## Buttons in the row
+
+`PromptInputTools` holds whatever goes with the prompt: where to look, which model, a mode. They sit at the start of the row and the button to send at the end. Give a button `type="button"`, so that pressing it doesn't send.
+
+<Preview name="prompt-input/tools" />
+
+## Keeping the text yourself
+
+Pass `value` and `onValueChange` to hold the text: to limit it, to keep a draft, or to put a [suggestion](/docs/chat/prompt-suggestion) in the box. `onValueChange` is called with an empty text after a send.
+
+<Preview name="prompt-input/controlled" />
+
+## How tall it gets
+
+The field starts one line tall and grows to 12rem, about eight lines, and scrolls after that. `--nuv-prompt-input-max-height` changes where it stops.
+
+## PromptInput props
+
+<PropsTable package="chat" component="prompt-input" name="PromptInputOwnProps" />
+
+It also takes the attributes of a `form`.
+
+## PromptInputTextarea props
+
+<PropsTable
+  package="chat"
+  component="prompt-input"
+  name="PromptInputTextareaOwnProps"
+/>
+
+It also takes the attributes of a `textarea`, but for `value` and `defaultValue`, which are the box's.
+
+## PromptInputSubmit props
+
+<PropsTable
+  package="chat"
+  component="prompt-input"
+  name="PromptInputSubmitOwnProps"
+/>
+
+`PromptInputToolbar` and `PromptInputTools` take the attributes of a `div`. Every part passes `ref` to its element.
+
+## Accessibility
+
+### Keyboard
+
+| Key | What it does |
+| --- | --- |
+| <kbd>Enter</kbd> | Sends, where there's a keyboard. |
+| <kbd>Shift</kbd> + <kbd>Enter</kbd> | Starts a new line. |
+| <kbd>Tab</kbd> | Goes from the field to the buttons in the row, and on to the button that sends. |
+
+### What the component handles
+
+- It's a real `form` with a real `textarea`, so it works with a password manager, dictation and a browser's own spell check.
+- The button that sends is named "Send", and "Stop" while it stops a reply.
+- With nothing to send, the button is marked as disabled with `aria-disabled` and stays in the tab order. A button that left the tab order would be missed by someone feeling out the form with Tab.
+- When the field has focus from the keyboard, the ring goes round the whole box.
+- After a send, focus is back in the field.
+- The text is 16 pixels on a touch screen, which keeps iOS from zooming the page when the field takes focus.
+
+### What you need to handle
+
+- Name the field with `aria-label`, or a `<label>`. The placeholder isn't a name: it's gone as soon as something is typed.
+- Translate `label` and `stopLabel`.
+- If there's a limit on the text, say what's left where a screen reader finds it, with `aria-describedby`.
+
+## On small screens
+
+The button that sends is 44 pixels on a touch screen and 36 with a mouse. Enter starts a new line there, as said above.
+
+## CSS variables
+
+Set any of these on the `PromptInput`, or on anything around it.
+
+```css
+.chat {
+  --nuv-prompt-input-radius: var(--radius-md);
+  --nuv-prompt-input-max-height: 20rem;
+}
+```
+
+<CssVariables
+  package="chat"
+  component="prompt-input"
+  descriptions={{
+    "--nuv-prompt-input-bg": "Background of the box.",
+    "--nuv-prompt-input-border":
+      "Color of the box's edge. Keep it at 3:1 against what's around it.",
+    "--nuv-prompt-input-fg": "Color of the text.",
+    "--nuv-prompt-input-font-size":
+      "Size of the text with a mouse. On a touch screen it's always 16 pixels.",
+    "--nuv-prompt-input-max-height": "How tall the field grows before it scrolls.",
+    "--nuv-prompt-input-placeholder": "Color of the placeholder. Keep it at 4.5:1.",
+    "--nuv-prompt-input-radius": "Corner radius of the box.",
+    "--nuv-prompt-input-submit-bg": "Background of the button that sends.",
+    "--nuv-prompt-input-submit-fg": "Color of its icon. Keep it at 3:1 against the background.",
+    "--nuv-prompt-input-submit-hover-bg": "Its background under the pointer.",
+  }}
+/>
+
+## Classes
+
+<BemClasses
+  package="chat"
+  component="prompt-input"
+  descriptions={{
+    "nuv-prompt-input": "PromptInput: the form, and the frame.",
+    "nuv-prompt-input__textarea": "PromptInputTextarea",
+    "nuv-prompt-input__toolbar": "PromptInputToolbar",
+    "nuv-prompt-input__tools": "PromptInputTools",
+    "nuv-prompt-input__submit": "PromptInputSubmit",
+  }}
+/>
+
+The box has `data-busy` and `data-disabled`. The button has `data-stop` while it stops a reply.
+
+## Server components
+
+PromptInput starts with `"use client"`: it keeps what's typed. `onSubmit` is a function, so the box is rendered from a client component of yours.
+
+## Do and don't
+
+**Do**
+
+- Leave the field open while a reply arrives.
+- Give it `onStop` if a reply can be stopped. A long answer to the wrong question is a long wait.
+
+**Don't**
+
+- Don't use it for a search field or a comment box. Those are an [`Input`](/docs/components/input) and a [`Textarea`](/docs/components/textarea).
+- Don't put more in the row than fits on a phone. A menu holds the rest.

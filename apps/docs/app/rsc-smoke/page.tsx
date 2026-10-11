@@ -2,8 +2,22 @@
 // If the package lost a directive, or a component stopped being safe to
 // render on the server, this page fails to build. It isn't linked from
 // anywhere, and the e2e tests open it directly.
+
 import { Barcode } from "@nuvui/barcodes/barcode";
 import { QRCode, QRCodeSwissCross } from "@nuvui/barcodes/qrcode";
+import {
+  Conversation,
+  ConversationContent,
+  Message,
+  MessageContent,
+  MessageLoader,
+  PromptInput,
+  PromptInputSubmit,
+  PromptInputTextarea,
+  PromptInputToolbar,
+  PromptSuggestion,
+  PromptSuggestions,
+} from "@nuvui/chat";
 import { Calendar, DatePicker } from "@nuvui/date-picker";
 // One import from an entry of the add-on's own, to check those resolve too.
 import { DateRangePicker } from "@nuvui/date-picker/date-picker";
@@ -339,6 +353,30 @@ export default function RscSmokePage() {
           <TreeItem value="server-b" label="File from the server" />
         </TreeItem>
       </Tree>
+      {/* The chat parts are client components, but for the loader and
+          the suggestions. All of them given what's written here and no
+          function. */}
+      <div style={{ blockSize: 200 }}>
+        <Conversation style={{ blockSize: "100%" }}>
+          <ConversationContent aria-label="Conversation from the server">
+            <Message from="user">
+              <MessageContent>Question from the server</MessageContent>
+            </Message>
+            <Message from="assistant" streaming>
+              <MessageLoader label="Loader from the server" />
+            </Message>
+          </ConversationContent>
+          <PromptInput defaultValue="Draft from the server">
+            <PromptInputTextarea aria-label="Prompt from the server" />
+            <PromptInputToolbar>
+              <PromptInputSubmit />
+            </PromptInputToolbar>
+          </PromptInput>
+        </Conversation>
+      </div>
+      <PromptSuggestions label="Suggestions from the server">
+        <PromptSuggestion>Suggestion from the server</PromptSuggestion>
+      </PromptSuggestions>
       {/* Barcode and QRCode aren't client components at all: the bars
           and the squares are worked out here, on the server. */}
       <Barcode

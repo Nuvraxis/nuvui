@@ -144,7 +144,7 @@ Every control is a button and a stop for Tab. There are no arrow keys: they belo
 - A slide that's out of sight is `inert`: Tab doesn't go to what's in it, and a screen reader doesn't read it.
 - When a button moves the carousel, a screen reader is told "Slide 2 of 5". While the carousel moves by itself it's told nothing, or it would never stop talking.
 - The dot or thumbnail the carousel is at has `aria-current="true"`. The dot is longer as well as darker, and the thumbnail has a ring, so neither is told apart by color alone.
-- A dot is 8 pixels across, inside a button that's larger. With a finger the button is 44 pixels tall and 24 wide: dots sit in a row, and wider ones would overlap. The buttons to go back and on are 44 both ways.
+- A dot is 8 pixels across, inside a button that's larger. With a finger the button is 44 pixels tall and 24 wide: dots sit in a row, and wider ones would overlap. With a mouse it's 24 both ways. The buttons to go back and on are 44 both ways.
 - The buttons to go back and on are disabled at the ends of a carousel that doesn't loop.
 - Someone who has asked for less motion gets slides that change at once, without the slide across.
 - In a right-to-left page the slides run the other way, and so do a drag and the arrows.
@@ -194,7 +194,7 @@ Set any of these on the `Carousel`, or on anything around it.
     "--nuv-carousel-dot-size": "Size of a dot.",
     "--nuv-carousel-dot-gap": "Space between dots.",
     "--nuv-carousel-dot-target":
-      "Least width of what takes a press around a dot, with a finger.",
+      "Least width of what takes a press around a dot, and its height with a mouse. Keep it at 24px or more.",
     "--nuv-carousel-dot-border":
       "Color of a dot's edge. Keep it at 3:1 against the page.",
     "--nuv-carousel-dot-bg": "Fill of a dot the carousel isn't at.",

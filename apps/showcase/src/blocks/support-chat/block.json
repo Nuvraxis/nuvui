@@ -1,0 +1,9 @@
+{
+  "name": "support-chat",
+  "title": "Support chat",
+  "description": "A help desk in the corner of a page: a button that opens a conversation in a popover, replies to choose from, automatic answers, and a hand-over to a person.",
+  "category": "chat",
+  "files": ["support-chat.tsx", "support-chat.scss"],
+  "install": ["@nuvui/chat", "@nuvui/react", "lucide-react"],
+  "height": 720
+}

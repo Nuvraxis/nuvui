@@ -1,0 +1,202 @@
+@use "@nuvui/react/scss/mixins";
+
+// The whole screen. On a narrow one it holds the list or a conversation,
+// whichever `data-view` says. From the md breakpoint it holds both, side
+// by side. dvh follows a phone's address bar and its keyboard.
+.team-chat {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  block-size: 100dvh;
+  min-block-size: 24rem;
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+
+  @include mixins.breakpoint("md") {
+    grid-template-columns: 20rem minmax(0, 1fr);
+  }
+}
+
+.team-chat__list {
+  display: flex;
+  flex-direction: column;
+  min-block-size: 0;
+  overflow-y: auto;
+
+  @include mixins.breakpoint("md") {
+    border-inline-end: var(--nuv-border-width) solid var(--color-border);
+  }
+}
+
+.team-chat[data-view="thread"] .team-chat__list {
+  display: none;
+
+  @include mixins.breakpoint("md") {
+    display: flex;
+  }
+}
+
+.team-chat__title {
+  margin: 0;
+  padding: calc(var(--spacing) * 4);
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-lg--line-height);
+}
+
+.team-chat__threads {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+// A row is one button, as wide as the list.
+.team-chat__row {
+  display: flex;
+  gap: calc(var(--spacing) * 3);
+  align-items: center;
+  box-sizing: border-box;
+  inline-size: 100%;
+  min-block-size: var(--nuv-touch-size);
+  padding: calc(var(--spacing) * 3) calc(var(--spacing) * 4);
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+
+  @include mixins.hover {
+    background-color: var(--color-muted);
+  }
+
+  @include mixins.focus-ring(-2px);
+
+  &[aria-current="true"] {
+    background-color: var(--color-muted);
+  }
+}
+
+// An edge of its own, so the picture doesn't melt into the row that's
+// marked, which is the color a picture without a photo is.
+.team-chat__picture {
+  box-shadow: 0 0 0 var(--nuv-border-width) var(--color-border-strong);
+}
+
+.team-chat__summary {
+  display: grid;
+  flex: 1;
+  min-inline-size: 0;
+}
+
+.team-chat__name {
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--text-sm--line-height);
+}
+
+// One line of the last message, cut short where the row ends.
+.team-chat__last {
+  overflow: hidden;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.team-chat__side {
+  display: grid;
+  flex: none;
+  gap: calc(var(--spacing) * 1);
+  justify-items: end;
+}
+
+.team-chat__when {
+  color: var(--color-muted-foreground);
+  font-size: var(--text-xs);
+  line-height: var(--text-xs--line-height);
+}
+
+.team-chat__thread {
+  display: flex;
+  flex-direction: column;
+  min-inline-size: 0;
+  min-block-size: 0;
+}
+
+.team-chat[data-view="list"] .team-chat__thread {
+  display: none;
+
+  @include mixins.breakpoint("md") {
+    display: flex;
+  }
+}
+
+.team-chat__head {
+  display: flex;
+  flex: none;
+  gap: calc(var(--spacing) * 3);
+  align-items: center;
+  padding: calc(var(--spacing) * 3) calc(var(--spacing) * 4);
+  border-block-end: var(--nuv-border-width) solid var(--color-border);
+
+  @include mixins.breakpoint("md") {
+    padding-inline: calc(var(--spacing) * 6);
+  }
+}
+
+// The way back to the list, where the list isn't beside the conversation.
+.team-chat__back {
+  flex: none;
+  aspect-ratio: 1;
+  padding: 0;
+
+  @include mixins.breakpoint("md") {
+    display: none;
+  }
+}
+
+.team-chat__who {
+  min-inline-size: 0;
+}
+
+// It takes focus when a conversation replaces the list, so it has a ring
+// for someone who got here with a keyboard.
+.team-chat__with {
+  margin: 0;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-base);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-base--line-height);
+
+  @include mixins.focus-ring;
+}
+
+.team-chat__about {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-xs);
+  line-height: var(--text-xs--line-height);
+}
+
+.team-chat__conversation {
+  --nuv-conversation-gap: calc(var(--spacing) * 4);
+
+  flex: 1;
+}
+
+.team-chat__author {
+  color: var(--color-foreground);
+  font-weight: var(--font-weight-medium);
+}
+
+// As wide as the messages above it, and no wider.
+.team-chat__foot {
+  flex: none;
+  box-sizing: border-box;
+  inline-size: 100%;
+  max-inline-size: 48rem;
+  margin-inline: auto;
+  padding: 0 calc(var(--spacing) * 4) calc(var(--spacing) * 3);
+}

@@ -1,0 +1,141 @@
+@use "@nuvui/react/scss/mixins";
+
+// A page, with room left at the bottom so the button to open the chat
+// never sits on its last line.
+.support-chat {
+  box-sizing: border-box;
+  min-block-size: 100dvh;
+  padding: calc(var(--spacing) * 8) calc(var(--spacing) * 4)
+    calc(var(--spacing) * 24);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+
+  @include mixins.breakpoint("md") {
+    padding-inline: calc(var(--spacing) * 10);
+  }
+}
+
+.support-chat__title {
+  margin: 0;
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-2xl--line-height);
+  letter-spacing: var(--tracking-tight);
+}
+
+.support-chat__text {
+  max-inline-size: 36rem;
+  margin: calc(var(--spacing) * 2) 0 0;
+  color: var(--color-muted-foreground);
+}
+
+.support-chat__topics {
+  display: grid;
+  gap: calc(var(--spacing) * 2);
+  max-inline-size: 36rem;
+  margin: calc(var(--spacing) * 6) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.support-chat__topic {
+  padding: calc(var(--spacing) * 3) calc(var(--spacing) * 4);
+  border: var(--nuv-border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+// In the corner at the end, over the page, wherever the page is scrolled.
+.support-chat__launcher {
+  position: fixed;
+  z-index: 1;
+  inset-block-end: calc(var(--spacing) * 4);
+  inset-inline-end: calc(var(--spacing) * 4);
+  gap: calc(var(--spacing) * 2);
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-md);
+}
+
+// The popover's own padding goes, so the conversation reaches its edges.
+// It's never wider than the room the popover has, which on a phone is the
+// screen less a margin.
+.support-chat__panel {
+  --nuv-popover-width: 24rem;
+  --nuv-popover-padding: 0;
+}
+
+// A height of its own, or the room above the button when that's less: a
+// phone on its side, or with its keyboard up. Without one the conversation
+// would be as tall as its messages and have nothing to scroll in.
+.support-chat__window {
+  display: flex;
+  flex-direction: column;
+  block-size: min(
+    34rem,
+    calc(var(--radix-popover-content-available-height) - var(--spacing) * 2)
+  );
+  min-block-size: 16rem;
+}
+
+.support-chat__head {
+  display: flex;
+  flex: none;
+  gap: calc(var(--spacing) * 3);
+  align-items: center;
+  padding: calc(var(--spacing) * 3) calc(var(--spacing) * 3)
+    calc(var(--spacing) * 3) calc(var(--spacing) * 4);
+  border-block-end: var(--nuv-border-width) solid var(--color-border);
+}
+
+.support-chat__who {
+  flex: 1;
+  min-inline-size: 0;
+}
+
+.support-chat__name {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-sm--line-height);
+}
+
+.support-chat__status {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-xs);
+  line-height: var(--text-xs--line-height);
+}
+
+// A button that's only an icon: square, at the size of the button it is.
+.support-chat__close {
+  flex: none;
+  aspect-ratio: 1;
+  padding: 0;
+}
+
+.support-chat__conversation {
+  --nuv-conversation-gap: calc(var(--spacing) * 4);
+  --nuv-message-font-size: var(--text-sm);
+
+  flex: 1;
+}
+
+// What can be said back, on the side the person's own messages are on.
+.support-chat__starters {
+  --nuv-prompt-suggestion-justify: flex-end;
+}
+
+// Something that happened in the conversation and that nobody said.
+.support-chat__notice {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-xs);
+  line-height: var(--text-xs--line-height);
+  text-align: center;
+}
+
+.support-chat__foot {
+  flex: none;
+  padding: 0 calc(var(--spacing) * 3) calc(var(--spacing) * 3);
+}

@@ -6,6 +6,9 @@ import askPanel from "@/blocks/ask-panel/block.json" with { type: "json" };
 import assistantChat from "@/blocks/assistant-chat/block.json" with {
   type: "json",
 };
+import assistantSidebar from "@/blocks/assistant-sidebar/block.json" with {
+  type: "json",
+};
 import auditLog from "@/blocks/audit-log/block.json" with { type: "json" };
 import billing from "@/blocks/billing/block.json" with { type: "json" };
 import caseStudies from "@/blocks/case-studies/block.json" with {
@@ -66,9 +69,13 @@ import sidebarNested from "@/blocks/sidebar-nested/block.json" with {
 import signIn from "@/blocks/sign-in/block.json" with { type: "json" };
 import signInSso from "@/blocks/sign-in-sso/block.json" with { type: "json" };
 import signUp from "@/blocks/sign-up/block.json" with { type: "json" };
+import supportChat from "@/blocks/support-chat/block.json" with {
+  type: "json",
+};
 import tableToolbar from "@/blocks/table-toolbar/block.json" with {
   type: "json",
 };
+import teamChat from "@/blocks/team-chat/block.json" with { type: "json" };
 import teamMembers from "@/blocks/team-members/block.json" with {
   type: "json",
 };
@@ -124,7 +131,14 @@ export const categories: BlockCategory[] = [
     label: "Dashboard",
     title: "Dashboard",
     description:
-      "A whole dashboard with a sidebar, figures, a chart and a table, two of its parts on their own, figures with trends and a list of recent activity, a panel to ask a question in, and a whole conversation with an assistant.",
+      "A whole dashboard with a sidebar, figures, a chart and a table, two of its parts on their own, figures with trends and a list of recent activity, and a panel to ask a question in.",
+  },
+  {
+    slug: "chat",
+    label: "Chat",
+    title: "Chat and assistants",
+    description:
+      "Conversations, with a model or with people: a whole screen for an assistant, an assistant in a panel beside the record it answers about, a help desk that opens from a button in the corner, and messages between the people on a team.",
   },
   {
     slug: "data",
@@ -170,6 +184,9 @@ export const blocks: BlockManifest[] = [
   whatsNew,
   askPanel,
   assistantChat,
+  assistantSidebar,
+  supportChat,
+  teamChat,
   tableToolbar,
   inbox,
   approvals,

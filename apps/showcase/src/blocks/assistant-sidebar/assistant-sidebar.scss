@@ -1,0 +1,220 @@
+@use "@nuvui/react/scss/mixins";
+
+// The whole screen: a record, and the assistant beside it when it's open.
+// On a narrow screen there's no room for both, and the open assistant
+// takes the record's place. dvh follows a phone's address bar and its
+// keyboard, so the box to write in stays in view.
+.assistant-sidebar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  block-size: 100dvh;
+  min-block-size: 24rem;
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+
+  @include mixins.breakpoint("md") {
+    &[data-open] {
+      grid-template-columns: minmax(0, 1fr) 22rem;
+    }
+  }
+
+  @include mixins.breakpoint("lg") {
+    &[data-open] {
+      grid-template-columns: minmax(0, 1fr) 26rem;
+    }
+  }
+}
+
+// The record scrolls on its own, so the assistant stays put beside it.
+.assistant-sidebar__page {
+  box-sizing: border-box;
+  min-block-size: 0;
+  padding: calc(var(--spacing) * 6) calc(var(--spacing) * 4);
+  overflow-y: auto;
+
+  @include mixins.breakpoint("md") {
+    padding: calc(var(--spacing) * 8);
+  }
+}
+
+.assistant-sidebar[data-open] .assistant-sidebar__page {
+  display: none;
+
+  @include mixins.breakpoint("md") {
+    display: block;
+  }
+}
+
+.assistant-sidebar__head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 3);
+  align-items: center;
+  justify-content: space-between;
+}
+
+.assistant-sidebar__heading {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 3);
+  align-items: center;
+}
+
+.assistant-sidebar__title {
+  margin: 0;
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-2xl--line-height);
+  letter-spacing: var(--tracking-tight);
+}
+
+.assistant-sidebar__toggle {
+  flex: none;
+  gap: calc(var(--spacing) * 2);
+}
+
+.assistant-sidebar__facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: calc(var(--spacing) * 4);
+  margin: calc(var(--spacing) * 6) 0 0;
+}
+
+.assistant-sidebar__label {
+  color: var(--color-muted-foreground);
+  font-size: var(--text-xs);
+  line-height: var(--text-xs--line-height);
+}
+
+.assistant-sidebar__value {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--text-sm--line-height);
+}
+
+.assistant-sidebar__lines {
+  inline-size: 100%;
+  margin-block-start: calc(var(--spacing) * 8);
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+.assistant-sidebar__caption {
+  padding-block-end: calc(var(--spacing) * 2);
+  font-size: var(--text-base);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-base--line-height);
+  text-align: start;
+}
+
+.assistant-sidebar__cell {
+  padding: calc(var(--spacing) * 3) 0;
+  border-block-end: var(--nuv-border-width) solid var(--color-border);
+  font-weight: var(--font-weight-normal);
+  text-align: start;
+
+  thead & {
+    color: var(--color-muted-foreground);
+    font-size: var(--text-xs);
+    line-height: var(--text-xs--line-height);
+  }
+
+  tfoot & {
+    border-block-end: 0;
+    font-weight: var(--font-weight-semibold);
+  }
+}
+
+// Figures line up on their last digit.
+.assistant-sidebar__cell--number {
+  font-variant-numeric: tabular-nums;
+  text-align: end;
+}
+
+.assistant-sidebar__panel {
+  display: flex;
+  flex-direction: column;
+  min-inline-size: 0;
+  min-block-size: 0;
+
+  @include mixins.breakpoint("md") {
+    border-inline-start: var(--nuv-border-width) solid var(--color-border);
+  }
+
+  // The attribute alone loses to the display above.
+  &[hidden] {
+    display: none;
+  }
+}
+
+.assistant-sidebar__bar {
+  display: flex;
+  flex: none;
+  gap: calc(var(--spacing) * 3);
+  align-items: center;
+  justify-content: space-between;
+  padding: calc(var(--spacing) * 3) calc(var(--spacing) * 3)
+    calc(var(--spacing) * 3) calc(var(--spacing) * 4);
+  border-block-end: var(--nuv-border-width) solid var(--color-border);
+}
+
+.assistant-sidebar__who {
+  min-inline-size: 0;
+}
+
+// It takes focus when the panel replaces the record, so it has a ring for
+// someone who got here with a keyboard.
+.assistant-sidebar__name {
+  margin: 0;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-base);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-base--line-height);
+
+  @include mixins.focus-ring;
+}
+
+.assistant-sidebar__about {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-xs);
+  line-height: var(--text-xs--line-height);
+}
+
+// A button that's only an icon: square, at the size of the button it is.
+.assistant-sidebar__close {
+  flex: none;
+  aspect-ratio: 1;
+  padding: 0;
+}
+
+.assistant-sidebar__conversation {
+  --nuv-conversation-gap: calc(var(--spacing) * 4);
+  --nuv-message-font-size: var(--text-sm);
+
+  flex: 1;
+}
+
+.assistant-sidebar__hello {
+  margin: 0;
+  font-size: var(--text-base);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-base--line-height);
+}
+
+.assistant-sidebar__foot {
+  display: grid;
+  flex: none;
+  gap: calc(var(--spacing) * 2);
+  padding: 0 calc(var(--spacing) * 4) calc(var(--spacing) * 3);
+}
+
+.assistant-sidebar__note {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-xs);
+  line-height: var(--text-xs--line-height);
+  text-align: center;
+}

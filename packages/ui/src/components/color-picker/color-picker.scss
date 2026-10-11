@@ -1,0 +1,225 @@
+@use "../../styles/layers";
+@use "../../styles/mixins";
+
+// A thumb sits on a color nobody chose ahead of time, so it can't take its
+// edge from the theme. A white ring with a dark line round it shows on any
+// color: the white on the dark ones, the line on the light ones.
+@mixin thumb {
+  box-sizing: border-box;
+  inline-size: var(--nuv-color-picker-thumb-size, 1.25rem);
+  block-size: var(--nuv-color-picker-thumb-size, 1.25rem);
+  border: calc(var(--nuv-border-width) * 2) solid var(--color-white);
+  border-radius: var(--radius-full);
+  background-color: var(--nuv-color-picker-color, transparent);
+  box-shadow: 0 0 0 var(--nuv-border-width) var(--color-black);
+
+  &:focus-visible {
+    outline: var(--nuv-focus-ring-width, 2px) solid
+      var(--nuv-focus-ring-color, var(--color-ring));
+    outline-offset: var(--nuv-focus-ring-offset, 3px);
+  }
+}
+
+@layer components {
+  // The panel: the picker's parts, one under the other.
+  .nuv-color-picker {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nuv-color-picker-gap, calc(var(--spacing) * 3));
+    inline-size: var(--nuv-color-picker-width, 15rem);
+    max-inline-size: 100%;
+
+    &[data-disabled] {
+      opacity: var(--nuv-disabled-opacity);
+    }
+  }
+
+  // In a popover the panel is as wide as the popover lets it be, and the
+  // popover is the picker's width with its own padding and edge round it.
+  .nuv-color-picker__content {
+    --nuv-popover-width: calc(var(--nuv-color-picker-width, 15rem) + var(--spacing) * 6 + var(--nuv-border-width) * 2);
+    --nuv-popover-padding: calc(var(--spacing) * 3);
+  }
+
+  .nuv-color-picker__content .nuv-color-picker {
+    inline-size: 100%;
+  }
+
+  // The button that opens it: the color as a swatch, and as text.
+  .nuv-color-picker__trigger {
+    display: inline-flex;
+    gap: calc(var(--spacing) * 2);
+    align-items: center;
+    padding-block: 0;
+    padding-inline: calc(var(--spacing) * 2) calc(var(--spacing) * 3);
+    border: var(--nuv-border-width) solid var(--nuv-color-picker-trigger-border, var(--color-border-strong));
+    border-radius: var(--nuv-color-picker-radius, var(--radius-md));
+    background-color: var(--nuv-color-picker-trigger-bg, var(--color-surface));
+    color: var(--color-surface-foreground);
+    font-family: inherit;
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+
+    @include mixins.touch-target;
+    @include mixins.focus-ring;
+
+    @include mixins.fine-pointer {
+      min-block-size: var(--nuv-control-height-md);
+      min-inline-size: var(--nuv-control-height-md);
+    }
+
+    &:disabled {
+      opacity: var(--nuv-disabled-opacity);
+      cursor: not-allowed;
+    }
+  }
+
+  // The color is what's being shown, so it's drawn as it is where the
+  // browser forces its own colors, here and on every swatch and thumb.
+  .nuv-color-picker__trigger-swatch {
+    flex: none;
+    box-sizing: border-box;
+    inline-size: calc(var(--spacing) * 5);
+    block-size: calc(var(--spacing) * 5);
+    border: var(--nuv-border-width) solid var(--color-border-strong);
+    border-radius: var(--radius-sm);
+    background-color: var(--nuv-color-picker-color, transparent);
+    forced-color-adjust: none;
+  }
+
+  .nuv-color-picker__value {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+
+  // In the page for a screen reader, and drawn for nobody: the button
+  // shows something else in its place.
+  .nuv-color-picker__value--hidden {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  // The hue at full strength, with white laid over it from the left and
+  // black from the bottom.
+  .nuv-color-picker__area {
+    position: relative;
+    block-size: var(--nuv-color-picker-area-height, 10rem);
+    border-radius: var(--nuv-color-picker-radius, var(--radius-md));
+    background-color: var(--nuv-color-picker-hue, transparent);
+    background-image:
+      linear-gradient(to top, var(--color-black), transparent),
+      linear-gradient(to right, var(--color-white), transparent);
+    cursor: crosshair;
+    forced-color-adjust: none;
+
+    // A drag in it moves the thumb and not the page.
+    touch-action: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+
+    &[data-disabled] {
+      cursor: not-allowed;
+    }
+  }
+
+  // Placed by its middle, so at an edge half of it is outside the area.
+  .nuv-color-picker__area-thumb {
+    position: absolute;
+    inset-block-start: var(--nuv-color-picker-y, 0%);
+    left: var(--nuv-color-picker-x, 0%);
+    transform: translate(-50%, -50%);
+
+    @include thumb;
+  }
+
+  .nuv-color-picker__hue {
+    position: relative;
+    display: flex;
+    align-items: center;
+    block-size: var(--nuv-color-picker-thumb-size, 1.25rem);
+    touch-action: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+
+    &[data-disabled] {
+      cursor: not-allowed;
+    }
+  }
+
+  .nuv-color-picker__hue-track {
+    position: relative;
+    flex: 1;
+    block-size: var(--nuv-color-picker-track-size, 0.75rem);
+    border-radius: var(--radius-full);
+    background-image: var(--nuv-color-picker-hues, none);
+    forced-color-adjust: none;
+  }
+
+  .nuv-color-picker__hue-thumb {
+    position: relative;
+    display: block;
+    cursor: grab;
+    forced-color-adjust: none;
+
+    @include thumb;
+    @include mixins.touch-area;
+
+    &:active {
+      cursor: grabbing;
+    }
+
+    &[data-disabled] {
+      cursor: not-allowed;
+    }
+  }
+
+  .nuv-color-picker__input {
+    font-family: var(--font-mono);
+  }
+
+  .nuv-color-picker__swatches {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--nuv-color-picker-swatch-gap, calc(var(--spacing) * 2));
+  }
+
+  // As big as a finger needs, and smaller with a mouse.
+  .nuv-color-picker__swatch {
+    box-sizing: border-box;
+    inline-size: var(--nuv-color-picker-swatch-size, var(--nuv-touch-size));
+    block-size: var(--nuv-color-picker-swatch-size, var(--nuv-touch-size));
+    padding: 0;
+    border: var(--nuv-border-width) solid var(--color-border-strong);
+    border-radius: var(--nuv-color-picker-swatch-radius, var(--radius-sm));
+    background-color: var(--nuv-color-picker-color, transparent);
+    cursor: pointer;
+    forced-color-adjust: none;
+    -webkit-tap-highlight-color: transparent;
+
+    @include mixins.focus-ring;
+
+    @include mixins.fine-pointer {
+      inline-size: var(--nuv-color-picker-swatch-size, calc(var(--spacing) * 6));
+      block-size: var(--nuv-color-picker-swatch-size, calc(var(--spacing) * 6));
+    }
+
+    // The one that's the color now: a ring in the page's color and a line
+    // round that, inside the swatch, so it shows on any color and doesn't
+    // depend on telling two colors apart.
+    &[aria-pressed="true"] {
+      box-shadow:
+        inset 0 0 0 calc(var(--nuv-border-width) * 2) var(--color-surface),
+        inset 0 0 0 calc(var(--nuv-border-width) * 3) var(--color-surface-foreground);
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+    }
+  }
+}

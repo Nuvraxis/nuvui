@@ -1532,6 +1532,121 @@ test.describe("approvals", () => {
   });
 });
 
+test.describe("appearance", () => {
+  test.beforeEach(async ({ page }) => {
+    await open(page, "/blocks/view/appearance");
+  });
+
+  const brand = (page: Page) =>
+    page.getByRole("button", { name: "Brand color" });
+  const note = (page: Page) => page.locator(".appearance__note");
+  // The picture's button, which takes the brand color.
+  const pictured = (page: Page) =>
+    page
+      .locator(".appearance__button")
+      .evaluate((node) => getComputedStyle(node).backgroundColor);
+
+  test("appearance: each color is a row whose button says the color and what it's for", async ({
+    page,
+  }) => {
+    await expect(brand(page)).toHaveText("#2563eb");
+    await expect(brand(page)).toHaveAccessibleDescription(
+      "Buttons and links. White text sits on it. #2563eb",
+    );
+    await expect(
+      page.getByRole("button", { name: "Sidebar color" }),
+    ).toHaveText("#1e293b");
+    expect(await pictured(page)).toBe("rgb(37, 99, 235)");
+  });
+
+  test("appearance: a preset changes the color, and the picture with it", async ({
+    page,
+    isMobile,
+  }) => {
+    await press(brand(page), isMobile);
+    const dialog = page.getByRole("dialog");
+    await press(dialog.getByRole("button", { name: "Teal" }), isMobile);
+    await page.keyboard.press("Escape");
+
+    await expect(brand(page)).toHaveText("#0f766e");
+    await expect.poll(() => pictured(page)).toBe("rgb(15, 118, 110)");
+    await expect(page.getByRole("button", { name: "Save" })).toBeEnabled();
+  });
+
+  test("appearance: a color white text can't be read on is said, and can't be saved", async ({
+    page,
+    isMobile,
+  }) => {
+    await press(brand(page), isMobile);
+    await page.getByRole("dialog").getByRole("textbox").fill("#fde047");
+    await page.keyboard.press("Enter");
+    await page.keyboard.press("Escape");
+
+    await expect(note(page)).toHaveText(
+      "White text is hard to read on the brand color. Choose a darker one.",
+    );
+    await expect(page.getByRole("button", { name: "Save" })).toBeDisabled();
+
+    await press(page.getByRole("button", { name: "Reset" }), isMobile);
+    await expect(brand(page)).toHaveText("#2563eb");
+    await expect(note(page)).toHaveText("Put back to the colors it came with.");
+    await expect(page.getByRole("button", { name: "Save" })).toBeEnabled();
+  });
+
+  test("appearance: saving says so, and the colors are in the form", async ({
+    page,
+    isMobile,
+  }) => {
+    await expect(page.locator('input[name="brand"]')).toHaveValue("#2563eb");
+    await expect(page.locator('input[name="sidebar"]')).toHaveValue("#1e293b");
+
+    await press(page.getByRole("button", { name: "Save" }), isMobile);
+
+    await expect(note(page)).toHaveText("Saved.");
+  });
+
+  test("appearance: the picker opens from the keyboard and its thumb moves with the arrow keys", async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(isMobile, "A phone has no arrow keys.");
+    await brand(page).focus();
+    await page.keyboard.press("Enter");
+    const thumb = page
+      .getByRole("dialog")
+      .getByRole("slider", { name: "Saturation and brightness" });
+    await expect(thumb).toHaveAttribute(
+      "aria-valuetext",
+      "Saturation 84%, brightness 92%",
+    );
+
+    await thumb.focus();
+    await page.keyboard.press("ArrowRight");
+
+    await expect(thumb).toHaveAttribute(
+      "aria-valuetext",
+      "Saturation 85%, brightness 92%",
+    );
+    await expect(brand(page)).toHaveText("#2362eb");
+    await page.keyboard.press("Escape");
+    await expect(brand(page)).toBeFocused();
+  });
+
+  test("appearance: on a phone the picker stays on the screen, and nothing runs off the side", async ({
+    page,
+  }) => {
+    await page.setViewportSize(phone);
+    await brand(page).click();
+    const dialog = page.getByRole("dialog");
+    await expect(dialog).toBeVisible();
+
+    const box = await dialog.boundingBox();
+    expect(box?.x ?? -1).toBeGreaterThanOrEqual(0);
+    expect((box?.x ?? 0) + (box?.width ?? 0)).toBeLessThanOrEqual(phone.width);
+    expect(await overflow(page)).toBe(0);
+  });
+});
+
 test.describe("the blocks page", () => {
   test("lists every category, and each leads to its page", async ({
     page,

@@ -1,4 +1,5 @@
 import activity from "@/blocks/activity/block.json" with { type: "json" };
+import appearance from "@/blocks/appearance/block.json" with { type: "json" };
 import approvals from "@/blocks/approvals/block.json" with { type: "json" };
 import article from "@/blocks/article/block.json" with { type: "json" };
 import askPanel from "@/blocks/ask-panel/block.json" with { type: "json" };
@@ -118,7 +119,7 @@ export const categories: BlockCategory[] = [
     label: "Settings",
     title: "Settings and admin",
     description:
-      "The pages behind an account: a profile, notification preferences, team members and invitations, billing, the actions that can't be taken back, and an audit log.",
+      "The pages behind an account: a profile, a workspace's colors, notification preferences, team members and invitations, billing, the actions that can't be taken back, and an audit log.",
   },
   {
     slug: "marketing",
@@ -156,6 +157,7 @@ export const blocks: BlockManifest[] = [
   detailPanel,
   pageStates,
   profileForm,
+  appearance,
   notifications,
   teamMembers,
   billing,

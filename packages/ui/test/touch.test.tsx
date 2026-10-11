@@ -22,6 +22,13 @@ import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
+  ColorPicker,
+  ColorPickerArea,
+  ColorPickerHue,
+  ColorPickerPanel,
+  ColorPickerSwatch,
+  ColorPickerSwatches,
+  ColorPickerTrigger,
   Combobox,
   ComboboxContent,
   ComboboxItem,
@@ -1514,5 +1521,61 @@ describe("list view", () => {
     await expect
       .element(page.getByRole("row"))
       .toHaveAttribute("aria-selected", "false");
+  });
+});
+
+describe("color picker", () => {
+  test("a preset and the trigger are 44px, and a tap on a preset picks it", async () => {
+    await render(
+      <ColorPicker defaultValue="#2563eb">
+        <ColorPickerTrigger aria-label="Brand color" />
+        <ColorPickerPanel>
+          <ColorPickerSwatches aria-label="Presets">
+            <ColorPickerSwatch value="#dc2626" aria-label="Red" />
+            <ColorPickerSwatch value="#16a34a" aria-label="Green" />
+          </ColorPickerSwatches>
+        </ColorPickerPanel>
+      </ColorPicker>,
+    );
+    const red = page.getByRole("button", { name: "Red" });
+    const trigger = page.getByRole("button", { name: "Brand color" });
+
+    expect(box(red.element()).width).toBe(44);
+    expect(box(red.element()).height).toBe(44);
+    expect(box(trigger.element()).height).toBeGreaterThanOrEqual(44);
+    // Two side by side don't share any of the screen.
+    expect(
+      box(page.getByRole("button", { name: "Green" }).element()).left,
+    ).toBeGreaterThanOrEqual(box(red.element()).right);
+
+    await userEvent.click(red);
+    await expect.element(red).toHaveAttribute("aria-pressed", "true");
+    expect(trigger.element().textContent).toBe("#dc2626");
+  });
+
+  test("a tap in the area picks from it, and the hue's thumb can be hit by a finger", async () => {
+    await render(
+      <div style={padded}>
+        <ColorPicker defaultValue="#2563eb">
+          <ColorPickerPanel>
+            <ColorPickerArea />
+            <ColorPickerHue />
+          </ColorPickerPanel>
+        </ColorPicker>
+      </div>,
+    );
+    const area = page.getByRole("slider", {
+      name: "Saturation and brightness",
+    });
+    const hue = page.getByRole("slider", { name: "Hue" }).element();
+
+    await userEvent.click(area.element().parentElement as Element);
+    await expect
+      .element(area)
+      .toHaveAttribute("aria-valuetext", "Saturation 50%, brightness 50%");
+
+    // The thumb is 20px. What answers a finger round it is 44.
+    expect(hitAt(hue, 0, 18)).toBe(hue);
+    expect(hitAt(hue, 18, 0)).toBe(hue);
   });
 });

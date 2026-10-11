@@ -10,7 +10,9 @@ import { notFound } from "next/navigation";
 import type { ComponentProps } from "react";
 import { JsonLd } from "@/components/json-ld";
 import { getMDXComponents } from "@/components/mdx";
+import { NewBadge } from "@/components/new-badge";
 import { changelogToc } from "@/lib/changelog";
+import { isNew } from "@/lib/new-pages";
 import { share } from "@/lib/seo";
 import { absoluteUrl, docsBase, docsPath, site } from "@/lib/site";
 import { getPageImage, source } from "@/lib/source";
@@ -62,7 +64,10 @@ export default async function Page(props: PageProps<"/[[...slug]]">) {
           itemListElement: crumbs,
         }}
       />
-      <DocsTitle>{page.data.title}</DocsTitle>
+      <DocsTitle>
+        {page.data.title}
+        {isNew(page.data.added) ? <NewBadge /> : null}
+      </DocsTitle>
       <DocsDescription>{page.data.description}</DocsDescription>
       <DocsBody>
         <MDX

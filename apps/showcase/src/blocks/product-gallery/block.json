@@ -1,0 +1,9 @@
+{
+  "name": "product-gallery",
+  "title": "Product gallery",
+  "description": "Photographs of a product to swipe through, with a thumbnail for each and arrows over the picture, beside its name, its price and a button to buy it.",
+  "category": "marketing",
+  "files": ["product-gallery.tsx", "product-gallery.scss"],
+  "install": ["@nuvui/react", "lucide-react"],
+  "height": 640
+}

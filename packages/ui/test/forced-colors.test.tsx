@@ -33,6 +33,12 @@ import {
   Button,
   Card,
   CardContent,
+  Carousel,
+  CarouselContent,
+  CarouselDots,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
   Checkbox,
   CheckboxCard,
   ChoiceCardTitle,
@@ -1945,5 +1951,40 @@ describe("resizable", () => {
     ).toBeGreaterThan(3);
     expect(style(grip).borderTopStyle).toBe("solid");
     expect(contrast(style(grip).borderTopColor, canvas())).toBeGreaterThan(3);
+  });
+});
+
+describe("carousel", () => {
+  test("the buttons keep their edge, and the dot the carousel is at is still told apart by its shape", async () => {
+    await render(
+      <div style={{ width: 300 }}>
+        <Carousel aria-label="Tour">
+          <CarouselContent>
+            <CarouselItem>One</CarouselItem>
+            <CarouselItem>Two</CarouselItem>
+          </CarouselContent>
+          <CarouselPrevious />
+          <CarouselNext />
+          <CarouselDots />
+        </Carousel>
+      </div>,
+    );
+    await expect
+      .poll(() => document.querySelectorAll(".nuv-carousel__dot").length)
+      .toBe(2);
+    const button = page.getByRole("button", { name: "Next slide" }).element();
+    const [here, there] = Array.from(
+      document.querySelectorAll(".nuv-carousel__dot"),
+      (dot) => getComputedStyle(dot, "::before"),
+    );
+
+    expect(style(button).borderTopStyle).toBe("solid");
+    expect(contrast(style(button).borderTopColor, canvas())).toBeGreaterThan(3);
+    // A fill is the browser's to change here. The edge and the length stay.
+    expect(there?.borderTopStyle).toBe("solid");
+    expect(contrast(there?.borderTopColor ?? "", canvas())).toBeGreaterThan(3);
+    expect(Number.parseFloat(here?.width ?? "0")).toBeGreaterThan(
+      Number.parseFloat(there?.width ?? "0"),
+    );
   });
 });

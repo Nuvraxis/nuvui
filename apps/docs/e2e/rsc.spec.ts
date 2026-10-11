@@ -149,6 +149,20 @@ test("components used from a server component hydrate and work", async ({
   );
   await page.keyboard.press("Escape");
 
+  const serverCarousel = page.getByRole("region", {
+    name: "Carousel from the server",
+  });
+  await expect(
+    serverCarousel.getByText("Slide from the server").first(),
+  ).toBeVisible();
+  await expect(
+    serverCarousel.getByRole("button", { name: "Go to slide 1" }),
+  ).toHaveAttribute("aria-current", "true");
+  await serverCarousel.getByRole("button", { name: "Next slide" }).click();
+  await expect(
+    serverCarousel.getByRole("button", { name: "Go to slide 2" }),
+  ).toHaveAttribute("aria-current", "true");
+
   const serverHandle = page.getByRole("separator", {
     name: "Handle from the server",
   });

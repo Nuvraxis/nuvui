@@ -5,6 +5,9 @@ import article from "@/blocks/article/block.json" with { type: "json" };
 import askPanel from "@/blocks/ask-panel/block.json" with { type: "json" };
 import auditLog from "@/blocks/audit-log/block.json" with { type: "json" };
 import billing from "@/blocks/billing/block.json" with { type: "json" };
+import caseStudies from "@/blocks/case-studies/block.json" with {
+  type: "json",
+};
 import dangerZone from "@/blocks/danger-zone/block.json" with { type: "json" };
 import dashboard from "@/blocks/dashboard/block.json" with { type: "json" };
 import detailPanel from "@/blocks/detail-panel/block.json" with {
@@ -35,6 +38,9 @@ import onboarding from "@/blocks/onboarding/block.json" with { type: "json" };
 import pageHeader from "@/blocks/page-header/block.json" with { type: "json" };
 import pageStates from "@/blocks/page-states/block.json" with { type: "json" };
 import pricing from "@/blocks/pricing/block.json" with { type: "json" };
+import productGallery from "@/blocks/product-gallery/block.json" with {
+  type: "json",
+};
 import profileForm from "@/blocks/profile-form/block.json" with {
   type: "json",
 };
@@ -59,6 +65,7 @@ import teamMembers from "@/blocks/team-members/block.json" with {
 };
 import topBar from "@/blocks/top-bar/block.json" with { type: "json" };
 import verifyCode from "@/blocks/verify-code/block.json" with { type: "json" };
+import whatsNew from "@/blocks/whats-new/block.json" with { type: "json" };
 
 /** A block's `block.json`, the file that says what the block is. */
 export interface BlockManifest {
@@ -151,6 +158,7 @@ export const blocks: BlockManifest[] = [
   dashboard,
   figures,
   activity,
+  whatsNew,
   askPanel,
   tableToolbar,
   inbox,
@@ -172,6 +180,8 @@ export const blocks: BlockManifest[] = [
   featureGrid,
   pricing,
   reviews,
+  caseStudies,
+  productGallery,
   faq,
   footer,
 ];

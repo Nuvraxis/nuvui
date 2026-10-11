@@ -1,0 +1,121 @@
+@use "@nuvui/react/scss/mixins";
+
+.product-gallery {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  inline-size: 100%;
+  max-inline-size: 64rem;
+  min-block-size: 100svh;
+  margin-inline: auto;
+  padding: calc(var(--spacing) * 6) calc(var(--spacing) * 4);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+
+  @include mixins.breakpoint("md") {
+    padding: calc(var(--spacing) * 8);
+  }
+}
+
+// The photographs above what's said about the chair on a phone, and
+// beside it from the md breakpoint.
+.product-gallery__layout {
+  display: grid;
+  gap: calc(var(--spacing) * 6);
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+
+  @include mixins.breakpoint("md") {
+    gap: calc(var(--spacing) * 10);
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  }
+}
+
+// The slides, with the arrows laid over their two sides.
+.product-gallery__stage {
+  position: relative;
+}
+
+// The space between the two arrows is the picture's, to drag by: the row
+// lets a press through, and each arrow takes its own.
+.product-gallery__arrows {
+  display: flex;
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline: calc(var(--spacing) * 3);
+  justify-content: space-between;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.product-gallery__arrows > button {
+  pointer-events: auto;
+}
+
+// A stand-in for a photograph: square, with a tint. The tints are the
+// palette's own and the same in a dark theme, as a photograph would be,
+// so the color of what's drawn on them is set with them.
+.product-gallery__photo {
+  display: grid;
+  gap: calc(var(--spacing) * 2);
+  place-content: center;
+  justify-items: center;
+  aspect-ratio: 1;
+  margin: 0;
+  border-radius: var(--radius-xl);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+.product-gallery__photo--blue {
+  background-color: var(--color-blue-100);
+  color: var(--color-blue-900);
+}
+
+.product-gallery__photo--green {
+  background-color: var(--color-green-100);
+  color: var(--color-green-900);
+}
+
+.product-gallery__photo--amber {
+  background-color: var(--color-amber-100);
+  color: var(--color-amber-900);
+}
+
+.product-gallery__photo--red {
+  background-color: var(--color-red-100);
+  color: var(--color-red-900);
+}
+
+.product-gallery__thumb {
+  display: grid;
+  place-items: center;
+}
+
+.product-gallery__about {
+  display: grid;
+  gap: calc(var(--spacing) * 3);
+  justify-items: start;
+}
+
+.product-gallery__name {
+  margin: 0;
+  font-size: 1.875rem;
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.2;
+  letter-spacing: var(--tracking-tight);
+}
+
+.product-gallery__price {
+  margin: 0;
+  font-size: var(--text-xl);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--text-xl--line-height);
+}
+
+.product-gallery__text {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}

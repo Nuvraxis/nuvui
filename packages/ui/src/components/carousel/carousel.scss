@@ -1,0 +1,232 @@
+@use "../../styles/layers";
+@use "../../styles/mixins";
+
+@layer components {
+  // The parts one under another: the slides, then whatever you put after
+  // them. Where the buttons and the dots go is yours to say.
+  .nuv-carousel {
+    display: grid;
+    position: relative;
+    gap: var(--nuv-carousel-controls-gap, calc(var(--spacing) * 3));
+    grid-template-columns: minmax(0, 1fr);
+    min-inline-size: 0;
+    color: var(--nuv-carousel-fg, var(--color-foreground));
+  }
+
+  // The window the slides are seen through.
+  .nuv-carousel__viewport {
+    overflow: hidden;
+  }
+
+  // The row of slides. The space between two is padding at the start of
+  // each, taken back at the start of the row: the engine measures slides,
+  // and a gap wouldn't be there where the last meets the first in a loop.
+  .nuv-carousel__content {
+    display: flex;
+    margin-inline-start: calc(var(--nuv-carousel-gap, calc(var(--spacing) * 4)) * -1);
+    touch-action: pan-y pinch-zoom;
+  }
+
+  .nuv-carousel__item {
+    flex: 0 0 var(--nuv-carousel-slide-size, 100%);
+    box-sizing: border-box;
+    min-inline-size: 0;
+    padding-inline-start: var(--nuv-carousel-gap, calc(var(--spacing) * 4));
+  }
+
+  // Up and down, the same the other way. The height is the content's own,
+  // which you set.
+  .nuv-carousel[data-orientation="vertical"] .nuv-carousel__content {
+    flex-direction: column;
+    block-size: 100%;
+    margin-block-start: calc(var(--nuv-carousel-gap, calc(var(--spacing) * 4)) * -1);
+    margin-inline-start: 0;
+    touch-action: pan-x pinch-zoom;
+  }
+
+  .nuv-carousel[data-orientation="vertical"] .nuv-carousel__item {
+    min-block-size: 0;
+    padding-block-start: var(--nuv-carousel-gap, calc(var(--spacing) * 4));
+    padding-inline-start: 0;
+  }
+
+  .nuv-carousel[data-orientation="vertical"] .nuv-carousel__viewport {
+    block-size: 100%;
+  }
+
+  // Previous, next, and stop and start: round, with an edge, as tall as a
+  // finger needs.
+  .nuv-carousel__button {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    inline-size: var(--nuv-carousel-button-size, var(--nuv-touch-size));
+    block-size: var(--nuv-carousel-button-size, var(--nuv-touch-size));
+    padding: 0;
+    border: var(--nuv-border-width) solid
+      var(--nuv-carousel-button-border, var(--color-border-strong));
+    border-radius: var(--radius-full);
+    background-color: var(--nuv-carousel-button-bg, var(--color-background));
+    color: var(--nuv-carousel-button-fg, var(--color-foreground));
+    font: inherit;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+
+    @include mixins.motion-safe {
+      transition: background-color var(--nuv-duration-fast) var(--ease-out);
+    }
+
+    @include mixins.fine-pointer {
+      inline-size: var(--nuv-carousel-button-size, calc(var(--spacing) * 9));
+      block-size: var(--nuv-carousel-button-size, calc(var(--spacing) * 9));
+    }
+
+    @include mixins.hover {
+      background-color: var(--nuv-carousel-button-hover-bg, var(--color-muted));
+    }
+
+    @include mixins.focus-ring;
+
+    &:disabled {
+      opacity: var(--nuv-disabled-opacity);
+      cursor: not-allowed;
+    }
+  }
+
+  // The arrow is drawn pointing on. Back is the same one turned round, and
+  // both turn again where the page reads right to left. Its button says
+  // which way, so that something of yours in the button isn't turned.
+  .nuv-carousel__arrow {
+    transform: var(--nuv-carousel-arrow-turn, none);
+  }
+
+  .nuv-carousel__button--previous {
+    --nuv-carousel-arrow-turn: scaleX(-1);
+
+    @include mixins.rtl {
+      --nuv-carousel-arrow-turn: none;
+    }
+  }
+
+  .nuv-carousel__button--next {
+    @include mixins.rtl {
+      --nuv-carousel-arrow-turn: scaleX(-1);
+    }
+  }
+
+  // Up and down, they point up and down, whichever way the page reads.
+  .nuv-carousel[data-orientation="vertical"] .nuv-carousel__button--previous {
+    --nuv-carousel-arrow-turn: rotate(-90deg);
+  }
+
+  .nuv-carousel[data-orientation="vertical"] .nuv-carousel__button--next {
+    --nuv-carousel-arrow-turn: rotate(90deg);
+  }
+
+  .nuv-carousel__dots {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+  }
+
+  // A dot is small, and it's drawn inside a button that's larger: what
+  // takes a press is the button. With a finger that's as tall as any
+  // control here, and wide enough that two aren't pressed at once. The
+  // buttons touch, so the space between two dots is theirs as well.
+  .nuv-carousel__dot {
+    display: grid;
+    flex: none;
+    place-items: center;
+    box-sizing: border-box;
+    min-inline-size: var(--nuv-carousel-dot-target, calc(var(--spacing) * 6));
+    block-size: var(--nuv-touch-size);
+    padding: 0 calc(var(--nuv-carousel-dot-gap, calc(var(--spacing) * 2)) / 2);
+    border: 0;
+    border-radius: var(--radius-full);
+    background: none;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+
+    @include mixins.fine-pointer {
+      min-inline-size: 0;
+      block-size: calc(var(--nuv-carousel-dot-size, calc(var(--spacing) * 2)) * 2);
+    }
+
+    @include mixins.focus-ring;
+  }
+
+  // The dot itself. The one the carousel is at is longer as well as
+  // darker, so it's told apart without the color.
+  .nuv-carousel__dot::before {
+    box-sizing: border-box;
+    inline-size: var(--nuv-carousel-dot-size, calc(var(--spacing) * 2));
+    block-size: var(--nuv-carousel-dot-size, calc(var(--spacing) * 2));
+    border: var(--nuv-border-width) solid
+      var(--nuv-carousel-dot-border, var(--color-muted-foreground));
+    border-radius: var(--radius-full);
+    background-color: var(--nuv-carousel-dot-bg, transparent);
+    content: "";
+
+    @include mixins.motion-safe {
+      transition: inline-size var(--nuv-duration-fast) var(--ease-out);
+    }
+  }
+
+  .nuv-carousel__dot[aria-current="true"]::before {
+    inline-size: calc(var(--nuv-carousel-dot-size, calc(var(--spacing) * 2)) * 2.5);
+    border-color: var(--nuv-carousel-dot-current, var(--color-primary));
+    background-color: var(--nuv-carousel-dot-current, var(--color-primary));
+  }
+
+  // The padding is room for the ring of the one that has focus, which the
+  // scrolling would cut off.
+  .nuv-carousel__thumbnails {
+    display: flex;
+    gap: var(--nuv-carousel-thumbnail-gap, calc(var(--spacing) * 2));
+    padding: calc(var(--spacing) * 1);
+    overflow-x: auto;
+  }
+
+  // A small picture that's a button. The one the carousel is at has a
+  // ring, and the others are faded a little.
+  .nuv-carousel__thumbnail {
+    flex: none;
+    box-sizing: border-box;
+    inline-size: var(--nuv-carousel-thumbnail-size, calc(var(--spacing) * 16));
+    block-size: var(--nuv-carousel-thumbnail-size, calc(var(--spacing) * 16));
+    padding: 0;
+    overflow: hidden;
+    border: var(--nuv-border-width) solid
+      var(--nuv-carousel-thumbnail-border, var(--color-border));
+    border-radius: var(--nuv-carousel-thumbnail-radius, var(--radius-md));
+    background-color: var(--nuv-carousel-thumbnail-bg, var(--color-muted));
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+    opacity: var(--nuv-carousel-thumbnail-opacity, 0.7);
+    -webkit-tap-highlight-color: transparent;
+
+    @include mixins.focus-ring;
+
+    &[aria-current="true"] {
+      outline: var(--nuv-focus-ring-width, 2px) solid
+        var(--nuv-carousel-thumbnail-current, var(--color-primary));
+      outline-offset: 1px;
+      opacity: 1;
+    }
+  }
+
+  // What a screen reader is told when the slide changes. In the page for
+  // it, and drawn for nobody.
+  .nuv-carousel__status {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}

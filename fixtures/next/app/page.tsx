@@ -4,6 +4,7 @@
 // The add-on's components are client components as well, used here with
 // plain props. The dates are made in UTC and read in UTC, so they're the
 // same day on this server and in whichever browser opens the page.
+import { Barcode, QRCode } from "@nuvui/barcodes";
 import { Calendar, DatePicker } from "@nuvui/date-picker";
 import {
   Button,
@@ -84,6 +85,10 @@ export default function Page() {
       </TableContainer>
       <People people={people} />
       <Visitors months={months} />
+      {/* Neither of these is a client component: this server component
+          works the codes out, and they arrive as markup. */}
+      <Barcode value="590123412345" type="ean13" aria-label="Item 5901234" />
+      <QRCode value="https://example.com" aria-label="Open the example" />
     </main>
   );
 }

@@ -2,6 +2,8 @@
 // If the package lost a directive, or a component stopped being safe to
 // render on the server, this page fails to build. It isn't linked from
 // anywhere, and the e2e tests open it directly.
+import { Barcode } from "@nuvui/barcodes/barcode";
+import { QRCode, QRCodeSwissCross } from "@nuvui/barcodes/qrcode";
 import { Calendar, DatePicker } from "@nuvui/date-picker";
 // One import from an entry of the add-on's own, to check those resolve too.
 import { DateRangePicker } from "@nuvui/date-picker/date-picker";
@@ -337,6 +339,18 @@ export default function RscSmokePage() {
           <TreeItem value="server-b" label="File from the server" />
         </TreeItem>
       </Tree>
+      {/* Barcode and QRCode aren't client components at all: the bars
+          and the squares are worked out here, on the server. */}
+      <Barcode
+        value="590123412345"
+        type="ean13"
+        aria-label="Barcode from the server"
+      />
+      <QRCode
+        value="https://nuvui.nuvraxis.com/docs"
+        aria-label="QR code from the server"
+        overlay={<QRCodeSwissCross />}
+      />
       {/* Carousel is a client component, given slides written on the
           server and no function. */}
       <Carousel

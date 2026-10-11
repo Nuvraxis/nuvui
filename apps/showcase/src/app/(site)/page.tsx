@@ -31,7 +31,7 @@ export const metadata: Metadata = share({
 // Counted from the packages: the README lists the components by name.
 const facts = [
   { value: "71", label: "Components in the core" },
-  { value: "3", label: "Add-on packages" },
+  { value: "4", label: "Add-on packages" },
   { value: String(chartCount), label: "Charts to copy" },
   { value: "5", label: "Presets, each in light and dark" },
 ];
@@ -40,7 +40,7 @@ const features = [
   {
     Icon: Table2,
     title: "Made for screens full of data",
-    text: "Data tables that sort, filter and select, forms with validation, charts and date pickers. The tables, the charts and the dates are packages of their own, so an app installs what it uses.",
+    text: "Data tables that sort, filter and select, forms with validation, charts, date pickers and barcodes. The tables, the charts, the dates and the barcodes are packages of their own, so an app installs what it uses.",
   },
   {
     Icon: ScanEye,

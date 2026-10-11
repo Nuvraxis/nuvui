@@ -13,6 +13,9 @@ import dashboard from "@/blocks/dashboard/block.json" with { type: "json" };
 import detailPanel from "@/blocks/detail-panel/block.json" with {
   type: "json",
 };
+import eventTicket from "@/blocks/event-ticket/block.json" with {
+  type: "json",
+};
 import faq from "@/blocks/faq/block.json" with { type: "json" };
 import featureGrid from "@/blocks/feature-grid/block.json" with {
   type: "json",
@@ -48,6 +51,9 @@ import queryEditor from "@/blocks/query-editor/block.json" with {
   type: "json",
 };
 import reviews from "@/blocks/reviews/block.json" with { type: "json" };
+import shippingLabel from "@/blocks/shipping-label/block.json" with {
+  type: "json",
+};
 import sidebarIcons from "@/blocks/sidebar-icons/block.json" with {
   type: "json",
 };
@@ -122,7 +128,7 @@ export const categories: BlockCategory[] = [
     label: "Data",
     title: "Data",
     description:
-      "Rows to work with: a table with search, a filter, a column chooser and actions for several rows, a list with a bar of actions for the ticked rows, requests to approve with buttons in every row, a list filtered from a sentence and a sheet, folders and files in a tree, a panel that opens beside a list, and a page in each state it can be in.",
+      "Rows to work with: a table with search, a filter, a column chooser and actions for several rows, a list with a bar of actions for the ticked rows, requests to approve with buttons in every row, a list filtered from a sentence and a sheet, folders and files in a tree, a panel that opens beside a list, a parcel's label with its barcode, a ticket with a QR code, and a page in each state it can be in.",
   },
   {
     slug: "settings",
@@ -167,6 +173,8 @@ export const blocks: BlockManifest[] = [
   fileBrowser,
   queryEditor,
   detailPanel,
+  shippingLabel,
+  eventTicket,
   pageStates,
   profileForm,
   appearance,

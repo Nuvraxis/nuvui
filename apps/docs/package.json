@@ -11,6 +11,7 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@nuvui/barcodes": "workspace:*",
     "@nuvui/charts": "workspace:*",
     "@nuvui/date-picker": "workspace:*",
     "@nuvui/react": "workspace:*",

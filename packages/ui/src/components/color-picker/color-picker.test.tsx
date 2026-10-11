@@ -684,7 +684,8 @@ describe("the trigger", () => {
 
     await userEvent.keyboard("{Escape}");
     await expect.element(page.getByRole("dialog")).not.toBeInTheDocument();
-    expect(document.activeElement).toBe(el(trigger()));
+    // Focus goes back a moment after the popover has gone, not with it.
+    await expect.element(trigger()).toHaveFocus();
   });
 
   test("follows the color as it's picked", async () => {

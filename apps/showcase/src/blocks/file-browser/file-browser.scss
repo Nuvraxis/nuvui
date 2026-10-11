@@ -133,6 +133,12 @@
   font-weight: var(--font-weight-medium);
 }
 
+// Under everything else in the panel, with a line to set it apart.
+.file-browser__move {
+  padding-block-start: calc(var(--spacing) * 4);
+  border-block-start: var(--nuv-border-width) solid var(--color-border);
+}
+
 .file-browser__actions {
   display: flex;
   flex-wrap: wrap;

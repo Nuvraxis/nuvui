@@ -1,7 +1,7 @@
 import "../src/styles/index.scss";
 import { emulateMedia, setViewport } from "@nuvui/tooling/test/media";
 import { hitAt } from "@nuvui/tooling/test/themed";
-import { afterEach, describe, expect, test } from "vitest";
+import { afterEach, describe, expect, test, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { cleanup, render } from "vitest-browser-react";
 import {
@@ -1418,6 +1418,59 @@ describe("a sheet's handle", () => {
 });
 
 describe("tree", () => {
+  test("a row that can be moved is still opened by a tap, and picked up by a finger that stays", async () => {
+    const onMove = vi.fn();
+    await render(
+      <Tree aria-label="Files" onMove={onMove}>
+        <TreeItem value="src" label="src">
+          <TreeItem value="a" label="a.txt" />
+        </TreeItem>
+        <TreeItem value="b" label="b.txt" />
+      </Tree>,
+    );
+    const item = (name: string) =>
+      page.getByRole("treeitem", { name }).element() as HTMLElement;
+    const face = (name: string) =>
+      item(name).querySelector(".nuv-tree__row") as HTMLElement;
+    const finger = (type: string, on: HTMLElement, part = 0.5) => {
+      const at = box(on);
+      on.dispatchEvent(
+        new PointerEvent(type, {
+          bubbles: true,
+          cancelable: true,
+          pointerId: 1,
+          pointerType: "touch",
+          isPrimary: true,
+          button: 0,
+          clientX: at.left + at.width / 2,
+          clientY: at.top + at.height * part,
+        }),
+      );
+    };
+
+    await userEvent.click(face("src"));
+    await expect
+      .element(page.getByRole("treeitem", { name: "a.txt" }))
+      .toBeVisible();
+    expect(onMove).not.toHaveBeenCalled();
+
+    finger("pointerdown", face("b.txt"));
+    await expect
+      .poll(() => item("b.txt").hasAttribute("data-dragging"), {
+        timeout: 3000,
+      })
+      .toBe(true);
+    finger("pointermove", face("src"), 0.1);
+    expect(item("src").dataset.drop).toBe("before");
+    finger("pointerup", face("src"), 0.1);
+
+    expect(onMove).toHaveBeenCalledWith({
+      values: ["b"],
+      target: "src",
+      position: "before",
+    });
+  });
+
   test("every row is 44px tall, and a tap on one opens it", async () => {
     await render(
       <Tree aria-label="Files">

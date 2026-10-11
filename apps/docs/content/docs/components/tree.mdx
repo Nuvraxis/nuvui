@@ -54,6 +54,28 @@ With `selectionMode="multiple"`, a press on a row adds it to the selection, and 
 
 The rows inside a closed row aren't in the page. A tree of thousands of rows costs what its open rows cost.
 
+## Moving rows
+
+Give the tree `onMove` and its rows can be moved: dragged with a mouse, picked up with a finger held down for a moment, or walked up and down with Alt and an arrow key. The tree doesn't move anything. It tells you what was moved and where to, and you change your data.
+
+<Preview name="tree/move" />
+
+A move has three parts.
+
+| Part | What it is |
+| --- | --- |
+| `values` | The rows that moved, in the order they're shown. |
+| `target` | The row they were moved to. |
+| `position` | `"before"` that row, `"after"` it, or `"inside"` it, after the rows it already has. |
+
+With `selectionMode="multiple"`, moving a selected row moves every selected row that's shown. A row inside another that's moving isn't in `values`: it goes where that one goes.
+
+`canDrop` is asked about each place before it's offered. Return `false` and a drag shows no mark there, and the keys pass it by. In the example, only a section can have pages put inside it. A row can never go inside itself, or inside a disabled row, and a disabled row can't be moved.
+
+A row dropped inside another opens it. A drag held over a closed row opens it too, and a drag near the top or the bottom of what scrolls the tree scrolls it. Escape puts the rows back.
+
+Under the last row of an open row, a drop could mean inside that row or after it. The line shows which: move the pointer out towards the start of the tree and the line goes out with it.
+
 ## A label that isn't plain text
 
 `label` takes anything: an icon and a name, a name and a count. Typing a letter goes to the next row whose label starts with it. When the label's text doesn't start with the row's name, say what the name is with `textValue`.
@@ -76,7 +98,7 @@ Keep buttons and links out of a label. A row is one thing to press, and a screen
 
 <PropsTable component="tree" name="TreeOwnProps" />
 
-It also takes what a `ul` takes, including `ref` and `className`.
+It also takes what a `ul` takes, including `ref` and `className`. `TreeMove`, the type of a move, is exported too.
 
 ## TreeItem props
 
@@ -104,6 +126,7 @@ The tree is one stop for Tab. Inside it:
 | `*` | Opens every row beside this one. |
 | Shift and Down or Up | With several: moves, and selects the row it arrives at. |
 | Ctrl or Command and A | With several: selects every row that's shown. |
+| Alt and Down or Up | With `onMove`: moves the row to the next place it can go, down or up. Every place is on the way: into an open row, out of its end, and inside a row that's closed or has nothing in it. |
 
 In a right-to-left page Right and Left change places, as the tree does.
 
@@ -114,17 +137,22 @@ In a right-to-left page Right and Left change places, as the tree does.
 - A row's name is its own label, not that and every row inside it.
 - Tab stops at the row focus was last on. If that row goes, because its parent was closed or the data changed, Tab stops at the first row.
 - A selected row differs by more than its background: a bar at its start and heavier text. The bar is a border, which is still drawn where the browser forces its own colors.
-- A disabled row can still be reached with the arrow keys, so a screen reader can read it. It can't be selected, opened or closed.
+- A disabled row can still be reached with the arrow keys, so a screen reader can read it. It can't be selected, opened, closed or moved.
+- A row that can be moved says so with `aria-keyshortcuts`. After a move, focus stays on the row, and a screen reader is told where it went: "Moved Forms into Reference". The words are in a `status` beside the tree, which is there only with `onMove`.
+- Where a drag would put the rows is a line or a ring, not a change of color alone, and both are still drawn where the browser forces its own colors.
 
 ### What you need to handle
 
 - Name the tree with `aria-label` or `aria-labelledby`.
 - Give every row a `value` no other row has.
 - Selecting a row does nothing by itself. Show the file, or the team, from `onValueChange`.
+- Offer a way to move a row with a press and no drag, such as a "Move to" menu beside the tree. Someone who uses a pointer and can't drag has neither the drag nor the keys, and WCAG's 2.5.7 asks for it.
+- In another language, give the words said after a move with `getMoveText`.
+- Say somewhere near the tree that rows can be moved. Nothing about a row shows it.
 
 ## On small screens
 
-A row is 44 pixels tall with a finger and 32 with a mouse. A long label is cut short, so the tree is as wide as you make it. A deep tree in a narrow space runs out of room for its labels: put it in a [scroll area](/docs/components/scroll-area), or make `--nuv-tree-indent` smaller.
+A row is 44 pixels tall with a finger and 32 with a mouse. With `onMove`, a finger held on a row for a moment picks it up. A finger that moves first scrolls, as it does anywhere. A long label is cut short, so the tree is as wide as you make it. A deep tree in a narrow space runs out of room for its labels: put it in a [scroll area](/docs/components/scroll-area), or make `--nuv-tree-indent` smaller.
 
 ## CSS variables
 
@@ -154,6 +182,11 @@ Set any of these on the `Tree`, or on anything around it.
     "--nuv-tree-indent": "How far in the rows inside a row are set.",
     "--nuv-tree-line":
       "Color of the line down the side of the rows inside a row.",
+    "--nuv-tree-dragging-opacity":
+      "How faded a row is while it's being dragged.",
+    "--nuv-tree-drop-line":
+      "Color of the line, or the ring, where dragged rows would go. Keep it at 3:1 against the page.",
+    "--nuv-tree-drop-line-width": "Thickness of that line.",
   }}
 />
 
@@ -169,14 +202,16 @@ Set any of these on the `Tree`, or on anything around it.
       "The chevron, or its empty place in a row that doesn't open.",
     "nuv-tree__label": "The label.",
     "nuv-tree__group": "The list of rows inside a row.",
+    "nuv-tree__status":
+      "What a screen reader is told after a move. Beside the tree, and drawn for nobody.",
   }}
 />
 
-An open row has `aria-expanded="true"`, a selected one `aria-selected="true"` and a disabled one `aria-disabled="true"`.
+An open row has `aria-expanded="true"`, a selected one `aria-selected="true"` and a disabled one `aria-disabled="true"`. During a drag the tree and each row being dragged have `data-dragging`, and the row they'd go to has `data-drop`, which is `before`, `after` or `inside`.
 
 ## Server components
 
-Tree starts with `"use client"`: it keeps which rows are open. You can render it from a server component with rows written there, as long as you leave `onValueChange` and `onExpandedChange` out, since a function can't be passed from the server.
+Tree starts with `"use client"`: it keeps which rows are open. You can render it from a server component with rows written there, as long as you leave `onValueChange`, `onExpandedChange` and `onMove` out, since a function can't be passed from the server.
 
 ## Do and don't
 

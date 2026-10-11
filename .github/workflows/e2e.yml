@@ -7,21 +7,42 @@ name: E2E
 # Adding the label starts a run. While the label stays on, so does every push
 # to the pull request. Take the label off to stop that.
 #
-# There are about 7,750 tests: the docs' and the website's, each in five
+# There are about 9,900 tests: the docs' and the website's, each in five
 # browser setups. The site is built once, and the tests are cut into slices
 # that run at the same time.
 #
-# The runners are six containers on two machines, each given three CPUs.
-# So there are six slices, one to a runner, and each runs as many workers
-# as its own container has CPUs. With a slice left to use every core of the
-# machine it's on, browsers stop answering and tests fail that aren't
-# wrong. The consumer apps are a seventh job, which takes a minute and has
-# the first runner that's free. Each slice also has a port of its own for
-# its server, in case two runners share a network.
+# The runners are six containers on two machines, each given three CPUs:
+# four on a laptop whose CPUs are two threads to a core, and two on a Mac
+# mini whose CPUs are whole cores. So the slices are cut by engine as well.
+# Chromium and Firefox are four slices, and Safari's engine is three. On
+# Linux that engine draws in software, in several processes, and on the
+# laptop's shared cores it's the one that falls behind and fails tests that
+# aren't wrong.
+#
+# Which runners a slice goes to is two repository variables (Settings,
+# Secrets and variables, Actions, Variables), each the name of a label the
+# runners have:
+#
+#   E2E_RUNNER          for the build, the consumer apps, and the Chromium
+#                       and Firefox slices. `laptop` when it isn't set.
+#   E2E_WEBKIT_RUNNER   for the WebKit slices. The same as E2E_RUNNER when
+#                       it isn't set.
+#
+# With neither set, every job goes to any runner labelled `laptop`, which
+# is how it was before the slices were cut by engine. To keep WebKit off
+# the laptop, give the Mac mini's runners a label of their own and set
+# E2E_WEBKIT_RUNNER to it. A label no runner has leaves its jobs waiting
+# until the run is cancelled, so add the label before the variable.
+#
+# Each slice runs as many workers as its own container has CPUs. With a
+# slice left to use every core of the machine it's on, browsers stop
+# answering. The consumer apps are a job of their own, which takes a minute
+# and has the first runner that's free. Each slice also has a port of its
+# own for its server, in case two runners share a network.
 #
 # How long a run takes is the CPUs the containers are given, more than
 # anything here: each slice's log says how many it found. If the runners
-# change, change the slices to match: as many as there are runners.
+# change, change the slices to match.
 #
 # Only for a pull request from a branch of this repository. One from a fork
 # is a stranger's code, and these runners are a machine of ours that isn't
@@ -55,7 +76,7 @@ jobs:
       github.event.pull_request.head.repo.full_name == github.repository &&
       contains(github.event.pull_request.labels.*.name, 'invoke-e2e') &&
       (github.event.action != 'labeled' || github.event.label.name == 'invoke-e2e')
-    runs-on: [self-hosted, laptop]
+    runs-on: [self-hosted, "${{ vars.E2E_RUNNER || 'laptop' }}"]
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -86,11 +107,14 @@ jobs:
           overwrite: true
 
   test:
-    name: ${{ matrix.app }} ${{ matrix.slice }} of ${{ matrix.of }}
+    name: ${{ matrix.app }} ${{ matrix.name }} ${{ matrix.slice }} of ${{ matrix.of }}
     needs: build
-    runs-on: [self-hosted, laptop]
-    # A docs slice is some 1,700 tests. With two workers, which is what a
-    # runner given 12 cores gets, that has come close to forty minutes.
+    runs-on:
+      - self-hosted
+      - ${{ matrix.webkit && (vars.E2E_WEBKIT_RUNNER || vars.E2E_RUNNER || 'laptop') || (vars.E2E_RUNNER || 'laptop') }}
+    # A slice is some 1,400 tests. With two workers, which is what a
+    # runner given three of the laptop's CPUs gets, the 1,700 of a slice
+    # as they were cut before took fifty-four minutes.
     timeout-minutes: 60
     strategy:
       # One slice failing says nothing about the others. Let them finish, so
@@ -98,14 +122,23 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # The docs have about twice the website's tests, so twice its
-          # slices. Six in all, one to a runner.
-          - { app: docs, slice: 1, of: 4, port: 3101 }
-          - { app: docs, slice: 2, of: 4, port: 3102 }
-          - { app: docs, slice: 3, of: 4, port: 3103 }
-          - { app: docs, slice: 4, of: 4, port: 3104 }
-          - { app: showcase, slice: 1, of: 2, port: 3201 }
-          - { app: showcase, slice: 2, of: 2, port: 3202 }
+          # Chromium, as a desktop and as a phone, and Firefox: 4,287 of
+          # the docs' tests and 1,668 of the website's. Four slices, one to
+          # each of the laptop's runners.
+          #
+          # `id` is the slice's number among its app's, which is what its
+          # results are kept under: scripts/e2e-comment.mjs adds up
+          # e2e-report-<app>-<number>.
+          - { app: docs, name: Chromium and Firefox, engines: "chromium,firefox", webkit: false, slice: 1, of: 3, port: 3101, id: 1 }
+          - { app: docs, name: Chromium and Firefox, engines: "chromium,firefox", webkit: false, slice: 2, of: 3, port: 3102, id: 2 }
+          - { app: docs, name: Chromium and Firefox, engines: "chromium,firefox", webkit: false, slice: 3, of: 3, port: 3103, id: 3 }
+          - { app: showcase, name: Chromium and Firefox, engines: "chromium,firefox", webkit: false, slice: 1, of: 1, port: 3201, id: 1 }
+          # Safari's engine, as a desktop and as an iPhone: 2,858 of the
+          # docs' tests and 1,112 of the website's. Three slices for the
+          # Mac mini's two runners, so the last waits for the first to end.
+          - { app: docs, name: WebKit, engines: webkit, webkit: true, slice: 1, of: 2, port: 3111, id: 4 }
+          - { app: docs, name: WebKit, engines: webkit, webkit: true, slice: 2, of: 2, port: 3112, id: 5 }
+          - { app: showcase, name: WebKit, engines: webkit, webkit: true, slice: 1, of: 1, port: 3211, id: 2 }
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -138,6 +171,9 @@ jobs:
       # aren't three cores, and with every runner on it at work they're
       # nearer half that. Three browsers on them ran out of time in tests
       # that aren't wrong. There it's two workers for three CPUs.
+      #
+      # NUVUI_BROWSERS is what cuts the slice by engine: the Playwright
+      # config keeps the projects whose engine it names.
       - name: Run slice ${{ matrix.slice }} of ${{ matrix.of }}
         run: |
           workers=$(nproc)
@@ -154,6 +190,7 @@ jobs:
           APP: ${{ matrix.app }}
           SLICE: ${{ matrix.slice }}/${{ matrix.of }}
           NUVUI_E2E_PORT: ${{ matrix.port }}
+          NUVUI_BROWSERS: ${{ matrix.engines }}
 
       # Passed or failed. e2e-report.yml reads these to write what failed
       # on the pull request.
@@ -161,7 +198,7 @@ jobs:
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: e2e-report-${{ matrix.app }}-${{ matrix.slice }}
+          name: e2e-report-${{ matrix.app }}-${{ matrix.id }}
           path: apps/${{ matrix.app }}/test-results/results.json
           if-no-files-found: ignore
           retention-days: 7
@@ -172,7 +209,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: playwright-${{ matrix.app }}-${{ matrix.slice }}
+          name: playwright-${{ matrix.app }}-${{ matrix.id }}
           path: |
             apps/${{ matrix.app }}/playwright-report
             apps/${{ matrix.app }}/test-results
@@ -183,7 +220,7 @@ jobs:
   consumers:
     name: Install the packed library into a Vite and a Next.js app
     needs: build
-    runs-on: [self-hosted, laptop]
+    runs-on: [self-hosted, "${{ vars.E2E_RUNNER || 'laptop' }}"]
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

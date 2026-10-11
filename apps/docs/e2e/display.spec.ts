@@ -738,6 +738,27 @@ test.describe("right-to-left page", () => {
     expect(second?.x).toBeGreaterThan(first?.x ?? 0);
   });
 
+  // The page is in English and only the example's dir says right to left.
+  // That's the case a build can break: Next.js rewrites :dir(rtl) to a list
+  // of languages, and this is the built site.
+  test("the breadcrumb's arrow turns round with the direction", async ({
+    page,
+    isMobile,
+  }) => {
+    const area = preview(page, "right-to-left/provider");
+    const arrow = () =>
+      area
+        .locator(".nuv-breadcrumb__chevron")
+        .first()
+        .evaluate((node) => getComputedStyle(node).transform);
+    await expect(page.locator("html")).toHaveAttribute("lang", "en");
+
+    expect(await arrow()).toBe("matrix(-1, 0, 0, 1, 0, 0)");
+
+    await press(area.getByRole("radio", { name: "Left to right" }), isMobile);
+    await expect.poll(arrow).toBe("none");
+  });
+
   test("the slider and the progress bar start from the right", async ({
     page,
   }) => {

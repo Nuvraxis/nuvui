@@ -2380,7 +2380,8 @@ test.describe("assistant chat", () => {
     await expect(answers(page).nth(0)).toContainText("38 invoices");
     // Line breaks in an answer are kept.
     await expect(answers(page).nth(1)).toContainText("Kind regards,");
-    expect(await gapOf(page)).toBe(0);
+    // The box follows a frame after its messages change.
+    await expect.poll(() => gapOf(page)).toBe(0);
   });
 
   test("assistant chat: stopping keeps what had arrived, and trying again asks the same again", async ({
@@ -2446,6 +2447,483 @@ test.describe("assistant chat", () => {
     await expect(
       page.getByText("Answers are written by a model and can be wrong."),
     ).toBeVisible();
+  });
+});
+
+test.describe("assistant beside a record", () => {
+  const panel = (page: Page) =>
+    page.getByRole("complementary", { name: "Assistant" });
+  const toggle = (page: Page) =>
+    page.getByRole("button", { name: "Ask the assistant" });
+  const record = (page: Page) =>
+    page.getByRole("heading", { level: 1, name: "Invoice INV-1042" });
+  const log = (page: Page) =>
+    page.getByRole("log", { name: "Conversation about INV-1042" });
+  const field = (page: Page) =>
+    page.getByRole("textbox", { name: "Question about INV-1042" });
+  const sendButton = (page: Page) => page.getByRole("button", { name: "Send" });
+  const answers = (page: Page) =>
+    log(page).locator('.nuv-message[data-from="assistant"]');
+  // Open on a wide screen to begin with, and closed on a narrow one.
+  const openPanel = async (page: Page, isMobile: boolean) => {
+    if ((await toggle(page).getAttribute("aria-expanded")) === "false") {
+      await press(toggle(page), isMobile);
+    }
+    await expect(panel(page)).toBeVisible();
+  };
+
+  test("assistant beside a record: on a wide screen it's open, beside the record, and closing gives the record the room", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await open(page, "/blocks/view/assistant-sidebar");
+
+    await expect(panel(page)).toBeVisible();
+    await expect(record(page)).toBeVisible();
+    await expect(toggle(page)).toHaveAttribute("aria-expanded", "true");
+    const main = await page.getByRole("main").boundingBox();
+    const beside = await panel(page).boundingBox();
+    expect(Math.round(beside?.x ?? 0)).toBe(
+      Math.round((main?.x ?? 0) + (main?.width ?? 0)),
+    );
+    expect(Math.round((beside?.x ?? 0) + (beside?.width ?? 0))).toBe(1280);
+
+    await page.getByRole("button", { name: "Close the assistant" }).click();
+    await expect(panel(page)).toBeHidden();
+    await expect(toggle(page)).toHaveAttribute("aria-expanded", "false");
+    await expect(toggle(page)).toBeFocused();
+    expect(
+      Math.round((await page.getByRole("main").boundingBox())?.width ?? 0),
+    ).toBe(1280);
+
+    // Opened from the button, which is still there, so focus isn't moved
+    // into the panel. Whether it's on the button is the browser's: Safari
+    // doesn't focus a button that's pressed.
+    await toggle(page).click();
+    await expect(panel(page)).toBeVisible();
+    await expect(
+      page.getByRole("heading", { level: 2, name: "Assistant" }),
+    ).not.toBeFocused();
+  });
+
+  test("assistant beside a record: on a narrow screen it's closed, takes the record's place when opened, and gives it back", async ({
+    page,
+    isMobile,
+  }) => {
+    await page.setViewportSize(phone);
+    await open(page, "/blocks/view/assistant-sidebar");
+
+    await expect(record(page)).toBeVisible();
+    await expect(panel(page)).toBeHidden();
+    await expect(toggle(page)).toHaveAttribute("aria-expanded", "false");
+
+    await press(toggle(page), isMobile);
+    await expect(panel(page)).toBeVisible();
+    await expect(record(page)).toBeHidden();
+    await expect(
+      page.getByRole("heading", { level: 2, name: "Assistant" }),
+    ).toBeFocused();
+    const box = await panel(page).boundingBox();
+    expect(Math.round(box?.width ?? 0)).toBe(phone.width);
+    expect(await overflow(page)).toBe(0);
+
+    await press(
+      page.getByRole("button", { name: "Close the assistant" }),
+      isMobile,
+    );
+    await expect(record(page)).toBeVisible();
+    await expect(panel(page)).toBeHidden();
+    await expect(toggle(page)).toBeFocused();
+  });
+
+  test("assistant beside a record: a suggestion is answered about the invoice, with copy under the answer", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/blocks/view/assistant-sidebar");
+    await openPanel(page, isMobile);
+
+    await press(
+      page.getByRole("button", { name: "Summarize this invoice" }),
+      isMobile,
+    );
+    await expect(log(page).locator('[aria-busy="true"]')).toHaveCount(1);
+    await expect(sendButton(page)).toBeVisible({ timeout: 15_000 });
+
+    await expect(log(page).locator('[aria-busy="true"]')).toHaveCount(0);
+    await expect(answers(page)).toHaveCount(1);
+    await expect(answers(page)).toContainText("40 seats on the Team plan");
+    await expect(
+      answers(page)
+        .getByRole("group", { name: "Message actions" })
+        .getByRole("button", { name: "Copy" }),
+    ).toBeVisible();
+  });
+
+  test("assistant beside a record: stopping keeps what had arrived", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/blocks/view/assistant-sidebar");
+    await openPanel(page, isMobile);
+
+    await field(page).fill("Why is it overdue?");
+    await press(sendButton(page), isMobile);
+    await expect(
+      log(page).locator('[aria-busy="true"] .nuv-message__content'),
+    ).toContainText("It was due");
+    await press(page.getByRole("button", { name: "Stop" }), isMobile);
+
+    await expect(sendButton(page)).toBeVisible();
+    await expect(answers(page)).toHaveCount(1);
+    await expect(answers(page)).not.toContainText("out of character.");
+    // The press that stopped it sent nothing.
+    await expect(log(page).locator(".nuv-message")).toHaveCount(2);
+  });
+
+  test("assistant beside a record: closed and opened again, the conversation is still there, at its end", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/blocks/view/assistant-sidebar");
+    await openPanel(page, isMobile);
+    for (const question of ["Draft a second reminder", "Summarize it"]) {
+      await field(page).fill(question);
+      await press(sendButton(page), isMobile);
+      await expect(sendButton(page)).toBeVisible({ timeout: 15_000 });
+    }
+
+    await press(
+      page.getByRole("button", { name: "Close the assistant" }),
+      isMobile,
+    );
+    await expect(panel(page)).toBeHidden();
+    await press(toggle(page), isMobile);
+
+    await expect(answers(page)).toHaveCount(2);
+    await expect(answers(page).nth(0)).toContainText("Kind regards,");
+    // The box follows a frame after its messages change.
+    await expect
+      .poll(() =>
+        log(page).evaluate((box) =>
+          Math.round(box.scrollHeight - box.scrollTop - box.clientHeight),
+        ),
+      )
+      .toBe(0);
+  });
+});
+
+test.describe("support chat", () => {
+  test.beforeEach(async ({ page }) => {
+    await open(page, "/blocks/view/support-chat");
+  });
+
+  const launcher = (page: Page) =>
+    page.getByRole("button", { name: "Chat with us" });
+  const dialog = (page: Page) =>
+    page.getByRole("dialog", { name: "Chat with support" });
+  const log = (page: Page) =>
+    page.getByRole("log", { name: "Conversation with support" });
+  const field = (page: Page) =>
+    page.getByRole("textbox", { name: "Message to support" });
+  const sendButton = (page: Page) => page.getByRole("button", { name: "Send" });
+  const from = (page: Page, who: "user" | "assistant") =>
+    log(page).locator(`.nuv-message[data-from="${who}"]`);
+
+  test("support chat: the button opens a dialog with a greeting, and Escape closes it", async ({
+    page,
+    isMobile,
+  }) => {
+    await expect(dialog(page)).toHaveCount(0);
+    await expect(launcher(page)).toHaveAttribute("aria-expanded", "false");
+
+    await press(launcher(page), isMobile);
+    await expect(dialog(page)).toBeVisible();
+    await expect(launcher(page)).toHaveAttribute("aria-expanded", "true");
+    await expect(from(page, "assistant")).toHaveCount(1);
+    await expect(from(page, "assistant")).toContainText("Support: Hello.");
+    await expect(sendButton(page)).toHaveAttribute("aria-disabled", "true");
+
+    await page.keyboard.press("Escape");
+    await expect(dialog(page)).toHaveCount(0);
+    if (!isMobile) await expect(launcher(page)).toBeFocused();
+  });
+
+  test("support chat: with a mouse it opens with the field ready to type in", async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(isMobile, "On a touch screen that would bring the keyboard up.");
+    await launcher(page).click();
+    await expect(field(page)).toBeFocused();
+  });
+
+  test("support chat: the panel is on the screen, whole, at a phone's width and a small one", async ({
+    page,
+    isMobile,
+  }) => {
+    for (const size of [phone, { width: 320, height: 568 }]) {
+      await page.setViewportSize(size);
+      await press(launcher(page), isMobile);
+      const box = await dialog(page).boundingBox();
+
+      expect(box?.x ?? -1, `at ${size.width}`).toBeGreaterThanOrEqual(0);
+      expect(box?.y ?? -1, `at ${size.width}`).toBeGreaterThanOrEqual(0);
+      expect((box?.x ?? 0) + (box?.width ?? 0)).toBeLessThanOrEqual(size.width);
+      expect((box?.y ?? 0) + (box?.height ?? 0)).toBeLessThanOrEqual(
+        size.height,
+      );
+      await expect(field(page)).toBeVisible();
+      expect(await overflow(page), `at ${size.width}`).toBe(0);
+      await press(
+        page.getByRole("button", { name: "Close the chat" }),
+        isMobile,
+      );
+      await expect(dialog(page)).toHaveCount(0);
+    }
+  });
+
+  test("support chat: a reply that's chosen is sent and answered, and the replies to choose from go", async ({
+    page,
+    isMobile,
+  }) => {
+    await press(launcher(page), isMobile);
+    await press(
+      page.getByRole("button", { name: "Where is my order?" }),
+      isMobile,
+    );
+
+    await expect(from(page, "user")).toHaveText("You: Where is my order?");
+    await expect(page.locator(".nuv-prompt-suggestion")).toHaveCount(0);
+    await expect(log(page).locator('[aria-busy="true"]')).toHaveCount(1);
+    await expect(from(page, "assistant").nth(1)).toContainText("NW-48213", {
+      timeout: 10_000,
+    });
+    await expect(log(page).locator('[aria-busy="true"]')).toHaveCount(0);
+  });
+
+  test("support chat: a question that's typed is answered by what it asks about", async ({
+    page,
+    isMobile,
+  }) => {
+    await press(launcher(page), isMobile);
+    await field(page).fill("How long does a refund take?");
+    await press(sendButton(page), isMobile);
+
+    await expect(field(page)).toHaveValue("");
+    await expect(from(page, "assistant").nth(1)).toContainText(
+      "within five working days",
+      { timeout: 10_000 },
+    );
+  });
+
+  test("support chat: asking for a person hands the conversation over, and nothing answers after that", async ({
+    page,
+    isMobile,
+  }) => {
+    await press(launcher(page), isMobile);
+    await press(
+      page.getByRole("button", { name: "Talk to a person" }),
+      isMobile,
+    );
+
+    await expect(
+      log(page).getByText("Replies usually take about ten minutes."),
+    ).toBeVisible({ timeout: 10_000 });
+    await expect(dialog(page).locator(".support-chat__status")).toHaveText(
+      "With the support team",
+    );
+    await expect(from(page, "assistant")).toHaveCount(2);
+
+    await field(page).fill("Thank you");
+    await press(sendButton(page), isMobile);
+    await expect(from(page, "user")).toHaveCount(2);
+    await expect(log(page).locator('[aria-busy="true"]')).toHaveCount(0);
+    await expect(sendButton(page)).toHaveAttribute("aria-disabled", "true");
+    await expect(from(page, "assistant")).toHaveCount(2);
+  });
+
+  test("support chat: closed and opened again, the conversation is still there", async ({
+    page,
+    isMobile,
+  }) => {
+    await press(launcher(page), isMobile);
+    await field(page).fill("Can I change the address?");
+    await press(sendButton(page), isMobile);
+    await expect(from(page, "assistant").nth(1)).toContainText(
+      "the carrier has to do it",
+      { timeout: 10_000 },
+    );
+
+    await press(page.getByRole("button", { name: "Close the chat" }), isMobile);
+    await expect(dialog(page)).toHaveCount(0);
+    await press(launcher(page), isMobile);
+
+    await expect(from(page, "user")).toHaveText(
+      "You: Can I change the address?",
+    );
+    await expect(from(page, "assistant")).toHaveCount(2);
+  });
+});
+
+test.describe("team messages", () => {
+  const row = (page: Page, name: string) =>
+    page
+      .getByRole("region", { name: "Messages", exact: true })
+      .getByRole("button", { name });
+  const listHeading = (page: Page) =>
+    page.getByRole("heading", { level: 1, name: "Messages" });
+  const openHeading = (page: Page) => page.getByRole("heading", { level: 2 });
+  const back = (page: Page) =>
+    page.getByRole("button", { name: "Back to all messages" });
+  const log = (page: Page, name: string) =>
+    page.getByRole("log", { name: `Messages with ${name}` });
+  const sendButton = (page: Page) => page.getByRole("button", { name: "Send" });
+  // Where one of the two is shown, the way back to the list.
+  const toList = async (page: Page, isMobile: boolean) => {
+    if (await back(page).isVisible()) await press(back(page), isMobile);
+  };
+
+  test("team messages: on a wide screen the list and a conversation are side by side, and the open one is marked", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await open(page, "/blocks/view/team-chat");
+
+    await expect(listHeading(page)).toBeVisible();
+    await expect(openHeading(page)).toHaveText("Grace Hopper");
+    await expect(back(page)).toBeHidden();
+    await expect(row(page, "Grace Hopper")).toHaveAttribute(
+      "aria-current",
+      "true",
+    );
+    await expect(row(page, "Launch team")).not.toHaveAttribute("aria-current");
+
+    await row(page, "Launch team").click();
+    await expect(openHeading(page)).toHaveText("Launch team");
+    await expect(row(page, "Launch team")).toHaveAttribute(
+      "aria-current",
+      "true",
+    );
+    // Both are still there, so focus isn't moved to the conversation.
+    // Whether it's on the row is the browser's: Safari doesn't focus a
+    // button that's pressed.
+    await expect(openHeading(page)).not.toBeFocused();
+    await expect(log(page, "Launch team")).toContainText(
+      "Review is at two tomorrow.",
+    );
+  });
+
+  test("team messages: on a narrow screen it's the list, then a conversation, and back", async ({
+    page,
+    isMobile,
+  }) => {
+    await page.setViewportSize(phone);
+    await open(page, "/blocks/view/team-chat");
+
+    await expect(listHeading(page)).toBeVisible();
+    await expect(openHeading(page)).toBeHidden();
+
+    await press(row(page, "Katherine Johnson"), isMobile);
+    await expect(listHeading(page)).toBeHidden();
+    await expect(openHeading(page)).toHaveText("Katherine Johnson");
+    await expect(openHeading(page)).toBeFocused();
+    await expect(
+      page.getByRole("textbox", { name: "Message to Katherine Johnson" }),
+    ).toBeVisible();
+    expect(await overflow(page)).toBe(0);
+
+    await press(back(page), isMobile);
+    await expect(listHeading(page)).toBeVisible();
+    await expect(openHeading(page)).toBeHidden();
+    await expect(row(page, "Katherine Johnson")).toBeFocused();
+  });
+
+  test("team messages: opening a conversation clears what was unread in it", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/blocks/view/team-chat");
+    await expect(row(page, "Grace Hopper")).toContainText("2 new");
+
+    await press(row(page, "Grace Hopper"), isMobile);
+    await toList(page, isMobile);
+
+    await expect(row(page, "Grace Hopper")).not.toContainText("new");
+  });
+
+  test("team messages: a message from someone else has their name over it, and one's own says You", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/blocks/view/team-chat");
+    await press(row(page, "Launch team"), isMobile);
+    const messages = log(page, "Launch team").locator(".nuv-message");
+
+    await expect(messages).toHaveCount(4);
+    await expect(messages.nth(1).locator(".nuv-message__meta")).toHaveText(
+      "Ada Lovelace Yesterday",
+    );
+    // Said once: the name everyone sees is the one a screen reader reads.
+    await expect(messages.nth(1).locator(".nuv-message__label")).toHaveCount(0);
+    await expect(messages.nth(2)).toHaveAttribute("data-from", "user");
+    await expect(messages.nth(2).locator(".nuv-message__label")).toHaveText(
+      "You:",
+    );
+  });
+
+  test("team messages: a message that's sent is at the end, empties the field, and is the row's last line", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/blocks/view/team-chat");
+    await press(row(page, "Grace Hopper"), isMobile);
+    const field = page.getByRole("textbox", {
+      name: "Message to Grace Hopper",
+    });
+
+    await field.fill("On it. They'll have a reminder by noon.");
+    await press(sendButton(page), isMobile);
+
+    await expect(field).toHaveValue("");
+    const last = log(page, "Grace Hopper").locator(".nuv-message").last();
+    await expect(last).toHaveAttribute("data-from", "user");
+    await expect(last).toContainText("On it. They'll have a reminder by noon.");
+    await expect(last.locator(".nuv-message__meta")).toHaveText("Just now");
+    // The box follows a frame after its messages change.
+    await expect
+      .poll(() =>
+        log(page, "Grace Hopper").evaluate((box) =>
+          Math.round(box.scrollHeight - box.scrollTop - box.clientHeight),
+        ),
+      )
+      .toBe(0);
+
+    await toList(page, isMobile);
+    await expect(row(page, "Grace Hopper")).toContainText(
+      "You: On it. They'll have a reminder by noon.",
+    );
+  });
+
+  test("team messages: each conversation opens at its end, whatever the last one was scrolled to", async ({
+    page,
+    isMobile,
+  }) => {
+    await page.setViewportSize({ width: 390, height: 420 });
+    await open(page, "/blocks/view/team-chat");
+    await press(row(page, "Launch team"), isMobile);
+    await log(page, "Launch team").evaluate((box) => box.scrollTo(0, 0));
+    await toList(page, isMobile);
+
+    await press(row(page, "Grace Hopper"), isMobile);
+    // The box follows a frame after its messages change.
+    await expect
+      .poll(() =>
+        log(page, "Grace Hopper").evaluate((box) =>
+          Math.round(box.scrollHeight - box.scrollTop - box.clientHeight),
+        ),
+      )
+      .toBe(0);
   });
 });
 

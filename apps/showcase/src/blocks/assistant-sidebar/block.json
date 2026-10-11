@@ -1,0 +1,9 @@
+{
+  "name": "assistant-sidebar",
+  "title": "Assistant beside a record",
+  "description": "An invoice with an assistant in a panel beside it that answers about that invoice: prompts to start from, a reply that can be stopped, and copy under each answer. On a phone the panel takes the whole screen.",
+  "category": "chat",
+  "files": ["assistant-sidebar.tsx", "assistant-sidebar.scss"],
+  "install": ["@nuvui/chat", "@nuvui/react", "lucide-react"],
+  "height": 680
+}

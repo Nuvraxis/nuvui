@@ -2,7 +2,7 @@
   {
     "name": "@nuvui/react",
     "path": "dist/index.js",
-    "limit": "82 kB"
+    "limit": "84 kB"
   },
   {
     "name": "@nuvui/react/accordion",
@@ -337,7 +337,7 @@
   {
     "name": "@nuvui/react/tree",
     "path": "dist/components/tree/index.js",
-    "limit": "3.2 kB"
+    "limit": "4.8 kB"
   },
   {
     "name": "@nuvui/react/trend",

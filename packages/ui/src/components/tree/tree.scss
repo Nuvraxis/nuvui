@@ -21,6 +21,7 @@
     display: flex;
     flex-direction: column;
     gap: var(--nuv-tree-gap, 1px);
+    position: relative;
     min-inline-size: 0;
     outline: none;
 
@@ -79,6 +80,58 @@
   .nuv-tree__item[aria-disabled="true"] > .nuv-tree__row {
     opacity: var(--nuv-disabled-opacity);
     cursor: not-allowed;
+  }
+
+  // A row that's being dragged, and every row inside it, until it's let go.
+  .nuv-tree__item[data-dragging] {
+    opacity: var(--nuv-tree-dragging-opacity, var(--nuv-disabled-opacity));
+  }
+
+  // Where the dragged rows would go. Before a row or after it is a line,
+  // which starts where that row starts and so says how deep they'd be. It's
+  // a border, which is still drawn where the browser forces its own colors.
+  .nuv-tree__item[data-drop="before"]::before,
+  .nuv-tree__item[data-drop="after"]::after {
+    position: absolute;
+    z-index: 1;
+    inset-inline: 0;
+    border-block-start: var(--nuv-tree-drop-line-width, 2px) solid
+      var(--nuv-tree-drop-line, var(--color-primary));
+    border-radius: var(--radius-full);
+    content: "";
+    pointer-events: none;
+  }
+
+  // In the middle of the space between two rows.
+  .nuv-tree__item[data-drop="before"]::before {
+    inset-block-start: calc((var(--nuv-tree-gap, 1px) + var(--nuv-tree-drop-line-width, 2px)) / -2);
+  }
+
+  .nuv-tree__item[data-drop="after"]::after {
+    inset-block-end: calc((var(--nuv-tree-gap, 1px) + var(--nuv-tree-drop-line-width, 2px)) / -2);
+  }
+
+  // Inside a row is a ring round it.
+  .nuv-tree__item[data-drop="inside"] > .nuv-tree__row {
+    outline: var(--nuv-tree-drop-line-width, 2px) solid
+      var(--nuv-tree-drop-line, var(--color-primary));
+    outline-offset: calc(var(--nuv-tree-drop-line-width, 2px) * -1);
+    background-color: var(--nuv-tree-hover-bg, var(--color-muted));
+  }
+
+  .nuv-tree[data-dragging] .nuv-tree__row {
+    cursor: grabbing;
+  }
+
+  // What a screen reader is told when rows have moved. In the page for it,
+  // and drawn for nobody.
+  .nuv-tree__status {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
 
   // The chevron's place is kept in a row with nothing to open, so the

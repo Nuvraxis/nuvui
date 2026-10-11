@@ -1399,6 +1399,136 @@ test.describe("file browser", () => {
   });
 });
 
+test.describe("file browser, moving", () => {
+  test.beforeEach(async ({ page }) => {
+    await open(page, "/blocks/view/file-browser");
+  });
+
+  const row = (page: Page, name: string) =>
+    page
+      .getByRole("tree", { name: "Folders and files" })
+      .getByRole("treeitem", { name, exact: true });
+  const face = (page: Page, name: string) =>
+    row(page, name).locator("> .nuv-tree__row");
+  const detail = (page: Page) => page.locator(".file-browser__detail");
+  const moveTo = (page: Page) =>
+    page.getByRole("combobox", { name: "Move to" });
+
+  test("file browser: the list in the panel moves the chosen file into a folder, and the tree opens to it", async ({
+    page,
+    isMobile,
+  }) => {
+    await press(face(page, "handbook.pdf"), isMobile);
+    await expect(moveTo(page)).toHaveText("Files");
+    await expect(row(page, "Reports")).toHaveAttribute(
+      "aria-expanded",
+      "false",
+    );
+
+    await moveTo(page).scrollIntoViewIfNeeded();
+    await press(moveTo(page), isMobile);
+    await press(
+      page.getByRole("option", { name: "Reports", exact: true }),
+      isMobile,
+    );
+
+    await expect(moveTo(page)).toHaveText("Reports");
+    await expect(row(page, "Reports")).toHaveAttribute("aria-expanded", "true");
+    await expect(
+      row(page, "Reports").getByRole("treeitem", { name: "handbook.pdf" }),
+    ).toBeVisible();
+    await expect(detail(page)).toContainText("Files / Reports");
+  });
+
+  test("file browser: the list offers every folder but the chosen one and those inside it, and moves back to the top", async ({
+    page,
+    isMobile,
+  }) => {
+    await press(face(page, "Contracts"), isMobile);
+    await moveTo(page).scrollIntoViewIfNeeded();
+    await press(moveTo(page), isMobile);
+    await expect(page.getByRole("option")).toHaveText([
+      "Files",
+      "Reports",
+      "Archive",
+    ]);
+    await page.keyboard.press("Escape");
+
+    await press(face(page, "Contracts"), isMobile);
+    await press(face(page, "template.docx"), isMobile);
+    await expect(moveTo(page)).toHaveText("Contracts");
+    await moveTo(page).scrollIntoViewIfNeeded();
+    await press(moveTo(page), isMobile);
+    await press(
+      page.getByRole("option", { name: "Files", exact: true }),
+      isMobile,
+    );
+
+    await expect(moveTo(page)).toHaveText("Files");
+    await expect(
+      row(page, "Contracts").getByRole("treeitem", { name: "template.docx" }),
+    ).toHaveCount(0);
+    await expect(row(page, "template.docx")).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+  });
+
+  test("file browser: Alt and an arrow moves a file into the folder above, which opens", async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(isMobile, "A phone has no arrow keys.");
+    await row(page, "handbook.pdf").focus();
+
+    await page.keyboard.press("Alt+ArrowUp");
+
+    // Archive had nothing in it, and couldn't be opened.
+    await expect(row(page, "Archive")).toHaveAttribute("aria-expanded", "true");
+    await expect(
+      row(page, "Archive").getByRole("treeitem", { name: "handbook.pdf" }),
+    ).toBeFocused();
+  });
+
+  test("file browser: a file dragged onto a file goes beside it, since only a folder holds files", async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(
+      isMobile,
+      "A finger picks a row up by holding, which the tree's own tests cover.",
+    );
+    const from = await face(page, "handbook.pdf").boundingBox();
+    const to = await face(page, "template.docx").boundingBox();
+    if (!from || !to) throw new Error("the rows aren't there");
+
+    await page.mouse.move(from.x + from.width / 2, from.y + from.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(
+      from.x + from.width / 2,
+      from.y + from.height / 2 - 6,
+      { steps: 2 },
+    );
+    await page.mouse.move(to.x + to.width / 2, to.y + to.height * 0.6, {
+      steps: 5,
+    });
+    await expect(row(page, "template.docx")).toHaveAttribute(
+      "data-drop",
+      "after",
+    );
+    await page.mouse.up();
+
+    await expect(
+      row(page, "Contracts").getByRole("treeitem", { name: "handbook.pdf" }),
+    ).toBeVisible();
+    await expect(row(page, "template.docx")).not.toHaveAttribute(
+      "aria-expanded",
+    );
+    // The drag chose nothing: the panel still shows what it did.
+    await expect(detail(page).getByRole("heading")).toHaveText("template.docx");
+  });
+});
+
 test.describe("approvals", () => {
   test.beforeEach(async ({ page }) => {
     await open(page, "/blocks/view/approvals");

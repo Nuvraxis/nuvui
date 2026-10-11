@@ -134,6 +134,21 @@ test("components used from a server component hydrate and work", async ({
     serverTree.getByRole("treeitem", { name: "Folder from the server" }),
   ).toHaveAttribute("aria-expanded", "true");
 
+  const serverColor = page.getByRole("button", {
+    name: "Color from the server",
+  });
+  await expect(serverColor).toHaveAccessibleDescription("#2563eb");
+  await expect(page.locator('input[name="server-color"]')).toHaveValue(
+    "#2563eb",
+  );
+  await serverColor.click();
+  await page.getByRole("textbox", { name: "Hex color" }).fill("#16a34a");
+  await page.keyboard.press("Enter");
+  await expect(page.locator('input[name="server-color"]')).toHaveValue(
+    "#16a34a",
+  );
+  await page.keyboard.press("Escape");
+
   const serverList = page.getByRole("grid", { name: "List from the server" });
   await expect(serverList.getByRole("row")).toHaveCount(2);
   await serverList.getByText("Other row from the server").click();

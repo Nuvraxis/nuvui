@@ -16,6 +16,7 @@ import { CardPlayground } from "@/components/playground/card";
 import { CheckboxPlayground } from "@/components/playground/checkbox";
 import { ChoiceCardPlayground } from "@/components/playground/choice-card";
 import { CollapsiblePlayground } from "@/components/playground/collapsible";
+import { ColorPickerPlayground } from "@/components/playground/color-picker";
 import { ComboboxPlayground } from "@/components/playground/combobox";
 import { CommandPlayground } from "@/components/playground/command";
 import { ContextMenuPlayground } from "@/components/playground/context-menu";
@@ -146,6 +147,7 @@ export function getMDXComponents(components?: MDXComponents) {
     TextShimmerPlayground,
     TreePlayground,
     ListViewPlayground,
+    ColorPickerPlayground,
     StepperPlayground,
     TimelinePlayground,
     TrendPlayground,

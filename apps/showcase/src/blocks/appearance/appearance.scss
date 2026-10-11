@@ -1,0 +1,96 @@
+@use "@nuvui/react/scss/mixins";
+
+.appearance {
+  display: grid;
+  gap: calc(var(--spacing) * 8);
+  align-content: start;
+  inline-size: 100%;
+  max-inline-size: 40rem;
+  min-block-size: 100svh;
+  margin-inline: auto;
+  padding: calc(var(--spacing) * 6) calc(var(--spacing) * 4);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+
+  @include mixins.breakpoint("md") {
+    padding: calc(var(--spacing) * 8);
+  }
+}
+
+.appearance__head {
+  display: grid;
+  gap: calc(var(--spacing) * 1);
+}
+
+.appearance__title {
+  margin: 0;
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-2xl--line-height);
+  letter-spacing: var(--tracking-tight);
+}
+
+.appearance__text {
+  margin: 0;
+  color: var(--color-muted-foreground);
+}
+
+.appearance__form {
+  display: grid;
+  gap: calc(var(--spacing) * 5);
+}
+
+// A picture of an app in the chosen colors. They're whatever was picked,
+// so the text on them is white whatever the theme, and they're drawn as
+// they are where the browser forces its own colors.
+.appearance__preview {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  min-block-size: calc(var(--spacing) * 36);
+  overflow: hidden;
+  border: var(--nuv-border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+  forced-color-adjust: none;
+}
+
+.appearance__sidebar {
+  display: grid;
+  gap: calc(var(--spacing) * 2);
+  align-content: start;
+  padding: calc(var(--spacing) * 4);
+  background-color: var(--appearance-sidebar);
+  color: var(--color-white);
+}
+
+.appearance__page {
+  display: grid;
+  place-items: center;
+  padding: calc(var(--spacing) * 4);
+  background-color: var(--color-surface);
+}
+
+.appearance__button {
+  padding: calc(var(--spacing) * 2) calc(var(--spacing) * 4);
+  border-radius: var(--radius-md);
+  background-color: var(--appearance-brand);
+  color: var(--color-white);
+  font-weight: var(--font-weight-medium);
+}
+
+// It keeps a line's height when it's empty, so the buttons don't jump when
+// it speaks.
+.appearance__note {
+  min-block-size: calc(var(--text-sm) * var(--text-sm--line-height));
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+.appearance__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 3);
+}

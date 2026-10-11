@@ -1,0 +1,9 @@
+{
+  "name": "appearance",
+  "title": "Appearance settings",
+  "description": "A workspace's colors, each a row with a color picker at its end, a picture of them in use, and a warning where white text couldn't be read on one.",
+  "category": "settings",
+  "files": ["appearance.tsx", "appearance.scss"],
+  "install": ["@nuvui/react"],
+  "height": 720
+}

@@ -36,6 +36,13 @@ import {
   Checkbox,
   CheckboxCard,
   ChoiceCardTitle,
+  ColorPicker,
+  ColorPickerArea,
+  ColorPickerHue,
+  ColorPickerPanel,
+  ColorPickerSwatch,
+  ColorPickerSwatches,
+  ColorPickerTrigger,
   Combobox,
   ComboboxContent,
   ComboboxItem,
@@ -1833,5 +1840,60 @@ describe("list view", () => {
     expect(
       contrast(style(row("INV-2041")).outlineColor, canvas()),
     ).toBeGreaterThan(3);
+  });
+});
+
+describe("color picker", () => {
+  test("the colors being shown are kept: a preset, the area and the trigger's swatch", async () => {
+    await render(
+      <ColorPicker defaultValue="#dc2626">
+        <ColorPickerTrigger aria-label="Brand color" />
+        <ColorPickerPanel>
+          <ColorPickerArea />
+          <ColorPickerHue />
+          <ColorPickerSwatches aria-label="Presets">
+            <ColorPickerSwatch value="#16a34a" aria-label="Green" />
+          </ColorPickerSwatches>
+        </ColorPickerPanel>
+      </ColorPicker>,
+    );
+    const preset = page.getByRole("button", { name: "Green" }).element();
+    const area = page
+      .getByRole("slider", { name: "Saturation and brightness" })
+      .element();
+    const trigger = page.getByRole("button", { name: "Brand color" }).element();
+    const fill = trigger.querySelector(
+      ".nuv-color-picker__trigger-swatch",
+    ) as Element;
+
+    // Without them there'd be nothing to pick from.
+    expect(style(preset).backgroundColor).toBe("rgb(22, 163, 74)");
+    expect(style(fill).backgroundColor).toBe("rgb(220, 38, 38)");
+    expect(style(area.parentElement as Element).backgroundColor).toBe(
+      "rgb(255, 0, 0)",
+    );
+    expect(style(area.parentElement as Element).backgroundImage).toContain(
+      "linear-gradient",
+    );
+    // A thumb keeps the white ring that shows it on any color.
+    expect(style(area).borderTopColor).toBe("rgb(255, 255, 255)");
+  });
+
+  test("the trigger has an edge, and the part with focus a ring", async () => {
+    await render(
+      <ColorPicker defaultValue="#dc2626">
+        <ColorPickerTrigger aria-label="Brand color" />
+      </ColorPicker>,
+    );
+    const trigger = page.getByRole("button", { name: "Brand color" }).element();
+
+    expect(style(trigger).borderTopStyle).toBe("solid");
+    expect(contrast(style(trigger).borderTopColor, canvas())).toBeGreaterThan(
+      3,
+    );
+
+    await userEvent.tab();
+    expect(style(trigger).outlineStyle).toBe("solid");
+    expect(contrast(style(trigger).outlineColor, canvas())).toBeGreaterThan(3);
   });
 });

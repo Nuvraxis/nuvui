@@ -2,7 +2,7 @@
   {
     "name": "@nuvui/react",
     "path": "dist/index.js",
-    "limit": "80 kB"
+    "limit": "82 kB"
   },
   {
     "name": "@nuvui/react/accordion",
@@ -73,6 +73,11 @@
     "name": "@nuvui/react/collapsible",
     "path": "dist/components/collapsible/index.js",
     "limit": "4.8 kB"
+  },
+  {
+    "name": "@nuvui/react/color-picker",
+    "path": "dist/components/color-picker/index.js",
+    "limit": "28.5 kB"
   },
   {
     "name": "@nuvui/react/combobox",
@@ -353,7 +358,7 @@
     "name": "styles.css",
     "path": "dist/styles.css",
     "rolldown": false,
-    "limit": "18.5 kB"
+    "limit": "19 kB"
   },
   {
     "name": "tokens.css",
@@ -365,7 +370,7 @@
     "name": "every stylesheet in css/",
     "path": "dist/css/*.css",
     "rolldown": false,
-    "limit": "44 kB"
+    "limit": "45.5 kB"
   },
   {
     "name": "every preset in themes/",

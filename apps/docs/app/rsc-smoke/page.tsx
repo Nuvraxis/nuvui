@@ -33,6 +33,12 @@ import {
   CardTitle,
   CheckboxCard,
   ChoiceCardTitle,
+  ColorPicker,
+  ColorPickerArea,
+  ColorPickerContent,
+  ColorPickerHue,
+  ColorPickerInput,
+  ColorPickerTrigger,
   Combobox,
   ComboboxContent,
   ComboboxItem,
@@ -322,6 +328,16 @@ export default function RscSmokePage() {
           <TreeItem value="server-b" label="File from the server" />
         </TreeItem>
       </Tree>
+      {/* ColorPicker is a client component, with a name for a form and
+          no function passed to it. */}
+      <ColorPicker name="server-color" defaultValue="#2563eb">
+        <ColorPickerTrigger aria-label="Color from the server" />
+        <ColorPickerContent>
+          <ColorPickerArea />
+          <ColorPickerHue />
+          <ColorPickerInput />
+        </ColorPickerContent>
+      </ColorPicker>
       {/* ListView is a client component, given rows written on the server. */}
       <ListView aria-label="List from the server" selectionMode="single">
         <ListViewItem value="server-row">

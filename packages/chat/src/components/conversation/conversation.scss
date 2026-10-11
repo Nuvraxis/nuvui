@@ -1,0 +1,105 @@
+@use "../../styles/layers";
+@use "@nuvui/react/scss/mixins";
+
+$offset: var(--nuv-conversation-scroll-button-offset, calc(var(--spacing) * 3));
+
+// The button's size, and the pull that lifts it over the end of the
+// messages, which is its size and the space under it.
+@mixin scroll-button-size($usual) {
+  $size: var(--nuv-conversation-scroll-button-size, #{$usual});
+
+  inline-size: $size;
+  block-size: $size;
+  margin-block: calc((#{$size} + #{$offset}) * -1) $offset;
+}
+
+@layer components {
+  // A column: the messages take what room there is, and whatever comes
+  // after them, such as the prompt box, takes its own height. The height
+  // of the whole is yours to set.
+  .nuv-conversation {
+    display: flex;
+    position: relative;
+    flex-direction: column;
+    min-block-size: 0;
+    color: var(--nuv-conversation-fg, var(--color-foreground));
+  }
+
+  // The box that scrolls. Scrolling stops at its own end and doesn't go
+  // on to move the page behind it.
+  .nuv-conversation__viewport {
+    flex: 1 1 0;
+    min-block-size: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+
+    @include mixins.focus-ring(-2px);
+  }
+
+  // As tall as the box at least, so that what's shown before any message
+  // can sit in the middle of it.
+  .nuv-conversation__content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nuv-conversation-gap, calc(var(--spacing) * 6));
+    box-sizing: border-box;
+    inline-size: 100%;
+    max-inline-size: var(--nuv-conversation-max-width, 48rem);
+    min-block-size: 100%;
+    margin-inline: auto;
+    padding: var(--nuv-conversation-padding, calc(var(--spacing) * 4));
+  }
+
+  .nuv-conversation__empty {
+    display: grid;
+    flex: 1;
+    gap: calc(var(--spacing) * 4);
+    place-content: center;
+    justify-items: center;
+    text-align: center;
+  }
+
+  // Over the end of the messages, in the middle. It comes after the box
+  // that scrolls and is pulled up over it by its own height and a little
+  // more, with the little more given back underneath. So it takes no room
+  // in the column, and whatever follows it, such as the prompt box, is
+  // never under it.
+  .nuv-conversation__scroll-button {
+    display: inline-flex;
+    position: relative;
+    z-index: 1;
+    flex: none;
+    align-items: center;
+    align-self: center;
+    justify-content: center;
+    box-sizing: border-box;
+    padding: 0;
+
+    @include scroll-button-size(var(--nuv-touch-size));
+
+    border: var(--nuv-border-width) solid
+      var(--nuv-conversation-scroll-button-border, var(--color-border-strong));
+    border-radius: var(--radius-full);
+    background-color: var(
+      --nuv-conversation-scroll-button-bg,
+      var(--color-background)
+    );
+    box-shadow: var(--shadow-md);
+    color: var(--nuv-conversation-scroll-button-fg, var(--color-foreground));
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+
+    @include mixins.fine-pointer {
+      @include scroll-button-size(calc(var(--spacing) * 9));
+    }
+
+    @include mixins.hover {
+      background-color: var(
+        --nuv-conversation-scroll-button-hover-bg,
+        var(--color-muted)
+      );
+    }
+
+    @include mixins.focus-ring;
+  }
+}

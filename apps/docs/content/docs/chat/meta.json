@@ -1,0 +1,12 @@
+{
+  "title": "Chat",
+  "defaultOpen": true,
+  "pages": [
+    "index",
+    "conversation",
+    "message",
+    "message-loader",
+    "prompt-input",
+    "prompt-suggestion"
+  ]
+}

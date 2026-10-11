@@ -1,0 +1,38 @@
+[
+  {
+    "name": "@nuvui/chat",
+    "path": "dist/index.js",
+    "limit": "3.5 kB"
+  },
+  {
+    "name": "@nuvui/chat/conversation",
+    "path": "dist/components/conversation/index.js",
+    "limit": "1.5 kB"
+  },
+  {
+    "name": "@nuvui/chat/message",
+    "path": "dist/components/message/index.js",
+    "limit": "1.5 kB"
+  },
+  {
+    "name": "@nuvui/chat/message-loader",
+    "path": "dist/components/message-loader/index.js",
+    "limit": "500 B"
+  },
+  {
+    "name": "@nuvui/chat/prompt-input",
+    "path": "dist/components/prompt-input/index.js",
+    "limit": "2.5 kB"
+  },
+  {
+    "name": "@nuvui/chat/prompt-suggestion",
+    "path": "dist/components/prompt-suggestion/index.js",
+    "limit": "500 B"
+  },
+  {
+    "name": "styles.css",
+    "path": "dist/styles.css",
+    "rolldown": false,
+    "limit": "2.5 kB"
+  }
+]

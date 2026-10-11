@@ -3,6 +3,9 @@ import appearance from "@/blocks/appearance/block.json" with { type: "json" };
 import approvals from "@/blocks/approvals/block.json" with { type: "json" };
 import article from "@/blocks/article/block.json" with { type: "json" };
 import askPanel from "@/blocks/ask-panel/block.json" with { type: "json" };
+import assistantChat from "@/blocks/assistant-chat/block.json" with {
+  type: "json",
+};
 import auditLog from "@/blocks/audit-log/block.json" with { type: "json" };
 import billing from "@/blocks/billing/block.json" with { type: "json" };
 import caseStudies from "@/blocks/case-studies/block.json" with {
@@ -121,7 +124,7 @@ export const categories: BlockCategory[] = [
     label: "Dashboard",
     title: "Dashboard",
     description:
-      "A whole dashboard with a sidebar, figures, a chart and a table, two of its parts on their own, figures with trends and a list of recent activity, and a panel to ask a question in.",
+      "A whole dashboard with a sidebar, figures, a chart and a table, two of its parts on their own, figures with trends and a list of recent activity, a panel to ask a question in, and a whole conversation with an assistant.",
   },
   {
     slug: "data",
@@ -166,6 +169,7 @@ export const blocks: BlockManifest[] = [
   activity,
   whatsNew,
   askPanel,
+  assistantChat,
   tableToolbar,
   inbox,
   approvals,

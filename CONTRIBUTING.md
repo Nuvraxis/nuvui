@@ -90,6 +90,9 @@ packages/barcodes             an add-on, published as @nuvui/barcodes
   src/components/qrcode/      the QR code, and encode.ts, which works out its squares
   src/save.ts                 a code on the page as an SVG or a PNG file, an entry of its own
   test/read.ts                reads a drawn code back, for the tests
+packages/chat                 an add-on, published as @nuvui/chat
+  src/components/<name>/      the same four files as in the library
+  src/utils/                  a value kept here or by the caller
 packages/tooling              what every published package is built with, private
   tsdown.mjs                  the build
   build-css.mjs               compiles the SCSS, and copies the source into dist
@@ -207,7 +210,7 @@ Button is the smallest example to copy from, and Dialog the fullest.
 
 ## Add-on packages
 
-A component goes in a package of its own when it needs a library the core doesn't have. `@nuvui/date-picker` is the first, for react-day-picker and date-fns, `@nuvui/table` the second, for TanStack Table, `@nuvui/charts` the third, for Recharts, and `@nuvui/barcodes` the fourth, for JsBarcode's and uqr's encoders. An app that doesn't use the component then never installs that library.
+A component goes in a package of its own when it needs a library the core doesn't have. `@nuvui/date-picker` is the first, for react-day-picker and date-fns, `@nuvui/table` the second, for TanStack Table, `@nuvui/charts` the third, for Recharts, and `@nuvui/barcodes` the fourth, for JsBarcode's and uqr's encoders. `@nuvui/chat` is the fifth, and the one that isn't there for a library: it's a different kind of screen, which most apps don't have. An app that doesn't use the component then never installs that library.
 
 An add-on is laid out like the core and built with the same tooling, from `packages/tooling`. Its own config files only say what's particular to it. What differs from the core:
 

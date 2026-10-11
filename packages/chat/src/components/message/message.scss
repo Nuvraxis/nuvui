@@ -1,0 +1,128 @@
+@use "../../styles/layers";
+@use "@nuvui/react/scss/mixins";
+
+@layer components {
+  // The picture, if there is one, and beside it a column with the rest.
+  // Positioned, so the words for a screen reader inside it are placed
+  // against it. Placed against the page, they'd sit wherever the message
+  // is in the scrolled conversation, far below the screen, and make the
+  // page itself scroll.
+  .nuv-message {
+    display: flex;
+    position: relative;
+    gap: var(--nuv-message-gap, calc(var(--spacing) * 3));
+    align-items: flex-start;
+    min-inline-size: 0;
+    color: var(--nuv-message-fg, var(--color-foreground));
+    font-size: var(--nuv-message-font-size, var(--text-base));
+    line-height: var(--text-base--line-height);
+  }
+
+  // The person's own are at the end of the row, picture last.
+  .nuv-message[data-from="user"] {
+    flex-direction: row-reverse;
+  }
+
+  .nuv-message__avatar {
+    flex: none;
+  }
+
+  .nuv-message__body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 1.5);
+    align-items: flex-start;
+    min-inline-size: 0;
+  }
+
+  .nuv-message[data-from="user"] .nuv-message__body {
+    align-items: flex-end;
+  }
+
+  // Who the message is from, and that something was copied: for a screen
+  // reader, and drawn for nobody.
+  .nuv-message__label {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  // Long words and addresses break and don't push the row wider. Line
+  // breaks typed into a message are kept.
+  .nuv-message__content {
+    max-inline-size: 100%;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+  }
+
+  // The person's own is a bubble that's no wider than most of the row, so
+  // which side a message is on can be seen at a glance.
+  .nuv-message[data-from="user"] .nuv-message__content {
+    max-inline-size: var(--nuv-message-user-max-width, 85%);
+    padding: calc(var(--spacing) * 2.5) calc(var(--spacing) * 4);
+    border-radius: var(--nuv-message-user-radius, var(--radius-xl));
+    background-color: var(--nuv-message-user-bg, var(--color-muted));
+    color: var(--nuv-message-user-fg, var(--color-foreground));
+  }
+
+  .nuv-message__meta {
+    color: var(--nuv-message-meta-fg, var(--color-muted-foreground));
+    font-size: var(--text-xs);
+    line-height: var(--text-xs--line-height);
+  }
+
+  // Positioned for the same reason, for a row used outside a message.
+  .nuv-message__actions {
+    display: flex;
+    position: relative;
+    flex-wrap: wrap;
+    gap: calc(var(--spacing) * 1);
+    align-items: center;
+  }
+
+  // An icon and nothing else. As large as a finger needs on a touch
+  // screen, and smaller with a mouse.
+  .nuv-message__action {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    inline-size: var(--nuv-touch-size);
+    block-size: var(--nuv-touch-size);
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-md);
+    background: none;
+    color: var(--nuv-message-action-fg, var(--color-muted-foreground));
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+
+    @include mixins.motion-safe {
+      transition:
+        background-color var(--nuv-duration-fast) var(--ease-out),
+        color var(--nuv-duration-fast) var(--ease-out);
+    }
+
+    @include mixins.fine-pointer {
+      inline-size: calc(var(--spacing) * 8);
+      block-size: calc(var(--spacing) * 8);
+    }
+
+    @include mixins.hover {
+      background-color: var(--nuv-message-action-hover-bg, var(--color-muted));
+      color: var(--nuv-message-action-hover-fg, var(--color-foreground));
+    }
+
+    @include mixins.focus-ring;
+
+    &:disabled {
+      opacity: var(--nuv-disabled-opacity);
+      cursor: not-allowed;
+    }
+  }
+}

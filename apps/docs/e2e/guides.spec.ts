@@ -243,7 +243,7 @@ test.describe("changelog page", () => {
     // same ones the page reads. One for an add-on alone counts as well.
     const dir = path.join(library, "..", "..", ".changeset");
     const bumped =
-      /^["']?@nuvui\/(react|date-picker|table|charts|barcodes)["']?:\s*(major|minor|patch)\s*$/m;
+      /^["']?@nuvui\/(react|date-picker|table|charts|barcodes|chat)["']?:\s*(major|minor|patch)\s*$/m;
     const notes = readdirSync(dir)
       .filter((name) => name.endsWith(".md") && name !== "README.md")
       .filter((name) =>
@@ -482,6 +482,7 @@ test.describe("support policy page", () => {
       ["charts", "@nuvui/charts"],
       ["table", "@nuvui/table"],
       ["barcodes", "@nuvui/barcodes"],
+      ["chat", "@nuvui/chat"],
     ] as const) {
       const oldest = manifest(folder).engines.node.replace(">=", "");
       await expect(
@@ -500,6 +501,7 @@ test.describe("the notice that a package isn't published", () => {
     ["table", "@nuvui/table", "/docs/table"],
     ["charts", "@nuvui/charts", "/docs/charts"],
     ["barcodes", "@nuvui/barcodes", "/docs/barcodes"],
+    ["chat", "@nuvui/chat", "/docs/chat"],
   ] as const) {
     test(`is on ${address} only while ${name} has never been released`, async ({
       page,

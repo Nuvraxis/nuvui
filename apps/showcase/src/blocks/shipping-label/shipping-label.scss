@@ -55,7 +55,7 @@
 // Kept its height when it's empty, so the label doesn't jump when it
 // first says something.
 .shipping-label__said {
-  min-block-size: var(--text-sm--line-height);
+  min-block-size: calc(var(--text-sm) * var(--text-sm--line-height));
   margin: 0;
   color: var(--color-muted-foreground);
   font-size: var(--text-sm);

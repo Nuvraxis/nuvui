@@ -1,6 +1,6 @@
 ---
 title: Chat
-description: The @nuvui/chat package. The parts of a conversation with an assistant, installed next to @nuvui/react. Messages, the scrolling around them, and the box a prompt is written in.
+description: The @nuvui/chat package. The parts of a conversation with an assistant, installed next to @nuvui/react. Messages, the scrolling around them, the box a prompt is written in, files, sources, tool calls, reasoning and the list of past conversations.
 added: "2026-10-12"
 ---
 
@@ -11,8 +11,13 @@ The parts of a conversation with an assistant are a package of their own, `@nuvu
 | [Conversation](/docs/chat/conversation) | The messages in a box that scrolls. It stays at the latest message while a reply arrives, and stops following when the reader scrolls up. |
 | [Message](/docs/chat/message) | One message, from the person or from the assistant, with a row of actions under it. |
 | [MessageLoader](/docs/chat/message-loader) | Three dots for the wait before a reply starts. |
-| [PromptInput](/docs/chat/prompt-input) | The box a prompt is written in. It grows with the text, sends on Enter, and has a row for buttons. |
+| [PromptInput](/docs/chat/prompt-input) | The box a prompt is written in. It grows with the text, sends on Enter, takes files, and has a row for buttons. |
 | [PromptSuggestion](/docs/chat/prompt-suggestion) | Prompts to start from, for a conversation with nothing in it yet. |
+| [Attachment](/docs/chat/attachment) | A file, in a message or waiting in the prompt box. |
+| [Source](/docs/chat/source) | What a reply was drawn from, as a numbered list of links that opens under it. |
+| [ToolCall](/docs/chat/tool-call) | Something the assistant did with a tool, or asks to do, in a card that opens. |
+| [Reasoning](/docs/chat/reasoning) | The steps the assistant took, open while it works and closed after. |
+| [ThreadList](/docs/chat/thread-list) | The list of past conversations, for a sidebar. |
 
 <Preview name="conversation/basic" />
 
@@ -24,7 +29,7 @@ The parts of a conversation with an assistant are a package of their own, `@nuvu
 pnpm add @nuvui/chat @nuvui/react
 ```
 
-`@nuvui/react` is a peer dependency. The package has no other dependency.
+`@nuvui/react` is a peer dependency. The package has no other dependency. Some parts are built on the core's: the ones that open on its Collapsible, the thread list on its ListView.
 
 ## Load the styles
 
@@ -35,7 +40,17 @@ import "@nuvui/react/styles.css";
 import "@nuvui/chat/styles.css";
 ```
 
-Both files open with the same line naming the cascade layers, so the order you import them in doesn't decide which rule wins. Each component's styles are also on their own, at `@nuvui/chat/css/conversation.css`, `message.css`, `message-loader.css`, `prompt-input.css` and `prompt-suggestion.css`. `Message`'s action buttons use the core's tooltip, so they need `@nuvui/react/css/tooltip.css` as well.
+Both files open with the same line naming the cascade layers, so the order you import them in doesn't decide which rule wins. Each component's styles are also on their own, at `@nuvui/chat/css/conversation.css` and so on, one file for each page here. A part that's built on one of the core's needs that one's file as well:
+
+| Stylesheet | Also needs, from `@nuvui/react/css/` |
+| --- | --- |
+| `message.css` | `tooltip.css`, for the action buttons |
+| `prompt-input.css` | `attachment.css` from this package and `spinner.css`, if it takes files |
+| `attachment.css` | `spinner.css` |
+| `source.css` | `collapsible.css` |
+| `tool-call.css` | `collapsible.css`, `spinner.css`, `button.css` |
+| `reasoning.css` | `collapsible.css`, `spinner.css`, `text-shimmer.css` |
+| `thread-list.css` | `list-view.css` |
 
 ## Put them together
 
@@ -114,18 +129,25 @@ The few words the components say themselves are props with English defaults:
 | `ConversationScrollButton` | `label` | `"Go to the latest message"` |
 | `PromptInputSubmit` | `label`, `stopLabel` | `"Send"`, `"Stop"` |
 | `PromptSuggestions` | `label` | `"Suggestions"` |
+| `PromptInputAttach` | `label` | `"Attach files"` |
+| `PromptInputAttachments` | `label`, `removeLabel`, `announce` | `"Files to send"`, `"Remove …"`, `"2 files attached"` |
+| `Attachment` | `removeLabel`, `uploadingLabel` | `"Remove …"`, `"Uploading"` |
+| `SourcesTrigger` | children | `"Sources"` |
+| `ToolCallTrigger` | `statusLabel` | `"Running"`, `"Needs approval"`, `"Done"`, `"Failed"`, `"Denied"` |
+| `ToolCallInput`, `ToolCallOutput`, `ToolCallError` | `label` | `"Request"`, `"Result"`, `"Error"` |
+| `ToolCallApproval` | `label`, `approveLabel`, `denyLabel` | `"Approval"`, `"Approve"`, `"Deny"` |
+| `ReasoningTrigger` | children | `"Thinking"`, then `"Reasoning"` |
+
+A file's size is written in the reader's own number format. `formatSize` on `Attachment` and `PromptInputAttachments` writes it your way.
 
 ## Server components
 
-`Conversation`, `Message` and `PromptInput` are client components: they follow the scrolling, copy to the clipboard and keep what's typed. They carry `"use client"`, so a server component can render them. `MessageLoader`, `PromptSuggestions` and `PromptSuggestion` have no state and aren't client components.
+`Conversation`, `Message`, `PromptInput`, `Sources`, `ToolCall`, `Reasoning` and `ThreadList` are client components: they follow the scrolling, copy to the clipboard, keep what's typed, and open and close. They carry `"use client"`, so a server component can render them. `MessageLoader`, `PromptSuggestions`, `PromptSuggestion`, `Attachments` and `Attachment` have no state and aren't client components.
 
 A conversation that changes is a client component of yours in any case, since it holds the messages.
 
 ## What's not here yet
 
-More parts are planned for this package and aren't in it:
+One more part is planned for this package and isn't in it:
 
 - **Markdown and highlighted code** in a reply. Until then, `MessageContent` shows text with its line breaks, and takes whatever you render yourself.
-- **Files**, in a message or waiting in the prompt box.
-- **Sources, tool calls and reasoning** shown with a reply.
-- **A list of past conversations.**

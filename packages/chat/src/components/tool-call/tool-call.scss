@@ -1,0 +1,165 @@
+@use "../../styles/layers";
+@use "@nuvui/react/scss/mixins";
+
+@layer components {
+  // A card as wide as the reply it's in.
+  .nuv-tool-call {
+    box-sizing: border-box;
+    inline-size: 100%;
+    min-inline-size: 0;
+    border: var(--nuv-border-width) solid
+      var(--nuv-tool-call-border, var(--color-border));
+    border-radius: var(--nuv-tool-call-radius, var(--radius-lg));
+    background-color: var(--nuv-tool-call-bg, var(--color-background));
+    color: var(--nuv-tool-call-fg, var(--color-foreground));
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+  }
+
+  // The whole top line is the button: the icon, the name, where the call
+  // stands, and the arrow at the end.
+  .nuv-tool-call__trigger {
+    display: flex;
+    gap: calc(var(--spacing) * 2);
+    align-items: center;
+    box-sizing: border-box;
+    inline-size: 100%;
+    min-block-size: var(--nuv-touch-size);
+    padding: calc(var(--spacing) * 2) calc(var(--spacing) * 3);
+    border: 0;
+    border-radius: inherit;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: start;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+
+    @include mixins.hover {
+      background-color: var(--nuv-tool-call-hover-bg, var(--color-muted));
+    }
+
+    @include mixins.focus-ring(-2px);
+  }
+
+  .nuv-tool-call__icon {
+    display: inline-flex;
+    flex: none;
+    color: var(--nuv-tool-call-icon-fg, var(--color-muted-foreground));
+  }
+
+  .nuv-tool-call[data-status="error"] .nuv-tool-call__icon {
+    color: var(--nuv-tool-call-error-fg, var(--color-danger));
+  }
+
+  .nuv-tool-call__name {
+    flex: 1;
+    min-inline-size: 0;
+    font-weight: var(--font-weight-medium);
+    overflow-wrap: anywhere;
+  }
+
+  .nuv-tool-call__status {
+    flex: none;
+    color: var(--nuv-tool-call-status-fg, var(--color-muted-foreground));
+    font-size: var(--text-xs);
+    line-height: var(--text-xs--line-height);
+  }
+
+  // A call that waits on the person, or failed, says so in the page's
+  // own text color and not the quiet one.
+  .nuv-tool-call[data-status="approval"] .nuv-tool-call__status,
+  .nuv-tool-call[data-status="error"] .nuv-tool-call__status {
+    color: inherit;
+    font-weight: var(--font-weight-medium);
+  }
+
+  .nuv-tool-call__chevron {
+    flex: none;
+    color: var(--nuv-tool-call-icon-fg, var(--color-muted-foreground));
+
+    @include mixins.motion-safe {
+      transition: transform var(--nuv-duration-base) var(--ease-out);
+    }
+  }
+
+  .nuv-tool-call__trigger[data-state="open"] .nuv-tool-call__chevron {
+    transform: rotate(180deg);
+  }
+
+  // The padding is on the part inside: on the one whose height is
+  // animated it would make the card jump as it closes.
+  .nuv-tool-call__body {
+    display: grid;
+    gap: calc(var(--spacing) * 3);
+    padding: calc(var(--spacing) * 3);
+    border-block-start: var(--nuv-border-width) solid
+      var(--nuv-tool-call-border, var(--color-border));
+  }
+
+  .nuv-tool-call__section {
+    display: grid;
+    gap: calc(var(--spacing) * 1.5);
+    min-inline-size: 0;
+  }
+
+  .nuv-tool-call__label {
+    color: var(--nuv-tool-call-label-fg, var(--color-muted-foreground));
+    font-size: var(--text-xs);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--text-xs--line-height);
+  }
+
+  // What was asked and what came back, in the type code is set in. Long
+  // lines wrap, and a long answer scrolls inside the box.
+  .nuv-tool-call__code {
+    box-sizing: border-box;
+    max-block-size: var(--nuv-tool-call-code-max-height, 16rem);
+    padding: calc(var(--spacing) * 2) calc(var(--spacing) * 3);
+    overflow-y: auto;
+    border-radius: var(--radius-md);
+    background-color: var(--nuv-tool-call-code-bg, var(--color-muted));
+    color: var(--nuv-tool-call-code-fg, var(--color-foreground));
+
+    @include mixins.focus-ring;
+  }
+
+  .nuv-tool-call__pre {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    line-height: var(--text-xs--line-height);
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+  }
+
+  .nuv-tool-call__error {
+    color: var(--nuv-tool-call-error-fg, var(--color-danger));
+    overflow-wrap: anywhere;
+  }
+
+  // The question, and the two buttons at the end of its row. Where the
+  // row is too narrow for both, the buttons go under the question.
+  .nuv-tool-call__approval {
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(var(--spacing) * 3);
+    align-items: center;
+    justify-content: space-between;
+    padding: calc(var(--spacing) * 3);
+    border-block-start: var(--nuv-border-width) solid
+      var(--nuv-tool-call-border, var(--color-border));
+  }
+
+  .nuv-tool-call__question {
+    flex: 1 1 12rem;
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .nuv-tool-call__choices {
+    display: flex;
+    flex: none;
+    gap: calc(var(--spacing) * 2);
+  }
+}

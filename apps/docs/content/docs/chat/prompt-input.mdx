@@ -1,6 +1,6 @@
 ---
 title: PromptInput
-description: The box a prompt is written in. A field that grows with the text, sends on Enter, and has a row under it for buttons, with a button that sends or stops.
+description: The box a prompt is written in. A field that grows with the text, sends on Enter, takes files, and has a row under it for buttons, with a button that sends or stops.
 added: "2026-10-12"
 ---
 
@@ -19,6 +19,8 @@ pnpm add @nuvui/chat @nuvui/react
 ```tsx
 import {
   PromptInput,
+  PromptInputAttach,
+  PromptInputAttachments,
   PromptInputSubmit,
   PromptInputTextarea,
   PromptInputToolbar,
@@ -46,6 +48,8 @@ The styles come from `@nuvui/chat/styles.css`, which you load once for the whole
 | `PromptInputToolbar` | The row under the field. |
 | `PromptInputTools` | Buttons at the start of that row. |
 | `PromptInputSubmit` | The button that sends, and stops. |
+| `PromptInputAttach` | A button that opens the device's file picker. |
+| `PromptInputAttachments` | The files waiting to be sent. |
 
 ## Try it
 
@@ -53,7 +57,7 @@ The styles come from `@nuvui/chat/styles.css`, which you load once for the whole
 
 ## Sending
 
-`onSubmit` is called with the text, and the box is emptied. Text that's only spaces isn't sent.
+`onSubmit` is called with the text, and the box is emptied. Text that's only spaces isn't sent. Its second argument holds what goes with the text: `files`, covered [below](#files), and the form's `event`.
 
 With a keyboard, <kbd>Enter</kbd> sends and <kbd>Shift</kbd> with <kbd>Enter</kbd> starts a new line. On a touch screen it's the other way: the keyboard's Enter is the only way to start a line there, so it starts one, and the button sends. `submitOnEnter` on the field sets it one way for everyone.
 
@@ -72,6 +76,65 @@ With `onStop`, the button to send becomes a button to stop for as long as the bo
 `PromptInputTools` holds whatever goes with the prompt: where to look, which model, a mode. They sit at the start of the row and the button to send at the end. Give a button `type="button"`, so that pressing it doesn't send.
 
 <Preview name="prompt-input/tools" />
+
+## Files
+
+Put a `PromptInputAttachments` over the field and a `PromptInputAttach` in the row, and the box takes files. They wait in it, each with a button that takes it out again, and are handed to `onSubmit` with the text.
+
+<Preview name="prompt-input/files" />
+
+```tsx
+<PromptInput
+  accept="image/*,.pdf"
+  maxFiles={3}
+  maxFileSize={5 * 1024 * 1024}
+  onFilesReject={tellThePerson}
+  onSubmit={(text, { files }) => send(text, files)}
+>
+  <PromptInputAttachments />
+  <PromptInputTextarea aria-label="Message" />
+  <PromptInputToolbar>
+    <PromptInputTools>
+      <PromptInputAttach />
+    </PromptInputTools>
+    <PromptInputSubmit />
+  </PromptInputToolbar>
+</PromptInput>
+```
+
+There are three ways in, and all three go through the same checks:
+
+- **The button** opens the device's file picker.
+- **Pasting** into the field, such as a screenshot. Text that's pasted stays text: cells copied from a spreadsheet come with a picture of themselves, and the picture is left out.
+- **Dropping** files on the box. While files are over it, its edge is dashed.
+
+Pasting and dropping only take files when one of the two parts is in the box. Without them the box is for text, and a file that's dropped on it is the browser's to deal with.
+
+`accept` is written as a file input's: `"image/*,.pdf"`. `maxFiles` is the most that can wait at once and `maxFileSize` the largest one may be, in bytes. A file that's turned away isn't shown. `onFilesReject` is called with each one and the reason, `"type"`, `"size"` or `"count"`, and that's where you tell the person. The same file added twice is kept once.
+
+With files waiting, the box can be sent with no text.
+
+### Keeping the files yourself
+
+Pass `files` and `onFilesChange` to hold them: to start uploading as soon as one is added, or to keep them with a draft. `defaultFiles` starts the box with some.
+
+To show how an upload is going, give `PromptInputAttachments` a function. It's called with each file and with the way to take it out, and returns an [`Attachment`](/docs/chat/attachment):
+
+```tsx
+<PromptInputAttachments>
+  {(file, remove) => (
+    <Attachment
+      name={file.name}
+      size={file.size}
+      uploading={uploads.get(file)?.busy}
+      error={uploads.get(file)?.error}
+      onRemove={remove}
+    />
+  )}
+</PromptInputAttachments>
+```
+
+The box doesn't upload anything. It hands you `File` objects, and where they go is yours.
 
 ## Keeping the text yourself
 
@@ -107,6 +170,26 @@ It also takes the attributes of a `textarea`, but for `value` and `defaultValue`
   name="PromptInputSubmitOwnProps"
 />
 
+## PromptInputAttachments props
+
+<PropsTable
+  package="chat"
+  component="prompt-input"
+  name="PromptInputAttachmentsOwnProps"
+/>
+
+It also takes the attributes of a `ul`.
+
+## PromptInputAttach props
+
+<PropsTable
+  package="chat"
+  component="prompt-input"
+  name="PromptInputAttachOwnProps"
+/>
+
+It also takes the attributes of a `button`.
+
 `PromptInputToolbar` and `PromptInputTools` take the attributes of a `div`. Every part passes `ref` to its element.
 
 ## Accessibility
@@ -127,16 +210,21 @@ It also takes the attributes of a `textarea`, but for `value` and `defaultValue`
 - When the field has focus from the keyboard, the ring goes round the whole box.
 - After a send, focus is back in the field.
 - The text is 16 pixels on a touch screen, which keeps iOS from zooming the page when the field takes focus.
+- The button that attaches is named "Attach files". The files that wait are a list named "Files to send", and each has a button named after it: "Remove scan.pdf".
+- When a file is added or taken out, how many are waiting is said to a screen reader: "2 files attached".
+- When a file is taken out, focus goes to the field. Its button went with it.
+- Dropping is a shortcut for a mouse. The button does the same with a keyboard and on a touch screen.
 
 ### What you need to handle
 
 - Name the field with `aria-label`, or a `<label>`. The placeholder isn't a name: it's gone as soon as something is typed.
-- Translate `label` and `stopLabel`.
+- Translate `label` and `stopLabel`, and for files `removeLabel` and `announce`.
+- Tell the person when a file is turned away, and why, from `onFilesReject`. Use a `role="alert"`, or a [toast](/docs/components/toast).
 - If there's a limit on the text, say what's left where a screen reader finds it, with `aria-describedby`.
 
 ## On small screens
 
-The button that sends is 44 pixels on a touch screen and 36 with a mouse. Enter starts a new line there, as said above.
+The button that sends is 44 pixels on a touch screen and 36 with a mouse, and so is the button that attaches. Enter starts a new line there, as said above.
 
 ## CSS variables
 
@@ -153,7 +241,15 @@ Set any of these on the `PromptInput`, or on anything around it.
   package="chat"
   component="prompt-input"
   descriptions={{
+    "--nuv-prompt-input-attach-fg":
+      "Color of the paperclip in the button that attaches. Keep it at 3:1.",
+    "--nuv-prompt-input-attach-hover-bg":
+      "Background of that button under the pointer.",
+    "--nuv-prompt-input-attach-hover-fg": "Color of its icon under the pointer.",
     "--nuv-prompt-input-bg": "Background of the box.",
+    "--nuv-prompt-input-drop-bg":
+      "Background of the box while files are held over it.",
+    "--nuv-prompt-input-drop-border": "Color of its edge then.",
     "--nuv-prompt-input-border":
       "Color of the box's edge. Keep it at 3:1 against what's around it.",
     "--nuv-prompt-input-fg": "Color of the text.",
@@ -179,10 +275,15 @@ Set any of these on the `PromptInput`, or on anything around it.
     "nuv-prompt-input__toolbar": "PromptInputToolbar",
     "nuv-prompt-input__tools": "PromptInputTools",
     "nuv-prompt-input__submit": "PromptInputSubmit",
+    "nuv-prompt-input__attach": "PromptInputAttach",
+    "nuv-prompt-input__attachments":
+      "PromptInputAttachments, next to nuv-attachments.",
+    "nuv-prompt-input__status":
+      "How many files are waiting. Read out and drawn for nobody.",
   }}
 />
 
-The box has `data-busy` and `data-disabled`. The button has `data-stop` while it stops a reply.
+The box has `data-busy` and `data-disabled`, and `data-dragging` while files are held over it. The button has `data-stop` while it stops a reply.
 
 ## Server components
 

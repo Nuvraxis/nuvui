@@ -7,6 +7,11 @@
     "message",
     "message-loader",
     "prompt-input",
-    "prompt-suggestion"
+    "prompt-suggestion",
+    "attachment",
+    "source",
+    "tool-call",
+    "reasoning",
+    "thread-list"
   ]
 }

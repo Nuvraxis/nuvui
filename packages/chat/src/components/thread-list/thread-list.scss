@@ -1,0 +1,54 @@
+@use "../../styles/layers";
+
+@layer components {
+  // The core's list, with rows that are round and have no line between
+  // them, as a sidebar's are. These are the list's own variables, set
+  // where a thread list is.
+  .nuv-thread-list {
+    --nuv-list-view-radius: var(--nuv-thread-list-radius, var(--radius-md));
+    --nuv-list-view-divider: transparent;
+    --nuv-list-view-gap: calc(var(--spacing) * 2);
+    --nuv-list-view-padding-block: calc(var(--spacing) * 1);
+  }
+
+  .nuv-thread-list__group {
+    display: flex;
+    flex-direction: column;
+    min-inline-size: 0;
+  }
+
+  .nuv-thread-list__group + .nuv-thread-list__group {
+    margin-block-start: calc(var(--spacing) * 4);
+  }
+
+  .nuv-thread-list__heading {
+    padding: calc(var(--spacing) * 1) calc(var(--spacing) * 3);
+    color: var(--nuv-thread-list-heading-fg, var(--color-muted-foreground));
+    font-size: var(--text-xs);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--text-xs--line-height);
+  }
+
+  // One line, cut short where the row ends.
+  .nuv-thread-list__title {
+    flex: 1;
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .nuv-thread-list__detail {
+    flex: none;
+    color: var(--nuv-thread-list-detail-fg, var(--color-muted-foreground));
+    font-size: var(--text-xs);
+    line-height: var(--text-xs--line-height);
+  }
+
+  .nuv-thread-list__actions {
+    display: inline-flex;
+    flex: none;
+    gap: calc(var(--spacing) * 1);
+    align-items: center;
+  }
+}

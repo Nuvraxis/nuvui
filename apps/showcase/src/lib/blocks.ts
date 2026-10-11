@@ -9,6 +9,9 @@ import assistantChat from "@/blocks/assistant-chat/block.json" with {
 import assistantSidebar from "@/blocks/assistant-sidebar/block.json" with {
   type: "json",
 };
+import assistantWorkspace from "@/blocks/assistant-workspace/block.json" with {
+  type: "json",
+};
 import auditLog from "@/blocks/audit-log/block.json" with { type: "json" };
 import billing from "@/blocks/billing/block.json" with { type: "json" };
 import caseStudies from "@/blocks/case-studies/block.json" with {
@@ -138,7 +141,7 @@ export const categories: BlockCategory[] = [
     label: "Chat",
     title: "Chat and assistants",
     description:
-      "Conversations, with a model or with people: a whole screen for an assistant, an assistant in a panel beside the record it answers about, a help desk that opens from a button in the corner, and messages between the people on a team.",
+      "Conversations, with a model or with people: a whole screen for an assistant, one with its past conversations, tool calls and sources, an assistant in a panel beside the record it answers about, a help desk that opens from a button in the corner, and messages between the people on a team.",
   },
   {
     slug: "data",
@@ -185,6 +188,7 @@ export const blocks: BlockManifest[] = [
   askPanel,
   assistantChat,
   assistantSidebar,
+  assistantWorkspace,
   supportChat,
   teamChat,
   tableToolbar,

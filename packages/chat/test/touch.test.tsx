@@ -4,6 +4,8 @@ import { expect, test, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
 import {
+  Attachment,
+  Attachments,
   Conversation,
   ConversationContent,
   ConversationScrollButton,
@@ -12,11 +14,25 @@ import {
   MessageActions,
   MessageContent,
   PromptInput,
+  PromptInputAttach,
+  PromptInputAttachments,
   PromptInputSubmit,
   PromptInputTextarea,
   PromptInputToolbar,
   PromptSuggestion,
   PromptSuggestions,
+  Reasoning,
+  ReasoningContent,
+  ReasoningTrigger,
+  Source,
+  Sources,
+  SourcesContent,
+  SourcesTrigger,
+  ThreadList,
+  ThreadListItem,
+  ToolCall,
+  ToolCallApproval,
+  ToolCallTrigger,
 } from "../src";
 
 // This file runs in a browser context of its own, one that reports a touch
@@ -174,4 +190,108 @@ test("on a phone the messages have 16px either side, and nothing is wider than t
   expect(document.documentElement.scrollWidth).toBeLessThanOrEqual(
     window.innerWidth,
   );
+});
+
+test("the button to attach and the one that takes a file out are 44px", async () => {
+  await render(
+    <PromptInput defaultFiles={[new File(["x"], "a.txt")]}>
+      <PromptInputAttachments />
+      <PromptInputTextarea aria-label="Message" />
+      <PromptInputToolbar>
+        <PromptInputAttach />
+        <PromptInputSubmit />
+      </PromptInputToolbar>
+    </PromptInput>,
+  );
+  const attach = rect(
+    page.getByRole("button", { name: "Attach files" }).element(),
+  );
+  const remove = rect(
+    page.getByRole("button", { name: "Remove a.txt" }).element(),
+  );
+
+  expect(attach.width).toBe(44);
+  expect(attach.height).toBe(44);
+  expect(remove.width).toBe(44);
+  expect(remove.height).toBe(44);
+});
+
+test("a file in a message has a button of 44px too, and stays inside the screen", async () => {
+  await render(
+    <Attachments aria-label="Files">
+      <Attachment
+        name={`${"a-very-long-name-".repeat(8)}.pdf`}
+        size={1}
+        onRemove={() => {}}
+      />
+    </Attachments>,
+  );
+  const button = rect(page.getByRole("button").element());
+
+  expect(button.width).toBe(44);
+  expect(button.height).toBe(44);
+  expect(document.documentElement.scrollWidth).toBeLessThanOrEqual(
+    window.innerWidth,
+  );
+});
+
+test("the lines that open sources and reasoning are 44px tall, and a tap opens them", async () => {
+  await render(
+    <>
+      <Sources>
+        <SourcesTrigger>1 source</SourcesTrigger>
+        <SourcesContent>
+          <Source href="https://example.com/a" title="A" />
+        </SourcesContent>
+      </Sources>
+      <Reasoning>
+        <ReasoningTrigger />
+        <ReasoningContent>It looked.</ReasoningContent>
+      </Reasoning>
+    </>,
+  );
+  const sources = page.getByRole("button", { name: "1 source" });
+  const reasoning = page.getByRole("button", { name: "Reasoning" });
+
+  expect(rect(sources.element()).height).toBe(44);
+  expect(rect(reasoning.element()).height).toBe(44);
+
+  await sources.click();
+  await reasoning.click();
+
+  expect(sources.element().getAttribute("aria-expanded")).toBe("true");
+  expect(reasoning.element().getAttribute("aria-expanded")).toBe("true");
+  expect(rect(page.getByRole("link").element()).height).toBeGreaterThanOrEqual(
+    44,
+  );
+});
+
+test("a tool call's top line and its two buttons are 44px tall", async () => {
+  await render(
+    <ToolCall status="approval">
+      <ToolCallTrigger>Send a reminder</ToolCallTrigger>
+      <ToolCallApproval>Send it?</ToolCallApproval>
+    </ToolCall>,
+  );
+
+  for (const button of page.getByRole("button").elements()) {
+    expect(rect(button).height).toBeGreaterThanOrEqual(44);
+  }
+  expect(page.getByRole("button").elements()).toHaveLength(3);
+});
+
+test("a conversation in the list is 44px tall, and a tap opens it", async () => {
+  const onValueChange = vi.fn();
+  await render(
+    <ThreadList aria-label="Conversations" onValueChange={onValueChange}>
+      <ThreadListItem value="a">One</ThreadListItem>
+      <ThreadListItem value="b">Two</ThreadListItem>
+    </ThreadList>,
+  );
+  const row = page.getByRole("row", { name: "Two" });
+
+  expect(rect(row.element()).height).toBe(44);
+  await row.click();
+
+  expect(onValueChange).toHaveBeenCalledWith("b");
 });

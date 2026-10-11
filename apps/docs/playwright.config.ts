@@ -17,6 +17,16 @@ const clipboard = {
   permissions: ["clipboard-read", "clipboard-write"],
 };
 
+
+// Safari's engine on Linux draws in software, in several processes, and on
+// a CI runner with a few shared cores it's the one that falls behind: a
+// closed dialog stays up, waiting for an animation that isn't being drawn,
+// and a check that passes in a second elsewhere runs out its five. So in
+// CI its two projects get three times as long, for a test and for each
+// check in one.
+const unhurried = isCI ? { timeout: 90_000, expect: { timeout: 15_000 } } : {};
+
+
 export default defineConfig({
   testDir: "./e2e",
   fullyParallel: true,
@@ -46,8 +56,12 @@ export default defineConfig({
     { name: "desktop", use: { ...devices["Desktop Chrome"], ...clipboard } },
     { name: "mobile", use: { ...devices["Pixel 7"], ...clipboard } },
     { name: "firefox", use: { ...devices["Desktop Firefox"] } },
-    { name: "webkit", use: { ...devices["Desktop Safari"] } },
-    { name: "mobile-webkit", use: { ...devices["iPhone 15"] } },
+     { name: "webkit", use: { ...devices["Desktop Safari"] }, ...unhurried },
+    {
+      name: "mobile-webkit",
+      use: { ...devices["iPhone 15"] },
+      ...unhurried,
+    },
   ]),
   // Serves the exported site in `out`, the same files a host would serve, so
   // `pnpm build` has to come first. The turbo task takes care of that.

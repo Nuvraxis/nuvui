@@ -1,4 +1,5 @@
 @use "../../styles/layers";
+@use "../../styles/mixins";
 
 @layer components {
   // A finger that's held still drifts, and the browser would take the
@@ -28,7 +29,7 @@
     transition: clip-path var(--nuv-duration-fast) var(--ease-out);
     pointer-events: none;
 
-    &:dir(rtl) {
+    @include mixins.rtl {
       clip-path: inset(0 0 0 100%);
     }
 

@@ -54,9 +54,11 @@
       }
     }
 
-    &[data-state="indeterminate"]:dir(rtl) {
-      @include mixins.motion-safe {
-        animation-name: nuv-progress-slide-rtl;
+    &[data-state="indeterminate"] {
+      @include mixins.rtl {
+        @include mixins.motion-safe {
+          animation-name: nuv-progress-slide-rtl;
+        }
       }
     }
   }

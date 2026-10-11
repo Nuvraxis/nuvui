@@ -97,7 +97,7 @@
     }
 
     // It points the way the page reads, and down when the row is open.
-    &:dir(rtl) {
+    @include mixins.rtl {
       transform: scaleX(-1);
     }
   }

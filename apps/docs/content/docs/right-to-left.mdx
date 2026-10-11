@@ -32,7 +32,7 @@ In an app with several languages, work the direction out from the language once 
 
 ## Why there are two
 
-**The attribute is what CSS sees.** The styles are written with logical properties, such as `padding-inline-start`, and with the `:dir(rtl)` selector where something has to be mirrored. Both go by the `dir` of the element or of what's around it. So the layout flips with the attribute alone: text aligns to the right, icons move to the other side, a progress bar fills from the right.
+**The attribute is what CSS sees.** The styles are written with logical properties, such as `padding-inline-start`, and with a selector on the `dir` attribute where something has to be mirrored. Both go by the `dir` of the element or of what's around it. So the layout flips with the attribute alone: text aligns to the right, icons move to the other side, a progress bar fills from the right.
 
 **The provider is what the components' code sees.** Radix decides in JavaScript which arrow key moves to the next tab and which way a submenu opens, and it doesn't read the attribute. It reads a `dir` prop on the component, or this provider.
 
@@ -92,13 +92,27 @@ function NextArrow() {
 Most of the time CSS is enough and no hook is needed:
 
 - Use logical properties: `margin-inline-start`, `inset-inline-end`, `border-start-start-radius`, `text-align: start`.
-- Mirror what can't be expressed that way with `:dir(rtl)`.
+- Mirror what can't be expressed that way with the `dir` attribute.
 
 ```css
-.back-arrow:dir(rtl) {
+[dir="rtl"] .back-arrow {
   transform: scaleX(-1);
 }
 ```
+
+In SCSS the library's [`rtl` mixin](/docs/scss) writes that selector for you, and leaves a part marked `dir="ltr"` inside a right-to-left page alone:
+
+```scss
+@use "@nuvui/react/scss/mixins";
+
+.back-arrow {
+  @include mixins.rtl {
+    transform: scaleX(-1);
+  }
+}
+```
+
+The `:dir(rtl)` selector says the same in fewer words, and isn't used here for a reason. A build that supports browsers without it, which is Next.js by default, rewrites it to a list of `:lang()` selectors. After that nothing is mirrored on a page that sets `dir="rtl"` and not one of those languages.
 
 ## What shouldn't flip
 

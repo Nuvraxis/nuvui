@@ -30,6 +30,7 @@ Write your declarations first and `breakpoint` after them. Sass keeps the output
     "motion-safe":
       "Wraps its content in prefers-reduced-motion: no-preference. Put transitions and animations in here and they don't exist for people who asked for less motion.",
     "reduced-motion": "The opposite query, for when less motion needs a style of its own.",
+    rtl: "For what has to be mirrored where the page reads right to left: an arrow, the side a panel slides in from. It goes by the dir attribute, on the element or around it, and leaves a part marked dir=\"ltr\" alone.",
     hover: "A :hover rule that only applies on devices that can hover. On a touch screen, hover styles stick after a tap.",
     "fine-pointer": "For the denser sizes that suit a mouse or trackpad. Everything outside it keeps its touch size.",
     "focus-ring": "The library's focus ring, on :focus-visible. The argument is the gap between the element and the ring.",

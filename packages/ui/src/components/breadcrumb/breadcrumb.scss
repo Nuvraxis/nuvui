@@ -59,7 +59,7 @@
   }
 
   .nuv-breadcrumb__chevron {
-    &:dir(rtl) {
+    @include mixins.rtl {
       transform: scaleX(-1);
     }
   }

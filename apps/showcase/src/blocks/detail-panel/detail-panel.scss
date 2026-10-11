@@ -98,7 +98,7 @@
   color: var(--color-muted-foreground);
 
   // Points the way the panel comes from.
-  &:dir(rtl) {
+  @include mixins.rtl {
     transform: scaleX(-1);
   }
 }

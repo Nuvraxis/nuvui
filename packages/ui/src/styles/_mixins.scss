@@ -42,6 +42,26 @@ $breakpoints: (
   }
 }
 
+// For what has to be mirrored where the page reads right to left, and can't
+// be said with a logical property: an arrow, the side a panel slides in from.
+// It goes by the dir attribute, on the element or on what's around it, and
+// not by :dir(rtl). A build that supports browsers without :dir(), which is
+// Next.js by default, rewrites that to a list of :lang() selectors, and then
+// nothing is mirrored on a page that sets dir="rtl" and no such language.
+// A part marked dir="ltr" inside a right-to-left page is left alone. Radix
+// marks its own components that way when there's no DirectionProvider. The
+// :where() keeps the whole selector at the weight :dir(rtl) had, one
+// attribute more than the element's own. One case comes out wrong: a
+// right-to-left part, inside a left-to-right part, inside a right-to-left
+// page, is not mirrored unless the element has the attribute itself.
+@mixin rtl {
+  // stylelint-disable-next-line selector-max-compound-selectors -- the two inside :where() are what's being ruled out, not what's being styled
+  [dir="rtl"] &:not(:where([dir="rtl"] [dir="ltr"] *, [dir="ltr"])),
+  &[dir="rtl"] {
+    @content;
+  }
+}
+
 // Put animations and transitions inside this. Declaring them only when motion
 // is fine avoids having to out-specify them again in a reduce query.
 @mixin motion-safe {

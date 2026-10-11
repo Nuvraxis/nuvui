@@ -280,6 +280,42 @@ describe("layout", () => {
     );
   });
 
+  test("the arrow goes by the dir attribute nearest to it", async () => {
+    const screen = await render(
+      <>
+        <div dir="rtl" data-testid="island">
+          <div dir="ltr">
+            <Example />
+          </div>
+        </div>
+        <div dir="ltr" data-testid="region">
+          <div dir="rtl">
+            <Example />
+          </div>
+        </div>
+        {/* The class on an element with its own dir. A span, as an svg
+            doesn't take one in React's types. */}
+        <span
+          dir="rtl"
+          data-testid="own"
+          className="nuv-breadcrumb__chevron"
+          style={{ display: "inline-block" }}
+        />
+      </>,
+    );
+    const arrow = (testId: string) =>
+      getComputedStyle(
+        screen.container.querySelector(
+          `[data-testid="${testId}"] .nuv-breadcrumb__chevron, .nuv-breadcrumb__chevron[data-testid="${testId}"]`,
+        ) as Element,
+      ).transform;
+
+    // A left-to-right part of a right-to-left page isn't mirrored.
+    expect(arrow("island")).toBe("none");
+    expect(arrow("region")).toBe("matrix(-1, 0, 0, 1, 0, 0)");
+    expect(arrow("own")).toBe("matrix(-1, 0, 0, 1, 0, 0)");
+  });
+
   test("the arrow points the other way in a right-to-left layout", async () => {
     const screen = await render(
       <div dir="rtl">

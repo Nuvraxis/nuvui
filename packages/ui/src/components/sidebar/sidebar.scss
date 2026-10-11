@@ -194,7 +194,7 @@
     @include mixins.motion-safe {
       @include slide("left");
 
-      &:dir(rtl) {
+      @include mixins.rtl {
         @include slide("right");
       }
     }
@@ -206,7 +206,7 @@
     @include mixins.motion-safe {
       @include slide("right");
 
-      &:dir(rtl) {
+      @include mixins.rtl {
         @include slide("left");
       }
     }

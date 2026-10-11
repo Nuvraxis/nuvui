@@ -218,7 +218,7 @@
       transition: transform var(--nuv-duration-fast) var(--ease-out);
     }
 
-    &:dir(rtl) {
+    @include mixins.rtl {
       transform: scaleX(-1);
     }
   }
@@ -311,7 +311,9 @@
     }
   }
 
-  .nuv-data-table__page-icon:dir(rtl) {
-    transform: scaleX(-1);
+  .nuv-data-table__page-icon {
+    @include mixins.rtl {
+      transform: scaleX(-1);
+    }
   }
 }

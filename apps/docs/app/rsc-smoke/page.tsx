@@ -31,6 +31,12 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  Carousel,
+  CarouselContent,
+  CarouselDots,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
   CheckboxCard,
   ChoiceCardTitle,
   ColorPicker,
@@ -331,6 +337,20 @@ export default function RscSmokePage() {
           <TreeItem value="server-b" label="File from the server" />
         </TreeItem>
       </Tree>
+      {/* Carousel is a client component, given slides written on the
+          server and no function. */}
+      <Carousel
+        aria-label="Carousel from the server"
+        style={{ inlineSize: 300 }}
+      >
+        <CarouselContent>
+          <CarouselItem>Slide from the server</CarouselItem>
+          <CarouselItem>Other slide from the server</CarouselItem>
+        </CarouselContent>
+        <CarouselPrevious />
+        <CarouselNext />
+        <CarouselDots />
+      </Carousel>
       {/* Resizable is a client component, given panels written on the
           server and no function. */}
       <div style={{ blockSize: 120 }}>

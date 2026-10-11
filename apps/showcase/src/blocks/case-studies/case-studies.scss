@@ -1,0 +1,111 @@
+@use "@nuvui/react/scss/mixins";
+
+.case-studies {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  inline-size: 100%;
+  max-inline-size: 72rem;
+  min-block-size: 100svh;
+  margin-inline: auto;
+  padding: calc(var(--spacing) * 8) calc(var(--spacing) * 4);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+
+  @include mixins.breakpoint("md") {
+    padding: calc(var(--spacing) * 12) calc(var(--spacing) * 8);
+  }
+}
+
+// How much of the row a story takes. On a phone it's most of it, so the
+// edge of the next one shows there is a next one. Wider, two and then
+// three fit whole.
+.case-studies__carousel {
+  --nuv-carousel-slide-size: 85%;
+  --nuv-carousel-controls-gap: calc(var(--spacing) * 6);
+
+  @include mixins.breakpoint("md") {
+    --nuv-carousel-slide-size: 50%;
+  }
+
+  @include mixins.breakpoint("lg") {
+    --nuv-carousel-slide-size: 33.3333%;
+  }
+}
+
+.case-studies__head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 4);
+  align-items: end;
+  justify-content: space-between;
+}
+
+.case-studies__about {
+  display: grid;
+  gap: calc(var(--spacing) * 1);
+}
+
+.case-studies__title {
+  margin: 0;
+  font-size: 1.875rem;
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.2;
+  letter-spacing: var(--tracking-tight);
+}
+
+.case-studies__text {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+.case-studies__arrows {
+  display: flex;
+  gap: calc(var(--spacing) * 2);
+}
+
+// As tall as the tallest beside it, with who said it at the bottom.
+.case-studies__card {
+  display: grid;
+  gap: calc(var(--spacing) * 2);
+  grid-template-rows: auto auto auto 1fr auto;
+  box-sizing: border-box;
+  block-size: 100%;
+  padding: calc(var(--spacing) * 6);
+  border: var(--nuv-border-width) solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background-color: var(--color-surface);
+  color: var(--color-surface-foreground);
+}
+
+.case-studies__sector {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--text-sm--line-height);
+}
+
+.case-studies__figure {
+  margin: 0;
+  margin-block-start: calc(var(--spacing) * 2);
+  font-size: 2.25rem;
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.1;
+  letter-spacing: var(--tracking-tight);
+}
+
+.case-studies__gain {
+  margin: 0;
+  font-weight: var(--font-weight-medium);
+}
+
+.case-studies__quote {
+  margin: 0;
+  margin-block: calc(var(--spacing) * 3);
+  padding-inline-start: calc(var(--spacing) * 4);
+  border-inline-start: 2px solid var(--color-border-strong);
+  color: var(--color-muted-foreground);
+}

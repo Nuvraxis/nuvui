@@ -9,6 +9,7 @@ export * from "./components/breadcrumb";
 export * from "./components/button";
 export * from "./components/button-group";
 export * from "./components/card";
+export * from "./components/carousel";
 export * from "./components/checkbox";
 export * from "./components/choice-card";
 export * from "./components/collapsible";

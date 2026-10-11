@@ -16,6 +16,12 @@ import {
   BreadcrumbLink,
   BreadcrumbList,
   Button,
+  Carousel,
+  CarouselContent,
+  CarouselDots,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
   Checkbox,
   CheckboxCard,
   ChoiceCardTitle,
@@ -1669,5 +1675,45 @@ describe("resizable", () => {
 
     await from(15);
     await expect.poll(size).toBeGreaterThan(60);
+  });
+});
+
+describe("carousel", () => {
+  test("the buttons are 44px, and a dot's button is 44px tall and its own to press", async () => {
+    await render(
+      <div style={{ width: 300 }}>
+        <Carousel aria-label="Tour">
+          <CarouselContent>
+            <CarouselItem>One</CarouselItem>
+            <CarouselItem>Two</CarouselItem>
+            <CarouselItem>Three</CarouselItem>
+          </CarouselContent>
+          <CarouselPrevious />
+          <CarouselNext />
+          <CarouselDots />
+        </Carousel>
+      </div>,
+    );
+    await expect
+      .poll(() => document.querySelectorAll(".nuv-carousel__dot").length)
+      .toBe(3);
+    const next = box(
+      page.getByRole("button", { name: "Next slide" }).element(),
+    );
+    const dots = Array.from(document.querySelectorAll(".nuv-carousel__dot"));
+
+    expect(next.width).toBe(44);
+    expect(next.height).toBe(44);
+    for (const dot of dots) {
+      expect(box(dot).height).toBe(44);
+      expect(box(dot).width).toBeGreaterThanOrEqual(24);
+      // Near its top and near its bottom, a tap is this dot's and not the
+      // one beside it.
+      expect(hitAt(dot, 0, -18)).toBe(dot);
+      expect(hitAt(dot, 0, 18)).toBe(dot);
+    }
+
+    await userEvent.click(dots[2] as Element);
+    await expect.poll(() => dots[2]?.getAttribute("aria-current")).toBe("true");
   });
 });

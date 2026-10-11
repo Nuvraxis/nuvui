@@ -1879,6 +1879,266 @@ test.describe("query editor", () => {
   });
 });
 
+test.describe("what's new", () => {
+  test.beforeEach(async ({ page }) => {
+    await open(page, "/blocks/view/whats-new");
+  });
+
+  // The dot the carousel is at.
+  const current = (page: Page) =>
+    page.locator('.nuv-carousel__dot[aria-current="true"]');
+  const note = (page: Page, name: string) =>
+    page.getByRole("heading", { name, level: 2 });
+
+  test("what's new: Next goes through the notes, and Back is off at the first", async ({
+    page,
+    isMobile,
+  }) => {
+    await expect(
+      page.getByRole("region", { name: "What's new in October" }),
+    ).toHaveAttribute("aria-roledescription", "carousel");
+    await expect(note(page, "Export invoices as CSV")).toBeInViewport();
+    await expect(page.getByRole("button", { name: "Back" })).toBeDisabled();
+    await expect(current(page)).toHaveAccessibleName("Go to slide 1");
+
+    await press(page.getByRole("button", { name: "Next" }), isMobile);
+    await expect(current(page)).toHaveAccessibleName("Go to slide 2");
+    await expect(note(page, "A read-only role")).toBeInViewport();
+    await expect(page.getByRole("button", { name: "Back" })).toBeEnabled();
+
+    await press(page.getByRole("button", { name: "Back" }), isMobile);
+    await expect(current(page)).toHaveAccessibleName("Go to slide 1");
+  });
+
+  test("what's new: the last note has Done in place of Next, and Done says so", async ({
+    page,
+    isMobile,
+  }) => {
+    await press(page.getByRole("button", { name: "Next" }), isMobile);
+    await press(page.getByRole("button", { name: "Next" }), isMobile);
+    await expect(note(page, "Single sign-on is out of beta")).toBeInViewport();
+    await expect(page.getByRole("button", { name: "Next" })).toHaveCount(0);
+
+    await press(page.getByRole("button", { name: "Done" }), isMobile);
+
+    await expect(page.getByRole("status")).toHaveText("You're up to date.");
+    // The button that was pressed is gone, and focus is on the one that
+    // took its place.
+    await expect(
+      page.getByRole("button", { name: "Read them again" }),
+    ).toBeFocused();
+
+    await press(
+      page.getByRole("button", { name: "Read them again" }),
+      isMobile,
+    );
+    await expect(current(page)).toHaveAccessibleName("Go to slide 1");
+    await expect(page.getByRole("button", { name: "Next" })).toBeFocused();
+  });
+
+  test("what's new: a dot goes straight to a note, and the buttons follow it", async ({
+    page,
+    isMobile,
+  }) => {
+    await press(page.getByRole("button", { name: "Go to slide 3" }), isMobile);
+
+    await expect(note(page, "Single sign-on is out of beta")).toBeInViewport();
+    await expect(page.getByRole("button", { name: "Done" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Back" })).toBeEnabled();
+  });
+
+  test("what's new: a note that's out of sight is out of reach", async ({
+    page,
+  }) => {
+    await expect
+      .poll(() =>
+        page
+          .locator(".nuv-carousel__item")
+          .evaluateAll((slides) =>
+            slides
+              .map((slide) => (slide.hasAttribute("inert") ? "x" : "o"))
+              .join(""),
+          ),
+      )
+      .toBe("oxx");
+  });
+});
+
+// Which slides of the page's carousel are within reach: "o" for one that
+// is, "x" for one that isn't.
+const slidesInReach = (page: Page) =>
+  page
+    .locator(".nuv-carousel__item")
+    .evaluateAll((slides) =>
+      slides.map((slide) => (slide.hasAttribute("inert") ? "x" : "o")).join(""),
+    );
+
+test.describe("product gallery", () => {
+  test.beforeEach(async ({ page }) => {
+    await open(page, "/blocks/view/product-gallery");
+  });
+
+  const thumbnail = (page: Page, name: string) =>
+    page
+      .getByRole("group", { name: "Choose a photograph" })
+      .getByRole("button", { name, exact: true });
+
+  test("product gallery: a thumbnail shows its photograph and is marked", async ({
+    page,
+    isMobile,
+  }) => {
+    await expect(
+      page.getByRole("region", {
+        name: "Photographs of the Linden armchair",
+      }),
+    ).toHaveAttribute("aria-roledescription", "carousel");
+    await expect(thumbnail(page, "Front")).toHaveAttribute(
+      "aria-current",
+      "true",
+    );
+    await expect.poll(() => slidesInReach(page)).toBe("oxxx");
+
+    await press(thumbnail(page, "Back"), isMobile);
+
+    await expect(thumbnail(page, "Back")).toHaveAttribute(
+      "aria-current",
+      "true",
+    );
+    await expect(thumbnail(page, "Front")).not.toHaveAttribute("aria-current");
+    await expect.poll(() => slidesInReach(page)).toBe("xxox");
+    await expect(
+      page.locator("figcaption", { hasText: "Back" }),
+    ).toBeInViewport();
+  });
+
+  test("product gallery: the arrows over the picture go on, and round from the last to the first", async ({
+    page,
+    isMobile,
+  }) => {
+    const next = page.getByRole("button", { name: "Next slide" });
+    await expect(next).toBeEnabled();
+    await expect(
+      page.getByRole("button", { name: "Previous slide" }),
+    ).toBeEnabled();
+
+    await press(thumbnail(page, "Detail of the seam"), isMobile);
+    await expect(thumbnail(page, "Detail of the seam")).toHaveAttribute(
+      "aria-current",
+      "true",
+    );
+    await press(next, isMobile);
+
+    await expect(thumbnail(page, "Front")).toHaveAttribute(
+      "aria-current",
+      "true",
+    );
+  });
+
+  test("product gallery: the picture between the arrows can still be dragged", async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(isMobile, "A drag with a mouse. A swipe is checked by hand.");
+    const box = await page.locator(".nuv-carousel__viewport").boundingBox();
+    if (!box) throw new Error("the photographs aren't there");
+    const y = box.y + box.height / 2;
+
+    await page.mouse.move(box.x + box.width * 0.7, y);
+    await page.mouse.down();
+    await page.mouse.move(box.x + box.width * 0.25, y, { steps: 8 });
+    await page.mouse.up();
+
+    await expect(thumbnail(page, "Side")).toHaveAttribute(
+      "aria-current",
+      "true",
+    );
+  });
+
+  test("product gallery: adding to the cart says so, and says how many", async ({
+    page,
+    isMobile,
+  }) => {
+    // The carousel has a status of its own, for the slide it's at.
+    const said = page.locator(".product-gallery__about [role='status']");
+    await expect(said).toHaveText("");
+
+    await press(page.getByRole("button", { name: "Add to cart" }), isMobile);
+    await expect(said).toHaveText("Added to your cart.");
+
+    await press(page.getByRole("button", { name: "Add to cart" }), isMobile);
+    await expect(said).toHaveText("2 in your cart.");
+  });
+});
+
+test.describe("customer stories", () => {
+  test.beforeEach(async ({ page }) => {
+    await open(page, "/blocks/view/case-studies");
+  });
+
+  test("customer stories: the carousel is named by its heading, and each story by its company", async ({
+    page,
+  }) => {
+    const carousel = page.getByRole("region", { name: "Customer stories" });
+
+    await expect(carousel).toHaveAttribute("aria-roledescription", "carousel");
+    await expect(
+      carousel.getByRole("group", { name: "Northwind" }),
+    ).toBeVisible();
+    await expect(page.locator(".nuv-carousel__item")).toHaveCount(5);
+  });
+
+  test("customer stories: more show on a wider screen, and the rest are out of reach", async ({
+    page,
+  }) => {
+    const width = page.viewportSize()?.width ?? 0;
+    // One and the edge of the next on a phone, two from 768 and three
+    // from 1024.
+    const whole = width >= 1024 ? 3 : 2;
+
+    await expect
+      .poll(async () => (await slidesInReach(page)).split("x")[0]?.length)
+      .toBe(whole);
+    await expect
+      .poll(() => slidesInReach(page))
+      .toBe("o".repeat(whole) + "x".repeat(5 - whole));
+  });
+
+  test("customer stories: the arrows move a story at a time, and stop at the ends", async ({
+    page,
+    isMobile,
+  }) => {
+    const earlier = page.getByRole("button", { name: "Earlier stories" });
+    const more = page.getByRole("button", { name: "More stories" });
+    await expect(earlier).toBeDisabled();
+    const start = await slidesInReach(page);
+
+    await press(more, isMobile);
+    await expect(earlier).toBeEnabled();
+    await expect.poll(() => slidesInReach(page)).not.toBe(start);
+    await expect.poll(async () => (await slidesInReach(page))[0]).toBe("x");
+
+    // To the end, however many presses that is at this width.
+    for (let pressed = 0; pressed < 4; pressed += 1) {
+      if (await more.isDisabled()) break;
+      await press(more, isMobile);
+    }
+    await expect(more).toBeDisabled();
+    await expect.poll(async () => (await slidesInReach(page))[4]).toBe("o");
+  });
+
+  test("customer stories: the cards in a row are the same height", async ({
+    page,
+  }) => {
+    const heights = await page
+      .locator(".case-studies__card")
+      .evaluateAll((cards) =>
+        cards.map((card) => Math.round(card.getBoundingClientRect().height)),
+      );
+
+    expect(new Set(heights).size).toBe(1);
+  });
+});
+
 test.describe("the blocks page", () => {
   test("lists every category, and each leads to its page", async ({
     page,

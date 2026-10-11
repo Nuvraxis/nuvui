@@ -1,0 +1,9 @@
+{
+  "name": "case-studies",
+  "title": "Customer stories",
+  "description": "Cards with a figure, what it measures and a quote, in a row that's swiped or moved with arrows. One shows on a phone, two on a tablet and three on a desktop.",
+  "category": "marketing",
+  "files": ["case-studies.tsx", "case-studies.scss"],
+  "install": ["@nuvui/react"],
+  "height": 560
+}

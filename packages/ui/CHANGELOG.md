@@ -1,5 +1,28 @@
 # @nuvui/react
 
+## 0.3.0
+
+### Minor Changes
+
+- [#36](https://github.com/Nuvraxis/nuvui/pull/36) [`1d694d4`](https://github.com/Nuvraxis/nuvui/commit/1d694d4ea838cd27ee5d728a786365adabadcc8e) Thanks [@sajanv88](https://github.com/sajanv88)! - A new component, and additions to two.
+  
+  - `Navbar`, with `NavbarBrand`, `NavbarNav`, `NavbarLink`, `NavbarActions` and `NavbarMenu`, is the bar across the top of a site or an app. Its links are in the bar on a wide screen and in a panel behind a button on a narrow one, at a breakpoint you choose. It can stay at the top, and can slide out of the way while the page scrolls down.
+  - `Sheet` can be swiped away. `swipe` on `SheetContent` lets a finger drag it towards its edge, and `stops` gives it sizes to rest at on the way, with `stop`, `defaultStop` and `onStopChange` to control which. `SheetHandle` is a new part: the bar a sheet is dragged by, which goes to the next stop when pressed.
+  - `SelectTrigger` has a `variant`. `"inline"` is a select with no box that sits in a sentence, at the size of the text around it.
+
+- [#36](https://github.com/Nuvraxis/nuvui/pull/36) [`ed5ade6`](https://github.com/Nuvraxis/nuvui/commit/ed5ade6f5f81978aab12cc6babaa6cb916cf6b1b) Thanks [@sajanv88](https://github.com/sajanv88)! - Four new components.
+  
+  - `ActionBar`, with `ActionBarSelection`, is a bar that appears while something is selected, with your buttons for what can be done to it. It can be fixed to the bottom of the window, stuck to the bottom of what scrolls, or left in place, and it tells a screen reader how much is selected.
+  - `HoldToConfirm` is a button that acts only after it's been held down, with the wait drawn along its edge. Holding Space or Enter works too, and a screen reader or a switch confirms with a second press.
+  - `TableOfContents` is the headings of a page as a list of links, with the one being read marked as the page scrolls.
+  - `TextShimmer` is text with a highlight that moves across it, for a short wait. It's still for anyone who asked for less motion.
+  
+  `Rating` now takes the up and down arrow keys as well as left and right, as its page said it did. `NumberField` submits the number that was just typed when Enter is pressed in Firefox, where it had sent the one before.
+
+- [#36](https://github.com/Nuvraxis/nuvui/pull/36) [`078bb29`](https://github.com/Nuvraxis/nuvui/commit/078bb29c3fa15fc7a65c7d6a1075e46b87ee0744) Thanks [@sajanv88](https://github.com/sajanv88)! - A new component.
+  
+  - `Tree`, with `TreeItem`, is rows that open to show more rows: files in folders, the teams of a company. The arrow keys move through it, a letter goes to the next row that starts with it, and one row or several can be selected. Which rows are open and which are selected can each be left to the tree or kept by you.
+
 ## 0.2.0
 
 ### Minor Changes

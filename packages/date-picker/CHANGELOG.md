@@ -1,5 +1,12 @@
 # @nuvui/date-picker
 
+## 0.1.3
+
+### Patch Changes
+
+- Updated dependencies [[`1d694d4`](https://github.com/Nuvraxis/nuvui/commit/1d694d4ea838cd27ee5d728a786365adabadcc8e), [`ed5ade6`](https://github.com/Nuvraxis/nuvui/commit/ed5ade6f5f81978aab12cc6babaa6cb916cf6b1b), [`078bb29`](https://github.com/Nuvraxis/nuvui/commit/078bb29c3fa15fc7a65c7d6a1075e46b87ee0744)]:
+  - @nuvui/react@0.3.0
+
 ## 0.1.2
 
 ### Patch Changes

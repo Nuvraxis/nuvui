@@ -135,21 +135,40 @@ export const ConversationContent = forwardRef<
   const { viewport, following, setAtBottom } = context;
   const content = useRef<HTMLDivElement>(null);
 
-  // At the latest message from the first paint.
+  // The box's sizes as they were when last looked at, to tell where the
+  // reader was before a change of size. None yet before the first paint.
+  const sizes = useRef<{ height: number; room: number } | null>(null);
+
+  // Goes to the end if the end is being followed, and says whether it is.
+  // A browser tells of a scroll some time after it happens, and the
+  // messages can grow in between. So a reader who was at the end before
+  // they grew is followed, whether or not the scroll has been heard of.
+  const follow = useCallback(
+    (box: HTMLDivElement) => {
+      const was = sizes.current;
+      if (!was || was.height - box.scrollTop - was.room <= near) {
+        following.current = true;
+      }
+      if (following.current) box.scrollTop = box.scrollHeight;
+      sizes.current = { height: box.scrollHeight, room: box.clientHeight };
+    },
+    [following],
+  );
+
+  // After every render, before it's painted: at the latest message from
+  // the first paint, and at the end of a reply as each part of it is
+  // drawn, with no frame in between where the end is out of view. It
+  // doesn't wait to be told that the size changed, which a browser does
+  // when it next paints, and a page that isn't being painted never hears.
   isomorphicLayoutEffect(() => {
-    const box = viewport.current;
-    if (box) box.scrollTop = box.scrollHeight;
-  }, [viewport]);
+    if (viewport.current) follow(viewport.current);
+  });
 
   useEffect(() => {
     const box = viewport.current;
     const inner = content.current;
     if (!box || !inner) return;
     let last = box.scrollTop;
-    // The sizes as they were when last looked at, to tell where the reader
-    // was before a change of size.
-    let height = box.scrollHeight;
-    let room = box.clientHeight;
 
     const measure = () =>
       box.scrollHeight - box.scrollTop - box.clientHeight <= near;
@@ -166,17 +185,12 @@ export const ConversationContent = forwardRef<
       setAtBottom(end);
     };
 
-    // The messages grew, or the box changed size: the prompt box under it
-    // grew a line, or a phone's keyboard opened.
+    // A size changed without a render of the messages: a picture in one
+    // loaded, the prompt box under them grew a line, or a phone's keyboard
+    // opened.
     const resized = () => {
-      // A browser tells of a scroll some time after it happens, and the
-      // messages can grow in between. A reader who was at the end before
-      // they grew is followed, whether or not the scroll has been heard of.
-      if (height - box.scrollTop - room <= near) following.current = true;
-      if (following.current) box.scrollTop = box.scrollHeight;
+      follow(box);
       last = box.scrollTop;
-      height = box.scrollHeight;
-      room = box.clientHeight;
       setAtBottom(measure());
     };
 
@@ -188,7 +202,7 @@ export const ConversationContent = forwardRef<
       box.removeEventListener("scroll", scrolled);
       observer.disconnect();
     };
-  }, [viewport, following, setAtBottom]);
+  }, [viewport, following, setAtBottom, follow]);
 
   return (
     <div

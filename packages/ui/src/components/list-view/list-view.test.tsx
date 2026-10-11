@@ -828,7 +828,22 @@ describe.each(themes)("accessibility in %s", (theme) => {
     const screen = await renderThemed(
       theme,
       <>
-        <Requests />
+        {/* The library's buttons, not bare ones. A bare button is the
+            browser's to color, and in a dark page Safari's is white on
+            grey, which isn't this component's to answer for. */}
+        <ListView aria-label="Requests">
+          <ListViewItem value="ada">
+            <span>Ada Lovelace</span>
+            <Button intent="secondary">Approve Ada</Button>
+            <Button intent="ghost">Decline Ada</Button>
+          </ListViewItem>
+          <ListViewItem value="cleo" disabled>
+            <span>Cleo Park</span>
+          </ListViewItem>
+          <ListViewItem value="dan">
+            <span>Dan Abbott</span>
+          </ListViewItem>
+        </ListView>
         <ListView
           aria-label="Invoices"
           selectionMode="multiple"
@@ -836,7 +851,7 @@ describe.each(themes)("accessibility in %s", (theme) => {
         >
           <ListViewItem value="one">
             <span>INV-2041</span>
-            <button type="button">Open INV-2041</button>
+            <Button intent="secondary">Open INV-2041</Button>
           </ListViewItem>
           <ListViewItem value="two">
             <span>INV-2042</span>

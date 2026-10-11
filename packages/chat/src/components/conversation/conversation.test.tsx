@@ -181,6 +181,19 @@ describe("following the latest message", () => {
     await expect.poll(gap).toBe(0);
   });
 
+  test("back at the end and a message added before the browser has told of the scroll, it follows", async () => {
+    const screen = await render(<Chat count={10} />);
+    await scrollTo(100);
+    await expect.element(button()).toBeVisible();
+
+    // No wait between the two: the scroll event comes after the message.
+    log().scrollTop = log().scrollHeight - log().clientHeight;
+    await screen.rerender(<Chat count={12} />);
+
+    await expect.poll(gap).toBe(0);
+    await expect.element(button()).not.toBeInTheDocument();
+  });
+
   test("a little short of the end still counts as the end", async () => {
     const screen = await render(<Chat count={10} />);
     await scrollTo(log().scrollHeight - log().clientHeight - 20);

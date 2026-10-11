@@ -146,6 +146,10 @@ export const ConversationContent = forwardRef<
     const inner = content.current;
     if (!box || !inner) return;
     let last = box.scrollTop;
+    // The sizes as they were when last looked at, to tell where the reader
+    // was before a change of size.
+    let height = box.scrollHeight;
+    let room = box.clientHeight;
 
     const measure = () =>
       box.scrollHeight - box.scrollTop - box.clientHeight <= near;
@@ -165,8 +169,14 @@ export const ConversationContent = forwardRef<
     // The messages grew, or the box changed size: the prompt box under it
     // grew a line, or a phone's keyboard opened.
     const resized = () => {
+      // A browser tells of a scroll some time after it happens, and the
+      // messages can grow in between. A reader who was at the end before
+      // they grew is followed, whether or not the scroll has been heard of.
+      if (height - box.scrollTop - room <= near) following.current = true;
       if (following.current) box.scrollTop = box.scrollHeight;
       last = box.scrollTop;
+      height = box.scrollHeight;
+      room = box.clientHeight;
       setAtBottom(measure());
     };
 

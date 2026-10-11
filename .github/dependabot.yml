@@ -26,3 +26,9 @@ updates:
       images:
         patterns:
           - "*"
+    # The image builds with the Node in .nvmrc, and that's moved by hand.
+    # Node 25 has no Corepack in it, and the build with it failed at its
+    # first step.
+    ignore:
+      - dependency-name: node
+        update-types: ["version-update:semver-major"]

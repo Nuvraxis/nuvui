@@ -51,6 +51,8 @@ import {
   Item,
   ItemContent,
   ItemTitle,
+  ListView,
+  ListViewItem,
   Menubar,
   MenubarContent,
   MenubarItem,
@@ -1457,6 +1459,60 @@ describe("tree", () => {
     await userEvent.click(row("a.txt"));
     await expect
       .element(item("a.txt"))
+      .toHaveAttribute("aria-selected", "false");
+  });
+});
+
+describe("list view", () => {
+  test("every row is at least 44px tall, and a tap on one selects it", async () => {
+    await render(
+      <ListView aria-label="Invoices" selectionMode="multiple">
+        <ListViewItem value="a">INV-2041</ListViewItem>
+        <ListViewItem value="b">INV-2042</ListViewItem>
+      </ListView>,
+    );
+    const row = (name: string) => page.getByRole("row", { name });
+
+    expect(box(row("INV-2041").element()).height).toBe(44);
+    expect(box(row("INV-2042").element()).height).toBeGreaterThanOrEqual(44);
+
+    await userEvent.click(row("INV-2041"));
+    await userEvent.click(row("INV-2042"));
+    await expect
+      .element(row("INV-2041"))
+      .toHaveAttribute("aria-selected", "true");
+    await expect
+      .element(row("INV-2042"))
+      .toHaveAttribute("aria-selected", "true");
+
+    await userEvent.click(row("INV-2041"));
+    await expect
+      .element(row("INV-2041"))
+      .toHaveAttribute("aria-selected", "false");
+  });
+
+  test("a tap on a button in a row presses the button and leaves the row alone", async () => {
+    let pressed = 0;
+    await render(
+      <ListView aria-label="Invoices" selectionMode="single">
+        <ListViewItem value="a">
+          INV-2041
+          <Button
+            onClick={() => {
+              pressed += 1;
+            }}
+          >
+            Open
+          </Button>
+        </ListViewItem>
+      </ListView>,
+    );
+
+    await userEvent.click(page.getByRole("button", { name: "Open" }));
+
+    expect(pressed).toBe(1);
+    await expect
+      .element(page.getByRole("row"))
       .toHaveAttribute("aria-selected", "false");
   });
 });

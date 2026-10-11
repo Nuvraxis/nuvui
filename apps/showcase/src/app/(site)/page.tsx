@@ -30,7 +30,7 @@ export const metadata: Metadata = share({
 
 // Counted from the packages: the README lists the components by name.
 const facts = [
-  { value: "67", label: "Components in the core" },
+  { value: "68", label: "Components in the core" },
   { value: "3", label: "Add-on packages" },
   { value: String(chartCount), label: "Charts to copy" },
   { value: "5", label: "Presets, each in light and dark" },

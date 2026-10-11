@@ -53,7 +53,9 @@ function List({ onDelete, ...props }: ListProps) {
           </ThreadListItem>
         </ThreadListGroup>
       </ThreadList>
-      <button type="button">After</button>
+      {/* The library's own button: the browser's is too faint in
+          WebKit's dark themes to pass axe. */}
+      <Button intent="secondary">After</Button>
     </div>
   );
 }

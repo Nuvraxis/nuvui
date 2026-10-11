@@ -52,6 +52,7 @@ import { PopoverPlayground } from "@/components/playground/popover";
 import { ProgressPlayground } from "@/components/playground/progress";
 import { RadioGroupPlayground } from "@/components/playground/radio-group";
 import { RatingPlayground } from "@/components/playground/rating";
+import { ResizablePlayground } from "@/components/playground/resizable";
 import { ScrollAreaPlayground } from "@/components/playground/scroll-area";
 import { SelectPlayground } from "@/components/playground/select";
 import { SeparatorPlayground } from "@/components/playground/separator";
@@ -140,6 +141,7 @@ export function getMDXComponents(components?: MDXComponents) {
     NavbarPlayground,
     NumberFieldPlayground,
     RatingPlayground,
+    ResizablePlayground,
     StatPlayground,
     ActionBarPlayground,
     HoldToConfirmPlayground,

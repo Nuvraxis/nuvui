@@ -1,0 +1,101 @@
+@use "@nuvui/react/scss/mixins";
+
+.query-editor {
+  display: grid;
+  gap: calc(var(--spacing) * 6);
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  inline-size: 100%;
+  max-inline-size: 60rem;
+  min-block-size: 100svh;
+  margin-inline: auto;
+  padding: calc(var(--spacing) * 6) calc(var(--spacing) * 4);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+
+  @include mixins.breakpoint("md") {
+    padding: calc(var(--spacing) * 8);
+  }
+}
+
+.query-editor__head {
+  display: grid;
+  gap: calc(var(--spacing) * 1);
+}
+
+.query-editor__title {
+  margin: 0;
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-2xl--line-height);
+  letter-spacing: var(--tracking-tight);
+}
+
+.query-editor__text {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+// The panels fill this, so it's what has the height. One above another at
+// every width: side by side would leave neither enough room on a phone.
+.query-editor__work {
+  block-size: calc(var(--spacing) * 128);
+  overflow: hidden;
+  border: var(--nuv-border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-surface);
+  color: var(--color-surface-foreground);
+}
+
+// What's in a panel, one under another. The first row takes what room
+// there is and the rest are as tall as they need.
+.query-editor__pane {
+  display: grid;
+  gap: calc(var(--spacing) * 3);
+  grid-template-rows: minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  padding: calc(var(--spacing) * 4);
+}
+
+// Under the query it's the second row that takes the room: the table,
+// which scrolls in its own box, under a line that says how many rows.
+.query-editor__pane--rows {
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+// A row of results on one line, however narrow the screen. The box
+// around the table scrolls sideways instead.
+.query-editor__table {
+  white-space: nowrap;
+}
+
+// As tall as its panel, in the type code is written in. The handle does
+// the resizing, so the corner the browser draws for it is left out.
+.query-editor__sql {
+  min-block-size: calc(var(--spacing) * 20);
+  font-family: var(--font-mono);
+  resize: none;
+}
+
+.query-editor__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 2);
+  align-items: center;
+  justify-content: space-between;
+}
+
+.query-editor__saved {
+  inline-size: auto;
+  min-inline-size: calc(var(--spacing) * 48);
+}
+
+.query-editor__count {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}

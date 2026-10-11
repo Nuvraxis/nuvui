@@ -149,6 +149,15 @@ test("components used from a server component hydrate and work", async ({
   );
   await page.keyboard.press("Escape");
 
+  const serverHandle = page.getByRole("separator", {
+    name: "Handle from the server",
+  });
+  await expect(page.getByText("Panel from the server").first()).toBeVisible();
+  await expect(serverHandle).toHaveAttribute("aria-valuenow", "40");
+  await serverHandle.focus();
+  await page.keyboard.press("ArrowRight");
+  await expect(serverHandle).toHaveAttribute("aria-valuenow", "45");
+
   const serverList = page.getByRole("grid", { name: "List from the server" });
   await expect(serverList.getByRole("row")).toHaveCount(2);
   await serverList.getByText("Other row from the server").click();

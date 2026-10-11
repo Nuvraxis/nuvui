@@ -1411,6 +1411,9 @@ test.describe("approvals", () => {
   // The name in a row, away from its buttons.
   const face = (page: Page, id: string) =>
     row(page, id).locator(".approvals__from");
+  // What was done, as the block says it. The action bar has a status of
+  // its own, so the role alone would find two.
+  const said = (page: Page) => page.locator(".approvals__said");
   const bar = (page: Page) =>
     page.getByRole("group", { name: "Selected requests" });
 
@@ -1426,7 +1429,7 @@ test.describe("approvals", () => {
       isMobile,
     );
 
-    await expect(page.getByRole("status")).toHaveText("REQ-317 approved.");
+    await expect(said(page)).toHaveText("REQ-317 approved.");
     await expect(list(page).getByRole("row")).toHaveCount(3);
     await expect(page.getByText("3 requests waiting for you.")).toBeVisible();
     await expect(row(page, "REQ-315")).toBeFocused();
@@ -1445,7 +1448,7 @@ test.describe("approvals", () => {
 
     await press(bar(page).getByRole("button", { name: "Decline" }), isMobile);
 
-    await expect(page.getByRole("status")).toHaveText("2 requests declined.");
+    await expect(said(page)).toHaveText("2 requests declined.");
     await expect(list(page).getByRole("row")).toHaveCount(2);
     await expect(bar(page)).toHaveCount(0);
     await expect(row(page, "REQ-317")).toBeFocused();
@@ -1487,7 +1490,7 @@ test.describe("approvals", () => {
       page.getByRole("button", { name: "Decline REQ-317" }),
     ).toBeFocused();
     await page.keyboard.press("Enter");
-    await expect(page.getByRole("status")).toHaveText("REQ-317 declined.");
+    await expect(said(page)).toHaveText("REQ-317 declined.");
     await expect(row(page, "REQ-315")).toBeFocused();
   });
 

@@ -18,7 +18,6 @@ const clipboard = {
   permissions: ["clipboard-read", "clipboard-write"],
 };
 
-
 // Safari's engine on Linux draws in software, in several processes, and on
 // a CI runner with a few shared cores it's the one that falls behind: a
 // closed dialog stays up, waiting for an animation that isn't being drawn,
@@ -26,7 +25,6 @@ const clipboard = {
 // CI its two projects get three times as long, for a test and for each
 // check in one.
 const unhurried = isCI ? { timeout: 90_000, expect: { timeout: 15_000 } } : {};
-
 
 export default defineConfig({
   testDir: "./e2e",

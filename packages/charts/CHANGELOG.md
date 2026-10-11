@@ -1,5 +1,12 @@
 # @nuvui/charts
 
+## 0.1.4
+
+### Patch Changes
+
+- Updated dependencies [[`a533ceb`](https://github.com/Nuvraxis/nuvui/commit/a533ceb07066fbf4324af1e59a47bbe1a3022605), [`54da14b`](https://github.com/Nuvraxis/nuvui/commit/54da14bad36f5cb70aabfed872e55bfbf6a9ea3e), [`c473abb`](https://github.com/Nuvraxis/nuvui/commit/c473abba2b75289298fde9f901f712dda2be3f53), [`baa088b`](https://github.com/Nuvraxis/nuvui/commit/baa088b5070cf8fbec4c1517652c4da94b6aeb53), [`11890f4`](https://github.com/Nuvraxis/nuvui/commit/11890f422f7d2844a4aebb3e60f6fd1311432a80), [`4e67dd6`](https://github.com/Nuvraxis/nuvui/commit/4e67dd6368fb7914f4df6d75de10c3f67d631adc)]:
+  - @nuvui/react@0.4.0
+
 ## 0.1.3
 
 ### Patch Changes

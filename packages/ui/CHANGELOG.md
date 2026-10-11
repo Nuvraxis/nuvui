@@ -1,5 +1,42 @@
 # @nuvui/react
 
+## 0.4.0
+
+### Minor Changes
+
+- [#47](https://github.com/Nuvraxis/nuvui/pull/47) [`a533ceb`](https://github.com/Nuvraxis/nuvui/commit/a533ceb07066fbf4324af1e59a47bbe1a3022605) Thanks [@sajanv88](https://github.com/sajanv88)! - A new component.
+  
+  - `Carousel` is slides to move through by dragging or with buttons: the photographs of a product, the steps of a tour, cards that don't fit in a row. Its parts are `CarouselContent` and `CarouselItem` for the slides, `CarouselPrevious` and `CarouselNext`, `CarouselDots`, `CarouselThumbnails` with `CarouselThumbnail`, and `CarouselPlayPause`. It moves sideways or up and down, can loop, can show several slides at once, and can be kept by you with `index` and `onIndexChange`.
+  - A slide that's out of sight can't be reached with Tab or read by a screen reader. A screen reader is told which slide it's at when a button moves it. With `autoplay` it waits under the pointer, stops when the keyboard reaches it, and doesn't start for someone who has asked for less motion.
+  - It's built on `embla-carousel-react`, which is now a dependency of `@nuvui/react`.
+
+- [#47](https://github.com/Nuvraxis/nuvui/pull/47) [`54da14b`](https://github.com/Nuvraxis/nuvui/commit/54da14bad36f5cb70aabfed872e55bfbf6a9ea3e) Thanks [@sajanv88](https://github.com/sajanv88)! - A new component.
+  
+  - `ColorPicker` picks a color, as `#rrggbb`. It's built from parts: a trigger that opens a popover, an area and a hue slider to pick with, a field to type into, and presets. Use all of them, or only a row of presets, or put the panel in the page with no popover. `onValueChange` follows a drag and `onValueCommit` is called once it ends, which is the place to save from. With `name` the color goes into a form. `parseHex`, `hexToHsv` and `hsvToHex` are exported for working with a color yourself.
+
+- [#47](https://github.com/Nuvraxis/nuvui/pull/47) [`c473abb`](https://github.com/Nuvraxis/nuvui/commit/c473abba2b75289298fde9f901f712dda2be3f53) Thanks [@sajanv88](https://github.com/sajanv88)! - A new component.
+  
+  - `ListView`, with `ListViewItem`, is a list whose rows can be selected and can each hold buttons and links: people to message, requests to approve. The arrow keys move between rows and Tab goes into the row it's at, so a long list with buttons in every row is one stop for Tab. One row or several can be selected, a letter goes to the next row that starts with it, and `onAction` is called when Enter is pressed on a row.
+
+- [#47](https://github.com/Nuvraxis/nuvui/pull/47) [`baa088b`](https://github.com/Nuvraxis/nuvui/commit/baa088b5070cf8fbec4c1517652c4da94b6aeb53) Thanks [@sajanv88](https://github.com/sajanv88)! - A new component.
+  
+  - `Resizable`, with `ResizablePanel` and `ResizableHandle`, is panels with a handle between them to drag, side by side or one above another: a list beside what's chosen from it, an editor above its output. Panels have a least and a greatest size, can fold away, and can hold more panels lying the other way. A handle is moved with the arrow keys as well as a pointer, and what takes a finger is 44 pixels wide however thin the line. `useResizableLayout` keeps the sizes in the browser between visits, and works on a page drawn on a server.
+  - It's built on `react-resizable-panels`, which is now a dependency of `@nuvui/react`. Three things are added to what that does: a panel folded to nothing is out of reach of Tab, a panel that scrolls plain text can be scrolled from the keyboard, and the handles of a disabled `Resizable` say they're disabled.
+
+- [#47](https://github.com/Nuvraxis/nuvui/pull/47) [`4e67dd6`](https://github.com/Nuvraxis/nuvui/commit/4e67dd6368fb7914f4df6d75de10c3f67d631adc) Thanks [@sajanv88](https://github.com/sajanv88)! - Rows of a Tree can be moved.
+  
+  - Give `Tree` an `onMove` and its rows can be dragged with a mouse, picked up with a finger held down for a moment, or walked up and down with Alt and an arrow key. The tree tells you what moved and where to, as a `TreeMove`: the rows' `values`, the `target` row, and `"before"`, `"after"` or `"inside"` it. You change your data to match. Without `onMove` nothing about the tree changes.
+  - `canDrop` says where rows may go, for a tree where only a folder holds things. A selected row takes every selected row with it. A drag held over a closed row opens it, a drag near the edge scrolls, and Escape puts the rows back.
+  - After a move, focus stays on the row and a screen reader is told where it went. `getMoveText` puts that in another language.
+  - With `onMove`, the tree draws a `status` element beside itself. If your styles count the tree's siblings, that's one more.
+
+### Patch Changes
+
+- [#47](https://github.com/Nuvraxis/nuvui/pull/47) [`11890f4`](https://github.com/Nuvraxis/nuvui/commit/11890f422f7d2844a4aebb3e60f6fd1311432a80) Thanks [@sajanv88](https://github.com/sajanv88)! - Mirroring for right-to-left pages now works in a Next.js build.
+  
+  - What has to be mirrored where a page reads right to left was written with `:dir(rtl)`: the arrows of Breadcrumb, Pagination, Tree, submenus and the data table, the side a Sheet and a Sidebar slide in from, the bars of Progress and HoldToConfirm, the sweep of TextShimmer and the ends of a range in Calendar. A build that supports browsers without `:dir()`, which is Next.js by default, rewrites that to a list of `:lang()` selectors, so none of it was mirrored on a page that set `dir="rtl"` without one of those languages. These rules now go by the `dir` attribute, on the element or around it. That also works in Chrome before 120, which has no `:dir()`.
+  - A new `rtl` mixin in `@nuvui/react/scss/mixins` writes the same selector for your own styles.
+
 ## 0.3.0
 
 ### Minor Changes

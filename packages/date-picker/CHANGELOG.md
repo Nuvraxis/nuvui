@@ -1,5 +1,16 @@
 # @nuvui/date-picker
 
+## 0.1.4
+
+### Patch Changes
+
+- [#47](https://github.com/Nuvraxis/nuvui/pull/47) [`11890f4`](https://github.com/Nuvraxis/nuvui/commit/11890f422f7d2844a4aebb3e60f6fd1311432a80) Thanks [@sajanv88](https://github.com/sajanv88)! - Mirroring for right-to-left pages now works in a Next.js build.
+  
+  - What has to be mirrored where a page reads right to left was written with `:dir(rtl)`: the arrows of Breadcrumb, Pagination, Tree, submenus and the data table, the side a Sheet and a Sidebar slide in from, the bars of Progress and HoldToConfirm, the sweep of TextShimmer and the ends of a range in Calendar. A build that supports browsers without `:dir()`, which is Next.js by default, rewrites that to a list of `:lang()` selectors, so none of it was mirrored on a page that set `dir="rtl"` without one of those languages. These rules now go by the `dir` attribute, on the element or around it. That also works in Chrome before 120, which has no `:dir()`.
+  - A new `rtl` mixin in `@nuvui/react/scss/mixins` writes the same selector for your own styles.
+- Updated dependencies [[`a533ceb`](https://github.com/Nuvraxis/nuvui/commit/a533ceb07066fbf4324af1e59a47bbe1a3022605), [`54da14b`](https://github.com/Nuvraxis/nuvui/commit/54da14bad36f5cb70aabfed872e55bfbf6a9ea3e), [`c473abb`](https://github.com/Nuvraxis/nuvui/commit/c473abba2b75289298fde9f901f712dda2be3f53), [`baa088b`](https://github.com/Nuvraxis/nuvui/commit/baa088b5070cf8fbec4c1517652c4da94b6aeb53), [`11890f4`](https://github.com/Nuvraxis/nuvui/commit/11890f422f7d2844a4aebb3e60f6fd1311432a80), [`4e67dd6`](https://github.com/Nuvraxis/nuvui/commit/4e67dd6368fb7914f4df6d75de10c3f67d631adc)]:
+  - @nuvui/react@0.4.0
+
 ## 0.1.3
 
 ### Patch Changes

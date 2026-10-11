@@ -38,6 +38,9 @@ import pricing from "@/blocks/pricing/block.json" with { type: "json" };
 import profileForm from "@/blocks/profile-form/block.json" with {
   type: "json",
 };
+import queryEditor from "@/blocks/query-editor/block.json" with {
+  type: "json",
+};
 import reviews from "@/blocks/reviews/block.json" with { type: "json" };
 import sidebarIcons from "@/blocks/sidebar-icons/block.json" with {
   type: "json",
@@ -154,6 +157,7 @@ export const blocks: BlockManifest[] = [
   approvals,
   filterSheet,
   fileBrowser,
+  queryEditor,
   detailPanel,
   pageStates,
   profileForm,

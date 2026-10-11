@@ -488,6 +488,16 @@
         "default": "./dist/components/rating/index.cjs"
       }
     },
+    "./resizable": {
+      "import": {
+        "types": "./dist/components/resizable/index.d.ts",
+        "default": "./dist/components/resizable/index.js"
+      },
+      "require": {
+        "types": "./dist/components/resizable/index.d.cts",
+        "default": "./dist/components/resizable/index.cjs"
+      }
+    },
     "./scroll-area": {
       "import": {
         "types": "./dist/components/scroll-area/index.d.ts",
@@ -823,6 +833,7 @@
     "@radix-ui/react-toolbar": "^1.1.20",
     "@radix-ui/react-tooltip": "^1.3.0",
     "@radix-ui/react-use-controllable-state": "^1.2.6",
-    "cmdk": "^1.1.1"
+    "cmdk": "^1.1.1",
+    "react-resizable-panels": "^4.14.3"
   }
 }

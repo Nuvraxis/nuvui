@@ -87,6 +87,9 @@ import {
   RadioGroup,
   RadioGroupItem,
   Rating,
+  Resizable,
+  ResizableHandle,
+  ResizablePanel,
   ScrollArea,
   Select,
   SelectContent,
@@ -1630,5 +1633,41 @@ describe("color picker", () => {
     // The thumb is 20px. What answers a finger round it is 44.
     expect(hitAt(hue, 0, 18)).toBe(hue);
     expect(hitAt(hue, 18, 0)).toBe(hue);
+  });
+});
+
+describe("resizable", () => {
+  test("a press 15px to the side of the line still takes hold of it, and one 30px away doesn't", async () => {
+    await render(
+      <div data-testid="box" style={{ width: 400, height: 200 }}>
+        <Resizable>
+          <ResizablePanel defaultSize="40%" minSize="10%">
+            <div data-testid="one" style={{ height: "100%" }}>
+              One
+            </div>
+          </ResizablePanel>
+          <ResizableHandle />
+          <ResizablePanel minSize="10%">Two</ResizablePanel>
+        </Resizable>
+      </div>,
+    );
+    const handle = page.getByRole("separator");
+    const size = () => Number(handle.element().getAttribute("aria-valuenow"));
+    await expect.poll(size).toBe(40);
+    // The line is one pixel wide. What takes a finger is 44, half each side.
+    const width = box(page.getByTestId("one").element()).width;
+    const from = (away: number) =>
+      userEvent.dragAndDrop(page.getByTestId("one"), page.getByTestId("box"), {
+        sourcePosition: { x: width - away, y: 100 },
+        targetPosition: { x: 300, y: 100 },
+        steps: 5,
+      });
+
+    await from(30);
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    expect(size()).toBe(40);
+
+    await from(15);
+    await expect.poll(size).toBeGreaterThan(60);
   });
 });

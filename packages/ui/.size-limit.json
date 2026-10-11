@@ -2,7 +2,7 @@
   {
     "name": "@nuvui/react",
     "path": "dist/index.js",
-    "limit": "84 kB"
+    "limit": "95 kB"
   },
   {
     "name": "@nuvui/react/accordion",
@@ -230,6 +230,11 @@
     "limit": "9.4 kB"
   },
   {
+    "name": "@nuvui/react/resizable",
+    "path": "dist/components/resizable/index.js",
+    "limit": "14 kB"
+  },
+  {
     "name": "@nuvui/react/scroll-area",
     "path": "dist/components/scroll-area/index.js",
     "limit": "7.9 kB"
@@ -358,7 +363,7 @@
     "name": "styles.css",
     "path": "dist/styles.css",
     "rolldown": false,
-    "limit": "19 kB"
+    "limit": "19.5 kB"
   },
   {
     "name": "tokens.css",
@@ -370,7 +375,7 @@
     "name": "every stylesheet in css/",
     "path": "dist/css/*.css",
     "rolldown": false,
-    "limit": "45.5 kB"
+    "limit": "46.5 kB"
   },
   {
     "name": "every preset in themes/",

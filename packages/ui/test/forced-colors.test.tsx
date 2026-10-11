@@ -118,6 +118,9 @@ import {
   RadioGroup,
   RadioGroupItem,
   Rating,
+  Resizable,
+  ResizableHandle,
+  ResizablePanel,
   ScrollArea,
   Select,
   SelectContent,
@@ -1918,5 +1921,29 @@ describe("color picker", () => {
     await userEvent.tab();
     expect(style(trigger).outlineStyle).toBe("solid");
     expect(contrast(style(trigger).outlineColor, canvas())).toBeGreaterThan(3);
+  });
+});
+
+describe("resizable", () => {
+  test("the line between two panels is still drawn, and so is the grip", async () => {
+    await render(
+      <div style={{ width: 400, height: 200 }}>
+        <Resizable>
+          <ResizablePanel>One</ResizablePanel>
+          <ResizableHandle withGrip />
+          <ResizablePanel>Two</ResizablePanel>
+        </Resizable>
+      </div>,
+    );
+    const handle = page.getByRole("separator").element();
+    const grip = handle.querySelector(".nuv-resizable__grip") as Element;
+
+    expect(style(handle).borderInlineStartStyle).toBe("solid");
+    expect(style(handle).borderInlineStartWidth).toBe("1px");
+    expect(
+      contrast(style(handle).borderInlineStartColor, canvas()),
+    ).toBeGreaterThan(3);
+    expect(style(grip).borderTopStyle).toBe("solid");
+    expect(contrast(style(grip).borderTopColor, canvas())).toBeGreaterThan(3);
   });
 });

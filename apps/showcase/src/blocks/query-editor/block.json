@@ -4,6 +4,11 @@
   "description": "A query above and its rows below, with a handle between them to give either more room. The sizes are remembered for the next visit.",
   "category": "data",
   "files": ["query-editor.tsx", "query-editor.scss"],
-  "install": ["@nuvui/react", "@nuvui/table", "lucide-react"],
+  "install": [
+    "@nuvui/react",
+    "@nuvui/table",
+    "@tanstack/react-table",
+    "lucide-react"
+  ],
   "height": 680
 }

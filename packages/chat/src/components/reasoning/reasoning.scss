@@ -1,0 +1,110 @@
+@use "../../styles/layers";
+@use "@nuvui/react/scss/mixins";
+
+@layer components {
+  .nuv-reasoning {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    min-inline-size: 0;
+    max-inline-size: 100%;
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+  }
+
+  // A line of text with an arrow after it, as tall as a finger needs.
+  .nuv-reasoning__trigger {
+    display: inline-flex;
+    gap: calc(var(--spacing) * 1);
+    align-items: center;
+    box-sizing: border-box;
+    min-block-size: var(--nuv-touch-size);
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: none;
+    color: var(--nuv-reasoning-trigger-fg, var(--color-muted-foreground));
+    font: inherit;
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+
+    @include mixins.fine-pointer {
+      min-block-size: calc(var(--spacing) * 8);
+    }
+
+    @include mixins.hover {
+      color: var(--nuv-reasoning-trigger-hover-fg, var(--color-foreground));
+    }
+
+    @include mixins.focus-ring;
+  }
+
+  .nuv-reasoning__chevron {
+    flex: none;
+
+    @include mixins.motion-safe {
+      transition: transform var(--nuv-duration-base) var(--ease-out);
+    }
+  }
+
+  .nuv-reasoning__trigger[data-state="open"] .nuv-reasoning__chevron {
+    transform: rotate(180deg);
+  }
+
+  .nuv-reasoning__content {
+    align-self: stretch;
+  }
+
+  // Set in from the reply by a line down its side, so it reads as an
+  // aside. The padding is here and not on the part whose height is
+  // animated, where it would make it jump as it closes.
+  .nuv-reasoning__body {
+    margin-block-start: calc(var(--spacing) * 1);
+    padding-inline-start: calc(var(--spacing) * 3);
+    border-inline-start: 2px solid
+      var(--nuv-reasoning-line, var(--color-border));
+    color: var(--nuv-reasoning-fg, var(--color-muted-foreground));
+    overflow-wrap: anywhere;
+  }
+
+  .nuv-reasoning__steps {
+    display: grid;
+    gap: calc(var(--spacing) * 2.5);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .nuv-reasoning__step {
+    display: flex;
+    gap: calc(var(--spacing) * 2);
+    align-items: flex-start;
+    min-inline-size: 0;
+  }
+
+  // As tall as a line of the label, so the tick sits beside its first
+  // line.
+  .nuv-reasoning__marker {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    block-size: calc(var(--text-sm) * var(--text-sm--line-height));
+  }
+
+  .nuv-reasoning__text {
+    display: grid;
+    flex: 1;
+    gap: calc(var(--spacing) * 0.5);
+    min-inline-size: 0;
+  }
+
+  .nuv-reasoning__label {
+    color: var(--nuv-reasoning-label-fg, var(--color-foreground));
+  }
+
+  .nuv-reasoning__detail {
+    font-size: var(--text-xs);
+    line-height: var(--text-xs--line-height);
+  }
+}

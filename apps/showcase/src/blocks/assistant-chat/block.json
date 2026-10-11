@@ -1,7 +1,7 @@
 {
   "name": "assistant-chat",
   "title": "Assistant chat",
-  "description": "A whole conversation with an assistant: messages that follow a reply as it arrives, prompts to start from, copy and try again under each answer, and a box to write in that sends on Enter and stops a reply.",
+  "description": "A whole conversation with an assistant: messages that follow a reply as it arrives, prompts to start from, copy and try again under each answer, and a box to write in that sends on Enter, takes files and stops a reply.",
   "category": "chat",
   "files": ["assistant-chat.tsx", "assistant-chat.scss"],
   "install": ["@nuvui/chat", "@nuvui/react"],

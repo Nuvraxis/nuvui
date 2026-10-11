@@ -5,8 +5,11 @@
   // The frame is the form's. The field inside has none of its own, so
   // the field and the row under it read as one box. When the field has
   // focus from the keyboard, the ring goes round the whole of it.
+  // Positioned, so the words for a screen reader inside it are placed
+  // against it and not against the page.
   .nuv-prompt-input {
     display: flex;
+    position: relative;
     flex: none;
     flex-direction: column;
     gap: calc(var(--spacing) * 2);
@@ -29,6 +32,31 @@
       opacity: var(--nuv-disabled-opacity);
       cursor: not-allowed;
     }
+
+    // Files are over it and can be let go. The edge is dashed as well as
+    // colored, for anyone the color doesn't reach.
+    &[data-dragging] {
+      border-style: dashed;
+      border-color: var(--nuv-prompt-input-drop-border, var(--color-primary));
+      background-color: var(--nuv-prompt-input-drop-bg, var(--color-muted));
+    }
+  }
+
+  // The files that are waiting sit on the box's own background, and the
+  // pointer over them is the usual one.
+  .nuv-prompt-input__attachments {
+    cursor: default;
+  }
+
+  // That a file was added or taken out: for a screen reader, and drawn
+  // for nobody.
+  .nuv-prompt-input__status {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
 
   // Sixteen pixels on a touch screen: under that, iOS zooms the page in
@@ -84,6 +112,49 @@
     gap: calc(var(--spacing) * 1);
     align-items: center;
     min-inline-size: 0;
+  }
+
+  // An icon and nothing else, as large as the button to send.
+  .nuv-prompt-input__attach {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    inline-size: var(--nuv-touch-size);
+    block-size: var(--nuv-touch-size);
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-full);
+    background: none;
+    color: var(--nuv-prompt-input-attach-fg, var(--color-muted-foreground));
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+
+    @include mixins.motion-safe {
+      transition:
+        background-color var(--nuv-duration-fast) var(--ease-out),
+        color var(--nuv-duration-fast) var(--ease-out);
+    }
+
+    @include mixins.fine-pointer {
+      inline-size: calc(var(--spacing) * 9);
+      block-size: calc(var(--spacing) * 9);
+    }
+
+    @include mixins.hover {
+      background-color: var(
+        --nuv-prompt-input-attach-hover-bg,
+        var(--color-muted)
+      );
+      color: var(--nuv-prompt-input-attach-hover-fg, var(--color-foreground));
+    }
+
+    @include mixins.focus-ring;
+
+    &:disabled {
+      cursor: not-allowed;
+    }
   }
 
   // Round, in the primary color. With nothing to send it's faded and

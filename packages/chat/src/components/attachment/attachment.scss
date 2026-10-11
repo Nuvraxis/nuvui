@@ -1,0 +1,149 @@
+@use "../../styles/layers";
+@use "@nuvui/react/scss/mixins";
+
+@layer components {
+  .nuv-attachments {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--nuv-attachment-gap, calc(var(--spacing) * 2));
+    min-inline-size: 0;
+    max-inline-size: 100%;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  // A picture, the name over a line about it, and the button that takes
+  // it out. No wider than the row it's in, and no wider than a name needs
+  // to be told from the next.
+  .nuv-attachment {
+    display: flex;
+    gap: calc(var(--spacing) * 2);
+    align-items: center;
+    box-sizing: border-box;
+    min-inline-size: 0;
+    max-inline-size: min(100%, var(--nuv-attachment-max-width, 16rem));
+    padding: calc(var(--spacing) * 1.5);
+    padding-inline-end: calc(var(--spacing) * 3);
+    border: var(--nuv-border-width) solid
+      var(--nuv-attachment-border, var(--color-border));
+    border-radius: var(--nuv-attachment-radius, var(--radius-lg));
+    background-color: var(--nuv-attachment-bg, var(--color-background));
+    color: var(--nuv-attachment-fg, var(--color-foreground));
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+  }
+
+  // The button is the last thing in it, and brings its own room.
+  .nuv-attachment:has(.nuv-attachment__remove) {
+    padding-inline-end: calc(var(--spacing) * 1);
+  }
+
+  // A failed file is told by its words. The edge is for the eye.
+  .nuv-attachment[data-error] {
+    border-color: var(--nuv-attachment-error-border, var(--color-danger));
+  }
+
+  .nuv-attachment__picture {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--nuv-attachment-picture-size, calc(var(--spacing) * 9));
+    block-size: var(--nuv-attachment-picture-size, calc(var(--spacing) * 9));
+    overflow: hidden;
+    border-radius: var(--radius-md);
+    background-color: var(--nuv-attachment-picture-bg, var(--color-muted));
+    color: var(--nuv-attachment-picture-fg, var(--color-muted-foreground));
+  }
+
+  .nuv-attachment__image {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+  }
+
+  .nuv-attachment__text {
+    display: grid;
+    flex: 1;
+    min-inline-size: 0;
+  }
+
+  // One line, cut short where the file's box ends. The whole name is its
+  // title.
+  .nuv-attachment__name {
+    overflow: hidden;
+    border-radius: var(--radius-sm);
+    color: inherit;
+    font-weight: var(--font-weight-medium);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    @include mixins.focus-ring(0);
+  }
+
+  // A link is underlined, so it isn't told from a plain name by color
+  // alone.
+  a.nuv-attachment__name {
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  .nuv-attachment__detail,
+  .nuv-attachment__error {
+    display: flex;
+    gap: calc(var(--spacing) * 1.5);
+    min-inline-size: 0;
+    font-size: var(--text-xs);
+    line-height: var(--text-xs--line-height);
+  }
+
+  .nuv-attachment__detail {
+    overflow: hidden;
+    color: var(--nuv-attachment-detail-fg, var(--color-muted-foreground));
+    white-space: nowrap;
+  }
+
+  .nuv-attachment__error {
+    color: var(--nuv-attachment-error-fg, var(--color-danger));
+    overflow-wrap: anywhere;
+  }
+
+  // As large as a finger needs on a touch screen, and smaller with a
+  // mouse.
+  .nuv-attachment__remove {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    inline-size: var(--nuv-touch-size);
+    block-size: var(--nuv-touch-size);
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-md);
+    background: none;
+    color: var(--nuv-attachment-remove-fg, var(--color-muted-foreground));
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+
+    @include mixins.motion-safe {
+      transition:
+        background-color var(--nuv-duration-fast) var(--ease-out),
+        color var(--nuv-duration-fast) var(--ease-out);
+    }
+
+    @include mixins.fine-pointer {
+      inline-size: calc(var(--spacing) * 7);
+      block-size: calc(var(--spacing) * 7);
+    }
+
+    @include mixins.hover {
+      background-color: var(--nuv-attachment-remove-hover-bg, var(--color-muted));
+      color: var(--nuv-attachment-remove-hover-fg, var(--color-foreground));
+    }
+
+    @include mixins.focus-ring;
+  }
+}

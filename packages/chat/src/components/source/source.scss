@@ -1,0 +1,130 @@
+@use "../../styles/layers";
+@use "@nuvui/react/scss/mixins";
+
+@layer components {
+  .nuv-sources {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    min-inline-size: 0;
+    max-inline-size: 100%;
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+  }
+
+  // A line of text with an arrow after it. It's as tall as a finger
+  // needs, and the text sits where a line of the reply would.
+  .nuv-sources__trigger {
+    display: inline-flex;
+    gap: calc(var(--spacing) * 1);
+    align-items: center;
+    box-sizing: border-box;
+    min-block-size: var(--nuv-touch-size);
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: none;
+    color: var(--nuv-source-trigger-fg, var(--color-muted-foreground));
+    font: inherit;
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+
+    @include mixins.fine-pointer {
+      min-block-size: calc(var(--spacing) * 8);
+    }
+
+    @include mixins.hover {
+      color: var(--nuv-source-trigger-hover-fg, var(--color-foreground));
+    }
+
+    @include mixins.focus-ring;
+  }
+
+  .nuv-sources__chevron {
+    flex: none;
+
+    @include mixins.motion-safe {
+      transition: transform var(--nuv-duration-base) var(--ease-out);
+    }
+  }
+
+  .nuv-sources__trigger[data-state="open"] .nuv-sources__chevron {
+    transform: rotate(180deg);
+  }
+
+  // As wide as the reply, so the list has the room.
+  .nuv-sources__content {
+    align-self: stretch;
+  }
+
+  .nuv-sources__list {
+    display: grid;
+    gap: calc(var(--spacing) * 1);
+    margin: 0;
+    padding: calc(var(--spacing) * 1) 0 0;
+    list-style: none;
+    counter-reset: nuv-source;
+  }
+
+  .nuv-sources__item {
+    min-inline-size: 0;
+    counter-increment: nuv-source;
+  }
+
+  // The number, and beside it the title over where it's from. The number
+  // is drawn, and the list says it to a screen reader.
+  .nuv-source {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: calc(var(--spacing) * 2.5);
+    align-items: start;
+    box-sizing: border-box;
+    min-block-size: var(--nuv-touch-size);
+    padding: calc(var(--spacing) * 1.5) calc(var(--spacing) * 2);
+    border-radius: var(--radius-md);
+    color: var(--nuv-source-fg, var(--color-foreground));
+    text-decoration: none;
+
+    &::before {
+      display: inline-flex;
+      grid-row: 1 / span 2;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+      min-inline-size: calc(var(--spacing) * 5);
+      block-size: calc(var(--spacing) * 5);
+      padding-inline: calc(var(--spacing) * 1);
+      border-radius: var(--radius-sm);
+      background-color: var(--nuv-source-number-bg, var(--color-muted));
+      color: var(--nuv-source-number-fg, var(--color-muted-foreground));
+      font-size: var(--text-xs);
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+      content: counter(nuv-source);
+    }
+
+    @include mixins.hover {
+      background-color: var(--nuv-source-hover-bg, var(--color-muted));
+    }
+
+    @include mixins.focus-ring(-2px);
+  }
+
+  // Underlined, so that it reads as a link without the pointer over it.
+  .nuv-source__title {
+    grid-column: 2;
+    font-weight: var(--font-weight-medium);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+    overflow-wrap: anywhere;
+  }
+
+  .nuv-source__site {
+    grid-column: 2;
+    color: var(--nuv-source-site-fg, var(--color-muted-foreground));
+    font-size: var(--text-xs);
+    line-height: var(--text-xs--line-height);
+    overflow-wrap: anywhere;
+  }
+}

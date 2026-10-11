@@ -14,7 +14,7 @@ const gap = (log: Locator) =>
 const send = (within: Locator) => within.getByRole("button", { name: "Send" });
 
 test.describe("chat start page", () => {
-  test("says what to install and names the five components", async ({
+  test("says what to install and names the ten components", async ({
     page,
   }) => {
     await open(page, "/docs/chat");
@@ -29,6 +29,11 @@ test.describe("chat start page", () => {
       ["MessageLoader", "message-loader"],
       ["PromptInput", "prompt-input"],
       ["PromptSuggestion", "prompt-suggestion"],
+      ["Attachment", "attachment"],
+      ["Source", "source"],
+      ["ToolCall", "tool-call"],
+      ["Reasoning", "reasoning"],
+      ["ThreadList", "thread-list"],
     ]) {
       await expect(
         article.getByRole("link", { name: name ?? "", exact: true }),
@@ -446,5 +451,479 @@ test.describe("prompt suggestion page", () => {
     await expect(field).toHaveValue("Who hasn't paid yet?");
     await expect(field).toBeFocused();
     await expect(send(area)).not.toHaveAttribute("aria-disabled", "true");
+  });
+});
+
+// A picture a pixel wide, and two small files that aren't one.
+const png = Buffer.from(
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==",
+  "base64",
+);
+const picture = (name: string, copies = 1) => ({
+  name,
+  mimeType: "image/png",
+  buffer: Buffer.concat(Array.from({ length: copies }, () => png)),
+});
+const pdf = { name: "terms.pdf", mimeType: "application/pdf", buffer: png };
+const text = { name: "notes.txt", mimeType: "text/plain", buffer: png };
+
+test.describe("prompt input page, files", () => {
+  test.beforeEach(async ({ page }) => {
+    await open(page, "/docs/chat/prompt-input");
+  });
+
+  const area = (page: Page) => preview(page, "prompt-input/files");
+  const picker = (page: Page) => area(page).locator('input[type="file"]');
+  const waiting = (page: Page) =>
+    area(page).getByRole("list", { name: "Files to send" });
+
+  test("picked files wait in the box, one that isn't allowed is turned away with a reason, and a picture shows itself", async ({
+    page,
+  }) => {
+    await expect(
+      area(page).getByRole("button", { name: "Attach files" }),
+    ).toBeVisible();
+    await expect(waiting(page)).toHaveCount(0);
+
+    await picker(page).setInputFiles([picture("shot.png"), pdf, text]);
+
+    await expect(waiting(page).getByRole("listitem")).toHaveCount(2);
+    await expect(waiting(page).locator(".nuv-attachment__name")).toHaveText([
+      "shot.png",
+      "terms.pdf",
+    ]);
+    await expect(area(page).getByRole("alert")).toHaveText(
+      "notes.txt isn't a picture or a PDF.",
+    );
+    await expect(waiting(page).locator(".nuv-attachment__image")).toHaveCount(
+      1,
+    );
+    await expect(area(page).locator(".nuv-prompt-input__status")).toHaveText(
+      "2 files attached",
+    );
+  });
+
+  test("a file is taken out by its button, and focus goes to the field", async ({
+    page,
+    isMobile,
+  }) => {
+    await picker(page).setInputFiles([picture("shot.png"), pdf]);
+
+    await press(
+      area(page).getByRole("button", { name: "Remove shot.png" }),
+      isMobile,
+    );
+
+    await expect(waiting(page).locator(".nuv-attachment__name")).toHaveText([
+      "terms.pdf",
+    ]);
+    await expect(
+      area(page).getByRole("textbox", { name: "Message" }),
+    ).toBeFocused();
+    await expect(area(page).locator(".nuv-prompt-input__status")).toHaveText(
+      "1 file attached",
+    );
+  });
+
+  test("one more than three is turned away, and the rest are sent with no text", async ({
+    page,
+    isMobile,
+  }) => {
+    await expect(send(area(page))).toHaveAttribute("aria-disabled", "true");
+
+    await picker(page).setInputFiles([
+      picture("a.png"),
+      picture("b.png", 2),
+      picture("c.png", 3),
+      picture("d.png", 4),
+    ]);
+
+    await expect(waiting(page).getByRole("listitem")).toHaveCount(3);
+    await expect(area(page).getByRole("alert")).toHaveText(
+      "d.png is one more than three.",
+    );
+    await expect(send(area(page))).not.toHaveAttribute("aria-disabled", "true");
+    await press(send(area(page)), isMobile);
+
+    await expect(area(page).getByRole("status").last()).toHaveText(
+      'Sent "" with 3 files.',
+    );
+    await expect(waiting(page)).toHaveCount(0);
+  });
+
+  test("the files wrap inside the box, and nothing is wider than the page", async ({
+    page,
+  }) => {
+    await picker(page).setInputFiles([
+      picture("a-picture-with-quite-a-long-name-to-it.png"),
+      picture("another-picture-with-a-long-name.png", 2),
+      pdf,
+    ]);
+    await expect(waiting(page).getByRole("listitem")).toHaveCount(3);
+    const box = await area(page).locator(".nuv-prompt-input").boundingBox();
+
+    for (const item of await waiting(page).getByRole("listitem").all()) {
+      const file = await item.boundingBox();
+      expect((file?.x ?? 0) + (file?.width ?? 0)).toBeLessThanOrEqual(
+        (box?.x ?? 0) + (box?.width ?? 0),
+      );
+    }
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= window.innerWidth,
+      ),
+    ).toBe(true);
+  });
+});
+
+test.describe("attachment page", () => {
+  test.beforeEach(async ({ page }) => {
+    await open(page, "/docs/chat/attachment");
+  });
+
+  test("the files of a message are a named list of links, one with its picture", async ({
+    page,
+  }) => {
+    const area = preview(page, "attachment/basic");
+    const list = area.getByRole("list", { name: "Files with this message" });
+
+    await expect(list.getByRole("listitem")).toHaveCount(2);
+    await expect(
+      list.getByRole("link", { name: "october-invoices.pdf" }),
+    ).toHaveAttribute("href", "#october-invoices");
+    await expect(list.locator(".nuv-attachment__image")).toHaveCount(1);
+    // In the person's own message, so at the end of the row.
+    const row = await area.locator(".nuv-message").boundingBox();
+    const files = await list.boundingBox();
+    expect(
+      Math.abs(
+        (files?.x ?? 0) +
+          (files?.width ?? 0) -
+          ((row?.x ?? 0) + (row?.width ?? 0)),
+      ),
+    ).toBeLessThanOrEqual(1);
+  });
+
+  test("one is uploading, one failed and says why, and a button takes each out", async ({
+    page,
+    isMobile,
+  }) => {
+    const area = preview(page, "attachment/states");
+    const list = area.getByRole("list", { name: "Files to send" });
+
+    await expect(list.locator('[aria-busy="true"]')).toHaveText(
+      /site-photos\.zip\s*Uploading/,
+    );
+    await expect(list.locator("[data-error]")).toContainText(
+      "Too large. The limit is 25 MB.",
+    );
+
+    await press(
+      list.getByRole("button", { name: "Remove scan-0042.tiff" }),
+      isMobile,
+    );
+
+    await expect(list.getByRole("listitem")).toHaveCount(2);
+    await expect(area.getByRole("status")).toHaveText("2 of 3 files left.");
+  });
+});
+
+test.describe("source page", () => {
+  test("the sources are closed until asked for, then a numbered list of links, each with where it's from", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/docs/chat/source");
+    const area = preview(page, "source/basic");
+    const trigger = area.getByRole("button", { name: "3 sources" });
+
+    await expect(trigger).toHaveAttribute("aria-expanded", "false");
+    await expect(area.getByRole("link")).toHaveCount(0);
+
+    await press(trigger, isMobile);
+
+    await expect(trigger).toHaveAttribute("aria-expanded", "true");
+    await expect(area.getByRole("list").getByRole("listitem")).toHaveCount(3);
+    await expect(
+      area.getByRole("link", { name: /Payment terms/ }),
+    ).toHaveAttribute("href", "https://example.com/help/payment-terms");
+    await expect(area.locator(".nuv-source__site")).toHaveText([
+      "example.com",
+      "example.com",
+      "Your workspace",
+    ]);
+
+    await press(trigger, isMobile);
+    await expect(area.getByRole("link")).toHaveCount(0);
+  });
+
+  test("the keyboard opens the list and reaches each source", async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(isMobile, "a phone has no Tab key");
+    await open(page, "/docs/chat/source");
+    const area = preview(page, "source/basic");
+    const trigger = area.getByRole("button", { name: "3 sources" });
+
+    await trigger.focus();
+    await page.keyboard.press("Enter");
+    await expect(area.getByRole("link")).toHaveCount(3);
+    await page.keyboard.press("Tab");
+
+    await expect(area.getByRole("link").first()).toBeFocused();
+  });
+});
+
+test.describe("tool call page", () => {
+  test.beforeEach(async ({ page }) => {
+    await open(page, "/docs/chat/tool-call");
+  });
+
+  test("each card says its tool and where the call stands, and opens to what was asked and what came back", async ({
+    page,
+    isMobile,
+  }) => {
+    const area = preview(page, "tool-call/basic");
+    const done = area.getByRole("button", { name: "Search invoices Done" });
+    const failed = area.getByRole("button", {
+      name: "Read the bank feed Failed",
+    });
+
+    await expect(done).toHaveAttribute("aria-expanded", "true");
+    await expect(
+      area.getByRole("button", { name: "Look up the customer Running" }),
+    ).toHaveAttribute("aria-expanded", "false");
+    await expect(area.getByRole("group", { name: "Result" })).toContainText(
+      '"number": "INV-1042"',
+    );
+
+    await press(failed, isMobile);
+
+    await expect(failed).toHaveAttribute("aria-expanded", "true");
+    await expect(area.locator(".nuv-tool-call__error")).toHaveText(
+      "The bank didn't answer within 30 seconds.",
+    );
+  });
+
+  test("a call that waits shows its question with the card closed, and approving runs it", async ({
+    page,
+    isMobile,
+  }) => {
+    const area = preview(page, "tool-call/approval");
+    const card = area.locator(".nuv-tool-call__trigger");
+    const approval = area.getByRole("group", { name: "Approval" });
+
+    await expect(card).toHaveText(/Send a reminder\s*Needs approval/);
+    await expect(card).toHaveAttribute("aria-expanded", "false");
+    await expect(approval).toContainText(
+      "Send a reminder for INV-1042 to Contoso?",
+    );
+
+    await press(approval.getByRole("button", { name: "Approve" }), isMobile);
+
+    await expect(card).toHaveText(/Send a reminder\s*Running/);
+    await expect(approval).toHaveCount(0);
+    await expect(card).toHaveText(/Send a reminder\s*Done/);
+    await press(card, isMobile);
+    await expect(area.getByRole("group", { name: "Result" })).toHaveText(
+      "Sent at 10:42.",
+    );
+  });
+
+  test("the keyboard approves, and focus is on the card after and not lost", async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(isMobile, "a phone has no Tab key");
+    const area = preview(page, "tool-call/approval");
+    const card = area.locator(".nuv-tool-call__trigger");
+
+    await area.getByRole("button", { name: "Approve" }).focus();
+    await page.keyboard.press("Enter");
+
+    await expect(card).toBeFocused();
+    await expect(area.getByRole("group", { name: "Approval" })).toHaveCount(0);
+  });
+
+  test("denying says so, and nothing runs", async ({ page, isMobile }) => {
+    const area = preview(page, "tool-call/approval");
+
+    await press(area.getByRole("button", { name: "Deny" }), isMobile);
+
+    await expect(area.locator(".nuv-tool-call__trigger")).toHaveText(
+      /Send a reminder\s*Denied/,
+    );
+    await expect(area.getByRole("group", { name: "Approval" })).toHaveCount(0);
+  });
+});
+
+test.describe("reasoning page", () => {
+  test.beforeEach(async ({ page }) => {
+    await open(page, "/docs/chat/reasoning");
+  });
+
+  test("the steps are a list under a line that closes and opens them", async ({
+    page,
+    isMobile,
+  }) => {
+    const area = preview(page, "reasoning/basic");
+    const trigger = area.getByRole("button", { name: "Thought for 6 seconds" });
+
+    await expect(trigger).toHaveAttribute("aria-expanded", "true");
+    await expect(area.getByRole("listitem")).toHaveCount(3);
+
+    await press(trigger, isMobile);
+
+    await expect(trigger).toHaveAttribute("aria-expanded", "false");
+    await expect(area.getByRole("listitem")).toHaveCount(0);
+  });
+
+  test("while the assistant works the steps are open and arrive one by one, and they close when the reply is there", async ({
+    page,
+    isMobile,
+  }) => {
+    const area = preview(page, "reasoning/streaming");
+    const trigger = area.locator(".nuv-reasoning__trigger");
+    await expect(trigger).toHaveAttribute("aria-expanded", "false");
+
+    await press(area.getByRole("button", { name: "Ask again" }), isMobile);
+
+    await expect(trigger).toHaveAttribute("aria-expanded", "true");
+    await expect(trigger).toHaveText("Thinking");
+    await expect(area.locator('[aria-current="step"]')).toHaveCount(1);
+    await expect(area.locator('.nuv-message[aria-busy="true"]')).toHaveCount(1);
+    // Until it's done.
+    await expect(trigger).toHaveText("Thought for 3 seconds", {
+      timeout: 15_000,
+    });
+    await expect(trigger).toHaveAttribute("aria-expanded", "false");
+    await expect(area.locator('[aria-busy="true"]')).toHaveCount(0);
+    await expect(area.locator(".nuv-message__content")).toContainText(
+      "Two invoices are overdue",
+    );
+  });
+
+  test("closed by the reader while it works, and opened again, they stay open when it's done", async ({
+    page,
+    isMobile,
+  }) => {
+    const area = preview(page, "reasoning/streaming");
+    const trigger = area.locator(".nuv-reasoning__trigger");
+
+    await press(area.getByRole("button", { name: "Ask again" }), isMobile);
+    await expect(trigger).toHaveAttribute("aria-expanded", "true");
+    await press(trigger, isMobile);
+    await expect(trigger).toHaveAttribute("aria-expanded", "false");
+    await press(trigger, isMobile);
+
+    await expect(trigger).toHaveText("Thought for 3 seconds", {
+      timeout: 15_000,
+    });
+    await expect(trigger).toHaveAttribute("aria-expanded", "true");
+    await expect(area.getByRole("listitem")).toHaveCount(3);
+  });
+});
+
+test.describe("thread list page", () => {
+  test.beforeEach(async ({ page }) => {
+    await open(page, "/docs/chat/thread-list");
+  });
+
+  const area = (page: Page) => preview(page, "thread-list/basic");
+  const list = (page: Page) =>
+    area(page).getByRole("grid", { name: "Conversations" });
+
+  test("the conversations are rows under two headings, one is open, and a press opens another", async ({
+    page,
+    isMobile,
+  }) => {
+    await expect(list(page).getByRole("row")).toHaveCount(4);
+    await expect(list(page).getByRole("rowgroup")).toHaveCount(2);
+    await expect(list(page).locator(".nuv-thread-list__heading")).toHaveText([
+      "Today",
+      "Yesterday",
+    ]);
+    await expect(list(page).locator('[aria-selected="true"]')).toHaveText(
+      "Overdue invoices for Contoso",
+    );
+
+    await press(
+      list(page).getByRole("row", { name: /What our payment terms say/ }),
+      isMobile,
+    );
+
+    await expect(area(page).getByRole("status")).toHaveText(
+      "Open: What our payment terms say",
+    );
+    await expect(list(page).locator('[aria-selected="true"]')).toHaveCount(1);
+  });
+
+  test("a long title is cut short and the list stays as wide as it was", async ({
+    page,
+  }) => {
+    const row = list(page).getByRole("row").nth(3);
+    const title = row.locator(".nuv-thread-list__title");
+
+    expect(
+      await title.evaluate(
+        (element) => element.scrollWidth > element.clientWidth,
+      ),
+    ).toBe(true);
+    const box = await list(page).boundingBox();
+    const size = await row.boundingBox();
+    expect((size?.x ?? 0) + (size?.width ?? 0)).toBeLessThanOrEqual(
+      (box?.x ?? 0) + (box?.width ?? 0) + 0.5,
+    );
+  });
+
+  test("the arrows move without opening, Enter opens, and Tab goes into the row's button and then out", async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(isMobile, "a phone has no arrow keys");
+    const rows = list(page).getByRole("row");
+
+    await rows.nth(0).focus();
+    await page.keyboard.press("ArrowDown");
+    await expect(rows.nth(1)).toBeFocused();
+    await expect(area(page).getByRole("status")).toHaveText(
+      "Open: Overdue invoices for Contoso",
+    );
+
+    await page.keyboard.press("Enter");
+    await expect(area(page).getByRole("status")).toHaveText(
+      "Open: Draft a payment reminder",
+    );
+
+    await page.keyboard.press("Tab");
+    await expect(
+      list(page).getByRole("button", {
+        name: "Delete Draft a payment reminder",
+      }),
+    ).toBeFocused();
+    await page.keyboard.press("Tab");
+    expect(
+      await page.evaluate(
+        () => document.activeElement?.closest('[role="grid"]') === null,
+      ),
+    ).toBe(true);
+  });
+
+  test("a row's button does its own work: the row goes, and no other is opened by it", async ({
+    page,
+    isMobile,
+  }) => {
+    await press(
+      list(page).getByRole("button", {
+        name: "Delete What our payment terms say",
+      }),
+      isMobile,
+    );
+
+    await expect(list(page).getByRole("row")).toHaveCount(3);
+    await expect(area(page).getByRole("status")).toHaveText(
+      "Open: Overdue invoices for Contoso",
+    );
   });
 });

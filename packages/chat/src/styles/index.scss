@@ -1,6 +1,11 @@
 @use "layers";
+@use "../components/attachment/attachment";
 @use "../components/conversation/conversation";
 @use "../components/message/message";
 @use "../components/message-loader/message-loader";
 @use "../components/prompt-input/prompt-input";
 @use "../components/prompt-suggestion/prompt-suggestion";
+@use "../components/reasoning/reasoning";
+@use "../components/source/source";
+@use "../components/thread-list/thread-list";
+@use "../components/tool-call/tool-call";

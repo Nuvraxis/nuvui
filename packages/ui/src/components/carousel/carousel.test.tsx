@@ -783,6 +783,17 @@ describe("layout", () => {
     );
   });
 
+  test("with a mouse a dot's button is 24px both ways at least", async () => {
+    await setViewport("desktop");
+    await render(<Tour />);
+    await ready();
+
+    for (const dot of dots()) {
+      expect(rect(dot).width).toBeGreaterThanOrEqual(24);
+      expect(rect(dot).height).toBe(24);
+    }
+  });
+
   test("each dot's button is its own to press: none covers another", async () => {
     await render(<Tour />);
     await ready();

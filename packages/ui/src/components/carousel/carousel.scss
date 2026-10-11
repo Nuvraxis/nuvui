@@ -134,8 +134,10 @@
 
   // A dot is small, and it's drawn inside a button that's larger: what
   // takes a press is the button. With a finger that's as tall as any
-  // control here, and wide enough that two aren't pressed at once. The
-  // buttons touch, so the space between two dots is theirs as well.
+  // control here, and wide enough that two aren't pressed at once. With a
+  // mouse it's as tall as it is wide, which is the least a target may be
+  // (WCAG 2.5.8). The buttons touch, so the space between two dots is
+  // theirs as well.
   .nuv-carousel__dot {
     display: grid;
     flex: none;
@@ -151,8 +153,7 @@
     -webkit-tap-highlight-color: transparent;
 
     @include mixins.fine-pointer {
-      min-inline-size: 0;
-      block-size: calc(var(--nuv-carousel-dot-size, calc(var(--spacing) * 2)) * 2);
+      block-size: var(--nuv-carousel-dot-target, calc(var(--spacing) * 6));
     }
 
     @include mixins.focus-ring;

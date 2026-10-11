@@ -542,13 +542,28 @@ describe("a press on the box", () => {
     expect(document.activeElement).toBe(field());
   });
 
-  test("on a button in the row presses the button, and leaves focus on it", async () => {
-    await render(<Box />);
-    const attach = page.getByRole("button", { name: "Attach" });
+  test("on a button in the row presses the button, and doesn't move focus to the field", async () => {
+    const onClick = vi.fn();
+    await render(
+      <PromptInput data-testid="box" style={{ width: 320 }}>
+        <PromptInputTextarea aria-label="Message" />
+        <PromptInputToolbar>
+          <PromptInputTools>
+            <Button type="button" intent="ghost" size="sm" onClick={onClick}>
+              Attach
+            </Button>
+          </PromptInputTools>
+          <PromptInputSubmit />
+        </PromptInputToolbar>
+      </PromptInput>,
+    );
 
-    await attach.click();
+    await page.getByRole("button", { name: "Attach" }).click();
 
-    expect(document.activeElement).toBe(attach.element());
+    expect(onClick).toHaveBeenCalledTimes(1);
+    // Where focus is after a press on a button is the browser's: on the
+    // button in most, and nowhere in Safari. It isn't in the field.
+    expect(document.activeElement).not.toBe(field());
   });
 
   test("that you've handled yourself is left alone", async () => {

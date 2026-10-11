@@ -148,6 +148,16 @@
         "default": "./dist/components/card/index.cjs"
       }
     },
+    "./carousel": {
+      "import": {
+        "types": "./dist/components/carousel/index.d.ts",
+        "default": "./dist/components/carousel/index.js"
+      },
+      "require": {
+        "types": "./dist/components/carousel/index.d.cts",
+        "default": "./dist/components/carousel/index.cjs"
+      }
+    },
     "./checkbox": {
       "import": {
         "types": "./dist/components/checkbox/index.d.ts",
@@ -834,6 +844,7 @@
     "@radix-ui/react-tooltip": "^1.3.0",
     "@radix-ui/react-use-controllable-state": "^1.2.6",
     "cmdk": "^1.1.1",
+    "embla-carousel-react": "^8.6.0",
     "react-resizable-panels": "^4.14.3"
   }
 }

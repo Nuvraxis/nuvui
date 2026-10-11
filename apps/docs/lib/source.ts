@@ -4,7 +4,11 @@ import { defineDocs } from "fumadocs-mdx/macro";
 
 const docs = defineDocs({
   dir: "content/docs",
-  docs: { schema: pageSchema },
+  // `added` is the day a page's component was built, written as
+  // 2026-10-11. It puts "New" beside the page's name for a while:
+  // components/new-badge.tsx says how long, and checks how it's written.
+  // It's a piece of text that may be left out, as a description is.
+  docs: { schema: pageSchema.extend({ added: pageSchema.shape.description }) },
   meta: { schema: metaSchema },
 });
 

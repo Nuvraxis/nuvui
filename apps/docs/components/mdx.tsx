@@ -13,6 +13,7 @@ import { BreadcrumbPlayground } from "@/components/playground/breadcrumb";
 import { ButtonPlayground } from "@/components/playground/button";
 import { ButtonGroupPlayground } from "@/components/playground/button-group";
 import { CardPlayground } from "@/components/playground/card";
+import { CarouselPlayground } from "@/components/playground/carousel";
 import { CheckboxPlayground } from "@/components/playground/checkbox";
 import { ChoiceCardPlayground } from "@/components/playground/choice-card";
 import { CollapsiblePlayground } from "@/components/playground/collapsible";
@@ -124,6 +125,7 @@ export function getMDXComponents(components?: MDXComponents) {
     ButtonGroupPlayground,
     CalendarPlayground,
     CardPlayground,
+    CarouselPlayground,
     CheckboxPlayground,
     ChoiceCardPlayground,
     CollapsiblePlayground,

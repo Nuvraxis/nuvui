@@ -1797,6 +1797,29 @@ describe("tree", () => {
     ).toBeGreaterThan(3);
   });
 
+  test("the line and the ring where dragged rows would go are still drawn", async () => {
+    await render(
+      <Tree aria-label="Files" onMove={() => {}}>
+        <TreeItem value="a" label="a.txt" />
+        <TreeItem value="b" label="b.txt" />
+      </Tree>,
+    );
+    const item = page
+      .getByRole("treeitem", { name: "b.txt" })
+      .element() as HTMLElement;
+
+    item.dataset.drop = "before";
+    const line = getComputedStyle(item, "::before");
+    expect(line.borderTopStyle).toBe("solid");
+    expect(line.borderTopWidth).toBe("2px");
+    expect(contrast(line.borderTopColor, canvas())).toBeGreaterThan(3);
+
+    item.dataset.drop = "inside";
+    const face = style(item.querySelector(".nuv-tree__row") as Element);
+    expect(face.outlineStyle).toBe("solid");
+    expect(contrast(face.outlineColor, canvas())).toBeGreaterThan(3);
+  });
+
   test("the line down the side of the rows inside a row is still drawn", async () => {
     await render(
       <Tree aria-label="Files" defaultExpanded={["src"]}>

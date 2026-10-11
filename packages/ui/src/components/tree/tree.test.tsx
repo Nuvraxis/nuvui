@@ -10,7 +10,7 @@ import { Component, createRef, type ReactNode, useState } from "react";
 import { describe, expect, test, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
-import { Tree, TreeItem, type TreeProps } from "./tree";
+import { Tree, TreeItem, type TreeMove, type TreeProps } from "./tree";
 
 // A small set of files. `src` and `test` open, and `notes` can't be used.
 function Files(props: Partial<TreeProps>) {
@@ -54,6 +54,120 @@ const style = (element: Element) => getComputedStyle(element);
 const rect = (element: Element) => element.getBoundingClientRect();
 const rowBox = (name: string) =>
   rowEl(name).querySelector(":scope > .nuv-tree__row") as HTMLElement;
+
+// Rows that really move: the data changes when the tree says it should.
+interface Entry {
+  id: string;
+  inside?: Entry[];
+}
+
+const outline: Entry[] = [
+  { id: "a", inside: [{ id: "a1" }, { id: "a2" }] },
+  { id: "b", inside: [{ id: "b1" }] },
+  { id: "c" },
+];
+
+function moved(entries: Entry[], move: TreeMove): Entry[] {
+  const taken: Entry[] = [];
+  const take = (from: Entry[]): Entry[] =>
+    from.flatMap((entry) => {
+      if (move.values.includes(entry.id)) {
+        taken.push(entry);
+        return [];
+      }
+      return [entry.inside ? { ...entry, inside: take(entry.inside) } : entry];
+    });
+  const put = (into: Entry[]): Entry[] =>
+    into.flatMap((entry) => {
+      if (entry.id !== move.target) {
+        return [entry.inside ? { ...entry, inside: put(entry.inside) } : entry];
+      }
+      if (move.position === "before") return [...taken, entry];
+      if (move.position === "after") return [entry, ...taken];
+      return [{ ...entry, inside: [...(entry.inside ?? []), ...taken] }];
+    });
+  return put(take(entries));
+}
+
+function Outline(props: Partial<TreeProps>) {
+  const [entries, setEntries] = useState(outline);
+  const draw = (list: Entry[]): ReactNode =>
+    list.map((entry) => (
+      <TreeItem key={entry.id} value={entry.id} label={entry.id}>
+        {entry.inside && entry.inside.length > 0 ? draw(entry.inside) : null}
+      </TreeItem>
+    ));
+  return (
+    <Tree
+      aria-label="Files"
+      defaultExpanded={["a"]}
+      onMove={(move) => setEntries((now) => moved(now, move))}
+      {...props}
+    >
+      {draw(entries)}
+    </Tree>
+  );
+}
+
+// Every row shown, with a dash for each row it's inside.
+const shape = () =>
+  Array.from(
+    tree().element().querySelectorAll<HTMLElement>('[role="treeitem"]'),
+  ).map((item) => {
+    let depth = 0;
+    for (
+      let at = item.parentElement;
+      at && at !== tree().element();
+      at = at.parentElement
+    ) {
+      if (at.getAttribute("role") === "group") depth += 1;
+    }
+    return "-".repeat(depth) + item.dataset.value;
+  });
+const status = () => document.querySelector(".nuv-tree__status");
+
+// A pointer, as the events one sends. `part` is how far down the row.
+interface Point {
+  x: number;
+  y: number;
+}
+const pointOn = (name: string, part = 0.5): Point => {
+  const box = rect(rowBox(name));
+  return { x: box.left + box.width / 2, y: box.top + box.height * part };
+};
+const send = (type: string, at: Point, pointerType = "mouse") =>
+  (document.elementFromPoint(at.x, at.y) ?? document.body).dispatchEvent(
+    new PointerEvent(type, {
+      bubbles: true,
+      cancelable: true,
+      pointerId: 1,
+      pointerType,
+      isPrimary: true,
+      button: 0,
+      clientX: at.x,
+      clientY: at.y,
+    }),
+  );
+// Picks a row up with a mouse and carries it to another, without letting go.
+const carry = (from: string, to: string, part: number, x?: number) => {
+  const start = pointOn(from);
+  send("pointerdown", start);
+  send("pointermove", { x: start.x, y: start.y + 6 });
+  const end = pointOn(to, part);
+  if (x !== undefined) end.x = x;
+  send("pointermove", end);
+  return end;
+};
+const drag = (from: string, to: string, part: number, x?: number) =>
+  send("pointerup", carry(from, to, part, x));
+const marked = () =>
+  Array.from(tree().element().querySelectorAll<HTMLElement>("[data-drop]")).map(
+    (item) => `${item.dataset.drop} ${item.dataset.value}`,
+  );
+const dragging = () =>
+  Array.from(
+    tree().element().querySelectorAll<HTMLElement>("li[data-dragging]"),
+  ).map((item) => item.dataset.value);
 
 describe("rendering", () => {
   test("is a tree of rows, and only the rows of open rows are in the page", async () => {
@@ -599,7 +713,671 @@ describe("selecting several", () => {
   });
 });
 
+describe("rows that can be moved", () => {
+  test("without onMove nothing says they can, and Alt and an arrow is left alone", async () => {
+    const onKeyDown = vi.fn();
+    await render(
+      // biome-ignore lint/a11y/noStaticElementInteractions: it listens for what the tree let through
+      <div onKeyDown={(event) => onKeyDown(event.defaultPrevented)}>
+        <Files />
+      </div>,
+    );
+    rowEl("src").focus();
+
+    await userEvent.keyboard("{Alt>}{ArrowDown}{/Alt}");
+
+    expect(status()).toBe(null);
+    expect(rowEl("src").hasAttribute("aria-keyshortcuts")).toBe(false);
+    expect(onKeyDown.mock.calls.at(-1)).toEqual([false]);
+    expect(focused()).toBe("src");
+  });
+
+  test("with onMove a row says its keys, but not a disabled row", async () => {
+    await render(<Files onMove={() => {}} />);
+
+    expect(rowEl("src").getAttribute("aria-keyshortcuts")).toBe(
+      "Alt+ArrowUp Alt+ArrowDown",
+    );
+    expect(rowEl("notes.md").hasAttribute("aria-keyshortcuts")).toBe(false);
+  });
+
+  test("what a screen reader is told is beside the tree, not in it, and drawn for nobody", async () => {
+    await render(<Files onMove={() => {}} />);
+    const said = status() as HTMLElement;
+
+    expect(said.getAttribute("role")).toBe("status");
+    expect(tree().element().contains(said)).toBe(false);
+    expect(tree().element().nextElementSibling).toBe(said);
+    expect(rect(said).width).toBe(1);
+    expect(style(said).position).toBe("absolute");
+  });
+});
+
+describe("moving with the keys", () => {
+  test("Alt and Down says the next place down, which is inside the row below", async () => {
+    const onMove = vi.fn();
+    await render(
+      <Files defaultExpanded={["src", "components"]} onMove={onMove} />,
+    );
+    rowEl("button.tsx").focus();
+
+    await userEvent.keyboard("{Alt>}{ArrowDown}{/Alt}");
+
+    expect(onMove.mock.calls).toEqual([
+      [{ values: ["button"], target: "tree", position: "inside" }],
+    ]);
+    // The tree moves nothing itself.
+    expect(shown().slice(0, 4)).toEqual([
+      "src",
+      "components",
+      "button",
+      "tree",
+    ]);
+  });
+
+  test("a place canDrop refuses is passed by", async () => {
+    const onMove = vi.fn();
+    const canDrop = vi.fn((move: TreeMove) => move.position !== "inside");
+    await render(
+      <Files
+        defaultExpanded={["src", "components"]}
+        onMove={onMove}
+        canDrop={canDrop}
+      />,
+    );
+    rowEl("button.tsx").focus();
+
+    await userEvent.keyboard("{Alt>}{ArrowDown}{/Alt}");
+
+    expect(canDrop).toHaveBeenCalledWith({
+      values: ["button"],
+      target: "tree",
+      position: "inside",
+    });
+    expect(onMove.mock.calls).toEqual([
+      [{ values: ["button"], target: "tree", position: "after" }],
+    ]);
+  });
+
+  test("with nowhere it may go, nothing is said", async () => {
+    const onMove = vi.fn();
+    await render(<Files onMove={onMove} canDrop={() => false} />);
+    rowEl("src").focus();
+
+    await userEvent.keyboard("{Alt>}{ArrowDown}{ArrowUp}{/Alt}");
+
+    expect(onMove).not.toHaveBeenCalled();
+  });
+
+  test("a row walks down through every place, and focus goes with it", async () => {
+    await render(
+      // Only b can be given rows.
+      <Outline
+        canDrop={(move) => move.position !== "inside" || move.target === "b"}
+      />,
+    );
+    rowEl("a1").focus();
+    const down = () => userEvent.keyboard("{Alt>}{ArrowDown}{/Alt}");
+
+    await down();
+    await expect.poll(shape).toEqual(["a", "-a2", "-a1", "b", "c"]);
+    await expect.element(row("a1")).toHaveFocus();
+
+    // Out of the end of the row it was in.
+    await down();
+    await expect.poll(shape).toEqual(["a", "-a2", "a1", "b", "c"]);
+    await expect.element(row("a1")).toHaveFocus();
+
+    // Into a closed row, which opens to show it.
+    await down();
+    await expect.poll(shape).toEqual(["a", "-a2", "b", "-b1", "-a1", "c"]);
+    await expect.element(row("a1")).toHaveFocus();
+    expect(rowEl("b").getAttribute("aria-expanded")).toBe("true");
+
+    await down();
+    await expect.poll(shape).toEqual(["a", "-a2", "b", "-b1", "a1", "c"]);
+    await down();
+    await expect.poll(shape).toEqual(["a", "-a2", "b", "-b1", "c", "a1"]);
+    await expect.element(row("a1")).toHaveFocus();
+
+    // And at the end there's nowhere further.
+    await down();
+    expect(shape()).toEqual(["a", "-a2", "b", "-b1", "c", "a1"]);
+  });
+
+  test("and up again the same way", async () => {
+    await render(
+      <Outline
+        canDrop={(move) => move.position !== "inside" || move.target === "b"}
+      />,
+    );
+    rowEl("c").focus();
+    const up = () => userEvent.keyboard("{Alt>}{ArrowUp}{/Alt}");
+
+    // b is closed, so the place above c is inside it.
+    await up();
+    await expect.poll(shape).toEqual(["a", "-a1", "-a2", "b", "-b1", "-c"]);
+    await expect.element(row("c")).toHaveFocus();
+    await up();
+    await expect.poll(shape).toEqual(["a", "-a1", "-a2", "b", "-c", "-b1"]);
+    await up();
+    await expect.poll(shape).toEqual(["a", "-a1", "-a2", "c", "b", "-b1"]);
+    await up();
+    await expect.poll(shape).toEqual(["a", "-a1", "-a2", "-c", "b", "-b1"]);
+    await expect.element(row("c")).toHaveFocus();
+  });
+
+  test("a row with nothing in it can be given a row, and opens", async () => {
+    await render(<Outline />);
+    rowEl("a1").focus();
+
+    await userEvent.keyboard("{Alt>}{ArrowDown}{/Alt}");
+
+    await expect.poll(shape).toEqual(["a", "-a2", "--a1", "b", "c"]);
+    await expect.element(row("a1")).toHaveFocus();
+  });
+
+  test("a screen reader is told where the row went", async () => {
+    await render(<Outline />);
+    rowEl("a2").focus();
+
+    await userEvent.keyboard("{Alt>}{ArrowUp}{/Alt}");
+    await expect.poll(() => status()?.textContent).toBe("Moved a2 into a1");
+
+    await userEvent.keyboard("{Alt>}{ArrowUp}{/Alt}");
+    await expect.poll(() => status()?.textContent).toBe("Moved a2 before a1");
+  });
+
+  test("in words of yours, with getMoveText", async () => {
+    await render(
+      <Outline
+        getMoveText={(move) =>
+          `${move.values.join()} ${move.position} ${move.target}`
+        }
+      />,
+    );
+    rowEl("c").focus();
+
+    await userEvent.keyboard("{Alt>}{ArrowUp}{/Alt}");
+
+    await expect.poll(() => status()?.textContent).toBe("c inside b");
+  });
+
+  test("a disabled row doesn't move, and nothing goes inside one", async () => {
+    const onMove = vi.fn();
+    await render(<Files onMove={onMove} />);
+
+    rowEl("notes.md").focus();
+    await userEvent.keyboard("{Alt>}{ArrowDown}{/Alt}");
+    expect(onMove).not.toHaveBeenCalled();
+
+    // From the end, the place above is inside the disabled row. It's
+    // passed by for the one above that.
+    rowEl("README.md").focus();
+    await userEvent.keyboard("{Alt>}{ArrowUp}{/Alt}");
+    expect(onMove.mock.calls).toEqual([
+      [{ values: ["readme"], target: "notes", position: "before" }],
+    ]);
+  });
+
+  test("a selected row takes every selected row with it, but for those inside one that's going", async () => {
+    const onMove = vi.fn();
+    await render(
+      <Files
+        selectionMode="multiple"
+        defaultValue={["src", "index", "readme"]}
+        defaultExpanded={["src"]}
+        onMove={onMove}
+      />,
+    );
+    rowEl("README.md").focus();
+
+    await userEvent.keyboard("{Alt>}{ArrowUp}{/Alt}");
+
+    expect(onMove.mock.calls).toEqual([
+      [{ values: ["src", "readme"], target: "notes", position: "before" }],
+    ]);
+  });
+
+  test("a row that isn't selected goes by itself", async () => {
+    const onMove = vi.fn();
+    await render(
+      <Files selectionMode="multiple" defaultValue={["src"]} onMove={onMove} />,
+    );
+    rowEl("README.md").focus();
+
+    await userEvent.keyboard("{Alt>}{ArrowUp}{/Alt}");
+
+    expect(onMove.mock.calls[0]?.[0].values).toEqual(["readme"]);
+  });
+
+  test("the arrow keys alone still only move focus", async () => {
+    const onMove = vi.fn();
+    await render(<Files onMove={onMove} />);
+    rowEl("src").focus();
+
+    await userEvent.keyboard("{ArrowDown}");
+
+    expect(focused()).toBe("test");
+    expect(onMove).not.toHaveBeenCalled();
+  });
+});
+
+describe("dragging with a mouse", () => {
+  test("the top of a row is before it", async () => {
+    const onMove = vi.fn();
+    await render(<Files onMove={onMove} />);
+
+    drag("README.md", "test", 0.1);
+
+    expect(onMove.mock.calls).toEqual([
+      [{ values: ["readme"], target: "test", position: "before" }],
+    ]);
+  });
+
+  test("the bottom is after it, and the middle inside it", async () => {
+    const onMove = vi.fn();
+    await render(<Files onMove={onMove} />);
+
+    drag("README.md", "test", 0.9);
+    drag("README.md", "test", 0.5);
+
+    expect(onMove.mock.calls).toEqual([
+      [{ values: ["readme"], target: "test", position: "after" }],
+      [{ values: ["readme"], target: "test", position: "inside" }],
+    ]);
+  });
+
+  test("under an open row is above the first row inside it", async () => {
+    const onMove = vi.fn();
+    await render(<Files defaultExpanded={["src"]} onMove={onMove} />);
+
+    drag("README.md", "src", 0.9);
+
+    expect(onMove.mock.calls).toEqual([
+      [{ values: ["readme"], target: "components", position: "before" }],
+    ]);
+  });
+
+  test("under the last row inside a row: in line with it stays inside, further out goes out", async () => {
+    const onMove = vi.fn();
+    await render(<Files defaultExpanded={["src"]} onMove={onMove} />);
+
+    drag("README.md", "index.ts", 0.9);
+    drag("README.md", "index.ts", 0.9, rect(rowBox("src")).left + 2);
+
+    expect(onMove.mock.calls).toEqual([
+      [{ values: ["readme"], target: "index", position: "after" }],
+      [{ values: ["readme"], target: "src", position: "after" }],
+    ]);
+  });
+
+  test("the same in a right-to-left page, where further out is to the right", async () => {
+    const onMove = vi.fn();
+    await render(
+      <div dir="rtl">
+        <Files defaultExpanded={["src"]} onMove={onMove} />
+      </div>,
+    );
+
+    drag("README.md", "index.ts", 0.9, rect(rowBox("src")).right - 2);
+
+    expect(onMove.mock.calls).toEqual([
+      [{ values: ["readme"], target: "src", position: "after" }],
+    ]);
+  });
+
+  test("the rows going and the place they'd go are marked while it lasts", async () => {
+    await render(<Files defaultExpanded={["src"]} onMove={() => {}} />);
+
+    const at = carry("src", "README.md", 0.1);
+
+    // The row, and with it every row inside.
+    expect(dragging()).toEqual(["src"]);
+    expect(tree().element().hasAttribute("data-dragging")).toBe(true);
+    expect(marked()).toEqual(["before readme"]);
+
+    send("pointermove", pointOn("README.md", 0.5));
+    expect(marked()).toEqual(["inside readme"]);
+
+    send("pointerup", at);
+    expect(dragging()).toEqual([]);
+    expect(marked()).toEqual([]);
+    expect(tree().element().hasAttribute("data-dragging")).toBe(false);
+  });
+
+  test("a place canDrop refuses isn't marked, and the next nearest is", async () => {
+    const onMove = vi.fn();
+    await render(
+      <Files onMove={onMove} canDrop={(move) => move.position !== "inside"} />,
+    );
+
+    const at = carry("README.md", "test", 0.4);
+    expect(marked()).toEqual(["before test"]);
+    send("pointermove", pointOn("test", 0.6));
+    expect(marked()).toEqual(["after test"]);
+    send("pointerup", at);
+  });
+
+  test("where the row already is isn't a place, and neither is inside itself", async () => {
+    const onMove = vi.fn();
+    await render(<Files defaultExpanded={["src"]} onMove={onMove} />);
+
+    // After the disabled row is where README.md is, and nothing goes
+    // inside a disabled row.
+    const at = carry("README.md", "notes.md", 0.9);
+    expect(marked()).toEqual([]);
+    send("pointerup", at);
+
+    drag("src", "components", 0.5);
+
+    expect(onMove).not.toHaveBeenCalled();
+  });
+
+  test("off the tree there's no place, and letting go there moves nothing", async () => {
+    const onMove = vi.fn();
+    await render(
+      <div style={{ paddingBlockEnd: 200 }}>
+        <Files onMove={onMove} />
+      </div>,
+    );
+
+    carry("src", "README.md", 0.1);
+    const away = {
+      x: pointOn("README.md").x,
+      y: rect(rowBox("README.md")).bottom + 120,
+    };
+    send("pointermove", away);
+    expect(marked()).toEqual([]);
+    send("pointerup", away);
+
+    expect(onMove).not.toHaveBeenCalled();
+    expect(dragging()).toEqual([]);
+  });
+
+  test("Escape puts the rows back, and nothing around the tree hears it", async () => {
+    const onMove = vi.fn();
+    const onKeyDown = vi.fn();
+    await render(
+      // biome-ignore lint/a11y/noStaticElementInteractions: it stands for a dialog that would close
+      <div onKeyDown={onKeyDown}>
+        <Files onMove={onMove} />
+      </div>,
+    );
+    rowEl("README.md").focus();
+
+    const at = carry("README.md", "test", 0.1);
+    await userEvent.keyboard("{Escape}");
+
+    expect(marked()).toEqual([]);
+    expect(dragging()).toEqual([]);
+    send("pointerup", at);
+    expect(onMove).not.toHaveBeenCalled();
+    expect(onKeyDown).not.toHaveBeenCalled();
+  });
+
+  test("a drag that's called off by the browser moves nothing", async () => {
+    const onMove = vi.fn();
+    await render(<Files onMove={onMove} />);
+
+    const at = carry("README.md", "test", 0.1);
+    send("pointercancel", at);
+
+    expect(marked()).toEqual([]);
+    expect(dragging()).toEqual([]);
+    expect(onMove).not.toHaveBeenCalled();
+  });
+
+  test("a press that doesn't go anywhere is still a press", async () => {
+    const onMove = vi.fn();
+    await render(<Files selectionMode="single" onMove={onMove} />);
+
+    await press("src");
+
+    await expect.poll(shown).toContain("components");
+    expect(selected()).toEqual(["src"]);
+    expect(onMove).not.toHaveBeenCalled();
+    expect(dragging()).toEqual([]);
+  });
+
+  test("letting go at the end of a drag isn't a press on the row under it", async () => {
+    await render(<Files selectionMode="single" onMove={() => {}} />);
+
+    const at = carry("README.md", "src", 0.1);
+    send("pointerup", at);
+    // The browser follows the release with a click when both ends of the
+    // press were on the same thing.
+    rowBox("src").click();
+
+    expect(selected()).toEqual([]);
+    expect(shown()).not.toContain("components");
+
+    // A moment later a press is a press again.
+    await press("src");
+    await expect.poll(selected).toEqual(["src"]);
+  });
+
+  test("held over a closed row, a drag opens it", async () => {
+    await render(<Files onMove={() => {}} />);
+
+    const at = carry("README.md", "test", 0.5);
+
+    expect(shown()).not.toContain("setup");
+    await expect.poll(shown, { timeout: 3000 }).toContain("setup");
+    send("pointerup", at);
+  });
+
+  test("a disabled row can't be picked up, and neither can a row with another button", async () => {
+    await render(<Files onMove={() => {}} />);
+
+    carry("notes.md", "test", 0.1);
+    expect(dragging()).toEqual([]);
+
+    const start = pointOn("README.md");
+    rowBox("README.md").dispatchEvent(
+      new PointerEvent("pointerdown", {
+        bubbles: true,
+        pointerId: 1,
+        isPrimary: true,
+        button: 2,
+        clientX: start.x,
+        clientY: start.y,
+      }),
+    );
+    send("pointermove", pointOn("test", 0.1));
+    expect(dragging()).toEqual([]);
+    send("pointerup", pointOn("test", 0.1));
+  });
+
+  test("a press you handle yourself doesn't start a drag", async () => {
+    await render(
+      <Files
+        onMove={() => {}}
+        onPointerDown={(event) => event.preventDefault()}
+      />,
+    );
+
+    const at = carry("README.md", "test", 0.1);
+
+    expect(dragging()).toEqual([]);
+    send("pointerup", at);
+  });
+
+  test("a selected row takes every selected row with it", async () => {
+    const onMove = vi.fn();
+    await render(
+      <Files
+        selectionMode="multiple"
+        defaultValue={["src", "index", "readme"]}
+        defaultExpanded={["src"]}
+        onMove={onMove}
+      />,
+    );
+
+    const at = carry("README.md", "test", 0.1);
+    expect(dragging()).toEqual(["src", "readme"]);
+    send("pointerup", at);
+
+    expect(onMove.mock.calls).toEqual([
+      [{ values: ["src", "readme"], target: "test", position: "before" }],
+    ]);
+  });
+
+  test("the rows move, and the row that was dragged has focus after", async () => {
+    await render(<Outline />);
+
+    drag("c", "a2", 0.1);
+
+    await expect.poll(shape).toEqual(["a", "-a1", "-c", "-a2", "b"]);
+    await expect.element(row("c")).toHaveFocus();
+    await expect.poll(() => status()?.textContent).toBe("Moved c before a2");
+  });
+
+  test("a tree taken away in the middle of a drag leaves nothing behind", async () => {
+    const onMove = vi.fn();
+    const screen = await render(<Files onMove={onMove} />);
+
+    const at = carry("README.md", "test", 0.1);
+    await screen.unmount();
+    send("pointermove", at);
+    send("pointerup", at);
+
+    expect(onMove).not.toHaveBeenCalled();
+  });
+});
+
+describe("dragging with a finger", () => {
+  // What stops the page scrolling under a drag: whether the tree refused a
+  // touch that moved.
+  const refused = () => {
+    const event = new Event("touchmove", { bubbles: true, cancelable: true });
+    rowEl("README.md").dispatchEvent(event);
+    return event.defaultPrevented;
+  };
+
+  test("held for a moment, a row is picked up, and the page stops scrolling under it", async () => {
+    const onMove = vi.fn();
+    await render(<Files onMove={onMove} />);
+
+    send("pointerdown", pointOn("README.md"), "touch");
+    expect(dragging()).toEqual([]);
+    expect(refused()).toBe(false);
+
+    await expect.poll(dragging, { timeout: 3000 }).toEqual(["readme"]);
+    expect(refused()).toBe(true);
+
+    send("pointermove", pointOn("test", 0.1), "touch");
+    expect(marked()).toEqual(["before test"]);
+    send("pointerup", pointOn("test", 0.1), "touch");
+
+    expect(onMove.mock.calls).toEqual([
+      [{ values: ["readme"], target: "test", position: "before" }],
+    ]);
+    expect(refused()).toBe(false);
+  });
+
+  test("a finger that moves first is scrolling, and picks nothing up", async () => {
+    const onMove = vi.fn();
+    await render(<Files onMove={onMove} />);
+    const start = pointOn("README.md");
+
+    send("pointerdown", start, "touch");
+    send("pointermove", { x: start.x, y: start.y - 20 }, "touch");
+    await new Promise((resolve) => setTimeout(resolve, 600));
+
+    expect(dragging()).toEqual([]);
+    expect(refused()).toBe(false);
+    send("pointerup", pointOn("test", 0.1), "touch");
+    expect(onMove).not.toHaveBeenCalled();
+  });
+
+  test("a finger held down isn't asking for a menu, and a mouse still can", async () => {
+    await render(<Files onMove={() => {}} />);
+    const menu = () => {
+      const event = new MouseEvent("contextmenu", {
+        bubbles: true,
+        cancelable: true,
+      });
+      rowBox("README.md").dispatchEvent(event);
+      return event.defaultPrevented;
+    };
+
+    expect(menu()).toBe(false);
+    send("pointerdown", pointOn("README.md"), "touch");
+    expect(menu()).toBe(true);
+    send("pointerup", pointOn("README.md"), "touch");
+    expect(menu()).toBe(false);
+  });
+
+  test("without onMove the tree refuses no touch", async () => {
+    await render(<Files />);
+
+    send("pointerdown", pointOn("README.md"), "touch");
+    await new Promise((resolve) => setTimeout(resolve, 600));
+
+    expect(dragging()).toEqual([]);
+    expect(refused()).toBe(false);
+    send("pointerup", pointOn("README.md"), "touch");
+  });
+});
+
 describe("layout", () => {
+  test("where dragged rows would go is a line before or after a row, and a ring round one", async () => {
+    await render(<Files onMove={() => {}} />);
+    const item = rowEl("test");
+    const line = (which: "::before" | "::after") => {
+      const drawn = getComputedStyle(item, which);
+      return `${drawn.borderTopWidth} ${drawn.borderTopStyle} ${drawn.position}`;
+    };
+
+    expect(getComputedStyle(item, "::before").content).toBe("none");
+
+    item.dataset.drop = "before";
+    expect(line("::before")).toBe("2px solid absolute");
+    expect(getComputedStyle(item, "::after").content).toBe("none");
+    // In the space between this row and the one above.
+    expect(
+      Number.parseFloat(getComputedStyle(item, "::before").top),
+    ).toBeLessThan(0);
+
+    item.dataset.drop = "after";
+    expect(line("::after")).toBe("2px solid absolute");
+    expect(
+      Number.parseFloat(getComputedStyle(item, "::after").bottom),
+    ).toBeLessThan(0);
+
+    item.dataset.drop = "inside";
+    expect(getComputedStyle(item, "::after").content).toBe("none");
+    expect(style(rowBox("test")).outlineStyle).toBe("solid");
+    expect(style(rowBox("test")).outlineWidth).toBe("2px");
+  });
+
+  test("the line starts where its row starts, so it says how deep the rows would be", async () => {
+    await render(<Files defaultExpanded={["src"]} onMove={() => {}} />);
+
+    expect(rect(rowEl("components")).left).toBe(
+      rect(rowBox("components")).left,
+    );
+    expect(rect(rowEl("components")).left).toBeGreaterThan(
+      rect(rowEl("src")).left,
+    );
+    expect(style(rowEl("components")).position).toBe("relative");
+  });
+
+  test("a row being dragged is faded, and the pointer says it's held", async () => {
+    await setViewport("desktop");
+    await render(<Files onMove={() => {}} />);
+
+    const at = carry("README.md", "test", 0.1);
+
+    expect(Number(style(rowEl("README.md")).opacity)).toBeLessThan(1);
+    expect(style(rowEl("test")).opacity).toBe("1");
+    expect(style(rowBox("test")).cursor).toBe("grabbing");
+    send("pointerup", at);
+    expect(style(rowEl("README.md")).opacity).toBe("1");
+    expect(style(rowBox("test")).cursor).toBe("default");
+  });
+
   test("a row is 32px tall with a mouse, and its label is cut short when there's no room", async () => {
     await setViewport("desktop");
     await render(
@@ -738,6 +1516,54 @@ describe("theming", () => {
     expect(style(tree().element()).rowGap).toBe("5px");
   });
 
+  test("the marks of a drag can be changed", async () => {
+    await render(
+      <div
+        style={
+          {
+            "--nuv-tree-drop-line": "rgb(1, 2, 3)",
+            "--nuv-tree-drop-line-width": "4px",
+            "--nuv-tree-dragging-opacity": "0.25",
+          } as never
+        }
+      >
+        <Files onMove={() => {}} />
+      </div>,
+    );
+    const item = rowEl("test");
+
+    item.dataset.drop = "before";
+    expect(getComputedStyle(item, "::before").borderTopColor).toBe(
+      "rgb(1, 2, 3)",
+    );
+    expect(getComputedStyle(item, "::before").borderTopWidth).toBe("4px");
+    item.dataset.drop = "inside";
+    expect(style(rowBox("test")).outlineColor).toBe("rgb(1, 2, 3)");
+    expect(style(rowBox("test")).outlineWidth).toBe("4px");
+    item.dataset.dragging = "";
+    expect(style(item).opacity).toBe("0.25");
+  });
+
+  test.each(themes)(
+    "the line where rows would go can be seen in %s",
+    async (theme) => {
+      const screen = await renderThemed(theme, <Files onMove={() => {}} />);
+      const ground = style(
+        screen.container.querySelector("main") as Element,
+      ).backgroundColor;
+      const item = rowEl("test");
+
+      item.dataset.drop = "before";
+      expect(
+        contrast(getComputedStyle(item, "::before").borderTopColor, ground),
+      ).toBeGreaterThanOrEqual(3);
+      item.dataset.drop = "inside";
+      expect(
+        contrast(style(rowBox("test")).outlineColor, ground),
+      ).toBeGreaterThanOrEqual(3);
+    },
+  );
+
   test("the indent can be changed", async () => {
     const left = async (indent?: string) => {
       const screen = await render(
@@ -812,6 +1638,15 @@ describe.each(themes)("accessibility in %s", (theme) => {
         </Tree>
       </>,
     );
+
+    await expectNoViolations(screen.container);
+  });
+
+  test("passes axe with rows that can be moved, and after one has been", async () => {
+    const screen = await renderThemed(theme, <Outline />);
+    rowEl("a2").focus();
+    await userEvent.keyboard("{Alt>}{ArrowUp}{/Alt}");
+    await expect.poll(() => status()?.textContent).toBe("Moved a2 into a1");
 
     await expectNoViolations(screen.container);
   });

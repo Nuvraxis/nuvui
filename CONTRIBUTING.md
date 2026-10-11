@@ -85,6 +85,11 @@ packages/table                an add-on, published as @nuvui/table
   src/virtual.tsx             the virtual table, an entry of its own
 packages/charts               an add-on, published as @nuvui/charts
   src/components/chart/       the container, tooltip, legend and table, one file each
+packages/barcodes             an add-on, published as @nuvui/barcodes
+  src/components/barcode/     the barcode, and encode.ts, which works out its bars
+  src/components/qrcode/      the QR code, and encode.ts, which works out its squares
+  src/save.ts                 a code on the page as an SVG or a PNG file, an entry of its own
+  test/read.ts                reads a drawn code back, for the tests
 packages/tooling              what every published package is built with, private
   tsdown.mjs                  the build
   build-css.mjs               compiles the SCSS, and copies the source into dist
@@ -202,7 +207,7 @@ Button is the smallest example to copy from, and Dialog the fullest.
 
 ## Add-on packages
 
-A component goes in a package of its own when it needs a library the core doesn't have. `@nuvui/date-picker` is the first, for react-day-picker and date-fns, `@nuvui/table` the second, for TanStack Table, and `@nuvui/charts` the third, for Recharts. An app that doesn't use the component then never installs that library.
+A component goes in a package of its own when it needs a library the core doesn't have. `@nuvui/date-picker` is the first, for react-day-picker and date-fns, `@nuvui/table` the second, for TanStack Table, `@nuvui/charts` the third, for Recharts, and `@nuvui/barcodes` the fourth, for JsBarcode's and uqr's encoders. An app that doesn't use the component then never installs that library.
 
 An add-on is laid out like the core and built with the same tooling, from `packages/tooling`. Its own config files only say what's particular to it. What differs from the core:
 

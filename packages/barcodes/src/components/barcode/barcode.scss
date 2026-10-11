@@ -1,0 +1,41 @@
+@use "../../styles/layers";
+
+@layer components {
+  // Dark bars on a light ground, whatever the theme: a scanner reads the
+  // difference between the two, and many don't read light bars on dark at
+  // all. So these are the palette's two ends and not the theme's colors.
+  // Forced colors are kept off it for the same reason.
+  .nuv-barcode {
+    display: block;
+    max-inline-size: 100%;
+    block-size: auto;
+    forced-color-adjust: none;
+  }
+
+  .nuv-barcode__ground {
+    fill: var(--nuv-barcode-bg, var(--color-white));
+  }
+
+  // The edges are left smoothed. Where the barcode is drawn at a size
+  // that puts an edge between two pixels, snapping it to one would make
+  // that bar wider or narrower than it is, and the widths are what's read.
+  .nuv-barcode__bars {
+    fill: var(--nuv-barcode-fg, var(--color-black));
+  }
+
+  // Digits read from the left wherever the page reads from.
+  .nuv-barcode__text {
+    direction: ltr;
+    fill: var(--nuv-barcode-fg, var(--color-black));
+    font-family: var(--nuv-barcode-font, var(--font-mono));
+  }
+
+  // A value that can't be a barcode: an edge and a line across, and
+  // nothing that scans.
+  .nuv-barcode__mark {
+    fill: none;
+    stroke: var(--nuv-barcode-invalid, var(--color-danger));
+    stroke-width: 1;
+    stroke-dasharray: 4 3;
+  }
+}

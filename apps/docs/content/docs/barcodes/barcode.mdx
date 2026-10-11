@@ -1,0 +1,187 @@
+---
+title: Barcode
+description: Bars for a scanner, drawn as SVG. Code 128, Code 39, EAN, UPC, ITF, MSI, Codabar and Pharmacode, with the value written underneath.
+added: "2026-10-11"
+---
+
+Use a barcode where a handheld or a fixed scanner reads it: a product at a till, a parcel's label, a shelf in a stock room, a patient's wristband. For a phone's camera, and for an address or any longer text, use a [QR code](/docs/barcodes/qrcode).
+
+<Preview name="barcode/basic" />
+
+## Install
+
+```sh
+pnpm add @nuvui/barcodes @nuvui/react
+```
+
+## Import
+
+```tsx
+import { Barcode } from "@nuvui/barcodes";
+```
+
+The styles come from `@nuvui/barcodes/styles.css`, which you load once for the whole app, after `@nuvui/react/styles.css`. [Barcodes](/docs/barcodes) covers that.
+
+```tsx
+<Barcode value="ORD-2026-001042" aria-label="Order ORD-2026-001042" />
+```
+
+## Try it
+
+<BarcodePlayground />
+
+## Kinds
+
+`type` says which kind of barcode to draw. Which one you need is decided by whatever reads it: a retail till wants an EAN or a UPC, a carrier's label a Code 128. Without `type` it's Code 128, which holds any text a keyboard can type and is the shortest for most values.
+
+<Preview name="barcode/types" />
+
+| `type` | What it holds | Where it's used |
+| --- | --- | --- |
+| `"code128"` | Any ASCII text. Runs of digits are packed two to a symbol. | Labels in shipping and stock rooms, and anything of your own. |
+| `"gs1-128"` | The same, marked as GS1's. The value is the application identifiers and their data, without the brackets. | Cartons and pallets in a supply chain. |
+| `"code39"` | Capitals, digits, the space and `-` `.` `$` `/` `+` `%`. Small letters are made capitals. | Older systems, in industry and defense. |
+| `"code39-mod43"` | The same, with a check character added. | Where a Code 39 has to be checked. |
+| `"ean13"` | Twelve digits, and the thirteenth is worked out. Or thirteen, and the last is checked. | Retail outside North America, and books. |
+| `"ean8"` | Seven digits, or eight with the check digit. | Small packets. |
+| `"upca"` | Eleven digits, or twelve with the check digit. | Retail in North America. |
+| `"upce"` | Six digits, or eight with the number system first and the check digit last. | Small packets in North America. |
+| `"itf"` | Digits, an even number of them. | Cartons. |
+| `"itf14"` | Thirteen digits, or fourteen with the check digit. | A carton's number, printed on corrugated board. |
+| `"msi"` | Digits. | Shelves and stock in shops. |
+| `"msi-mod10"`, `"msi-mod11"`, `"msi-mod1010"`, `"msi-mod1110"` | Digits, with one or two check digits added, each worked out the way its name says. | The same, checked. |
+| `"codabar"` | Digits and `-` `$` `:` `/` `.` `+`, between a start and a stop letter from A to D. Without the letters, both are A. | Libraries, blood banks and couriers' older forms. |
+| `"pharmacode"` | A whole number from 3 to 131070. | Packaging lines for medicines. |
+
+Where a check digit is worked out, it's part of what's drawn, what's written underneath and what the barcode is named.
+
+`barcodeTypes` is the list of these as an array, for a select of your own.
+
+## Size
+
+`barWidth` is the width of the narrowest bar in pixels, and every other bar and space is a whole number of those. `height` is the height of the bars. The barcode's width follows from the two and from the value: a longer value is a wider barcode.
+
+<Preview name="barcode/sizes" />
+
+Keep `barWidth` a whole number. A bar that's a pixel and a half wide is drawn with a gray edge, and a scanner reads widths. The same goes for a barcode squeezed by its container: it shrinks to fit a narrow space and keeps its shape, and a shrunk barcode may not scan. Give it room, or a smaller `barWidth`, or a shorter value.
+
+`quietZone` is the empty space at each end, in narrowest bars. Scanners find a barcode by that space, and most kinds ask for ten. Only lower it if the barcode sits on a light ground with nothing near it.
+
+## The text underneath
+
+The value is written under the bars, so that someone can type it in when it won't scan. `showText={false}` leaves it out. `text` writes something else there, such as the same number in groups, and doesn't change what a scanner reads.
+
+<Preview name="barcode/text" />
+
+An EAN or a UPC writes its digits the way they're printed on a product: in groups between taller bars, with the first digit outside. `flat` gives one line of digits under bars of one height. `text` doesn't apply to those four kinds.
+
+## A value that can't be a barcode
+
+A letter in an EAN, a check digit that's wrong, an odd number of digits in an ITF, a value that's empty: none of these is drawn as bars. What's drawn is an empty box with a line through it, the size the barcode would have been, so the page keeps its shape and nothing scans.
+
+<Preview name="barcode/fallback" />
+
+`fallback` puts something of yours there instead. `fallback={null}` draws nothing.
+
+To know before drawing, call the encoder. It gives `null` for a value its kind doesn't take:
+
+```tsx
+import { encodeBarcode } from "@nuvui/barcodes";
+
+const encoding = encodeBarcode(sku, "ean13");
+if (!encoding) return <p>{sku} isn't an EAN-13.</p>;
+```
+
+Use it in a form's validation as well, so that a value that can't be printed is turned away when it's typed and not when a label is wanted.
+
+## Saving it as a file
+
+Give the barcode a `ref` and pass its element to `saveCode`. [Barcodes](/docs/barcodes#save-a-code-as-a-file) has the rest.
+
+<Preview name="barcode/download" />
+
+## Props
+
+Barcode also takes the attributes of an `<svg>`, and `ref` goes to it.
+
+<PropsTable package="barcodes" component="barcode" name="BarcodeOwnProps" />
+
+## Accessibility
+
+A barcode has nothing to press and nothing to focus.
+
+### What the component handles
+
+- It's an `<svg>` with `role="img"`, so a screen reader meets one picture and not a hundred shapes.
+- It has a name. Without `aria-label` or `aria-labelledby`, the name is the value with any check digit, which is what a person would type.
+- The text under the bars is drawn at the size you set, 14 pixels by default, in black on white.
+- The bars stay black on white in a dark theme and where the browser forces colors, because that's what scans. The contrast between them is as high as it goes.
+
+### What you need to handle
+
+- Name it for what it's for: "Order 1042", not only the digits. A screen reader's user wants to know which barcode this is.
+- Never make a barcode the only way to get what it holds. Someone who can't scan it, because of the screen, the scanner or their sight, needs the value as text they can read and copy. The text underneath does that for a short value. For a long one, put it on the page.
+- If you change the colors, keep the bars dark and the ground light, and try it with a real scanner.
+
+## On small screens
+
+A barcode is as wide as its value makes it, and a long Code 128 at two pixels a bar is wider than a phone. It shrinks to its container's width, which keeps the page from scrolling sideways. A shrunk barcode has bars that aren't whole pixels, and may not scan off the screen. For a phone, use `barWidth={1}`, a shorter value, or a [QR code](/docs/barcodes/qrcode), which holds more in less room.
+
+## CSS variables
+
+Set any of these on the barcode, or on anything around it.
+
+```css
+.label {
+  --nuv-barcode-font: var(--font-sans);
+}
+```
+
+<CssVariables
+  package="barcodes"
+  component="barcode"
+  descriptions={{
+    "--nuv-barcode-bg":
+      "Color of the ground. White in every theme by default. Keep it light.",
+    "--nuv-barcode-fg":
+      "Color of the bars and the text. Black in every theme by default. Keep it much darker than the ground.",
+    "--nuv-barcode-font": "Font of the text under the bars.",
+    "--nuv-barcode-invalid":
+      "Color of the edge and the line of a barcode that can't be drawn.",
+  }}
+/>
+
+## Classes
+
+<BemClasses
+  package="barcodes"
+  component="barcode"
+  descriptions={{
+    "nuv-barcode": "Barcode: the svg.",
+    "nuv-barcode__ground": "The rectangle behind the bars.",
+    "nuv-barcode__bars": "The bars, as one path.",
+    "nuv-barcode__text": "A line of text under the bars. An EAN or a UPC has several.",
+    "nuv-barcode__mark":
+      "The edge and the line through a barcode that can't be drawn.",
+  }}
+/>
+
+A barcode has `data-type`, its kind. One that can't be drawn has `data-invalid` instead.
+
+## Server components
+
+Barcode has no `"use client"`. Rendered in a server component, it's SVG in the HTML and sends no script. `saveCode` needs a browser, so the button that calls it is in a client component.
+
+## Do and don't
+
+**Do**
+
+- Print one and scan it with the scanner it's meant for before you ship. A screen and a printer each change what a scanner sees.
+- Keep the text underneath for anything a person might have to type.
+- Check values where they're entered, with `encodeBarcode`.
+
+**Don't**
+
+- Don't put a barcode on a colored or patterned ground. Leave it its white, and space around it.
+- Don't stretch or squeeze one with CSS. Change `barWidth` and `height`.
+- Don't use it for an address or a sentence. That's a [QR code](/docs/barcodes/qrcode).

@@ -1,0 +1,171 @@
+@use "@nuvui/react/scss/mixins";
+
+.shipping-label {
+  display: grid;
+  gap: calc(var(--spacing) * 4);
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  inline-size: 100%;
+  max-inline-size: 40rem;
+  min-block-size: 100svh;
+  margin-inline: auto;
+  padding: calc(var(--spacing) * 6) calc(var(--spacing) * 4);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+
+  @include mixins.breakpoint("md") {
+    padding: calc(var(--spacing) * 8);
+  }
+}
+
+.shipping-label__head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 4);
+  align-items: end;
+  justify-content: space-between;
+}
+
+.shipping-label__about {
+  display: grid;
+  gap: calc(var(--spacing) * 1);
+}
+
+.shipping-label__title {
+  margin: 0;
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-2xl--line-height);
+  letter-spacing: var(--tracking-tight);
+}
+
+.shipping-label__text {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+.shipping-label__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 2);
+}
+
+// Kept its height when it's empty, so the label doesn't jump when it
+// first says something.
+.shipping-label__said {
+  min-block-size: var(--text-sm--line-height);
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+// The label itself, as it would be on the parcel.
+.shipping-label__label {
+  display: grid;
+  gap: calc(var(--spacing) * 5);
+  padding: calc(var(--spacing) * 5);
+  border: 2px solid var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-surface);
+  color: var(--color-surface-foreground);
+}
+
+.shipping-label__row {
+  display: grid;
+  gap: calc(var(--spacing) * 5);
+
+  @include mixins.breakpoint("sm") {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
+
+.shipping-label__party {
+  display: grid;
+  gap: calc(var(--spacing) * 1);
+  align-content: start;
+}
+
+.shipping-label__party--to {
+  padding-block: calc(var(--spacing) * 4);
+  border-block: var(--nuv-border-width) solid var(--color-border-strong);
+}
+
+.shipping-label__heading {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--text-xs--line-height);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.shipping-label__address {
+  display: grid;
+  font-size: var(--text-sm);
+  font-style: normal;
+  line-height: var(--text-sm--line-height);
+}
+
+// Who it's for is what a courier reads first.
+.shipping-label__address--to {
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--text-lg--line-height);
+}
+
+.shipping-label__line {
+  display: block;
+}
+
+.shipping-label__facts {
+  display: grid;
+  gap: calc(var(--spacing) * 3);
+  align-content: start;
+  margin: 0;
+}
+
+.shipping-label__fact {
+  display: grid;
+  gap: calc(var(--spacing) * 1);
+}
+
+.shipping-label__value {
+  margin: 0;
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+.shipping-label__codes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 5);
+  align-items: center;
+  justify-content: space-between;
+}
+
+.shipping-label__track {
+  display: grid;
+  gap: calc(var(--spacing) * 2);
+  justify-items: start;
+}
+
+.shipping-label__link {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--nuv-touch-size);
+  color: var(--color-foreground);
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+
+  @include mixins.fine-pointer {
+    min-block-size: 0;
+  }
+
+  @include mixins.focus-ring;
+}

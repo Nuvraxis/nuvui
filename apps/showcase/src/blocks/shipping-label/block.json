@@ -1,0 +1,9 @@
+{
+  "name": "shipping-label",
+  "title": "Shipping label",
+  "description": "A parcel's label: who it's from and who it's for, the service and the weight, the tracking number as a barcode with the number under it, a QR code that opens the tracking page, and buttons that save the barcode as a file.",
+  "category": "data",
+  "files": ["shipping-label.tsx", "shipping-label.scss"],
+  "install": ["@nuvui/barcodes", "@nuvui/react"],
+  "height": 720
+}

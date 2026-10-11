@@ -1,0 +1,28 @@
+[
+  {
+    "name": "@nuvui/barcodes",
+    "path": "dist/index.js",
+    "limit": "12.5 kB"
+  },
+  {
+    "name": "@nuvui/barcodes/barcode",
+    "path": "dist/components/barcode/index.js",
+    "limit": "7.5 kB"
+  },
+  {
+    "name": "@nuvui/barcodes/qrcode",
+    "path": "dist/components/qrcode/index.js",
+    "limit": "5 kB"
+  },
+  {
+    "name": "@nuvui/barcodes/save",
+    "path": "dist/save.js",
+    "limit": "1.5 kB"
+  },
+  {
+    "name": "styles.css",
+    "path": "dist/styles.css",
+    "rolldown": false,
+    "limit": "500 B"
+  }
+]

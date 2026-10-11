@@ -3,6 +3,10 @@ import "@nuvui/react/themes/ink.css";
 import "@nuvui/date-picker/styles.css";
 import "@nuvui/table/styles.css";
 import "@nuvui/charts/styles.css";
+import "@nuvui/barcodes/styles.css";
+// The two codes, each from the entry of its own.
+import { Barcode } from "@nuvui/barcodes/barcode";
+import { QRCode } from "@nuvui/barcodes/qrcode";
 // The chart package, from the entry of its one component.
 import {
   type ChartConfig,
@@ -90,6 +94,8 @@ function Seats() {
 function App() {
   return (
     <main>
+      <Barcode value="590123412345" type="ean13" aria-label="Item 5901234" />
+      <QRCode value="https://example.com" aria-label="Open the example" />
       <Button size={size} onClick={() => toast("Saved")}>
         Save
       </Button>

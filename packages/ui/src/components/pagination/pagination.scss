@@ -114,7 +114,7 @@
   .nuv-pagination__arrow {
     flex: none;
 
-    &:dir(rtl) {
+    @include mixins.rtl {
       transform: scaleX(-1);
     }
   }

@@ -29,7 +29,7 @@
       animation: nuv-text-shimmer-sweep var(--nuv-text-shimmer-duration, 2s) linear infinite;
 
       // The highlight goes the way the text is read.
-      &:dir(rtl) {
+      @include mixins.rtl {
         animation-direction: reverse;
       }
 

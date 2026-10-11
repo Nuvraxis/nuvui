@@ -1,6 +1,12 @@
 "use client";
 
 import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
   type Direction,
   DirectionProvider,
   Progress,
@@ -35,6 +41,17 @@ export default function Example() {
           the provider around everything. */}
       <DirectionProvider dir={dir}>
         <div dir={dir} style={{ display: "grid", gap: 16 }}>
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink href="#">الرئيسية</BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>الإعدادات</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
           <Tabs defaultValue="first">
             <TabsList aria-label="Sections">
               <TabsTrigger value="first">الأول</TabsTrigger>

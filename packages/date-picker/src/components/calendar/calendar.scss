@@ -272,7 +272,7 @@ $mouse: var(--nuv-calendar-cell-size, var(--nuv-control-height-md));
       var(--nuv-calendar-range-bg, var(--color-muted)) 50%
     );
 
-    &:dir(rtl) {
+    @include mixins.rtl {
       background-image: linear-gradient(
         to left,
         transparent 50%,
@@ -288,7 +288,7 @@ $mouse: var(--nuv-calendar-cell-size, var(--nuv-control-height-md));
       var(--nuv-calendar-range-bg, var(--color-muted)) 50%
     );
 
-    &:dir(rtl) {
+    @include mixins.rtl {
       background-image: linear-gradient(
         to right,
         transparent 50%,

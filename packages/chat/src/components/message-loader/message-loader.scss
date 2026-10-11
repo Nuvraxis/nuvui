@@ -1,0 +1,70 @@
+@use "../../styles/layers";
+@use "@nuvui/react/scss/mixins";
+
+@layer components {
+  // As tall as a line of a message, so the reply that takes its place
+  // starts where it was.
+  .nuv-message-loader {
+    display: inline-flex;
+    position: relative;
+    gap: calc(var(--spacing) * 2);
+    align-items: center;
+    min-block-size: calc(var(--text-base) * var(--text-base--line-height));
+    color: var(--nuv-message-loader-fg, var(--color-muted-foreground));
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+  }
+
+  .nuv-message-loader__dots {
+    display: inline-flex;
+    gap: calc(var(--spacing) * 1);
+    align-items: center;
+  }
+
+  // Each dot fades down and back, one after the other. For someone who
+  // has asked for less motion they're three still dots.
+  .nuv-message-loader__dot {
+    inline-size: var(--nuv-message-loader-dot-size, calc(var(--spacing) * 1.5));
+    block-size: var(--nuv-message-loader-dot-size, calc(var(--spacing) * 1.5));
+    border-radius: var(--radius-full);
+    background-color: currentcolor;
+
+    @include mixins.motion-safe {
+      animation: nuv-message-loader-pulse 1.2s var(--ease-in-out) infinite;
+    }
+
+    &:nth-child(2) {
+      animation-delay: 0.15s;
+    }
+
+    &:nth-child(3) {
+      animation-delay: 0.3s;
+    }
+  }
+
+  // What a screen reader is told. Drawn for nobody.
+  .nuv-message-loader__label {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .nuv-message-loader__text {
+    min-inline-size: 0;
+  }
+
+  @keyframes nuv-message-loader-pulse {
+    0%,
+    60%,
+    100% {
+      opacity: 1;
+    }
+
+    30% {
+      opacity: 0.25;
+    }
+  }
+}

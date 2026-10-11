@@ -6,6 +6,7 @@ import "@nuvui/table/styles.css";
 import "@nuvui/date-picker/styles.css";
 import "@nuvui/charts/styles.css";
 import "@nuvui/barcodes/styles.css";
+import "@nuvui/chat/styles.css";
 import "@/styles/index.scss";
 import { Toaster } from "@nuvui/react/toast";
 import type { Metadata } from "next";

@@ -47,6 +47,7 @@ export const addons = {
   table: pkg("table", "@nuvui/table"),
   charts: pkg("charts", "@nuvui/charts"),
   barcodes: pkg("barcodes", "@nuvui/barcodes"),
+  chat: pkg("chat", "@nuvui/chat"),
 };
 
 export type Addon = keyof typeof addons;

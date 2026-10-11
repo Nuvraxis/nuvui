@@ -2,7 +2,7 @@
 
 ## Supported versions
 
-Fixes go into the latest release of each package: `@nuvui/react`, `@nuvui/date-picker`, `@nuvui/table`, `@nuvui/charts` and `@nuvui/barcodes`. Older versions aren't patched.
+Fixes go into the latest release of each package: `@nuvui/react`, `@nuvui/date-picker`, `@nuvui/table`, `@nuvui/charts`, `@nuvui/barcodes` and `@nuvui/chat`. Older versions aren't patched.
 
 ## Reporting a vulnerability
 

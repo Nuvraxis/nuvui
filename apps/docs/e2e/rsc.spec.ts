@@ -149,6 +149,32 @@ test("components used from a server component hydrate and work", async ({
   );
   await page.keyboard.press("Escape");
 
+  const serverLog = page.getByRole("log", {
+    name: "Conversation from the server",
+  });
+  await expect(serverLog).toContainText("You: Question from the server");
+  await expect(serverLog).toContainText("Loader from the server");
+  await expect(serverLog.locator('[aria-busy="true"]')).toHaveCount(1);
+  const serverPrompt = page.getByRole("textbox", {
+    name: "Prompt from the server",
+  });
+  await expect(serverPrompt).toHaveValue("Draft from the server");
+  // It works once the page has taken over: with no handler, sending
+  // empties the box and loads nothing.
+  await serverPrompt.focus();
+  await serverPrompt.fill("Typed in the browser");
+  await page
+    .locator("form")
+    .filter({ has: serverPrompt })
+    .getByRole("button", { name: "Send" })
+    .click();
+  await expect(serverPrompt).toHaveValue("");
+  await expect(
+    page
+      .getByRole("group", { name: "Suggestions from the server" })
+      .getByRole("button", { name: "Suggestion from the server" }),
+  ).toBeVisible();
+
   // Neither of these two has any script of its own: what's checked is
   // that the server drew them whole.
   const serverBarcode = page.getByRole("img", {

@@ -48,6 +48,7 @@ const published = {
   "@nuvui/table": "table",
   "@nuvui/charts": "charts",
   "@nuvui/barcodes": "barcodes",
+  "@nuvui/chat": "chat",
 };
 
 function expect(app, what, passed) {
@@ -116,6 +117,13 @@ const fixtures = {
       script.includes("nuv-chart__tooltip"),
     );
     expect("vite", "it has the codes' styles", css.includes(".nuv-barcode"));
+    expect("vite", "it has the chat's styles", css.includes(".nuv-message"));
+    expect(
+      "vite",
+      "the script has the message and the prompt box",
+      script.includes("nuv-message__content") &&
+        script.includes("nuv-prompt-input__textarea"),
+    );
     expect(
       "vite",
       "the script has the barcode and the QR code",
@@ -198,7 +206,22 @@ const fixtures = {
         /<path class="nuv-qrcode__squares" d="M4 4h7v1h-7z/.test(html),
     );
 
+    expect(
+      "next",
+      "the server rendered a conversation, a message and the prompt box",
+      /<div\s(?=[^>]*class="nuv-conversation__viewport")(?=[^>]*role="log")(?=[^>]*aria-label="Support")/.test(
+        html,
+      ) &&
+        /<span class="nuv-message__label">Assistant(?:<!-- -->)?: <\/span>/.test(
+          html,
+        ) &&
+        /<textarea\s(?=[^>]*class="nuv-prompt-input__textarea")(?=[^>]*aria-label="Message")/.test(
+          html,
+        ),
+    );
+
     const css = read(files(join(dir, "out"), ".css"));
+    expect("next", "it has the chat's styles", css.includes(".nuv-message"));
     expect("next", "it has the codes' styles", css.includes(".nuv-barcode"));
     expect("next", "it has the charts' styles", css.includes(".nuv-chart"));
     expect(

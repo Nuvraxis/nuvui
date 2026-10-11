@@ -1,0 +1,134 @@
+@use "../../styles/layers";
+@use "@nuvui/react/scss/mixins";
+
+@layer components {
+  // The frame is the form's. The field inside has none of its own, so
+  // the field and the row under it read as one box. When the field has
+  // focus from the keyboard, the ring goes round the whole of it.
+  .nuv-prompt-input {
+    display: flex;
+    flex: none;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 2);
+    box-sizing: border-box;
+    padding: calc(var(--spacing) * 3);
+    border: var(--nuv-border-width) solid
+      var(--nuv-prompt-input-border, var(--color-border-strong));
+    border-radius: var(--nuv-prompt-input-radius, var(--radius-xl));
+    background-color: var(--nuv-prompt-input-bg, var(--color-background));
+    color: var(--nuv-prompt-input-fg, var(--color-foreground));
+    cursor: text;
+
+    &:has(.nuv-prompt-input__textarea:focus-visible) {
+      outline: var(--nuv-focus-ring-width, 2px) solid
+        var(--nuv-focus-ring-color, var(--color-ring));
+      outline-offset: 2px;
+    }
+
+    &[data-disabled] {
+      opacity: var(--nuv-disabled-opacity);
+      cursor: not-allowed;
+    }
+  }
+
+  // Sixteen pixels on a touch screen: under that, iOS zooms the page in
+  // when the field takes focus.
+  .nuv-prompt-input__textarea {
+    display: block;
+    box-sizing: border-box;
+    inline-size: 100%;
+    max-block-size: var(--nuv-prompt-input-max-height, 12rem);
+    margin: 0;
+    padding: calc(var(--spacing) * 1);
+    overflow-y: auto;
+    border: 0;
+    outline: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    font-size: var(--text-base);
+    line-height: var(--text-base--line-height);
+    resize: none;
+
+    @include mixins.fine-pointer {
+      font-size: var(--nuv-prompt-input-font-size, var(--text-sm));
+      line-height: var(--text-sm--line-height);
+    }
+
+    &::placeholder {
+      opacity: 1;
+      color: var(--nuv-prompt-input-placeholder, var(--color-muted-foreground));
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+    }
+  }
+
+  .nuv-prompt-input__toolbar {
+    display: flex;
+    gap: calc(var(--spacing) * 2);
+    align-items: center;
+    justify-content: space-between;
+    cursor: default;
+  }
+
+  // Alone in the row, the button to send still sits at the end.
+  .nuv-prompt-input__submit:only-child {
+    margin-inline-start: auto;
+  }
+
+  .nuv-prompt-input__tools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(var(--spacing) * 1);
+    align-items: center;
+    min-inline-size: 0;
+  }
+
+  // Round, in the primary color. With nothing to send it's faded and
+  // still there.
+  .nuv-prompt-input__submit {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    inline-size: var(--nuv-touch-size);
+    block-size: var(--nuv-touch-size);
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-full);
+    background-color: var(--nuv-prompt-input-submit-bg, var(--color-primary));
+    color: var(
+      --nuv-prompt-input-submit-fg,
+      var(--color-primary-foreground)
+    );
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+
+    @include mixins.motion-safe {
+      transition: background-color var(--nuv-duration-fast) var(--ease-out);
+    }
+
+    @include mixins.fine-pointer {
+      inline-size: calc(var(--spacing) * 9);
+      block-size: calc(var(--spacing) * 9);
+    }
+
+    @include mixins.hover {
+      // A step toward the page's text color, as a filled button's is.
+      background-color: var(
+        --nuv-prompt-input-submit-hover-bg,
+        color-mix(in oklab, var(--color-primary) 88%, var(--color-foreground))
+      );
+    }
+
+    @include mixins.focus-ring;
+
+    &[aria-disabled="true"] {
+      opacity: var(--nuv-disabled-opacity);
+      cursor: not-allowed;
+    }
+  }
+}

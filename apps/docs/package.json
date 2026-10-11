@@ -13,6 +13,7 @@
   "dependencies": {
     "@nuvui/barcodes": "workspace:*",
     "@nuvui/charts": "workspace:*",
+    "@nuvui/chat": "workspace:*",
     "@nuvui/date-picker": "workspace:*",
     "@nuvui/react": "workspace:*",
     "@nuvui/table": "workspace:*",

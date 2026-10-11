@@ -4,6 +4,7 @@ import "@nuvui/date-picker/styles.css";
 import "@nuvui/table/styles.css";
 import "@nuvui/charts/styles.css";
 import "@nuvui/barcodes/styles.css";
+import "@nuvui/chat/styles.css";
 // The two codes, each from the entry of its own.
 import { Barcode } from "@nuvui/barcodes/barcode";
 import { QRCode } from "@nuvui/barcodes/qrcode";
@@ -14,6 +15,13 @@ import {
   ChartTooltip,
   chartFill,
 } from "@nuvui/charts/chart";
+// Two of the chat parts, each from the entry of its own.
+import { Message, MessageContent } from "@nuvui/chat/message";
+import {
+  PromptInput,
+  PromptInputSubmit,
+  PromptInputTextarea,
+} from "@nuvui/chat/prompt-input";
 import { DatePicker, type DateRange } from "@nuvui/date-picker";
 // An entry of the add-on's own, and one locale out of all it has.
 import { Calendar } from "@nuvui/date-picker/calendar";
@@ -94,6 +102,13 @@ function Seats() {
 function App() {
   return (
     <main>
+      <Message from="assistant">
+        <MessageContent>Two invoices are overdue.</MessageContent>
+      </Message>
+      <PromptInput onSubmit={(text) => toast(text)}>
+        <PromptInputTextarea aria-label="Message" />
+        <PromptInputSubmit />
+      </PromptInput>
       <Barcode value="590123412345" type="ean13" aria-label="Item 5901234" />
       <QRCode value="https://example.com" aria-label="Open the example" />
       <Button size={size} onClick={() => toast("Saved")}>

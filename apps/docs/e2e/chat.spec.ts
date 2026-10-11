@@ -660,8 +660,13 @@ test.describe("source page", () => {
   test("the keyboard opens the list and reaches each source", async ({
     page,
     isMobile,
+    browserName,
   }) => {
     test.skip(isMobile, "a phone has no Tab key");
+    test.skip(
+      browserName === "webkit",
+      "Safari leaves links out of the Tab order until its owner turns that on",
+    );
     await open(page, "/docs/chat/source");
     const area = preview(page, "source/basic");
     const trigger = area.getByRole("button", { name: "3 sources" });

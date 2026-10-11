@@ -902,10 +902,14 @@ describe("files", () => {
     await render(<Files />);
     const same = file("a.txt");
 
-    await userEvent.upload(picker(), same);
-    await userEvent.upload(picker(), same);
+    // Dropped, and not picked: the test's picker makes the file anew each
+    // time, with the time it was made, and that's another file.
+    drag("drop", [same]);
+    await expect.poll(waiting).toEqual(["a.txt"]);
+    drag("drop", [same]);
+    drag("drop", [file("b.txt")]);
 
-    expect(waiting()).toEqual(["a.txt"]);
+    await expect.poll(waiting).toEqual(["a.txt", "b.txt"]);
   });
 
   test("a picture shows itself, from an address that's let go when it's taken out", async () => {
@@ -1138,16 +1142,27 @@ describe("files that are turned away", () => {
   });
 });
 
+// Firefox gives a paste made by a script an empty clipboard, whatever it
+// was made with, so a pasted file can't be stood in for there. What a
+// person pastes isn't made by a script.
+const pastes =
+  new ClipboardEvent("paste", {
+    clipboardData: carrying([new File(["x"], "probe.txt")]),
+  }).clipboardData?.files.length === 1;
+
 describe("pasting and dropping", () => {
-  test("a pasted file waits with the others, and isn't pasted as text", async () => {
-    await render(<Files />);
+  test.skipIf(!pastes)(
+    "a pasted file waits with the others, and isn't pasted as text",
+    async () => {
+      await render(<Files />);
 
-    const event = paste([file("shot.png", "image/png")]);
+      const event = paste([file("shot.png", "image/png")]);
 
-    expect(event.defaultPrevented).toBe(true);
-    await expect.poll(waiting).toEqual(["shot.png"]);
-    expect(field().value).toBe("");
-  });
+      expect(event.defaultPrevented).toBe(true);
+      await expect.poll(waiting).toEqual(["shot.png"]);
+      expect(field().value).toBe("");
+    },
+  );
 
   test("text that comes with a picture of itself stays text", async () => {
     await render(<Files />);
@@ -1158,7 +1173,7 @@ describe("pasting and dropping", () => {
     expect(waiting()).toEqual([]);
   });
 
-  test("pasted files go through the same checks", async () => {
+  test.skipIf(!pastes)("pasted files go through the same checks", async () => {
     const onFilesReject = vi.fn();
     await render(<Files accept=".pdf" onFilesReject={onFilesReject} />);
 

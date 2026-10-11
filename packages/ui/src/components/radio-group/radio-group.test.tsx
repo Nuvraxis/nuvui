@@ -290,7 +290,8 @@ describe("styles", () => {
     await emulateMedia({ reducedMotion: "no-preference" });
     expect(style("Free").transitionDuration).not.toBe("0s");
     await emulateMedia({ reducedMotion: "reduce" });
-    expect(style("Free").transitionDuration).toBe("0s");
+    // WebKit can take a moment to restyle after the change.
+    await expect.poll(() => style("Free").transitionDuration).toBe("0s");
   });
 });
 

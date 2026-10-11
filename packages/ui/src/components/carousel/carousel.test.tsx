@@ -13,7 +13,7 @@ import {
   type ReactNode,
   useState,
 } from "react";
-import { describe, expect, test, vi } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
 import { Button } from "../button/button";
@@ -615,6 +615,12 @@ describe("moving by itself", () => {
   );
   const away = () =>
     userEvent.hover(page.getByRole("button", { name: "Elsewhere" }));
+
+  // WebKit on Linux reports reduced motion unless told otherwise, and
+  // then nothing here moves by itself.
+  beforeEach(async () => {
+    await emulateMedia({ reducedMotion: "no-preference" });
+  });
 
   test("without autoplay there's no button to stop it, and it stays where it is", async () => {
     await render(<Tour />);

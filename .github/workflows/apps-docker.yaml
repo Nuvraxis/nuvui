@@ -104,6 +104,7 @@ jobs:
       # Started the way a locked-down pod would be: a read-only root
       # filesystem, no capabilities, and a user that isn't root.
       - name: Start it
+        id: start
         run: >-
           docker run --detach --name site --publish 8080:8080
           --read-only --tmpfs /tmp --cap-drop ALL
@@ -113,8 +114,10 @@ jobs:
       - name: Check that it serves the site
         run: node scripts/check-site-image.mjs http://localhost:8080
 
+      # Only when there's a container to have one. After a failed build
+      # there isn't, and a second error would hide the first.
       - name: Show the container's log
-        if: failure()
+        if: failure() && steps.start.outcome == 'success'
         run: docker logs site
 
       - name: Sign in to the registry

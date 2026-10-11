@@ -14,7 +14,7 @@ name: E2E
 # The runners are six containers on two machines, each given three CPUs:
 # four on a laptop whose CPUs are two threads to a core, and two on a Mac
 # mini whose CPUs are whole cores. So the slices are cut by engine as well.
-# Chromium and Firefox are four slices, and Safari's engine is three. On
+# Chromium and Firefox are four slices, and Safari's engine is six. On
 # Linux that engine draws in software, in several processes, and on the
 # laptop's shared cores it's the one that falls behind and fails tests that
 # aren't wrong.
@@ -134,11 +134,17 @@ jobs:
           - { app: docs, name: Chromium and Firefox, engines: "chromium,firefox", webkit: false, slice: 3, of: 3, port: 3103, id: 3 }
           - { app: showcase, name: Chromium and Firefox, engines: "chromium,firefox", webkit: false, slice: 1, of: 1, port: 3201, id: 1 }
           # Safari's engine, as a desktop and as an iPhone: 2,858 of the
-          # docs' tests and 1,112 of the website's. Three slices for the
-          # Mac mini's two runners, so the last waits for the first to end.
-          - { app: docs, name: WebKit, engines: webkit, webkit: true, slice: 1, of: 2, port: 3111, id: 4 }
-          - { app: docs, name: WebKit, engines: webkit, webkit: true, slice: 2, of: 2, port: 3112, id: 5 }
-          - { app: showcase, name: WebKit, engines: webkit, webkit: true, slice: 1, of: 1, port: 3211, id: 2 }
+          # docs' tests and 1,112 of the website's. It's the slow one. On
+          # the laptop a slice of 1,429 had passed some 1,090 when its hour
+          # ran out, which is eighteen tests a minute, so a slice is kept
+          # to about 700. That's more slices than there are runners, and
+          # the later ones wait for a runner to be free.
+          - { app: docs, name: WebKit, engines: webkit, webkit: true, slice: 1, of: 4, port: 3111, id: 4 }
+          - { app: docs, name: WebKit, engines: webkit, webkit: true, slice: 2, of: 4, port: 3112, id: 5 }
+          - { app: docs, name: WebKit, engines: webkit, webkit: true, slice: 3, of: 4, port: 3113, id: 6 }
+          - { app: docs, name: WebKit, engines: webkit, webkit: true, slice: 4, of: 4, port: 3114, id: 7 }
+          - { app: showcase, name: WebKit, engines: webkit, webkit: true, slice: 1, of: 2, port: 3211, id: 2 }
+          - { app: showcase, name: WebKit, engines: webkit, webkit: true, slice: 2, of: 2, port: 3212, id: 3 }
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 

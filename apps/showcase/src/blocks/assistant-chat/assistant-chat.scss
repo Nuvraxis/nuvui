@@ -64,3 +64,15 @@
   line-height: var(--text-xs--line-height);
   text-align: center;
 }
+
+// The button that attaches and the choice of customers stay on one line,
+// and the choice gives way where the row is narrow.
+.assistant-chat__tools {
+  flex: 1;
+  flex-wrap: nowrap;
+}
+
+.assistant-chat__scope {
+  flex: 0 1 12rem;
+  min-inline-size: 0;
+}

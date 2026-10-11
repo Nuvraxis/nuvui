@@ -6,6 +6,8 @@
 import { Barcode } from "@nuvui/barcodes/barcode";
 import { QRCode, QRCodeSwissCross } from "@nuvui/barcodes/qrcode";
 import {
+  Attachment,
+  Attachments,
   Conversation,
   ConversationContent,
   Message,
@@ -17,6 +19,23 @@ import {
   PromptInputToolbar,
   PromptSuggestion,
   PromptSuggestions,
+  Reasoning,
+  ReasoningContent,
+  ReasoningStep,
+  ReasoningSteps,
+  ReasoningTrigger,
+  Source,
+  Sources,
+  SourcesContent,
+  SourcesTrigger,
+  ThreadList,
+  ThreadListGroup,
+  ThreadListItem,
+  ToolCall,
+  ToolCallContent,
+  ToolCallInput,
+  ToolCallOutput,
+  ToolCallTrigger,
 } from "@nuvui/chat";
 import { Calendar, DatePicker } from "@nuvui/date-picker";
 // One import from an entry of the add-on's own, to check those resolve too.
@@ -377,6 +396,41 @@ export default function RscSmokePage() {
       <PromptSuggestions label="Suggestions from the server">
         <PromptSuggestion>Suggestion from the server</PromptSuggestion>
       </PromptSuggestions>
+      {/* The later chat parts. The files aren't client components. The
+          ones that open are, and are given no function. */}
+      <Attachments aria-label="Files from the server">
+        <Attachment name="file-from-the-server.pdf" size={2048} href="#file" />
+      </Attachments>
+      <Sources>
+        <SourcesTrigger>Sources from the server</SourcesTrigger>
+        <SourcesContent>
+          <Source
+            href="https://www.example.com/terms"
+            title="Source from the server"
+          />
+        </SourcesContent>
+      </Sources>
+      <ToolCall status="done">
+        <ToolCallTrigger>Tool from the server</ToolCallTrigger>
+        <ToolCallContent>
+          <ToolCallInput value={{ asked: "on the server" }} />
+          <ToolCallOutput value="Answered on the server" />
+        </ToolCallContent>
+      </ToolCall>
+      <Reasoning defaultOpen>
+        <ReasoningTrigger>Reasoning from the server</ReasoningTrigger>
+        <ReasoningContent>
+          <ReasoningSteps>
+            <ReasoningStep label="Step from the server" />
+          </ReasoningSteps>
+        </ReasoningContent>
+      </Reasoning>
+      <ThreadList aria-label="Threads from the server" defaultValue="one">
+        <ThreadListGroup label="Group from the server">
+          <ThreadListItem value="one">Thread from the server</ThreadListItem>
+          <ThreadListItem value="two">Another from the server</ThreadListItem>
+        </ThreadListGroup>
+      </ThreadList>
       {/* Barcode and QRCode aren't client components at all: the bars
           and the squares are worked out here, on the server. */}
       <Barcode

@@ -1,7 +1,7 @@
 {
   "name": "@nuvui/chat",
   "version": "0.0.0",
-  "description": "Conversation components for @nuvui/react: messages, a prompt box and the scrolling around them.",
+  "description": "Conversation components for @nuvui/react: messages, a prompt box that takes files, sources, tool calls, reasoning and the list of past conversations.",
   "license": "MIT",
   "author": "Nuvraxis",
   "homepage": "https://nuvui.nuvraxis.com",
@@ -35,6 +35,16 @@
       "require": {
         "types": "./dist/index.d.cts",
         "default": "./dist/index.cjs"
+      }
+    },
+    "./attachment": {
+      "import": {
+        "types": "./dist/components/attachment/index.d.ts",
+        "default": "./dist/components/attachment/index.js"
+      },
+      "require": {
+        "types": "./dist/components/attachment/index.d.cts",
+        "default": "./dist/components/attachment/index.cjs"
       }
     },
     "./conversation": {
@@ -85,6 +95,46 @@
       "require": {
         "types": "./dist/components/prompt-suggestion/index.d.cts",
         "default": "./dist/components/prompt-suggestion/index.cjs"
+      }
+    },
+    "./reasoning": {
+      "import": {
+        "types": "./dist/components/reasoning/index.d.ts",
+        "default": "./dist/components/reasoning/index.js"
+      },
+      "require": {
+        "types": "./dist/components/reasoning/index.d.cts",
+        "default": "./dist/components/reasoning/index.cjs"
+      }
+    },
+    "./source": {
+      "import": {
+        "types": "./dist/components/source/index.d.ts",
+        "default": "./dist/components/source/index.js"
+      },
+      "require": {
+        "types": "./dist/components/source/index.d.cts",
+        "default": "./dist/components/source/index.cjs"
+      }
+    },
+    "./thread-list": {
+      "import": {
+        "types": "./dist/components/thread-list/index.d.ts",
+        "default": "./dist/components/thread-list/index.js"
+      },
+      "require": {
+        "types": "./dist/components/thread-list/index.d.cts",
+        "default": "./dist/components/thread-list/index.cjs"
+      }
+    },
+    "./tool-call": {
+      "import": {
+        "types": "./dist/components/tool-call/index.d.ts",
+        "default": "./dist/components/tool-call/index.js"
+      },
+      "require": {
+        "types": "./dist/components/tool-call/index.d.cts",
+        "default": "./dist/components/tool-call/index.cjs"
       }
     },
     "./styles.css": "./dist/styles.css",

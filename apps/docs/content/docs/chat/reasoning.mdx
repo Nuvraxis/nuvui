@@ -1,0 +1,163 @@
+---
+title: Reasoning
+description: How an assistant got to its reply. A line over the reply that opens to the steps it took, open while it works and closed once it has answered.
+added: "2026-10-11"
+---
+
+Use reasoning over a reply to show how it was reached: what was looked up, what was checked. It's open while the assistant works, so the wait has something in it, and closes when the reply arrives, since the reply is what the reader came for.
+
+<Preview name="reasoning/basic" />
+
+## Install
+
+```sh
+pnpm add @nuvui/chat @nuvui/react
+```
+
+## Import
+
+```tsx
+import {
+  Reasoning,
+  ReasoningContent,
+  ReasoningStep,
+  ReasoningSteps,
+  ReasoningTrigger,
+} from "@nuvui/chat";
+```
+
+The styles come from `@nuvui/chat/styles.css`, which you load once for the whole app, after `@nuvui/react/styles.css`. [Chat](/docs/chat) covers that.
+
+```tsx
+<Reasoning streaming={thinking}>
+  <ReasoningTrigger />
+  <ReasoningContent>{thoughts}</ReasoningContent>
+</Reasoning>
+```
+
+## Parts
+
+| Part | What it is |
+| --- | --- |
+| `Reasoning` | The whole of it. It keeps whether the steps are open. |
+| `ReasoningTrigger` | The line that opens and closes them. |
+| `ReasoningContent` | What opens. |
+| `ReasoningSteps` | A list of steps, in the order they were taken. |
+| `ReasoningStep` | One step. |
+
+## Text or steps
+
+`ReasoningContent` takes either. If the model gives you its thinking as text, put the text in. If your app knows the steps, such as each tool that was called, put a `ReasoningSteps` in with a `ReasoningStep` for each. A step has a `label` and, as children, a line more about it.
+
+## While the assistant works
+
+Set `streaming` for as long as it's thinking. The steps open, the line shimmers, and the step with `status="active"` shows a spinner. When `streaming` goes back to `false` they close.
+
+<Preview name="reasoning/streaming" />
+
+If the reader opens or closes the steps themselves, that's kept: from then on `streaming` doesn't move them. Someone who closed them isn't shown them again, and someone who opened them to read isn't interrupted.
+
+## What the line says
+
+Left empty, the trigger says "Thinking" while `streaming` and "Reasoning" after. Say more if you know more, such as how long it took: "Thought for 6 seconds".
+
+## Open or closed
+
+Without `streaming` it starts closed. `defaultOpen` starts it open, and `open` with `onOpenChange` lets you keep it, in which case `streaming` asks through `onOpenChange` and you decide. These are the [Collapsible](/docs/components/collapsible)'s props, which `Reasoning` is built on.
+
+## Reasoning props
+
+<PropsTable package="chat" component="reasoning" name="ReasoningOwnProps" />
+
+It also takes the props of a [Collapsible](/docs/components/collapsible#props).
+
+## ReasoningStep props
+
+<PropsTable package="chat" component="reasoning" name="ReasoningStepOwnProps" />
+
+It also takes the attributes of an `li`. `ReasoningTrigger` takes the attributes of a `button`, `ReasoningContent` of a `div` and `ReasoningSteps` of an `ol`. Every part passes `ref` to its element.
+
+## Accessibility
+
+### Keyboard
+
+| Key | What it does |
+| --- | --- |
+| <kbd>Enter</kbd> or <kbd>Space</kbd> | On the line, opens or closes the steps. |
+
+### What the component handles
+
+- The line is a button with `aria-expanded`, tied to what it opens.
+- While it's closed, the steps aren't in the page for a screen reader or for Tab.
+- The steps are an ordered list. The one being taken has `aria-current="step"`.
+- The shimmer and the spinner stand still for someone who has asked for less motion.
+- The tick and the spinner are hidden from screen readers. The label says what the step is.
+- The line is 44 pixels tall on a touch screen.
+
+### What you need to handle
+
+- Put it in a [`Message`](/docs/chat/message) that has `streaming` for as long as the reply is being written. Then a screen reader isn't read each step as it arrives, and reads the message once it's whole.
+- Write each `label` as what was done: "Checked the payment terms".
+- Translate what the trigger says.
+
+## CSS variables
+
+Set any of these on a `Reasoning`, or on anything around it.
+
+```css
+.chat {
+  --nuv-reasoning-line: var(--color-primary);
+}
+```
+
+<CssVariables
+  package="chat"
+  component="reasoning"
+  descriptions={{
+    "--nuv-reasoning-fg":
+      "Color of the text that opens, and of a step's detail. Keep it at 4.5:1.",
+    "--nuv-reasoning-label-fg": "Color of a step's label.",
+    "--nuv-reasoning-line": "Color of the line down the side.",
+    "--nuv-reasoning-trigger-fg":
+      "Color of the line that opens the steps. Keep it at 4.5:1.",
+    "--nuv-reasoning-trigger-hover-fg": "Its color under the pointer.",
+  }}
+/>
+
+## Classes
+
+<BemClasses
+  package="chat"
+  component="reasoning"
+  descriptions={{
+    "nuv-reasoning": "Reasoning",
+    "nuv-reasoning__trigger": "ReasoningTrigger",
+    "nuv-reasoning__chevron": "The arrow in it, which turns when the steps open.",
+    "nuv-reasoning__content": "The part that opens, whose height is animated.",
+    "nuv-reasoning__body": "ReasoningContent: what's inside it, with the line down its side.",
+    "nuv-reasoning__steps": "ReasoningSteps",
+    "nuv-reasoning__step": "ReasoningStep",
+    "nuv-reasoning__marker": "The tick, or the spinner.",
+    "nuv-reasoning__text": "The label and the detail.",
+    "nuv-reasoning__label": "The label.",
+    "nuv-reasoning__detail": "The detail, from the step's children.",
+  }}
+/>
+
+`Reasoning` has `data-streaming` while the assistant works, and `data-state`, `"open"` or `"closed"`. A step has `data-status`, `"done"` or `"active"`.
+
+## Server components
+
+Reasoning starts with `"use client"`, since the steps open and close. A server component can render a finished one, without `onOpenChange`.
+
+## Do and don't
+
+**Do**
+
+- Close it once the reply is there, which `streaming` does for you.
+- Show the steps that were really taken.
+
+**Don't**
+
+- Don't put the reply itself in it. What the reader needs is under it, in the message.
+- Don't use it for progress through a form or a checkout. That's a [Stepper](/docs/components/stepper).

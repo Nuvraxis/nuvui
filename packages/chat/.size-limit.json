@@ -2,7 +2,12 @@
   {
     "name": "@nuvui/chat",
     "path": "dist/index.js",
-    "limit": "3.5 kB"
+    "limit": "7 kB"
+  },
+  {
+    "name": "@nuvui/chat/attachment",
+    "path": "dist/components/attachment/index.js",
+    "limit": "1 kB"
   },
   {
     "name": "@nuvui/chat/conversation",
@@ -22,7 +27,7 @@
   {
     "name": "@nuvui/chat/prompt-input",
     "path": "dist/components/prompt-input/index.js",
-    "limit": "2.5 kB"
+    "limit": "4.5 kB"
   },
   {
     "name": "@nuvui/chat/prompt-suggestion",
@@ -30,9 +35,29 @@
     "limit": "500 B"
   },
   {
+    "name": "@nuvui/chat/reasoning",
+    "path": "dist/components/reasoning/index.js",
+    "limit": "1.25 kB"
+  },
+  {
+    "name": "@nuvui/chat/source",
+    "path": "dist/components/source/index.js",
+    "limit": "750 B"
+  },
+  {
+    "name": "@nuvui/chat/thread-list",
+    "path": "dist/components/thread-list/index.js",
+    "limit": "750 B"
+  },
+  {
+    "name": "@nuvui/chat/tool-call",
+    "path": "dist/components/tool-call/index.js",
+    "limit": "1.75 kB"
+  },
+  {
     "name": "styles.css",
     "path": "dist/styles.css",
     "rolldown": false,
-    "limit": "2.5 kB"
+    "limit": "3.75 kB"
   }
 ]

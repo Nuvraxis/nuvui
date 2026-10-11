@@ -1,0 +1,151 @@
+---
+title: Attachment
+description: A file shown in a message or waiting in the prompt box, with its name, its size, a picture where there is one, and a button that takes it out.
+added: "2026-10-11"
+---
+
+Use an attachment for each file that goes with a message: the ones a person sent, the ones an assistant made, and the ones waiting in the [prompt box](/docs/chat/prompt-input) to be sent.
+
+<Preview name="attachment/basic" />
+
+## Install
+
+```sh
+pnpm add @nuvui/chat @nuvui/react
+```
+
+## Import
+
+```tsx
+import { Attachment, Attachments } from "@nuvui/chat";
+```
+
+The styles come from `@nuvui/chat/styles.css`, which you load once for the whole app, after `@nuvui/react/styles.css`. [Chat](/docs/chat) covers that.
+
+```tsx
+<Attachments aria-label="Files with this message">
+  <Attachment name="october-invoices.pdf" detail="PDF" size={248000} />
+</Attachments>
+```
+
+## Parts
+
+| Part | What it is |
+| --- | --- |
+| `Attachments` | The list. The files sit side by side and wrap. |
+| `Attachment` | One file. |
+
+## What a file shows
+
+`name` is the only thing a file needs. `size` is a number of bytes, written in the reader's own number format. `detail` is a word or two before it. A long name is cut short with an ellipsis, and the whole of it is the name's `title`.
+
+`src` puts a small picture in place of the icon. For a file that's a picture, that's the picture itself. It's decoration: the name says what the file is, so the picture has no text of its own.
+
+With `href` the name is a link that opens the file. `linkProps` takes the rest of a link's attributes, such as `download` or `target`.
+
+## Waiting, uploading and failed
+
+`onRemove` gives a file a button that takes it out. `uploading` shows a spinner where the icon was and "Uploading" where the size was. `error` takes what went wrong, in words, and shows it in place of the size.
+
+<Preview name="attachment/states" />
+
+The prompt box draws the files that wait in it with this component, and keeps the list for you. [PromptInput](/docs/chat/prompt-input#files) covers that.
+
+## Attachment props
+
+<PropsTable package="chat" component="attachment" name="AttachmentOwnProps" />
+
+It also takes the attributes of an `li`. `Attachments` takes the attributes of a `ul`. Both pass `ref` to their element.
+
+## Accessibility
+
+### What the component handles
+
+- The files are a list, so a screen reader says how many there are. It's still called a list in Safari, which stops saying so once the bullets are styled away.
+- The button that takes a file out is named after its file: "Remove october-invoices.pdf".
+- A file that's uploading has `aria-busy`, and says "Uploading" in text.
+- A file that failed says why in text. The red edge is for the eye and isn't the only sign.
+- The picture and the icon are hidden from screen readers.
+- The button is 44 pixels on a touch screen and 28 with a mouse.
+
+### What you need to handle
+
+- Name the list with `aria-label`: "Files with this message", "Files to send".
+- Write `error` so that it says what to do: "Too large. The limit is 25 MB."
+- A file that fails some time after it was added changes on a page the reader may not be looking at. Say so where it will be heard, with a [toast](/docs/components/toast) or a `role="alert"` of your own.
+- When a file is taken out, its button goes with it. Move focus somewhere that's still there. The prompt box does this for the files it keeps.
+- Translate `removeLabel` and `uploadingLabel`.
+
+## CSS variables
+
+Set any of these on an `Attachments`, or on anything around it.
+
+```css
+.chat {
+  --nuv-attachment-max-width: 20rem;
+  --nuv-attachment-radius: var(--radius-md);
+}
+```
+
+<CssVariables
+  package="chat"
+  component="attachment"
+  descriptions={{
+    "--nuv-attachment-gap": "Space between the files.",
+    "--nuv-attachment-bg": "Background of a file.",
+    "--nuv-attachment-border": "Color of its edge.",
+    "--nuv-attachment-fg": "Color of the name.",
+    "--nuv-attachment-max-width":
+      "The widest a file gets before its name is cut short.",
+    "--nuv-attachment-radius": "Corner radius of a file.",
+    "--nuv-attachment-detail-fg":
+      "Color of the line under the name. Keep it at 4.5:1.",
+    "--nuv-attachment-error-border": "Color of the edge of a file that failed.",
+    "--nuv-attachment-error-fg":
+      "Color of what went wrong. Keep it at 4.5:1.",
+    "--nuv-attachment-picture-bg": "Background behind the icon.",
+    "--nuv-attachment-picture-fg": "Color of the icon. Keep it at 3:1.",
+    "--nuv-attachment-picture-size": "Width and height of the picture.",
+    "--nuv-attachment-remove-fg":
+      "Color of the cross in the button. Keep it at 3:1.",
+    "--nuv-attachment-remove-hover-bg":
+      "Background of the button under the pointer.",
+    "--nuv-attachment-remove-hover-fg": "Color of its cross under the pointer.",
+  }}
+/>
+
+## Classes
+
+<BemClasses
+  package="chat"
+  component="attachment"
+  descriptions={{
+    "nuv-attachments": "Attachments",
+    "nuv-attachment": "Attachment",
+    "nuv-attachment__picture": "The box the icon, the picture or the spinner is in.",
+    "nuv-attachment__image": "The picture, from src.",
+    "nuv-attachment__text": "The name and the line under it.",
+    "nuv-attachment__name": "The name. A link when there's an href.",
+    "nuv-attachment__detail": "The detail and the size, or that it's uploading.",
+    "nuv-attachment__error": "What went wrong.",
+    "nuv-attachment__remove": "The button that takes it out.",
+  }}
+/>
+
+A file has `data-uploading` while it uploads and `data-error` when it has failed.
+
+## Server components
+
+Neither part is a client component. A server component can render both, without the functions: `onRemove`, `removeLabel`, `formatSize`.
+
+## Do and don't
+
+**Do**
+
+- Give a file its real name. It's what the reader looks for.
+- Show a file that failed where it was, with the reason, and leave the button that takes it out.
+
+**Don't**
+
+- Don't show a preview of a whole document here. This is a file's name tag. What's in it opens from the link.
+- Don't rely on the picture to say what a file is.

@@ -1,6 +1,6 @@
 # @nuvui/chat
 
-The parts of a conversation with an assistant, for [`@nuvui/react`](https://www.npmjs.com/package/@nuvui/react): messages, the scrolling around them, and the box a prompt is written in.
+The parts of a conversation with an assistant, for [`@nuvui/react`](https://www.npmjs.com/package/@nuvui/react): messages, the scrolling around them, the box a prompt is written in, and what a reply comes with: files, sources, tool calls and reasoning. And the list of past conversations.
 
 This is early: the package is a 0.x version, and before 1.0 a minor version may rename or remove things. The [changelog](https://nuvui.nuvraxis.com/docs/changelog) says where one does, and the [repository README](https://github.com/Nuvraxis/nuvui#readme) says where things stand.
 
@@ -62,14 +62,19 @@ export function Chat({ messages, waiting, replying, send, stop }) {
 - `Conversation`: the messages in a box that scrolls. It starts at the latest message and keeps it in view while a reply arrives. When the reader scrolls up, it stops following, and a button to go back appears.
 - `Message`: one message, from the person or from the assistant, with room for a picture, a line of details and a row of actions. `MessageCopyAction` copies it.
 - `MessageLoader`: three dots for the wait before a reply starts.
-- `PromptInput`: the box a prompt is written in. The field grows with its text, Enter sends, and the button to send becomes a button to stop while a reply is on its way.
+- `PromptInput`: the box a prompt is written in. The field grows with its text, Enter sends, and the button to send becomes a button to stop while a reply is on its way. With `PromptInputAttach` and `PromptInputAttachments` it takes files, picked, pasted or dropped, and hands them over with the text.
 - `PromptSuggestion`: prompts to start from.
+- `Attachment`: a file, in a message or waiting to be sent.
+- `Sources`: what a reply was drawn from, as a numbered list of links that opens.
+- `ToolCall`: something the assistant did with a tool, in a card that opens, with a question and two buttons for a call that has to be allowed first.
+- `Reasoning`: the steps the assistant took, open while it works and closed after.
+- `ThreadList`: the list of past conversations, for a sidebar.
 
 ## What it leaves to you
 
-It takes messages as props and tells you when something is sent. It doesn't talk to a model or to a server, so it works with whatever you fetch with.
+It takes messages as props and tells you when something is sent. It doesn't talk to a model or to a server, and it doesn't upload a file: it hands you the `File` objects. So it works with whatever you fetch with.
 
-Markdown and highlighted code in a reply, files, sources and tool calls are planned and aren't here yet. `MessageContent` shows text with its line breaks and takes whatever you render yourself.
+Markdown and highlighted code in a reply are planned and aren't here yet. `MessageContent` shows text with its line breaks and takes whatever you render yourself.
 
 ## For a screen reader
 
@@ -77,7 +82,7 @@ The messages are a log: a message is read when it's added. One that's still arri
 
 ## Dependencies
 
-`@nuvui/react` is a peer dependency, and the only one besides React.
+`@nuvui/react` is a peer dependency, and the only one besides React. The parts that open are built on its Collapsible, and the thread list on its ListView.
 
 The docs are at https://nuvui.nuvraxis.com/docs/chat.
 

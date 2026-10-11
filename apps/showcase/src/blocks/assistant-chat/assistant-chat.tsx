@@ -1,6 +1,8 @@
 "use client";
 
 import {
+  Attachment,
+  Attachments,
   Conversation,
   ConversationContent,
   ConversationEmpty,
@@ -12,6 +14,8 @@ import {
   MessageCopyAction,
   MessageLoader,
   PromptInput,
+  PromptInputAttach,
+  PromptInputAttachments,
   PromptInputSubmit,
   PromptInputTextarea,
   PromptInputToolbar,
@@ -23,7 +27,13 @@ import { Badge, NativeSelect } from "@nuvui/react";
 import { useEffect, useRef, useState } from "react";
 import "./assistant-chat.scss";
 
-type Turn = { id: number; from: "user" | "assistant"; text: string };
+type Turn = {
+  id: number;
+  from: "user" | "assistant";
+  text: string;
+  // What was sent with it: the names and sizes, which is all that's shown.
+  files?: { name: string; size: number }[];
+};
 
 // A stand-in for a model. A real one is fetched from your server: this
 // picks an answer by a word in the question and hands it out a few words
@@ -68,14 +78,18 @@ export default function AssistantChat() {
 
   useEffect(() => () => clearInterval(timer.current), []);
 
-  function add(from: Turn["from"], text: string) {
+  function add(from: Turn["from"], text: string, files?: Turn["files"]) {
     const id = next.current;
     next.current += 1;
-    setTurns((now) => [...now, { id, from, text }]);
+    setTurns((now) => [...now, { id, from, text, files }]);
   }
 
-  function ask(question: string) {
-    add("user", question);
+  function ask(question: string, files: File[] = []) {
+    add(
+      "user",
+      question,
+      files.map(({ name, size }) => ({ name, size })),
+    );
     const words = answerTo(question).split(" ");
     let count = 0;
     setReply({ words, count });
@@ -135,7 +149,14 @@ export default function AssistantChat() {
 
           {turns.map((turn, index) => (
             <Message key={turn.id} from={turn.from}>
-              <MessageContent>{turn.text}</MessageContent>
+              {turn.text ? <MessageContent>{turn.text}</MessageContent> : null}
+              {turn.files && turn.files.length > 0 ? (
+                <Attachments aria-label="Files with this message">
+                  {turn.files.map((file) => (
+                    <Attachment key={file.name} {...file} />
+                  ))}
+                </Attachments>
+              ) : null}
               {turn.from === "assistant" ? (
                 <MessageActions>
                   <MessageCopyAction text={turn.text} />
@@ -178,14 +199,22 @@ export default function AssistantChat() {
         <ConversationScrollButton />
 
         <div className="assistant-chat__foot">
-          <PromptInput busy={reply !== null} onStop={stop} onSubmit={ask}>
+          <PromptInput
+            busy={reply !== null}
+            maxFiles={4}
+            onStop={stop}
+            onSubmit={(text, { files }) => ask(text, files)}
+          >
+            <PromptInputAttachments />
             <PromptInputTextarea
               aria-label="Message to the billing assistant"
               placeholder="Ask about your invoices"
             />
             <PromptInputToolbar>
-              <PromptInputTools>
+              <PromptInputTools className="assistant-chat__tools">
+                <PromptInputAttach />
                 <NativeSelect
+                  className="assistant-chat__scope"
                   aria-label="Which customers to look at"
                   value={scope}
                   onChange={(event) => setScope(event.target.value)}

@@ -175,6 +175,45 @@ test("components used from a server component hydrate and work", async ({
       .getByRole("button", { name: "Suggestion from the server" }),
   ).toBeVisible();
 
+  // The later chat parts: what's drawn on the server is there, and what
+  // opens does once the page has taken over.
+  await expect(
+    page
+      .getByRole("list", { name: "Files from the server" })
+      .getByRole("link", { name: "file-from-the-server.pdf" }),
+  ).toBeVisible();
+  const serverSources = page.getByRole("button", {
+    name: "Sources from the server",
+  });
+  await expect(serverSources).toHaveAttribute("aria-expanded", "false");
+  await serverSources.click();
+  await expect(
+    page.getByRole("link", { name: /Source from the server/ }),
+  ).toContainText("example.com");
+  const serverTool = page.getByRole("button", {
+    name: "Tool from the server Done",
+  });
+  await serverTool.click();
+  await expect(page.getByRole("group", { name: "Result" })).toHaveText(
+    "Answered on the server",
+  );
+  await expect(
+    page.getByRole("button", { name: "Reasoning from the server" }),
+  ).toHaveAttribute("aria-expanded", "true");
+  await expect(page.getByText("Step from the server")).toBeVisible();
+  const serverThreads = page.getByRole("grid", {
+    name: "Threads from the server",
+  });
+  await expect(serverThreads.locator('[aria-selected="true"]')).toHaveText(
+    "Thread from the server",
+  );
+  await serverThreads
+    .getByRole("row", { name: "Another from the server" })
+    .click();
+  await expect(serverThreads.locator('[aria-selected="true"]')).toHaveText(
+    "Another from the server",
+  );
+
   // Neither of these two has any script of its own: what's checked is
   // that the server drew them whole.
   const serverBarcode = page.getByRole("img", {

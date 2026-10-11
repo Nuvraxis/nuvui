@@ -1,0 +1,231 @@
+---
+title: ToolCall
+description: Something an assistant did, or asks to do, with a tool. A card with the tool's name and where the call stands, which opens to what was asked and what came back, and asks for approval when it needs it.
+added: "2026-10-11"
+---
+
+Use a tool call where an assistant acts and doesn't only answer: it searches, reads a record, sends something. The card says which tool and where the call stands. What was asked and what came back are a press away, for the reader who wants to check.
+
+<Preview name="tool-call/basic" />
+
+## Install
+
+```sh
+pnpm add @nuvui/chat @nuvui/react
+```
+
+## Import
+
+```tsx
+import {
+  ToolCall,
+  ToolCallApproval,
+  ToolCallContent,
+  ToolCallError,
+  ToolCallInput,
+  ToolCallOutput,
+  ToolCallTrigger,
+} from "@nuvui/chat";
+```
+
+The styles come from `@nuvui/chat/styles.css`, which you load once for the whole app, after `@nuvui/react/styles.css`. [Chat](/docs/chat) covers that.
+
+```tsx
+<ToolCall status="done">
+  <ToolCallTrigger>Search invoices</ToolCallTrigger>
+  <ToolCallContent>
+    <ToolCallInput value={{ status: "overdue" }} />
+    <ToolCallOutput value={result} />
+  </ToolCallContent>
+</ToolCall>
+```
+
+## Parts
+
+| Part | What it is |
+| --- | --- |
+| `ToolCall` | The card. `status` says where the call stands. |
+| `ToolCallTrigger` | Its top line: the tool's name and the status. It opens and closes the card. |
+| `ToolCallContent` | What the card shows when it's open. |
+| `ToolCallInput` | What the tool was asked. |
+| `ToolCallOutput` | What it answered. |
+| `ToolCallError` | What went wrong, for a call that failed. |
+| `ToolCallApproval` | The question and its two buttons, for a call that waits to be allowed. |
+
+## Where a call stands
+
+`status` is one of five. Each has an icon and words beside the tool's name, so the icon and its color are never the only sign.
+
+| `status` | Words | When |
+| --- | --- | --- |
+| `"running"` | Running | The tool has been asked and hasn't answered. |
+| `"approval"` | Needs approval | It waits for the person to allow it. |
+| `"done"` | Done | It answered. |
+| `"error"` | Failed | It failed. |
+| `"denied"` | Denied | The person didn't allow it. |
+
+`statusLabel` on the trigger changes the words, for another language or for something more exact: "Done in 2 seconds".
+
+## What was asked and what came back
+
+`ToolCallInput` and `ToolCallOutput` take a `value`. Text is shown as it is. Anything else is shown as indented JSON. A long answer scrolls inside its box, up to 16rem tall.
+
+Pass children in place of `value` to draw it your own way: a table for rows, a picture for a chart.
+
+Name the tool in words a person would use. "Search invoices" says more than `search_invoices`.
+
+## Asking first
+
+Some calls shouldn't run until a person says so: the ones that send, pay, or delete. Set `status="approval"` and put a `ToolCallApproval` in the card with the question. It's drawn only while the call waits, and outside the part that opens, so it's seen with the card closed.
+
+<Preview name="tool-call/approval" />
+
+What happens next is yours. `onApprove` and `onDeny` tell you which button was pressed, and you move `status` on: to `"running"` and then `"done"`, or to `"denied"`.
+
+When a button is pressed, both go. Focus moves to the card's top line first, so it isn't left on nothing.
+
+## Open or closed
+
+A card starts closed. `defaultOpen` starts it open, and `open` with `onOpenChange` lets you keep it. These are the [Collapsible](/docs/components/collapsible)'s props, which `ToolCall` is built on.
+
+## ToolCall props
+
+<PropsTable package="chat" component="tool-call" name="ToolCallOwnProps" />
+
+It also takes the props of a [Collapsible](/docs/components/collapsible#props).
+
+## ToolCallTrigger props
+
+<PropsTable
+  package="chat"
+  component="tool-call"
+  name="ToolCallTriggerOwnProps"
+/>
+
+## ToolCallInput and ToolCallOutput props
+
+<PropsTable
+  package="chat"
+  component="tool-call"
+  name="ToolCallSectionOwnProps"
+/>
+
+`label` is "Request" for the one and "Result" for the other.
+
+## ToolCallApproval props
+
+<PropsTable
+  package="chat"
+  component="tool-call"
+  name="ToolCallApprovalOwnProps"
+/>
+
+## ToolCallError props
+
+<PropsTable package="chat" component="tool-call" name="ToolCallErrorOwnProps" />
+
+`ToolCallContent` takes the attributes of a `div`. Every part passes `ref` to its element.
+
+## Accessibility
+
+### Keyboard
+
+| Key | What it does |
+| --- | --- |
+| <kbd>Enter</kbd> or <kbd>Space</kbd> | On the top line, opens or closes the card. |
+| <kbd>Tab</kbd> | Goes from the top line into what's open, and to the two buttons when the call waits. |
+| Arrow keys | Scroll a long request or result that has focus. |
+
+### What the component handles
+
+- The top line is a button with `aria-expanded`. Its name is the tool's name and the status, so "Search invoices, Done" is read as one.
+- The status is words as well as an icon and a color.
+- The question and its buttons are a group with a name, "Approval".
+- A request or a result that's long enough to scroll can take focus, and is named by its heading.
+- Pressing a button that then goes away doesn't drop focus on the page.
+- The top line is 44 pixels tall.
+
+### What you need to handle
+
+- Write the question so it says what will happen: "Send a reminder for INV-1042 to Contoso?", not "Allow this tool?".
+- Translate `statusLabel`, the sections' `label`, `approveLabel` and `denyLabel`.
+- Don't put anything in a request or a result that the reader shouldn't see. It's on the page, a press away.
+
+## CSS variables
+
+Set any of these on a `ToolCall`, or on anything around it.
+
+```css
+.chat {
+  --nuv-tool-call-radius: var(--radius-md);
+  --nuv-tool-call-code-max-height: 24rem;
+}
+```
+
+<CssVariables
+  package="chat"
+  component="tool-call"
+  descriptions={{
+    "--nuv-tool-call-bg": "Background of the card.",
+    "--nuv-tool-call-border": "Color of its edge and of the lines inside it.",
+    "--nuv-tool-call-fg": "Color of the text.",
+    "--nuv-tool-call-radius": "Corner radius of the card.",
+    "--nuv-tool-call-hover-bg": "Background of the top line under the pointer.",
+    "--nuv-tool-call-icon-fg":
+      "Color of the status icon and the arrow. Keep it at 3:1.",
+    "--nuv-tool-call-status-fg":
+      "Color of the status words. Keep it at 4.5:1.",
+    "--nuv-tool-call-label-fg":
+      "Color of a section's heading. Keep it at 4.5:1.",
+    "--nuv-tool-call-code-bg": "Background of a request or a result.",
+    "--nuv-tool-call-code-fg":
+      "Color of its text. Keep it at 4.5:1 against the background.",
+    "--nuv-tool-call-code-max-height":
+      "How tall a request or a result gets before it scrolls.",
+    "--nuv-tool-call-error-fg":
+      "Color of what went wrong, and of a failed call's icon. Keep it at 4.5:1.",
+  }}
+/>
+
+## Classes
+
+<BemClasses
+  package="chat"
+  component="tool-call"
+  descriptions={{
+    "nuv-tool-call": "ToolCall",
+    "nuv-tool-call__trigger": "ToolCallTrigger",
+    "nuv-tool-call__icon": "The status icon.",
+    "nuv-tool-call__name": "The tool's name.",
+    "nuv-tool-call__status": "The status, in words.",
+    "nuv-tool-call__chevron": "The arrow, which turns when the card opens.",
+    "nuv-tool-call__body": "ToolCallContent",
+    "nuv-tool-call__section":
+      "ToolCallInput, ToolCallOutput and ToolCallError.",
+    "nuv-tool-call__label": "A section's heading.",
+    "nuv-tool-call__code": "The box a request or a result scrolls in.",
+    "nuv-tool-call__pre": "The text in it.",
+    "nuv-tool-call__error": "What went wrong.",
+    "nuv-tool-call__approval": "ToolCallApproval",
+    "nuv-tool-call__question": "The question.",
+    "nuv-tool-call__choices": "The two buttons.",
+  }}
+/>
+
+The card has `data-status`, and `data-state`, `"open"` or `"closed"`. A section has `data-kind`: `"input"`, `"output"` or `"error"`.
+
+## Server components
+
+ToolCall starts with `"use client"`, since the card opens and closes. A server component can render a call that's over, without the functions: `onOpenChange`, `onApprove`, `onDeny`.
+
+## Do and don't
+
+**Do**
+
+- Ask first for anything that can't be taken back.
+- Show a call that failed as failed, with what went wrong.
+
+**Don't**
+
+- Don't open every card by default. The reply is what the reader came for.
+- Don't use the color of the status as its only sign if you restyle. Keep the words.

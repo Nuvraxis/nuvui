@@ -9,9 +9,12 @@ import { type ComponentProps, createRef, useState } from "react";
 import { describe, expect, test, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
+import { Attachment } from "../attachment";
 import { Conversation, ConversationContent } from "../conversation";
 import {
   PromptInput,
+  PromptInputAttach,
+  PromptInputAttachments,
   PromptInputSubmit,
   PromptInputTextarea,
   PromptInputToolbar,
@@ -742,5 +745,575 @@ describe.each(themes)("accessibility in %s", (theme) => {
       contrast(button.color, button.backgroundColor),
     ).toBeGreaterThanOrEqual(3);
     expect(contrast(button.backgroundColor, ground)).toBeGreaterThanOrEqual(3);
+  });
+});
+
+// A file made here, of a kind, a name and a size.
+function file(name: string, type = "text/plain", size = 3) {
+  return new File(["x".repeat(size)], name, { type });
+}
+
+type FilesProps = ComponentProps<typeof PromptInput> & {
+  list?: ComponentProps<typeof PromptInputAttachments>;
+  attach?: ComponentProps<typeof PromptInputAttach>;
+};
+
+function Files({ list, attach, ...props }: FilesProps) {
+  return (
+    <PromptInput data-testid="box" style={{ width: 320 }} {...props}>
+      <PromptInputAttachments {...list} />
+      <PromptInputTextarea aria-label="Message" />
+      <PromptInputToolbar>
+        <PromptInputTools>
+          <PromptInputAttach {...attach} />
+        </PromptInputTools>
+        <PromptInputSubmit />
+      </PromptInputToolbar>
+    </PromptInput>
+  );
+}
+
+const picker = () =>
+  document.querySelector('input[type="file"]') as HTMLInputElement;
+const waiting = () =>
+  [...document.querySelectorAll(".nuv-attachment__name")].map(
+    (name) => name.textContent,
+  );
+const said = () =>
+  (document.querySelector(".nuv-prompt-input__status") as HTMLElement)
+    .textContent;
+
+// What a paste and a drop carry.
+function carrying(files: File[], text?: string) {
+  const data = new DataTransfer();
+  for (const one of files) data.items.add(one);
+  if (text !== undefined) data.setData("text/plain", text);
+  return data;
+}
+
+function paste(files: File[], text?: string) {
+  const event = new ClipboardEvent("paste", {
+    clipboardData: carrying(files, text),
+    bubbles: true,
+    cancelable: true,
+  });
+  field().dispatchEvent(event);
+  return event;
+}
+
+function drag(kind: "dragover" | "dragleave" | "drop", files: File[]) {
+  const event = new DragEvent(kind, {
+    dataTransfer: carrying(files),
+    bubbles: true,
+    cancelable: true,
+  });
+  box().dispatchEvent(event);
+  return event;
+}
+
+describe("files", () => {
+  test("the button to attach is named, isn't the kind that sends, and its picker is out of sight and out of reach", async () => {
+    await render(<Files accept="image/*,.pdf" />);
+    const button = page.getByRole("button", { name: "Attach files" }).element();
+
+    expect(button.getAttribute("type")).toBe("button");
+    expect(button.className).toBe("nuv-prompt-input__attach");
+    expect(style(picker()).display).toBe("none");
+    expect(picker().tabIndex).toBe(-1);
+    expect(picker().accept).toBe("image/*,.pdf");
+    expect(picker().multiple).toBe(true);
+    // No name, so the form doesn't send it.
+    expect(picker().name).toBe("");
+    // Nothing waits yet, so there's no list.
+    expect(page.getByRole("list").elements()).toHaveLength(0);
+  });
+
+  test("a press on the button opens the picker", async () => {
+    await render(<Files />);
+    const opened = vi.fn((event: Event) => event.preventDefault());
+    picker().addEventListener("click", opened);
+
+    await page.getByRole("button", { name: "Attach files" }).click();
+
+    expect(opened).toHaveBeenCalledTimes(1);
+  });
+
+  test("a press you've handled yourself doesn't open it", async () => {
+    await render(
+      <Files attach={{ onClick: (event) => event.preventDefault() }} />,
+    );
+    const opened = vi.fn((event: Event) => event.preventDefault());
+    picker().addEventListener("click", opened);
+
+    await page.getByRole("button", { name: "Attach files" }).click();
+
+    expect(opened).not.toHaveBeenCalled();
+  });
+
+  test("with maxFiles of one, the picker takes one", async () => {
+    await render(<Files maxFiles={1} />);
+
+    expect(picker().multiple).toBe(false);
+  });
+
+  test("picked files wait in a named list, each with its size and a button that takes it out", async () => {
+    const onFilesChange = vi.fn();
+    await render(<Files onFilesChange={onFilesChange} />);
+
+    await userEvent.upload(picker(), [file("a.txt"), file("b.pdf")]);
+
+    await expect
+      .element(page.getByRole("list", { name: "Files to send" }))
+      .toBeVisible();
+    expect(waiting()).toEqual(["a.txt", "b.pdf"]);
+    expect(page.getByRole("list").element().className).toBe(
+      "nuv-attachments nuv-prompt-input__attachments",
+    );
+    await expect
+      .element(page.getByRole("button", { name: "Remove a.txt" }))
+      .toBeVisible();
+    // Three bytes, however the browser's language writes that.
+    expect(
+      document.querySelector(".nuv-attachment__detail")?.textContent,
+    ).toMatch(/^3\D/);
+    expect(onFilesChange).toHaveBeenCalledTimes(1);
+    expect(
+      onFilesChange.mock.calls[0]?.[0].map((one: File) => one.name),
+    ).toEqual(["a.txt", "b.pdf"]);
+    // The list is over the field.
+    expect(rect(page.getByRole("list").element()).bottom).toBeLessThanOrEqual(
+      rect(field()).top,
+    );
+  });
+
+  test("the picker is emptied after, so the same file can be picked again once it's taken out", async () => {
+    await render(<Files />);
+
+    await userEvent.upload(picker(), file("a.txt"));
+    expect(picker().value).toBe("");
+    await page.getByRole("button", { name: "Remove a.txt" }).click();
+    expect(waiting()).toEqual([]);
+    await userEvent.upload(picker(), file("a.txt"));
+
+    expect(waiting()).toEqual(["a.txt"]);
+  });
+
+  test("the same file added twice waits once", async () => {
+    await render(<Files />);
+    const same = file("a.txt");
+
+    await userEvent.upload(picker(), same);
+    await userEvent.upload(picker(), same);
+
+    expect(waiting()).toEqual(["a.txt"]);
+  });
+
+  test("a picture shows itself, from an address that's let go when it's taken out", async () => {
+    const revoke = vi.spyOn(URL, "revokeObjectURL");
+    await render(<Files />);
+
+    await userEvent.upload(picker(), [
+      file("shot.png", "image/png"),
+      file("a.txt"),
+    ]);
+
+    await expect
+      .poll(() => document.querySelectorAll(".nuv-attachment__image").length)
+      .toBe(1);
+    const address = (
+      document.querySelector(".nuv-attachment__image") as HTMLImageElement
+    ).src;
+    expect(address.startsWith("blob:")).toBe(true);
+
+    await page.getByRole("button", { name: "Remove shot.png" }).click();
+
+    await expect
+      .poll(() => revoke.mock.calls.map(([freed]) => freed))
+      .toContain(address);
+    revoke.mockRestore();
+  });
+
+  test("taking a file out tells you, says how many are left, and puts focus in the field", async () => {
+    const onFilesChange = vi.fn();
+    await render(<Files onFilesChange={onFilesChange} />);
+    await userEvent.upload(picker(), [file("a.txt"), file("b.txt")]);
+    await expect.poll(said).toBe("2 files attached");
+
+    await page.getByRole("button", { name: "Remove a.txt" }).click();
+
+    expect(waiting()).toEqual(["b.txt"]);
+    expect(
+      onFilesChange.mock.calls.at(-1)?.[0].map((one: File) => one.name),
+    ).toEqual(["b.txt"]);
+    await expect.poll(said).toBe("1 file attached");
+    expect(document.activeElement).toBe(field());
+
+    await page.getByRole("button", { name: "Remove b.txt" }).click();
+    await expect.poll(said).toBe("No files attached");
+    expect(page.getByRole("list").elements()).toHaveLength(0);
+  });
+
+  test("nothing is said before a file has been added", async () => {
+    await render(<Files defaultFiles={[file("a.txt")]} />);
+
+    expect(waiting()).toEqual(["a.txt"]);
+    expect(said()).toBe("");
+    expect(
+      document.querySelector(".nuv-prompt-input__status")?.getAttribute("role"),
+    ).toBe("status");
+  });
+
+  test("the words about the files are yours", async () => {
+    await render(
+      <Files
+        attach={{ label: "Datei anhängen" }}
+        list={{
+          label: "Dateien",
+          removeLabel: (name) => `${name} entfernen`,
+          formatSize: (bytes) => `${bytes} B`,
+          announce: (count) => `${count} angehängt`,
+        }}
+      />,
+    );
+
+    await userEvent.upload(picker(), file("a.txt"));
+
+    await expect
+      .element(page.getByRole("button", { name: "Datei anhängen" }))
+      .toBeVisible();
+    await expect
+      .element(page.getByRole("list", { name: "Dateien" }))
+      .toBeVisible();
+    await expect
+      .element(page.getByRole("button", { name: "a.txt entfernen" }))
+      .toBeVisible();
+    expect(document.querySelector(".nuv-attachment__detail")?.textContent).toBe(
+      "3 B",
+    );
+    await expect.poll(said).toBe("1 angehängt");
+  });
+});
+
+describe("sending files", () => {
+  test("they're handed over with the text, and the box is emptied of both", async () => {
+    const onSubmit = vi.fn();
+    const onFilesChange = vi.fn();
+    await render(<Files onSubmit={onSubmit} onFilesChange={onFilesChange} />);
+    await userEvent.upload(picker(), [file("a.txt"), file("b.txt")]);
+
+    await type("Look at these{Enter}");
+
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    expect(onSubmit.mock.calls[0]?.[0]).toBe("Look at these");
+    expect(
+      onSubmit.mock.calls[0]?.[1].files.map((one: File) => one.name),
+    ).toEqual(["a.txt", "b.txt"]);
+    expect(onSubmit.mock.calls[0]?.[1].event.type).toBe("submit");
+    expect(field().value).toBe("");
+    expect(waiting()).toEqual([]);
+    expect(onFilesChange.mock.calls.at(-1)?.[0]).toEqual([]);
+  });
+
+  test("with a file waiting it can be sent with no text", async () => {
+    const onSubmit = vi.fn();
+    await render(<Files onSubmit={onSubmit} />);
+    expect(send().element().getAttribute("aria-disabled")).toBe("true");
+
+    await userEvent.upload(picker(), file("a.txt"));
+    expect(send().element().hasAttribute("aria-disabled")).toBe(false);
+    await send().click();
+
+    expect(onSubmit.mock.calls[0]?.[0]).toBe("");
+    expect(onSubmit.mock.calls[0]?.[1].files).toHaveLength(1);
+  });
+
+  test("a box that takes no files hands over none", async () => {
+    const onSubmit = vi.fn();
+    await render(<Box onSubmit={onSubmit} />);
+
+    await type("Hello{Enter}");
+
+    expect(onSubmit.mock.calls[0]?.[1].files).toEqual([]);
+  });
+
+  test("while a reply is on its way a file can be added, and isn't sent", async () => {
+    const onSubmit = vi.fn();
+    await render(<Files busy onSubmit={onSubmit} />);
+
+    await userEvent.upload(picker(), file("a.txt"));
+    field().focus();
+    await userEvent.keyboard("{Enter}");
+
+    expect(waiting()).toEqual(["a.txt"]);
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
+
+  test("when you keep the files, they're what you say", async () => {
+    const onFilesChange = vi.fn();
+    const kept = [file("mine.txt")];
+    await render(<Files files={kept} onFilesChange={onFilesChange} />);
+
+    await userEvent.upload(picker(), file("a.txt"));
+
+    expect(
+      onFilesChange.mock.calls[0]?.[0].map((one: File) => one.name),
+    ).toEqual(["mine.txt", "a.txt"]);
+    // Not changed from outside, so not changed.
+    expect(waiting()).toEqual(["mine.txt"]);
+  });
+
+  test("the list can draw each file your way, and is handed the way to take it out", async () => {
+    await render(
+      <Files
+        defaultFiles={[file("a.txt"), file("b.txt")]}
+        list={{
+          children: (one, remove) => (
+            <Attachment
+              name={one.name}
+              uploading={one.name === "a.txt"}
+              error={one.name === "b.txt" ? "Too large." : undefined}
+              onRemove={remove}
+            />
+          ),
+        }}
+      />,
+    );
+
+    expect(document.querySelectorAll('[aria-busy="true"]')).toHaveLength(1);
+    expect(document.querySelector(".nuv-attachment__error")?.textContent).toBe(
+      "Too large.",
+    );
+
+    await page.getByRole("button", { name: "Remove b.txt" }).click();
+
+    expect(waiting()).toEqual(["a.txt"]);
+  });
+});
+
+describe("files that are turned away", () => {
+  test("by kind, by size and by count, each with its reason, and nothing is shown for them", async () => {
+    const onFilesReject = vi.fn();
+    await render(
+      <Files
+        accept="image/*,.pdf,text/csv"
+        maxFileSize={10}
+        maxFiles={3}
+        onFilesReject={onFilesReject}
+      />,
+    );
+
+    await userEvent.upload(picker(), [
+      file("shot.png", "image/png"),
+      file("Scan.PDF", "application/pdf"),
+      file("rows.csv", "text/csv"),
+      file("notes.txt", "text/plain"),
+      file("big.png", "image/png", 11),
+      file("fourth.png", "image/png"),
+    ]);
+
+    expect(waiting()).toEqual(["shot.png", "Scan.PDF", "rows.csv"]);
+    expect(onFilesReject).toHaveBeenCalledTimes(1);
+    expect(
+      onFilesReject.mock.calls[0]?.[0].map(
+        ({ file: one, reason }: { file: File; reason: string }) =>
+          `${one.name}: ${reason}`,
+      ),
+    ).toEqual(["notes.txt: type", "big.png: size", "fourth.png: count"]);
+  });
+
+  test("when all are turned away, what was waiting stays and you aren't told of a change", async () => {
+    const onFilesChange = vi.fn();
+    await render(
+      <Files
+        accept=".pdf"
+        defaultFiles={[file("a.pdf", "application/pdf")]}
+        onFilesChange={onFilesChange}
+      />,
+    );
+
+    await userEvent.upload(picker(), file("notes.txt"));
+
+    expect(waiting()).toEqual(["a.pdf"]);
+    expect(onFilesChange).not.toHaveBeenCalled();
+  });
+});
+
+describe("pasting and dropping", () => {
+  test("a pasted file waits with the others, and isn't pasted as text", async () => {
+    await render(<Files />);
+
+    const event = paste([file("shot.png", "image/png")]);
+
+    expect(event.defaultPrevented).toBe(true);
+    await expect.poll(waiting).toEqual(["shot.png"]);
+    expect(field().value).toBe("");
+  });
+
+  test("text that comes with a picture of itself stays text", async () => {
+    await render(<Files />);
+
+    const event = paste([file("cells.png", "image/png")], "1\t2");
+
+    expect(event.defaultPrevented).toBe(false);
+    expect(waiting()).toEqual([]);
+  });
+
+  test("pasted files go through the same checks", async () => {
+    const onFilesReject = vi.fn();
+    await render(<Files accept=".pdf" onFilesReject={onFilesReject} />);
+
+    paste([file("shot.png", "image/png")]);
+
+    expect(onFilesReject.mock.calls[0]?.[0][0].reason).toBe("type");
+    expect(waiting()).toEqual([]);
+  });
+
+  test("a paste you've handled yourself is left alone", async () => {
+    await render(
+      <PromptInput data-testid="box">
+        <PromptInputAttachments />
+        <PromptInputTextarea
+          aria-label="Message"
+          onPaste={(event) => event.preventDefault()}
+        />
+      </PromptInput>,
+    );
+
+    paste([file("shot.png", "image/png")]);
+
+    expect(waiting()).toEqual([]);
+  });
+
+  test("files held over the box mark it, and letting go adds them", async () => {
+    await render(<Files />);
+    const calm = style(box()).borderTopStyle;
+
+    const over = drag("dragover", [file("a.txt")]);
+    // A drop is only allowed where this was cancelled.
+    expect(over.defaultPrevented).toBe(true);
+    await expect.poll(() => box().hasAttribute("data-dragging")).toBe(true);
+    expect(style(box()).borderTopStyle).toBe("dashed");
+    expect(calm).toBe("solid");
+
+    const dropped = drag("drop", [file("a.txt")]);
+
+    // Or the browser would open the file in place of the page.
+    expect(dropped.defaultPrevented).toBe(true);
+    await expect.poll(waiting).toEqual(["a.txt"]);
+    expect(box().hasAttribute("data-dragging")).toBe(false);
+    expect(document.activeElement).toBe(field());
+  });
+
+  test("files that leave the box unmark it", async () => {
+    await render(<Files />);
+
+    drag("dragover", [file("a.txt")]);
+    await expect.poll(() => box().hasAttribute("data-dragging")).toBe(true);
+    drag("dragleave", [file("a.txt")]);
+
+    await expect.poll(() => box().hasAttribute("data-dragging")).toBe(false);
+    expect(waiting()).toEqual([]);
+  });
+
+  test("text dragged over the box isn't files, and is left to the field", async () => {
+    await render(<Files />);
+    const data = new DataTransfer();
+    data.setData("text/plain", "hello");
+    const event = new DragEvent("dragover", {
+      dataTransfer: data,
+      bubbles: true,
+      cancelable: true,
+    });
+
+    box().dispatchEvent(event);
+
+    expect(event.defaultPrevented).toBe(false);
+    expect(box().hasAttribute("data-dragging")).toBe(false);
+  });
+
+  test("a box with no part for files takes none: a paste and a drop are the browser's", async () => {
+    const onFilesChange = vi.fn();
+    await render(<Box onFilesChange={onFilesChange} />);
+
+    const pasted = paste([file("shot.png", "image/png")]);
+    const over = drag("dragover", [file("a.txt")]);
+    const dropped = drag("drop", [file("a.txt")]);
+
+    expect(pasted.defaultPrevented).toBe(false);
+    expect(over.defaultPrevented).toBe(false);
+    expect(dropped.defaultPrevented).toBe(false);
+    expect(onFilesChange).not.toHaveBeenCalled();
+  });
+
+  test("a disabled box takes none, and its button to attach is disabled", async () => {
+    await render(<Files disabled />);
+
+    const over = drag("dragover", [file("a.txt")]);
+    drag("drop", [file("a.txt")]);
+
+    expect(over.defaultPrevented).toBe(false);
+    expect(waiting()).toEqual([]);
+    expect(
+      (
+        page
+          .getByRole("button", { name: "Attach files" })
+          .element() as HTMLButtonElement
+      ).disabled,
+    ).toBe(true);
+  });
+});
+
+describe("files, styles and accessibility", () => {
+  test("with a mouse the button to attach is 36px and round, and shows a ring from the keyboard", async () => {
+    await setViewport("desktop");
+    await render(<Files />);
+    const button = page.getByRole("button", { name: "Attach files" }).element();
+
+    expect(rect(button).width).toBe(36);
+    expect(rect(button).height).toBe(36);
+    field().focus();
+    await userEvent.tab();
+    expect(document.activeElement).toBe(button);
+    expect(style(button).outlineStyle).toBe("solid");
+  });
+
+  test("the words about the files are placed inside the box, and take no room", async () => {
+    await render(<Files />);
+    const status = document.querySelector(
+      ".nuv-prompt-input__status",
+    ) as HTMLElement;
+
+    expect(style(box()).position).toBe("relative");
+    expect(style(status).position).toBe("absolute");
+    expect(status.offsetParent).toBe(box());
+    expect(rect(status).width).toBeLessThanOrEqual(1);
+    expect(rect(status).height).toBeLessThanOrEqual(1);
+  });
+
+  test("many files wrap inside the box", async () => {
+    await render(
+      <Files
+        defaultFiles={[
+          file("first-file.txt"),
+          file("second-file.txt"),
+          file(`${"a-very-long-name-".repeat(6)}.txt`),
+        ]}
+      />,
+    );
+    const frame = rect(box());
+
+    for (const one of document.querySelectorAll(".nuv-attachment")) {
+      expect(rect(one).right).toBeLessThanOrEqual(frame.right);
+      expect(rect(one).left).toBeGreaterThanOrEqual(frame.left);
+    }
+  });
+
+  test.each(themes)("passes axe with files waiting in %s", async (theme) => {
+    const { container } = await renderThemed(
+      theme,
+      <Files defaultFiles={[file("a.txt"), file("shot.png", "image/png")]} />,
+    );
+
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

@@ -2927,6 +2927,371 @@ test.describe("team messages", () => {
   });
 });
 
+test.describe("assistant workspace", () => {
+  const log = (page: Page) =>
+    page.getByRole("log", { name: "Conversation with the billing assistant" });
+  const field = (page: Page) =>
+    page.getByRole("textbox", { name: "Message to the billing assistant" });
+  // By its class: with the sheet open, the page behind it is hidden from
+  // roles.
+  const heading = (page: Page) => page.locator(".assistant-workspace__title");
+  const menu = (page: Page) =>
+    page.getByRole("button", { name: "Show conversations" });
+  const sheet = (page: Page) =>
+    page.getByRole("dialog", { name: "Conversations" });
+  // The list, wherever it is: beside the conversation, or in the sheet,
+  // which this opens.
+  const threads = async (page: Page, isMobile: boolean) => {
+    if (await menu(page).isVisible()) {
+      await press(menu(page), isMobile);
+      await expect(sheet(page)).toBeVisible();
+      return sheet(page);
+    }
+    return page.getByRole("complementary", { name: "Conversations" });
+  };
+  const gapOf = (page: Page) =>
+    log(page).evaluate((box) =>
+      Math.round(box.scrollHeight - box.scrollTop - box.clientHeight),
+    );
+  const calls = (page: Page) => log(page).locator(".nuv-tool-call__trigger");
+
+  test("assistant workspace: on a wide screen the list is beside the conversation, which opens at its end", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await open(page, "/blocks/view/assistant-workspace");
+    const side = page.getByRole("complementary", { name: "Conversations" });
+
+    await expect(side).toBeVisible();
+    await expect(menu(page)).toBeHidden();
+    await expect(heading(page)).toHaveText("Overdue invoices for Contoso");
+    await expect(side.getByRole("row")).toHaveCount(3);
+    await expect(side.locator('[aria-selected="true"]')).toHaveText(
+      "Overdue invoices for Contoso",
+    );
+    await expect.poll(() => gapOf(page)).toBe(0);
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollHeight <= window.innerHeight + 1,
+      ),
+    ).toBe(true);
+  });
+
+  test("assistant workspace: on a phone the list is in a sheet, and choosing a conversation closes it", async ({
+    page,
+    isMobile,
+  }) => {
+    await page.setViewportSize(phone);
+    await open(page, "/blocks/view/assistant-workspace");
+
+    await expect(
+      page.getByRole("complementary", { name: "Conversations" }),
+    ).toBeHidden();
+    const list = await threads(page, isMobile);
+    await expect(list.getByRole("row")).toHaveCount(3);
+
+    await press(
+      list.getByRole("row", { name: /What our payment terms say/ }),
+      isMobile,
+    );
+
+    await expect(sheet(page)).toBeHidden();
+    await expect(heading(page)).toHaveText("What our payment terms say");
+    await expect(log(page).locator(".nuv-message")).toHaveCount(2);
+    expect(await overflow(page)).toBe(0);
+  });
+
+  test("assistant workspace: a reply's steps, tool call and sources each open", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/blocks/view/assistant-workspace");
+
+    await expect(calls(page)).toHaveText([
+      /Search invoices\s*Done/,
+      /Send a reminder\s*Needs approval/,
+    ]);
+    await expect(log(page).getByRole("link")).toHaveCount(0);
+
+    await press(
+      log(page).getByRole("button", { name: "Thought for 4 seconds" }),
+      isMobile,
+    );
+    await expect(log(page).locator(".nuv-reasoning__step")).toHaveCount(2);
+
+    await press(calls(page).first(), isMobile);
+    await expect(
+      log(page).getByRole("group", { name: "Result" }),
+    ).toContainText("INV-1057");
+
+    await press(log(page).getByRole("button", { name: "2 sources" }), isMobile);
+    await expect(log(page).getByRole("link")).toHaveCount(2);
+    expect(await overflow(page)).toBe(0);
+  });
+
+  test("assistant workspace: a call that sends waits to be approved, then runs, and the answer follows", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/blocks/view/assistant-workspace");
+    const approval = log(page).getByRole("group", { name: "Approval" });
+
+    await expect(approval).toContainText(
+      "Send a reminder for INV-1042 to Contoso?",
+    );
+    await press(approval.getByRole("button", { name: "Approve" }), isMobile);
+
+    await expect(calls(page).last()).toHaveText(/Send a reminder\s*Running/);
+    await expect(approval).toHaveCount(0);
+    await expect(calls(page).last()).toHaveText(/Send a reminder\s*Done/);
+    await expect(log(page).locator(".nuv-message").last()).toHaveText(
+      "Assistant: The reminder is on its way to Contoso.",
+    );
+    // The box follows a frame after its messages change.
+    await expect.poll(() => gapOf(page)).toBe(0);
+  });
+
+  test("assistant workspace: denying sends nothing and says so", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/blocks/view/assistant-workspace");
+
+    await press(
+      log(page)
+        .getByRole("group", { name: "Approval" })
+        .getByRole("button", { name: "Deny" }),
+      isMobile,
+    );
+
+    await expect(calls(page).last()).toHaveText(/Send a reminder\s*Denied/);
+    await expect(log(page).locator(".nuv-message").last()).toHaveText(
+      "Assistant: I haven't sent anything.",
+    );
+  });
+
+  test("assistant workspace: a new conversation starts empty, and its first question names it and puts it at the top of the list", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/blocks/view/assistant-workspace");
+    let list = await threads(page, isMobile);
+    await press(
+      list.getByRole("button", { name: "New conversation" }),
+      isMobile,
+    );
+
+    await expect(heading(page)).toHaveText("New conversation");
+    await expect(
+      log(page).getByRole("group", { name: "Suggestions" }).getByRole("button"),
+    ).toHaveCount(3);
+
+    await field(page).fill("What's due this week?");
+    await press(page.getByRole("button", { name: "Send" }), isMobile);
+
+    await expect(heading(page)).toHaveText("What's due this week?");
+    // The steps are open while it thinks, and closed when it has answered.
+    const thinking = log(page).locator(".nuv-reasoning__trigger").last();
+    await expect(thinking).toHaveAttribute("aria-expanded", "true");
+    await expect(log(page).locator('[aria-busy="true"]')).toHaveCount(1);
+    await expect(page.getByRole("button", { name: "Stop" })).toBeVisible();
+    await expect(thinking).toHaveText("Thought for 2 seconds", {
+      timeout: 15_000,
+    });
+    await expect(thinking).toHaveAttribute("aria-expanded", "false");
+    await expect(log(page).locator('[aria-busy="true"]')).toHaveCount(0);
+    await expect.poll(() => gapOf(page)).toBe(0);
+
+    list = await threads(page, isMobile);
+    await expect(list.getByRole("row")).toHaveCount(4);
+    await expect(list.getByRole("row").first()).toHaveText(
+      "What's due this week?",
+    );
+    await expect(list.locator('[aria-selected="true"]')).toHaveText(
+      "What's due this week?",
+    );
+  });
+
+  test("assistant workspace: stopping ends the thinking and adds no answer", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/blocks/view/assistant-workspace");
+    const before = await log(page).locator(".nuv-message").count();
+
+    await field(page).fill("And the other one?");
+    await press(page.getByRole("button", { name: "Send" }), isMobile);
+    await press(page.getByRole("button", { name: "Stop" }), isMobile);
+
+    await expect(page.getByRole("button", { name: "Send" })).toBeVisible();
+    await expect(log(page).locator('[aria-busy="true"]')).toHaveCount(0);
+    await expect(log(page).locator(".nuv-message")).toHaveCount(before + 1);
+  });
+
+  test("assistant workspace: a file waits in the box, and is shown with the message it was sent with", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/blocks/view/assistant-workspace");
+    await page
+      .locator('.assistant-workspace__foot input[type="file"]')
+      .setInputFiles([
+        {
+          name: "statement.pdf",
+          mimeType: "application/pdf",
+          buffer: Buffer.from("pdf"),
+        },
+      ]);
+
+    await expect(
+      page.getByRole("list", { name: "Files to send" }).getByRole("listitem"),
+    ).toHaveCount(1);
+    expect(await overflow(page)).toBe(0);
+    await field(page).fill("Is this right?");
+    await press(page.getByRole("button", { name: "Send" }), isMobile);
+
+    await expect(page.getByRole("list", { name: "Files to send" })).toHaveCount(
+      0,
+    );
+    await expect(
+      log(page)
+        .getByRole("list", { name: "Files with this message" })
+        .locator(".nuv-attachment__name"),
+    ).toHaveText(["statement.pdf"]);
+  });
+
+  test("assistant workspace: deleting the open conversation leaves a new one, with focus on the button that starts one", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/blocks/view/assistant-workspace");
+    const list = await threads(page, isMobile);
+
+    await press(
+      list.getByRole("button", {
+        name: "Delete Overdue invoices for Contoso",
+      }),
+      isMobile,
+    );
+
+    await expect(list.getByRole("row")).toHaveCount(2);
+    await expect(
+      list.getByRole("button", { name: "New conversation" }),
+    ).toBeFocused();
+    await expect(heading(page)).toHaveText("New conversation");
+  });
+
+  test("assistant workspace: with a keyboard the arrows move through the list and Enter opens a conversation", async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(isMobile, "a phone has no arrow keys");
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await open(page, "/blocks/view/assistant-workspace");
+    const side = page.getByRole("complementary", { name: "Conversations" });
+
+    await side.getByRole("row").first().focus();
+    await page.keyboard.press("ArrowDown");
+    await expect(heading(page)).toHaveText("Overdue invoices for Contoso");
+    await page.keyboard.press("Enter");
+
+    await expect(heading(page)).toHaveText("What our payment terms say");
+    await expect(side.locator('[aria-selected="true"]')).toHaveText(
+      "What our payment terms say",
+    );
+  });
+
+  test("assistant workspace: it passes axe with a reply's parts open, and with the sheet open on a phone", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/blocks/view/assistant-workspace");
+    await press(
+      log(page).getByRole("button", { name: "Thought for 4 seconds" }),
+      isMobile,
+    );
+    await press(calls(page).first(), isMobile);
+    await press(log(page).getByRole("button", { name: "2 sources" }), isMobile);
+    await expect(log(page).getByRole("link")).toHaveCount(2);
+    await settleStyles(page);
+    expect(
+      (await new AxeBuilder({ page }).withTags(wcag).analyze()).violations,
+    ).toEqual([]);
+
+    await page.setViewportSize(phone);
+    await press(menu(page), isMobile);
+    await expect(sheet(page)).toBeVisible();
+    await settleStyles(page);
+    expect(
+      (await new AxeBuilder({ page }).withTags(wcag).analyze()).violations,
+    ).toEqual([]);
+  });
+});
+
+test.describe("assistant chat, files", () => {
+  test("assistant chat: a file waits in the box, is sent with no text, and is shown with the message", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/blocks/view/assistant-chat");
+    const log = page.getByRole("log", {
+      name: "Conversation with the billing assistant",
+    });
+
+    await expect(
+      page.getByRole("button", { name: "Attach files" }),
+    ).toBeVisible();
+    await page.locator('input[type="file"]').setInputFiles([
+      {
+        name: "invoices.pdf",
+        mimeType: "application/pdf",
+        buffer: Buffer.from("pdf"),
+      },
+    ]);
+    await expect(
+      page.getByRole("list", { name: "Files to send" }).getByRole("listitem"),
+    ).toHaveCount(1);
+    expect(await overflow(page)).toBe(0);
+
+    await press(page.getByRole("button", { name: "Send" }), isMobile);
+
+    await expect(page.getByRole("list", { name: "Files to send" })).toHaveCount(
+      0,
+    );
+    await expect(
+      log
+        .getByRole("list", { name: "Files with this message" })
+        .locator(".nuv-attachment__name"),
+    ).toHaveText(["invoices.pdf"]);
+    // A message that's only a file has no bubble of text.
+    await expect(
+      log.locator('.nuv-message[data-from="user"] .nuv-message__content'),
+    ).toHaveCount(0);
+  });
+
+  test("assistant chat: on a phone the button to attach and the choice of customers share a line with the button to send", async ({
+    page,
+  }) => {
+    await page.setViewportSize(phone);
+    await open(page, "/blocks/view/assistant-chat");
+    const attach = await page
+      .getByRole("button", { name: "Attach files" })
+      .boundingBox();
+    const scope = await page
+      .getByRole("combobox", { name: "Which customers to look at" })
+      .boundingBox();
+    const send = await page.getByRole("button", { name: "Send" }).boundingBox();
+    const middle = (box: typeof attach) =>
+      (box?.y ?? 0) + (box?.height ?? 0) / 2;
+
+    expect(Math.abs(middle(attach) - middle(send))).toBeLessThanOrEqual(1);
+    expect(Math.abs(middle(scope) - middle(send))).toBeLessThanOrEqual(1);
+    expect((scope?.x ?? 0) + (scope?.width ?? 0)).toBeLessThanOrEqual(
+      send?.x ?? 0,
+    );
+  });
+});
+
 test.describe("the blocks page", () => {
   test("lists every category, and each leads to its page", async ({
     page,

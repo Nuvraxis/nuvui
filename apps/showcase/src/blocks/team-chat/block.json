@@ -1,0 +1,9 @@
+{
+  "name": "team-chat",
+  "title": "Team messages",
+  "description": "Messages between people: a list of conversations with what's unread, and the open one beside it with names, times and a box to write in. On a phone it's the list, then the conversation, with a way back.",
+  "category": "chat",
+  "files": ["team-chat.tsx", "team-chat.scss"],
+  "install": ["@nuvui/chat", "@nuvui/react", "lucide-react"],
+  "height": 680
+}

@@ -1399,6 +1399,136 @@ test.describe("file browser", () => {
   });
 });
 
+test.describe("approvals", () => {
+  test.beforeEach(async ({ page }) => {
+    await open(page, "/blocks/view/approvals");
+  });
+
+  const list = (page: Page) =>
+    page.getByRole("grid", { name: "Requests waiting for you" });
+  const row = (page: Page, id: string) =>
+    list(page).locator(`[role="row"][data-value="${id}"]`);
+  // The name in a row, away from its buttons.
+  const face = (page: Page, id: string) =>
+    row(page, id).locator(".approvals__from");
+  const bar = (page: Page) =>
+    page.getByRole("group", { name: "Selected requests" });
+
+  test("approvals: a row's own button decides that request, and focus goes to the next", async ({
+    page,
+    isMobile,
+  }) => {
+    await expect(list(page).getByRole("row")).toHaveCount(4);
+    await expect(page.getByText("4 requests waiting for you.")).toBeVisible();
+
+    await press(
+      page.getByRole("button", { name: "Approve REQ-317" }),
+      isMobile,
+    );
+
+    await expect(page.getByRole("status")).toHaveText("REQ-317 approved.");
+    await expect(list(page).getByRole("row")).toHaveCount(3);
+    await expect(page.getByText("3 requests waiting for you.")).toBeVisible();
+    await expect(row(page, "REQ-315")).toBeFocused();
+    // Nothing was selected by it.
+    await expect(bar(page)).toHaveCount(0);
+  });
+
+  test("approvals: several are selected by pressing their rows, and decided from the bar", async ({
+    page,
+    isMobile,
+  }) => {
+    await press(face(page, "REQ-318"), isMobile);
+    await press(face(page, "REQ-311"), isMobile);
+    await expect(row(page, "REQ-318")).toHaveAttribute("aria-selected", "true");
+    await expect(bar(page)).toHaveAccessibleDescription("2 selected");
+
+    await press(bar(page).getByRole("button", { name: "Decline" }), isMobile);
+
+    await expect(page.getByRole("status")).toHaveText("2 requests declined.");
+    await expect(list(page).getByRole("row")).toHaveCount(2);
+    await expect(bar(page)).toHaveCount(0);
+    await expect(row(page, "REQ-317")).toBeFocused();
+  });
+
+  test("approvals: the arrow keys move between requests, and Tab goes into the one it's at", async ({
+    page,
+    isMobile,
+    browserName,
+  }) => {
+    test.skip(isMobile, "A phone has no arrow keys.");
+    await row(page, "REQ-318").focus();
+
+    await page.keyboard.press("ArrowDown");
+    await expect(row(page, "REQ-317")).toBeFocused();
+    // A letter goes to the next person whose name starts with it.
+    await page.keyboard.press("d");
+    await expect(row(page, "REQ-311")).toBeFocused();
+    await page.keyboard.press("Home");
+    await expect(row(page, "REQ-318")).toBeFocused();
+    await page.keyboard.press("Space");
+    await expect(row(page, "REQ-318")).toHaveAttribute("aria-selected", "true");
+    await page.keyboard.press("Space");
+    await expect(row(page, "REQ-318")).toHaveAttribute(
+      "aria-selected",
+      "false",
+    );
+
+    // Safari leaves anything that isn't a field out of the Tab order
+    // unless a setting is changed.
+    test.skip(browserName === "webkit", "Safari's Tab skips buttons.");
+    await page.keyboard.press("ArrowDown");
+    await page.keyboard.press("Tab");
+    await expect(
+      page.getByRole("button", { name: "Approve REQ-317" }),
+    ).toBeFocused();
+    await page.keyboard.press("Tab");
+    await expect(
+      page.getByRole("button", { name: "Decline REQ-317" }),
+    ).toBeFocused();
+    await page.keyboard.press("Enter");
+    await expect(page.getByRole("status")).toHaveText("REQ-317 declined.");
+    await expect(row(page, "REQ-315")).toBeFocused();
+  });
+
+  test("approvals: with every request decided it says so, and the examples come back", async ({
+    page,
+    isMobile,
+  }) => {
+    for (const id of ["REQ-318", "REQ-317", "REQ-315", "REQ-311"]) {
+      await press(
+        page.getByRole("button", { name: `Approve ${id}` }),
+        isMobile,
+      );
+    }
+
+    await expect(page.getByText("All done")).toBeVisible();
+    await expect(page.getByText("Nothing is waiting for you.")).toBeVisible();
+    await expect(list(page)).toHaveCount(0);
+
+    await press(
+      page.getByRole("button", { name: "Show the examples again" }),
+      isMobile,
+    );
+    await expect(list(page).getByRole("row")).toHaveCount(4);
+  });
+
+  test("approvals: on a phone a row's buttons go under its name, and nothing runs off the side", async ({
+    page,
+  }) => {
+    await page.setViewportSize(phone);
+    const name = await face(page, "REQ-318").boundingBox();
+    const approve = await page
+      .getByRole("button", { name: "Approve REQ-318" })
+      .boundingBox();
+
+    expect(approve?.y ?? 0).toBeGreaterThan(
+      (name?.y ?? 0) + (name?.height ?? 0),
+    );
+    expect(await overflow(page)).toBe(0);
+  });
+});
+
 test.describe("the blocks page", () => {
   test("lists every category, and each leads to its page", async ({
     page,

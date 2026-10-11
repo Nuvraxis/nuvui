@@ -1,0 +1,181 @@
+---
+title: ListView
+description: A list whose rows can be selected and can each hold buttons, moved through with the arrow keys.
+---
+
+Use a list view for rows that are things to work on: people with a button each, requests to approve, files to open. The arrow keys move between rows and Tab goes into the row it's at, so a list of a hundred rows with three buttons each is one stop for Tab and not three hundred. For rows that only show something, use an [item](/docs/components/item). For rows with columns to sort and filter, use a [data table](/docs/table).
+
+<Preview name="list-view/basic" />
+
+## Install
+
+```sh
+pnpm add @nuvui/react
+```
+
+## Import
+
+```tsx
+import { ListView, ListViewItem } from "@nuvui/react";
+```
+
+The styles come from `@nuvui/react/styles.css`, which you load once for the whole app. [Getting started](/docs) covers that, and how to load only this component's CSS.
+
+## Parts
+
+| Part | What it is |
+| --- | --- |
+| `ListView` | The list. It keeps which rows are selected. |
+| `ListViewItem` | A row. Put text in it, and any buttons or links. |
+
+What you put in a row is laid side by side and centered. Give the part that should take the room `flex: 1`.
+
+## Try it
+
+<ListViewPlayground />
+
+## Selecting one row
+
+`selectionMode="single"` lets one row be selected at a time. `value` is a list in every mode, here with one value in it or none.
+
+<Preview name="list-view/selection" />
+
+## Selecting several
+
+With `selectionMode="multiple"`, a press on a row adds it to the selection, and a press on a selected row takes it out. Nothing has to be held down, so it works the same with a finger. Shift and a press selects every row from the last one pressed to this one.
+
+<Preview name="list-view/multiple" />
+
+## Doing something with a row
+
+`onAction` is called with a row's value when Enter is pressed on it. Where rows can't be selected, a press on the row calls it too. A press on a button inside the row is the button's alone: it doesn't select the row or call `onAction`.
+
+<Preview name="list-view/action" />
+
+Where rows can be selected, a press selects, so give the row a button or a link for a mouse to open it with. Enter still calls `onAction`.
+
+## A row that doesn't start with its name
+
+Typing a letter goes to the next row whose text starts with it. When a row starts with something else, a date or a count, say what its name is with `textValue`.
+
+```tsx
+<ListViewItem value="inv-2041" textValue="Northwind">
+  <time dateTime="2026-10-09">9 October</time>
+  Northwind
+</ListViewItem>
+```
+
+## ListView props
+
+<PropsTable component="list-view" name="ListViewOwnProps" />
+
+It also takes what a `div` takes, including `ref` and `className`.
+
+## ListViewItem props
+
+<PropsTable component="list-view" name="ListViewItemOwnProps" />
+
+It also takes what a `div` takes, including `ref` and `className`.
+
+## Accessibility
+
+It follows the [grid pattern](https://www.w3.org/WAI/ARIA/apg/patterns/grid/) of the ARIA Authoring Practices, as a grid one column wide. That's the pattern for a list whose rows hold controls: a `listbox` can't have buttons inside its options.
+
+### Keyboard
+
+The list is one stop for Tab. With focus on a row:
+
+| Key | What it does |
+| --- | --- |
+| Down, Up | Moves to the next or the previous row. |
+| Home, End | Moves to the first or the last row. |
+| Tab | Moves to the first button in the row, then the next. After the last, it leaves the list. |
+| Shift and Tab | From a button, moves back through the row's buttons to the row. From the row, it leaves the list. |
+| Enter | Calls `onAction`. With no `onAction`, selects the row. |
+| Space | Selects the row, or with several, adds it or takes it out. With no selection, calls `onAction`. |
+| A letter | Moves to the next row that starts with it. Letters typed quickly make a word. |
+| Shift and Down or Up | With several: moves, and selects the row it arrives at. |
+| Ctrl or Command and A | With several: selects every row. |
+
+With focus on a button or in a field inside a row, every key is that control's. The arrow keys work again once focus is back on the row.
+
+### What the component handles
+
+- The roles: `grid`, `row` and `gridcell`. A screen reader says which row of how many it's on.
+- `aria-selected` on every row when rows can be selected, and `aria-multiselectable` on the list when several can.
+- Only the buttons of the row Tab is at are in the Tab order. The list takes the others out by setting their `tabindex` to `-1`, and gives each back what it had when its row is the one. A press on a button in any row still works, and makes that the row.
+- Tab stops at the row focus was last in. If that row goes, because the data changed, Tab stops at the first row.
+- A selected row differs by more than its background: a bar at its start, drawn as a border, which is still there where the browser forces its own colors.
+- A disabled row can still be reached with the arrow keys, so a screen reader can read it. It can't be selected or acted on.
+
+### What you need to handle
+
+- Name the list with `aria-label` or `aria-labelledby`.
+- Give every row a `value` no other row has.
+- A row's name is all its text, button names included. Where every row has a button that says the same, name each for its row: `aria-label="Message Ada Lovelace"`.
+- Disable the buttons inside a disabled row. The row doesn't do it for you.
+- Render something else when there are no rows, such as an [empty state](/docs/components/empty). A grid with no rows isn't valid.
+
+## On small screens
+
+A row is at least 44 pixels tall, and as tall as what's in it. What's in a row stays on one line. For a row with more than fits, put the text in an element with `flex: 1` and `min-inline-size: 0` so it wraps or is cut short, and keep to one or two buttons, or put the rest in a [menu](/docs/components/dropdown-menu).
+
+## CSS variables
+
+Set any of these on the `ListView`, or on anything around it.
+
+```css
+.requests {
+  --nuv-list-view-padding-inline: 1rem;
+}
+```
+
+<CssVariables
+  component="list-view"
+  descriptions={{
+    "--nuv-list-view-fg": "Color of the text.",
+    "--nuv-list-view-row-height": "Least height of a row.",
+    "--nuv-list-view-padding-block": "Space above and below what's in a row.",
+    "--nuv-list-view-padding-inline": "Space at the start and end of a row.",
+    "--nuv-list-view-radius": "Corner radius of a row.",
+    "--nuv-list-view-divider": "Color of the line between rows.",
+    "--nuv-list-view-hover-bg": "Background of the row under the pointer.",
+    "--nuv-list-view-selected-bg": "Background of a selected row.",
+    "--nuv-list-view-selected-line-width":
+      "Thickness of the bar at the start of a selected row.",
+    "--nuv-list-view-selected-line":
+      "Color of that bar. Keep it at 3:1 against the row.",
+    "--nuv-list-view-gap": "Space between the things in a row.",
+    "--nuv-list-view-button-bg":
+      "Background of a secondary button in a row. The page's color by default, so the button can be told from a selected row.",
+  }}
+/>
+
+## Classes
+
+<BemClasses
+  component="list-view"
+  descriptions={{
+    "nuv-list-view": "ListView",
+    "nuv-list-view__item": "ListViewItem: the row, which is what's pressed.",
+    "nuv-list-view__cell": "The row's one cell, which holds what you gave it.",
+  }}
+/>
+
+A selected row has `aria-selected="true"` and a disabled one `aria-disabled="true"`.
+
+## Server components
+
+ListView starts with `"use client"`: it keeps which rows are selected. You can render it from a server component with rows written there, as long as you leave `onValueChange` and `onAction` out, since a function can't be passed from the server.
+
+## Do and don't
+
+**Do**
+
+- Keep a row to one line of what it is and one or two things to do with it.
+- Say what happened after a button in a row is pressed, in a status or a [toast](/docs/components/toast). The row may be gone.
+
+**Don't**
+
+- Don't use it for rows nobody acts on. That's a plain list, or [items](/docs/components/item).
+- Don't nest a list view in a row.

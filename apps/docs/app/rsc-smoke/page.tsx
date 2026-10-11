@@ -65,6 +65,8 @@ import {
   ItemGroup,
   ItemTitle,
   Kbd,
+  ListView,
+  ListViewItem,
   NativeSelect,
   Navbar,
   NavbarBrand,
@@ -320,6 +322,16 @@ export default function RscSmokePage() {
           <TreeItem value="server-b" label="File from the server" />
         </TreeItem>
       </Tree>
+      {/* ListView is a client component, given rows written on the server. */}
+      <ListView aria-label="List from the server" selectionMode="single">
+        <ListViewItem value="server-row">
+          Row from the server
+          <button type="button">Button from the server</button>
+        </ListViewItem>
+        <ListViewItem value="server-other">
+          Other row from the server
+        </ListViewItem>
+      </ListView>
       {/* Navbar is a client component, given server-rendered links. */}
       <Navbar collapse="sm" data-testid="server-navbar">
         <NavbarBrand>Bar from the server</NavbarBrand>

@@ -29,6 +29,7 @@ export * from "./components/input-group";
 export * from "./components/item";
 export * from "./components/kbd";
 export * from "./components/label";
+export * from "./components/list-view";
 export * from "./components/menubar";
 export * from "./components/native-select";
 export * from "./components/navbar";

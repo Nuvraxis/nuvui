@@ -1,0 +1,89 @@
+@use "@nuvui/react/scss/mixins";
+
+// The room at the bottom is for the bar, which sits over the page while
+// something is selected. Without it the bar would cover the last row.
+.approvals {
+  display: grid;
+  gap: calc(var(--spacing) * 4);
+  align-content: start;
+  inline-size: 100%;
+  max-inline-size: 48rem;
+  min-block-size: 100svh;
+  margin-inline: auto;
+  padding: calc(var(--spacing) * 6) calc(var(--spacing) * 4) calc(var(--spacing) * 40);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+
+  @include mixins.breakpoint("md") {
+    padding: calc(var(--spacing) * 8) calc(var(--spacing) * 8) calc(var(--spacing) * 28);
+  }
+}
+
+.approvals__head {
+  display: grid;
+  gap: calc(var(--spacing) * 1);
+}
+
+.approvals__title {
+  margin: 0;
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-2xl--line-height);
+  letter-spacing: var(--tracking-tight);
+}
+
+.approvals__text {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+// It keeps a line's height when it's empty, so the list doesn't jump when
+// it speaks.
+.approvals__said {
+  min-block-size: calc(var(--text-sm) * var(--text-sm--line-height));
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+.approvals__list {
+  border: var(--nuv-border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+// What a row holds. On a phone the buttons go under the name, and from
+// there on everything is on one line.
+.approvals__row {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 2) calc(var(--spacing) * 4);
+  align-items: center;
+  min-inline-size: 0;
+}
+
+.approvals__what {
+  display: grid;
+  flex: 1 1 14rem;
+  gap: calc(var(--spacing) * 0.5);
+  min-inline-size: 0;
+}
+
+.approvals__from {
+  font-weight: var(--font-weight-medium);
+}
+
+// Figures line up down the list when each digit is as wide as the next.
+.approvals__amount {
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--font-weight-medium);
+}
+
+.approvals__actions {
+  display: flex;
+  gap: calc(var(--spacing) * 2);
+}

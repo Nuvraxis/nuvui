@@ -1,0 +1,86 @@
+@use "../../styles/layers";
+@use "../../styles/mixins";
+
+@layer components {
+  .nuv-list-view {
+    display: flex;
+    flex-direction: column;
+    min-inline-size: 0;
+    color: var(--nuv-list-view-fg, var(--color-foreground));
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+  }
+
+  // A row is as tall as a finger needs, and taller when what's in it is.
+  .nuv-list-view__item {
+    display: flex;
+    position: relative;
+    box-sizing: border-box;
+    min-inline-size: 0;
+    min-block-size: var(--nuv-list-view-row-height, var(--nuv-touch-size));
+    padding: var(--nuv-list-view-padding-block, calc(var(--spacing) * 2))
+      var(--nuv-list-view-padding-inline, calc(var(--spacing) * 3));
+    border-radius: var(--nuv-list-view-radius, 0);
+    outline: none;
+    cursor: default;
+    -webkit-tap-highlight-color: transparent;
+
+    // Inside the row, so the rows above and below don't cover it.
+    &:focus-visible {
+      outline: var(--nuv-focus-ring-width, 2px) solid
+        var(--nuv-focus-ring-color, var(--color-ring));
+      outline-offset: var(--nuv-focus-ring-offset, -2px);
+    }
+  }
+
+  .nuv-list-view__item + .nuv-list-view__item {
+    border-block-start: var(--nuv-border-width) solid
+      var(--nuv-list-view-divider, var(--color-border));
+  }
+
+  // Not a disabled row, which has nothing to offer a pointer.
+  .nuv-list-view__item:not([aria-disabled="true"]) {
+    @include mixins.hover {
+      background-color: var(--nuv-list-view-hover-bg, var(--color-muted));
+    }
+  }
+
+  // A selected row: a background, and a bar at its start for anyone the
+  // background doesn't reach. The bar is a border, which is still drawn
+  // where the browser forces its own colors.
+  .nuv-list-view__item[aria-selected="true"] {
+    background-color: var(--nuv-list-view-selected-bg, var(--color-muted));
+
+    &::before {
+      position: absolute;
+      inset-block: calc(var(--spacing) * 1.5);
+      inset-inline-start: 0;
+      border-inline-start: var(--nuv-list-view-selected-line-width, 2px) solid
+        var(--nuv-list-view-selected-line, var(--color-primary));
+      border-radius: var(--radius-full);
+      content: "";
+    }
+  }
+
+  // Faded, and its text with it. It can still be reached and read.
+  .nuv-list-view__item[aria-disabled="true"] {
+    opacity: var(--nuv-disabled-opacity);
+    cursor: not-allowed;
+  }
+
+  // A secondary button is the color of a selected row, and of the row under
+  // the pointer. Inside a row it takes the page's color, so it can still be
+  // told from the row it's in.
+  .nuv-list-view__item .nuv-button--secondary {
+    --nuv-button-bg: var(--nuv-list-view-button-bg, var(--color-background));
+  }
+
+  // The row's one cell: what you put in the row, side by side.
+  .nuv-list-view__cell {
+    display: flex;
+    flex: 1;
+    gap: var(--nuv-list-view-gap, calc(var(--spacing) * 3));
+    align-items: center;
+    min-inline-size: 0;
+  }
+}

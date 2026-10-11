@@ -79,6 +79,8 @@ import {
   ItemGroup,
   ItemMedia,
   Kbd,
+  ListView,
+  ListViewItem,
   Menubar,
   MenubarContent,
   MenubarItem,
@@ -1801,6 +1803,35 @@ describe("tree", () => {
     expect(style(group).borderInlineStartStyle).toBe("solid");
     expect(
       contrast(style(group).borderInlineStartColor, canvas()),
+    ).toBeGreaterThan(3);
+  });
+});
+
+describe("list view", () => {
+  test("a selected row keeps the bar at its start, the focused row its ring, and rows the line between them", async () => {
+    await render(
+      <ListView
+        aria-label="Invoices"
+        selectionMode="single"
+        defaultValue={["b"]}
+      >
+        <ListViewItem value="a">INV-2041</ListViewItem>
+        <ListViewItem value="b">INV-2042</ListViewItem>
+      </ListView>,
+    );
+    const row = (name: string) => page.getByRole("row", { name }).element();
+    const bar = getComputedStyle(row("INV-2042"), "::before");
+
+    expect(bar.borderInlineStartStyle).toBe("solid");
+    expect(bar.borderInlineStartWidth).toBe("2px");
+    expect(contrast(bar.borderInlineStartColor, canvas())).toBeGreaterThan(3);
+    expect(getComputedStyle(row("INV-2041"), "::before").content).toBe("none");
+    expect(style(row("INV-2042")).borderTopStyle).toBe("solid");
+
+    await userEvent.tab();
+    expect(style(row("INV-2041")).outlineStyle).toBe("solid");
+    expect(
+      contrast(style(row("INV-2041")).outlineColor, canvas()),
     ).toBeGreaterThan(3);
   });
 });

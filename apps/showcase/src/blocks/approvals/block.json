@@ -1,0 +1,9 @@
+{
+  "name": "approvals",
+  "title": "Approvals",
+  "description": "Requests to approve or decline, each with its own two buttons, and a bar for deciding several at once. The arrow keys move between requests and Tab goes into the one it's at.",
+  "category": "data",
+  "files": ["approvals.tsx", "approvals.scss"],
+  "install": ["@nuvui/react", "lucide-react"],
+  "height": 640
+}

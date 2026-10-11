@@ -134,6 +134,13 @@ test("components used from a server component hydrate and work", async ({
     serverTree.getByRole("treeitem", { name: "Folder from the server" }),
   ).toHaveAttribute("aria-expanded", "true");
 
+  const serverList = page.getByRole("grid", { name: "List from the server" });
+  await expect(serverList.getByRole("row")).toHaveCount(2);
+  await serverList.getByText("Other row from the server").click();
+  await expect(
+    serverList.getByRole("row", { name: "Other row from the server" }),
+  ).toHaveAttribute("aria-selected", "true");
+
   await expect(page.getByTestId("server-navbar")).toContainText(
     "Bar from the server",
   );

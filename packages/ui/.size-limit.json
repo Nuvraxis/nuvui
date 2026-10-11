@@ -160,6 +160,11 @@
     "limit": "1.7 kB"
   },
   {
+    "name": "@nuvui/react/list-view",
+    "path": "dist/components/list-view/index.js",
+    "limit": "3 kB"
+  },
+  {
     "name": "@nuvui/react/menubar",
     "path": "dist/components/menubar/index.js",
     "limit": "29.5 kB"

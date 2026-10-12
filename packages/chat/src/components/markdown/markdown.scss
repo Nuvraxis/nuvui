@@ -1,0 +1,175 @@
+@use "../../styles/layers";
+@use "@nuvui/react/scss/mixins";
+
+// What's inside is written by whoever wrote the markdown, so it's reached
+// by its element and not by a class. Each is in :where(), which adds
+// nothing to how strong the rule is: a part of your own, or a class of
+// yours, still wins.
+// Two of the linter's rules are written for the library's own markup and
+// are off where they can't hold here. One wants every class to be the
+// library's: the two for task lists are the markdown parser's. The other
+// wants no selector deeper than two steps: an element inside an element
+// inside the block is three.
+@layer components {
+  // The space between its parts is its own. A message keeps the line
+  // breaks typed into it, which here would add a line between every two
+  // parts, so that's turned back off.
+  .nuv-markdown {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nuv-markdown-gap, calc(var(--spacing) * 3));
+    min-inline-size: 0;
+    max-inline-size: 100%;
+    color: var(--nuv-markdown-fg, inherit);
+    overflow-wrap: anywhere;
+    white-space: normal;
+  }
+
+  .nuv-markdown :where(p, ul, ol, blockquote, hr, h1, h2, h3, h4, h5, h6) {
+    margin: 0;
+  }
+
+  .nuv-markdown :where(h1, h2, h3, h4, h5, h6) {
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: var(--tracking-tight);
+  }
+
+  // A heading sits closer to what it's over than to what's before it.
+  .nuv-markdown > :where(h1, h2, h3, h4, h5, h6):not(:first-child) {
+    margin-block-start: calc(var(--spacing) * 2);
+  }
+
+  .nuv-markdown :where(h1) {
+    font-size: var(--text-xl);
+    line-height: var(--text-xl--line-height);
+  }
+
+  .nuv-markdown :where(h2) {
+    font-size: var(--text-lg);
+    line-height: var(--text-lg--line-height);
+  }
+
+  .nuv-markdown :where(h3, h4, h5, h6) {
+    font-size: var(--text-base);
+    line-height: var(--text-base--line-height);
+  }
+
+  .nuv-markdown :where(strong) {
+    font-weight: var(--font-weight-semibold);
+  }
+
+  // Underlined, so that it's told from the text around it by more than a
+  // color.
+  .nuv-markdown :where(a) {
+    border-radius: var(--radius-sm);
+    color: var(--nuv-markdown-link-fg, inherit);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+
+    @include mixins.focus-ring;
+  }
+
+  .nuv-markdown :where(ul, ol) {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 1);
+    padding-inline-start: calc(var(--spacing) * 6);
+  }
+
+  // stylelint-disable-next-line selector-max-compound-selectors
+  .nuv-markdown :where(li > ul, li > ol) {
+    margin-block-start: calc(var(--spacing) * 1);
+  }
+
+  // A list inside a loose item, and a paragraph in one.
+  // stylelint-disable-next-line selector-max-compound-selectors
+  .nuv-markdown :where(li > p + p) {
+    margin-block-start: calc(var(--spacing) * 2);
+  }
+
+  // A task list has boxes where the bullets were.
+  // stylelint-disable-next-line selector-class-pattern
+  .nuv-markdown :where(.contains-task-list) {
+    padding-inline-start: calc(var(--spacing) * 1);
+    list-style: none;
+  }
+
+  // stylelint-disable-next-line selector-max-compound-selectors, selector-class-pattern
+  .nuv-markdown :where(.task-list-item > input) {
+    margin: 0;
+    margin-inline-end: calc(var(--spacing) * 2);
+    accent-color: var(--color-primary);
+    vertical-align: middle;
+  }
+
+  .nuv-markdown :where(blockquote) {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 2);
+    padding-inline-start: calc(var(--spacing) * 3);
+    border-inline-start: 2px solid
+      var(--nuv-markdown-quote-border, var(--color-border-strong));
+    color: var(--nuv-markdown-quote-fg, var(--color-muted-foreground));
+  }
+
+  .nuv-markdown :where(hr) {
+    inline-size: 100%;
+    border: 0;
+    border-block-start: var(--nuv-border-width) solid
+      var(--nuv-markdown-border, var(--color-border));
+  }
+
+  // Code in a line. A block of code is a CodeBlock, with styles of its
+  // own.
+  .nuv-markdown :where(code):not(.nuv-code-block__code) {
+    padding: 0.1em 0.35em;
+    border-radius: var(--radius-sm);
+    background-color: var(--nuv-markdown-code-bg, var(--color-muted));
+    color: var(--nuv-markdown-code-fg, var(--color-foreground));
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+  }
+
+  .nuv-markdown :where(img) {
+    max-inline-size: 100%;
+    block-size: auto;
+    border-radius: var(--radius-md);
+  }
+
+  // The box a table scrolls in, when it's wider than the message.
+  .nuv-markdown__table {
+    max-inline-size: 100%;
+    overflow-x: auto;
+    border: var(--nuv-border-width) solid
+      var(--nuv-markdown-border, var(--color-border));
+    border-radius: var(--radius-md);
+
+    @include mixins.focus-ring;
+  }
+
+  .nuv-markdown :where(table) {
+    inline-size: 100%;
+    border-collapse: collapse;
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+    overflow-wrap: normal;
+  }
+
+  .nuv-markdown :where(th, td) {
+    padding: calc(var(--spacing) * 2) calc(var(--spacing) * 3);
+    text-align: start;
+    vertical-align: top;
+  }
+
+  .nuv-markdown :where(th) {
+    background-color: var(--nuv-markdown-table-head-bg, var(--color-muted));
+    font-weight: var(--font-weight-medium);
+    white-space: nowrap;
+  }
+
+  // stylelint-disable-next-line selector-max-compound-selectors
+  .nuv-markdown :where(tbody tr) {
+    border-block-start: var(--nuv-border-width) solid
+      var(--nuv-markdown-border, var(--color-border));
+  }
+}

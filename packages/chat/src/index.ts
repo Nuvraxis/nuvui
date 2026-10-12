@@ -1,4 +1,5 @@
 export * from "./components/attachment";
+export * from "./components/code-block";
 export * from "./components/conversation";
 export * from "./components/message";
 export * from "./components/message-loader";

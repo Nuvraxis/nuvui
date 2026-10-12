@@ -1,0 +1,125 @@
+@use "../../styles/layers";
+@use "@nuvui/react/scss/mixins";
+
+@layer components {
+  // On the surface color and not the muted one: the theme checks its
+  // quiet, red, green and amber against the surface as text, and those
+  // are what code is colored with.
+  .nuv-code-block {
+    box-sizing: border-box;
+    inline-size: 100%;
+    min-inline-size: 0;
+    max-inline-size: 100%;
+    overflow: hidden;
+    border: var(--nuv-border-width) solid
+      var(--nuv-code-block-border, var(--color-border));
+    border-radius: var(--nuv-code-block-radius, var(--radius-lg));
+    background-color: var(--nuv-code-block-bg, var(--color-surface));
+    color: var(--nuv-code-block-fg, var(--color-surface-foreground));
+  }
+
+  // The language at the start and the button at the end. Positioned, so
+  // the words for a screen reader inside it are placed against it.
+  .nuv-code-block__head {
+    display: flex;
+    position: relative;
+    gap: calc(var(--spacing) * 2);
+    align-items: center;
+    justify-content: space-between;
+    min-block-size: var(--nuv-touch-size);
+    padding-inline: calc(var(--spacing) * 3) calc(var(--spacing) * 1);
+    border-block-end: var(--nuv-border-width) solid
+      var(--nuv-code-block-border, var(--color-border));
+
+    @include mixins.fine-pointer {
+      min-block-size: calc(var(--spacing) * 9);
+    }
+  }
+
+  .nuv-code-block__title {
+    min-inline-size: 0;
+    overflow: hidden;
+    color: var(--nuv-code-block-title-fg, var(--color-muted-foreground));
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    line-height: var(--text-xs--line-height);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  // An icon and nothing else. As large as a finger needs on a touch
+  // screen, and smaller with a mouse.
+  .nuv-code-block__copy {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    inline-size: var(--nuv-touch-size);
+    block-size: var(--nuv-touch-size);
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-md);
+    background: none;
+    color: var(--nuv-code-block-copy-fg, var(--color-muted-foreground));
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+
+    @include mixins.motion-safe {
+      transition:
+        background-color var(--nuv-duration-fast) var(--ease-out),
+        color var(--nuv-duration-fast) var(--ease-out);
+    }
+
+    @include mixins.fine-pointer {
+      inline-size: calc(var(--spacing) * 7);
+      block-size: calc(var(--spacing) * 7);
+    }
+
+    @include mixins.hover {
+      background-color: var(--nuv-code-block-copy-hover-bg, var(--color-muted));
+      color: var(--nuv-code-block-copy-hover-fg, var(--color-foreground));
+    }
+
+    @include mixins.focus-ring(-2px);
+  }
+
+  // That the code was copied: for a screen reader, and drawn for nobody.
+  .nuv-code-block__status {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  // Lines aren't wrapped: where a line breaks means something in code.
+  // The box scrolls sideways, and down once it's taller than it may be.
+  .nuv-code-block__scroller {
+    max-block-size: var(--nuv-code-block-max-height, none);
+    overflow: auto;
+    overscroll-behavior-x: contain;
+
+    @include mixins.focus-ring(-2px);
+  }
+
+  // As wide as its longest line, so the padding at the end is still there
+  // when the box has been scrolled to it.
+  .nuv-code-block__pre {
+    box-sizing: border-box;
+    inline-size: max-content;
+    min-inline-size: 100%;
+    margin: 0;
+    padding: calc(var(--spacing) * 3);
+    font-family: var(--font-mono);
+    font-size: var(--nuv-code-block-font-size, var(--text-sm));
+    line-height: var(--text-sm--line-height);
+    white-space: pre;
+    tab-size: 2;
+  }
+
+  .nuv-code-block__code {
+    font: inherit;
+  }
+}

@@ -10,9 +10,19 @@
     "limit": "1 kB"
   },
   {
+    "name": "@nuvui/chat/code-block",
+    "path": "dist/components/code-block/index.js",
+    "limit": "1.25 kB"
+  },
+  {
     "name": "@nuvui/chat/conversation",
     "path": "dist/components/conversation/index.js",
     "limit": "1.5 kB"
+  },
+  {
+    "name": "@nuvui/chat/markdown",
+    "path": "dist/components/markdown/index.js",
+    "limit": "45 kB"
   },
   {
     "name": "@nuvui/chat/message",
@@ -40,6 +50,12 @@
     "limit": "1.25 kB"
   },
   {
+    "name": "@nuvui/chat/shiki",
+    "path": "dist/shiki.js",
+    "limit": "750 B",
+    "ignore": ["shiki"]
+  },
+  {
     "name": "@nuvui/chat/source",
     "path": "dist/components/source/index.js",
     "limit": "750 B"
@@ -58,6 +74,6 @@
     "name": "styles.css",
     "path": "dist/styles.css",
     "rolldown": false,
-    "limit": "3.75 kB"
+    "limit": "4.5 kB"
   }
 ]

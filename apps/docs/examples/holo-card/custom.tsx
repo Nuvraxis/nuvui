@@ -1,9 +1,12 @@
 import { HoloCard } from "@nuvui/react";
 import type { CSSProperties } from "react";
 
-// A steeper tilt, square corners, and a foil of one color where the
-// default has the theme's four.
+// A steeper tilt, square corners, words that rise further, and a foil
+// of one color where the default has the theme's four.
 const look = {
+  "--nuv-holo-card-bg": "var(--color-surface)",
+  "--nuv-holo-card-fg": "var(--color-surface-foreground)",
+  "--nuv-holo-card-lift": "2.5rem",
   "--nuv-holo-card-tilt": "14deg",
   "--nuv-holo-card-radius": "var(--radius-sm)",
   "--nuv-holo-card-foil":
@@ -14,16 +17,12 @@ const look = {
 
 export default function Example() {
   return (
-    <HoloCard style={look}>
+    <HoloCard style={{ ...look, boxShadow: "0 0 0 1px var(--color-border)" }}>
       <div
         style={{
           display: "grid",
           gap: 8,
           padding: 24,
-          border: "1px solid var(--color-border)",
-          borderRadius: "inherit",
-          backgroundColor: "var(--color-surface)",
-          color: "var(--color-surface-foreground)",
         }}
       >
         <span

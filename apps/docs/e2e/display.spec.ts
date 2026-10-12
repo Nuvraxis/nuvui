@@ -1135,6 +1135,12 @@ test.describe("holo card page", () => {
     await expect(card(page)).toHaveAttribute("data-active", "");
     await expect(shine).toHaveCSS("opacity", "0.7");
     await expect(surface).toHaveCSS("transform", /^matrix3d/);
+    // The words have come off the face, a rem and a half toward the
+    // viewer, which is the last row of the matrix.
+    await expect(card(page).locator(".nuv-holo-card__content")).toHaveCSS(
+      "transform",
+      "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 24, 1)",
+    );
 
     await page.mouse.move(0, 0);
     await expect(card(page)).not.toHaveAttribute("data-active");
@@ -1174,6 +1180,10 @@ test.describe("holo card page", () => {
       "aria-hidden",
       "true",
     );
+    await expect(card(page).locator(".nuv-holo-card__texture")).toHaveAttribute(
+      "aria-hidden",
+      "true",
+    );
   });
 
   test("the playground takes the shine away and turns it off", async ({
@@ -1181,6 +1191,20 @@ test.describe("holo card page", () => {
   }) => {
     const area = playground(page);
     await expect(area.locator(".nuv-holo-card__shine")).toHaveCount(1);
+
+    await expect(area.locator(".nuv-holo-card__texture")).toHaveCount(1);
+    await area.getByLabel("texture").uncheck();
+    await expect(area.locator(".nuv-holo-card__texture")).toHaveCount(0);
+    await expect(area.locator("pre")).toContainText(
+      "<HoloCard texture={false} style={face}>",
+    );
+    await area.getByLabel("texture").check();
+
+    await area.getByLabel("lift").uncheck();
+    await expect(area.locator(".nuv-holo-card")).not.toHaveClass(
+      /nuv-holo-card--lift/,
+    );
+    await area.getByLabel("lift").check();
 
     await area.getByLabel("shine").uncheck();
     await area.getByLabel("disabled").check();
@@ -1191,7 +1215,7 @@ test.describe("holo card page", () => {
       "",
     );
     await expect(area.locator("pre")).toContainText(
-      "<HoloCard shine={false} disabled>",
+      "<HoloCard shine={false} disabled style={face}>",
     );
   });
 

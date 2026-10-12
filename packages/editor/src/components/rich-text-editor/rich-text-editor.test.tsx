@@ -3,7 +3,7 @@ import "../../styles/index.scss";
 import { Button } from "@nuvui/react/button";
 import { ToolbarSeparator } from "@nuvui/react/toolbar";
 import { axe, behindOpenList } from "@nuvui/tooling/test/axe";
-import { setViewport } from "@nuvui/tooling/test/media";
+import { emulateMedia, setViewport } from "@nuvui/tooling/test/media";
 import { renderThemed, themes } from "@nuvui/tooling/test/themed";
 import { type ComponentProps, createRef, useState } from "react";
 import { beforeEach, describe, expect, test, vi } from "vitest";
@@ -926,6 +926,9 @@ describe.each(themes)("accessibility in %s", (theme) => {
   });
 
   test("passes axe with the box for a link open", async () => {
+    // The box fades in, and colors measured part of the way through the
+    // fade are paler than the ones it ends on.
+    await emulateMedia({ reducedMotion: "reduce" });
     await renderThemed(
       theme,
       <RichTextEditor aria-label="Notes" defaultValue="<p>Hello</p>" />,
@@ -936,6 +939,9 @@ describe.each(themes)("accessibility in %s", (theme) => {
     await expect
       .element(page.getByRole("textbox", { name: "Web address" }))
       .toBeVisible();
+    await Promise.all(
+      document.getAnimations().map((animation) => animation.finished),
+    );
 
     expect(await axe(document.body, behindOpenList)).toHaveNoViolations();
   });

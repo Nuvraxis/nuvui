@@ -108,6 +108,7 @@ import {
   Fieldset,
   FieldsetLegend,
   FormattedNumber,
+  HoloCard,
   Input,
   Item,
   ItemContent,
@@ -356,6 +357,11 @@ export default function RscSmokePage() {
       <CheckboxCard defaultChecked>
         <ChoiceCardTitle>Card from the server</ChoiceCardTitle>
       </CheckboxCard>
+      {/* A client component that takes no functions, with what a server
+          drew inside it. */}
+      <HoloCard data-testid="server-holo">
+        <p>Card face from the server</p>
+      </HoloCard>
       {/* TextShimmer has no "use client". TableOfContents is a client
           component, given a list of plain objects. */}
       <TextShimmer data-testid="server-shimmer">

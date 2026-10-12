@@ -108,6 +108,13 @@ test("components used from a server component hydrate and work", async ({
     page.getByRole("checkbox", { name: "Card from the server" }),
   ).toBeChecked();
 
+  await expect(page.getByTestId("server-holo")).toHaveText(
+    "Card face from the server",
+  );
+  await expect(
+    page.getByTestId("server-holo").locator(".nuv-holo-card__shine"),
+  ).toHaveCount(1);
+
   // One with no "use client", and one given plain objects from the server.
   await expect(page.getByTestId("server-shimmer")).toHaveText(
     "Shimmer from the server",

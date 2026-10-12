@@ -1,0 +1,126 @@
+---
+title: HoloCard
+description: A card that tilts toward the pointer with a shine that follows it, for a membership card, a pass or a badge. It lies flat for a finger, for the keyboard and for anyone who asked for less motion.
+added: "2026-10-12"
+---
+
+Use a holo card for the one thing on a screen that's meant to feel like an object: a membership card, an event pass, a badge someone earned. It's decoration. For content in a box, use a [card](/docs/components/card).
+
+<Preview name="holo-card/basic" />
+
+## Install
+
+```sh
+pnpm add @nuvui/react
+```
+
+## Import
+
+```tsx
+import { HoloCard } from "@nuvui/react";
+```
+
+The styles come from `@nuvui/react/styles.css`, which you load once for the whole app. [Getting started](/docs) covers that, and how to load only this component's CSS.
+
+## Try it
+
+<HoloCardPlayground />
+
+## Props
+
+<PropsTable component="holo-card" name="HoloCardOwnProps" />
+
+It's a `div`, and takes what a `div` takes, including `ref` and `className`. It has no background, border or padding of its own: what you put in it is the card's face, cut to the card's corners.
+
+## How it moves
+
+A mouse or a pen over the card tilts it, with the side under the pointer going down as if pressed, and draws a shine where the pointer is. When the pointer leaves, the card goes flat again.
+
+A finger doesn't move it. A finger on a card is usually on its way to scroll the page, and a card that turned under it would get in the way. The keyboard doesn't move it either. So nothing the card says may depend on the tilt or the shine.
+
+## Your own look
+
+How far it tilts, its corners and the shine are CSS variables. The shine's colored band is the theme's primary, success, warning and danger colors unless you give it a gradient of your own.
+
+<Preview name="holo-card/custom" />
+
+## Accessibility
+
+A holo card has no role and no keyboard behavior. It can't take focus. What's in it can, and is read, pressed and selected as it would be anywhere.
+
+### What the component handles
+
+- The shine is hidden from screen readers and lets presses through to what's under it.
+- For a visitor who asked for less motion, the card doesn't tilt and has no shine.
+- Where the browser forces its own colors, there's no shine.
+- At rest there's no shine, so the colors of what's in the card are the ones you gave it.
+
+### What you need to handle
+
+- The shine passes over the content while the pointer is on the card, and lightens what it passes. Keep text on the card large and well above 4.5:1 against its background, or lower `--nuv-holo-card-shine-opacity`.
+- Don't put anything on a card that needs careful aim, such as a small link. The card moves a little under the pointer.
+- Use one on a screen, not a grid of them.
+
+## CSS variables
+
+Set any of these on the `HoloCard`, or on anything around it.
+
+```css
+.pass {
+  --nuv-holo-card-tilt: 12deg;
+}
+```
+
+<CssVariables
+  component="holo-card"
+  descriptions={{
+    "--nuv-holo-card-radius":
+      "Corner radius of the card. What's in it is cut to this.",
+    "--nuv-holo-card-perspective":
+      "How far away the card is looked at from. A smaller distance makes the tilt look deeper.",
+    "--nuv-holo-card-tilt":
+      "How far it turns when the pointer is at an edge.",
+    "--nuv-holo-card-duration":
+      "How long it takes to go flat again, and the shine to fade.",
+    "--nuv-holo-card-glare":
+      "Color of the soft light under the pointer.",
+    "--nuv-holo-card-foil":
+      "The colored band, as a gradient. It's drawn two and a half times the card's size and slides with the pointer.",
+    "--nuv-holo-card-shine-opacity":
+      "How strong the shine is while the pointer is on the card.",
+    "--nuv-holo-card-pointer-x":
+      "Where the pointer is across the card, from 0 to 1. The component writes this. Don't set it.",
+    "--nuv-holo-card-pointer-y":
+      "Where the pointer is down the card, from 0 to 1. The component writes this. Don't set it.",
+  }}
+/>
+
+## Classes
+
+<BemClasses
+  component="holo-card"
+  descriptions={{
+    "nuv-holo-card":
+      "HoloCard. The box the pointer is measured in, which doesn't turn.",
+    "nuv-holo-card__surface": "What turns, and holds what you put in.",
+    "nuv-holo-card__shine": "The shine, over the content.",
+  }}
+/>
+
+While a pointer is on it the card has a `data-active` attribute, and with `disabled` a `data-disabled` one.
+
+## Server components
+
+HoloCard starts with `"use client"`: it follows the pointer. It takes no functions, so a server component can render it and put server-rendered content in it.
+
+## Do and don't
+
+**Do**
+
+- Give it a face with a background: a color, a picture, or a [card](/docs/components/card).
+- Keep it to things that stand for an object someone holds.
+
+**Don't**
+
+- Don't use it for ordinary content, a form or a row in a list. Movement under the pointer makes those harder to use.
+- Don't make it the only way to see anything.

@@ -308,6 +308,16 @@
         "default": "./dist/components/hold-to-confirm/index.cjs"
       }
     },
+    "./holo-card": {
+      "import": {
+        "types": "./dist/components/holo-card/index.d.ts",
+        "default": "./dist/components/holo-card/index.js"
+      },
+      "require": {
+        "types": "./dist/components/holo-card/index.d.cts",
+        "default": "./dist/components/holo-card/index.cjs"
+      }
+    },
     "./hover-card": {
       "import": {
         "types": "./dist/components/hover-card/index.d.ts",

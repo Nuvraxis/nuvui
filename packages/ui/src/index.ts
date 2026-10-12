@@ -25,6 +25,7 @@ export * from "./components/fieldset";
 export * from "./components/file-upload";
 export * from "./components/formatted-number";
 export * from "./components/hold-to-confirm";
+export * from "./components/holo-card";
 export * from "./components/hover-card";
 export * from "./components/input";
 export * from "./components/input-group";

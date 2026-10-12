@@ -83,6 +83,7 @@ import {
   FieldLabel,
   FileUpload,
   HoldToConfirm,
+  HoloCard,
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
@@ -1663,6 +1664,22 @@ describe("text shimmer, hold to confirm, action bar and table of contents", () =
     expect(contrast(text.color, canvas())).toBeGreaterThan(4.5);
     expect(text.backgroundImage).toBe("none");
     expect(text.animationName).toBe("none");
+  });
+
+  test("a holo card has no shine, since there's no blend to make one of", async () => {
+    await emulateMedia({ forcedColors: "active", reducedMotion: null });
+    await render(
+      <HoloCard>
+        <p>Gold member</p>
+      </HoloCard>,
+    );
+
+    expect(
+      style(document.querySelector(".nuv-holo-card__shine") as Element).display,
+    ).toBe("none");
+    expect(
+      contrast(style(page.getByText("Gold member").element()).color, canvas()),
+    ).toBeGreaterThan(4.5);
   });
 
   test("the bar on a held button is drawn, in the highlight color", async () => {

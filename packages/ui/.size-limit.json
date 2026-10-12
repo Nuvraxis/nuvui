@@ -140,6 +140,11 @@
     "limit": "2.3 kB"
   },
   {
+    "name": "@nuvui/react/holo-card",
+    "path": "dist/components/holo-card/index.js",
+    "limit": "600 B"
+  },
+  {
     "name": "@nuvui/react/hover-card",
     "path": "dist/components/hover-card/index.js",
     "limit": "16.5 kB"

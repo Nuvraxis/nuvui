@@ -3292,6 +3292,119 @@ test.describe("assistant chat, files", () => {
   });
 });
 
+test.describe("assistant blocks, markdown", () => {
+  test("assistant chat: an answer's markdown is a table, with no marks left as text, while it arrives and after", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/blocks/view/assistant-chat");
+    const log = page.getByRole("log", {
+      name: "Conversation with the billing assistant",
+    });
+
+    await press(
+      page.getByRole("button", { name: "Who hasn't paid yet?" }),
+      isMobile,
+    );
+
+    const answer = log.locator('.nuv-message[data-from="assistant"]').last();
+    await expect(answer.getByRole("columnheader")).toHaveText(
+      ["Invoice", "Customer", "Amount", "Days late"],
+      { timeout: 15_000 },
+    );
+    await expect(page.getByRole("button", { name: "Send" })).toBeVisible({
+      timeout: 15_000,
+    });
+    await expect(answer.getByRole("row")).toHaveCount(3);
+    await expect(answer.getByRole("group", { name: "Table" })).toBeVisible();
+    await expect(answer.locator(".nuv-markdown")).not.toContainText("|");
+    expect(await overflow(page)).toBe(0);
+  });
+
+  test("assistant chat: on a phone a table scrolls in its own box, and the page doesn't", async ({
+    page,
+    isMobile,
+  }) => {
+    await page.setViewportSize({ width: 320, height: 640 });
+    await open(page, "/blocks/view/assistant-chat");
+
+    await press(
+      page.getByRole("button", { name: "Who hasn't paid yet?" }),
+      isMobile,
+    );
+    await expect(page.getByRole("button", { name: "Send" })).toBeVisible({
+      timeout: 15_000,
+    });
+
+    await expect(page.getByRole("group", { name: "Table" })).toBeVisible();
+    expect(await overflow(page)).toBe(0);
+  });
+
+  test("assistant chat: a list and bold are drawn, and the answer that's copied is the markdown it was written in", async ({
+    page,
+    isMobile,
+    browserName,
+  }) => {
+    await open(page, "/blocks/view/assistant-chat");
+    const log = page.getByRole("log", {
+      name: "Conversation with the billing assistant",
+    });
+
+    await press(
+      page.getByRole("button", { name: "Summarize last month's invoices" }),
+      isMobile,
+    );
+    await expect(page.getByRole("button", { name: "Send" })).toBeVisible({
+      timeout: 15_000,
+    });
+
+    const answer = log.locator('.nuv-message[data-from="assistant"]').last();
+    await expect(answer.locator("strong")).toHaveText([
+      "38 invoices",
+      "96,400",
+    ]);
+    await expect(answer.locator("ul > li")).toHaveText([
+      "33 are paid",
+      "3 are due this week",
+      "2 are overdue",
+    ]);
+    if (browserName === "chromium") {
+      await page
+        .context()
+        .grantPermissions(["clipboard-read", "clipboard-write"]);
+      await press(answer.getByRole("button", { name: "Copy" }), isMobile);
+      await expect(
+        answer.getByRole("button", { name: "Copied" }),
+      ).toBeVisible();
+      expect(
+        await page.evaluate(() => navigator.clipboard.readText()),
+      ).toContain("**38 invoices**");
+    }
+  });
+
+  test("assistant workspace: a saved answer's table is drawn, beside its tool call and sources", async ({
+    page,
+  }) => {
+    await open(page, "/blocks/view/assistant-workspace");
+    const log = page.getByRole("log", {
+      name: "Conversation with the billing assistant",
+    });
+    const answer = log.locator('.nuv-message[data-from="assistant"]').first();
+
+    await expect(answer.getByRole("columnheader")).toHaveText([
+      "Invoice",
+      "Amount",
+      "Days late",
+    ]);
+    await expect(answer.getByRole("cell", { name: "INV-1057" })).toBeVisible();
+    await expect(answer.locator(".nuv-tool-call")).toHaveCount(1);
+    await expect(
+      answer.getByRole("button", { name: "2 sources" }),
+    ).toBeVisible();
+    expect(await overflow(page)).toBe(0);
+  });
+});
+
 test.describe("the blocks page", () => {
   test("lists every category, and each leads to its page", async ({
     page,

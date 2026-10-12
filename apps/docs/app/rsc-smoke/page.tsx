@@ -8,6 +8,7 @@ import { QRCode, QRCodeSwissCross } from "@nuvui/barcodes/qrcode";
 import {
   Attachment,
   Attachments,
+  CodeBlock,
   Conversation,
   ConversationContent,
   Message,
@@ -37,6 +38,7 @@ import {
   ToolCallOutput,
   ToolCallTrigger,
 } from "@nuvui/chat";
+import { Markdown } from "@nuvui/chat/markdown";
 import { Calendar, DatePicker } from "@nuvui/date-picker";
 // One import from an entry of the add-on's own, to check those resolve too.
 import { DateRangePicker } from "@nuvui/date-picker/date-picker";
@@ -425,6 +427,14 @@ export default function RscSmokePage() {
           </ReasoningSteps>
         </ReasoningContent>
       </Reasoning>
+      {/* Markdown read on the server, and code with no highlighter:
+          text and no function. */}
+      <Markdown>
+        {
+          'Markdown from the **server**\n\n```ts\nconst fenced = "on the server";\n```'
+        }
+      </Markdown>
+      <CodeBlock code="const alone = 1;" language="js" label="Code alone" />
       <ThreadList aria-label="Threads from the server" defaultValue="one">
         <ThreadListGroup label="Group from the server">
           <ThreadListItem value="one">Thread from the server</ThreadListItem>

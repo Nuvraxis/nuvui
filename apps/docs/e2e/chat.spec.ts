@@ -14,7 +14,7 @@ const gap = (log: Locator) =>
 const send = (within: Locator) => within.getByRole("button", { name: "Send" });
 
 test.describe("chat start page", () => {
-  test("says what to install and names the ten components", async ({
+  test("says what to install and names the twelve components", async ({
     page,
   }) => {
     await open(page, "/docs/chat");
@@ -27,6 +27,8 @@ test.describe("chat start page", () => {
       ["Conversation", "conversation"],
       ["Message", "message"],
       ["MessageLoader", "message-loader"],
+      ["Markdown", "markdown"],
+      ["CodeBlock", "code-block"],
       ["PromptInput", "prompt-input"],
       ["PromptSuggestion", "prompt-suggestion"],
       ["Attachment", "attachment"],
@@ -930,5 +932,179 @@ test.describe("thread list page", () => {
     await expect(area(page).getByRole("status")).toHaveText(
       "Open: Overdue invoices for Contoso",
     );
+  });
+});
+
+test.describe("markdown page", () => {
+  test.beforeEach(async ({ page }) => {
+    await open(page, "/docs/chat/markdown");
+  });
+
+  test("a reply's markdown is headings, a table, a list and code, with the heading moved under the page's own", async ({
+    page,
+  }) => {
+    const area = preview(page, "markdown/basic");
+    const reply = area.locator(".nuv-markdown");
+
+    await expect(
+      reply.getByRole("heading", {
+        level: 3,
+        name: "Two invoices are overdue",
+      }),
+    ).toBeVisible();
+    await expect(reply.locator("strong")).toHaveText("Contoso");
+    await expect(reply.getByRole("link", { name: "late fee" })).toHaveAttribute(
+      "href",
+      "#late-fees",
+    );
+    await expect(reply.getByRole("columnheader")).toHaveText([
+      "Invoice",
+      "Amount",
+      "Days late",
+    ]);
+    await expect(reply.getByRole("row")).toHaveCount(3);
+    await expect(reply.locator("ol > li")).toHaveCount(2);
+    await expect(reply.locator("li code").first()).toHaveText("INV-1042");
+    await expect(reply.locator(".nuv-code-block")).toHaveAttribute(
+      "data-language",
+      "ts",
+    );
+    // No marks left on the page as text.
+    await expect(reply).not.toContainText("**");
+    await expect(reply).not.toContainText("```");
+  });
+
+  test("its block of code is colored once Shiki has loaded, and the text is the same code", async ({
+    page,
+  }) => {
+    const block = preview(page, "markdown/basic").locator(".nuv-code-block");
+
+    await expect(block).toHaveAttribute("data-highlighted", "", {
+      timeout: 20_000,
+    });
+    await expect(block.locator(".nuv-code-block__code")).toContainText(
+      "const overdue = invoices.filter(",
+    );
+    // A keyword and a string are two colors, and neither is the plain one.
+    const colors = await block
+      .locator(".nuv-code-block__code span span")
+      .evaluateAll((tokens) => [
+        ...new Set(tokens.map((token) => getComputedStyle(token).color)),
+      ]);
+    expect(colors.length).toBeGreaterThanOrEqual(3);
+  });
+
+  test("text that's arriving is drawn as what it's about to be, and whole once it's all there", async ({
+    page,
+    isMobile,
+  }) => {
+    const area = preview(page, "markdown/streaming");
+    const reply = area.locator(".nuv-markdown");
+    await expect(reply.locator(".nuv-code-block")).toHaveCount(1);
+
+    await press(area.getByRole("button", { name: "Write it again" }), isMobile);
+
+    // While it arrives the message is busy, and no loose mark is shown.
+    await expect(area.locator('.nuv-message[aria-busy="true"]')).toHaveCount(1);
+    await expect(reply.locator("strong").first()).toBeVisible();
+    await expect(reply).not.toContainText("**");
+    // The block of code is a block before its last line has come.
+    await expect(reply.locator(".nuv-code-block")).toHaveCount(1);
+    await expect(area.locator('[aria-busy="true"]')).toHaveCount(1);
+
+    await expect(area.locator('[aria-busy="true"]')).toHaveCount(0, {
+      timeout: 20_000,
+    });
+    await expect(reply.locator("del")).toHaveText("day 40");
+    await expect(
+      reply.getByRole("link", { name: "payment terms" }),
+    ).toHaveAttribute("href", "#payment-terms");
+    await expect(reply.locator(".nuv-code-block__code")).toContainText(
+      "return Date.now() > due.getTime();",
+    );
+  });
+
+  test("nothing is wider than the page, while it arrives and after", async ({
+    page,
+    isMobile,
+  }) => {
+    const area = preview(page, "markdown/streaming");
+    const wide = () =>
+      page.evaluate(
+        () => document.documentElement.scrollWidth > window.innerWidth,
+      );
+
+    expect(await wide()).toBe(false);
+    await press(area.getByRole("button", { name: "Write it again" }), isMobile);
+    await expect(area.locator(".nuv-code-block")).toHaveCount(1);
+    expect(await wide()).toBe(false);
+  });
+});
+
+test.describe("code block page", () => {
+  test.beforeEach(async ({ page }) => {
+    await open(page, "/docs/chat/code-block");
+  });
+
+  test("code has its language over it, or a title in its place, and scrolls in a named box", async ({
+    page,
+  }) => {
+    const area = preview(page, "code-block/basic");
+    const blocks = area.locator(".nuv-code-block");
+
+    await expect(blocks).toHaveCount(2);
+    await expect(blocks.nth(0).locator(".nuv-code-block__title")).toHaveText(
+      "ts",
+    );
+    await expect(blocks.nth(1).locator(".nuv-code-block__title")).toHaveText(
+      "Terminal",
+    );
+    await expect(blocks.nth(1)).toHaveAttribute("data-language", "sh");
+    await expect(area.getByRole("group", { name: "Code" })).toHaveCount(2);
+    await expect(blocks.nth(1).locator(".nuv-code-block__code")).toHaveText(
+      "pnpm add @nuvui/chat @nuvui/react",
+    );
+  });
+
+  test("the one with a highlighter is colored, and the one without stays in one color", async ({
+    page,
+  }) => {
+    const blocks = preview(page, "code-block/basic").locator(".nuv-code-block");
+
+    await expect(blocks.nth(0)).toHaveAttribute("data-highlighted", "", {
+      timeout: 20_000,
+    });
+    await expect(blocks.nth(1)).not.toHaveAttribute("data-highlighted");
+    await expect(
+      blocks.nth(1).locator(".nuv-code-block__code span"),
+    ).toHaveCount(0);
+  });
+
+  test("the button copies the code and says so", async ({
+    page,
+    isMobile,
+    browserName,
+  }) => {
+    test.skip(
+      browserName !== "chromium",
+      "Only Chromium lets a test allow the clipboard.",
+    );
+    await page
+      .context()
+      .grantPermissions(["clipboard-read", "clipboard-write"]);
+    const block = preview(page, "code-block/basic")
+      .locator(".nuv-code-block")
+      .nth(1);
+
+    await press(block.getByRole("button", { name: "Copy code" }), isMobile);
+
+    await expect(block.getByRole("button", { name: "Copied" })).toBeVisible();
+    await expect(block.getByRole("status")).toHaveText("Copied");
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(
+      "pnpm add @nuvui/chat @nuvui/react",
+    );
+    await expect(block.getByRole("button", { name: "Copy code" })).toBeVisible({
+      timeout: 5000,
+    });
   });
 });

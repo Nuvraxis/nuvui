@@ -1,7 +1,7 @@
 {
   "name": "assistant-workspace",
   "title": "Assistant workspace",
-  "description": "An assistant with its past conversations down the side. A reply shows the steps it took, the tools it called and its sources, a call that sends something waits to be approved, and the box to write in takes files. On a phone the list opens in a sheet.",
+  "description": "An assistant with its past conversations down the side. A reply is drawn from its markdown and shows the steps it took, the tools it called and its sources, a call that sends something waits to be approved, and the box to write in takes files. On a phone the list opens in a sheet.",
   "category": "chat",
   "files": ["assistant-workspace.tsx", "assistant-workspace.scss"],
   "install": ["@nuvui/chat", "@nuvui/react", "lucide-react"],

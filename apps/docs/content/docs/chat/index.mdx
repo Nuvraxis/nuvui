@@ -1,6 +1,6 @@
 ---
 title: Chat
-description: The @nuvui/chat package. The parts of a conversation with an assistant, installed next to @nuvui/react. Messages, the scrolling around them, the box a prompt is written in, files, sources, tool calls, reasoning and the list of past conversations.
+description: The @nuvui/chat package. The parts of a conversation with an assistant, installed next to @nuvui/react. Messages, the scrolling around them, markdown and code, the box a prompt is written in, files, sources, tool calls, reasoning and the list of past conversations.
 added: "2026-10-12"
 ---
 
@@ -11,6 +11,8 @@ The parts of a conversation with an assistant are a package of their own, `@nuvu
 | [Conversation](/docs/chat/conversation) | The messages in a box that scrolls. It stays at the latest message while a reply arrives, and stops following when the reader scrolls up. |
 | [Message](/docs/chat/message) | One message, from the person or from the assistant, with a row of actions under it. |
 | [MessageLoader](/docs/chat/message-loader) | Three dots for the wait before a reply starts. |
+| [Markdown](/docs/chat/markdown) | A reply's markdown drawn with the library's type, safe for text a model wrote, and able to take text that's still arriving. |
+| [CodeBlock](/docs/chat/code-block) | Code with its language, a button that copies it, and colors from a highlighter you plug in. |
 | [PromptInput](/docs/chat/prompt-input) | The box a prompt is written in. It grows with the text, sends on Enter, takes files, and has a row for buttons. |
 | [PromptSuggestion](/docs/chat/prompt-suggestion) | Prompts to start from, for a conversation with nothing in it yet. |
 | [Attachment](/docs/chat/attachment) | A file, in a message or waiting in the prompt box. |
@@ -29,7 +31,12 @@ The parts of a conversation with an assistant are a package of their own, `@nuvu
 pnpm add @nuvui/chat @nuvui/react
 ```
 
-`@nuvui/react` is a peer dependency. The package has no other dependency. Some parts are built on the core's: the ones that open on its Collapsible, the thread list on its ListView.
+`@nuvui/react` is a peer dependency. Some parts are built on the core's: the ones that open on its Collapsible, the thread list on its ListView.
+
+Two things come from outside, each only for the part that needs it:
+
+- **`Markdown`** reads markdown with [react-markdown](https://github.com/remarkjs/react-markdown) and [remark-gfm](https://github.com/remarkjs/remark-gfm), which are installed with the package. It has an entry of its own, `@nuvui/chat/markdown`, and isn't exported from `@nuvui/chat`, so they're loaded only by an app that imports it. They're ESM only: an app that's bundled doesn't notice, and one that loads `@nuvui/chat/markdown` with `require` needs Node 20.19, or 22.12 and later.
+- **The ready highlighter** at `@nuvui/chat/shiki` uses [Shiki](https://shiki.style), which is an optional peer dependency: install it if you use that entry. Nothing else needs it.
 
 ## Load the styles
 
@@ -45,6 +52,7 @@ Both files open with the same line naming the cascade layers, so the order you i
 | Stylesheet | Also needs, from `@nuvui/react/css/` |
 | --- | --- |
 | `message.css` | `tooltip.css`, for the action buttons |
+| `markdown.css` | `code-block.css` from this package |
 | `prompt-input.css` | `attachment.css` from this package and `spinner.css`, if it takes files |
 | `attachment.css` | `spinner.css` |
 | `source.css` | `collapsible.css` |
@@ -126,6 +134,8 @@ The few words the components say themselves are props with English defaults:
 | `MessageActions` | `label` | `"Message actions"` |
 | `MessageCopyAction` | `label`, `copiedLabel` | `"Copy"`, `"Copied"` |
 | `MessageLoader` | `label` | `"Writing a reply"` |
+| `CodeBlock` | `copyLabel`, `copiedLabel`, `label` | `"Copy code"`, `"Copied"`, `"Code"` |
+| `Markdown` | `tableLabel`, `doneLabel`, `todoLabel`, and the three of `CodeBlock` as `copyLabel`, `copiedLabel`, `codeLabel` | `"Table"`, `"Done"`, `"To do"` |
 | `ConversationScrollButton` | `label` | `"Go to the latest message"` |
 | `PromptInputSubmit` | `label`, `stopLabel` | `"Send"`, `"Stop"` |
 | `PromptSuggestions` | `label` | `"Suggestions"` |
@@ -142,12 +152,12 @@ A file's size is written in the reader's own number format. `formatSize` on `Att
 
 ## Server components
 
-`Conversation`, `Message`, `PromptInput`, `Sources`, `ToolCall`, `Reasoning` and `ThreadList` are client components: they follow the scrolling, copy to the clipboard, keep what's typed, and open and close. They carry `"use client"`, so a server component can render them. `MessageLoader`, `PromptSuggestions`, `PromptSuggestion`, `Attachments` and `Attachment` have no state and aren't client components.
+`Conversation`, `Message`, `Markdown`, `CodeBlock`, `PromptInput`, `Sources`, `ToolCall`, `Reasoning` and `ThreadList` are client components: they follow the scrolling, copy to the clipboard, color code, keep what's typed, and open and close. They carry `"use client"`, so a server component can render them. `MessageLoader`, `PromptSuggestions`, `PromptSuggestion`, `Attachments` and `Attachment` have no state and aren't client components.
 
 A conversation that changes is a client component of yours in any case, since it holds the messages.
 
-## What's not here yet
+## What it leaves out
 
-One more part is planned for this package and isn't in it:
-
-- **Markdown and highlighted code** in a reply. Until then, `MessageContent` shows text with its line breaks, and takes whatever you render yourself.
+- **Talking to a model.** Covered above: the messages are yours.
+- **Uploading.** The prompt box hands you `File` objects.
+- **Math and diagrams in markdown.** `Markdown` takes your own elements through `components`, which is where a renderer for either goes.

@@ -1,5 +1,12 @@
 # @nuvui/barcodes
 
+## 0.1.1
+
+### Patch Changes
+
+- Updated dependencies [[`0fc08bc`](https://github.com/Nuvraxis/nuvui/commit/0fc08bc21adea0d24f54ef688a3575243d4694a3)]:
+  - @nuvui/react@0.5.0
+
 ## 0.1.0
 
 ### Minor Changes

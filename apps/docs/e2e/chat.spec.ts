@@ -256,8 +256,9 @@ test.describe("message page", () => {
 
     await press(area.getByRole("button", { name: "Reply again" }), isMobile);
 
+    // The dots are there for a seventh of a second, too short to be
+    // looked for. The playground's test below sees them.
     await expect(message).toHaveAttribute("aria-busy", "true");
-    await expect(area.locator(".nuv-message-loader")).toHaveCount(1);
     await expect(area.locator(".nuv-message__content")).toContainText(
       "Revenue",
     );

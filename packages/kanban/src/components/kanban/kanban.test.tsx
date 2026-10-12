@@ -673,6 +673,42 @@ describe("disabled", () => {
   });
 });
 
+describe("a card that can't be moved, as a place", () => {
+  test("another card is taken into its column with the keyboard, beside it", async () => {
+    const onValueChange = vi.fn();
+    await render(<Board locked="invoice" onValueChange={onValueChange} />);
+    await pickUp("brief");
+
+    await key("{ArrowRight}");
+    await expect.poll(() => drawn().doing).toContain("brief");
+    await key(" ");
+
+    await expect.poll(() => onValueChange.mock.calls.length).toBe(1);
+    expect(onValueChange.mock.calls[0]?.[1].to.column).toBe("doing");
+    expect(drawn().doing).toContain("invoice");
+  });
+
+  test("and with a mouse", async () => {
+    const onValueChange = vi.fn();
+    await render(<Board locked="invoice" onValueChange={onValueChange} />);
+
+    await userEvent.dragAndDrop(card("brief"), card("invoice"));
+
+    await expect.poll(() => onValueChange.mock.calls.length).toBe(1);
+    expect(onValueChange.mock.calls[0]?.[1].to.column).toBe("doing");
+  });
+
+  test("it can't be dragged itself", async () => {
+    const onValueChange = vi.fn();
+    await render(<Board locked="invoice" onValueChange={onValueChange} />);
+
+    await userEvent.dragAndDrop(card("invoice"), card("brief"));
+
+    expect(onValueChange).not.toHaveBeenCalled();
+    expect(drawn().doing).toEqual(["invoice"]);
+  });
+});
+
 describe("words", () => {
   test("every sentence can be given in another language", async () => {
     await render(

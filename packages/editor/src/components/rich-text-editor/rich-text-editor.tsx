@@ -11,12 +11,7 @@ import {
   ToolbarToggleItem,
 } from "@nuvui/react/toolbar";
 import { CharacterCount, Placeholder } from "@tiptap/extensions";
-import {
-  type Editor,
-  EditorContent,
-  useEditor,
-  useEditorState,
-} from "@tiptap/react";
+import { type Editor, EditorContent, useEditor } from "@tiptap/react";
 import { BubbleMenu } from "@tiptap/react/menus";
 import { StarterKit } from "@tiptap/starter-kit";
 import {
@@ -26,6 +21,7 @@ import {
   type HTMLAttributes,
   type ReactNode,
   type Ref,
+  useCallback,
   useContext,
   useEffect,
   useId,
@@ -33,6 +29,7 @@ import {
   useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
 } from "react";
 import { cx } from "../../utils/cx";
 
@@ -352,8 +349,8 @@ export interface RichTextEditorOwnProps {
   editorRef?: Ref<RichTextEditorHandle>;
   /**
    * The parts, when the ones it draws by itself aren't the ones you
-   * want: a toolbar, the text, the menu on the selection, and the count
-   * if there's a `maxLength`.
+   * want: a toolbar, the text, and the count if there's a `maxLength`.
+   * A menu on the selection is a part to add here.
    */
   children?: ReactNode;
 }
@@ -407,6 +404,10 @@ export const RichTextEditor = forwardRef<HTMLDivElement, RichTextEditorProps>(
     const html = useRef(value ?? defaultValue ?? "");
     const latest = useRef({ onValueChange, value });
     latest.current = { onValueChange, value };
+    // What's been reported and hasn't come back as `value` yet. Typing
+    // is quicker than a parent draws, so a value can arrive that's older
+    // than what's written, and writing it in would take letters away.
+    const reported = useRef<string[]>([]);
 
     const attributes = useMemo(() => {
       const all: Record<string, string> = {
@@ -443,6 +444,9 @@ export const RichTextEditor = forwardRef<HTMLDivElement, RichTextEditorProps>(
       () => [
         StarterKit.configure({
           heading: levels.length > 0 ? { levels } : false,
+          // It would keep an empty paragraph under a heading or a list
+          // that ends the text, and that paragraph would be in the HTML.
+          trailingNode: false,
           link: {
             // A click on a link in text that's being written puts the
             // caret there. It doesn't leave the page.
@@ -480,6 +484,7 @@ export const RichTextEditor = forwardRef<HTMLDivElement, RichTextEditorProps>(
           const next = htmlOf(now);
           if (next === html.current) return;
           html.current = next;
+          reported.current = [...reported.current.slice(-49), next];
           const count = now.storage.characterCount;
           latest.current.onValueChange?.(next, {
             get json() {
@@ -504,10 +509,20 @@ export const RichTextEditor = forwardRef<HTMLDivElement, RichTextEditorProps>(
     }, [editor, locked, attributes]);
 
     // A value from outside that isn't what's written is written in. One
-    // that only repeats what was last reported is left alone, so the
-    // caret stays where it is as the text is typed.
+    // that only repeats what was reported is left alone, so the caret
+    // stays where it is as the text is typed.
     useEffect(() => {
-      if (!editor || value === undefined || value === html.current) return;
+      if (!editor || value === undefined) return;
+      if (value === html.current) {
+        reported.current = [];
+        return;
+      }
+      const echo = reported.current.lastIndexOf(value);
+      if (echo !== -1) {
+        reported.current = reported.current.slice(echo + 1);
+        return;
+      }
+      reported.current = [];
       html.current = value;
       editor.commands.setContent(value, { emitUpdate: false });
     }, [editor, value]);
@@ -547,7 +562,6 @@ export const RichTextEditor = forwardRef<HTMLDivElement, RichTextEditorProps>(
             <>
               <RichTextEditorToolbar />
               <RichTextEditorContent />
-              <RichTextEditorBubbleMenu />
               {maxLength === undefined ? null : <RichTextEditorCount />}
             </>
           )}
@@ -560,14 +574,43 @@ export const RichTextEditor = forwardRef<HTMLDivElement, RichTextEditorProps>(
   },
 );
 
+// Something read from the editor, and read again whenever the text or
+// the selection changes. Tiptap has a hook for this, which goes on
+// answering for no editor until the first change after one is made, so
+// a count would say 0 over text that was there to begin with.
+function useEditorValue<Value extends string | number | boolean>(
+  editor: Editor | null,
+  read: (editor: Editor) => Value,
+  none: Value,
+): Value {
+  const reader = useRef(read);
+  reader.current = read;
+  const subscribe = useCallback(
+    (changed: () => void) => {
+      if (!editor) return () => {};
+      editor.on("create", changed);
+      editor.on("transaction", changed);
+      editor.on("update", changed);
+      return () => {
+        editor.off("create", changed);
+        editor.off("transaction", changed);
+        editor.off("update", changed);
+      };
+    },
+    [editor],
+  );
+  return useSyncExternalStore(
+    subscribe,
+    () => (editor ? reader.current(editor) : none),
+    () => none,
+  );
+}
+
 // What a form is sent: the HTML, in a field nobody sees.
 function Field({ name, start }: { name: string; start: string }) {
   const { editor } = useParts("RichTextEditor");
-  const now = useEditorState({
-    editor,
-    selector: ({ editor: current }) => (current ? htmlOf(current) : null),
-  });
-  return <input type="hidden" name={name} value={now ?? start} />;
+  const now = useEditorValue(editor, htmlOf, start);
+  return <input type="hidden" name={name} value={now} />;
 }
 
 export interface RichTextEditorFormatsOwnProps {
@@ -592,18 +635,17 @@ export const RichTextEditorFormats = forwardRef<
 >(function RichTextEditorFormats({ items, className, ...props }, ref) {
   const { editor, labels, locked } = useParts("RichTextEditorFormats");
   const key = items.join(",");
-  const on = useEditorState({
+  // A string, so the same toggles being on is the same answer and
+  // nothing is drawn again.
+  const on = useEditorValue(
     editor,
-    // A string, so the same toggles being on is the same answer and
-    // nothing is drawn again.
-    selector: ({ editor: current }) =>
-      current
-        ? key
-            .split(",")
-            .filter((item) => isOn(current, item as RichTextEditorFormat))
-            .join(",")
-        : "",
-  });
+    (current) =>
+      key
+        .split(",")
+        .filter((item) => isOn(current, item as RichTextEditorFormat))
+        .join(","),
+    "",
+  );
   const active = on ? on.split(",") : [];
 
   const named = (format: RichTextEditorFormat) => {
@@ -659,16 +701,15 @@ export const RichTextEditorActions = forwardRef<
 >(function RichTextEditorActions({ items, className, ...props }, ref) {
   const { editor, labels, locked } = useParts("RichTextEditorActions");
   const key = items.join(",");
-  const can = useEditorState({
+  const can = useEditorValue(
     editor,
-    selector: ({ editor: current }) =>
-      current
-        ? key
-            .split(",")
-            .filter((item) => canAct(current, item as RichTextEditorAction))
-            .join(",")
-        : "",
-  });
+    (current) =>
+      key
+        .split(",")
+        .filter((item) => canAct(current, item as RichTextEditorAction))
+        .join(","),
+    "",
+  );
   const able = can ? can.split(",") : [];
 
   return (
@@ -705,11 +746,11 @@ export const RichTextEditorLink = forwardRef<HTMLButtonElement, object>(
     const [open, setOpen] = useState(false);
     const [written, setWritten] = useState("");
     const [wrong, setWrong] = useState(false);
-    const on = useEditorState({
+    const on = useEditorValue(
       editor,
-      selector: ({ editor: current }) =>
-        current ? current.isActive("link") : false,
-    });
+      (current) => current.isActive("link"),
+      false,
+    );
 
     function change(next: boolean) {
       if (next && editor) {
@@ -763,7 +804,7 @@ export const RichTextEditorLink = forwardRef<HTMLButtonElement, object>(
             <Glyph name="link" />
           </ToolbarButton>
         </PopoverTrigger>
-        <PopoverContent align="start">
+        <PopoverContent align="start" aria-label={labels.link}>
           <form className="nuv-rich-text-editor__link" onSubmit={apply}>
             <Input
               aria-label={labels.linkAddress}
@@ -911,7 +952,9 @@ const quick: RichTextEditorFormat[] = ["bold", "italic", "underline", "strike"];
 
 /**
  * A small toolbar that comes up over text when it's selected, for the
- * formats used most. Everything in it is in the toolbar as well.
+ * formats used most. It's drawn when it's given as a child of
+ * `RichTextEditor`, and it's for an editor with no toolbar over the
+ * text: under one, it covers the toolbar when the first line is selected.
  */
 export const RichTextEditorBubbleMenu = forwardRef<
   HTMLDivElement,
@@ -948,12 +991,11 @@ export const RichTextEditorCount = forwardRef<
   RichTextEditorCountProps
 >(function RichTextEditorCount({ className, ...props }, ref) {
   const { editor, labels, maxLength } = useParts("RichTextEditorCount");
-  const characters = useEditorState({
+  const count = useEditorValue(
     editor,
-    selector: ({ editor: current }) =>
-      current ? (current.storage.characterCount.characters() as number) : 0,
-  });
-  const count = characters ?? 0;
+    (current) => current.storage.characterCount.characters() as number,
+    0,
+  );
 
   return (
     <p

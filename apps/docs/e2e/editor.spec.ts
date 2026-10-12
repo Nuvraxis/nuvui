@@ -20,8 +20,15 @@ async function ready(within: Locator) {
   await within.scrollIntoViewIfNeeded();
 }
 
-// Everything in the text selected, by the editor's own shortcut.
+// Everything in the text selected: by the editor's shortcut, and on a
+// phone, which has no keys to hold down, by the selection a finger would
+// make.
 async function selectAll(page: Page, within: Locator) {
+  const phone = await page.evaluate(() => /iPhone/.test(navigator.userAgent));
+  if (phone) {
+    await text(within).selectText();
+    return;
+  }
   await text(within).click();
   await page.keyboard.press("ControlOrMeta+a");
 }
@@ -37,7 +44,9 @@ test.describe("editor start page", () => {
       article.getByText("pnpm add @nuvui/editor @nuvui/react").first(),
     ).toBeVisible();
     await expect(
-      article.getByRole("link", { name: "RichTextEditor", exact: true }),
+      article
+        .getByRole("link", { name: "RichTextEditor", exact: true })
+        .first(),
     ).toHaveAttribute("href", "/docs/editor/rich-text-editor");
     await expect(
       article.getByRole("heading", { name: "Sanitize before you show it" }),
@@ -99,7 +108,7 @@ test.describe("rich text editor page", () => {
     await expect(text(area)).toContainText("Payment is due 30 days");
   });
 
-  test("typing at the start of a line makes a list, and a heading", async ({
+  test("typing a hyphen and a space at the start of a line makes a list", async ({
     page,
   }) => {
     const area = preview(page, "rich-text-editor/controlled");
@@ -114,8 +123,15 @@ test.describe("rich text editor page", () => {
       "aria-pressed",
       "true",
     );
+  });
 
+  test("typing two hashes and a space at the start of a line makes a heading", async ({
+    page,
+  }) => {
+    const area = preview(page, "rich-text-editor/controlled");
+    await ready(area);
     await selectAll(page, area);
+
     await page.keyboard.type("## Title");
     await expect(area.locator("pre[data-html]")).toHaveText("<h2>Title</h2>");
   });
@@ -211,6 +227,44 @@ test.describe("rich text editor page", () => {
     await expect(area.locator(".nuv-rich-text-editor__count")).toHaveText(
       "0 characters",
     );
+  });
+
+  test("the menu on the selection is there when it's added, and formats what's selected", async ({
+    page,
+    isMobile,
+  }) => {
+    const area = preview(page, "rich-text-editor/bubble");
+    await ready(area);
+    const menu = page.getByRole("toolbar", { name: "Format the selection" });
+    await expect(area.getByRole("toolbar", { name: "Formatting" })).toHaveCount(
+      0,
+    );
+    await expect(menu).toHaveCount(0);
+
+    await selectAll(page, area);
+    await expect(menu).toBeVisible();
+    await press(
+      menu.getByRole("button", { name: "Bold", exact: true }),
+      isMobile,
+    );
+
+    await expect(text(area).locator("strong")).toHaveText(
+      "Select a few of these words to format them.",
+    );
+  });
+
+  test("under a toolbar there's no menu on the selection to cover it", async ({
+    page,
+  }) => {
+    const area = preview(page, "rich-text-editor/controlled");
+    await ready(area);
+
+    await selectAll(page, area);
+
+    await expect(tool(area, "Link")).toBeVisible();
+    await expect(
+      page.getByRole("toolbar", { name: "Format the selection" }),
+    ).toHaveCount(0);
   });
 
   test("read only, the text is shown and can't be changed", async ({

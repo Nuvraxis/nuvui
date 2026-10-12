@@ -54,6 +54,7 @@ import forgotPassword from "@/blocks/forgot-password/block.json" with {
 };
 import hero from "@/blocks/hero/block.json" with { type: "json" };
 import inbox from "@/blocks/inbox/block.json" with { type: "json" };
+import memberCard from "@/blocks/member-card/block.json" with { type: "json" };
 import navBar from "@/blocks/nav-bar/block.json" with { type: "json" };
 import notifications from "@/blocks/notifications/block.json" with {
   type: "json",
@@ -175,7 +176,7 @@ export const categories: BlockCategory[] = [
     label: "Settings",
     title: "Settings and admin",
     description:
-      "The pages behind an account: a profile, a workspace's colors, notification preferences, team members and invitations, billing, the actions that can't be taken back, and an audit log.",
+      "The pages behind an account: a profile, a workspace's colors, notification preferences, team members and invitations, billing, a membership card that tilts under the pointer, the actions that can't be taken back, and an audit log.",
   },
   {
     slug: "marketing",
@@ -231,6 +232,7 @@ export const blocks: BlockManifest[] = [
   notifications,
   teamMembers,
   billing,
+  memberCard,
   dangerZone,
   auditLog,
   navBar,

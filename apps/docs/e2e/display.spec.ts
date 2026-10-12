@@ -1108,3 +1108,106 @@ test.describe("item page", () => {
     );
   });
 });
+
+test.describe("holo card page", () => {
+  test.beforeEach(async ({ page }) => {
+    await open(page, "/docs/components/holo-card");
+  });
+
+  const card = (page: Page) =>
+    preview(page, "holo-card/basic").locator(".nuv-holo-card");
+
+  test("it's flat until a mouse is on it, then tilts and shines, and goes flat again", async ({
+    page,
+    isMobile,
+  }) => {
+    // A phone has no mouse to put on it.
+    test.skip(isMobile);
+    await page.emulateMedia({ reducedMotion: "no-preference" });
+    const surface = card(page).locator(".nuv-holo-card__surface");
+    const shine = card(page).locator(".nuv-holo-card__shine");
+    await card(page).scrollIntoViewIfNeeded();
+    await expect(card(page)).not.toHaveAttribute("data-active");
+    await expect(shine).toHaveCSS("opacity", "0");
+
+    await card(page).hover({ position: { x: 30, y: 30 } });
+
+    await expect(card(page)).toHaveAttribute("data-active", "");
+    await expect(shine).toHaveCSS("opacity", "0.7");
+    await expect(surface).toHaveCSS("transform", /^matrix3d/);
+
+    await page.mouse.move(0, 0);
+    await expect(card(page)).not.toHaveAttribute("data-active");
+    await expect(shine).toHaveCSS("opacity", "0");
+  });
+
+  test("a finger on it leaves it flat", async ({ page, isMobile }) => {
+    test.skip(!isMobile);
+    await card(page).scrollIntoViewIfNeeded();
+
+    await card(page).tap();
+
+    await expect(card(page)).not.toHaveAttribute("data-active");
+  });
+
+  test("with less motion it doesn't tilt and has no shine", async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(isMobile);
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await card(page).scrollIntoViewIfNeeded();
+
+    await card(page).hover({ position: { x: 30, y: 30 } });
+
+    await expect(card(page).locator(".nuv-holo-card__surface")).toHaveCSS(
+      "transform",
+      "none",
+    );
+    await expect(card(page).locator(".nuv-holo-card__shine")).toBeHidden();
+  });
+
+  test("what's on the card is text, read as text", async ({ page }) => {
+    await expect(card(page)).toContainText("Gold member");
+    await expect(card(page)).toContainText("Sajan");
+    await expect(card(page).locator(".nuv-holo-card__shine")).toHaveAttribute(
+      "aria-hidden",
+      "true",
+    );
+  });
+
+  test("the playground takes the shine away and turns it off", async ({
+    page,
+  }) => {
+    const area = playground(page);
+    await expect(area.locator(".nuv-holo-card__shine")).toHaveCount(1);
+
+    await area.getByLabel("shine").uncheck();
+    await area.getByLabel("disabled").check();
+
+    await expect(area.locator(".nuv-holo-card__shine")).toHaveCount(0);
+    await expect(area.locator(".nuv-holo-card")).toHaveAttribute(
+      "data-disabled",
+      "",
+    );
+    await expect(area.locator("pre")).toContainText(
+      "<HoloCard shine={false} disabled>",
+    );
+  });
+
+  test("on a narrow screen the card fits and the page doesn't scroll sideways", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 320, height: 640 });
+    const box = await card(page).boundingBox();
+
+    expect((box?.x ?? 0) + (box?.width ?? 0)).toBeLessThanOrEqual(320);
+    expect(
+      await page.evaluate(
+        () =>
+          document.documentElement.scrollWidth -
+          document.documentElement.clientWidth,
+      ),
+    ).toBeLessThanOrEqual(0);
+  });
+});

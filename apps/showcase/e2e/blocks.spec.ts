@@ -4173,6 +4173,91 @@ test.describe("comment thread", () => {
   }
 });
 
+test.describe("member card", () => {
+  const card = (page: Page) => page.locator(".nuv-holo-card");
+  const number = (page: Page) => page.locator(".member-card__number");
+  const show = (page: Page) =>
+    page.getByRole("button", { name: "Show the number" });
+
+  test.beforeEach(async ({ page }) => {
+    await open(page, "/blocks/view/member-card");
+  });
+
+  test("member card: the card has the member's name and tier, and all but four digits hidden", async ({
+    page,
+  }) => {
+    await expect(card(page)).toContainText("Sajan");
+    await expect(card(page)).toContainText("Gold");
+    await expect(number(page)).toContainText("5567");
+    await expect(number(page)).not.toContainText("4821");
+    await expect(show(page)).toHaveAttribute("aria-pressed", "false");
+    await expect(page.getByText("Member since")).toBeVisible();
+  });
+
+  test("member card: the number is shown when it's asked for, and hidden again", async ({
+    page,
+    isMobile,
+  }) => {
+    await press(show(page), isMobile);
+    await expect(number(page)).toContainText("4821 0093 5567");
+    await expect(show(page)).toHaveAttribute("aria-pressed", "true");
+
+    await press(show(page), isMobile);
+    await expect(number(page)).not.toContainText("4821");
+  });
+
+  test("member card: under a mouse the card tilts and shines, and lies flat with less motion", async ({
+    page,
+    isMobile,
+  }) => {
+    // A phone has no mouse to put on it.
+    test.skip(isMobile);
+    await page.emulateMedia({ reducedMotion: "no-preference" });
+    const surface = card(page).locator(".nuv-holo-card__surface");
+
+    await card(page).hover({ position: { x: 30, y: 30 } });
+    await expect(card(page)).toHaveAttribute("data-active", "");
+    await expect(surface).toHaveCSS("transform", /^matrix3d/);
+
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await expect(surface).toHaveCSS("transform", "none");
+  });
+
+  test("member card: on a phone the details are under the card, and the page doesn't scroll sideways", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 320, height: 640 });
+    await open(page, "/blocks/view/member-card");
+
+    expect(await overflow(page)).toBeLessThanOrEqual(0);
+    const pass = await page.locator(".member-card__pass").boundingBox();
+    const details = await page.locator(".member-card__details").boundingBox();
+    expect(details?.y).toBeGreaterThan(
+      (pass?.y ?? 0) + (pass?.height ?? 0) - 1,
+    );
+  });
+
+  for (const theme of ["light", "dark"] as const) {
+    test(`member card: it passes axe in ${theme}, with the number shown as well`, async ({
+      page,
+      isMobile,
+    }) => {
+      await setTheme(page, theme);
+      await open(page, "/blocks/view/member-card");
+      await settleStyles(page);
+      expect(
+        (await new AxeBuilder({ page }).withTags(wcag).analyze()).violations,
+      ).toEqual([]);
+
+      await press(show(page), isMobile);
+      await expect(number(page)).toContainText("4821");
+      expect(
+        (await new AxeBuilder({ page }).withTags(wcag).analyze()).violations,
+      ).toEqual([]);
+    });
+  }
+});
+
 test.describe("the blocks page", () => {
   test("lists every category, and each leads to its page", async ({
     page,

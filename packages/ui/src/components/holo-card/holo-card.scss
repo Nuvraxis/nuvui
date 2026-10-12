@@ -1,0 +1,120 @@
+@use "../../styles/layers";
+@use "../../styles/mixins";
+
+@layer components {
+  // The box the pointer is measured in. It doesn't turn itself, so its
+  // edges stay where they are while what's in it tilts, and the pointer
+  // doesn't fall off an edge that moved away from it.
+  .nuv-holo-card {
+    display: block;
+    border-radius: var(--nuv-holo-card-radius, var(--radius-xl));
+    perspective: var(--nuv-holo-card-perspective, 50rem);
+  }
+
+  .nuv-holo-card__surface {
+    position: relative;
+    block-size: 100%;
+    overflow: hidden;
+    border-radius: inherit;
+
+    // The shine blends with what's in the card and with nothing behind it.
+    isolation: isolate;
+  }
+
+  // The pointer's place is two numbers from 0 to 1, written by the
+  // component, and a half each while the pointer is somewhere else. The
+  // side under the pointer goes down, as a card pressed by a finger does.
+  @include mixins.motion-safe {
+    .nuv-holo-card__surface {
+      transform: rotateX(
+          calc(
+            (0.5 - var(--nuv-holo-card-pointer-y, 0.5)) * 2 *
+              var(--nuv-holo-card-tilt, 8deg)
+          )
+        )
+        rotateY(
+          calc(
+            (var(--nuv-holo-card-pointer-x, 0.5) - 0.5) * 2 *
+              var(--nuv-holo-card-tilt, 8deg)
+          )
+        );
+
+      // Slow on the way back to flat, and quick while it follows.
+      transition: transform var(--nuv-holo-card-duration, 400ms) ease-out;
+    }
+
+    .nuv-holo-card[data-active] > .nuv-holo-card__surface {
+      transition-duration: 80ms;
+    }
+
+    // Turned off while the pointer is on it, it goes flat where it is.
+    .nuv-holo-card[data-disabled] > .nuv-holo-card__surface {
+      transform: none;
+    }
+  }
+
+  // Two pictures, one over the other: a soft light where the pointer is,
+  // and a band of the theme's colors that slides as the pointer moves.
+  // It's over the content and can't be pressed, and it's only there
+  // while the pointer is.
+  .nuv-holo-card__shine {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: none;
+    border-radius: inherit;
+    background-image:
+      radial-gradient(
+        circle at calc(var(--nuv-holo-card-pointer-x, 0.5) * 100%)
+          calc(var(--nuv-holo-card-pointer-y, 0.5) * 100%),
+        color-mix(
+            in oklab,
+            var(--nuv-holo-card-glare, var(--color-white)) 60%,
+            transparent
+          )
+          0%,
+        transparent 45%
+      ),
+      var(
+        --nuv-holo-card-foil,
+        linear-gradient(
+          115deg,
+          transparent 25%,
+          var(--color-primary) 38%,
+          var(--color-success) 46%,
+          var(--color-warning) 54%,
+          var(--color-danger) 62%,
+          transparent 75%
+        )
+      );
+    background-repeat: no-repeat;
+    background-position:
+      0 0,
+      calc(var(--nuv-holo-card-pointer-x, 0.5) * 100%)
+        calc(var(--nuv-holo-card-pointer-y, 0.5) * 100%);
+    background-size:
+      100% 100%,
+      250% 250%;
+    opacity: 0;
+    pointer-events: none;
+    mix-blend-mode: soft-light;
+  }
+
+  @include mixins.motion-safe {
+    .nuv-holo-card__shine {
+      display: block;
+      transition: opacity var(--nuv-holo-card-duration, 400ms) ease-out;
+    }
+
+    .nuv-holo-card[data-active]:not([data-disabled]) .nuv-holo-card__shine {
+      opacity: var(--nuv-holo-card-shine-opacity, 0.7);
+    }
+  }
+
+  // Forced colors have no blend to make a shine of.
+  @media (forced-colors: active) {
+    .nuv-holo-card__shine {
+      display: none;
+    }
+  }
+}

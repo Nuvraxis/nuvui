@@ -43,6 +43,7 @@ import { FieldsetPlayground } from "@/components/playground/fieldset";
 import { FileUploadPlayground } from "@/components/playground/file-upload";
 import { FormattedNumberPlayground } from "@/components/playground/formatted-number";
 import { HoldToConfirmPlayground } from "@/components/playground/hold-to-confirm";
+import { HoloCardPlayground } from "@/components/playground/holo-card";
 import { HoverCardPlayground } from "@/components/playground/hover-card";
 import { InputPlayground } from "@/components/playground/input";
 import { InputGroupPlayground } from "@/components/playground/input-group";
@@ -161,6 +162,7 @@ export function getMDXComponents(components?: MDXComponents) {
     StatPlayground,
     ActionBarPlayground,
     HoldToConfirmPlayground,
+    HoloCardPlayground,
     TableOfContentsPlayground,
     TextShimmerPlayground,
     TreePlayground,

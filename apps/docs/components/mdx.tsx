@@ -36,6 +36,7 @@ import {
 } from "@/components/playground/date-picker";
 import { DialogPlayground } from "@/components/playground/dialog";
 import { DropdownMenuPlayground } from "@/components/playground/dropdown-menu";
+import { RichTextEditorPlayground } from "@/components/playground/editor";
 import { EmptyPlayground } from "@/components/playground/empty";
 import { FieldPlayground } from "@/components/playground/field";
 import { FieldsetPlayground } from "@/components/playground/fieldset";
@@ -175,6 +176,7 @@ export function getMDXComponents(components?: MDXComponents) {
     InputPlayground,
     InputGroupPlayground,
     KanbanPlayground,
+    RichTextEditorPlayground,
     KbdPlayground,
     LabelPlayground,
     MenubarPlayground,

@@ -1,4 +1,7 @@
 import activity from "@/blocks/activity/block.json" with { type: "json" };
+import announcementEditor from "@/blocks/announcement-editor/block.json" with {
+  type: "json",
+};
 import appearance from "@/blocks/appearance/block.json" with { type: "json" };
 import approvals from "@/blocks/approvals/block.json" with { type: "json" };
 import article from "@/blocks/article/block.json" with { type: "json" };
@@ -152,7 +155,7 @@ export const categories: BlockCategory[] = [
     label: "Data",
     title: "Data",
     description:
-      "Rows to work with: a table with search, a filter, a column chooser and actions for several rows, a list with a bar of actions for the ticked rows, requests to approve with buttons in every row, a list filtered from a sentence and a sheet, folders and files in a tree, a panel that opens beside a list, a parcel's label with its barcode, a ticket with a QR code, a board of tasks in columns, a sales pipeline that adds up each column, and a page in each state it can be in.",
+      "Rows to work with: a table with search, a filter, a column chooser and actions for several rows, a list with a bar of actions for the ticked rows, requests to approve with buttons in every row, a list filtered from a sentence and a sheet, folders and files in a tree, a panel that opens beside a list, a parcel's label with its barcode, a ticket with a QR code, a board of tasks in columns, a sales pipeline that adds up each column, an announcement written in a rich text editor, and a page in each state it can be in.",
   },
   {
     slug: "settings",
@@ -206,6 +209,7 @@ export const blocks: BlockManifest[] = [
   eventTicket,
   taskBoard,
   dealPipeline,
+  announcementEditor,
   pageStates,
   profileForm,
   appearance,

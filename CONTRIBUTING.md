@@ -95,6 +95,8 @@ packages/chat                 an add-on, published as @nuvui/chat
   src/utils/                  a value kept here or by the caller
 packages/kanban               an add-on, published as @nuvui/kanban
   src/components/kanban/      the board and its parts, in one file
+packages/editor               an add-on, published as @nuvui/editor
+  src/components/rich-text-editor/  the editor and its parts, in one file
 packages/tooling              what every published package is built with, private
   tsdown.mjs                  the build
   build-css.mjs               compiles the SCSS, and copies the source into dist
@@ -212,7 +214,7 @@ Button is the smallest example to copy from, and Dialog the fullest.
 
 ## Add-on packages
 
-A component goes in a package of its own when it needs a library the core doesn't have. `@nuvui/date-picker` is the first, for react-day-picker and date-fns, `@nuvui/table` the second, for TanStack Table, `@nuvui/charts` the third, for Recharts, and `@nuvui/barcodes` the fourth, for JsBarcode's and uqr's encoders. `@nuvui/chat` is the fifth, and the one that isn't there for a library: it's a different kind of screen, which most apps don't have. `@nuvui/kanban` is the sixth, for dnd kit, which carries the cards. An app that doesn't use the component then never installs that library.
+A component goes in a package of its own when it needs a library the core doesn't have. `@nuvui/date-picker` is the first, for react-day-picker and date-fns, `@nuvui/table` the second, for TanStack Table, `@nuvui/charts` the third, for Recharts, and `@nuvui/barcodes` the fourth, for JsBarcode's and uqr's encoders. `@nuvui/chat` is the fifth, and the one that isn't there for a library: it's a different kind of screen, which most apps don't have. `@nuvui/kanban` is the sixth, for dnd kit, which carries the cards, and `@nuvui/editor` the seventh, for Tiptap. An app that doesn't use the component then never installs that library.
 
 An add-on is laid out like the core and built with the same tooling, from `packages/tooling`. Its own config files only say what's particular to it. What differs from the core:
 

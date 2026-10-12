@@ -3437,6 +3437,189 @@ test.describe("assistant blocks, markdown", () => {
   });
 });
 
+test.describe("task board", () => {
+  const stage = (page: Page, name: string) =>
+    page.getByRole("group", { name, exact: true });
+  const tasks = (page: Page, name: string) =>
+    stage(page, name).locator("li[data-card]");
+  const said = (page: Page) => page.locator(".task-board__said");
+  // By the menu on a task, which is how a task is moved without dragging.
+  async function send(page: Page, isMobile: boolean, task: string, to: string) {
+    await press(
+      page.getByRole("button", { name: `Move to: ${task}` }),
+      isMobile,
+    );
+    await press(
+      page.getByRole("menuitem", { name: to, exact: true }),
+      isMobile,
+    );
+  }
+
+  test.beforeEach(async ({ page }) => {
+    await open(page, "/blocks/view/task-board");
+  });
+
+  test("task board: four columns of tasks, each with its count, and the review column with its limit", async ({
+    page,
+  }) => {
+    await expect(
+      page.getByRole("group", { name: "Launch plan" }),
+    ).toBeVisible();
+    await expect(tasks(page, "Backlog")).toHaveCount(3);
+    await expect(tasks(page, "In progress")).toHaveCount(2);
+    await expect(tasks(page, "In review")).toHaveCount(1);
+    await expect(tasks(page, "Done")).toHaveCount(1);
+    await expect(
+      stage(page, "In review").locator(".nuv-kanban__count"),
+    ).toHaveText("1 of 2");
+    await expect(said(page)).toHaveText("");
+  });
+
+  test("task board: a task's menu moves it to another column, and the page says so", async ({
+    page,
+    isMobile,
+  }) => {
+    await send(page, isMobile, "Agree the pricing page", "Done");
+
+    await expect(said(page)).toHaveText(
+      '"Agree the pricing page" moved from Backlog to Done.',
+    );
+    await expect(tasks(page, "Backlog")).toHaveCount(2);
+    await expect(tasks(page, "Done")).toHaveText([
+      /Publish the setup guide/,
+      /Agree the pricing page/,
+    ]);
+    // The menu doesn't offer the column the task is already in.
+    await press(
+      page.getByRole("button", { name: "Move to: Agree the pricing page" }),
+      isMobile,
+    );
+    await expect(page.getByRole("menuitem")).toHaveText([
+      "Backlog",
+      "In progress",
+      "In review",
+    ]);
+  });
+
+  test("task board: the review column takes two, and a third stays where it was", async ({
+    page,
+    isMobile,
+  }) => {
+    await send(page, isMobile, "Write the launch emails", "In review");
+    await expect(tasks(page, "In review")).toHaveCount(2);
+    await expect(
+      stage(page, "In review").locator(".nuv-kanban__count"),
+    ).toHaveText("2 of 2");
+
+    await send(page, isMobile, "Agree the pricing page", "In review");
+
+    await expect(said(page)).toHaveText(
+      'In review takes 2 tasks at a time. "Agree the pricing page" stays in Backlog.',
+    );
+    await expect(tasks(page, "In review")).toHaveCount(2);
+    await expect(tasks(page, "Backlog")).toHaveCount(2);
+  });
+
+  test("task board: with the keyboard a task is picked up by its handle and taken to the next column", async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(isMobile, "A phone has no arrow keys.");
+    // The board waits a tick after a key before it listens for the next,
+    // and measures the columns again after each move.
+    const key = async (name: string) => {
+      await page.keyboard.press(name);
+      await page.waitForTimeout(150);
+    };
+
+    await page
+      .getByRole("button", { name: "Move Agree the pricing page", exact: true })
+      .focus();
+    await key("Space");
+    await key("ArrowRight");
+    await expect(
+      tasks(page, "In progress").filter({ hasText: "Agree the pricing page" }),
+    ).toHaveCount(1);
+    await key("Space");
+
+    await expect(said(page)).toHaveText(
+      '"Agree the pricing page" moved from Backlog to In progress.',
+    );
+    await expect(tasks(page, "Backlog")).toHaveCount(2);
+    await expect(tasks(page, "In progress")).toHaveCount(3);
+  });
+
+  test("task board: a task refused from the keyboard goes back to its column", async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(isMobile, "A phone has no arrow keys.");
+    const key = async (name: string) => {
+      await page.keyboard.press(name);
+      await page.waitForTimeout(150);
+    };
+    await send(page, isMobile, "Write the launch emails", "In review");
+    await expect(tasks(page, "In review")).toHaveCount(2);
+
+    await page
+      .getByRole("button", {
+        name: "Move Switch billing to the new plans",
+        exact: true,
+      })
+      .focus();
+    await key("Space");
+    await key("ArrowRight");
+    await key("Space");
+
+    await expect(said(page)).toContainText(
+      "In review takes 2 tasks at a time.",
+    );
+    await expect(tasks(page, "In progress")).toHaveCount(2);
+    await expect(tasks(page, "In review")).toHaveCount(2);
+  });
+
+  test("task board: on a phone the board scrolls sideways, the page doesn't, and some of the next column shows", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 320, height: 640 });
+    await open(page, "/blocks/view/task-board");
+    const board = page.locator(".nuv-kanban");
+
+    expect(await overflow(page)).toBe(0);
+    expect(
+      await board.evaluate(
+        (element) => element.scrollWidth - element.clientWidth,
+      ),
+    ).toBeGreaterThan(0);
+    const next = await stage(page, "In progress").boundingBox();
+    expect(next?.x).toBeLessThan(320);
+  });
+
+  for (const theme of ["light", "dark"] as const) {
+    test(`task board: it passes axe in ${theme}, with a task's menu open as well`, async ({
+      page,
+      isMobile,
+    }) => {
+      await setTheme(page, theme);
+      await open(page, "/blocks/view/task-board");
+      await settleStyles(page);
+      expect(
+        (await new AxeBuilder({ page }).withTags(wcag).analyze()).violations,
+      ).toEqual([]);
+
+      await press(
+        page.getByRole("button", { name: "Move to: Agree the pricing page" }),
+        isMobile,
+      );
+      await expect(page.getByRole("menu")).toBeVisible();
+      await settleStyles(page);
+      expect(
+        (await new AxeBuilder({ page }).withTags(wcag).analyze()).violations,
+      ).toEqual([]);
+    });
+  }
+});
+
 test.describe("the blocks page", () => {
   test("lists every category, and each leads to its page", async ({
     page,

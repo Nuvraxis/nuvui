@@ -78,6 +78,7 @@ import supportChat from "@/blocks/support-chat/block.json" with {
 import tableToolbar from "@/blocks/table-toolbar/block.json" with {
   type: "json",
 };
+import taskBoard from "@/blocks/task-board/block.json" with { type: "json" };
 import teamChat from "@/blocks/team-chat/block.json" with { type: "json" };
 import teamMembers from "@/blocks/team-members/block.json" with {
   type: "json",
@@ -148,7 +149,7 @@ export const categories: BlockCategory[] = [
     label: "Data",
     title: "Data",
     description:
-      "Rows to work with: a table with search, a filter, a column chooser and actions for several rows, a list with a bar of actions for the ticked rows, requests to approve with buttons in every row, a list filtered from a sentence and a sheet, folders and files in a tree, a panel that opens beside a list, a parcel's label with its barcode, a ticket with a QR code, and a page in each state it can be in.",
+      "Rows to work with: a table with search, a filter, a column chooser and actions for several rows, a list with a bar of actions for the ticked rows, requests to approve with buttons in every row, a list filtered from a sentence and a sheet, folders and files in a tree, a panel that opens beside a list, a parcel's label with its barcode, a ticket with a QR code, a board of tasks in columns, and a page in each state it can be in.",
   },
   {
     slug: "settings",
@@ -200,6 +201,7 @@ export const blocks: BlockManifest[] = [
   detailPanel,
   shippingLabel,
   eventTicket,
+  taskBoard,
   pageStates,
   profileForm,
   appearance,

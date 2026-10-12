@@ -1,0 +1,107 @@
+@use "@nuvui/react/scss/mixins";
+
+.deal-pipeline {
+  display: grid;
+  gap: calc(var(--spacing) * 4);
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  inline-size: 100%;
+  min-block-size: 100svh;
+  padding: calc(var(--spacing) * 6) calc(var(--spacing) * 4);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+
+  @include mixins.breakpoint("md") {
+    padding: calc(var(--spacing) * 8);
+  }
+}
+
+.deal-pipeline__head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 4);
+  align-items: end;
+  justify-content: space-between;
+}
+
+.deal-pipeline__about {
+  display: grid;
+  gap: calc(var(--spacing) * 1);
+}
+
+.deal-pipeline__title {
+  margin: 0;
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-2xl--line-height);
+  letter-spacing: var(--tracking-tight);
+}
+
+.deal-pipeline__text {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+.deal-pipeline__open {
+  display: grid;
+  gap: calc(var(--spacing) * 1);
+  margin: 0;
+}
+
+.deal-pipeline__term {
+  color: var(--color-muted-foreground);
+  font-size: var(--text-xs);
+  line-height: var(--text-xs--line-height);
+}
+
+.deal-pipeline__sum {
+  margin: 0;
+  font-size: var(--text-xl);
+  font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+  line-height: var(--text-xl--line-height);
+}
+
+// One line is kept for it, so the board stays put when it first speaks.
+.deal-pipeline__said {
+  min-block-size: calc(var(--text-sm) * var(--text-sm--line-height));
+  margin: 0;
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+// A column's deals scroll inside it when there are more than fit.
+.deal-pipeline__board {
+  --nuv-kanban-max-height: 70svh;
+}
+
+.deal-pipeline__deal {
+  display: grid;
+  gap: calc(var(--spacing) * 1);
+}
+
+.deal-pipeline__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 2);
+  align-items: center;
+  justify-content: space-between;
+}
+
+.deal-pipeline__company {
+  min-inline-size: 0;
+  font-weight: var(--font-weight-medium);
+}
+
+.deal-pipeline__worth {
+  font-variant-numeric: tabular-nums;
+}
+
+.deal-pipeline__what,
+.deal-pipeline__owner {
+  color: var(--color-muted-foreground);
+  font-size: var(--text-xs);
+  line-height: var(--text-xs--line-height);
+}

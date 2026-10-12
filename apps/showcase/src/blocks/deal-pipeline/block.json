@@ -1,0 +1,9 @@
+{
+  "name": "deal-pipeline",
+  "title": "Deal pipeline",
+  "description": "A sales pipeline as a board. Each column adds up the worth of its deals and the heading adds up what's still open, both following a deal as it's moved. A button adds a deal to the first column, and a deal that's won is locked where it is.",
+  "category": "data",
+  "files": ["deal-pipeline.tsx", "deal-pipeline.scss"],
+  "install": ["@nuvui/kanban", "@nuvui/react"],
+  "height": 760
+}

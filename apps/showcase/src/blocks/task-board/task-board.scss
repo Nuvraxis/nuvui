@@ -1,0 +1,75 @@
+@use "@nuvui/react/scss/mixins";
+
+.task-board {
+  display: grid;
+  gap: calc(var(--spacing) * 4);
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  inline-size: 100%;
+  min-block-size: 100svh;
+  padding: calc(var(--spacing) * 6) calc(var(--spacing) * 4);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+
+  @include mixins.breakpoint("md") {
+    padding: calc(var(--spacing) * 8);
+  }
+}
+
+.task-board__head {
+  display: grid;
+  gap: calc(var(--spacing) * 1);
+}
+
+.task-board__title {
+  margin: 0;
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-2xl--line-height);
+  letter-spacing: var(--tracking-tight);
+}
+
+.task-board__text {
+  max-inline-size: 60ch;
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+// One line is kept for it, so the board stays put when it first speaks.
+.task-board__said {
+  min-block-size: calc(var(--text-sm) * var(--text-sm--line-height));
+  margin: 0;
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+// A column's cards scroll inside it when there are more than fit.
+.task-board__board {
+  --nuv-kanban-max-height: 70svh;
+}
+
+.task-board__task {
+  display: grid;
+  gap: calc(var(--spacing) * 2);
+  justify-items: start;
+}
+
+.task-board__name {
+  font-weight: var(--font-weight-medium);
+}
+
+.task-board__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 2);
+  align-items: center;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-xs);
+  line-height: var(--text-xs--line-height);
+}
+
+.task-board__owner {
+  min-inline-size: 0;
+}

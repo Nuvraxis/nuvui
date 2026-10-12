@@ -48,6 +48,7 @@ export const addons = {
   charts: pkg("charts", "@nuvui/charts"),
   barcodes: pkg("barcodes", "@nuvui/barcodes"),
   chat: pkg("chat", "@nuvui/chat"),
+  kanban: pkg("kanban", "@nuvui/kanban"),
 };
 
 export type Addon = keyof typeof addons;

@@ -37,6 +37,7 @@ import {
   TableHeader,
   TableRow,
 } from "@nuvui/table/table";
+import { Board } from "./board";
 import { People } from "./people";
 import { Visitors } from "./visitors";
 
@@ -94,6 +95,7 @@ export default function Page() {
         </Table>
       </TableContainer>
       <People people={people} />
+      <Board />
       <Visitors months={months} />
       {/* Client components from another package, used from this server
           component with nothing but plain props. */}

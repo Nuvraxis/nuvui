@@ -5,6 +5,7 @@ import "@nuvui/table/styles.css";
 import "@nuvui/charts/styles.css";
 import "@nuvui/barcodes/styles.css";
 import "@nuvui/chat/styles.css";
+import "@nuvui/kanban/styles.css";
 // The two codes, each from the entry of its own.
 import { Barcode } from "@nuvui/barcodes/barcode";
 import { QRCode } from "@nuvui/barcodes/qrcode";
@@ -26,6 +27,13 @@ import { DatePicker, type DateRange } from "@nuvui/date-picker";
 // An entry of the add-on's own, and one locale out of all it has.
 import { Calendar } from "@nuvui/date-picker/calendar";
 import { de } from "@nuvui/date-picker/locale";
+// The board, from the entry of its one component.
+import {
+  Kanban,
+  KanbanCard,
+  KanbanCards,
+  KanbanColumn,
+} from "@nuvui/kanban/kanban";
 import {
   Button,
   type ButtonProps,
@@ -110,6 +118,24 @@ function App() {
         <PromptInputSubmit />
       </PromptInput>
       <Barcode value="590123412345" type="ean13" aria-label="Item 5901234" />
+      <Kanban
+        aria-label="Work"
+        defaultValue={[{ id: "todo", cards: ["brief"] }]}
+      >
+        {(columns) =>
+          columns.map((column) => (
+            <KanbanColumn key={column.id} value={column.id} label="To do">
+              <KanbanCards>
+                {column.cards.map((id) => (
+                  <KanbanCard key={id} value={id} label="Write the brief">
+                    Write the brief
+                  </KanbanCard>
+                ))}
+              </KanbanCards>
+            </KanbanColumn>
+          ))
+        }
+      </Kanban>
       <QRCode value="https://example.com" aria-label="Open the example" />
       <Button size={size} onClick={() => toast("Saved")}>
         Save

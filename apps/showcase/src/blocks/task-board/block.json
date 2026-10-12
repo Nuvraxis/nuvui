@@ -1,0 +1,9 @@
+{
+  "name": "task-board",
+  "title": "Task board",
+  "description": "A plan's tasks in four columns. A card is dragged to another column or moved there with the keyboard, each card has a menu that moves it for anyone who'd sooner not drag, the review column takes only so many, and a line under the heading says what was moved.",
+  "category": "data",
+  "files": ["task-board.tsx", "task-board.scss"],
+  "install": ["@nuvui/kanban", "@nuvui/react"],
+  "height": 760
+}

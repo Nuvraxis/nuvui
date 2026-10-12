@@ -241,7 +241,7 @@
   .nuv-rich-text-editor__link {
     display: grid;
     gap: calc(var(--spacing) * 2);
-    min-inline-size: min(18rem, 80vw);
+    min-inline-size: 0;
   }
 
   .nuv-rich-text-editor__link-error {

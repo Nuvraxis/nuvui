@@ -20,12 +20,18 @@ import billing from "@/blocks/billing/block.json" with { type: "json" };
 import caseStudies from "@/blocks/case-studies/block.json" with {
   type: "json",
 };
+import commentThread from "@/blocks/comment-thread/block.json" with {
+  type: "json",
+};
 import dangerZone from "@/blocks/danger-zone/block.json" with { type: "json" };
 import dashboard from "@/blocks/dashboard/block.json" with { type: "json" };
 import dealPipeline from "@/blocks/deal-pipeline/block.json" with {
   type: "json",
 };
 import detailPanel from "@/blocks/detail-panel/block.json" with {
+  type: "json",
+};
+import documentEditor from "@/blocks/document-editor/block.json" with {
   type: "json",
 };
 import eventTicket from "@/blocks/event-ticket/block.json" with {
@@ -155,7 +161,14 @@ export const categories: BlockCategory[] = [
     label: "Data",
     title: "Data",
     description:
-      "Rows to work with: a table with search, a filter, a column chooser and actions for several rows, a list with a bar of actions for the ticked rows, requests to approve with buttons in every row, a list filtered from a sentence and a sheet, folders and files in a tree, a panel that opens beside a list, a parcel's label with its barcode, a ticket with a QR code, a board of tasks in columns, a sales pipeline that adds up each column, an announcement written in a rich text editor, and a page in each state it can be in.",
+      "Rows to work with: a table with search, a filter, a column chooser and actions for several rows, a list with a bar of actions for the ticked rows, requests to approve with buttons in every row, a list filtered from a sentence and a sheet, folders and files in a tree, a panel that opens beside a list, a parcel's label with its barcode, a ticket with a QR code, a board of tasks in columns, a sales pipeline that adds up each column, and a page in each state it can be in.",
+  },
+  {
+    slug: "editor",
+    label: "Editor",
+    title: "Writing and editors",
+    description:
+      "Formatted text, written and read: a page of a knowledge base with an outline that follows its headings, an announcement shown beside the form as it will be read, and comments under a record with a small editor of their own.",
   },
   {
     slug: "settings",
@@ -209,8 +222,10 @@ export const blocks: BlockManifest[] = [
   eventTicket,
   taskBoard,
   dealPipeline,
-  announcementEditor,
   pageStates,
+  documentEditor,
+  announcementEditor,
+  commentThread,
   profileForm,
   appearance,
   notifications,

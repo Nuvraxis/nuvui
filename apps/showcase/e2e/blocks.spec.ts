@@ -1,7 +1,7 @@
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import AxeBuilder from "@axe-core/playwright";
-import { expect, type Page, test } from "@playwright/test";
+import { expect, type Locator, type Page, test } from "@playwright/test";
 import {
   blocks,
   blocksHome,
@@ -187,6 +187,11 @@ for (const block of blocks) {
         return [...all].filter((element) => {
           if (element.matches(":disabled, [tabindex='-1']")) return false;
           if (element.closest("[inert], [hidden]")) return false;
+          // A link in text that's being written is text to the Tab
+          // key, which goes past it. The box it's in is the stop.
+          if (element.parentElement?.closest('[contenteditable="true"]')) {
+            return false;
+          }
           const box = element.getBoundingClientRect();
           return (
             box.width > 0 &&
@@ -3763,6 +3768,29 @@ test.describe("deal pipeline", () => {
   }
 });
 
+// Everything in an editor selected: by its shortcut, and on a phone,
+// which has no keys to hold down, by the selection a finger would make.
+// That one starts inside the first block, so typing over it keeps the
+// first block as what it was, a heading if it was one.
+async function selectEverything(page: Page, editor: Locator) {
+  const phone = await page.evaluate(() => /iPhone/.test(navigator.userAgent));
+  if (phone) {
+    await editor.selectText();
+    return;
+  }
+  await editor.click();
+  await page.keyboard.press("ControlOrMeta+a");
+}
+
+// Everything in an editor taken away, down to an empty paragraph. The
+// second press takes away the heading or the list the first one leaves
+// an empty line of.
+async function emptyOut(page: Page, editor: Locator) {
+  await selectEverything(page, editor);
+  await page.keyboard.press("Backspace");
+  await page.keyboard.press("Backspace");
+}
+
 test.describe("announcement editor", () => {
   const body = (page: Page) =>
     page.getByRole("textbox", { name: "Announcement", exact: true });
@@ -3802,8 +3830,7 @@ test.describe("announcement editor", () => {
   test("announcement editor: what's written is what's read, as it's written", async ({
     page,
   }) => {
-    await body(page).click();
-    await page.keyboard.press("ControlOrMeta+a");
+    await selectEverything(page, body(page));
     await page.keyboard.type("Offices are closed on Friday.");
 
     await expect(read(page)).toHaveText("Offices are closed on Friday.");
@@ -3884,6 +3911,259 @@ test.describe("announcement editor", () => {
       await press(page.getByRole("button", { name: "Publish" }), isMobile);
       await expect(
         page.getByText("Give the announcement a title."),
+      ).toBeVisible();
+      await settleStyles(page);
+      expect(
+        (await new AxeBuilder({ page }).withTags(wcag).analyze()).violations,
+      ).toEqual([]);
+    });
+  }
+});
+
+test.describe("document editor", () => {
+  const body = (page: Page) =>
+    page.getByRole("textbox", { name: "Page", exact: true });
+  const title = (page: Page) => page.getByRole("textbox", { name: "Title" });
+  const state = (page: Page) => page.locator(".document-editor__state");
+  const entries = (page: Page) => page.locator(".document-editor__entry");
+  const count = (page: Page) => page.locator(".document-editor__count");
+
+  test.beforeEach(async ({ page }) => {
+    await open(page, "/blocks/view/document-editor");
+    // The editor is made once the page is in a browser, a moment after
+    // the rest of it.
+    await expect(body(page)).toHaveAttribute("contenteditable", "true");
+  });
+
+  test("document editor: the page is in the editor, with its headings and its words beside it", async ({
+    page,
+  }) => {
+    await expect(title(page)).toHaveValue("How refunds work");
+    await expect(body(page).locator("h2")).toHaveCount(2);
+    await expect(entries(page)).toHaveText([
+      "Who can ask",
+      "How long it takes",
+      "Card payments",
+      "Bank transfers",
+    ]);
+    await expect(entries(page).nth(1)).toHaveAttribute("data-level", "2");
+    await expect(entries(page).nth(2)).toHaveAttribute("data-level", "3");
+    await expect(count(page)).toHaveText(/^\d+ words, about 1 min to read$/);
+    await expect(state(page)).toHaveText("All changes saved");
+  });
+
+  test("document editor: a heading that's written joins the outline, and the words are counted", async ({
+    page,
+  }) => {
+    await emptyOut(page, body(page));
+    await page.keyboard.type("## Plans");
+    await page.keyboard.press("Enter");
+    await page.keyboard.type("Two words");
+
+    await expect(entries(page)).toHaveText(["Plans"]);
+    await expect(count(page)).toHaveText("3 words, about 1 min to read");
+    await expect(state(page)).toHaveText("Unsaved changes");
+  });
+
+  test("document editor: with no headings the outline says so", async ({
+    page,
+  }) => {
+    await emptyOut(page, body(page));
+    await page.keyboard.type("Gone");
+
+    await expect(entries(page)).toHaveCount(0);
+    await expect(
+      page.getByText("Headings you write are listed here."),
+    ).toBeVisible();
+    await expect(count(page)).toHaveText("1 word, about 1 min to read");
+  });
+
+  test("document editor: saving keeps the changes, and discarding puts back what was saved", async ({
+    page,
+    isMobile,
+  }) => {
+    await title(page).fill("Refunds");
+    await expect(state(page)).toHaveText("Unsaved changes");
+
+    await press(page.getByRole("button", { name: "Save" }), isMobile);
+    await expect(state(page)).toHaveText("All changes saved");
+
+    await title(page).fill("Something else");
+    await emptyOut(page, body(page));
+    await page.keyboard.type("Gone");
+    await expect(entries(page)).toHaveCount(0);
+    await expect(state(page)).toHaveText("Unsaved changes");
+
+    await press(
+      page.getByRole("button", { name: "Discard changes" }),
+      isMobile,
+    );
+    await expect(title(page)).toHaveValue("Refunds");
+    await expect(entries(page)).toHaveCount(4);
+    await expect(body(page).locator("h2").first()).toHaveText("Who can ask");
+    await expect(state(page)).toHaveText("All changes saved");
+  });
+
+  test("document editor: on a phone the outline is under the page, and the page doesn't scroll sideways", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 320, height: 640 });
+    await open(page, "/blocks/view/document-editor");
+    await expect(body(page)).toHaveAttribute("contenteditable", "true");
+
+    expect(await overflow(page)).toBeLessThanOrEqual(0);
+    const written = await page.locator(".document-editor__page").boundingBox();
+    const beside = await page.locator(".document-editor__aside").boundingBox();
+    expect(beside?.y).toBeGreaterThan(
+      (written?.y ?? 0) + (written?.height ?? 0) - 1,
+    );
+  });
+
+  for (const theme of ["light", "dark"] as const) {
+    test(`document editor: it passes axe in ${theme}`, async ({ page }) => {
+      await setTheme(page, theme);
+      await open(page, "/blocks/view/document-editor");
+      await expect(body(page)).toHaveAttribute("contenteditable", "true");
+      await expect(entries(page)).toHaveCount(4);
+      await settleStyles(page);
+      expect(
+        (await new AxeBuilder({ page }).withTags(wcag).analyze()).violations,
+      ).toEqual([]);
+    });
+  }
+});
+
+test.describe("comment thread", () => {
+  const draft = (page: Page) =>
+    page.getByRole("textbox", { name: "Add a comment", exact: true });
+  const comments = (page: Page) => page.locator(".comment-thread__comment");
+  const said = (page: Page) => page.locator(".comment-thread__said");
+  const tools = (page: Page) =>
+    page.getByRole("toolbar", { name: "Formatting" });
+
+  test.beforeEach(async ({ page }) => {
+    await open(page, "/blocks/view/comment-thread");
+    // The editor is made once the page is in a browser, a moment after
+    // the rest of it.
+    await expect(draft(page)).toHaveAttribute("contenteditable", "true");
+  });
+
+  test("comment thread: the comments are there to read, each by who wrote it", async ({
+    page,
+  }) => {
+    await expect(
+      page.getByRole("heading", { name: "Comments (2)" }),
+    ).toBeVisible();
+    await expect(comments(page)).toHaveCount(2);
+    await expect(comments(page).first()).toContainText("Priya Nair");
+    await expect(comments(page).first().locator("li")).toHaveCount(2);
+
+    const second = comments(page).nth(1).getByRole("textbox");
+    await expect(second).toHaveAttribute("contenteditable", "false");
+    await expect(second).toHaveAttribute("aria-readonly", "true");
+    await expect(second.locator("a")).toHaveAttribute(
+      "href",
+      "https://example.com/finance/invoices",
+    );
+  });
+
+  test("comment thread: the toolbar has only what a comment needs", async ({
+    page,
+  }) => {
+    await expect(tools(page).getByRole("button")).toHaveCount(6);
+    await expect(
+      tools(page).getByRole("button", { name: /Heading/ }),
+    ).toHaveCount(0);
+    await expect(
+      tools(page).getByRole("button", { name: "Bold", exact: true }),
+    ).toBeVisible();
+    await expect(
+      tools(page).getByRole("button", { name: "Link", exact: true }),
+    ).toBeVisible();
+  });
+
+  test("comment thread: a comment that's posted joins the list as it was written, and the editor is empty again", async ({
+    page,
+    isMobile,
+  }) => {
+    await draft(page).click();
+    await page.keyboard.type("Split it today");
+    await selectEverything(page, draft(page));
+    await press(
+      tools(page).getByRole("button", { name: "Bold", exact: true }),
+      isMobile,
+    );
+    await expect(draft(page).locator("strong")).toHaveText("Split it today");
+
+    await press(
+      page.getByRole("button", { name: "Comment", exact: true }),
+      isMobile,
+    );
+
+    await expect(comments(page)).toHaveCount(3);
+    await expect(
+      page.getByRole("heading", { name: "Comments (3)" }),
+    ).toBeVisible();
+    await expect(comments(page).nth(2)).toContainText("Dana Whitfield");
+    await expect(comments(page).nth(2).locator("strong")).toHaveText(
+      "Split it today",
+    );
+    await expect(draft(page)).toHaveText("");
+    await expect(said(page)).toHaveText("Comment posted.");
+  });
+
+  test("comment thread: posting nothing says what's missing, and writing takes that away", async ({
+    page,
+    isMobile,
+  }) => {
+    await press(
+      page.getByRole("button", { name: "Comment", exact: true }),
+      isMobile,
+    );
+
+    await expect(
+      page.getByText("Write a comment before you post it."),
+    ).toBeVisible();
+    await expect(draft(page)).toHaveAttribute("aria-invalid", "true");
+    await expect(comments(page)).toHaveCount(2);
+
+    await draft(page).click();
+    await page.keyboard.type("Hello");
+    await expect(
+      page.getByText("Write a comment before you post it."),
+    ).toHaveCount(0);
+    await expect(draft(page)).not.toHaveAttribute("aria-invalid", "true");
+  });
+
+  test("comment thread: on a phone the page doesn't scroll sideways", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 320, height: 640 });
+    await open(page, "/blocks/view/comment-thread");
+    await expect(draft(page)).toHaveAttribute("contenteditable", "true");
+
+    expect(await overflow(page)).toBeLessThanOrEqual(0);
+  });
+
+  for (const theme of ["light", "dark"] as const) {
+    test(`comment thread: it passes axe in ${theme}, with the error showing as well`, async ({
+      page,
+      isMobile,
+    }) => {
+      await setTheme(page, theme);
+      await open(page, "/blocks/view/comment-thread");
+      await expect(draft(page)).toHaveAttribute("contenteditable", "true");
+      await settleStyles(page);
+      expect(
+        (await new AxeBuilder({ page }).withTags(wcag).analyze()).violations,
+      ).toEqual([]);
+
+      await press(
+        page.getByRole("button", { name: "Comment", exact: true }),
+        isMobile,
+      );
+      await expect(
+        page.getByText("Write a comment before you post it."),
       ).toBeVisible();
       await settleStyles(page);
       expect(

@@ -37,7 +37,7 @@ The styles come from `@nuvui/editor/styles.css`, which you load once for the who
 
 ## Parts
 
-By itself `RichTextEditor` draws a toolbar, the text, the menu on the selection, and a count when there's a `maxLength`. Give it children to choose the parts yourself.
+By itself `RichTextEditor` draws a toolbar, the text, and a count when there's a `maxLength`. Give it children to choose the parts yourself.
 
 | Part | What it is |
 | --- | --- |
@@ -47,7 +47,7 @@ By itself `RichTextEditor` draws a toolbar, the text, the menu on the selection,
 | `RichTextEditorActions` | Buttons in a toolbar that do one thing once: undo, a divider. |
 | `RichTextEditorLink` | The button for a link, with the box its address is written in. |
 | `RichTextEditorContent` | The text. |
-| `RichTextEditorBubbleMenu` | The small toolbar over selected text. |
+| `RichTextEditorBubbleMenu` | A small toolbar over selected text. It's drawn when you add it. |
 | `RichTextEditorCount` | How much is written. |
 
 ## The value
@@ -120,6 +120,14 @@ Name the editor with `aria-labelledby` and the `id` of the words that label it. 
 The formats are `bold`, `italic`, `underline`, `strike`, `code`, `heading1` to `heading6`, `bulletList`, `orderedList`, `blockquote` and `codeBlock`. The actions are `undo`, `redo`, `horizontalRule` and `clearFormatting`.
 
 Leaving a format out of the toolbar doesn't forbid it: its shortcut still works, and it can be pasted.
+
+## A menu on the selection
+
+`RichTextEditorBubbleMenu` is a small toolbar that comes up over text when it's selected, with bold, italic, underline and strikethrough, or the `items` you give it. It's for an editor with no toolbar over the text, as here.
+
+<Preview name="rich-text-editor/bubble" />
+
+It isn't drawn unless you add it. Under a toolbar it covers the toolbar's controls when the first line is selected, and on a phone it comes up where the phone's own menu for copy and paste does. Formatting that's only in this menu can't be reached with the Tab key, so keep it to formats that have a shortcut: the four it starts with do.
 
 ## Read only
 
@@ -229,7 +237,7 @@ Every name a screen reader says, and the words in the box for a link, are in `la
 - The toolbar is a toolbar with a name, and one stop for the Tab key. Each control has a name, and a toggle says whether it's on.
 - A control that can't be used now, undo with nothing to undo, is disabled.
 - After a control is pressed, focus is in the text again, with the selection as it was.
-- The menu on the selection has nothing the toolbar doesn't, so nobody needs it.
+- The menu on the selection isn't reached with the Tab key. What's in it by default has a shortcut each: Ctrl or Command with B, I and U, and with Shift and S.
 - Each control is 44 pixels on a touch screen, and the text is 16 pixels there, so iOS doesn't zoom the page when it's tapped.
 
 ### What you need to handle
@@ -242,7 +250,7 @@ Every name a screen reader says, and the words in the box for a link, are in `la
 
 The toolbar wraps to as many rows as it needs, and the page doesn't scroll sideways. A toolbar of fourteen controls is three rows on a phone: for a comment or a reply, give it fewer, as in [your own toolbar](#your-own-toolbar).
 
-The menu on the selection comes up over the selection, where a phone puts its own menu for copy and paste. The toolbar has everything it has.
+The menu on the selection, if you add it, comes up over the selection, where a phone puts its own menu for copy and paste. On a phone a toolbar serves better.
 
 ## CSS variables
 

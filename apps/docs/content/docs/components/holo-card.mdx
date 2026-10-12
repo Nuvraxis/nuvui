@@ -1,6 +1,6 @@
 ---
 title: HoloCard
-description: A card that tilts toward the pointer with a shine that follows it, for a membership card, a pass or a badge. It lies flat for a finger, for the keyboard and for anyone who asked for less motion.
+description: A 3D tilting card with a pointer-tracked holographic glare and texture overlay, built for membership cards, passes, and collectibles.
 added: "2026-10-12"
 ---
 
@@ -30,7 +30,32 @@ The styles come from `@nuvui/react/styles.css`, which you load once for the whol
 
 <PropsTable component="holo-card" name="HoloCardOwnProps" />
 
-It's a `div`, and takes what a `div` takes, including `ref` and `className`. It has no background, border or padding of its own: what you put in it is the card's face, cut to the card's corners.
+It's a `div`, and takes what a `div` takes, including `ref` and `className`.
+
+## The face and what's on it
+
+The card has a face, and what you put in it lies on that face. Give the face its color with `--nuv-holo-card-bg`, which takes anything `background` does, a picture included, and the text its color with `--nuv-holo-card-fg`.
+
+```tsx
+<HoloCard
+  style={{
+    "--nuv-holo-card-bg": "var(--color-primary)",
+    "--nuv-holo-card-fg": "var(--color-primary-foreground)",
+  }}
+>
+  <MemberCard />
+</HoloCard>
+```
+
+The glare and the texture are drawn on the face, under the content. So don't give what you put in the card a background of its own: it would cover them.
+
+## Floating content
+
+While the pointer is on the card, what's on it rises off the face toward you, and throws a shadow on the face away from the pointer. As the card tilts, the words move against the face behind them, which is what makes them look as if they float. At rest they lie on the face, at the size you gave them.
+
+`lift={false}` keeps them on the face. `--nuv-holo-card-lift` says how far they rise.
+
+Nothing is cut off at the card's edges, since cutting would press everything flat again. Keep what's in the card inside its padding.
 
 ## How it moves
 
@@ -44,20 +69,32 @@ How far it tilts, its corners and the shine are CSS variables. The shine's color
 
 <Preview name="holo-card/custom" />
 
+## The texture
+
+On the card's face is an embossed texture: fine lines pressed into it both ways, each a line of light beside a line of shade. It's faint while the card is at rest, and shows more under the pointer, where it catches the light. `texture={false}` leaves it out.
+
+```tsx
+<HoloCard texture={false}>
+  <MemberCard />
+</HoloCard>
+```
+
+The pattern is a CSS variable, `--nuv-holo-card-texture`, which takes any background image: gradients of your own, or a picture of a pattern.
+
 ## Accessibility
 
 A holo card has no role and no keyboard behavior. It can't take focus. What's in it can, and is read, pressed and selected as it would be anywhere.
 
 ### What the component handles
 
-- The shine is hidden from screen readers and lets presses through to what's under it.
-- For a visitor who asked for less motion, the card doesn't tilt and has no shine.
-- Where the browser forces its own colors, there's no shine.
-- At rest there's no shine, so the colors of what's in the card are the ones you gave it.
+- The shine and the texture are hidden from screen readers and let presses through to what's under them.
+- For a visitor who asked for less motion, the card doesn't tilt, has no shine, and its content stays on the face. The texture stays, and doesn't change.
+- Where the browser forces its own colors, there's no shine and no texture.
+- The shine and the texture are on the face, under the content. Neither is ever over the text.
 
 ### What you need to handle
 
-- The shine passes over the content while the pointer is on the card, and lightens what it passes. Keep text on the card large and well above 4.5:1 against its background, or lower `--nuv-holo-card-shine-opacity`.
+- The texture and the shine change the face's color behind the text a little, the shine only while the pointer is on the card. Keep text on the card well above 4.5:1 against the face, or lower `--nuv-holo-card-texture-opacity` and `--nuv-holo-card-shine-opacity`. An automatic check can't measure text over a pattern, so look at it yourself.
 - Don't put anything on a card that needs careful aim, such as a small link. The card moves a little under the pointer.
 - Use one on a screen, not a grid of them.
 
@@ -74,8 +111,14 @@ Set any of these on the `HoloCard`, or on anything around it.
 <CssVariables
   component="holo-card"
   descriptions={{
-    "--nuv-holo-card-radius":
-      "Corner radius of the card. What's in it is cut to this.",
+    "--nuv-holo-card-bg":
+      "The face: a color, a gradient or a picture. Anything background takes.",
+    "--nuv-holo-card-fg": "Color of the text on the card.",
+    "--nuv-holo-card-lift":
+      "How far the content rises off the face under the pointer.",
+    "--nuv-holo-card-shadow":
+      "Color of the shadow the risen content throws on the face.",
+    "--nuv-holo-card-radius": "Corner radius of the card and its face.",
     "--nuv-holo-card-perspective":
       "How far away the card is looked at from. A smaller distance makes the tilt look deeper.",
     "--nuv-holo-card-tilt":
@@ -88,6 +131,10 @@ Set any of these on the `HoloCard`, or on anything around it.
       "The colored band, as a gradient. It's drawn two and a half times the card's size and slides with the pointer.",
     "--nuv-holo-card-shine-opacity":
       "How strong the shine is while the pointer is on the card.",
+    "--nuv-holo-card-texture":
+      "The texture, as a background image. Lines both ways unless you give it another.",
+    "--nuv-holo-card-texture-opacity":
+      "How strong the texture is at rest. Under the pointer it's two and a half times this.",
     "--nuv-holo-card-pointer-x":
       "Where the pointer is across the card, from 0 to 1. The component writes this. Don't set it.",
     "--nuv-holo-card-pointer-y":
@@ -102,8 +149,12 @@ Set any of these on the `HoloCard`, or on anything around it.
   descriptions={{
     "nuv-holo-card":
       "HoloCard. The box the pointer is measured in, which doesn't turn.",
-    "nuv-holo-card__surface": "What turns, and holds what you put in.",
-    "nuv-holo-card__shine": "The shine, over the content.",
+    "nuv-holo-card--lift":
+      "With lift. The content rises off the face under the pointer.",
+    "nuv-holo-card__surface": "The face. It's what turns.",
+    "nuv-holo-card__texture": "The embossed texture, on the face.",
+    "nuv-holo-card__shine": "The shine, on the face.",
+    "nuv-holo-card__content": "What you put in, over the face.",
   }}
 />
 
@@ -117,7 +168,7 @@ HoloCard starts with `"use client"`: it follows the pointer. It takes no functio
 
 **Do**
 
-- Give it a face with a background: a color, a picture, or a [card](/docs/components/card).
+- Give it a face with `--nuv-holo-card-bg`: a color, a gradient or a picture.
 - Keep it to things that stand for an object someone holds.
 
 **Don't**

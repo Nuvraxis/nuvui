@@ -4192,6 +4192,8 @@ test.describe("member card", () => {
     await expect(number(page)).not.toContainText("4821");
     await expect(show(page)).toHaveAttribute("aria-pressed", "false");
     await expect(page.getByText("Member since")).toBeVisible();
+    // The card's face has its texture, which nothing reads out.
+    await expect(card(page).locator(".nuv-holo-card__texture")).toHaveCount(1);
   });
 
   test("member card: the number is shown when it's asked for, and hidden again", async ({
@@ -4218,9 +4220,13 @@ test.describe("member card", () => {
     await card(page).hover({ position: { x: 30, y: 30 } });
     await expect(card(page)).toHaveAttribute("data-active", "");
     await expect(surface).toHaveCSS("transform", /^matrix3d/);
+    // The name and the number have come off the face.
+    const content = card(page).locator(".nuv-holo-card__content");
+    await expect(content).toHaveCSS("transform", /^matrix3d\(.*, 24, 1\)$/);
 
     await page.emulateMedia({ reducedMotion: "reduce" });
     await expect(surface).toHaveCSS("transform", "none");
+    await expect(content).toHaveCSS("transform", "none");
   });
 
   test("member card: on a phone the details are under the card, and the page doesn't scroll sideways", async ({

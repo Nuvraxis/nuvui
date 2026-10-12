@@ -1666,7 +1666,7 @@ describe("text shimmer, hold to confirm, action bar and table of contents", () =
     expect(text.animationName).toBe("none");
   });
 
-  test("a holo card has no shine, since there's no blend to make one of", async () => {
+  test("a holo card has no shine and no texture, since there's no blend to make them of", async () => {
     await emulateMedia({ forcedColors: "active", reducedMotion: null });
     await render(
       <HoloCard>
@@ -1676,6 +1676,10 @@ describe("text shimmer, hold to confirm, action bar and table of contents", () =
 
     expect(
       style(document.querySelector(".nuv-holo-card__shine") as Element).display,
+    ).toBe("none");
+    expect(
+      style(document.querySelector(".nuv-holo-card__texture") as Element)
+        .display,
     ).toBe("none");
     expect(
       contrast(style(page.getByText("Gold member").element()).color, canvas()),

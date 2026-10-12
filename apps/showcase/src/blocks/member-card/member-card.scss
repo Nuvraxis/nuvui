@@ -58,8 +58,13 @@
   justify-items: start;
 }
 
-// The shape of a card in a wallet, as wide as there's room for.
+// The shape of a card in a wallet, as wide as there's room for. The
+// face's colors are the card's, so the glare and the texture lie on the
+// face and the name and number float over them.
 .member-card__card {
+  --nuv-holo-card-bg: var(--color-primary);
+  --nuv-holo-card-fg: var(--color-primary-foreground);
+
   inline-size: 100%;
   max-inline-size: 22rem;
   aspect-ratio: 85.6 / 54;
@@ -71,8 +76,6 @@
   justify-content: space-between;
   block-size: 100%;
   padding: calc(var(--spacing) * 5);
-  background-color: var(--color-primary);
-  color: var(--color-primary-foreground);
 }
 
 .member-card__top {

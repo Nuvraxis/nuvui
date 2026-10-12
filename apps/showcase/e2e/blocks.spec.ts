@@ -3011,7 +3011,9 @@ test.describe("assistant workspace", () => {
       /Search invoices\s*Done/,
       /Send a reminder\s*Needs approval/,
     ]);
-    await expect(log(page).getByRole("link")).toHaveCount(0);
+    await expect(
+      log(page).locator(".nuv-sources").getByRole("link"),
+    ).toHaveCount(0);
 
     await press(
       log(page).getByRole("button", { name: "Thought for 4 seconds" }),
@@ -3025,7 +3027,9 @@ test.describe("assistant workspace", () => {
     ).toContainText("INV-1057");
 
     await press(log(page).getByRole("button", { name: "2 sources" }), isMobile);
-    await expect(log(page).getByRole("link")).toHaveCount(2);
+    await expect(
+      log(page).locator(".nuv-sources").getByRole("link"),
+    ).toHaveCount(2);
     expect(await overflow(page)).toBe(0);
   });
 
@@ -3087,7 +3091,10 @@ test.describe("assistant workspace", () => {
     ).toHaveCount(3);
 
     await field(page).fill("What's due this week?");
-    await press(page.getByRole("button", { name: "Send" }), isMobile);
+    await press(
+      page.getByRole("button", { name: "Send", exact: true }),
+      isMobile,
+    );
 
     await expect(heading(page)).toHaveText("What's due this week?");
     // The steps are open while it thinks, and closed when it has answered.
@@ -3120,10 +3127,15 @@ test.describe("assistant workspace", () => {
     const before = await log(page).locator(".nuv-message").count();
 
     await field(page).fill("And the other one?");
-    await press(page.getByRole("button", { name: "Send" }), isMobile);
+    await press(
+      page.getByRole("button", { name: "Send", exact: true }),
+      isMobile,
+    );
     await press(page.getByRole("button", { name: "Stop" }), isMobile);
 
-    await expect(page.getByRole("button", { name: "Send" })).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Send", exact: true }),
+    ).toBeVisible();
     await expect(log(page).locator('[aria-busy="true"]')).toHaveCount(0);
     await expect(log(page).locator(".nuv-message")).toHaveCount(before + 1);
   });
@@ -3148,7 +3160,10 @@ test.describe("assistant workspace", () => {
     ).toHaveCount(1);
     expect(await overflow(page)).toBe(0);
     await field(page).fill("Is this right?");
-    await press(page.getByRole("button", { name: "Send" }), isMobile);
+    await press(
+      page.getByRole("button", { name: "Send", exact: true }),
+      isMobile,
+    );
 
     await expect(page.getByRole("list", { name: "Files to send" })).toHaveCount(
       0,
@@ -3212,7 +3227,9 @@ test.describe("assistant workspace", () => {
     );
     await press(calls(page).first(), isMobile);
     await press(log(page).getByRole("button", { name: "2 sources" }), isMobile);
-    await expect(log(page).getByRole("link")).toHaveCount(2);
+    await expect(
+      log(page).locator(".nuv-sources").getByRole("link"),
+    ).toHaveCount(2);
     await settleStyles(page);
     expect(
       (await new AxeBuilder({ page }).withTags(wcag).analyze()).violations,
@@ -3253,7 +3270,10 @@ test.describe("assistant chat, files", () => {
     ).toHaveCount(1);
     expect(await overflow(page)).toBe(0);
 
-    await press(page.getByRole("button", { name: "Send" }), isMobile);
+    await press(
+      page.getByRole("button", { name: "Send", exact: true }),
+      isMobile,
+    );
 
     await expect(page.getByRole("list", { name: "Files to send" })).toHaveCount(
       0,
@@ -3280,7 +3300,9 @@ test.describe("assistant chat, files", () => {
     const scope = await page
       .getByRole("combobox", { name: "Which customers to look at" })
       .boundingBox();
-    const send = await page.getByRole("button", { name: "Send" }).boundingBox();
+    const send = await page
+      .getByRole("button", { name: "Send", exact: true })
+      .boundingBox();
     const middle = (box: typeof attach) =>
       (box?.y ?? 0) + (box?.height ?? 0) / 2;
 
@@ -3312,7 +3334,9 @@ test.describe("assistant blocks, markdown", () => {
       ["Invoice", "Customer", "Amount", "Days late"],
       { timeout: 15_000 },
     );
-    await expect(page.getByRole("button", { name: "Send" })).toBeVisible({
+    await expect(
+      page.getByRole("button", { name: "Send", exact: true }),
+    ).toBeVisible({
       timeout: 15_000,
     });
     await expect(answer.getByRole("row")).toHaveCount(3);
@@ -3332,7 +3356,9 @@ test.describe("assistant blocks, markdown", () => {
       page.getByRole("button", { name: "Who hasn't paid yet?" }),
       isMobile,
     );
-    await expect(page.getByRole("button", { name: "Send" })).toBeVisible({
+    await expect(
+      page.getByRole("button", { name: "Send", exact: true }),
+    ).toBeVisible({
       timeout: 15_000,
     });
 
@@ -3354,7 +3380,9 @@ test.describe("assistant blocks, markdown", () => {
       page.getByRole("button", { name: "Summarize last month's invoices" }),
       isMobile,
     );
-    await expect(page.getByRole("button", { name: "Send" })).toBeVisible({
+    await expect(
+      page.getByRole("button", { name: "Send", exact: true }),
+    ).toBeVisible({
       timeout: 15_000,
     });
 
@@ -3401,6 +3429,10 @@ test.describe("assistant blocks, markdown", () => {
     await expect(
       answer.getByRole("button", { name: "2 sources" }),
     ).toBeVisible();
+    // An address written out in a reply is a link to write to it.
+    await expect(
+      log.getByRole("link", { name: "billing@northwind.example" }),
+    ).toHaveAttribute("href", "mailto:billing@northwind.example");
     expect(await overflow(page)).toBe(0);
   });
 });

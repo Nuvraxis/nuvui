@@ -1,0 +1,177 @@
+@use "../../styles/layers";
+@use "@nuvui/react/scss/mixins";
+
+@layer components {
+  // The columns side by side. On a screen too narrow for them all the
+  // board scrolls sideways, and the page doesn't.
+  .nuv-kanban {
+    display: flex;
+    gap: var(--nuv-kanban-gap, calc(var(--spacing) * 4));
+    align-items: flex-start;
+    min-inline-size: 0;
+    max-inline-size: 100%;
+    overflow-x: auto;
+    color: var(--nuv-kanban-fg, var(--color-foreground));
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+  }
+
+  // On a phone a column leaves some of the next one in sight, which is
+  // what says there is a next one.
+  .nuv-kanban__column {
+    display: flex;
+    flex: none;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 2);
+    inline-size: min(var(--nuv-kanban-column-width, 18rem), 85%);
+    max-block-size: var(--nuv-kanban-max-height, none);
+    padding: calc(var(--spacing) * 2);
+    border: 1px solid var(--nuv-kanban-column-border, var(--color-border));
+    border-radius: var(--nuv-kanban-radius, var(--radius-lg));
+    background-color: var(--nuv-kanban-column-bg, var(--color-muted));
+  }
+
+  .nuv-kanban__header {
+    display: flex;
+    gap: calc(var(--spacing) * 2);
+    align-items: center;
+    min-block-size: calc(var(--spacing) * 8);
+    padding-inline: calc(var(--spacing) * 1);
+  }
+
+  .nuv-kanban__title {
+    min-inline-size: 0;
+    overflow: hidden;
+    font-weight: var(--font-weight-medium);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .nuv-kanban__count {
+    flex: none;
+    color: var(--nuv-kanban-count-fg, var(--color-muted-foreground));
+    font-variant-numeric: tabular-nums;
+  }
+
+  .nuv-kanban__actions {
+    display: inline-flex;
+    flex: none;
+    gap: calc(var(--spacing) * 1);
+    align-items: center;
+    margin-inline-start: auto;
+  }
+
+  // What a card is dropped on. It fills what's left of the column, so an
+  // empty column is as easy to hit as a full one.
+  .nuv-kanban__cards {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-block-size: calc(var(--spacing) * 16);
+    overflow-y: auto;
+    border-radius: var(--radius-md);
+
+    &[data-empty][data-over] {
+      outline: 2px dashed var(--nuv-kanban-over-border, var(--color-ring));
+      outline-offset: -2px;
+    }
+  }
+
+  .nuv-kanban__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nuv-kanban-card-gap, calc(var(--spacing) * 2));
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .nuv-kanban__empty {
+    margin: auto;
+    padding: calc(var(--spacing) * 4);
+    color: var(--nuv-kanban-empty-fg, var(--color-muted-foreground));
+    text-align: center;
+  }
+
+  // The handle and beside it what the card holds. A finger held on it
+  // picks it up, so the browser's own menu for a long press is off, and
+  // so is selecting its text, which a drag would otherwise do.
+  .nuv-kanban__card {
+    display: flex;
+    position: relative;
+    gap: calc(var(--spacing) * 1);
+    align-items: flex-start;
+    box-sizing: border-box;
+    padding: calc(var(--spacing) * 2);
+    padding-inline-start: calc(var(--spacing) * 1);
+    border: 1px solid var(--nuv-kanban-card-border, var(--color-border));
+    border-radius: var(--nuv-kanban-card-radius, var(--radius-md));
+    background-color: var(--nuv-kanban-card-bg, var(--color-background));
+    box-shadow: var(--nuv-kanban-card-shadow, var(--shadow-xs));
+    cursor: grab;
+    user-select: none;
+    -webkit-touch-callout: none;
+    touch-action: manipulation;
+
+    // Where the card would land. The card that's carried is drawn again
+    // under the pointer.
+    &[data-dragging] {
+      opacity: var(--nuv-kanban-dragging-opacity, 0.4);
+    }
+
+    &[data-overlay] {
+      block-size: 100%;
+      box-shadow: var(--nuv-kanban-overlay-shadow, var(--shadow-lg));
+      cursor: grabbing;
+    }
+
+    &[data-disabled] {
+      cursor: default;
+    }
+
+    // A shadow isn't drawn there, and the border alone has to set the
+    // carried card apart from the ones under it.
+    @media (forced-colors: active) {
+      &[data-overlay] {
+        border-color: Highlight;
+      }
+    }
+  }
+
+  .nuv-kanban__card-content {
+    flex: 1;
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .nuv-kanban__handle {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--nuv-touch-size);
+    block-size: var(--nuv-touch-size);
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: none;
+    color: var(--nuv-kanban-handle-fg, var(--color-muted-foreground));
+    cursor: inherit;
+    -webkit-tap-highlight-color: transparent;
+
+    @include mixins.fine-pointer {
+      inline-size: calc(var(--spacing) * 6);
+      block-size: calc(var(--spacing) * 6);
+    }
+
+    @include mixins.hover {
+      color: var(--nuv-kanban-handle-hover-fg, var(--color-foreground));
+    }
+
+    @include mixins.focus-ring;
+
+    &:disabled {
+      opacity: var(--nuv-disabled-opacity);
+    }
+  }
+}

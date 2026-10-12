@@ -49,6 +49,7 @@ const published = {
   "@nuvui/charts": "charts",
   "@nuvui/barcodes": "barcodes",
   "@nuvui/chat": "chat",
+  "@nuvui/kanban": "kanban",
 };
 
 function expect(app, what, passed) {
@@ -118,6 +119,12 @@ const fixtures = {
     );
     expect("vite", "it has the codes' styles", css.includes(".nuv-barcode"));
     expect("vite", "it has the chat's styles", css.includes(".nuv-message"));
+    expect("vite", "it has the board's styles", css.includes(".nuv-kanban"));
+    expect(
+      "vite",
+      "the script has the board's card",
+      script.includes("nuv-kanban__handle"),
+    );
     expect(
       "vite",
       "the script has the message and the prompt box",
@@ -222,6 +229,12 @@ const fixtures = {
 
     const css = read(files(join(dir, "out"), ".css"));
     expect("next", "it has the chat's styles", css.includes(".nuv-message"));
+    expect("next", "it has the board's styles", css.includes(".nuv-kanban"));
+    expect(
+      "next",
+      "the server rendered the board from a client component of the app's",
+      html.includes("nuv-kanban__handle"),
+    );
     expect("next", "it has the codes' styles", css.includes(".nuv-barcode"));
     expect("next", "it has the charts' styles", css.includes(".nuv-chart"));
     expect(

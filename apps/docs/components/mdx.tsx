@@ -46,6 +46,7 @@ import { HoverCardPlayground } from "@/components/playground/hover-card";
 import { InputPlayground } from "@/components/playground/input";
 import { InputGroupPlayground } from "@/components/playground/input-group";
 import { ItemPlayground } from "@/components/playground/item";
+import { KanbanPlayground } from "@/components/playground/kanban";
 import { KbdPlayground } from "@/components/playground/kbd";
 import { LabelPlayground } from "@/components/playground/label";
 import { ListViewPlayground } from "@/components/playground/list-view";
@@ -173,6 +174,7 @@ export function getMDXComponents(components?: MDXComponents) {
     HoverCardPlayground,
     InputPlayground,
     InputGroupPlayground,
+    KanbanPlayground,
     KbdPlayground,
     LabelPlayground,
     MenubarPlayground,

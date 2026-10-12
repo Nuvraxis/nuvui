@@ -9,6 +9,7 @@ import { createRef } from "react";
 import { describe, expect, test, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
+import { Button } from "../button";
 import { HoloCard } from "./holo-card";
 
 const style = (element: Element) => getComputedStyle(element);
@@ -328,21 +329,22 @@ describe.each(themes)("accessibility in %s", (theme) => {
   test("passes axe at rest", async () => {
     const screen = await renderThemed(
       theme,
-      <main>
-        <HoloCard style={size}>
-          <div
-            style={{
-              blockSize: "100%",
-              padding: 16,
-              backgroundColor: "var(--color-surface)",
-              color: "var(--color-surface-foreground)",
-            }}
-          >
-            <p>Sajan</p>
-            <button type="button">Show the number</button>
-          </div>
-        </HoloCard>
-      </main>,
+      <HoloCard style={size}>
+        <div
+          style={{
+            blockSize: "100%",
+            padding: 16,
+            backgroundColor: "var(--color-surface)",
+            color: "var(--color-surface-foreground)",
+          }}
+        >
+          <p>Sajan</p>
+          {/* The library's button, in the theme's colors. A bare one is
+              drawn in the browser's own, which in Safari's dark mode
+              don't pass. */}
+          <Button intent="secondary">Show the number</Button>
+        </div>
+      </HoloCard>,
     );
 
     await expectNoViolations(screen.container);

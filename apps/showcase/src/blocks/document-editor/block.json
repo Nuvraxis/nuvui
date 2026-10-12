@@ -1,0 +1,9 @@
+{
+  "name": "document-editor",
+  "title": "Document editor",
+  "description": "A page of a knowledge base being edited: a title, a body in a rich text editor with the whole toolbar, and beside it the page's headings as an outline with a count of words, both read from the HTML as it's written. It says whether there are unsaved changes, and they can be saved or thrown away.",
+  "category": "editor",
+  "files": ["document-editor.tsx", "document-editor.scss"],
+  "install": ["@nuvui/editor", "@nuvui/react"],
+  "height": 860
+}

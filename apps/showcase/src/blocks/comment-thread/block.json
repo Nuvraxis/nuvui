@@ -1,0 +1,9 @@
+{
+  "name": "comment-thread",
+  "title": "Comment thread",
+  "description": "Comments on a record, and a small rich text editor under them with a toolbar cut down to bold, italic, code, lists and links. A posted comment joins the list, each one drawn by a read-only editor so nothing in it can run, and posting nothing says what's missing.",
+  "category": "editor",
+  "files": ["comment-thread.tsx", "comment-thread.scss"],
+  "install": ["@nuvui/editor", "@nuvui/react"],
+  "height": 820
+}

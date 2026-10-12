@@ -22,6 +22,13 @@ html {
   scrollbar-gutter: stable;
 }
 
+/* A heading that's one long name, RichTextEditorBubbleMenu among them, is
+   wider than a phone, and the page scrolled sideways for it. It breaks
+   where it has to. */
+article :is(h1, h2, h3, h4) {
+  overflow-wrap: anywhere;
+}
+
 /* The site's header is above the docs' layout, and stays at the top of the
    window from this width up. Fumadocs keeps this much room for a banner
    there, and places the sidebar and the page's contents list under it. On a

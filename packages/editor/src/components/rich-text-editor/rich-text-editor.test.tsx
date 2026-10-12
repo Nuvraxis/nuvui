@@ -12,6 +12,7 @@ import { render } from "vitest-browser-react";
 import {
   RichTextEditor,
   RichTextEditorActions,
+  RichTextEditorBubbleMenu,
   type RichTextEditorChange,
   RichTextEditorContent,
   RichTextEditorCount,
@@ -264,6 +265,66 @@ describe("the value", () => {
   });
 });
 
+describe("a parent that's slow", () => {
+  test("a value that comes back late doesn't take away what was typed since", async () => {
+    const html = { current: "" };
+    function Slow() {
+      const [value, setValue] = useState("");
+      html.current = value;
+      return (
+        <RichTextEditor
+          aria-label="Notes"
+          value={value}
+          // Each change is given back a moment later, as it is by a
+          // parent with a lot to draw. By then more has been typed.
+          onValueChange={(next) => {
+            setTimeout(() => setValue(next), 40);
+          }}
+        />
+      );
+    }
+    await render(<Slow />);
+    await expect.element(box()).toBeInTheDocument();
+    await userEvent.click(text());
+
+    // A letter at a time, so that values come back between letters.
+    for (const letter of "Split it today") {
+      await userEvent.keyboard(letter);
+      await new Promise((done) => setTimeout(done, 15));
+    }
+
+    await expect.poll(() => html.current).toBe("<p>Split it today</p>");
+    expect(text().textContent).toBe("Split it today");
+  });
+
+  test("a value that isn't one it reported is still written in", async () => {
+    function Reset() {
+      const [value, setValue] = useState("<p>First</p>");
+      return (
+        <>
+          <RichTextEditor
+            aria-label="Notes"
+            value={value}
+            onValueChange={setValue}
+          />
+          <button type="button" onClick={() => setValue("<p>Second</p>")}>
+            Reset
+          </button>
+        </>
+      );
+    }
+    await render(<Reset />);
+    await expect.element(box()).toBeInTheDocument();
+    await userEvent.click(text());
+    await userEvent.keyboard("!");
+    await expect.poll(() => text().textContent).toContain("!");
+
+    await page.getByRole("button", { name: "Reset" }).click();
+
+    await expect.poll(() => text().textContent).toBe("Second");
+  });
+});
+
 describe("formatting", () => {
   test("a toggle formats what's selected, and is on while the caret is in it", async () => {
     const editorRef = createRef<RichTextEditorHandle>();
@@ -278,7 +339,8 @@ describe("formatting", () => {
       .poll(() => editorRef.current?.getHTML())
       .toBe("<p><strong>Hello</strong></p>");
     await expect.poll(() => pressed("Bold")).toBe("true");
-    expect(document.activeElement).toBe(text());
+    // The caret goes back to the text on the next frame.
+    await expect.poll(() => document.activeElement).toBe(text());
 
     await button("Bold").click();
     await expect.poll(() => editorRef.current?.getHTML()).toBe("<p>Hello</p>");
@@ -422,9 +484,15 @@ describe("links", () => {
     await button("Link").click();
     await userEvent.type(address(), "javascript:alert(1){Enter}");
 
+    // The sentence is what the address is described by.
     await expect
-      .element(page.getByText("Enter a web address, an email address"))
-      .toBeVisible();
+      .poll(() => address().element().getAttribute("aria-describedby"))
+      .not.toBeNull();
+    expect(
+      document.getElementById(
+        address().element().getAttribute("aria-describedby") ?? "",
+      )?.textContent,
+    ).toBe("Enter a web address, an email address or a phone number.");
     expect(address().element().getAttribute("aria-invalid")).toBe("true");
     expect(text().querySelector("a")).toBeNull();
   });
@@ -613,9 +681,12 @@ describe("parts of your own", () => {
     const tools = page.getByRole("toolbar", { name: "Tools" });
 
     expect(tools.getByRole("button").elements()).toHaveLength(4);
-    expect(
-      document.querySelector(".nuv-rich-text-editor__count")?.textContent,
-    ).toBe("5 characters");
+    await expect
+      .poll(
+        () =>
+          document.querySelector(".nuv-rich-text-editor__count")?.textContent,
+      )
+      .toBe("5 characters");
 
     await userEvent.click(text());
     await tools.getByRole("button", { name: "Divider" }).click();
@@ -650,9 +721,27 @@ describe("the menu on the selection", () => {
   const menu = () =>
     page.getByRole("toolbar", { name: "Format the selection" });
 
+  const parts = (
+    <>
+      <RichTextEditorContent />
+      <RichTextEditorBubbleMenu />
+    </>
+  );
+
+  test("there's none unless it's asked for, so nothing comes up over the toolbar", async () => {
+    await mount({ defaultValue: "<p>Hello</p>" });
+
+    await userEvent.click(text());
+    await selectAll();
+    await expect.poll(() => getSelection()?.toString()).toContain("Hello");
+
+    expect(document.querySelector(".nuv-rich-text-editor__bubble")).toBeNull();
+    expect(menu().elements()).toHaveLength(0);
+  });
+
   test("it comes up when text is selected, and its toggles format it", async () => {
     const editorRef = createRef<RichTextEditorHandle>();
-    await mount({ editorRef, defaultValue: "<p>Hello</p>" });
+    await mount({ editorRef, defaultValue: "<p>Hello</p>", children: parts });
     expect(menu().elements()).toHaveLength(0);
 
     await userEvent.click(text());
@@ -666,7 +755,11 @@ describe("the menu on the selection", () => {
   });
 
   test("there's none when the text can't be changed", async () => {
-    await mount({ readOnly: true, defaultValue: "<p>Hello</p>" });
+    await mount({
+      readOnly: true,
+      defaultValue: "<p>Hello</p>",
+      children: parts,
+    });
 
     expect(document.querySelector(".nuv-rich-text-editor__bubble")).toBeNull();
   });

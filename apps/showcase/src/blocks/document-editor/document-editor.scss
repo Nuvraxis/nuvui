@@ -1,0 +1,141 @@
+@use "@nuvui/react/scss/mixins";
+
+.document-editor {
+  display: grid;
+  gap: calc(var(--spacing) * 6);
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  inline-size: 100%;
+  max-inline-size: 72rem;
+  min-block-size: 100svh;
+  margin-inline: auto;
+  padding: calc(var(--spacing) * 6) calc(var(--spacing) * 4);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+
+  @include mixins.breakpoint("md") {
+    padding: calc(var(--spacing) * 8);
+  }
+}
+
+.document-editor__head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 4);
+  align-items: end;
+  justify-content: space-between;
+}
+
+.document-editor__intro {
+  display: grid;
+  gap: calc(var(--spacing) * 1);
+}
+
+.document-editor__title {
+  margin: 0;
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-2xl--line-height);
+  letter-spacing: var(--tracking-tight);
+}
+
+.document-editor__state {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+.document-editor__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 2);
+}
+
+// The page, and beside it what's in it. One under the other until
+// there's room for both.
+.document-editor__columns {
+  display: grid;
+  gap: calc(var(--spacing) * 6);
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+
+  @include mixins.breakpoint("lg") {
+    grid-template-columns: minmax(0, 1fr) 16rem;
+  }
+}
+
+.document-editor__page {
+  --nuv-rich-text-editor-min-height: 20rem;
+
+  display: grid;
+  gap: calc(var(--spacing) * 4);
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.document-editor__field {
+  display: grid;
+  gap: calc(var(--spacing) * 2);
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.document-editor__label {
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--text-sm--line-height);
+}
+
+.document-editor__aside {
+  display: grid;
+  gap: calc(var(--spacing) * 3);
+  grid-template-columns: minmax(0, 1fr);
+  padding: calc(var(--spacing) * 4);
+  border: var(--nuv-border-width, 1px) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-surface);
+  color: var(--color-surface-foreground);
+}
+
+.document-editor__heading {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-sm--line-height);
+}
+
+.document-editor__none {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+.document-editor__outline {
+  display: grid;
+  gap: calc(var(--spacing) * 2);
+  grid-template-columns: minmax(0, 1fr);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+.document-editor__entry {
+  overflow-wrap: anywhere;
+
+  &[data-level="3"] {
+    padding-inline-start: calc(var(--spacing) * 4);
+    color: var(--color-muted-foreground);
+  }
+}
+
+.document-editor__count {
+  margin: 0;
+  padding-block-start: calc(var(--spacing) * 3);
+  border-block-start: var(--nuv-border-width, 1px) solid var(--color-border);
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+  line-height: var(--text-sm--line-height);
+}

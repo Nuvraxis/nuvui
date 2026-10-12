@@ -1,0 +1,18 @@
+[
+  {
+    "name": "@nuvui/editor",
+    "path": "dist/index.js",
+    "limit": "130 kB"
+  },
+  {
+    "name": "@nuvui/editor/rich-text-editor",
+    "path": "dist/components/rich-text-editor/index.js",
+    "limit": "130 kB"
+  },
+  {
+    "name": "styles.css",
+    "path": "dist/styles.css",
+    "rolldown": false,
+    "limit": "2 kB"
+  }
+]

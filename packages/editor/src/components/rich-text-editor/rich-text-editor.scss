@@ -1,0 +1,259 @@
+@use "../../styles/layers";
+@use "@nuvui/react/scss/mixins";
+
+@layer components {
+  // One box around the toolbar and the text, with the ring of a field
+  // when the text has the keyboard's focus.
+  .nuv-rich-text-editor {
+    display: flex;
+    position: relative;
+    flex-direction: column;
+    min-inline-size: 0;
+    border: var(--nuv-border-width, 1px) solid
+      var(--nuv-rich-text-editor-border, var(--color-border));
+    border-radius: var(--nuv-rich-text-editor-radius, var(--radius-lg));
+    background-color: var(--nuv-rich-text-editor-bg, var(--color-background));
+    color: var(--nuv-rich-text-editor-fg, var(--color-foreground));
+
+    &:has(.nuv-rich-text-editor__content:focus-visible) {
+      outline: var(--nuv-focus-ring-width, 2px) solid
+        var(--nuv-focus-ring-color, var(--color-ring));
+      outline-offset: var(--nuv-focus-ring-offset, 2px);
+    }
+
+    &[data-invalid] {
+      border-color: var(
+        --nuv-rich-text-editor-invalid-border,
+        var(--color-danger)
+      );
+    }
+
+    &[data-disabled] {
+      opacity: var(--nuv-disabled-opacity);
+      cursor: not-allowed;
+    }
+  }
+
+  // The core's toolbar, as the top of the box and not a box of its own.
+  // It wraps to a second row where one isn't wide enough.
+  .nuv-rich-text-editor__toolbar {
+    --nuv-toolbar-border: transparent;
+    --nuv-toolbar-radius: 0;
+    --nuv-toolbar-bg: transparent;
+
+    flex-wrap: wrap;
+    border-block-end: var(--nuv-border-width, 1px) solid
+      var(--nuv-rich-text-editor-border, var(--color-border));
+    border-start-start-radius: inherit;
+    border-start-end-radius: inherit;
+  }
+
+  .nuv-rich-text-editor__group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--nuv-toolbar-gap, var(--spacing));
+    align-items: center;
+  }
+
+  // Square, since each holds one letter or one drawing.
+  .nuv-rich-text-editor__item {
+    --nuv-toolbar-item-padding-inline: 0;
+  }
+
+  .nuv-rich-text-editor__glyph {
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-semibold);
+    line-height: 1;
+
+    &[data-glyph="italic"] {
+      font-style: italic;
+    }
+
+    &[data-glyph="underline"] {
+      text-decoration: underline;
+    }
+
+    &[data-glyph="strike"] {
+      text-decoration: line-through;
+    }
+
+    &[data-glyph="heading"] {
+      font-size: var(--text-xs);
+    }
+  }
+
+  .nuv-rich-text-editor__body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-block-size: var(--nuv-rich-text-editor-min-height, 10rem);
+    max-block-size: var(--nuv-rich-text-editor-max-height, none);
+    overflow-y: auto;
+  }
+
+  // What's written in. The rules for white space are the ones the editor
+  // needs to keep the spaces that are typed. 16px on a touch screen, so
+  // iOS doesn't zoom the page when it's tapped.
+  .nuv-rich-text-editor__content {
+    position: relative;
+    flex: 1;
+    padding: var(--nuv-rich-text-editor-padding, calc(var(--spacing) * 3));
+    outline: none;
+    font-size: max(1rem, var(--nuv-rich-text-editor-font-size, var(--text-sm)));
+    font-variant-ligatures: none;
+    line-height: var(--text-base--line-height);
+    overflow-wrap: anywhere;
+    white-space: break-spaces;
+
+    @include mixins.fine-pointer {
+      font-size: var(--nuv-rich-text-editor-font-size, var(--text-sm));
+    }
+
+    > * + * {
+      margin-block-start: var(
+        --nuv-rich-text-editor-gap,
+        calc(var(--spacing) * 3)
+      );
+    }
+  }
+
+  .nuv-rich-text-editor__content :where(p, h1, h2, h3, h4, h5, h6) {
+    margin-block: 0;
+  }
+
+  .nuv-rich-text-editor__content :where(h1, h2, h3, h4, h5, h6) {
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--leading-tight, 1.25);
+  }
+
+  .nuv-rich-text-editor__content :where(h1) {
+    font-size: var(--text-2xl);
+  }
+
+  .nuv-rich-text-editor__content :where(h2) {
+    font-size: var(--text-xl);
+  }
+
+  .nuv-rich-text-editor__content :where(h3) {
+    font-size: var(--text-lg);
+  }
+
+  .nuv-rich-text-editor__content :where(h4, h5, h6) {
+    font-size: var(--text-base);
+  }
+
+  .nuv-rich-text-editor__content :where(ul, ol) {
+    margin-block-end: 0;
+    padding-inline-start: calc(var(--spacing) * 6);
+  }
+
+  .nuv-rich-text-editor__content :where(ul) {
+    list-style: disc;
+  }
+
+  .nuv-rich-text-editor__content :where(ol) {
+    list-style: decimal;
+  }
+
+  .nuv-rich-text-editor__content :where(a) {
+    color: var(--nuv-rich-text-editor-link-fg, var(--color-foreground));
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+    cursor: text;
+  }
+
+  .nuv-rich-text-editor__content :where(blockquote) {
+    margin-inline: 0;
+    padding-inline-start: calc(var(--spacing) * 4);
+    border-inline-start: 3px solid
+      var(--nuv-rich-text-editor-quote-border, var(--color-border));
+    color: var(--nuv-rich-text-editor-quote-fg, var(--color-muted-foreground));
+  }
+
+  .nuv-rich-text-editor__content :where(code) {
+    padding: 0.1em 0.3em;
+    border-radius: var(--radius-sm);
+    background-color: var(--nuv-rich-text-editor-code-bg, var(--color-muted));
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+  }
+
+  .nuv-rich-text-editor__content :where(pre) {
+    margin-block-end: 0;
+    padding: calc(var(--spacing) * 3);
+    overflow-x: auto;
+    border-radius: var(--radius-md);
+    background-color: var(--nuv-rich-text-editor-code-bg, var(--color-muted));
+    white-space: pre;
+  }
+
+  // stylelint-disable-next-line selector-max-compound-selectors
+  .nuv-rich-text-editor__content :where(pre code) {
+    padding: 0;
+    background: none;
+  }
+
+  .nuv-rich-text-editor__content :where(hr) {
+    border: 0;
+    border-block-start: var(--nuv-border-width, 1px) solid
+      var(--nuv-rich-text-editor-border, var(--color-border));
+  }
+
+  // The words shown while nothing is written. They're drawn from an
+  // attribute on the empty first line, and take no part in the text.
+  .nuv-rich-text-editor__placeholder::before {
+    block-size: 0;
+    float: inline-start;
+    color: var(
+      --nuv-rich-text-editor-placeholder-fg,
+      var(--color-muted-foreground)
+    );
+    content: attr(data-placeholder);
+    pointer-events: none;
+  }
+
+  // The menu over selected text.
+  .nuv-rich-text-editor__bubble {
+    z-index: var(--nuv-z-popover, 50);
+  }
+
+  .nuv-rich-text-editor__bubble-toolbar {
+    box-shadow: var(--shadow-md);
+  }
+
+  .nuv-rich-text-editor__count {
+    margin: 0;
+    padding: calc(var(--spacing) * 2) calc(var(--spacing) * 3);
+    border-block-start: var(--nuv-border-width, 1px) solid
+      var(--nuv-rich-text-editor-border, var(--color-border));
+    color: var(--nuv-rich-text-editor-count-fg, var(--color-muted-foreground));
+    font-size: var(--text-xs);
+    font-variant-numeric: tabular-nums;
+    line-height: var(--text-xs--line-height);
+    text-align: end;
+
+    &[data-full] {
+      color: var(--nuv-rich-text-editor-full-fg, var(--color-danger));
+    }
+  }
+
+  // The box a link's address is written in.
+  .nuv-rich-text-editor__link {
+    display: grid;
+    gap: calc(var(--spacing) * 2);
+    min-inline-size: min(18rem, 80vw);
+  }
+
+  .nuv-rich-text-editor__link-error {
+    margin: 0;
+    color: var(--color-danger);
+    font-size: var(--text-xs);
+    line-height: var(--text-xs--line-height);
+  }
+
+  .nuv-rich-text-editor__link-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(var(--spacing) * 2);
+  }
+}

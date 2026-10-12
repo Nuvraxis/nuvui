@@ -1,0 +1,9 @@
+{
+  "name": "announcement-editor",
+  "title": "Announcement editor",
+  "description": "A form that writes an announcement: a title, and a body in a rich text editor with a limit and a count. Beside it the announcement is shown as its readers will see it, drawn by the editor itself so nothing in it can run, and publishing with nothing written says what's missing.",
+  "category": "data",
+  "files": ["announcement-editor.tsx", "announcement-editor.scss"],
+  "install": ["@nuvui/editor", "@nuvui/react"],
+  "height": 820
+}

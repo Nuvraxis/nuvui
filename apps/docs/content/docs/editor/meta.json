@@ -1,0 +1,5 @@
+{
+  "title": "Editor",
+  "defaultOpen": true,
+  "pages": ["index", "rich-text-editor"]
+}

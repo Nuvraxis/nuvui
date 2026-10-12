@@ -16,6 +16,7 @@
     "@nuvui/chat": "workspace:*",
     "@nuvui/kanban": "workspace:*",
     "@nuvui/date-picker": "workspace:*",
+    "@nuvui/editor": "workspace:*",
     "@nuvui/react": "workspace:*",
     "@nuvui/table": "workspace:*",
     "@nuvui/telemetry": "workspace:*",

@@ -50,6 +50,7 @@ const published = {
   "@nuvui/barcodes": "barcodes",
   "@nuvui/chat": "chat",
   "@nuvui/kanban": "kanban",
+  "@nuvui/editor": "editor",
 };
 
 function expect(app, what, passed) {
@@ -120,6 +121,16 @@ const fixtures = {
     expect("vite", "it has the codes' styles", css.includes(".nuv-barcode"));
     expect("vite", "it has the chat's styles", css.includes(".nuv-message"));
     expect("vite", "it has the board's styles", css.includes(".nuv-kanban"));
+    expect(
+      "vite",
+      "it has the editor's styles",
+      css.includes(".nuv-rich-text-editor"),
+    );
+    expect(
+      "vite",
+      "the script has the editor's text",
+      script.includes("nuv-rich-text-editor__content"),
+    );
     expect(
       "vite",
       "the script has the board's card",
@@ -230,6 +241,17 @@ const fixtures = {
     const css = read(files(join(dir, "out"), ".css"));
     expect("next", "it has the chat's styles", css.includes(".nuv-message"));
     expect("next", "it has the board's styles", css.includes(".nuv-kanban"));
+    expect(
+      "next",
+      "it has the editor's styles",
+      css.includes(".nuv-rich-text-editor"),
+    );
+    expect(
+      "next",
+      "the server rendered the editor's toolbar and the field a form is sent",
+      html.includes("nuv-rich-text-editor__toolbar") &&
+        /<input\s(?=[^>]*type="hidden")(?=[^>]*name="notes")/.test(html),
+    );
     expect(
       "next",
       "the server rendered the board from a client component of the app's",

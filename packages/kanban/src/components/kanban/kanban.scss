@@ -113,10 +113,23 @@
     -webkit-touch-callout: none;
     touch-action: manipulation;
 
-    // Where the card would land. The card that's carried is drawn again
-    // under the pointer.
+    // Where the card would land: an empty place with a dashed edge. The
+    // card that's carried is drawn again under the pointer. What the card
+    // holds is hidden here, not faded. Faded words are still words to
+    // read, at too little contrast to be read. The handle stays, since
+    // the keyboard's focus is on it.
     &[data-dragging] {
-      opacity: var(--nuv-kanban-dragging-opacity, 0.4);
+      border-style: dashed;
+      border-color: var(
+        --nuv-kanban-placeholder-border,
+        var(--color-muted-foreground)
+      );
+      background-color: var(--nuv-kanban-placeholder-bg, transparent);
+      box-shadow: none;
+
+      .nuv-kanban__card-content {
+        visibility: hidden;
+      }
     }
 
     &[data-overlay] {

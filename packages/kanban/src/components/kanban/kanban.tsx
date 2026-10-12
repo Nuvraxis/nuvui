@@ -166,7 +166,6 @@ interface DropData {
   type: "card" | "column";
   column: string;
   count?: number;
-  sortable?: { index: number; items: unknown[] };
 }
 
 const dataOf = (over: { data: { current?: unknown } }) =>
@@ -423,11 +422,21 @@ export const Kanban = forwardRef<HTMLDivElement, KanbanProps>(function Kanban(
     const data = target ? dataOf(target) : undefined;
     if (!target || !data) return;
     const moved = String(card.id);
+    // Over its own place. There's nowhere to take it.
+    if (String(target.id) === moved) return;
 
     setDraft((now) => {
-      const from = now ? columnOf(now, moved) : undefined;
-      const to = now?.find((column) => column.id === data.column);
-      if (!now || !from || !to || from === to) return now;
+      if (!now) return now;
+      const from = columnOf(now, moved);
+      // Which column a card is in is read from the columns, not from what
+      // the card was made with. Just after a card has changed column, what
+      // it was made with still names the one it left, and going by that
+      // sends it back, and then here again, without end.
+      const to =
+        data.type === "card"
+          ? columnOf(now, String(target.id))
+          : now.find((column) => column.id === data.column);
+      if (!from || !to || from === to) return now;
 
       let index = to.cards.length;
       if (data.type === "card") {
@@ -497,6 +506,10 @@ export const Kanban = forwardRef<HTMLDivElement, KanbanProps>(function Kanban(
     setActive(null);
   }
 
+  // Whether the card that's carried has been anywhere yet. The moment
+  // it's picked up it's over its own place, and saying that would take
+  // the place of "Picked up" before it had been read.
+  const strayed = useRef(false);
   const announcements = useMemo<Announcements>(() => {
     const name = (card: string | number) =>
       cards.current.get(String(card))?.label ?? String(card);
@@ -508,23 +521,30 @@ export const Kanban = forwardRef<HTMLDivElement, KanbanProps>(function Kanban(
     ): KanbanSpokenPlace | null => {
       const data = target ? dataOf(target) : undefined;
       if (!target || !data) return null;
-      const column = columns.current.get(data.column) ?? data.column;
+      const shown = latest.current.shown;
+      const moved = String(card);
+      const named = (id: string) => columns.current.get(id) ?? id;
 
-      if (data.type === "card" && data.sortable) {
-        const there = data.sortable.items.includes(card);
+      // From the columns as they're drawn, for the reason given where a
+      // card changes column.
+      if (data.type === "card") {
+        const under = columnOf(shown, String(target.id));
+        if (!under) return null;
         return {
-          column,
-          position: data.sortable.index + 1,
-          total: data.sortable.items.length + (there ? 0 : 1),
+          column: named(under.id),
+          position: under.cards.indexOf(String(target.id)) + 1,
+          total: under.cards.length + (under.cards.includes(moved) ? 0 : 1),
         };
       }
-      const here = columnOf(latest.current.shown, String(card));
-      const total = (data.count ?? 0) + (here?.id === data.column ? 0 : 1);
-      return { column, position: total, total };
+      const into = shown.find((other) => other.id === data.column);
+      if (!into) return null;
+      const total = into.cards.length + (into.cards.includes(moved) ? 0 : 1);
+      return { column: named(into.id), position: total, total };
     };
 
     return {
       onDragStart({ active: card }) {
+        strayed.current = false;
         const place = placeOf(latest.current.kept, String(card.id));
         const column = place
           ? latest.current.kept.find((other) => other.id === place.column)
@@ -541,6 +561,8 @@ export const Kanban = forwardRef<HTMLDivElement, KanbanProps>(function Kanban(
         );
       },
       onDragOver({ active: card, over: target }) {
+        if (target?.id === card.id && !strayed.current) return undefined;
+        strayed.current = true;
         const place = spoken(card.id, target);
         return place ? labels.over(name(card.id), place) : undefined;
       },
@@ -593,7 +615,7 @@ export const Kanban = forwardRef<HTMLDivElement, KanbanProps>(function Kanban(
         >
           {children(shown)}
           {/* What follows the pointer. The card itself stays in its column,
-              faded, to show where it would land. */}
+              as an empty place, to show where it would land. */}
           <DragOverlay dropAnimation={calm ? null : undefined}>
             {carried ? (
               <div

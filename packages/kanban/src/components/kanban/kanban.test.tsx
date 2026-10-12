@@ -114,6 +114,12 @@ async function key(keys: string) {
   await new Promise((resolve) => setTimeout(resolve, 120));
 }
 
+// A drag in steps, as a hand makes it. In one jump the mouse is let go
+// before the board has drawn the card as carried, and nothing is over
+// anything yet.
+const drag = (from: Element, to: Element) =>
+  userEvent.dragAndDrop(from, to, { steps: 20 });
+
 async function pickUp(id: string) {
   (handle(id).element() as HTMLElement).focus();
   await key(" ");
@@ -306,7 +312,10 @@ describe("with the keyboard", () => {
       doing: ["invoice"],
       done: [],
     });
-    expect(document.querySelector("[data-overlay]")).toBeNull();
+    // The carried card glides to its place before it's taken away.
+    await expect
+      .poll(() => document.querySelector("[data-overlay]"))
+      .toBeNull();
     expect(document.querySelector("[data-dragging]")).toBeNull();
   });
 
@@ -345,7 +354,13 @@ describe("with the keyboard", () => {
     await pickUp("brief");
 
     await key("{ArrowDown}");
+    await expect.poll(said).toContain("position 2 of 3");
     await key("{ArrowUp}");
+    // Its own place is said once it has been somewhere else. It isn't
+    // said the moment the card is picked up, over "Picked up".
+    await expect
+      .poll(said)
+      .toBe("Write the brief is at position 1 of 3 in To do.");
     await key(" ");
 
     await expect.poll(said).toContain("was dropped");
@@ -455,7 +470,9 @@ describe("with the keyboard", () => {
       doing: ["invoice"],
       done: [],
     });
-    expect(document.querySelector("[data-overlay]")).toBeNull();
+    await expect
+      .poll(() => document.querySelector("[data-overlay]"))
+      .toBeNull();
   });
 
   test("an arrow with nowhere to go leaves the card where it is: up from the first, down from the last, left from the first column", async () => {
@@ -601,7 +618,7 @@ describe("with a mouse", () => {
     const onValueChange = vi.fn();
     await render(<Board onValueChange={onValueChange} />);
 
-    await userEvent.dragAndDrop(card("brief"), card("invoice"));
+    await drag(card("brief"), card("invoice"));
 
     await expect.poll(() => onValueChange.mock.calls.length).toBe(1);
     const move = onValueChange.mock.calls[0]?.[1] as KanbanMove;
@@ -615,7 +632,7 @@ describe("with a mouse", () => {
     const onValueChange = vi.fn();
     await render(<Board onValueChange={onValueChange} />);
 
-    await userEvent.dragAndDrop(
+    await drag(
       card("invoice"),
       column("done").querySelector(".nuv-kanban__cards") as HTMLElement,
     );
@@ -650,7 +667,7 @@ describe("disabled", () => {
       true,
     );
     expect(card("brief").hasAttribute("data-disabled")).toBe(true);
-    await userEvent.dragAndDrop(card("brief"), card("invoice"));
+    await drag(card("brief"), card("invoice"));
     expect(drawn().todo).toEqual(["brief", "quote", "call"]);
   });
 
@@ -692,7 +709,7 @@ describe("a card that can't be moved, as a place", () => {
     const onValueChange = vi.fn();
     await render(<Board locked="invoice" onValueChange={onValueChange} />);
 
-    await userEvent.dragAndDrop(card("brief"), card("invoice"));
+    await drag(card("brief"), card("invoice"));
 
     await expect.poll(() => onValueChange.mock.calls.length).toBe(1);
     expect(onValueChange.mock.calls[0]?.[1].to.column).toBe("doing");
@@ -702,7 +719,7 @@ describe("a card that can't be moved, as a place", () => {
     const onValueChange = vi.fn();
     await render(<Board locked="invoice" onValueChange={onValueChange} />);
 
-    await userEvent.dragAndDrop(card("invoice"), card("brief"));
+    await drag(card("invoice"), card("brief"));
 
     expect(onValueChange).not.toHaveBeenCalled();
     expect(drawn().doing).toEqual(["invoice"]);
@@ -821,7 +838,7 @@ describe("how it's drawn", () => {
     expect(style(button).outlineStyle).toBe("solid");
   });
 
-  test("the card that's carried is faded where it was, and a long title wraps inside its card", async () => {
+  test("where the carried card was is an empty place with a dashed edge, and a long title wraps inside its card", async () => {
     await render(
       <Kanban
         aria-label="Work"
@@ -843,7 +860,13 @@ describe("how it's drawn", () => {
       rect(column("todo")).right,
     );
     await pickUp("brief");
-    expect(style(card("brief")).opacity).toBe("0.4");
+    expect(style(card("brief")).borderTopStyle).toBe("dashed");
+    expect(
+      style(one('li[data-card="brief"] .nuv-kanban__card-content')).visibility,
+    ).toBe("hidden");
+    // The handle is still there: the keyboard's focus is on it.
+    expect(style(handle("brief").element()).visibility).toBe("visible");
+    expect(document.activeElement).toBe(handle("brief").element());
     await key("{Escape}");
   });
 

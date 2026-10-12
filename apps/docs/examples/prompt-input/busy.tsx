@@ -17,11 +17,11 @@ export default function Example() {
   function send(text: string) {
     setBusy(true);
     setSaid(`Replying to: ${text}`);
-    // A reply that takes four seconds.
+    // A reply that takes ten seconds, long enough to stop it.
     timer.current = setTimeout(() => {
       setBusy(false);
       setSaid("Replied.");
-    }, 4000);
+    }, 10_000);
   }
 
   function stop() {

@@ -6,6 +6,8 @@
     "conversation",
     "message",
     "message-loader",
+    "markdown",
+    "code-block",
     "prompt-input",
     "prompt-suggestion",
     "attachment",

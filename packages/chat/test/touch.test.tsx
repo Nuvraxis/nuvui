@@ -6,6 +6,7 @@ import { render } from "vitest-browser-react";
 import {
   Attachment,
   Attachments,
+  CodeBlock,
   Conversation,
   ConversationContent,
   ConversationScrollButton,
@@ -34,6 +35,7 @@ import {
   ToolCallApproval,
   ToolCallTrigger,
 } from "../src";
+import { Markdown } from "../src/components/markdown";
 
 // This file runs in a browser context of its own, one that reports a touch
 // screen, at the width of a phone. What a mouse and a keyboard do is
@@ -294,4 +296,37 @@ test("a conversation in the list is 44px tall, and a tap opens it", async () => 
   await row.click();
 
   expect(onValueChange).toHaveBeenCalledWith("b");
+});
+
+test("a block of code's button is 44px, and long code scrolls inside the screen", async () => {
+  await render(
+    <CodeBlock code={`const long = "${"x".repeat(300)}";`} language="ts" />,
+  );
+  const button = rect(
+    page.getByRole("button", { name: "Copy code" }).element(),
+  );
+  const box = page.getByRole("group", { name: "Code" }).element();
+
+  expect(button.width).toBe(44);
+  expect(button.height).toBe(44);
+  expect(box.scrollWidth).toBeGreaterThan(box.clientWidth);
+  expect(document.documentElement.scrollWidth).toBeLessThanOrEqual(
+    window.innerWidth,
+  );
+});
+
+test("markdown's wide table and long code scroll in boxes of their own, and the page doesn't", async () => {
+  await render(
+    <Markdown>
+      {
+        '| Invoice number | Customer name | Amount owed | Days late | Sent on |\n| - | - | -: | -: | - |\n| INV-1042 | Contoso Limited | 4,200 | 12 | 29 September |\n\n```ts\nconst long = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";\n```'
+      }
+    </Markdown>,
+  );
+  const table = page.getByRole("group", { name: "Table" }).element();
+
+  expect(table.scrollWidth).toBeGreaterThan(table.clientWidth);
+  expect(document.documentElement.scrollWidth).toBeLessThanOrEqual(
+    window.innerWidth,
+  );
 });

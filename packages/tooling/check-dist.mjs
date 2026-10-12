@@ -25,12 +25,16 @@ function sourceFiles(dir) {
  * @param {string[]} options.stylesheets The stylesheets at the top of dist.
  * @param {boolean} [options.presets] The package ships the presets.
  * @param {boolean} [options.scss] The package ships its SCSS source.
+ * @param {string[]} [options.apart] Components that have an entry of their
+ *   own and are kept out of the package's main one, because they bring a
+ *   dependency the rest doesn't need.
  */
 export async function checkDist({
   root,
   stylesheets: named,
   presets = false,
   scss = false,
+  apart = [],
 }) {
   const srcDir = join(root, "src");
   const distDir = join(root, "dist");
@@ -115,7 +119,13 @@ export async function checkDist({
     if (!pkg.exports[`./${name}`]) {
       problems.push(`package.json has no "./${name}" export`);
     }
-    if (!barrel.includes(`"./components/${name}"`)) {
+    const inBarrel = barrel.includes(`"./components/${name}"`);
+    if (apart.includes(name)) {
+      // Importing anything from the main entry would load its dependency.
+      if (inBarrel) {
+        problems.push(`src/index.ts exports ${name}, which is kept apart`);
+      }
+    } else if (!inBarrel) {
       problems.push(`src/index.ts doesn't export ${name}`);
     }
     if (!allStyles.includes(`"../components/${name}/${name}"`)) {

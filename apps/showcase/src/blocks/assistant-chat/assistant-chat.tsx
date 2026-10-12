@@ -23,6 +23,7 @@ import {
   PromptSuggestion,
   PromptSuggestions,
 } from "@nuvui/chat";
+import { Markdown } from "@nuvui/chat/markdown";
 import { Badge, NativeSelect } from "@nuvui/react";
 import { useEffect, useRef, useState } from "react";
 import "./assistant-chat.scss";
@@ -37,19 +38,20 @@ type Turn = {
 
 // A stand-in for a model. A real one is fetched from your server: this
 // picks an answer by a word in the question and hands it out a few words
-// at a time. Every figure in it is made up.
+// at a time. Every figure in it is made up. The answers are markdown, as
+// a model's are.
 const answers = [
   {
     about: "paid",
-    text: "Two invoices are overdue. INV-1042 for Contoso is 12 days late, at 4,200. INV-1057 for Fabrikam is 3 days late, at 1,850. Everyone else has paid, or isn't due yet.",
+    text: "Two invoices are overdue.\n\n| Invoice | Customer | Amount | Days late |\n| :-- | :-- | --: | --: |\n| INV-1042 | Contoso | 4,200 | 12 |\n| INV-1057 | Fabrikam | 1,850 | 3 |\n\nEveryone else has paid, or isn't due yet.",
   },
   {
     about: "summar",
-    text: "In September you sent 38 invoices worth 96,400 in all. 33 are paid, three are due this week, and two are overdue. That's 8% more invoiced than in August, most of it from three new customers on the Team plan.",
+    text: "In September you sent **38 invoices** worth **96,400** in all.\n\n- 33 are paid\n- 3 are due this week\n- 2 are overdue\n\nThat's 8% more invoiced than in August, most of it from three new customers on the Team plan.",
   },
   {
     about: "remind",
-    text: "Here's a draft:\n\nHello,\n\nThis is a reminder that invoice INV-1042 for 4,200 was due on 29 September. If it's already on its way, thank you, and please ignore this.\n\nKind regards,\nNorthwind",
+    text: "Here's a draft:\n\n> Hello,\n>\n> This is a reminder that invoice **INV-1042** for 4,200 was due on 29 September. If it's already on its way, thank you, and please ignore this.\n>\n> Kind regards,  \n> Northwind",
   },
 ];
 const fallback =
@@ -149,7 +151,15 @@ export default function AssistantChat() {
 
           {turns.map((turn, index) => (
             <Message key={turn.id} from={turn.from}>
-              {turn.text ? <MessageContent>{turn.text}</MessageContent> : null}
+              {turn.text ? (
+                <MessageContent>
+                  {turn.from === "assistant" ? (
+                    <Markdown headingOffset={1}>{turn.text}</Markdown>
+                  ) : (
+                    turn.text
+                  )}
+                </MessageContent>
+              ) : null}
               {turn.files && turn.files.length > 0 ? (
                 <Attachments aria-label="Files with this message">
                   {turn.files.map((file) => (
@@ -190,7 +200,9 @@ export default function AssistantChat() {
                 <MessageLoader />
               ) : (
                 <MessageContent>
-                  {reply.words.slice(0, reply.count).join(" ")}
+                  <Markdown streaming headingOffset={1}>
+                    {reply.words.slice(0, reply.count).join(" ")}
+                  </Markdown>
                 </MessageContent>
               )}
             </Message>

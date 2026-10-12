@@ -39,6 +39,7 @@ import {
   type ToolCallStatus,
   ToolCallTrigger,
 } from "@nuvui/chat";
+import { Markdown } from "@nuvui/chat/markdown";
 import {
   Button,
   Sheet,
@@ -96,7 +97,7 @@ const saved: Thread[] = [
             { number: "INV-1057", amount: 1150, daysLate: 3 },
           ],
         },
-        text: "Two invoices are overdue. INV-1042 is 12 days late, at 4,200. INV-1057 is 3 days late, at 1,150.",
+        text: "Two invoices are overdue.\n\n| Invoice | Amount | Days late |\n| :-- | --: | --: |\n| INV-1042 | 4,200 | 12 |\n| INV-1057 | 1,150 | 3 |",
         sources: [
           {
             href: "#customer-contoso",
@@ -133,7 +134,7 @@ const saved: Thread[] = [
       {
         id: 2,
         from: "assistant",
-        text: "An invoice is due 30 days after it's sent. A reminder goes out on day 31, and late fees start at day 45.",
+        text: "An invoice is due **30 days** after it's sent.\n\n- A reminder goes out on day 31.\n- Late fees start at day 45.",
         sources: [
           {
             href: "#payment-terms",
@@ -407,7 +408,13 @@ export default function AssistantWorkspace() {
                   </Reasoning>
                 ) : null}
                 {turn.text ? (
-                  <MessageContent>{turn.text}</MessageContent>
+                  <MessageContent>
+                    {turn.from === "assistant" ? (
+                      <Markdown headingOffset={1}>{turn.text}</Markdown>
+                    ) : (
+                      turn.text
+                    )}
+                  </MessageContent>
                 ) : null}
                 {turn.files && turn.files.length > 0 ? (
                   <Attachments aria-label="Files with this message">

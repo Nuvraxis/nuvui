@@ -201,6 +201,19 @@ test("components used from a server component hydrate and work", async ({
     page.getByRole("button", { name: "Reasoning from the server" }),
   ).toHaveAttribute("aria-expanded", "true");
   await expect(page.getByText("Step from the server")).toBeVisible();
+  // Markdown that was read on the server, and its block of code.
+  await expect(
+    page.locator(".nuv-markdown strong").filter({ hasText: "server" }),
+  ).toBeVisible();
+  const fenced = page
+    .locator(".nuv-markdown .nuv-code-block")
+    .filter({ hasText: 'const fenced = "on the server";' });
+  await expect(fenced).toHaveAttribute("data-language", "ts");
+  await expect(fenced.getByRole("button", { name: "Copy code" })).toBeVisible();
+  await expect(page.getByRole("group", { name: "Code alone" })).toHaveText(
+    "const alone = 1;",
+  );
+
   const serverThreads = page.getByRole("grid", {
     name: "Threads from the server",
   });

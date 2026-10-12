@@ -7,5 +7,13 @@ export default browserTests({
     // treats it as source and would otherwise find these one at a time
     // while the tests are already running.
     ...Object.keys(core.dependencies).map((name) => `@nuvui/react > ${name}`),
+    // The markdown parser, and the three parts of Shiki the ready
+    // highlighter fetches when code is first colored. Found in the middle
+    // of a run, any of them would load the page again.
+    "react-markdown",
+    "remark-gfm",
+    "shiki/core",
+    "shiki/engine/javascript",
+    "shiki/langs",
   ],
 });

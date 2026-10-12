@@ -1,7 +1,7 @@
 {
   "name": "@nuvui/chat",
   "version": "0.0.0",
-  "description": "Conversation components for @nuvui/react: messages, a prompt box that takes files, sources, tool calls, reasoning and the list of past conversations.",
+  "description": "Conversation components for @nuvui/react: messages, markdown and code, a prompt box that takes files, sources, tool calls, reasoning and the list of past conversations.",
   "license": "MIT",
   "author": "Nuvraxis",
   "homepage": "https://nuvui.nuvraxis.com",
@@ -47,6 +47,16 @@
         "default": "./dist/components/attachment/index.cjs"
       }
     },
+    "./code-block": {
+      "import": {
+        "types": "./dist/components/code-block/index.d.ts",
+        "default": "./dist/components/code-block/index.js"
+      },
+      "require": {
+        "types": "./dist/components/code-block/index.d.cts",
+        "default": "./dist/components/code-block/index.cjs"
+      }
+    },
     "./conversation": {
       "import": {
         "types": "./dist/components/conversation/index.d.ts",
@@ -55,6 +65,16 @@
       "require": {
         "types": "./dist/components/conversation/index.d.cts",
         "default": "./dist/components/conversation/index.cjs"
+      }
+    },
+    "./markdown": {
+      "import": {
+        "types": "./dist/components/markdown/index.d.ts",
+        "default": "./dist/components/markdown/index.js"
+      },
+      "require": {
+        "types": "./dist/components/markdown/index.d.cts",
+        "default": "./dist/components/markdown/index.cjs"
       }
     },
     "./message": {
@@ -137,6 +157,16 @@
         "default": "./dist/components/tool-call/index.cjs"
       }
     },
+    "./shiki": {
+      "import": {
+        "types": "./dist/shiki.d.ts",
+        "default": "./dist/shiki.js"
+      },
+      "require": {
+        "types": "./dist/shiki.d.cts",
+        "default": "./dist/shiki.cjs"
+      }
+    },
     "./styles.css": "./dist/styles.css",
     "./css/*.css": "./dist/css/*.css",
     "./package.json": "./package.json"
@@ -154,7 +184,13 @@
   "peerDependencies": {
     "@nuvui/react": "workspace:^0.4.0",
     "react": "^18.2.0 || ^19.0.0",
-    "react-dom": "^18.2.0 || ^19.0.0"
+    "react-dom": "^18.2.0 || ^19.0.0",
+    "shiki": "^4.5.0"
+  },
+  "peerDependenciesMeta": {
+    "shiki": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "catalog:",
@@ -172,6 +208,7 @@
     "react": "catalog:",
     "react-dom": "catalog:",
     "sass-embedded": "catalog:",
+    "shiki": "^4.5.0",
     "size-limit": "catalog:",
     "stylelint": "catalog:",
     "tsdown": "catalog:",
@@ -182,5 +219,9 @@
   "publishConfig": {
     "access": "public",
     "provenance": true
+  },
+  "dependencies": {
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1"
   }
 }

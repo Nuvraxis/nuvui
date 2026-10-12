@@ -11,14 +11,28 @@
     perspective: var(--nuv-holo-card-perspective, 50rem);
   }
 
+  // The card's face. Its color is here and not on what's put in the card,
+  // so that the texture and the shine can lie on it, under the content.
   .nuv-holo-card__surface {
     position: relative;
-    block-size: 100%;
-    overflow: hidden;
-    border-radius: inherit;
 
-    // The shine blends with what's in the card and with nothing behind it.
-    isolation: isolate;
+    // A layer of its own, so the texture and the shine blend with the
+    // face and with nothing behind the card.
+    z-index: 0;
+    block-size: 100%;
+    border-radius: inherit;
+    background: var(--nuv-holo-card-bg, transparent);
+    color: var(--nuv-holo-card-fg, inherit);
+
+    // What's in it keeps its own depth. Nothing here is cut off at the
+    // edges, since cutting would press it all flat again.
+    transform-style: preserve-3d;
+  }
+
+  .nuv-holo-card__content {
+    position: relative;
+    block-size: 100%;
+    border-radius: inherit;
   }
 
   // The pointer's place is two numbers from 0 to 1, written by the
@@ -47,16 +61,76 @@
     .nuv-holo-card[data-disabled] > .nuv-holo-card__surface {
       transform: none;
     }
+
+    // The content rises off the face while the pointer is on the card,
+    // and throws a shadow on it away from the pointer, where the light
+    // is. At rest it lies on the face, at the size it was given.
+    .nuv-holo-card__content {
+      transition:
+        transform var(--nuv-holo-card-duration, 400ms) ease-out,
+        filter var(--nuv-holo-card-duration, 400ms) ease-out;
+    }
+
+    .nuv-holo-card--lift[data-active]:not([data-disabled]) .nuv-holo-card__content {
+      transform: translateZ(var(--nuv-holo-card-lift, 1.5rem));
+      filter: drop-shadow(
+        calc((0.5 - var(--nuv-holo-card-pointer-x, 0.5)) * 0.75rem)
+          calc((0.5 - var(--nuv-holo-card-pointer-y, 0.5)) * 0.75rem + 0.125rem)
+          0.25rem
+          color-mix(
+            in oklab,
+            var(--nuv-holo-card-shadow, var(--color-black)) 40%,
+            transparent
+          )
+      );
+    }
+  }
+
+  // A texture pressed into the face: fine lines both ways across it, each
+  // a line of light beside a line of shade, which is what makes a line
+  // look raised. It's faint at rest, and can't be pressed.
+  .nuv-holo-card__texture {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background-image: var(
+      --nuv-holo-card-texture,
+      repeating-linear-gradient(
+        45deg,
+        color-mix(in oklab, var(--color-white) 70%, transparent) 0 1px,
+        color-mix(in oklab, var(--color-black) 55%, transparent) 1px 2px,
+        transparent 2px 7px
+      ),
+      repeating-linear-gradient(
+        -45deg,
+        color-mix(in oklab, var(--color-white) 70%, transparent) 0 1px,
+        color-mix(in oklab, var(--color-black) 55%, transparent) 1px 2px,
+        transparent 2px 7px
+      )
+    );
+    opacity: var(--nuv-holo-card-texture-opacity, 0.2);
+    pointer-events: none;
+    mix-blend-mode: overlay;
+  }
+
+  // Under the pointer it catches the light, and shows more.
+  @include mixins.motion-safe {
+    .nuv-holo-card__texture {
+      transition: opacity var(--nuv-holo-card-duration, 400ms) ease-out;
+    }
+
+    .nuv-holo-card[data-active]:not([data-disabled]) .nuv-holo-card__texture {
+      opacity: calc(var(--nuv-holo-card-texture-opacity, 0.2) * 2.5);
+    }
   }
 
   // Two pictures, one over the other: a soft light where the pointer is,
   // and a band of the theme's colors that slides as the pointer moves.
-  // It's over the content and can't be pressed, and it's only there
-  // while the pointer is.
+  // It's on the face, under the content, and only there while the
+  // pointer is.
   .nuv-holo-card__shine {
     position: absolute;
     inset: 0;
-    z-index: 1;
     display: none;
     border-radius: inherit;
     background-image:
@@ -107,9 +181,10 @@
     }
   }
 
-  // Forced colors have no blend to make a shine of.
+  // Forced colors have no blend to make a shine or a texture of.
   @media (forced-colors: active) {
-    .nuv-holo-card__shine {
+    .nuv-holo-card__shine,
+    .nuv-holo-card__texture {
       display: none;
     }
   }

@@ -373,7 +373,7 @@
     "name": "styles.css",
     "path": "dist/styles.css",
     "rolldown": false,
-    "limit": "20 kB"
+    "limit": "20.5 kB"
   },
   {
     "name": "tokens.css",

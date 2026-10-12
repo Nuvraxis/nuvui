@@ -1,7 +1,7 @@
 {
   "name": "member-card",
   "title": "Member card",
-  "description": "A membership page with the member's card as an object: it tilts under the pointer with a shine across it, and lies flat for a finger and for anyone who asked for less motion. The number is hidden but for its last four digits until it's asked for, and beside the card are the member's tier, points and perks.",
+  "description": "A membership page with the member's card as an object: it tilts under the pointer with a glare and an embossed texture on its face and the name and number floating over them, and lies flat for a finger and for anyone who asked for less motion. The number is hidden but for its last four digits until it's asked for, and beside the card are the member's tier, points and perks.",
   "category": "settings",
   "files": ["member-card.tsx", "member-card.scss"],
   "install": ["@nuvui/react"],

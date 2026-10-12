@@ -19,6 +19,9 @@ import caseStudies from "@/blocks/case-studies/block.json" with {
 };
 import dangerZone from "@/blocks/danger-zone/block.json" with { type: "json" };
 import dashboard from "@/blocks/dashboard/block.json" with { type: "json" };
+import dealPipeline from "@/blocks/deal-pipeline/block.json" with {
+  type: "json",
+};
 import detailPanel from "@/blocks/detail-panel/block.json" with {
   type: "json",
 };
@@ -149,7 +152,7 @@ export const categories: BlockCategory[] = [
     label: "Data",
     title: "Data",
     description:
-      "Rows to work with: a table with search, a filter, a column chooser and actions for several rows, a list with a bar of actions for the ticked rows, requests to approve with buttons in every row, a list filtered from a sentence and a sheet, folders and files in a tree, a panel that opens beside a list, a parcel's label with its barcode, a ticket with a QR code, a board of tasks in columns, and a page in each state it can be in.",
+      "Rows to work with: a table with search, a filter, a column chooser and actions for several rows, a list with a bar of actions for the ticked rows, requests to approve with buttons in every row, a list filtered from a sentence and a sheet, folders and files in a tree, a panel that opens beside a list, a parcel's label with its barcode, a ticket with a QR code, a board of tasks in columns, a sales pipeline that adds up each column, and a page in each state it can be in.",
   },
   {
     slug: "settings",
@@ -202,6 +205,7 @@ export const blocks: BlockManifest[] = [
   shippingLabel,
   eventTicket,
   taskBoard,
+  dealPipeline,
   pageStates,
   profileForm,
   appearance,

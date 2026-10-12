@@ -3620,6 +3620,125 @@ test.describe("task board", () => {
   }
 });
 
+test.describe("deal pipeline", () => {
+  const stage = (page: Page, name: string) =>
+    page.getByRole("group", { name, exact: true });
+  const deals = (page: Page, name: string) =>
+    stage(page, name).locator("li[data-card]");
+  const sum = (page: Page, name: string) =>
+    stage(page, name).locator(".nuv-kanban__count");
+  const total = (page: Page) => page.locator(".deal-pipeline__sum");
+  const said = (page: Page) => page.locator(".deal-pipeline__said");
+  const handle = (page: Page, company: string) =>
+    page.getByRole("button", { name: `Move ${company}`, exact: true });
+
+  test.beforeEach(async ({ page }) => {
+    await open(page, "/blocks/view/deal-pipeline");
+  });
+
+  test("deal pipeline: each column adds up its deals, and the heading adds up what's open", async ({
+    page,
+  }) => {
+    await expect(page.getByRole("group", { name: "Pipeline" })).toBeVisible();
+    await expect(sum(page, "Lead")).toHaveText("$24,960");
+    await expect(sum(page, "Qualified")).toHaveText("$76,000");
+    await expect(sum(page, "Proposal")).toHaveText("$88,000");
+    await expect(sum(page, "Won")).toHaveText("$52,000");
+    await expect(total(page)).toHaveText("$188,960");
+    await expect(said(page)).toHaveText("");
+  });
+
+  test("deal pipeline: the button adds a deal at the top of the first column, twice, and the sums follow", async ({
+    page,
+    isMobile,
+  }) => {
+    const add = page.getByRole("button", { name: "Add a deal" });
+
+    await press(add, isMobile);
+    await expect(said(page)).toHaveText("Litware was added to Lead.");
+    await expect(deals(page, "Lead")).toHaveCount(3);
+    await expect(deals(page, "Lead").first()).toContainText("Litware");
+    await expect(sum(page, "Lead")).toHaveText("$28,800");
+    await expect(total(page)).toHaveText("$192,800");
+
+    await press(add, isMobile);
+    await expect(deals(page, "Lead")).toHaveCount(4);
+    await expect(add).toBeDisabled();
+  });
+
+  test("deal pipeline: a deal that's won can't be moved, and the others can", async ({
+    page,
+  }) => {
+    await expect(handle(page, "Adatum")).toBeDisabled();
+    await expect(handle(page, "Contoso")).toBeEnabled();
+    await expect(
+      deals(page, "Won").filter({ hasText: "Adatum" }),
+    ).toHaveAttribute("data-disabled", "");
+  });
+
+  test("deal pipeline: a deal moved along with the keyboard takes its worth with it, and one that's won is locked", async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(isMobile, "A phone has no arrow keys.");
+    // The board waits a tick after a key before it listens for the next,
+    // and measures the columns again after each move.
+    const key = async (name: string) => {
+      await page.keyboard.press(name);
+      await page.waitForTimeout(150);
+    };
+
+    await handle(page, "Contoso").focus();
+    await key("Space");
+    await key("ArrowRight");
+    await key("Space");
+
+    await expect(said(page)).toHaveText(
+      "Contoso moved from Lead to Qualified.",
+    );
+    await expect(sum(page, "Lead")).toHaveText("$5,760");
+    await expect(sum(page, "Qualified")).toHaveText("$95,200");
+    await expect(total(page)).toHaveText("$188,960");
+
+    await handle(page, "Tailspin Toys").focus();
+    await key("Space");
+    await key("ArrowRight");
+    await key("Space");
+
+    await expect(said(page)).toHaveText("Tailspin Toys is won, and locked.");
+    await expect(sum(page, "Won")).toHaveText("$140,000");
+    await expect(total(page)).toHaveText("$100,960");
+    await expect(handle(page, "Tailspin Toys")).toBeDisabled();
+    await expect(stage(page, "Proposal")).toContainText("No deals");
+  });
+
+  test("deal pipeline: on a phone the board scrolls sideways and the page doesn't", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 320, height: 640 });
+    await open(page, "/blocks/view/deal-pipeline");
+    const board = page.locator(".nuv-kanban");
+
+    expect(await overflow(page)).toBe(0);
+    expect(
+      await board.evaluate(
+        (element) => element.scrollWidth - element.clientWidth,
+      ),
+    ).toBeGreaterThan(0);
+  });
+
+  for (const theme of ["light", "dark"] as const) {
+    test(`deal pipeline: it passes axe in ${theme}`, async ({ page }) => {
+      await setTheme(page, theme);
+      await open(page, "/blocks/view/deal-pipeline");
+      await settleStyles(page);
+      expect(
+        (await new AxeBuilder({ page }).withTags(wcag).analyze()).violations,
+      ).toEqual([]);
+    });
+  }
+});
+
 test.describe("the blocks page", () => {
   test("lists every category, and each leads to its page", async ({
     page,

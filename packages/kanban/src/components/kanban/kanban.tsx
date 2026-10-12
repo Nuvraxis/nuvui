@@ -796,10 +796,16 @@ export const KanbanCard = forwardRef<HTMLLIElement, KanbanCardProps>(
       () => ({ roleDescription: labels.roleDescription }),
       [labels.roleDescription],
     );
+    // A card that can't be moved is still a place: another card is
+    // dropped before or after it. Only a board that's off takes nothing.
+    const off = useMemo(
+      () => ({ draggable: disabled, droppable: all }),
+      [disabled, all],
+    );
     const sortable = useSortable({
       id: value,
       data,
-      disabled,
+      disabled: off,
       attributes,
       transition: calm ? null : undefined,
     });

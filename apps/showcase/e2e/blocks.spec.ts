@@ -3437,6 +3437,19 @@ test.describe("assistant blocks, markdown", () => {
   });
 });
 
+// A key that does something to a card on a board, and then a wait until
+// the board has said so. Every step of a move is said, so what's said
+// changing is how a test knows the step is done, however busy the machine
+// is. Then a moment more: the board starts to listen for the next key a
+// tick after the one that picked the card up.
+async function boardKey(page: Page, name: string) {
+  const spoken = page.locator('.nuv-kanban [role="status"]');
+  const before = (await spoken.textContent()) ?? "";
+  await page.keyboard.press(name);
+  await expect(spoken).not.toHaveText(before);
+  await page.waitForTimeout(150);
+}
+
 test.describe("task board", () => {
   const stage = (page: Page, name: string) =>
     page.getByRole("group", { name, exact: true });
@@ -3527,10 +3540,7 @@ test.describe("task board", () => {
     test.skip(isMobile, "A phone has no arrow keys.");
     // The board waits a tick after a key before it listens for the next,
     // and measures the columns again after each move.
-    const key = async (name: string) => {
-      await page.keyboard.press(name);
-      await page.waitForTimeout(150);
-    };
+    const key = (name: string) => boardKey(page, name);
 
     await page
       .getByRole("button", { name: "Move Agree the pricing page", exact: true })
@@ -3554,10 +3564,7 @@ test.describe("task board", () => {
     isMobile,
   }) => {
     test.skip(isMobile, "A phone has no arrow keys.");
-    const key = async (name: string) => {
-      await page.keyboard.press(name);
-      await page.waitForTimeout(150);
-    };
+    const key = (name: string) => boardKey(page, name);
     await send(page, isMobile, "Write the launch emails", "In review");
     await expect(tasks(page, "In review")).toHaveCount(2);
 
@@ -3611,10 +3618,30 @@ test.describe("task board", () => {
         page.getByRole("button", { name: "Move to: Agree the pricing page" }),
         isMobile,
       );
-      await expect(page.getByRole("menu")).toBeVisible();
+      const menu = page.getByRole("menu");
+      await expect(menu).toBeVisible();
+      // The menu fades in, and its words are checked for contrast once
+      // it has: halfway there they're paler than they'll be.
+      await menu.evaluate((element) =>
+        Promise.all(
+          element
+            .getAnimations({ subtree: true })
+            .map((animation) => animation.finished),
+        ),
+      );
       await settleStyles(page);
       expect(
-        (await new AxeBuilder({ page }).withTags(wcag).analyze()).violations,
+        (
+          await new AxeBuilder({ page })
+            .withTags(wcag)
+            // Radix hides the page behind an open menu from a screen
+            // reader, and keeps Tab and the pointer in the menu. axe sees
+            // buttons in what's hidden and can't know they can't be
+            // reached. It makes this allowance for a dialog. The library's
+            // own tests of the menu leave the rule out for the same reason.
+            .disableRules(["aria-hidden-focus"])
+            .analyze()
+        ).violations,
       ).toEqual([]);
     });
   }
@@ -3683,10 +3710,7 @@ test.describe("deal pipeline", () => {
     test.skip(isMobile, "A phone has no arrow keys.");
     // The board waits a tick after a key before it listens for the next,
     // and measures the columns again after each move.
-    const key = async (name: string) => {
-      await page.keyboard.press(name);
-      await page.waitForTimeout(150);
-    };
+    const key = (name: string) => boardKey(page, name);
 
     await handle(page, "Contoso").focus();
     await key("Space");
@@ -3837,6 +3861,10 @@ for (const category of categories) {
       page,
       isMobile,
     }) => {
+      // Each block has its files read and its preview opened again, so the
+      // time this takes grows with the category. Ten seconds a block is
+      // several times what one takes on a quiet machine.
+      test.setTimeout(30_000 + inCategory.length * 10_000);
       await open(page, categoryPath(category));
 
       for (const block of inCategory) {

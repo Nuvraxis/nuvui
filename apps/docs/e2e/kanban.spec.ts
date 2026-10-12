@@ -17,12 +17,16 @@ const handle = (within: Locator, card: string) =>
 const spoken = (within: Locator) =>
   within.locator('.nuv-kanban [role="status"]');
 
-// A key, and then a moment: the board starts to listen for the next key a
-// tick after the one that picked the card up, and measures the columns
-// again after each move.
-async function key(page: Page, name: string) {
-  await page.keyboard.press(name);
-  await page.waitForTimeout(150);
+// A key that does something to a card, and then a wait until the board
+// has said so. Every step of a move is said, so what's said changing is
+// how a test knows the step is done, however busy the machine is. Then a
+// moment more: the board starts to listen for the next key a tick after
+// the one that picked the card up.
+async function key(area: Locator, name: string) {
+  const before = (await spoken(area).textContent()) ?? "";
+  await area.page().keyboard.press(name);
+  await expect(spoken(area)).not.toHaveText(before);
+  await area.page().waitForTimeout(150);
 }
 
 // A drag with a real mouse, in steps, as a hand would do it.
@@ -91,16 +95,16 @@ test.describe("kanban page", () => {
     const area = preview(page, "kanban/basic");
 
     await handle(area, "Write the brief").focus();
-    await key(page, "Space");
+    await key(area, "Space");
     await expect(spoken(area)).toHaveText(
       "Picked up Write the brief. It is at position 1 of 3 in To do.",
     );
-    await key(page, "ArrowRight");
+    await key(area, "ArrowRight");
     await expect(
       cards(column(area, "Doing")).filter({ hasText: "Write the brief" }),
     ).toHaveCount(1);
     await expect(spoken(area)).toContainText("of 2 in Doing.");
-    await key(page, "Space");
+    await key(area, "Space");
 
     await expect(spoken(area)).toContainText(
       "Write the brief was dropped at position",
@@ -115,10 +119,10 @@ test.describe("kanban page", () => {
     const area = preview(page, "kanban/basic");
 
     await handle(area, "Write the brief").focus();
-    await key(page, "Space");
-    await key(page, "ArrowRight");
+    await key(area, "Space");
+    await key(area, "ArrowRight");
     await expect(cards(column(area, "Doing"))).toHaveCount(2);
-    await key(page, "Escape");
+    await key(area, "Escape");
 
     await expect(spoken(area)).toHaveText(
       "Moving Write the brief was cancelled.",
@@ -158,9 +162,9 @@ test.describe("kanban page", () => {
     await expect(said).toHaveText("Nothing moved yet.");
 
     await handle(area, "Write the brief").focus();
-    await key(page, "Space");
-    await key(page, "ArrowRight");
-    await key(page, "Space");
+    await key(area, "Space");
+    await key(area, "ArrowRight");
+    await key(area, "Space");
 
     await expect(said).toHaveText(
       "Doing takes 2 cards. Write the brief stays where it was.",
@@ -177,9 +181,9 @@ test.describe("kanban page", () => {
     const area = preview(page, "kanban/limit");
 
     await handle(area, "Raise the invoice").focus();
-    await key(page, "Space");
-    await key(page, "ArrowRight");
-    await key(page, "Space");
+    await key(area, "Space");
+    await key(area, "ArrowRight");
+    await key(area, "Space");
 
     await expect(area.locator("p[role='status']")).toHaveText(
       "Raise the invoice is in Done.",
@@ -234,7 +238,7 @@ test.describe("kanban page", () => {
           document.documentElement.scrollWidth -
           document.documentElement.clientWidth,
       ),
-    ).toBe(0);
+    ).toBeLessThanOrEqual(0);
   });
 
   test("the examples pass axe, at rest and with a card carried", async ({
@@ -253,9 +257,10 @@ test.describe("kanban page", () => {
     expect(await check()).toEqual([]);
     if (isMobile) return;
 
-    await handle(preview(page, "kanban/basic"), "Write the brief").focus();
-    await key(page, "Space");
+    const area = preview(page, "kanban/basic");
+    await handle(area, "Write the brief").focus();
+    await key(area, "Space");
     expect(await check()).toEqual([]);
-    await key(page, "Escape");
+    await key(area, "Escape");
   });
 });

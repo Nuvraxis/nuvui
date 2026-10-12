@@ -3763,6 +3763,136 @@ test.describe("deal pipeline", () => {
   }
 });
 
+test.describe("announcement editor", () => {
+  const body = (page: Page) =>
+    page.getByRole("textbox", { name: "Announcement", exact: true });
+  const read = (page: Page) =>
+    page.getByRole("textbox", { name: "The announcement as it will be read" });
+  const said = (page: Page) => page.locator(".announcement-editor__said");
+  const card = (page: Page) => page.locator(".announcement-editor__card");
+
+  test.beforeEach(async ({ page }) => {
+    await open(page, "/blocks/view/announcement-editor");
+    // The editor is made once the page is in a browser, a moment after
+    // the rest of it.
+    await expect(body(page)).toHaveAttribute("contenteditable", "true");
+  });
+
+  test("announcement editor: the draft is in the form, and beside it as it will be read", async ({
+    page,
+  }) => {
+    await expect(page.getByRole("textbox", { name: "Title" })).toHaveValue(
+      "Billing moves to the new plans on 1 November",
+    );
+    await expect(body(page).locator("li")).toHaveCount(2);
+    await expect(card(page).getByRole("heading", { level: 3 })).toHaveText(
+      "Billing moves to the new plans on 1 November",
+    );
+    await expect(read(page)).toHaveAttribute("contenteditable", "false");
+    await expect(read(page).locator("strong")).toHaveText("1 November");
+    await expect(read(page).locator("a")).toHaveAttribute(
+      "href",
+      "mailto:billing@example.com",
+    );
+    await expect(page.locator(".nuv-rich-text-editor__count")).toContainText(
+      "of 600 characters",
+    );
+  });
+
+  test("announcement editor: what's written is what's read, as it's written", async ({
+    page,
+  }) => {
+    await body(page).click();
+    await page.keyboard.press("ControlOrMeta+a");
+    await page.keyboard.type("Offices are closed on Friday.");
+
+    await expect(read(page)).toHaveText("Offices are closed on Friday.");
+
+    await page.getByRole("textbox", { name: "Title" }).fill("Closed on Friday");
+    await expect(card(page).getByRole("heading", { level: 3 })).toHaveText(
+      "Closed on Friday",
+    );
+  });
+
+  test("announcement editor: publishing says what was published", async ({
+    page,
+    isMobile,
+  }) => {
+    await press(page.getByRole("button", { name: "Publish" }), isMobile);
+
+    await expect(said(page)).toHaveText(
+      'Published "Billing moves to the new plans on 1 November".',
+    );
+  });
+
+  test("announcement editor: with nothing written, publishing says what's missing, and writing takes that away", async ({
+    page,
+    isMobile,
+  }) => {
+    await press(page.getByRole("button", { name: "Start again" }), isMobile);
+    await expect(card(page)).toContainText("Nothing written yet.");
+    await expect(card(page)).toContainText("No title yet");
+
+    await press(page.getByRole("button", { name: "Publish" }), isMobile);
+
+    await expect(
+      page.getByText("Give the announcement a title."),
+    ).toBeVisible();
+    await expect(
+      page.getByText("Write the announcement before you publish it."),
+    ).toBeVisible();
+    await expect(body(page)).toHaveAttribute("aria-invalid", "true");
+    await expect(said(page)).toHaveText("");
+
+    await body(page).click();
+    await page.keyboard.type("Hello");
+    await expect(
+      page.getByText("Write the announcement before you publish it."),
+    ).toHaveCount(0);
+    await expect(body(page)).not.toHaveAttribute("aria-invalid", "true");
+  });
+
+  test("announcement editor: on a phone the form is over what it makes, and the page doesn't scroll sideways", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 320, height: 640 });
+    await open(page, "/blocks/view/announcement-editor");
+    await expect(body(page)).toHaveAttribute("contenteditable", "true");
+
+    expect(await overflow(page)).toBeLessThanOrEqual(0);
+    const form = await page.locator(".announcement-editor__form").boundingBox();
+    const made = await page
+      .locator(".announcement-editor__preview")
+      .boundingBox();
+    expect(made?.y).toBeGreaterThan((form?.y ?? 0) + (form?.height ?? 0) - 1);
+  });
+
+  for (const theme of ["light", "dark"] as const) {
+    test(`announcement editor: it passes axe in ${theme}, with the errors showing as well`, async ({
+      page,
+      isMobile,
+    }) => {
+      await setTheme(page, theme);
+      await open(page, "/blocks/view/announcement-editor");
+      await expect(body(page)).toHaveAttribute("contenteditable", "true");
+      await settleStyles(page);
+      expect(
+        (await new AxeBuilder({ page }).withTags(wcag).analyze()).violations,
+      ).toEqual([]);
+
+      await press(page.getByRole("button", { name: "Start again" }), isMobile);
+      await press(page.getByRole("button", { name: "Publish" }), isMobile);
+      await expect(
+        page.getByText("Give the announcement a title."),
+      ).toBeVisible();
+      await settleStyles(page);
+      expect(
+        (await new AxeBuilder({ page }).withTags(wcag).analyze()).violations,
+      ).toEqual([]);
+    });
+  }
+});
+
 test.describe("the blocks page", () => {
   test("lists every category, and each leads to its page", async ({
     page,

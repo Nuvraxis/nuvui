@@ -49,6 +49,7 @@ export const addons = {
   barcodes: pkg("barcodes", "@nuvui/barcodes"),
   chat: pkg("chat", "@nuvui/chat"),
   kanban: pkg("kanban", "@nuvui/kanban"),
+  editor: pkg("editor", "@nuvui/editor"),
 };
 
 export type Addon = keyof typeof addons;

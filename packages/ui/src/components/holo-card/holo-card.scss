@@ -26,17 +26,13 @@
   // side under the pointer goes down, as a card pressed by a finger does.
   @include mixins.motion-safe {
     .nuv-holo-card__surface {
+      // Twice the tilt from one edge to the other, so the tilt itself is
+      // what an edge gets.
       transform: rotateX(
-          calc(
-            (0.5 - var(--nuv-holo-card-pointer-y, 0.5)) * 2 *
-              var(--nuv-holo-card-tilt, 8deg)
-          )
+          calc((0.5 - var(--nuv-holo-card-pointer-y, 0.5)) * 2 * var(--nuv-holo-card-tilt, 8deg))
         )
         rotateY(
-          calc(
-            (var(--nuv-holo-card-pointer-x, 0.5) - 0.5) * 2 *
-              var(--nuv-holo-card-tilt, 8deg)
-          )
+          calc((var(--nuv-holo-card-pointer-x, 0.5) - 0.5) * 2 * var(--nuv-holo-card-tilt, 8deg))
         );
 
       // Slow on the way back to flat, and quick while it follows.

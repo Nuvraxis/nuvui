@@ -331,6 +331,9 @@ describe("the button to the latest message", () => {
   test("it's reached with Tab after the messages, and Enter presses it", async () => {
     await render(<Chat count={10} />);
     await scrollTo(0);
+    // The button is drawn a moment after the scroll is heard of. Tab
+    // pressed before that finds nothing after the messages.
+    await expect.element(button()).toBeVisible();
 
     log().focus();
     await userEvent.tab();

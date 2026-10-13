@@ -43,7 +43,7 @@ import {
   KanbanColumn,
 } from "@nuvui/kanban/kanban";
 // The map, from the entry of its one component.
-import { MapMarker, MapView } from "@nuvui/map/map";
+import { MapMarker, MapView, setMapWorkerUrl } from "@nuvui/map/map";
 import {
   Button,
   type ButtonProps,
@@ -69,9 +69,13 @@ import {
   sortFn_text,
   tableFeatures,
 } from "@tanstack/react-table";
+// MapLibre's worker, as Vite has it: a file with an address of its own.
+import mapWorkerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?url";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { Bar, BarChart, XAxis } from "recharts";
+
+setMapWorkerUrl(mapWorkerUrl);
 
 const size: ButtonProps["size"] = "lg";
 const range: DateRange = { from: new Date(2026, 9, 12), to: undefined };

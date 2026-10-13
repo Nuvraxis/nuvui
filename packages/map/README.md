@@ -5,7 +5,7 @@ A map for [`@nuvui/react`](https://www.npmjs.com/package/@nuvui/react), on MapLi
 This is early: the package isn't on npm yet, and before 1.0 a minor version may rename or remove things. The [changelog](https://nuvui.nuvraxis.com/docs/changelog) says where one does, and the [repository README](https://github.com/Nuvraxis/nuvui#readme) says where things stand.
 
 ```sh
-pnpm add @nuvui/map @nuvui/react
+pnpm add @nuvui/map maplibre-gl @nuvui/react
 ```
 
 ```tsx
@@ -13,7 +13,13 @@ pnpm add @nuvui/map @nuvui/react
 
 import "@nuvui/react/styles.css";
 import "@nuvui/map/styles.css";
-import { MapControls, MapMarker, MapView } from "@nuvui/map";
+import { MapControls, MapMarker, MapView, setMapWorkerUrl } from "@nuvui/map";
+
+// Where MapLibre's worker is. This is how Next.js and webpack are asked.
+// With Vite, import the file with `?url` at the end and pass what you get.
+setMapWorkerUrl(
+  new URL("maplibre-gl/dist/maplibre-gl-worker.mjs", import.meta.url),
+);
 
 export function Office() {
   return (
@@ -33,6 +39,10 @@ export function Office() {
   );
 }
 ```
+
+## Say where the worker is
+
+MapLibre does its work in a worker, which is a file of its own, and looks for it beside itself. A bundler leaves nothing beside it, so a bundled app calls `setMapWorkerUrl` once, before a map is drawn, with the address its bundler gives `maplibre-gl/dist/maplibre-gl-worker.mjs`. Without it the map stays on "Loading map". The [docs](https://nuvui.nuvraxis.com/docs/map) have it for Next.js and for Vite.
 
 ## You bring the map
 
@@ -56,13 +66,13 @@ Until the style has come the box says the map is loading, and where the browser 
 
 In a page that scrolls, `cooperativeGestures` leaves the wheel and one finger to the page.
 
-MapLibre is loaded when a map is first drawn, and not before, so a server renders the box and no map. It's about 220 kB compressed. The rest of this package is about 4 kB.
+MapLibre is loaded when a map is first drawn, and not before, so a server renders the box and no map. It's about 235 kB compressed, and its worker another 120 kB. The rest of this package is about 4 kB.
 
 ## Dependencies
 
 `@nuvui/react` is a peer dependency: the controls are its buttons, and the map is drawn with its tokens.
 
-The map is drawn by [MapLibre GL JS](https://maplibre.org), version 5, which is BSD-3-Clause and an ordinary dependency. Its stylesheet isn't needed: the rules of it that a map can't do without are in this package's, in the library's colors.
+The map is drawn by [MapLibre GL JS](https://maplibre.org), which is BSD-3-Clause. It's a peer dependency as well, version 6.4.1 or newer: you install it, so its worker is a file your app can reach, and its security fixes are yours to take when they come. Its stylesheet isn't needed: the rules of it that a map can't do without are in this package's, in the library's colors.
 
 It's a package of its own so that an app with no map doesn't install one.
 

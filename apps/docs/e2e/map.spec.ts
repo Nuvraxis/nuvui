@@ -33,11 +33,200 @@ test.describe("map start page", () => {
       article.getByRole("link", { name: "MapView", exact: true }).first(),
     ).toHaveAttribute("href", "/docs/map/map-view");
     await expect(
+      article.getByRole("link", { name: "MapRoute", exact: true }).first(),
+    ).toHaveAttribute("href", "/docs/map/map-route");
+    await expect(
+      article.getByRole("link", { name: "MapClusters", exact: true }).first(),
+    ).toHaveAttribute("href", "/docs/map/map-clusters");
+    await expect(
       article.getByRole("heading", { name: "You bring the map" }),
     ).toBeVisible();
     await expect(
       article.getByRole("heading", { name: "What a browser needs" }),
     ).toBeVisible();
+  });
+});
+
+test.describe("map route page", () => {
+  test("it says what a route is for and how its colors are set, without a map", async ({
+    page,
+  }) => {
+    await open(page, "/docs/map/map-route");
+    const article = page.locator("article").first();
+
+    await expect(
+      article.getByRole("heading", { name: "Showing all of it" }),
+    ).toBeVisible();
+    await expect(
+      article.getByText("--nuv-map-route-color").first(),
+    ).toBeVisible();
+    await expect(
+      article.getByText("coordinates", { exact: true }).first(),
+    ).toBeVisible();
+  });
+
+  test.describe("with a map", () => {
+    test.beforeEach(async ({ page }) => {
+      await open(page, "/docs/map/map-route");
+      test.skip(!(await drawsMaps(page)), "this browser draws no WebGL here");
+    });
+
+    test("a way that's part driven is two routes, with a marker at each place that matters", async ({
+      page,
+    }) => {
+      const area = preview(page, "map/route");
+      await ready(area);
+
+      // A route's own element is on the page and isn't drawn. The line is
+      // on the canvas.
+      await expect(area.locator(".nuv-map__route")).toHaveCount(2);
+      await expect(area.locator(".nuv-map__route").first()).toBeHidden();
+      await expect(area.locator(".nuv-map__marker")).toHaveCount(3);
+      await expect(
+        area.getByRole("img", { name: "The van, at Leidseplein" }),
+      ).toBeVisible();
+      await expect(area.locator(".nuv-map__note")).toHaveCount(0);
+    });
+
+    test("every place on the way is in view", async ({ page }) => {
+      const area = preview(page, "map/route");
+      await ready(area);
+      const box = await map(area).boundingBox();
+
+      for (const name of [
+        "Depot, where the van set out",
+        "Last stop, Sarphatipark",
+      ]) {
+        const pin = await area.getByRole("img", { name }).boundingBox();
+        expect(pin?.y ?? -1).toBeGreaterThanOrEqual(box?.y ?? 0);
+        expect((pin?.y ?? 0) + (pin?.height ?? 0)).toBeLessThanOrEqual(
+          (box?.y ?? 0) + (box?.height ?? 0),
+        );
+      }
+    });
+
+    test("a route's color is a variable of the theme's, set on the route", async ({
+      page,
+    }) => {
+      const area = preview(page, "map/route-colors");
+      await ready(area);
+      const colors = await area
+        .locator(".nuv-map__route")
+        .evaluateAll((routes) =>
+          routes.map((route) => getComputedStyle(route).color),
+        );
+
+      expect(colors).toHaveLength(2);
+      expect(colors[0]).not.toBe(colors[1]);
+      await expect(area.getByText(/Line 2 runs from/)).toBeVisible();
+    });
+
+    test("the examples pass axe", async ({ page }) => {
+      await ready(preview(page, "map/route"));
+      await ready(preview(page, "map/route-colors"));
+
+      expect(
+        (
+          await new AxeBuilder({ page })
+            .include("[data-preview]")
+            .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
+            .analyze()
+        ).violations,
+      ).toEqual([]);
+    });
+  });
+});
+
+test.describe("map clusters page", () => {
+  const gathering = (within: Locator, count: number) =>
+    within.getByRole("button", { name: `${count} charging points` });
+
+  test("it says what the places are and how near is near, without a map", async ({
+    page,
+  }) => {
+    await open(page, "/docs/map/map-clusters");
+    const article = page.locator("article").first();
+
+    await expect(
+      article.getByRole("heading", { name: "How near is near" }),
+    ).toBeVisible();
+    await expect(
+      article.getByText("clusterLabel", { exact: true }).first(),
+    ).toBeVisible();
+  });
+
+  test.describe("with a map", () => {
+    test.beforeEach(async ({ page }) => {
+      await open(page, "/docs/map/map-clusters");
+      test.skip(!(await drawsMaps(page)), "this browser draws no WebGL here");
+    });
+
+    test("the places of each city are one button, named for how many", async ({
+      page,
+    }) => {
+      const area = preview(page, "map/clusters");
+      await ready(area);
+
+      for (const count of [8, 6, 5, 4]) {
+        await expect(gathering(area, count)).toBeVisible();
+        await expect(gathering(area, count)).toHaveText(String(count));
+      }
+      await expect(area.locator(".nuv-map__cluster")).toHaveCount(4);
+      // None of the twenty-three is drawn on its own.
+      await expect(area.locator(".nuv-map__marker")).toHaveCount(4);
+    });
+
+    test("a press on one zooms in, and it comes apart", async ({
+      page,
+      isMobile,
+    }) => {
+      const area = preview(page, "map/clusters");
+      await ready(area);
+      await expect(gathering(area, 8)).toBeVisible();
+
+      await press(gathering(area, 8), isMobile);
+
+      await expect(gathering(area, 8)).toHaveCount(0, { timeout: 15_000 });
+      // What it came apart into, gatherings or places, is on the map.
+      await expect
+        .poll(() => area.locator(".nuv-map__marker").count(), {
+          timeout: 15_000,
+        })
+        .toBeGreaterThan(1);
+    });
+
+    test("Enter on a gathering zooms in and leaves the focus on the map", async ({
+      page,
+      isMobile,
+    }) => {
+      // A phone has no Enter key to press on a button.
+      test.skip(isMobile);
+      const area = preview(page, "map/clusters");
+      await ready(area);
+      await gathering(area, 4).focus();
+
+      await page.keyboard.press("Enter");
+
+      await expect(gathering(area, 4)).toHaveCount(0, { timeout: 15_000 });
+      await expect(
+        area.getByRole("region", { name: "Charging points" }),
+      ).toBeFocused();
+    });
+
+    test("the example passes axe", async ({ page }) => {
+      const area = preview(page, "map/clusters");
+      await ready(area);
+      await expect(area.locator(".nuv-map__cluster")).toHaveCount(4);
+
+      expect(
+        (
+          await new AxeBuilder({ page })
+            .include("[data-preview]")
+            .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
+            .analyze()
+        ).violations,
+      ).toEqual([]);
+    });
   });
 });
 

@@ -52,6 +52,8 @@ A row of reactions and a button that opens a picker, to add one that isn't there
 
 The picker hands over the emoji's name with the emoji, as `item.label`, which is what `label` wants.
 
+Compare two emoji with the character U+FE0F taken out of both, as the example does. It asks for an emoji to be drawn in color and isn't seen, and the same emoji is written with it in one place and without it in another: the picker's thumbs up has it, and one typed on a keyboard may not.
+
 ## Large counts, and reactions that can't be pressed
 
 Children are drawn in place of the count, for a number written shorter. The button is still read with the number itself.
@@ -87,7 +89,7 @@ The button is named `label` and the count, as in "thumbs up, 4", and whether it'
 - It's read by the emoji's name and the count, and not as the character, which a screen reader may name another way or not at all.
 - The reader's own has an edge in another color that's also twice as thick, so it isn't told apart by color alone. Where the browser forces its own colors the border is the thick one.
 - It's 44 pixels tall on a touch screen, and 32 with a mouse.
-- The figures are of one width, so the row doesn't shift as a count changes.
+- The count asks for figures of one width, so the row doesn't shift as a count changes where the font has them.
 
 ### What you need to handle
 

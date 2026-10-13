@@ -395,6 +395,28 @@ describe.skipIf(!webgl)("rendering", () => {
     await expect.poll(() => map.getCenter().lng).toBeCloseTo(paris[0], 3);
   });
 
+  test("a place the map came through on its own is gone back to when it's asked for later", async () => {
+    const { screen, map } = await mount({ zoom: 10 });
+    const at = (center?: MapLngLat) => (
+      <MapView
+        mapStyle={blank}
+        aria-label="Offices"
+        center={center}
+        zoom={10}
+      />
+    );
+    await screen.rerender(at(paris));
+    await expect.poll(() => map.getCenter().lng).toBeCloseTo(paris[0], 3);
+    await screen.rerender(at(undefined));
+    // Moved away by hand, a while ago.
+    map.jumpTo({ center: berlin });
+    await new Promise((resolve) => setTimeout(resolve, 1100));
+
+    await screen.rerender(at(paris));
+
+    await expect.poll(() => map.getCenter().lng).toBeCloseTo(paris[0], 3);
+  });
+
   test("another style is drawn when it's given", async () => {
     const { screen, map } = await mount();
     expect(map.getStyle().layers.map((layer) => layer.id)).toEqual(["land"]);

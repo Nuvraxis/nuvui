@@ -124,6 +124,12 @@ async function mount(props: Props = {}, children?: ReactNode) {
   await expect
     .poll(() => onLoad.mock.calls.length, { timeout: 20_000 })
     .toBe(1);
+  // MapLibre says it's loaded from its own frame, which on a busy machine
+  // can come before React has drawn what's on the map. The box says
+  // "ready" in the same pass that draws the markers, and a frame after
+  // that their own effects have run.
+  await expect.poll(() => root().dataset.state).toBe("ready");
+  await new Promise((resolve) => requestAnimationFrame(resolve));
   return { screen, map: onLoad.mock.calls[0]?.[0] as MapInstance };
 }
 
@@ -1143,6 +1149,9 @@ describe.skipIf(!webgl)("styles", () => {
     await expect.element(dialog("Berlin office")).toBeVisible();
     const tip = document.querySelector(".maplibregl-popup-tip") as Element;
     const pin = rect(marker("Berlin office"));
+    // The popup is drawn once the marker has been measured, so it's never
+    // over the pin, not even to begin with.
+    expect(rect(tip).bottom).toBeLessThanOrEqual(pin.top + 1);
 
     await expect
       .poll(() =>
@@ -1151,7 +1160,7 @@ describe.skipIf(!webgl)("styles", () => {
         ),
       )
       .toBeLessThan(2);
-    expect(rect(tip).bottom).toBeLessThanOrEqual(pin.top + 1);
+    await expect.poll(() => rect(tip).bottom).toBeLessThanOrEqual(pin.top + 1);
   });
 });
 

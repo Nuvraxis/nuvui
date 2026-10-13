@@ -16,5 +16,10 @@ blob-report/
 __screenshots__/
 .vitest/
 
+# The docs as plain text, written when the docs are built
+apps/docs/public/llms.txt
+apps/docs/public/llms-full.txt
+apps/docs/public/llms/
+
 # Fumadocs content index, regenerated on every dev and build run
 .source/

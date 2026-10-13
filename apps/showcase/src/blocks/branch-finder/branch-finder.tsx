@@ -6,10 +6,19 @@ import {
   type MapLngLat,
   MapMarker,
   MapView,
+  setMapWorkerUrl,
 } from "@nuvui/map";
 import { Input } from "@nuvui/react";
 import { useEffect, useId, useMemo, useState } from "react";
 import "./branch-finder.scss";
+
+// MapLibre does its work in a file of its own, and has to be told where
+// your bundler put it. This is how Next.js is asked. With Vite, import
+// the file with `?url` at the end and pass what you get. Once in an app
+// is enough, so move it to wherever your app starts.
+setMapWorkerUrl(
+  new URL("maplibre-gl/dist/maplibre-gl-worker.mjs", import.meta.url),
+);
 
 // Where the map's tiles come from and how they're drawn. This one is
 // OpenFreeMap's, which asks for no key. Put your own provider's here.

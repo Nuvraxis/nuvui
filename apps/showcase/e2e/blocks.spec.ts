@@ -4932,3 +4932,251 @@ test.describe("a block's preview", () => {
     ).toBe(await source("sign-in", "sign-in.tsx"));
   });
 });
+
+test.describe("delivery route", () => {
+  const stop = (page: Page, name: string) =>
+    page.locator(".delivery-route__stop").filter({ hasText: name });
+  const pin = (page: Page, name: RegExp) =>
+    page.locator(".nuv-map__marker").and(page.getByRole("button", { name }));
+
+  test.describe("the list", () => {
+    test.beforeEach(async ({ page }) => {
+      await open(page, "/blocks/view/delivery-route");
+    });
+
+    test("delivery route: the stops are listed in order, each with where it stands", async ({
+      page,
+    }) => {
+      await expect(page.locator(".delivery-route__stop")).toHaveCount(6);
+      await expect(page.locator(".delivery-route__summary")).toHaveText(
+        "3 of 6 stops done. Next is Boekhandel Spui.",
+      );
+      await expect(page.locator(".delivery-route__stop").first()).toContainText(
+        "Depot",
+      );
+      await expect(stop(page, "Apotheek Jordaan")).toContainText("Done");
+      await expect(stop(page, "Boekhandel Spui")).toContainText("Next");
+      await expect(stop(page, "Café De Pijp")).toContainText("Planned");
+      await expect(stop(page, "Boekhandel Spui")).toHaveAttribute(
+        "aria-pressed",
+        "false",
+      );
+    });
+
+    test("delivery route: on a phone the page doesn't scroll sideways", async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width: 320, height: 640 });
+      await open(page, "/blocks/view/delivery-route");
+
+      expect(await overflow(page)).toBeLessThanOrEqual(0);
+    });
+
+    for (const theme of ["light", "dark"] as const) {
+      test(`delivery route: it passes axe in ${theme}`, async ({ page }) => {
+        await setTheme(page, theme);
+        await open(page, "/blocks/view/delivery-route");
+        await settleStyles(page);
+        expect(
+          (await new AxeBuilder({ page }).withTags(wcag).analyze()).violations,
+        ).toEqual([]);
+      });
+    }
+  });
+
+  test.describe("the map", () => {
+    test.beforeEach(async ({ page }) => {
+      await open(page, "/blocks/view/delivery-route");
+      test.skip(!(await drawsMaps(page)), "this browser draws no WebGL here");
+      await expect(page.locator(".nuv-map")).toHaveAttribute(
+        "data-state",
+        "ready",
+        { timeout: 20_000 },
+      );
+    });
+
+    test("delivery route: every stop has a numbered marker in view, and the way is two routes", async ({
+      page,
+    }) => {
+      await expect(page.locator(".nuv-map__marker")).toHaveCount(6);
+      await expect(page.locator(".nuv-map__route")).toHaveCount(2);
+      await expect(pin(page, /^Stop 1, Depot, done$/)).toHaveText("1");
+      await expect(pin(page, /^Stop 6, Café De Pijp, planned$/)).toHaveText(
+        "6",
+      );
+      const box = await page.locator(".nuv-map").boundingBox();
+
+      for (const name of [/^Stop 1,/, /^Stop 6,/]) {
+        const at = await pin(page, name).boundingBox();
+        expect(at?.y ?? -1).toBeGreaterThanOrEqual(box?.y ?? 0);
+        expect((at?.y ?? 0) + (at?.height ?? 0)).toBeLessThanOrEqual(
+          (box?.y ?? 0) + (box?.height ?? 0),
+        );
+      }
+    });
+
+    test("delivery route: a stop chosen in the list opens on the map, and again closes it", async ({
+      page,
+      isMobile,
+    }) => {
+      await press(stop(page, "Boekhandel Spui"), isMobile);
+
+      await expect(stop(page, "Boekhandel Spui")).toHaveAttribute(
+        "aria-pressed",
+        "true",
+      );
+      await expect(
+        page.getByRole("dialog", { name: "Stop 4, Boekhandel Spui, next" }),
+      ).toContainText("Due at 09:40");
+
+      await press(stop(page, "Boekhandel Spui"), isMobile);
+      await expect(page.getByRole("dialog")).toHaveCount(0);
+    });
+
+    test("delivery route: a marker pressed on the map is the stop chosen in the list", async ({
+      page,
+      isMobile,
+    }) => {
+      await press(pin(page, /^Stop 2,/), isMobile);
+
+      await expect(
+        page.getByRole("dialog", { name: /^Stop 2, Bakkerij Noord/ }),
+      ).toContainText("Haarlemmerstraat 62");
+      await expect(stop(page, "Bakkerij Noord")).toHaveAttribute(
+        "aria-pressed",
+        "true",
+      );
+    });
+  });
+});
+
+test.describe("charging points", () => {
+  const point = (page: Page, name: string) =>
+    page.locator(".charging-map__point").filter({
+      has: page.getByText(name, { exact: true }),
+    });
+  const gathering = (page: Page, count: number) =>
+    page.getByRole("button", { name: `${count} charging points` });
+  const free = (page: Page) =>
+    page.getByRole("switch", { name: "Only with a socket free" });
+
+  test.describe("the list", () => {
+    test.beforeEach(async ({ page }) => {
+      await open(page, "/blocks/view/charging-map");
+    });
+
+    test("charging points: every one is in the list, with how many there are", async ({
+      page,
+    }) => {
+      await expect(page.locator(".charging-map__point")).toHaveCount(23);
+      await expect(page.locator(".charging-map__count")).toHaveText(
+        "23 charging points",
+      );
+      await expect(point(page, "Amsterdam 1")).toContainText("All in use");
+      await expect(point(page, "Groningen 2")).toContainText("1 of 4 free");
+    });
+
+    test("charging points: the switch leaves those with a socket free", async ({
+      page,
+      isMobile,
+    }) => {
+      await press(free(page), isMobile);
+
+      await expect(free(page)).toBeChecked();
+      await expect(page.locator(".charging-map__point")).toHaveCount(18);
+      await expect(page.locator(".charging-map__count")).toHaveText(
+        "18 charging points",
+      );
+      await expect(point(page, "Amsterdam 1")).toHaveCount(0);
+    });
+
+    test("charging points: on a phone the page doesn't scroll sideways", async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width: 320, height: 640 });
+      await open(page, "/blocks/view/charging-map");
+
+      expect(await overflow(page)).toBeLessThanOrEqual(0);
+    });
+
+    for (const theme of ["light", "dark"] as const) {
+      test(`charging points: it passes axe in ${theme}`, async ({ page }) => {
+        await setTheme(page, theme);
+        await open(page, "/blocks/view/charging-map");
+        await settleStyles(page);
+        expect(
+          (await new AxeBuilder({ page }).withTags(wcag).analyze()).violations,
+        ).toEqual([]);
+      });
+    }
+  });
+
+  test.describe("the map", () => {
+    test.beforeEach(async ({ page }) => {
+      await open(page, "/blocks/view/charging-map");
+      test.skip(!(await drawsMaps(page)), "this browser draws no WebGL here");
+      await expect(page.locator(".nuv-map")).toHaveAttribute(
+        "data-state",
+        "ready",
+        { timeout: 20_000 },
+      );
+    });
+
+    test("charging points: each city's are one button on the map, named for how many", async ({
+      page,
+    }) => {
+      for (const count of [8, 6, 5, 4]) {
+        await expect(gathering(page, count)).toBeVisible();
+      }
+      await expect(page.locator(".nuv-map__cluster")).toHaveCount(4);
+    });
+
+    test("charging points: the switch gathers what's left", async ({
+      page,
+      isMobile,
+    }) => {
+      await expect(gathering(page, 8)).toBeVisible();
+
+      await press(free(page), isMobile);
+
+      // Amsterdam has two with every socket in use.
+      await expect(gathering(page, 6)).toBeVisible();
+      await expect(gathering(page, 8)).toHaveCount(0);
+      await expect(page.locator(".nuv-map__cluster")).toHaveCount(4);
+    });
+
+    test("charging points: one chosen in the list is gone to on the map and opened", async ({
+      page,
+      isMobile,
+    }) => {
+      await press(point(page, "Groningen 2"), isMobile);
+
+      await expect(point(page, "Groningen 2")).toHaveAttribute(
+        "aria-pressed",
+        "true",
+      );
+      await expect(
+        page.getByRole("dialog", { name: "Groningen 2, 1 of 4 free" }),
+      ).toBeVisible({ timeout: 15_000 });
+
+      await press(point(page, "Groningen 2"), isMobile);
+      await expect(page.getByRole("dialog")).toHaveCount(0);
+    });
+
+    test("charging points: a press on a gathering zooms in, and it comes apart", async ({
+      page,
+      isMobile,
+    }) => {
+      await expect(gathering(page, 4)).toBeVisible();
+
+      await press(gathering(page, 4), isMobile);
+
+      await expect(gathering(page, 4)).toHaveCount(0, { timeout: 15_000 });
+      await expect
+        .poll(() => page.locator(".nuv-map__marker").count(), {
+          timeout: 15_000,
+        })
+        .toBeGreaterThan(0);
+    });
+  });
+});

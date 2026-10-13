@@ -17,6 +17,9 @@ import assistantWorkspace from "@/blocks/assistant-workspace/block.json" with {
 };
 import auditLog from "@/blocks/audit-log/block.json" with { type: "json" };
 import billing from "@/blocks/billing/block.json" with { type: "json" };
+import branchFinder from "@/blocks/branch-finder/block.json" with {
+  type: "json",
+};
 import caseStudies from "@/blocks/case-studies/block.json" with {
   type: "json",
 };
@@ -166,7 +169,7 @@ export const categories: BlockCategory[] = [
     label: "Data",
     title: "Data",
     description:
-      "Rows to work with: a table with search, a filter, a column chooser and actions for several rows, a list with a bar of actions for the ticked rows, requests to approve with buttons in every row, a list filtered from a sentence and a sheet, folders and files in a tree, a panel that opens beside a list, a parcel's label with its barcode, a ticket with a QR code, a board of tasks in columns, a sales pipeline that adds up each column, and a page in each state it can be in.",
+      "Rows to work with: a table with search, a filter, a column chooser and actions for several rows, a list with a bar of actions for the ticked rows, requests to approve with buttons in every row, a list filtered from a sentence and a sheet, folders and files in a tree, a panel that opens beside a list, a parcel's label with its barcode, a ticket with a QR code, a board of tasks in columns, a sales pipeline that adds up each column, a list of branches beside a map of them, and a page in each state it can be in.",
   },
   {
     slug: "editor",
@@ -228,6 +231,7 @@ export const blocks: BlockManifest[] = [
   eventTicket,
   taskBoard,
   dealPipeline,
+  branchFinder,
   pageStates,
   documentEditor,
   announcementEditor,

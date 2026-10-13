@@ -11,7 +11,7 @@ Use a map where the place is the point: where an office is, where a van is now, 
 ## Install
 
 ```sh
-pnpm add @nuvui/map @nuvui/react
+pnpm add @nuvui/map maplibre-gl @nuvui/react
 ```
 
 ## Import
@@ -20,7 +20,7 @@ pnpm add @nuvui/map @nuvui/react
 import { MapControls, MapMarker, MapPopup, MapView } from "@nuvui/map";
 ```
 
-The styles come from `@nuvui/map/styles.css`, which you load once for the whole app, after `@nuvui/react/styles.css`. [Map](/docs/map) covers that, and where the map's tiles come from, which is yours to choose.
+The styles come from `@nuvui/map/styles.css`, which you load once for the whole app, after `@nuvui/react/styles.css`. [Map](/docs/map) covers that, and two things a map needs before it's drawn: [where MapLibre's worker is](/docs/map#tell-the-map-where-its-worker-is), and where its tiles come from, which is yours to choose.
 
 ```tsx
 <MapView
@@ -304,5 +304,5 @@ The box has `data-state`, which is `loading`, `ready` or `error`. A marker that 
 **Don't**
 
 - Don't hide the names in the map's corner. They're a term of using the map.
-- Don't put a map on a page where the address would do. It's 220 kB and a request to someone else's server.
+- Don't put a map on a page where the address would do. It's 350 kB and a request to someone else's server.
 - Don't use a marker's color alone to say something, such as open or closed. Say it in the `label` and the popup.

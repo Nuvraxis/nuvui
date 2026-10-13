@@ -1,8 +1,15 @@
 "use client";
 
+import { setMapWorkerUrl } from "@nuvui/map";
 import { RootProvider } from "fumadocs-ui/provider/next";
 import { type ReactNode, useEffect } from "react";
 import SearchDialog from "@/components/search";
+
+// Where the maps in the examples find MapLibre's worker. The bundler gives
+// the file an address of its own, and this is how it's asked for one.
+setMapWorkerUrl(
+  new URL("maplibre-gl/dist/maplibre-gl-worker.mjs", import.meta.url),
+);
 
 export function Provider({ children }: { children: ReactNode }) {
   // A parent's effect runs after its children's, so by now every handler on

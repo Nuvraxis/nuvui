@@ -121,7 +121,8 @@ interface MapContextValue {
 
 const MapContext = createContext<MapContextValue | null>(null);
 
-function useMapContext(part: string): MapContextValue {
+// For the parts in the files beside this one. Not part of the package.
+export function useMapContext(part: string): MapContextValue {
   const context = useContext(MapContext);
   if (!context) throw new Error(`<${part}> must be inside a <MapView>.`);
   return context;
@@ -148,9 +149,32 @@ const viewOf = (map: MapLibreMap): MapViewState => {
 // Close enough to be the same place on a screen.
 const near = (one: number, other: number) => Math.abs(one - other) < 1e-7;
 
-// How many views the map remembers having told the app of. An app that
-// hands each one back has them taken off as they come.
-const toldLimit = 64;
+// How long the map remembers a view it has told the app of, in
+// milliseconds. One that's handed back comes within a frame or two. One
+// that comes later is somewhere the app wants to go back to.
+const toldFor = 1000;
+
+/**
+ * The area that holds every place in a list, for `bounds`: "show all of
+ * these". An empty list has no area.
+ */
+export function mapBoundsOf(places: MapLngLat[]): MapBounds | undefined {
+  if (places.length === 0) return undefined;
+  let west = Number.POSITIVE_INFINITY;
+  let south = Number.POSITIVE_INFINITY;
+  let east = Number.NEGATIVE_INFINITY;
+  let north = Number.NEGATIVE_INFINITY;
+  for (const [lng, lat] of places) {
+    west = Math.min(west, lng);
+    east = Math.max(east, lng);
+    south = Math.min(south, lat);
+    north = Math.max(north, lat);
+  }
+  return [
+    [west, south],
+    [east, north],
+  ];
+}
 
 const boundsKey = (bounds: MapBounds | undefined) =>
   bounds ? bounds.flat().join(",") : "";
@@ -284,7 +308,7 @@ export const MapView = forwardRef<HTMLDivElement, MapViewProps>(
     // that comes back as `center` and `zoom` is the map's own, and not
     // somewhere to go: by then the map may be further along, and going back
     // to it would stop a move halfway.
-    const told = useRef<MapViewState[]>([]);
+    const told = useRef<{ view: MapViewState; at: number }[]>([]);
 
     const setRefs = useCallback(
       (node: HTMLDivElement | null) => {
@@ -357,8 +381,9 @@ export const MapView = forwardRef<HTMLDivElement, MapViewProps>(
           });
           const tell = (to: "onMove" | "onMoveEnd") => {
             const view = viewOf(made);
-            told.current.push(view);
-            if (told.current.length > toldLimit) told.current.shift();
+            const at = performance.now();
+            told.current = told.current.filter((one) => at - one.at < toldFor);
+            told.current.push({ view, at });
             handlers.current[to]?.(view);
           };
           made.on("move", () => tell("onMove"));
@@ -387,8 +412,10 @@ export const MapView = forwardRef<HTMLDivElement, MapViewProps>(
     const lat = center?.[1];
     useEffect(() => {
       if (!map) return;
+      const since = performance.now() - toldFor;
       const echo = told.current.findIndex(
-        (view) =>
+        ({ view, at }) =>
+          at > since &&
           (lng === undefined ||
             lat === undefined ||
             (near(view.center[0], lng) && near(view.center[1], lat))) &&

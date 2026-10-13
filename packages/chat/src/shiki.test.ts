@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import type { CodeToken } from "./components/code-block";
 import { createShikiHighlighter } from "./shiki";
 
@@ -46,6 +46,32 @@ describe("the highlighter for Shiki", () => {
       for (const token of lines.flat()) {
         expect(token.color).toMatch(/^var\(--nuv-code-block-/);
       }
+    },
+  );
+
+  test(
+    "the first code in a language is colored to the end of the line on a slow machine",
+    patient,
+    async () => {
+      const highlight = createShikiHighlighter();
+      // Shiki and the grammar, fetched before the clock is touched.
+      await highlight("", "py");
+      // A machine on which each step along a line takes 300 ms. Shiki
+      // stops a line at 500 ms, which here is two steps in. The first
+      // code in a language is given longer, since its patterns are built
+      // as it goes.
+      let now = 0;
+      const clock = vi.spyOn(Date, "now").mockImplementation(() => {
+        now += 300;
+        return now;
+      });
+
+      const lines = (await highlight('const a = "x"', "ts")) ?? [];
+      clock.mockRestore();
+
+      expect(lines.flat().find((token) => token.content === '"x"')?.color).toBe(
+        "var(--nuv-code-block-token-string-expression, var(--color-success))",
+      );
     },
   );
 

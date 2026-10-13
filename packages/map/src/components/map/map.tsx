@@ -1,3 +1,7 @@
+// MapLibre's types speak of GeoJSON without saying where it's from. This
+// brings it along, so an app that checks the types of what it installs
+// finds it.
+/// <reference types="geojson" preserve="true" />
 "use client";
 
 import { Button } from "@nuvui/react/button";

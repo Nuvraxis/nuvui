@@ -62,6 +62,8 @@ async function start() {
  */
 export function createShikiHighlighter(): CodeHighlighter {
   let shiki: ReturnType<typeof start> | undefined;
+  // The languages that have colored something already.
+  const met = new Set<string>();
 
   return async (code, language) => {
     if (!language) return null;
@@ -75,9 +77,17 @@ export function createShikiHighlighter(): CodeHighlighter {
       await highlighter.loadLanguage(grammar);
     }
 
+    // Shiki gives up on a line after half a second and leaves the rest of
+    // it uncolored, so that a pattern gone wrong can't hold the page. The
+    // first code in a language is slow for another reason: every pattern
+    // it meets is built then. On a slow machine that alone takes longer,
+    // so the first time gets ten times as long.
+    const first = !met.has(name);
+    met.add(name);
     const { tokens } = highlighter.codeToTokens(code, {
       lang: name,
       theme: "nuvui",
+      tokenizeTimeLimit: first ? 5000 : 500,
     });
     return tokens.map((line) =>
       line.map((token) => {

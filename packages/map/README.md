@@ -56,6 +56,9 @@ A reader's browser asks the provider for the tiles, so the provider sees their a
 - `MapMarker`: a place on it, drawn as a pin or as what you give it. It has a name that's read in place of the drawing. With `popup` it's a button that opens one, and with `draggable` it's moved by pointer or by the arrow keys.
 - `MapPopup`: a box that points at a place, for one that no marker opens.
 - `MapControls`: buttons to zoom, to turn north back up, to go to where the reader is and to fill the screen. They're the core's buttons.
+- `MapRoute`: a line through a list of places, solid or in dashes, in the theme's colors. It draws a way and doesn't find one: the places come from you.
+- `MapClusters`: many places, gathered into one button with a number on it where they're near each other. A press zooms in to where they come apart, and only what's in view is on the page.
+- `mapBoundsOf`: the area that holds a list of places, for "show all of these".
 - `useMap`: the MapLibre map itself, for layers, sources and events the props don't cover.
 
 ## How it behaves
@@ -66,7 +69,7 @@ Until the style has come the box says the map is loading, and where the browser 
 
 In a page that scrolls, `cooperativeGestures` leaves the wheel and one finger to the page.
 
-MapLibre is loaded when a map is first drawn, and not before, so a server renders the box and no map. It's about 235 kB compressed, and its worker another 120 kB. The rest of this package is about 4 kB.
+MapLibre is loaded when a map is first drawn, and not before, so a server renders the box and no map. It's about 235 kB compressed, and its worker another 120 kB. The rest of this package is about 6 kB.
 
 ## Dependencies
 

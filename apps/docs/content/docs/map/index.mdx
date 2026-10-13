@@ -9,6 +9,8 @@ The map is a package of its own, `@nuvui/map`, since drawing one needs an engine
 | Component | What it is |
 | --- | --- |
 | [MapView](/docs/map/map-view) | A map, with `MapMarker` for a place on it, `MapPopup` for a box that points at one, and `MapControls` for the buttons over it. |
+| [MapRoute](/docs/map/map-route) | A line through a list of places, for a way that was driven or one that's planned. |
+| [MapClusters](/docs/map/map-clusters) | Many places, gathered into one button with a number on it where they're near each other. |
 
 <Preview name="map/basic" />
 
@@ -86,7 +88,7 @@ The examples on these pages use [OpenFreeMap](https://openfreemap.org)'s style, 
 
 ## It's large, so it's loaded when it's needed
 
-MapLibre is about 235 kB compressed, and its worker another 120 kB. The package asks for MapLibre when a map is first drawn, and not before, so a page with no map on screen loads neither and a server never does. The rest of the package is about 4 kB.
+MapLibre is about 235 kB compressed, and its worker another 120 kB. The package asks for MapLibre when a map is first drawn, and not before, so a page with no map on screen loads neither and a server never does. The rest of the package is about 6 kB.
 
 Until MapLibre and the style have come, the box says the map is loading.
 
@@ -98,7 +100,6 @@ Until MapLibre and the style have come, the box says the map is loading.
 ## What it leaves out
 
 - **Tiles, and a default style.** See above.
-- **Routes and clusters.** A line along a road and markers that gather into one as the map zooms out aren't built yet. Until they are, [`useMap`](/docs/map/map-view#the-map-itself) gives you the map to add a layer to.
-- **Finding a place from words,** and directions between two. Those are services, from your provider or another.
+- **Finding a place from words,** and directions between two. Those are services, from your provider or another. [MapRoute](/docs/map/map-route) draws the way such a service gives.
 - **Drawing on the map,** such as an area to search in.
 - **A picture of a map** for where there's no WebGL, or for print.

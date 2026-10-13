@@ -1,0 +1,181 @@
+# nuvui
+
+> An open source React library for business software: data tables, forms, charts and dashboards, tested for accessibility and themed with CSS variables. Ten packages, MIT licensed. Styling is SCSS with BEM classes and CSS variables, in cascade layers, and needs no Tailwind.
+
+Each page below is plain Markdown. All of them in one file: https://nuvui.nuvraxis.com/docs/llms-full.txt. A skill for coding agents, with the rules that are easy to get wrong: https://github.com/Nuvraxis/nuvui/tree/main/skills/nuvui, installed with `pnpm dlx skills add Nuvraxis/nuvui`.
+
+## Guides
+
+- [Getting started](https://nuvui.nuvraxis.com/docs/llms/index.md): Install nuvui, load its stylesheet once, and render your first component.
+- [Theming and tokens](https://nuvui.nuvraxis.com/docs/llms/theming.md): How nuvui's design tokens are layered, the presets that ship with it, density, how to override tokens for a site, a section or one component, and a live editor to try changes in.
+- [Using with Tailwind](https://nuvui.nuvraxis.com/docs/llms/tailwind.md): Run nuvui next to Tailwind CSS v4. Set the cascade layer order, turn the semantic colors into utilities, and decide whose theme values win.
+- [Using with SCSS](https://nuvui.nuvraxis.com/docs/llms/scss.md): Load nuvui's Sass mixins into your own stylesheets, change the breakpoints, and see which build tools resolve the package's SCSS entry.
+- [Forms](https://nuvui.nuvraxis.com/docs/llms/forms.md): Build a form from nuvui's fields, validate it with the browser or with React Hook Form, and show errors that a screen reader reads with the control.
+- [Right-to-left](https://nuvui.nuvraxis.com/docs/llms/right-to-left.md): Use nuvui in Arabic, Hebrew, Persian and other languages that read from the right, with the dir attribute and DirectionProvider.
+- [Translation](https://nuvui.nuvraxis.com/docs/llms/translation.md): Every piece of text nuvui writes by itself, such as "Close" and "Loading", with the prop that changes each one. A list for translators, taken from the components' own types.
+- [Support policy](https://nuvui.nuvraxis.com/docs/llms/support.md): Which versions of React, Node and browsers nuvui works with, which of those are tested, how versions are numbered, and what a fix in a supported setup means.
+- [Using with AI agents](https://nuvui.nuvraxis.com/docs/llms/agents.md): A skill that teaches a coding agent to build with nuvui, the docs as plain text for any model, and what an agent gets wrong without them.
+
+## @nuvui/react: components
+
+- [Accordion](https://nuvui.nuvraxis.com/docs/llms/components/accordion.md): A stack of headings that each open a panel of content below them.
+- [ActionBar](https://nuvui.nuvraxis.com/docs/llms/components/action-bar.md): A bar that appears while something is selected, with what can be done to it, and tells a screen reader how much is selected.
+- [Alert](https://nuvui.nuvraxis.com/docs/llms/components/alert.md): A message that sits in the page, with an icon and a color that say what kind of message it is.
+- [Alert dialog](https://nuvui.nuvraxis.com/docs/llms/components/alert-dialog.md): A dialog that stops everything to ask one question, with a button to go ahead and a button to back out.
+- [AspectRatio](https://nuvui.nuvraxis.com/docs/llms/components/aspect-ratio.md): A box that keeps its shape at any width, for pictures, videos, maps and anything else that loads late.
+- [Avatar](https://nuvui.nuvraxis.com/docs/llms/components/avatar.md): A small picture of a person or a thing, with initials or an icon in its place when there's no picture.
+- [Badge](https://nuvui.nuvraxis.com/docs/llms/components/badge.md): A short label that says what state something is in, or how many of something there are.
+- [Breadcrumb](https://nuvui.nuvraxis.com/docs/llms/components/breadcrumb.md): A trail of links that shows where the current page sits in a site, from the top level down.
+- [Button](https://nuvui.nuvraxis.com/docs/llms/components/button.md): A button with four intents and three sizes. It can also lend its styles to a link.
+- [ButtonGroup](https://nuvui.nuvraxis.com/docs/llms/components/button-group.md): Joins buttons, and the inputs or selects next to them, into one strip with shared edges.
+- [Card](https://nuvui.nuvraxis.com/docs/llms/components/card.md): A box with an edge that groups a title, some content and the actions that go with them.
+- [Carousel](https://nuvui.nuvraxis.com/docs/llms/components/carousel.md): Slides to move through by dragging or with buttons, with dots or thumbnails to go straight to one.
+- [Checkbox](https://nuvui.nuvraxis.com/docs/llms/components/checkbox.md): A box that's checked, unchecked or partly checked. It works with a label and submits with a form.
+- [ChoiceCard](https://nuvui.nuvraxis.com/docs/llms/components/choice-card.md): A checkbox or a radio button drawn as a card, with room for a title and a description, where the whole card can be pressed.
+- [Collapsible](https://nuvui.nuvraxis.com/docs/llms/components/collapsible.md): A button that shows and hides a piece of content below it.
+- [ColorPicker](https://nuvui.nuvraxis.com/docs/llms/components/color-picker.md): Picks a color with an area and a hue slider, a field to type into, and presets.
+- [Combobox](https://nuvui.nuvraxis.com/docs/llms/components/combobox.md): A select with a search field. It holds one value or several, filters as you type, and works with a label, the keyboard and forms.
+- [Command](https://nuvui.nuvraxis.com/docs/llms/components/command.md): A search field over a list of commands that filters as you type, in the page or in a dialog opened with a shortcut.
+- [Context menu](https://nuvui.nuvraxis.com/docs/llms/components/context-menu.md): A menu of actions that opens where someone right-clicks, or presses and holds on a touch screen.
+- [Dialog](https://nuvui.nuvraxis.com/docs/llms/components/dialog.md): A modal window that takes over the page until it's closed. A sheet on phones, centered on larger screens.
+- [Dropdown menu](https://nuvui.nuvraxis.com/docs/llms/components/dropdown-menu.md): A menu of actions that opens from a button, with keyboard navigation, checkable items and submenus.
+- [Empty](https://nuvui.nuvraxis.com/docs/llms/components/empty.md): What a list, a table or a search shows when it has nothing in it, with a way to get something into it.
+- [Field](https://nuvui.nuvraxis.com/docs/llms/components/field.md): Ties a label, a hint and an error message to a form control, with the ids and ARIA attributes a screen reader needs.
+- [Fieldset](https://nuvui.nuvraxis.com/docs/llms/components/fieldset.md): Groups related form controls under one heading that screen readers read with the group.
+- [FileUpload](https://nuvui.nuvraxis.com/docs/llms/components/file-upload.md): A drop area around the browser's own file input, with a list of the chosen files. It submits with a form like any file input.
+- [FormattedNumber](https://nuvui.nuvraxis.com/docs/llms/components/formatted-number.md): A number written the way a language and region write it, as plain digits, a currency, a percentage or a short form.
+- [HoldToConfirm](https://nuvui.nuvraxis.com/docs/llms/components/hold-to-confirm.md): A button that acts only after it's been held down, with the wait drawn along its edge, for things that can't be undone.
+- [HoloCard](https://nuvui.nuvraxis.com/docs/llms/components/holo-card.md): A 3D tilting card with a pointer-tracked holographic glare and texture overlay, built for membership cards, passes, and collectibles.
+- [Hover card](https://nuvui.nuvraxis.com/docs/llms/components/hover-card.md): A card with a preview of where a link leads, shown when the pointer rests on the link. It doesn't appear on touch screens.
+- [Input](https://nuvui.nuvraxis.com/docs/llms/components/input.md): A one-line text field. It's the browser's own input with the library's styles, so every type and attribute works.
+- [InputGroup](https://nuvui.nuvraxis.com/docs/llms/components/input-group.md): An input with text, an icon or a small button inside the same box, before or after what's typed.
+- [Item](https://nuvui.nuvraxis.com/docs/llms/components/item.md): A row with a picture, a title, a description and something to do at its end, and a list that groups rows into a panel.
+- [Kbd](https://nuvui.nuvraxis.com/docs/llms/components/kbd.md): A key on the keyboard, drawn as a key cap, for writing out shortcuts.
+- [Label](https://nuvui.nuvraxis.com/docs/llms/components/label.md): The text that names a form control. A click on it goes to the control, and a double click doesn't select its words.
+- [ListView](https://nuvui.nuvraxis.com/docs/llms/components/list-view.md): A list whose rows can be selected and can each hold buttons, moved through with the arrow keys.
+- [Menubar](https://nuvui.nuvraxis.com/docs/llms/components/menubar.md): A row of menus across the top of an application, like the File, Edit and View of a desktop program.
+- [NativeSelect](https://nuvui.nuvraxis.com/docs/llms/components/native-select.md): The browser's own select, styled to match the other fields. On a phone it opens the system picker.
+- [Navbar](https://nuvui.nuvraxis.com/docs/llms/components/navbar.md): The bar across the top of a site or an app, with its links in the bar on a wide screen and in a panel behind a button on a narrow one.
+- [Navigation menu](https://nuvui.nuvraxis.com/docs/llms/components/navigation-menu.md): A row of links for a site's header, where some entries open a panel with more links under them.
+- [NumberField](https://nuvui.nuvraxis.com/docs/llms/components/number-field.md): A field for a number that can be typed or stepped, with limits, a step size, and the number written for a language and region.
+- [OtpField](https://nuvui.nuvraxis.com/docs/llms/components/otp-field.md): A row of boxes for a one-time code, one character each. Typing moves along them, and a pasted code fills them all.
+- [Pagination](https://nuvui.nuvraxis.com/docs/llms/components/pagination.md): Links to the pages of a long list, with Previous and Next and a helper that works out which page numbers to show.
+- [PasswordInput](https://nuvui.nuvraxis.com/docs/llms/components/password-input.md): A password field with a button that shows what was typed and hides it again.
+- [Popover](https://nuvui.nuvraxis.com/docs/llms/components/popover.md): A small panel that opens next to a button and stays until it's dismissed.
+- [Progress](https://nuvui.nuvraxis.com/docs/llms/components/progress.md): A bar that fills as a task gets done.
+- [RadioGroup](https://nuvui.nuvraxis.com/docs/llms/components/radio-group.md): A set of options where exactly one can be picked. It works with labels, the arrow keys and forms.
+- [Rating](https://nuvui.nuvraxis.com/docs/llms/components/rating.md): Stars to rate something with, or to show how it was rated, down to part of a star.
+- [Resizable](https://nuvui.nuvraxis.com/docs/llms/components/resizable.md): Panels with a handle between them to drag, side by side or one above another.
+- [ScrollArea](https://nuvui.nuvraxis.com/docs/llms/components/scroll-area.md): A box that scrolls, with a scrollbar that looks the same in every browser and on every system.
+- [Select](https://nuvui.nuvraxis.com/docs/llms/components/select.md): A control for picking one option from a list. It works with a label, the keyboard and forms.
+- [Separator](https://nuvui.nuvraxis.com/docs/llms/components/separator.md): A thin line between two pieces of content, across or upright.
+- [Sheet](https://nuvui.nuvraxis.com/docs/llms/components/sheet.md): A panel that slides in from an edge of the screen and takes over the page until it's closed.
+- [Sidebar](https://nuvui.nuvraxis.com/docs/llms/components/sidebar.md): An app's navigation down the side of the screen. It collapses to a strip of icons, becomes a panel on a phone, and remembers how it was left.
+- [Skeleton](https://nuvui.nuvraxis.com/docs/llms/components/skeleton.md): A gray box in the shape of content that's still loading.
+- [Slider](https://nuvui.nuvraxis.com/docs/llms/components/slider.md): A handle on a track for picking a number from a range, or two handles for picking both ends of one.
+- [Spinner](https://nuvui.nuvraxis.com/docs/llms/components/spinner.md): A ring that turns while something is being done and there's no way to say how far along it is.
+- [Stat](https://nuvui.nuvraxis.com/docs/llms/components/stat.md): One figure for a dashboard, with what it counts, the number, how it changed, and room for a small chart.
+- [Stepper](https://nuvui.nuvraxis.com/docs/llms/components/stepper.md): Where someone is in a row of steps, with the ones that are done, the current one and the ones still to come, across or down.
+- [Switch](https://nuvui.nuvraxis.com/docs/llms/components/switch.md): An on and off control for a setting that takes effect right away.
+- [TableOfContents](https://nuvui.nuvraxis.com/docs/llms/components/table-of-contents.md): The headings of a page as a list of links, with the one being read marked as the page scrolls.
+- [Tabs](https://nuvui.nuvraxis.com/docs/llms/components/tabs.md): Panels of content with a row of tabs to switch between them. The row scrolls sideways when it doesn't fit the screen.
+- [TextShimmer](https://nuvui.nuvraxis.com/docs/llms/components/text-shimmer.md): Text with a highlight that moves across it, for a short wait such as "Thinking". It's still for anyone who asked for less motion.
+- [Textarea](https://nuvui.nuvraxis.com/docs/llms/components/textarea.md): A text field for several lines. It can grow with what's typed into it.
+- [Timeline](https://nuvui.nuvraxis.com/docs/llms/components/timeline.md): Events in the order they happened, each with a marker on a line, a title, a time and a description.
+- [Toast](https://nuvui.nuvraxis.com/docs/llms/components/toast.md): A brief message at the edge of the screen that goes away on its own. You show one by calling toast().
+- [Toggle](https://nuvui.nuvraxis.com/docs/llms/components/toggle.md): A button that stays pressed until it's pressed again, for turning one thing on and off.
+- [ToggleGroup](https://nuvui.nuvraxis.com/docs/llms/components/toggle-group.md): A strip of toggles that share one value. One can be pressed at a time, or several.
+- [Toolbar](https://nuvui.nuvraxis.com/docs/llms/components/toolbar.md): A row of buttons, links and toggles that the Tab key treats as one stop, with the arrow keys moving inside it.
+- [Tooltip](https://nuvui.nuvraxis.com/docs/llms/components/tooltip.md): A short line of text that appears when a control is hovered or focused. It doesn't appear on touch screens.
+- [Tree](https://nuvui.nuvraxis.com/docs/llms/components/tree.md): Rows that open to show more rows, moved through with the arrow keys, with one or many of them selected.
+- [Trend](https://nuvui.nuvraxis.com/docs/llms/components/trend.md): Which way a number moved and by how much, as an arrow, an amount and a color, with the direction in words for a screen reader.
+- [VisuallyHidden](https://nuvui.nuvraxis.com/docs/llms/components/visually-hidden.md): Text that's in the page for screen readers and drawn nowhere.
+
+## @nuvui/date-picker
+
+- [Dates](https://nuvui.nuvraxis.com/docs/llms/date-picker/index.md): The @nuvui/date-picker package. A calendar, a date field and a date range field, installed next to @nuvui/react, with locales and time zones.
+- [Calendar](https://nuvui.nuvraxis.com/docs/llms/date-picker/calendar.md): A month of days to pick from. It holds one day, several days or a range, moves by keyboard, and takes a locale, a week start and a time zone.
+- [DatePicker](https://nuvui.nuvraxis.com/docs/llms/date-picker/date-picker.md): A date field you can type into, with a button that opens a calendar. It works with a label, the keyboard and plain forms, and opens as a sheet on a phone.
+- [DateRangePicker](https://nuvui.nuvraxis.com/docs/llms/date-picker/date-range-picker.md): Two date fields in one box, for the first and the last day, with one calendar that picks both. Each day can be typed, and each is submitted under its own name.
+
+## @nuvui/table
+
+- [Tables](https://nuvui.nuvraxis.com/docs/llms/table/index.md): The @nuvui/table package. Styled table elements, and a data table on TanStack Table 9 with sorting, filtering, pagination, selection, pinned and resizable columns, expanding rows, a server mode and virtual rows.
+- [Table](https://nuvui.nuvraxis.com/docs/llms/table/table.md): The elements of a table, styled. A real table with a caption, column and row headings, a sticky header, a pinned column, and a box that scrolls sideways and can be reached from the keyboard.
+- [DataTable](https://nuvui.nuvraxis.com/docs/llms/table/data-table.md): A finished table from a TanStack Table instance. Headings that sort, a search field, a column chooser, checkboxes and a pagination bar, each one there when the table has the feature for it, with loading, empty and error states.
+- [Sorting](https://nuvui.nuvraxis.com/docs/llms/table/sorting.md): Sort a data table by clicking a heading. Ascending, descending and off, a sort by several columns with Shift, aria-sort on the heading, and a message read out after each sort.
+- [Filtering](https://nuvui.nuvraxis.com/docs/llms/table/filtering.md): Filter a data table with a search field over every column, a filter on one column, or both. With a debounce, a count read out for screen readers, and a way back when nothing matches.
+- [Table pagination](https://nuvui.nuvraxis.com/docs/llms/table/pagination.md): Split a data table into pages. A bar with rows per page, which rows are showing out of how many, and buttons for the first, previous, next and last page that keep keyboard focus.
+- [Row selection](https://nuvui.nuvraxis.com/docs/llms/table/row-selection.md): Select rows in a data table with a checkbox on each row and one for all of them, select a range with Shift, and act on the selection from a bar that shows while anything is selected.
+- [Column visibility](https://nuvui.nuvraxis.com/docs/llms/table/column-visibility.md): Let people choose which columns a data table shows, from a menu with a tick for each column. Columns can start hidden, and some can be kept from being hidden.
+- [Column pinning](https://nuvui.nuvraxis.com/docs/llms/table/column-pinning.md): Keep columns in view while a data table scrolls sideways. Pin to the start or the end, several to a side, with offsets that are measured for you and follow the direction of the text.
+- [Column resizing](https://nuvui.nuvraxis.com/docs/llms/table/column-resizing.md): Let people drag the edge of a data table's column to resize it, or do it from the keyboard. Columns have set widths in a fixed layout, with a least and a most.
+- [Expanding rows](https://nuvui.nuvraxis.com/docs/llms/table/expanding.md): Open a data table's row to show a panel of details under it, or the rows nested under it in a tree. With a named button that says whether the row is open.
+- [Server mode](https://nuvui.nuvraxis.com/docs/llms/table/server.md): A data table whose sorting, filtering and paging are done by your API. The table reports what's being asked for, you fetch it, and it shows what comes back, with loading and error states.
+- [Virtual rows](https://nuvui.nuvraxis.com/docs/llms/table/virtualization.md): A data table that draws only the rows in view, for thousands of rows in one scroll. Real table rows, a sticky header, keyboard focus that survives scrolling, and row counts for screen readers.
+- [Coming from TanStack Table 8](https://nuvui.nuvraxis.com/docs/llms/table/migrating.md): What changes in your table code between TanStack Table 8 and 9, for people bringing version 8 tables to @nuvui/table. The hook, features, row models, state, pinning, sizing and sorting names.
+
+## @nuvui/charts
+
+- [Charts](https://nuvui.nuvraxis.com/docs/llms/charts/index.md): The @nuvui/charts package. Recharts 3 charts that take their colors from the theme, with a tooltip and a legend that match the library, pattern fills, and a table of the same numbers for screen readers.
+- [ChartContainer](https://nuvui.nuvraxis.com/docs/llms/charts/chart.md): The box a Recharts chart goes in. It sizes the chart, sets a CSS variable for each series from a config, styles the axes and grid from the tokens, and holds the legend, the patterns and a table of the same numbers.
+- [Area chart](https://nuvui.nuvraxis.com/docs/llms/charts/area.md): Area charts with Recharts' AreaChart in a ChartContainer. One series, stacked series and a gradient fill, colored from the theme.
+- [Bar chart](https://nuvui.nuvraxis.com/docs/llms/charts/bar.md): Bar charts with Recharts' BarChart in a ChartContainer. Grouped, stacked with totals, and horizontal bars, colored from the theme, with pattern fills.
+- [Line chart](https://nuvui.nuvraxis.com/docs/llms/charts/line.md): Line charts with Recharts' LineChart in a ChartContainer. Several series colored from the theme, with dashes that tell them apart without color.
+- [Pie chart](https://nuvui.nuvraxis.com/docs/llms/charts/pie.md): Pie and donut charts with Recharts' PieChart in a ChartContainer. Each slice colored and named from the config, with pattern fills and a total in the middle.
+- [Radar chart](https://nuvui.nuvraxis.com/docs/llms/charts/radar.md): Radar charts with Recharts' RadarChart in a ChartContainer. Series compared across several axes, colored from the theme, with a polar grid styled from the tokens.
+- [Radial chart](https://nuvui.nuvraxis.com/docs/llms/charts/radial.md): Radial bar charts with Recharts' RadialBarChart in a ChartContainer. Bars bent into rings, each colored and named from the config.
+- [Chart tooltip](https://nuvui.nuvraxis.com/docs/llms/charts/tooltip.md): ChartTooltip, Recharts' tooltip drawn like the library's other floating panels. It names each series from the config, shows its color or pattern, formats values, and is a live region for screen readers.
+- [Composed chart](https://nuvui.nuvraxis.com/docs/llms/charts/composed.md): Bars, lines and a target line in one chart, with Recharts' ComposedChart in a ChartContainer.
+- [Scatter chart](https://nuvui.nuvraxis.com/docs/llms/charts/scatter.md): Scatter charts with Recharts' ScatterChart in a ChartContainer. Groups of points on two number axes, colored from the theme and told apart by shape.
+
+## @nuvui/barcodes
+
+- [Barcodes](https://nuvui.nuvraxis.com/docs/llms/barcodes/index.md): The @nuvui/barcodes package. Barcodes in seventeen kinds and QR codes, drawn as SVG, installed next to @nuvui/react.
+- [Barcode](https://nuvui.nuvraxis.com/docs/llms/barcodes/barcode.md): Bars for a scanner, drawn as SVG. Code 128, Code 39, EAN, UPC, ITF, MSI, Codabar and Pharmacode, with the value written underneath.
+- [QRCode](https://nuvui.nuvraxis.com/docs/llms/barcodes/qrcode.md): A QR code drawn as SVG, with four levels of error correction and room in the middle for a logo or the Swiss cross.
+
+## @nuvui/chat
+
+- [Chat](https://nuvui.nuvraxis.com/docs/llms/chat/index.md): The @nuvui/chat package. The parts of a conversation with an assistant, installed next to @nuvui/react. Messages, the scrolling around them, markdown and code, the box a prompt is written in, files, sources, tool calls, reasoning and the list of past conversations.
+- [Conversation](https://nuvui.nuvraxis.com/docs/llms/chat/conversation.md): The messages of a chat in a box that scrolls. It starts at the latest message, stays there while a reply arrives, and stops following when the reader scrolls up.
+- [Message](https://nuvui.nuvraxis.com/docs/llms/chat/message.md): One message in a conversation, from the person or from the assistant, with room for a picture, a line of details and a row of actions.
+- [MessageLoader](https://nuvui.nuvraxis.com/docs/llms/chat/message-loader.md): Three dots for the wait between sending a message and the first words of the reply.
+- [Markdown](https://nuvui.nuvraxis.com/docs/llms/chat/markdown.md): A reply's markdown drawn with the library's own type. Headings, lists, tables, links and code, safe to give text a model wrote, and able to take text that's still arriving.
+- [CodeBlock](https://nuvui.nuvraxis.com/docs/llms/chat/code-block.md): Code in a box of its own, with its language over it, a button that copies it, and colors from a highlighter you plug in. One for Shiki is ready-made.
+- [PromptInput](https://nuvui.nuvraxis.com/docs/llms/chat/prompt-input.md): The box a prompt is written in. A field that grows with the text, sends on Enter, takes files, and has a row under it for buttons, with a button that sends or stops.
+- [PromptSuggestion](https://nuvui.nuvraxis.com/docs/llms/chat/prompt-suggestion.md): Prompts to start from, as buttons in a row that wraps, for a conversation with nothing in it yet.
+- [Attachment](https://nuvui.nuvraxis.com/docs/llms/chat/attachment.md): A file shown in a message or waiting in the prompt box, with its name, its size, a picture where there is one, and a button that takes it out.
+- [Source](https://nuvui.nuvraxis.com/docs/llms/chat/source.md): What a reply was drawn from. A line under the reply that says how many sources there are and opens to a numbered list of links.
+- [ToolCall](https://nuvui.nuvraxis.com/docs/llms/chat/tool-call.md): Something an assistant did, or asks to do, with a tool. A card with the tool's name and where the call stands, which opens to what was asked and what came back, and asks for approval when it needs it.
+- [Reasoning](https://nuvui.nuvraxis.com/docs/llms/chat/reasoning.md): How an assistant got to its reply. A line over the reply that opens to the steps it took, open while it works and closed once it has answered.
+- [ThreadList](https://nuvui.nuvraxis.com/docs/llms/chat/thread-list.md): The conversations someone has had, for a sidebar. A list where one is open and the others can be opened, grouped under headings, with room for buttons on each row.
+
+## @nuvui/kanban
+
+- [Boards](https://nuvui.nuvraxis.com/docs/llms/kanban/index.md): The @nuvui/kanban package. A board of columns with cards that are moved between and within them with a mouse, a finger or the keyboard, installed next to @nuvui/react.
+- [Kanban](https://nuvui.nuvraxis.com/docs/llms/kanban/kanban.md): A board of columns with cards that are moved between and within them. A mouse drags a card, a finger holds it and then drags, and the keyboard moves it from its handle. Every move is read out.
+
+## @nuvui/editor
+
+- [Editor](https://nuvui.nuvraxis.com/docs/llms/editor/index.md): The @nuvui/editor package. A rich text editor on Tiptap, installed next to @nuvui/react, with a toolbar, a menu on the selection, links, a character count, and HTML as its value.
+- [RichTextEditor](https://nuvui.nuvraxis.com/docs/llms/editor/rich-text-editor.md): A box to write formatted text in. Bold and italic, headings, lists, quotes, code and links, from a toolbar, from the keyboard, or from a small menu over selected text. Its value is HTML.
+
+## @nuvui/emoji
+
+- [Emoji](https://nuvui.nuvraxis.com/docs/llms/emoji/index.md): The @nuvui/emoji package. An emoji picker with search, groups, skin tones and recently used emoji, in a list that draws only the rows in view, and a reaction button with a count, installed next to @nuvui/react.
+- [EmojiPicker](https://nuvui.nuvraxis.com/docs/llms/emoji/emoji-picker.md): A panel to pick an emoji from, with a search box, the emoji in their groups, a choice of skin tone and the ones picked before. It draws the device's own emoji, and only the rows in view.
+- [EmojiReaction](https://nuvui.nuvraxis.com/docs/llms/emoji/emoji-reaction.md): A button with an emoji and how many reacted with it, pressed when the reader is one of them. For the row of reactions under a message or a comment.
+
+## @nuvui/map
+
+- [Map](https://nuvui.nuvraxis.com/docs/llms/map/index.md): The @nuvui/map package. A map on MapLibre, installed next to @nuvui/react, with markers and popups that are React elements and controls that are the library's own buttons. It needs map tiles from a provider you choose.
+- [MapView](https://nuvui.nuvraxis.com/docs/llms/map/map-view.md): A map on MapLibre, with markers that are read by name, popups, and controls that are the library's own buttons. It takes the arrow keys, says when it's loading, and says when it can't be drawn.
+- [MapRoute](https://nuvui.nuvraxis.com/docs/llms/map/map-route.md): A line on a map through a list of places, for a way that was driven or one that's planned. It's drawn in the theme's colors, with an edge that keeps it seen on a map of any color.
+- [MapClusters](https://nuvui.nuvraxis.com/docs/llms/map/map-clusters.md): Many places on a map, gathered into one button with a number on it where they're near each other, and drawn apart as the map zooms in. Each gathering and each place is a button with a name.
+
+## Optional
+
+- [Design tokens](https://nuvui.nuvraxis.com/docs/llms/tokens.md): Every token the library ships.
+- [Blocks](https://nuvui.nuvraxis.com/blocks): Parts of an app built from the components, to copy.
+- [Changelog](https://nuvui.nuvraxis.com/docs/changelog): What changed in each release.

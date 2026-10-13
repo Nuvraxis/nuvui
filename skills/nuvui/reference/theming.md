@@ -1,0 +1,427 @@
+<!-- Written by apps/docs/scripts/agent-skill.mjs from apps/docs/content/docs/theming.mdx. Don't edit it here: run `pnpm skill`. -->
+
+# Theming and tokens
+
+How nuvui's design tokens are layered, the presets that ship with it, density, how to override tokens for a site, a section or one component, and a live editor to try changes in.
+
+Every color, radius and size in nuvui comes from a CSS custom property. There's no theme object to pass around and no provider to wrap your app in. To change how the components look, you set variables in a stylesheet.
+
+## Try it
+
+Change a value and the components in the box follow. The editor sets the variables on that box only, so the rest of the page keeps its own look. The CSS underneath is what you'd paste into your own stylesheet to get the same result.
+
+Colors are kept apart for light and dark. Switch the site's theme with the toggle in the navigation and you're editing the other set.
+
+**Start from** puts the preview in one of the [presets](#presets). Your changes then sit on top of that preset, and the CSS says which one to load.
+
+The editor will let you pick colors nobody can read. The contrast figures are there to catch that. Text needs 4.5:1 against what's behind it, and the edge of a control or a focus ring needs 3:1.
+
+## How the tokens are layered
+
+There are three levels, and each one reads from the one before it.
+
+**Raw scales** are plain values with no meaning attached: `--color-blue-600`, `--radius-md`, `--text-sm`. The names and values are the ones in Tailwind v4's default theme.
+
+**Semantic tokens** say what a value is for: `--color-primary`, `--color-background`, `--color-border`. Each points at a raw color, and has one value for light and another for dark. For color, the components only ever read these.
+
+**Component variables** belong to one component: `--nuv-button-radius`, `--nuv-dialog-width`. The library never declares them. Each component reads its own, with a token as the fallback:
+
+```css
+.nuv-button {
+  border-radius: var(--nuv-button-radius, var(--radius-md));
+}
+```
+
+So changing `--radius-md` rounds everything that uses it, and setting `--nuv-button-radius` changes buttons alone.
+
+## Changing tokens
+
+### For the whole site
+
+```css
+:root {
+  --color-primary: var(--color-green-700);
+  --color-ring: var(--color-green-700);
+  --radius-md: 0.5rem;
+}
+```
+
+You don't need `!important` or a heavier selector. The library declares its tokens inside a cascade layer named `tokens`, and a rule outside any layer beats every rule inside one. It doesn't matter which stylesheet loads first.
+
+If your own CSS is in layers too, the layer that holds your overrides has to come after `tokens`.
+
+### Give dark its own values
+
+The semantic colors have a second set of values for dark. Those are in the `tokens` layer as well, so with `data-theme` on `<html>`, a color you set on `:root` replaces both. The green above would be the primary color in dark too, where a button's near-black text is hard to read on it.
+
+Set the dark value next to the light one:
+
+```css
+:root {
+  --color-primary: var(--color-green-700);
+}
+
+[data-theme="dark"] {
+  --color-primary: var(--color-green-400);
+}
+
+/* Only if you use data-theme="system". */
+@media (prefers-color-scheme: dark) {
+  [data-theme="system"] {
+    --color-primary: var(--color-green-400);
+  }
+}
+```
+
+With SCSS, the [`dark` mixin](scss.md#the-mixins) writes the last two blocks from one.
+
+Colors come in pairs. If you change `--color-primary`, check that `--color-primary-foreground` still reads on top of it.
+
+### For one section
+
+Tokens are inherited like any other custom property, so setting one on an element changes everything inside it.
+
+```css title="scope.css"
+.checkout {
+  --color-primary: var(--color-green-700);
+  --color-primary-foreground: var(--color-white);
+  --color-ring: var(--color-green-700);
+  --radius-md: var(--radius-full);
+}
+```
+
+```tsx
+import "./scope.css";
+import { Button, Switch } from "@nuvui/react";
+
+const row = { display: "flex", alignItems: "center", gap: 12 };
+
+export default function Example() {
+  return (
+    <div style={{ display: "grid", gap: 20 }}>
+      <div style={row}>
+        <Button>Outside</Button>
+        <Switch aria-label="Outside" defaultChecked />
+      </div>
+      <div className="checkout" style={row}>
+        <Button>Inside .checkout</Button>
+        <Switch aria-label="Inside .checkout" defaultChecked />
+      </div>
+    </div>
+  );
+}
+```
+
+Override the semantic token, not the raw color it points at. `--color-primary` is worked out once, on `:root`, as whatever `--color-blue-600` is there. Setting `--color-blue-600` on a section further down the page doesn't change it.
+
+### For one component
+
+Each component page lists the variables that component reads. Set them on the component or on anything around it:
+
+```css
+.toolbar {
+  --nuv-button-radius: var(--radius-full);
+  --nuv-button-padding-inline: calc(var(--spacing) * 6);
+}
+```
+
+## Presets
+
+The package ships five themes besides its default. Each is one stylesheet that sets every semantic color for light and dark, the radius scale and a density.
+
+- `ember`, loaded with `import "@nuvui/react/themes/ember.css"`
+- `high-contrast`, loaded with `import "@nuvui/react/themes/high-contrast.css"`
+- `ink`, loaded with `import "@nuvui/react/themes/ink.css"`
+- `ledger`, loaded with `import "@nuvui/react/themes/ledger.css"`
+- `meadow`, loaded with `import "@nuvui/react/themes/meadow.css"`
+
+```tsx
+import "@nuvui/react/themes/ink.css";
+import "@nuvui/react/themes/ledger.css";
+import "@nuvui/react/themes/meadow.css";
+import "@nuvui/react/themes/ember.css";
+import "@nuvui/react/themes/high-contrast.css";
+import { Button, Checkbox, Switch } from "@nuvui/react";
+
+const presets = ["ink", "ledger", "meadow", "ember", "high-contrast"];
+
+export default function Example() {
+  return (
+    <div style={{ display: "grid", gap: 12, inlineSize: "100%" }}>
+      {presets.map((preset) => (
+        <section
+          key={preset}
+          data-preset={preset}
+          aria-label={preset}
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            gap: 12,
+            padding: 16,
+            border: "1px solid var(--color-border)",
+            borderRadius: "var(--radius-lg)",
+            backgroundColor: "var(--color-background)",
+            color: "var(--color-foreground)",
+          }}
+        >
+          <code style={{ inlineSize: "7.5rem" }}>{preset}</code>
+          <Button>Save</Button>
+          <Button intent="secondary">Cancel</Button>
+          <Checkbox aria-label={`A checkbox in ${preset}`} defaultChecked />
+          <Switch aria-label={`A switch in ${preset}`} defaultChecked />
+        </section>
+      ))}
+    </div>
+  );
+}
+```
+
+Import the ones you want and name one with `data-preset`:
+
+```tsx
+import "@nuvui/react/styles.css";
+import "@nuvui/react/themes/ink.css";
+```
+
+```html
+<html lang="en" data-preset="ink" data-theme="system">
+```
+
+A preset does nothing until an element names it, so you can load several and switch between them by changing the attribute. That's also how one section, or one customer's pages, gets a look of its own.
+
+### Presets and dark mode
+
+`data-preset` picks the theme and `data-theme` picks light or dark. They can be on the same element or on different ones, in either order, and nested as deep as you like. Each part of the page uses the nearest preset above it and the nearest `data-theme` above it.
+
+With no `data-theme` anywhere, a preset is light, like the default theme.
+
+A preset's stylesheet doesn't set the semantic colors directly. It gives both of its modes as variables named `--nuv-preset-light-*` and `--nuv-preset-dark-*`, and one rule in the library's tokens turns those into `--color-primary` and the rest, on the preset's element and on every `data-theme` element inside it. That's why nesting works: the variables are inherited, so the nearest preset supplies the values, and the nearest `data-theme` picks the mode. It needs nothing newer than the rest of the library does.
+
+That rule reads two switches the tokens define, `--nuv-light` and `--nuv-dark`. You can use them for values of your own that have to hold both modes:
+
+```css
+.banner {
+  background-color: var(--nuv-light, #fef3c6) var(--nuv-dark, #461901);
+}
+```
+
+In light, `--nuv-light` is unset, so the first `var()` gives its fallback, and `--nuv-dark` is empty, so the second gives nothing. In dark it's the other way round.
+
+### What a preset leaves alone
+
+The color scales, the chart colors, spacing, type sizes, shadows and motion are the same in every preset. A preset also doesn't load a font.
+
+Your own rules still win. A preset sits in the same `tokens` layer as the defaults, so anything you set outside a layer overrides it, exactly as described under [Changing tokens](#changing-tokens).
+
+Floating parts need `container` inside a preset section for the same reason they do inside a dark one. The [next section](#dark-mode-for-part-of-a-page) explains.
+
+## Density
+
+Density is how tall controls are with a mouse or trackpad. There are three levels, set with `data-density` on `<html>` or on any element:
+
+```tsx
+import { Button } from "@nuvui/react";
+
+const densities = ["compact", "default", "comfortable"];
+
+export default function Example() {
+  return (
+    <div style={{ display: "grid", gap: 16 }}>
+      {densities.map((density) => (
+        <div
+          key={density}
+          data-density={density}
+          style={{ display: "flex", alignItems: "center", gap: 12 }}
+        >
+          <code style={{ inlineSize: "7rem" }}>{density}</code>
+          <Button size="sm">Small</Button>
+          <Button>Medium</Button>
+          <Button size="lg">Large</Button>
+        </div>
+      ))}
+    </div>
+  );
+}
+```
+
+Each level sets three heights, for small, medium and large controls:
+
+- `data-density="compact"`: 28, 36 and 44 pixels.
+- `data-density="default"`: 32, 40 and 48 pixels.
+- `data-density="comfortable"`: 36, 44 and 52 pixels.
+
+Medium is the height of a button, a select and a tab. Small is a row in a menu or a select list, and the close button of a dialog or toast. Large is a large button.
+
+On a touch screen nothing changes. Every control keeps its 44 pixel target there at every density, because a finger doesn't get smaller when a layout gets tighter.
+
+Density only sets heights. Padding and gaps come from `--spacing`, which Tailwind shares, so that one is left for you to set.
+
+Each preset comes with a density. `data-density` on the same element, or on one inside it, wins over the preset's.
+
+The levels are three tokens, listed under [Controls](#controls). Set those yourself for a density in between.
+
+## Dark mode for part of a page
+
+`data-theme` works on any element, not only `<html>`. Everything inside takes that theme. [Getting started](index.md#dark-mode) covers the three values it accepts.
+
+```tsx
+"use client";
+
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@nuvui/react";
+import { useId, useState } from "react";
+
+export default function Example() {
+  // State, not a ref, so the select re-renders once the section exists.
+  const [section, setSection] = useState<HTMLElement | null>(null);
+  const id = useId();
+
+  return (
+    <section
+      ref={setSection}
+      data-theme="dark"
+      style={{
+        display: "grid",
+        gap: 6,
+        padding: 24,
+        borderRadius: 12,
+        backgroundColor: "var(--color-background)",
+        color: "var(--color-foreground)",
+      }}
+    >
+      <label htmlFor={id}>Density</label>
+      <Select defaultValue="comfortable">
+        <SelectTrigger id={id}>
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent container={section ?? undefined}>
+          <SelectItem value="compact">Compact</SelectItem>
+          <SelectItem value="comfortable">Comfortable</SelectItem>
+          <SelectItem value="spacious">Spacious</SelectItem>
+        </SelectContent>
+      </Select>
+    </section>
+  );
+}
+```
+
+The select in that example passes `container` to `SelectContent`. Dialog, Popover, Tooltip, DropdownMenu and Select add their floating part to the end of `<body>`. That's outside your section, so left alone the list would get the page's theme. `container` takes the element to render into instead. You need it for the same reason when you've set tokens on a section.
+
+Toast is the exception. Toasts appear inside `<Toaster />`, wherever you rendered it.
+
+## Fonts
+
+The components inherit the page's font. None of them picks one, so whatever your `<body>` uses is what they use.
+
+`--font-sans` and `--font-mono` are defined, with the same system font stacks as Tailwind, but nothing in the library reads them. They're there for you:
+
+```css
+body {
+  font-family: var(--font-sans);
+}
+```
+
+## The focus ring
+
+Every component draws the same ring on keyboard focus. Three variables change it everywhere at once.
+
+| Variable | Default | What it sets |
+| --- | --- | --- |
+| `--nuv-focus-ring-width` | `2px` | Thickness of the ring. |
+| `--nuv-focus-ring-color` | `var(--color-ring)` | Its color. Keep it at 3:1 or better against whatever is behind it. |
+| `--nuv-focus-ring-offset` | `2px`, `3px`, `-2px`, `0`, `4px` | Gap between the element and the ring. Tabs and the toast region draw theirs inside the edge, which is the negative default. |
+
+The rows in a menu or a select list are filled in when focused, not ringed. The [DropdownMenu](components/dropdown-menu.md) page explains why.
+
+## Token reference
+
+These tables are read from the `tokens.css` that the package ships.
+
+### Semantic colors
+
+| Name | What it's for |
+| --- | --- |
+| `--color-background` | The page. Also the thumb of a switch. |
+| `--color-foreground` | Text on the page. |
+| `--color-surface` | Things that sit above the page: dialogs, popovers, menus, select lists and toasts. |
+| `--color-surface-foreground` | Text on a surface. |
+| `--color-muted` | Quiet fills, such as a secondary button or the hover state of a close button. |
+| `--color-muted-foreground` | Text that matters less: descriptions, placeholders, group labels. |
+| `--color-primary` | The main action: a primary button, a checked checkbox or switch, the selected tab, the focused row in a menu. |
+| `--color-primary-foreground` | Text and icons on top of primary. |
+| `--color-danger` | Destructive actions and errors. |
+| `--color-danger-foreground` | Text on top of danger. |
+| `--color-success` | The edge of a success toast. |
+| `--color-warning` | No component reads it yet. It's defined so your own warnings can match. |
+| `--color-border` | Dividers and the edges of panels. |
+| `--color-border-strong` | The edge of a control you have to be able to find: a checkbox, a switch, a select. It keeps 3:1 against the page. |
+| `--color-ring` | The focus ring. |
+| `--color-overlay` | The dimmed layer behind a dialog. |
+
+### Chart colors
+
+Eight colors for the series of a chart, to be used in this order. No component reads them yet. They're here so charts you draw now match the chart components when those arrive.
+
+_The docs page shows this as a table: https://nuvui.nuvraxis.com/docs/theming. The tokens themselves are in tokens.md, beside SKILL.md._
+
+Each one reaches 3:1 against the page and against a surface, in light and in dark. The order alternates hue and lightness so that neighbours can still be told apart with protanopia, deuteranopia or tritanopia. That was checked by simulating each one, and it's part of the test suite. Color alone is still not enough for a chart: label the series as well.
+
+They don't change with a preset.
+
+### Color scales
+
+Five of Tailwind's scales, plus black and white. The values are in `oklch()`.
+
+_The docs page shows this as a table: https://nuvui.nuvraxis.com/docs/theming. The tokens themselves are in tokens.md, beside SKILL.md._
+
+### Spacing
+
+_The docs page shows this as a table: https://nuvui.nuvraxis.com/docs/theming. The tokens themselves are in tokens.md, beside SKILL.md._
+
+One unit. Sizes are written as multiples of it, so `calc(var(--spacing) * 4)` is `1rem`. Change it and every padding and gap in the library scales together.
+
+### Type
+
+_The docs page shows this as a table: https://nuvui.nuvraxis.com/docs/theming. The tokens themselves are in tokens.md, beside SKILL.md._
+
+Each `--text-*` size has a line height to go with it, named like `--text-sm--line-height`.
+
+### Radius
+
+_The docs page shows this as a table: https://nuvui.nuvraxis.com/docs/theming. The tokens themselves are in tokens.md, beside SKILL.md._
+
+### Shadows
+
+_The docs page shows this as a table: https://nuvui.nuvraxis.com/docs/theming. The tokens themselves are in tokens.md, beside SKILL.md._
+
+### Motion
+
+_The docs page shows this as a table: https://nuvui.nuvraxis.com/docs/theming. The tokens themselves are in tokens.md, beside SKILL.md._
+
+Transitions and animations are only declared under `prefers-reduced-motion: no-preference`. Someone who has asked their system for less motion gets none, and there's nothing for you to switch off.
+
+### Breakpoints
+
+_The docs page shows this as a table: https://nuvui.nuvraxis.com/docs/theming. The tokens themselves are in tokens.md, beside SKILL.md._
+
+These are for reading in your own CSS or JavaScript. A custom property can't be used in a media query, so changing one here doesn't move the point where a dialog stops being a sheet. [Using with SCSS](scss.md#breakpoints) covers how to do that.
+
+### Controls
+
+_The docs page shows this as a table: https://nuvui.nuvraxis.com/docs/theming. The tokens themselves are in tokens.md, beside SKILL.md._
+
+`--nuv-border-width` is the width of every border the components draw. `--nuv-disabled-opacity` is how far a disabled control fades.
+
+`--nuv-touch-size` is the smallest a control gets on a touch screen. The three heights are what [density](#density) changes.
+
+### Stacking order
+
+_The docs page shows this as a table: https://nuvui.nuvraxis.com/docs/theming. The tokens themselves are in tokens.md, beside SKILL.md._
+
+Popovers sit above dialogs because a menu or a select can open from inside one. If something of yours has to sit above or between them, move these rather than raising your own `z-index` until it works.

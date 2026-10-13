@@ -1,6 +1,6 @@
 # Consumer fixtures
 
-Two small apps that use `@nuvui/react`, `@nuvui/date-picker`, `@nuvui/table`, `@nuvui/charts`, `@nuvui/barcodes`, `@nuvui/chat`, `@nuvui/kanban` and `@nuvui/editor` the way someone outside this repository would: installed from tarballs, not linked from the workspace.
+Two small apps that use `@nuvui/react`, `@nuvui/date-picker`, `@nuvui/table`, `@nuvui/charts`, `@nuvui/barcodes`, `@nuvui/chat`, `@nuvui/kanban`, `@nuvui/editor` and `@nuvui/emoji` the way someone outside this repository would: installed from tarballs, not linked from the workspace.
 
 - `vite`: a Vite and React app.
 - `next`: a Next.js app whose page is a server component.

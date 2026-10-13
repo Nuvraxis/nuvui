@@ -9,6 +9,7 @@ import "@nuvui/barcodes/styles.css";
 import "@nuvui/chat/styles.css";
 import "@nuvui/kanban/styles.css";
 import "@nuvui/editor/styles.css";
+import "@nuvui/emoji/styles.css";
 import "@/styles/index.scss";
 import { Toaster } from "@nuvui/react/toast";
 import type { Metadata } from "next";

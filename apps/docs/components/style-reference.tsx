@@ -47,14 +47,25 @@ function findVariables(css: string, component: string) {
 
     const inside = css.slice(from + 4, end);
     const comma = inside.indexOf(",");
-    const name = inside.slice(0, comma).trim();
-    const fallback = inside
-      .slice(comma + 1)
-      .trim()
-      .replace(/\s+/g, " ");
+    const name = (comma === -1 ? inside : inside.slice(0, comma)).trim();
 
     const fallbacks = variables.get(name) ?? new Set<string>();
-    fallbacks.add(fallback);
+    if (comma === -1) {
+      // Read with no fallback, so the component gives it a value itself,
+      // on one of its own elements. Those are its defaults.
+      for (const [, value] of css.matchAll(
+        new RegExp(`${name}:\\s*([^;}]+)`, "g"),
+      )) {
+        if (value) fallbacks.add(value.trim().replace(/\s+/g, " "));
+      }
+    } else {
+      fallbacks.add(
+        inside
+          .slice(comma + 1)
+          .trim()
+          .replace(/\s+/g, " "),
+      );
+    }
     variables.set(name, fallbacks);
 
     // Start just inside this var(), so a variable in its fallback is found.

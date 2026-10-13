@@ -4264,6 +4264,246 @@ test.describe("member card", () => {
   }
 });
 
+// The picker in a block's popover, once its list of emoji has come and its
+// rows are laid out.
+async function pickerIn(page: Page) {
+  const panel = page.getByRole("dialog", { name: "Pick an emoji" });
+  const list = panel.getByRole("grid", { name: "Emoji", exact: true });
+  await expect(list).not.toHaveAttribute("aria-busy", "true");
+  await expect
+    .poll(async () => Number(await list.getAttribute("aria-colcount")))
+    .toBeGreaterThan(1);
+  return panel;
+}
+
+// An emoji searched for by its name and picked with Enter, which works
+// the same with a mouse, a finger and a keyboard.
+async function pickEmoji(page: Page, name: string) {
+  const panel = await pickerIn(page);
+  const search = panel.getByRole("searchbox", { name: "Search emoji" });
+  await search.fill(name);
+  await expect(
+    panel.getByRole("gridcell", { name, exact: true }),
+  ).toBeVisible();
+  await search.press("Enter");
+  await expect(panel).toBeHidden();
+}
+
+test.describe("message reactions", () => {
+  const reaction = (page: Page, name: RegExp | string) =>
+    page
+      .locator(".message-reactions__reaction")
+      .and(page.getByRole("button", { name }));
+  const said = (page: Page) => page.locator(".message-reactions__said");
+
+  test.beforeEach(async ({ page }) => {
+    await open(page, "/blocks/view/message-reactions");
+  });
+
+  test("message reactions: each reaction says its emoji's name, its count and whether it's yours", async ({
+    page,
+  }) => {
+    await expect(reaction(page, "party popper, 5")).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    await expect(reaction(page, "clapping hands, 2")).toHaveAttribute(
+      "aria-pressed",
+      "false",
+    );
+    await expect(page.locator(".message-reactions__reaction")).toHaveCount(2);
+  });
+
+  test("message reactions: pressing a reaction joins it, and pressing yours takes it away", async ({
+    page,
+    isMobile,
+  }) => {
+    await press(reaction(page, "clapping hands, 2"), isMobile);
+    await expect(reaction(page, "clapping hands, 3")).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    await expect(said(page)).toHaveText(
+      "Reacted to Priya Nair's message with clapping hands.",
+    );
+
+    await press(reaction(page, "party popper, 5"), isMobile);
+    await expect(reaction(page, "party popper, 4")).toHaveAttribute(
+      "aria-pressed",
+      "false",
+    );
+    await expect(said(page)).toHaveText(
+      "Took your party popper off Priya Nair's message.",
+    );
+  });
+
+  test("message reactions: an emoji from the picker is a new reaction, and taking it away again leaves none", async ({
+    page,
+    isMobile,
+  }) => {
+    const add = page.getByRole("button", {
+      name: "Add a reaction to Tom Becker's message",
+    });
+    await press(add, isMobile);
+    await pickEmoji(page, "thumbs up");
+
+    await expect(reaction(page, "thumbs up, 1")).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    await expect(said(page)).toHaveText(
+      "Reacted to Tom Becker's message with thumbs up.",
+    );
+
+    await press(reaction(page, "thumbs up, 1"), isMobile);
+    await expect(reaction(page, /thumbs up/)).toHaveCount(0);
+    // The button that was pressed is gone, and the focus has somewhere
+    // to be. A finger leaves no focus to follow.
+    if (!isMobile) await expect(add).toBeFocused();
+  });
+
+  test("message reactions: an emoji that's there already is joined, not added twice", async ({
+    page,
+    isMobile,
+  }) => {
+    await press(
+      page.getByRole("button", {
+        name: "Add a reaction to Priya Nair's message",
+      }),
+      isMobile,
+    );
+    await pickEmoji(page, "clapping hands");
+
+    await expect(reaction(page, "clapping hands, 3")).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    await expect(page.locator(".message-reactions__reaction")).toHaveCount(2);
+  });
+
+  test("message reactions: on a phone the page doesn't scroll sideways", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 320, height: 640 });
+    await open(page, "/blocks/view/message-reactions");
+
+    expect(await overflow(page)).toBeLessThanOrEqual(0);
+  });
+
+  for (const theme of ["light", "dark"] as const) {
+    test(`message reactions: it passes axe in ${theme}`, async ({ page }) => {
+      await setTheme(page, theme);
+      await open(page, "/blocks/view/message-reactions");
+      await settleStyles(page);
+      expect(
+        (await new AxeBuilder({ page }).withTags(wcag).analyze()).violations,
+      ).toEqual([]);
+    });
+  }
+});
+
+test.describe("set a status", () => {
+  const now = (page: Page) => page.locator(".set-status__now");
+  const words = (page: Page) => page.getByRole("textbox", { name: "Status" });
+
+  test.beforeEach(async ({ page }) => {
+    await open(page, "/blocks/view/set-status");
+  });
+
+  test("set a status: the status as it stands is over the form, with its emoji named", async ({
+    page,
+  }) => {
+    await expect(now(page)).toContainText(
+      "On holiday, until the end of this week",
+    );
+    await expect(
+      now(page).getByRole("img", { name: "beach with umbrella" }),
+    ).toBeVisible();
+    await expect(words(page)).toHaveValue("On holiday");
+  });
+
+  test("set a status: an emoji from the picker, a few words and a time make the new status", async ({
+    page,
+    isMobile,
+  }) => {
+    await press(
+      page.getByRole("button", {
+        name: "Emoji: beach with umbrella. Change it",
+      }),
+      isMobile,
+    );
+    await pickEmoji(page, "hot beverage");
+    await expect(
+      page.getByRole("button", { name: "Emoji: hot beverage. Change it" }),
+    ).toBeVisible();
+
+    await words(page).fill("Back at two");
+    await page.getByLabel("Clear it").selectOption("hour");
+    await press(page.getByRole("button", { name: "Save status" }), isMobile);
+
+    await expect(now(page)).toContainText("Back at two, for an hour");
+    await expect(
+      now(page).getByRole("img", { name: "hot beverage" }),
+    ).toBeVisible();
+  });
+
+  test("set a status: saving with no words says what's missing, and writing takes that away", async ({
+    page,
+    isMobile,
+  }) => {
+    await words(page).fill("");
+    await press(page.getByRole("button", { name: "Save status" }), isMobile);
+
+    await expect(page.getByText("Say what your status is.")).toBeVisible();
+    await expect(words(page)).toHaveAttribute("aria-invalid", "true");
+    await expect(now(page)).toContainText("On holiday");
+
+    await words(page).fill("In a meeting");
+    await expect(page.getByText("Say what your status is.")).toHaveCount(0);
+  });
+
+  test("set a status: clearing it leaves none, and an empty form", async ({
+    page,
+    isMobile,
+  }) => {
+    await press(page.getByRole("button", { name: "Clear status" }), isMobile);
+
+    await expect(now(page)).toHaveText("No status set");
+    await expect(words(page)).toHaveValue("");
+  });
+
+  test("set a status: on a phone the page doesn't scroll sideways", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 320, height: 640 });
+    await open(page, "/blocks/view/set-status");
+
+    expect(await overflow(page)).toBeLessThanOrEqual(0);
+  });
+
+  for (const theme of ["light", "dark"] as const) {
+    test(`set a status: it passes axe in ${theme}, with the error showing as well`, async ({
+      page,
+      isMobile,
+    }) => {
+      await setTheme(page, theme);
+      await open(page, "/blocks/view/set-status");
+      await settleStyles(page);
+      expect(
+        (await new AxeBuilder({ page }).withTags(wcag).analyze()).violations,
+      ).toEqual([]);
+
+      await words(page).fill("");
+      await press(page.getByRole("button", { name: "Save status" }), isMobile);
+      await expect(page.getByText("Say what your status is.")).toBeVisible();
+      await settleStyles(page);
+      expect(
+        (await new AxeBuilder({ page }).withTags(wcag).analyze()).violations,
+      ).toEqual([]);
+    });
+  }
+});
+
 test.describe("the blocks page", () => {
   test("lists every category, and each leads to its page", async ({
     page,

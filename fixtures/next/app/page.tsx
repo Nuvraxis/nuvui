@@ -19,6 +19,7 @@ import { Calendar, DatePicker } from "@nuvui/date-picker";
 // A client component with plain props: a server component renders it,
 // and the text is written in once the page is in a browser.
 import { RichTextEditor } from "@nuvui/editor";
+import { EmojiPicker } from "@nuvui/emoji";
 import {
   Button,
   Dialog,
@@ -104,6 +105,7 @@ export default function Page() {
         name="notes"
         defaultValue="<p>Hello</p>"
       />
+      <EmojiPicker />
       <Visitors months={months} />
       {/* Client components from another package, used from this server
           component with nothing but plain props. */}

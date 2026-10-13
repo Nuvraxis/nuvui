@@ -1,0 +1,9 @@
+{
+  "name": "set-status",
+  "title": "Set a status",
+  "description": "A form for the status shown beside someone's name: an emoji picked from a picker in a popover, a few words, and when it clears. The status as it stands is shown over the form, and saving with no words says what's missing.",
+  "category": "settings",
+  "files": ["set-status.tsx", "set-status.scss"],
+  "install": ["@nuvui/emoji", "@nuvui/react"],
+  "height": 560
+}

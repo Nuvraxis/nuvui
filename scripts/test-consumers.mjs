@@ -51,6 +51,7 @@ const published = {
   "@nuvui/chat": "chat",
   "@nuvui/kanban": "kanban",
   "@nuvui/editor": "editor",
+  "@nuvui/emoji": "emoji",
 };
 
 function expect(app, what, passed) {
@@ -121,6 +122,17 @@ const fixtures = {
     expect("vite", "it has the codes' styles", css.includes(".nuv-barcode"));
     expect("vite", "it has the chat's styles", css.includes(".nuv-message"));
     expect("vite", "it has the board's styles", css.includes(".nuv-kanban"));
+    expect(
+      "vite",
+      "it has the picker's styles",
+      css.includes(".nuv-emoji-picker"),
+    );
+    expect(
+      "vite",
+      "the script has the picker, and the list of emoji it loads",
+      script.includes("nuv-emoji-picker__viewport") &&
+        script.includes("grinning face"),
+    );
     expect(
       "vite",
       "it has the editor's styles",
@@ -241,6 +253,17 @@ const fixtures = {
     const css = read(files(join(dir, "out"), ".css"));
     expect("next", "it has the chat's styles", css.includes(".nuv-message"));
     expect("next", "it has the board's styles", css.includes(".nuv-kanban"));
+    expect(
+      "next",
+      "it has the picker's styles",
+      css.includes(".nuv-emoji-picker"),
+    );
+    expect(
+      "next",
+      "the server rendered the picker's search box and the list it fills",
+      html.includes("nuv-emoji-picker__search") &&
+        html.includes("nuv-emoji-picker__viewport"),
+    );
     expect(
       "next",
       "it has the editor's styles",

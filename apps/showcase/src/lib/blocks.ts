@@ -55,6 +55,9 @@ import forgotPassword from "@/blocks/forgot-password/block.json" with {
 import hero from "@/blocks/hero/block.json" with { type: "json" };
 import inbox from "@/blocks/inbox/block.json" with { type: "json" };
 import memberCard from "@/blocks/member-card/block.json" with { type: "json" };
+import messageReactions from "@/blocks/message-reactions/block.json" with {
+  type: "json",
+};
 import navBar from "@/blocks/nav-bar/block.json" with { type: "json" };
 import notifications from "@/blocks/notifications/block.json" with {
   type: "json",
@@ -73,6 +76,7 @@ import queryEditor from "@/blocks/query-editor/block.json" with {
   type: "json",
 };
 import reviews from "@/blocks/reviews/block.json" with { type: "json" };
+import setStatus from "@/blocks/set-status/block.json" with { type: "json" };
 import shippingLabel from "@/blocks/shipping-label/block.json" with {
   type: "json",
 };
@@ -155,7 +159,7 @@ export const categories: BlockCategory[] = [
     label: "Chat",
     title: "Chat and assistants",
     description:
-      "Conversations, with a model or with people: a whole screen for an assistant, one with its past conversations, tool calls and sources, an assistant in a panel beside the record it answers about, a help desk that opens from a button in the corner, and messages between the people on a team.",
+      "Conversations, with a model or with people: a whole screen for an assistant, one with its past conversations, tool calls and sources, an assistant in a panel beside the record it answers about, a help desk that opens from a button in the corner, messages between the people on a team, and messages with emoji reactions under them.",
   },
   {
     slug: "data",
@@ -176,7 +180,7 @@ export const categories: BlockCategory[] = [
     label: "Settings",
     title: "Settings and admin",
     description:
-      "The pages behind an account: a profile, a workspace's colors, notification preferences, team members and invitations, billing, a membership card that tilts under the pointer, the actions that can't be taken back, and an audit log.",
+      "The pages behind an account: a profile, a status with an emoji, a workspace's colors, notification preferences, team members and invitations, billing, a membership card that tilts under the pointer, the actions that can't be taken back, and an audit log.",
   },
   {
     slug: "marketing",
@@ -212,6 +216,7 @@ export const blocks: BlockManifest[] = [
   assistantWorkspace,
   supportChat,
   teamChat,
+  messageReactions,
   tableToolbar,
   inbox,
   approvals,
@@ -228,6 +233,7 @@ export const blocks: BlockManifest[] = [
   announcementEditor,
   commentThread,
   profileForm,
+  setStatus,
   appearance,
   notifications,
   teamMembers,

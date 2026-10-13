@@ -57,7 +57,9 @@ export default function Example() {
         <FieldLabel>Full name</FieldLabel>
         <FieldControl>
           <Input
-            autoComplete="name"
+            // Someone else's name, so the browser isn't asked to offer the
+            // reader's own.
+            autoComplete="off"
             {...register("name", { required: "Enter their name." })}
           />
         </FieldControl>
@@ -69,7 +71,7 @@ export default function Example() {
         <FieldControl>
           <Input
             type="email"
-            autoComplete="email"
+            autoComplete="off"
             {...register("email", {
               required: "Enter their email address.",
               pattern: {
@@ -105,8 +107,11 @@ export default function Example() {
               </FieldControl>
               <SelectContent>
                 <SelectItem value="viewer">Viewer</SelectItem>
+                <SelectItem value="commenter">Commenter</SelectItem>
                 <SelectItem value="editor">Editor</SelectItem>
+                <SelectItem value="billing">Billing</SelectItem>
                 <SelectItem value="admin">Admin</SelectItem>
+                <SelectItem value="owner">Owner</SelectItem>
               </SelectContent>
             </Select>
           )}

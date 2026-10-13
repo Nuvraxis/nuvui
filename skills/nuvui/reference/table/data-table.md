@@ -144,6 +144,41 @@ helper.accessor("email", {
 
 `header.ColumnHeader` is the heading with its sort button. A column whose `header` is a function has no text for the chooser to list, so give it a `meta.label`. Without one, the column's id is used.
 
+`cell` is what a cell shows. Left out, it's the row's value as text, which suits a name. A number, a date or a status wants more, and `cell` is given the value to draw it from:
+
+```tsx
+import { Badge, FormattedNumber } from "@nuvui/react";
+
+// A date with no time is written as UTC, or a reader west of Greenwich
+// sees the day before.
+const day = new Intl.DateTimeFormat("en-US", {
+  dateStyle: "medium",
+  timeZone: "UTC",
+});
+
+helper.columns([
+  helper.accessor("total", {
+    header: "Total",
+    meta: { align: "end" },
+    cell: (cell) => <FormattedNumber value={cell.getValue()} currency="USD" />,
+  }),
+  helper.accessor("placed", {
+    header: "Placed",
+    cell: (cell) => (
+      <time dateTime={cell.getValue().toISOString()}>
+        {day.format(cell.getValue())}
+      </time>
+    ),
+  }),
+  helper.accessor("status", {
+    header: "Status",
+    cell: (cell) => <Badge variant="outline">{cell.getValue()}</Badge>,
+  }),
+]);
+```
+
+Sorting and filtering go by the value and not by what `cell` draws, so a total sorts as a number however it's written. `cell.row.original` is the whole row, for a cell that needs more than its own value.
+
 `meta` takes three things:
 
 | Prop | Type | Default | What it's for |

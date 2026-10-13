@@ -92,7 +92,7 @@ test.describe("alert dialog page", () => {
     await expectOnScreen(page, dialog);
   });
 
-  test("the action can hold the dialog open until its work is done", async ({
+  test("the action holds the dialog open while its work runs, says so when it fails, and closes when it's done", async ({
     page,
     isMobile,
   }) => {
@@ -105,6 +105,7 @@ test.describe("alert dialog page", () => {
       name: "Revoke Sam's access?",
     });
     await expect(dialog).toBeVisible();
+    await expect(dialog.getByRole("alert")).toHaveCount(0);
 
     await press(
       dialog.getByRole("button", { name: "Revoke access" }),
@@ -118,8 +119,32 @@ test.describe("alert dialog page", () => {
     await expect(
       dialog.getByRole("button", { name: "Keep access" }),
     ).toBeDisabled();
+
+    // The example's first try fails. The dialog stays and says so, and
+    // both buttons are back.
+    await expect(dialog.getByRole("alert")).toHaveText(
+      "Access couldn't be revoked. Try again.",
+    );
+    await expect(dialog).toBeVisible();
+    await expect(
+      dialog.getByRole("button", { name: "Keep access" }),
+    ).toBeEnabled();
+    await expect(preview.locator("p")).toHaveText("Sam has access.");
+
+    // The next goes through.
+    await press(
+      dialog.getByRole("button", { name: "Revoke access" }),
+      isMobile,
+    );
+    await expect(dialog.getByRole("alert")).toHaveCount(0);
     await expect(dialog).toBeHidden();
     await expect(preview.locator("p")).toHaveText("Sam no longer has access.");
+    // The button that opened it can't take the focus back now, so the
+    // line that says what happened has it.
+    await expect(
+      preview.getByRole("button", { name: "Revoke access" }),
+    ).toBeDisabled();
+    await expect(preview.locator("p")).toBeFocused();
   });
 
   test("a menu item opens one, and focus goes back to the menu's button", async ({

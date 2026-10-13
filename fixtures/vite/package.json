@@ -13,6 +13,7 @@
     "@nuvui/date-picker": "file:../../packages/date-picker",
     "@nuvui/editor": "file:../../packages/editor",
     "@nuvui/emoji": "file:../../packages/emoji",
+    "@nuvui/map": "file:../../packages/map",
     "@nuvui/kanban": "file:../../packages/kanban",
     "@nuvui/react": "file:../../packages/ui",
     "@nuvui/table": "file:../../packages/table",

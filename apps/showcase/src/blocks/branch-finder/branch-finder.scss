@@ -15,6 +15,11 @@
 
   @include mixins.breakpoint("md") {
     grid-template-columns: minmax(0, 22rem) minmax(0, 1fr);
+
+    // One row as tall as the screen, whatever is in the list. Left to its
+    // content, the row is as tall as the list, and the map with it.
+    grid-template-rows: minmax(0, 1fr);
+    align-content: stretch;
     block-size: 100svh;
     padding: calc(var(--spacing) * 6);
   }

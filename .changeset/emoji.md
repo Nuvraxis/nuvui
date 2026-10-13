@@ -11,4 +11,5 @@ A new package, for picking an emoji.
 - The skin tone and the last sixteen emoji picked are remembered in the browser's local storage, under `storageKey`. `skinTone` and `recent`, with their change handlers, are for keeping them yourself.
 - `data` takes a list of your own, for another language or for fewer emoji, and `labels` the picker's own words.
 - The list it comes with is loaded when a picker is first drawn. It's written from emojibase-data, which is MIT, and nothing is installed with the package but the package.
+- `EmojiReaction`, a button with an emoji and how many reacted with it, for the row of reactions under a message. `pressed` says the reader is one of them, and `onPressedChange` is called when it's pressed. The count is yours. It's read by the emoji's name and the count, and it comes without the picker from `@nuvui/emoji/emoji-reaction`.
 - `@nuvui/react` is a peer dependency.

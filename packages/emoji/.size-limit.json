@@ -10,6 +10,11 @@
     "limit": "38 kB"
   },
   {
+    "name": "@nuvui/emoji/emoji-reaction",
+    "path": "dist/components/emoji-reaction/index.js",
+    "limit": "600 B"
+  },
+  {
     "name": "the list of emoji by itself",
     "path": "dist/data/en.js",
     "limit": "34 kB"

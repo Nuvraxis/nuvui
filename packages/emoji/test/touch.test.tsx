@@ -3,7 +3,7 @@ import "../src/styles/index.scss";
 import { expect, test, vi } from "vitest";
 import { page } from "vitest/browser";
 import { render } from "vitest-browser-react";
-import { type EmojiItem, EmojiPicker } from "../src";
+import { type EmojiItem, EmojiPicker, EmojiReaction } from "../src";
 
 // This file runs in a browser context of its own, one that reports a touch
 // screen, at the width of a phone. What a mouse and a keyboard do is
@@ -57,6 +57,32 @@ test("the skin tone and the groups are 44 pixels each way", async () => {
     expect(rect(button.element()).width).toBe(44);
     expect(rect(button.element()).height).toBe(44);
   }
+});
+
+test("a reaction is 44 pixels tall, and as wide or wider", async () => {
+  await render(<EmojiReaction emoji="👍" label="thumbs up" count={3} />);
+  const button = rect(
+    page.getByRole("button", { name: "thumbs up, 3" }).element(),
+  );
+
+  expect(button.height).toBe(44);
+  expect(button.width).toBeGreaterThanOrEqual(44);
+});
+
+test("a tap on a reaction asks for the other state", async () => {
+  const onPressedChange = vi.fn();
+  await render(
+    <EmojiReaction
+      emoji="👍"
+      label="thumbs up"
+      count={3}
+      onPressedChange={onPressedChange}
+    />,
+  );
+
+  await page.getByRole("button", { name: "thumbs up, 3" }).click();
+
+  expect(onPressedChange).toHaveBeenCalledWith(true);
 });
 
 test("the search box is 16 pixels or more, so iOS doesn't zoom the page", async () => {

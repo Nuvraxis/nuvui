@@ -93,6 +93,21 @@ const english: Required<MapLabels> = {
 
 type MapLibrary = typeof import("maplibre-gl");
 
+// MapLibre does its work in a worker, which is a file of its own. It looks
+// for that file beside itself, and a bundler that has folded MapLibre into
+// another file has left nothing beside it. So the app says where it is.
+let workerUrl: string | undefined;
+
+/**
+ * Says where MapLibre's worker is, once, before a map is drawn. An app
+ * that's built with a bundler needs it: the worker is the file
+ * `maplibre-gl/dist/maplibre-gl-worker.mjs`, and the address is the one
+ * your bundler gives that file.
+ */
+export function setMapWorkerUrl(url: string | URL): void {
+  workerUrl = String(url);
+}
+
 interface MapContextValue {
   map: MapLibreMap;
   lib: MapLibrary;
@@ -282,10 +297,8 @@ export const MapView = forwardRef<HTMLDivElement, MapViewProps>(
       import("maplibre-gl")
         .then((loaded) => {
           if (gone) return;
-          // The package is one object with everything on it, which a
-          // bundler hands over as the default or as the module itself.
-          const lib = ((loaded as { default?: MapLibrary }).default ??
-            loaded) as MapLibrary;
+          const lib: MapLibrary = loaded;
+          if (workerUrl) lib.setWorkerUrl(workerUrl);
           const start = first.current;
           // Throws where the browser has no WebGL.
           const made = new lib.Map({

@@ -1,6 +1,6 @@
 # @nuvui/emoji
 
-An emoji picker for [`@nuvui/react`](https://www.npmjs.com/package/@nuvui/react): a search box, the emoji in their groups, a choice of skin tone, and the ones picked before.
+An emoji picker for [`@nuvui/react`](https://www.npmjs.com/package/@nuvui/react): a search box, the emoji in their groups, a choice of skin tone, and the ones picked before. And a reaction button, for the row of emoji with counts under a message.
 
 This package isn't released yet. The [repository README](https://github.com/Nuvraxis/nuvui#readme) says where things stand.
 
@@ -38,6 +38,7 @@ export function AddEmoji({ onAdd }) {
 - The list is a grid with one stop for the Tab key. The arrow keys move over it, Enter picks, and each emoji is read by its name.
 - A skin tone that's chosen is drawn on every emoji that has one, and remembered. So are the last sixteen emoji picked. Both are kept in the browser's local storage unless you keep them yourself.
 - The names and the words emoji are found by are English. `data` takes a list of your own, and `labels` the picker's own words.
+- `EmojiReaction`: a button with an emoji and how many reacted with it, pressed when the reader is one of them. It keeps nothing: `count` and `pressed` are yours, and `onPressedChange` is called when it's pressed. It's read by the emoji's name and the count.
 
 The list of emoji is loaded when a picker is first drawn, and is about 33 kB compressed. The picker without it is about 4 kB.
 

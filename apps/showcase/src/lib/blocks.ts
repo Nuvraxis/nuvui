@@ -23,12 +23,18 @@ import branchFinder from "@/blocks/branch-finder/block.json" with {
 import caseStudies from "@/blocks/case-studies/block.json" with {
   type: "json",
 };
+import chargingMap from "@/blocks/charging-map/block.json" with {
+  type: "json",
+};
 import commentThread from "@/blocks/comment-thread/block.json" with {
   type: "json",
 };
 import dangerZone from "@/blocks/danger-zone/block.json" with { type: "json" };
 import dashboard from "@/blocks/dashboard/block.json" with { type: "json" };
 import dealPipeline from "@/blocks/deal-pipeline/block.json" with {
+  type: "json",
+};
+import deliveryRoute from "@/blocks/delivery-route/block.json" with {
   type: "json",
 };
 import detailPanel from "@/blocks/detail-panel/block.json" with {
@@ -169,7 +175,7 @@ export const categories: BlockCategory[] = [
     label: "Data",
     title: "Data",
     description:
-      "Rows to work with: a table with search, a filter, a column chooser and actions for several rows, a list with a bar of actions for the ticked rows, requests to approve with buttons in every row, a list filtered from a sentence and a sheet, folders and files in a tree, a panel that opens beside a list, a parcel's label with its barcode, a ticket with a QR code, a board of tasks in columns, a sales pipeline that adds up each column, a list of branches beside a map of them, and a page in each state it can be in.",
+      "Rows to work with: a table with search, a filter, a column chooser and actions for several rows, a list with a bar of actions for the ticked rows, requests to approve with buttons in every row, a list filtered from a sentence and a sheet, folders and files in a tree, a panel that opens beside a list, a parcel's label with its barcode, a ticket with a QR code, a board of tasks in columns, a sales pipeline that adds up each column, a list of branches beside a map of them, a van's round as a list of stops and a line on a map, charging points gathered on a map with a list of the same ones, and a page in each state it can be in.",
   },
   {
     slug: "editor",
@@ -232,6 +238,8 @@ export const blocks: BlockManifest[] = [
   taskBoard,
   dealPipeline,
   branchFinder,
+  deliveryRoute,
+  chargingMap,
   pageStates,
   documentEditor,
   announcementEditor,

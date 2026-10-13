@@ -129,6 +129,12 @@ const fixtures = {
     );
     expect(
       "vite",
+      "it has the reaction, from its own entry, and its styles",
+      css.includes(".nuv-emoji-reaction") &&
+        script.includes("nuv-emoji-reaction__count"),
+    );
+    expect(
+      "vite",
       "the script has the picker, and the list of emoji it loads",
       script.includes("nuv-emoji-picker__viewport") &&
         script.includes("grinning face"),

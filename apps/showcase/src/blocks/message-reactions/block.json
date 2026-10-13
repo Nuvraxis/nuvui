@@ -1,0 +1,9 @@
+{
+  "name": "message-reactions",
+  "title": "Message reactions",
+  "description": "Messages with emoji reactions under them: each a button with a count that joins a reaction or takes yours away, and a button that opens an emoji picker in a popover to add another. What was done is said to a screen reader.",
+  "category": "chat",
+  "files": ["message-reactions.tsx", "message-reactions.scss"],
+  "install": ["@nuvui/emoji", "@nuvui/react"],
+  "height": 640
+}

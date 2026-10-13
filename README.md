@@ -22,6 +22,7 @@ It needs React 18 or 19. Each add-on is installed next to it, with the library i
 | [`@nuvui/chat`](https://www.npmjs.com/package/@nuvui/chat) | The parts of a conversation with an assistant | `pnpm add @nuvui/chat` |
 | [`@nuvui/kanban`](https://www.npmjs.com/package/@nuvui/kanban) | A board of columns with cards that are moved between them | `pnpm add @nuvui/kanban` |
 | [`@nuvui/editor`](https://www.npmjs.com/package/@nuvui/editor) | A rich text editor on Tiptap, with HTML as its value | `pnpm add @nuvui/editor` |
+| `@nuvui/emoji` | An emoji picker with search, groups, skin tones and recent ones. Not released yet | `pnpm add @nuvui/emoji` |
 
 [Getting started](https://nuvui.nuvraxis.com/docs) has the rest.
 
@@ -39,12 +40,13 @@ What exists today:
 - `@nuvui/chat`, a fifth: `Conversation`, which keeps the latest message in view while a reply arrives and stops following when the reader scrolls up, `Message` with a row of actions, `MessageLoader`, `Markdown` for a reply a model wrote, `CodeBlock`, `PromptInput`, a box that grows, sends on Enter, takes files and stops a reply, `PromptSuggestion`, `Attachment`, `Sources`, `ToolCall`, with a question to approve before a tool runs, `Reasoning` and `ThreadList`, the list of past conversations. It takes messages as props and fetches nothing, so it works with whatever talks to your model. Its markdown entry brings react-markdown, loaded only where it's imported, and Shiki is optional, for colored code.
 - `@nuvui/kanban`, a sixth: `Kanban`, a board of columns with cards that are dragged between and within them, moved with the arrow keys from a handle on each card, and read out as they move. It keeps the order and tells you once, when a card is dropped. A move you don't take is undone.
 - `@nuvui/editor`, a seventh: `RichTextEditor`, a box to write formatted text in, on Tiptap. Bold and italic, headings, lists, quotes, code and links, from a toolbar, from the keyboard or from a small menu over selected text, with a character limit and a count. Its value is HTML, and it's sent with a form like any field's.
+- `@nuvui/emoji`, an eighth, not released yet: `EmojiPicker`, a panel to pick an emoji from, with a search box, the emoji in their groups, a choice of skin tone and the ones picked before. It draws the device's own emoji, as text, so there's no artwork to load or to license, and it draws only the rows in view, so nineteen hundred emoji are a few dozen elements. The list is a grid with one stop for the Tab key, and each emoji is read by its name. The list of emoji is loaded when a picker is first drawn.
 - A `toast()` function for showing toasts from anywhere, with a `Toaster` to render them.
 - `DirectionProvider`, for apps in languages that read from the right.
 - The design tokens: color scales, semantic colors for both themes, chart colors, type, spacing, radius, shadow, motion and control sizes. They build to CSS custom properties, and the SCSS source ships alongside.
 - Five presets, each a stylesheet that restyles everything, and three densities.
 - A [docs site](https://nuvui.nuvraxis.com/docs) with a page for each component, a getting started page, and search that runs in the browser.
-- A [website](https://nuvui.nuvraxis.com) around the docs, built with the library's own tokens: a home page with a live dashboard, [39 charts](https://nuvui.nuvraxis.com/charts) in ten families, each one file to copy, a [theme builder](https://nuvui.nuvraxis.com/themes) that shows a theme on real components in light and dark and gives it back as CSS, and [53 blocks](https://nuvui.nuvraxis.com/blocks) in seven groups. A block is a part of an app, such as a sign-in screen, a dashboard or a pricing table, as a TSX file and an SCSS file to copy. The site also serves them as a registry for shadcn's command line tool, at `/r`. The docs carry the website's header, so either leads to the other.
+- A [website](https://nuvui.nuvraxis.com) around the docs, built with the library's own tokens: a home page with a live dashboard, [39 charts](https://nuvui.nuvraxis.com/charts) in ten families, each one file to copy, a [theme builder](https://nuvui.nuvraxis.com/themes) that shows a theme on real components in light and dark and gives it back as CSS, and [55 blocks](https://nuvui.nuvraxis.com/blocks) in seven groups. A block is a part of an app, such as a sign-in screen, a dashboard or a pricing table, as a TSX file and an SCSS file to copy. The site also serves them as a registry for shadcn's command line tool, at `/r`. The docs carry the website's header, so either leads to the other.
 - Guides for theming, for using the tokens with Tailwind v4, for using the SCSS source, for building forms, with React Hook Form as the worked example, and for right-to-left layouts. The theming page has an editor that changes tokens in the browser and prints the CSS for what you changed.
 
 What's missing:
@@ -117,7 +119,7 @@ pnpm dev         # packages in watch mode plus the website and the docs
 ## Layout
 
 - `packages/ui` is the library, published as `@nuvui/react`.
-- `packages/date-picker`, `packages/table`, `packages/charts`, `packages/barcodes`, `packages/chat`, `packages/kanban` and `packages/editor` are the add-ons, each published under its folder's name.
+- `packages/date-picker`, `packages/table`, `packages/charts`, `packages/barcodes`, `packages/chat`, `packages/kanban`, `packages/editor` and `packages/emoji` are the add-ons, each published under its folder's name.
 - `packages/theme` is the theme generator. It turns a choice of brand color, base color, radius and density into token values and checks their contrast. The presets are written by it. It isn't published.
 - `apps/showcase` is the website: the home page, the charts, the theme builder and the blocks. It's built with the library's own tokens, in SCSS, with no Tailwind. A block is a folder under `apps/showcase/src/blocks`, with a `block.json` that says what it is.
 - `apps/docs` is the documentation, served under `/docs` of the same address. Its build is copied into the website's, so the two are one folder of static files.

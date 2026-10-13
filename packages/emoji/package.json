@@ -1,0 +1,98 @@
+{
+  "name": "@nuvui/emoji",
+  "version": "0.0.0",
+  "description": "An emoji picker for @nuvui/react: search, categories, skin tones and recently used emoji, in a list that draws only the rows in view. It shows the device's own emoji.",
+  "license": "MIT",
+  "author": "Nuvraxis",
+  "homepage": "https://nuvui.nuvraxis.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nuvraxis/nuvui.git",
+    "directory": "packages/emoji"
+  },
+  "bugs": {
+    "url": "https://github.com/Nuvraxis/nuvui/issues"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.cts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./emoji-picker": {
+      "import": {
+        "types": "./dist/components/emoji-picker/index.d.ts",
+        "default": "./dist/components/emoji-picker/index.js"
+      },
+      "require": {
+        "types": "./dist/components/emoji-picker/index.d.cts",
+        "default": "./dist/components/emoji-picker/index.cjs"
+      }
+    },
+    "./styles.css": "./dist/styles.css",
+    "./css/*.css": "./dist/css/*.css",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "tsdown && node scripts/check-dist.mjs",
+    "dev": "tsdown --watch src",
+    "lint": "stylelint \"src/**/*.scss\"",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "check:package": "publint && pnpm pack --out node_modules/.cache/attw/package.tgz && attw node_modules/.cache/attw/package.tgz",
+    "size": "size-limit",
+    "generate": "node scripts/generate-data.mjs && biome format --write src/data/en.ts"
+  },
+  "peerDependencies": {
+    "@nuvui/react": "workspace:^0.4.0",
+    "react": "^18.2.0 || ^19.0.0",
+    "react-dom": "^18.2.0 || ^19.0.0"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/cli": "catalog:",
+    "@nuvui/react": "workspace:*",
+    "@nuvui/tooling": "workspace:*",
+    "@nuvui/typescript-config": "workspace:*",
+    "@size-limit/preset-small-lib": "catalog:",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@vitest/browser-playwright": "catalog:",
+    "axe-core": "catalog:",
+    "emojibase-data": "^17.0.0",
+    "playwright": "catalog:",
+    "publint": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "sass-embedded": "catalog:",
+    "size-limit": "catalog:",
+    "stylelint": "catalog:",
+    "tsdown": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:",
+    "vitest-browser-react": "catalog:"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  }
+}

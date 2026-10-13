@@ -7,6 +7,7 @@ import "@nuvui/barcodes/styles.css";
 import "@nuvui/chat/styles.css";
 import "@nuvui/kanban/styles.css";
 import "@nuvui/editor/styles.css";
+import "@nuvui/emoji/styles.css";
 // The two codes, each from the entry of its own.
 import { Barcode } from "@nuvui/barcodes/barcode";
 import { QRCode } from "@nuvui/barcodes/qrcode";
@@ -30,6 +31,8 @@ import { Calendar } from "@nuvui/date-picker/calendar";
 import { de } from "@nuvui/date-picker/locale";
 // The editor, from the entry of its one component.
 import { RichTextEditor } from "@nuvui/editor/rich-text-editor";
+// The picker, from the entry of its one component.
+import { EmojiPicker } from "@nuvui/emoji/emoji-picker";
 // The board, from the entry of its one component.
 import {
   Kanban,
@@ -122,6 +125,7 @@ function App() {
       </PromptInput>
       <Barcode value="590123412345" type="ean13" aria-label="Item 5901234" />
       <RichTextEditor aria-label="Notes" defaultValue="<p>Hello</p>" />
+      <EmojiPicker onEmojiSelect={(emoji) => toast(emoji)} />
       <Kanban
         aria-label="Work"
         defaultValue={[{ id: "todo", cards: ["brief"] }]}

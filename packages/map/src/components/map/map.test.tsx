@@ -330,6 +330,71 @@ describe.skipIf(!webgl)("rendering", () => {
     expect(ends).toHaveBeenCalledTimes(1);
   });
 
+  test("a view that's handed back as the map moves doesn't stop it on its way", async () => {
+    // A move that takes its time, as it does for most readers.
+    await emulateMedia({ reducedMotion: "no-preference" });
+    let instance: MapInstance | undefined;
+    const ends = vi.fn();
+    function Kept() {
+      const [view, setView] = useState({ center: berlin, zoom: 10 });
+      return (
+        <>
+          <button
+            type="button"
+            onClick={() => setView({ center: paris, zoom: 12 })}
+          >
+            Paris
+          </button>
+          <MapView
+            mapStyle={blank}
+            center={view.center}
+            zoom={view.zoom}
+            onMove={(next) => setView({ center: next.center, zoom: next.zoom })}
+            onMoveEnd={ends}
+            onLoad={(map) => {
+              instance = map;
+            }}
+          />
+        </>
+      );
+    }
+    await render(<Kept />);
+    await expect.poll(() => instance, { timeout: 20_000 }).toBeDefined();
+    const map = instance as MapInstance;
+
+    await page.getByRole("button", { name: "Paris" }).click();
+
+    await expect
+      .poll(() => map.getCenter().lng, { timeout: 10_000 })
+      .toBeCloseTo(paris[0], 3);
+    await settled(map);
+    expect(map.getCenter().lat).toBeCloseTo(paris[1], 3);
+    expect(map.getZoom()).toBeCloseTo(12, 3);
+    // One move, from end to end.
+    expect(ends).toHaveBeenCalledTimes(1);
+  });
+
+  test("a place the map has been at before can be gone back to", async () => {
+    const { screen, map } = await mount({ center: berlin, zoom: 10 });
+    const at = (center: MapLngLat) => (
+      <MapView
+        mapStyle={blank}
+        aria-label="Offices"
+        center={center}
+        zoom={10}
+      />
+    );
+
+    await screen.rerender(at(paris));
+    await expect.poll(() => map.getCenter().lng).toBeCloseTo(paris[0], 3);
+    await screen.rerender(at(berlin));
+    await expect.poll(() => map.getCenter().lng).toBeCloseTo(berlin[0], 3);
+    // The map has told of Paris before, and it's asked for all the same.
+    await screen.rerender(at(paris));
+
+    await expect.poll(() => map.getCenter().lng).toBeCloseTo(paris[0], 3);
+  });
+
   test("another style is drawn when it's given", async () => {
     const { screen, map } = await mount();
     expect(map.getStyle().layers.map((layer) => layer.id)).toEqual(["land"]);
@@ -1134,6 +1199,28 @@ describe.skipIf(!webgl)("styles", () => {
 
     expect(button.width).toBe(button.height);
     expect(button.height).toBeLessThan(44);
+  });
+
+  test("a popup is over the buttons, where the two meet", async () => {
+    await mount(
+      {},
+      <>
+        <MapMarker
+          position={berlin}
+          label="Berlin office"
+          defaultOpen
+          popup="Open"
+        />
+        <MapControls />
+      </>,
+    );
+    await expect.element(dialog("Berlin office")).toBeVisible();
+    const level = (selector: string) =>
+      Number(style(document.querySelector(selector) as Element).zIndex);
+
+    expect(level(".maplibregl-popup")).toBeGreaterThan(
+      level(".nuv-map__controls"),
+    );
   });
 
   test("the popup's tip points at the marker", async () => {

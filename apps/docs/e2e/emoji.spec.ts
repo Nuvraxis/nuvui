@@ -239,7 +239,13 @@ test.describe("emoji picker page", () => {
     expect(
       await groups.evaluate((row) => row.scrollWidth - row.clientWidth),
     ).toBeLessThanOrEqual(0);
-    await expect(groups.getByRole("button").last()).toBeInViewport();
+    // The last one is inside the row, at a width that can be pressed.
+    const row = await groups.boundingBox();
+    const last = await groups.getByRole("button").last().boundingBox();
+    expect((last?.x ?? 0) + (last?.width ?? 0)).toBeLessThanOrEqual(
+      (row?.x ?? 0) + (row?.width ?? 0),
+    );
+    expect(last?.width ?? 0).toBeGreaterThanOrEqual(24);
   });
 
   test("recent emoji and a skin tone kept by the app are what's drawn, and the app is told of a pick", async ({

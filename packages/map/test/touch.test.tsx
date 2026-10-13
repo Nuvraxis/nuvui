@@ -103,6 +103,11 @@ test.skipIf(!webgl)(
   async () => {
     await mount();
     await page.getByRole("button", { name: "Berlin office" }).click();
+    // The popup is drawn a moment after the tap, once its marker has been
+    // measured.
+    await expect
+      .element(page.getByRole("button", { name: "Close" }))
+      .toBeVisible();
     const close = page.getByRole("button", { name: "Close" }).element();
     const area = getComputedStyle(close, "::after");
 

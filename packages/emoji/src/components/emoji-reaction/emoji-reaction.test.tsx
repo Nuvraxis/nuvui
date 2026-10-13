@@ -264,17 +264,15 @@ describe("styles", () => {
     await expect.poll(() => style(root()).boxShadow).toContain("inset");
   });
 
-  test("it's the same width whichever figures the count is in", async () => {
-    const screen = await render(
-      <EmojiReaction emoji="👍" label="thumbs up" count={11} />,
-    );
-    const ones = rect(root()).width;
+  // That they are of one width is the font's to do, and not every font
+  // has such figures. What's the component's is to ask for them.
+  test("the count asks for figures of one width", async () => {
+    await render(<EmojiReaction emoji="👍" label="thumbs up" count={11} />);
 
-    await screen.rerender(
-      <EmojiReaction emoji="👍" label="thumbs up" count={88} />,
-    );
-
-    expect(rect(root()).width).toBe(ones);
+    expect(
+      style(root().querySelector(".nuv-emoji-reaction__count") as Element)
+        .fontVariantNumeric,
+    ).toBe("tabular-nums");
   });
 
   test("several in a row that wraps keep their size", async () => {

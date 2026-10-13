@@ -1,7 +1,7 @@
 {
   "name": "@nuvui/emoji",
   "version": "0.0.0",
-  "description": "An emoji picker for @nuvui/react: search, categories, skin tones and recently used emoji, in a list that draws only the rows in view. It shows the device's own emoji.",
+  "description": "An emoji picker for @nuvui/react: search, categories, skin tones and recently used emoji, in a list that draws only the rows in view, and a reaction button with a count. It shows the device's own emoji.",
   "license": "MIT",
   "author": "Nuvraxis",
   "homepage": "https://nuvui.nuvraxis.com",
@@ -45,6 +45,16 @@
       "require": {
         "types": "./dist/components/emoji-picker/index.d.cts",
         "default": "./dist/components/emoji-picker/index.cjs"
+      }
+    },
+    "./emoji-reaction": {
+      "import": {
+        "types": "./dist/components/emoji-reaction/index.d.ts",
+        "default": "./dist/components/emoji-reaction/index.js"
+      },
+      "require": {
+        "types": "./dist/components/emoji-reaction/index.d.cts",
+        "default": "./dist/components/emoji-reaction/index.cjs"
       }
     },
     "./styles.css": "./dist/styles.css",

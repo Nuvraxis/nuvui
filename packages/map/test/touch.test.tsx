@@ -1,9 +1,18 @@
 import "@nuvui/react/styles.css";
 import "../src/styles/index.scss";
+import workerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?url";
 import { expect, test, vi } from "vitest";
 import { page } from "vitest/browser";
 import { render } from "vitest-browser-react";
-import { MapControls, MapMarker, type MapStyle, MapView } from "../src";
+import {
+  MapControls,
+  MapMarker,
+  type MapStyle,
+  MapView,
+  setMapWorkerUrl,
+} from "../src";
+
+setMapWorkerUrl(workerUrl);
 
 // This file runs in a browser context of its own, one that reports a touch
 // screen, at the width of a phone. What a mouse and a keyboard do is

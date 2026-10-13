@@ -1,0 +1,383 @@
+<!-- Written by apps/docs/scripts/agent-skill.mjs from apps/docs/content/docs/components/toast.mdx. Don't edit it here: run `pnpm skill`. -->
+
+# Toast
+
+A brief message at the edge of the screen that goes away on its own. You show one by calling toast().
+
+Use a toast to confirm something that just happened: a save, a sent invitation, a deleted file with a chance to undo. It's gone after a few seconds, so don't use one for anything people have to read or act on.
+
+```tsx
+"use client";
+
+import { Button, toast } from "@nuvui/react";
+
+export default function Example() {
+  return <Button onClick={() => toast("Changes saved")}>Save changes</Button>;
+}
+```
+
+## Install
+
+```sh
+pnpm add @nuvui/react
+```
+
+## Import
+
+```tsx
+import { Toaster, toast } from "@nuvui/react";
+```
+
+The styles come from `@nuvui/react/styles.css`, which you load once for the whole app. [Getting started](../index.md) covers that, and how to load only this component's CSS.
+
+## Setup
+
+There are two pieces. `Toaster` is the component that shows toasts, and `toast()` is the function that sends it one.
+
+Render `Toaster` once, near the root of the app:
+
+```tsx title="app/layout.tsx"
+import { Toaster } from "@nuvui/react";
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <body>
+        {children}
+        <Toaster />
+      </body>
+    </html>
+  );
+}
+```
+
+Then call `toast()` from any client component. It doesn't need a hook, a context or a ref to the `Toaster`:
+
+```tsx
+"use client";
+
+import { Button, toast } from "@nuvui/react";
+
+export function SaveButton() {
+  return <Button onClick={() => toast("Changes saved")}>Save changes</Button>;
+}
+```
+
+Render only one `Toaster`. With two on the page, each would show every toast.
+
+## API
+
+### toast(title, options)
+
+Shows a toast and returns its id, a string. `title` is the main line, and can be text or JSX. Everything in `options` is optional:
+
+| Prop | Type | Default | What it's for |
+| --- | --- | --- | --- |
+| `id` | `string` |  | Pass the id of a toast that's already showing to replace it instead of adding another. |
+| `description` | `ReactNode` |  | A second line under the title. |
+| `intent` | `"danger" \| "info" \| "neutral" \| "success" \| "warning"` | `"neutral"` | Colors the toast's edge. A `"warning"` or `"danger"` toast also interrupts a screen reader to be read out at once, as an alert with that intent does. The others wait until it's quiet. |
+| `duration` | `number` |  | How long the toast stays, in milliseconds. `Infinity` keeps it until it's dismissed. Without this, the Toaster's `duration` applies. |
+| `action` | `ToastAction` |  | A button in the toast, such as "Undo". |
+
+`action` takes these:
+
+| Prop | Type | Default | What it's for |
+| --- | --- | --- | --- |
+| `label` (required) | `ReactNode` |  | The text on the button. |
+| `altText` (required) | `string` |  | Another way to do the same thing, for screen reader users, who may not reach the button before the toast has gone. For example "Undo with Ctrl+Z". |
+| `onClick` (required) | `() => void` |  | Called when the button is pressed. The toast closes afterwards. |
+
+### toast.dismiss(id)
+
+Closes the toast with that id. Called with no id, it closes all of them.
+
+```tsx
+const id = toast("Uploading photo.jpg", { duration: Infinity });
+
+// Later
+toast.dismiss(id);
+```
+
+### Toaster
+
+| Prop | Type | Default | What it's for |
+| --- | --- | --- | --- |
+| `position` | `"bottom-center" \| "bottom-end" \| "bottom-start" \| "top-center" \| "top-end" \| "top-start"` | `"bottom-end"` | Where toasts appear once the screen is at least 40rem wide. On a narrower screen they span its width, and only the top or bottom part of this applies. |
+| `duration` | `number` | `5000` | How long a toast stays, in milliseconds, unless it sets its own. |
+| `limit` | `number` | `3` | The most toasts shown at once. Any others wait, and each shows when one before it closes. A waiting toast's `duration` starts when it shows. |
+| `closeLabel` | `string` | `"Close"` | Accessible name of the close button on each toast. Translate it with the rest of your interface. |
+| `toastLabel` | `string` | `"Notification"` | What a screen reader says before the text of each toast. Translate it with the rest of your interface. |
+| `swipeDirection` | `SwipeDirection` | `"right"` | The direction a toast is swiped in to dismiss it. |
+
+Two more come from Radix:
+
+| Prop | Type | Default | What it's for |
+| --- | --- | --- | --- |
+| `label` | `string` |  | The name of the list of toasts as a landmark. It's `"Notifications ({hotkey})"` unless you say otherwise, and `{hotkey}` is filled in for you. |
+| `hotkey` | `string[]` |  | The keys that move focus to the list. It's `["F8"]` unless you say otherwise. |
+
+`Toaster` also takes `ref` and `className`, which go to the list element.
+
+## Intents
+
+```tsx
+"use client";
+
+import { Button, toast } from "@nuvui/react";
+
+export default function Example() {
+  return (
+    <>
+      <Button intent="secondary" onClick={() => toast("3 files selected")}>
+        Neutral
+      </Button>
+      <Button
+        intent="secondary"
+        onClick={() => toast("Invitation sent", { intent: "success" })}
+      >
+        Success
+      </Button>
+      <Button
+        intent="secondary"
+        onClick={() =>
+          toast("A new version is ready", {
+            intent: "info",
+            description: "Reload the page to get it.",
+          })
+        }
+      >
+        Info
+      </Button>
+      <Button
+        intent="secondary"
+        onClick={() =>
+          toast("Your trial ends in three days", { intent: "warning" })
+        }
+      >
+        Warning
+      </Button>
+      <Button
+        intent="secondary"
+        onClick={() =>
+          toast("Couldn't send the invitation", {
+            intent: "danger",
+            description: "Check the address and try again.",
+          })
+        }
+      >
+        Danger
+      </Button>
+    </>
+  );
+}
+```
+
+The colored edge is decoration. Say what happened in the title, so the message works without it.
+
+## With an action
+
+A toast can carry one button. Pressing it runs `onClick` and closes the toast.
+
+```tsx
+"use client";
+
+import { Button, toast } from "@nuvui/react";
+import { useState } from "react";
+
+export default function Example() {
+  const [deleted, setDeleted] = useState(false);
+
+  function remove() {
+    setDeleted(true);
+    toast("report.pdf deleted", {
+      // Long enough to read it and get to the button.
+      duration: 10000,
+      action: {
+        label: "Undo",
+        altText: "Restore it from the trash",
+        onClick: () => setDeleted(false),
+      },
+    });
+  }
+
+  return (
+    <div style={{ display: "grid", gap: 12, justifyItems: "center" }}>
+      <p style={{ margin: 0 }}>
+        {deleted ? "The file is in the trash." : "report.pdf"}
+      </p>
+      <Button intent="danger" disabled={deleted} onClick={remove}>
+        Delete file
+      </Button>
+    </div>
+  );
+}
+```
+
+`altText` is required. A screen reader user may not get to the button before the toast has gone, so it tells them another way to do the same thing.
+
+## Changing a toast that's showing
+
+Pass the id of a toast that's already up and it's replaced where it is, instead of a second one appearing. This suits anything with a start and a finish.
+
+```tsx
+"use client";
+
+import { Button, toast } from "@nuvui/react";
+
+export default function Example() {
+  function upload() {
+    // Stays until the same id is used again below.
+    const id = toast("Uploading photo.jpg", { duration: Infinity });
+
+    setTimeout(() => {
+      toast("photo.jpg uploaded", { id, intent: "success" });
+    }, 2000);
+  }
+
+  return <Button onClick={upload}>Upload a photo</Button>;
+}
+```
+
+## How long it stays
+
+A toast stays for 5 seconds unless `duration` says otherwise, on `Toaster` for all of them or in `options` for one. `Infinity` keeps a toast up until it's dismissed.
+
+The clock stops while the pointer is over a toast, and while keyboard focus is anywhere in the list. It starts again when they leave.
+
+## Several at once
+
+Three toasts show at a time. A fourth waits, and shows when one of the three closes. The button below sends five to show it happening.
+
+```tsx
+"use client";
+
+import { Button, toast } from "@nuvui/react";
+
+const messages = [
+  "Draft saved",
+  "Link copied",
+  "Invitation sent",
+  "Export ready",
+  "Comment posted",
+];
+
+export default function Example() {
+  function send() {
+    for (const message of messages) toast(message);
+  }
+
+  return <Button onClick={send}>Send five toasts</Button>;
+}
+```
+
+A toast that's waiting isn't on the page yet. Its clock starts when it shows, so it gets its full time, and that's also when a screen reader hears it.
+
+Change the number with `limit` on `Toaster`. A toast with `duration: Infinity` holds its place until someone closes it, so three of those keep everything behind them waiting.
+
+`toast.dismiss()` with no id clears the ones that are waiting as well as the ones showing.
+
+## Where it shows
+
+On a screen narrower than 40rem, toasts span the width of the screen along the bottom, or along the top if `position` starts with `top`. From 40rem up, they're a column 22rem wide in the corner that `position` names.
+
+The newest toast is always the one nearest the edge of the screen.
+
+The list sits where you render `Toaster`, without a portal, so it picks up a `data-theme` from whatever is around it.
+
+## Accessibility
+
+### Keyboard
+
+| Key | What it does |
+| --- | --- |
+| <kbd>F8</kbd> | Moves focus to the list of toasts, from anywhere on the page. |
+| <kbd>Tab</kbd> | Moves through the toasts and the buttons inside them. |
+| <kbd>Esc</kbd> | Closes the toast that has focus. |
+| <kbd>Enter</kbd> or <kbd>Space</kbd> | Presses the focused button. |
+
+### What the component handles
+
+Most of this is Radix. The library chooses how each intent is announced.
+
+- Every toast is read out by screen readers when it appears. A `warning` or `danger` toast interrupts whatever is being read, as an [alert](alert.md) with that intent does. The others wait until the screen reader is idle.
+- No more than three toasts show at once. The rest wait their turn, and each is announced when it shows.
+- The list is a landmark named "Notifications (F8)", so it can be found again after the announcement.
+- The clock stops on hover and on focus, which gives people time to read a toast and reach its buttons.
+- The close button is a real button with an accessible name, and is at least 44 pixels on touch screens.
+- A toast can be swiped away to the right, with a finger or a mouse.
+- The list takes no clicks itself. Whatever is under an empty part of it still works.
+- The animations only run when the visitor hasn't asked for reduced motion.
+
+### What you need to handle
+
+- Don't put anything essential in a toast. Some people will miss it however long it stays.
+- Give a toast with an action, or with a lot of text, a longer `duration`.
+- Write an `altText` that says how else to do the action, such as a keyboard shortcut or where to find it on the page.
+- Translate `closeLabel`, `toastLabel` and `label` along with the rest of your interface.
+
+## CSS variables
+
+Set any of these on `Toaster` with a class or `style`, or on anything around it.
+
+```css
+:root {
+  --nuv-toast-width: 26rem;
+}
+```
+
+| Variable | Default | What it sets |
+| --- | --- | --- |
+| `--nuv-toast-width` | `22rem` | Width of a toast once the screen is at least 40rem wide. |
+| `--nuv-toast-border` | `var(--color-border)` | Border color. |
+| `--nuv-toast-radius` | `var(--radius-lg)` | Corner radius. |
+| `--nuv-toast-bg` | `var(--color-surface)` | Background color. |
+| `--nuv-toast-shadow` | `var(--shadow-lg)` | Shadow under each toast. |
+| `--nuv-toast-fg` | `var(--color-surface-foreground)` | Text color. |
+| `--nuv-toast-accent-width` | `4px` | Thickness of that edge. The padding beside it shrinks to match, so titles stay lined up. |
+| `--nuv-toast-accent` | `var(--color-primary)`, `var(--color-success)`, `var(--color-warning)`, `var(--color-danger)` | Color of the thick edge on a toast with an intent. |
+
+## Classes
+
+| Class | What it's on |
+| --- | --- |
+| `.nuv-toast` | One toast. |
+| `.nuv-toast--danger` | A toast with intent "danger". |
+| `.nuv-toast--info` | A toast with intent "info". |
+| `.nuv-toast--success` | A toast with intent "success". |
+| `.nuv-toast--warning` | A toast with intent "warning". |
+| `.nuv-toast__action` | The action button. |
+| `.nuv-toast__close` | The close button. |
+| `.nuv-toast__content` | The title and the description together. |
+| `.nuv-toast__description` | The description. |
+| `.nuv-toast__title` | The title. |
+| `.nuv-toaster` | Toaster, which is the list the toasts sit in. |
+| `.nuv-toaster--center` | A position that ends with center. |
+| `.nuv-toaster--end` | A position that ends with end. |
+| `.nuv-toaster--start` | A position that ends with start. |
+| `.nuv-toaster--top` | A position that starts with top. |
+
+The list also gets `nuv-toaster--bottom`, and a toast gets `nuv-toast--neutral`, when those apply. No styles are attached to either, since they're the base.
+
+Radix sets `data-state="open"` or `data-state="closed"` on each toast, and `data-swipe` while one is being dragged. The animations hang off those.
+
+## Server components
+
+`Toaster` is a client component. It carries `"use client"`, and the build checks that the directive is still there in the published files. You can render it from a server component, such as a root layout.
+
+`toast()` belongs in the browser. Call it from event handlers and effects in client components. If a client component calls it while it's being rendered on the server, nothing happens: there's nowhere to show it, and a list kept on the server would be shared between requests.
+
+Toasts sent before `Toaster` has mounted aren't lost. They show once it's there.
+
+## Do and don't
+
+**Do**
+
+- Say what happened in a few words: "Changes saved", "Invitation sent".
+- Offer "Undo" in the toast when the thing can be undone.
+- Reuse an id for a message that repeats, so it doesn't stack up.
+
+**Don't**
+
+- Don't use a toast for an error in a form. Put the message next to the field.
+- Don't send a toast for every item in a batch. Only three show at a time, so the last ones arrive long after the work is done. Send one that covers them all.
+- Don't put a toast's only action somewhere people can't get to after it's gone.

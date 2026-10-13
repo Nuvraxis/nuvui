@@ -8,5 +8,6 @@ export default browserTests({
     // while the tests are already running.
     ...Object.keys(core.dependencies).map((name) => `@nuvui/react > ${name}`),
     "maplibre-gl",
+    "react-dom/server",
   ],
 });

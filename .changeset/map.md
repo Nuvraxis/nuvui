@@ -1,0 +1,15 @@
+---
+"@nuvui/map": minor
+---
+
+A new package, for a map on MapLibre.
+
+- `MapView`, a map in a box of a set height. `mapStyle` takes the address of a MapLibre style, or the style itself: the tiles are a provider's, and which provider is yours to choose. `defaultCenter` and `defaultZoom` are where it begins, `bounds` is an area to show all of, and `center` and `zoom` move it when they change. `onMove` and `onMoveEnd` say where it is.
+- `MapMarker`, a place on the map, drawn as a pin or as its children. `label` is its name, read in place of the drawing. With `popup` it's a button that opens one, and with `draggable` it's moved by pointer or by the arrow keys, and `onPositionChange` says where it was put.
+- `MapPopup`, a box that points at a place, for one that no marker opens.
+- `MapControls`, the core's buttons over the map: zoom, and optionally a compass, the reader's location and full screen.
+- `useMap`, the MapLibre map itself, for layers, sources and events.
+- The map is one stop for the Tab key and takes the arrow keys, and each marker that does something is a button. The box says when the map is loading, and when the browser can't draw one.
+- `cooperativeGestures` leaves the wheel and one finger to a page that scrolls.
+- MapLibre GL JS 5 is a dependency, loaded when a map is first drawn. Its stylesheet isn't needed.
+- `@nuvui/react` is a peer dependency.

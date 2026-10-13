@@ -18,6 +18,7 @@
     "@nuvui/date-picker": "workspace:*",
     "@nuvui/editor": "workspace:*",
     "@nuvui/emoji": "workspace:*",
+    "@nuvui/map": "workspace:*",
     "@nuvui/kanban": "workspace:*",
     "@nuvui/react": "workspace:*",
     "@nuvui/table": "workspace:*",

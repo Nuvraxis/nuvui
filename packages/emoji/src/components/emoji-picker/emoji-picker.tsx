@@ -249,6 +249,19 @@ function matches(item: EmojiItem, typed: string[]): boolean {
   return typed.every((word) => known.some((entry) => entry.startsWith(word)));
 }
 
+// The same, by the name alone. An emoji named for what was typed comes
+// before one that's only found by it: "rocket" is the rocket first, and
+// then the astronauts.
+function named(item: EmojiItem, typed: string[]): boolean {
+  const known = words(item.label);
+  return typed.every((word) => known.some((entry) => entry.startsWith(word)));
+}
+
+// An emoji with the mark taken off that asks for it to be drawn in color.
+// Some lists write the mark and some don't, and it's the same emoji to
+// whoever picked it.
+const bare = (emoji: string) => emoji.replaceAll("\uFE0F", "");
+
 interface Section {
   key: EmojiGroup | "recent" | "results";
   title: string;
@@ -357,9 +370,9 @@ export const EmojiPicker = forwardRef<HTMLDivElement, EmojiPickerProps>(
     );
 
     const grouped = useMemo<Section[]>(() => {
-      const byEmoji = new Map(listed.map((item) => [item.emoji, item]));
+      const byEmoji = new Map(listed.map((item) => [bare(item.emoji), item]));
       const before = shownRecent
-        .map((emoji) => byEmoji.get(emoji))
+        .map((emoji) => byEmoji.get(bare(emoji)))
         .filter((item): item is EmojiItem => item !== undefined);
       return [
         { key: "recent" as const, title: labels.recent, items: before },
@@ -371,6 +384,15 @@ export const EmojiPicker = forwardRef<HTMLDivElement, EmojiPickerProps>(
       ].filter((section) => section.items.length > 0);
     }, [listed, shownRecent, labels]);
 
+    const hits = useMemo(() => {
+      if (!searching) return [];
+      const all = listed.filter((item) => matches(item, typed));
+      return [
+        ...all.filter((item) => named(item, typed)),
+        ...all.filter((item) => !named(item, typed)),
+      ];
+    }, [searching, listed, typed]);
+
     const sections = useMemo<Section[]>(
       () =>
         searching
@@ -378,11 +400,11 @@ export const EmojiPicker = forwardRef<HTMLDivElement, EmojiPickerProps>(
               {
                 key: "results",
                 title: labels.results,
-                items: listed.filter((item) => matches(item, typed)),
+                items: hits,
               },
             ]
           : grouped,
-      [searching, grouped, listed, typed, labels],
+      [searching, grouped, hits, labels],
     );
 
     // The size of a cell and of a heading come from the stylesheet, which
@@ -533,7 +555,7 @@ export const EmojiPicker = forwardRef<HTMLDivElement, EmojiPickerProps>(
         picked.current ?? recent ?? readKept(storageKey).recent ?? [];
       const next = [
         item.emoji,
-        ...before.filter((entry) => entry !== item.emoji),
+        ...before.filter((entry) => bare(entry) !== bare(item.emoji)),
       ].slice(0, maxRecent);
       picked.current = next;
       writeKept(storageKey, { recent: next });

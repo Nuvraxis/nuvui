@@ -111,7 +111,12 @@ async function mount(props: Props = {}) {
   const screen = await render(
     <EmojiPicker data={few} flags style={narrow} {...props} />,
   );
-  await expect.poll(() => scroller().getAttribute("aria-colcount")).toBe("4");
+  // By its role alone, since a test may have given it another name.
+  await expect
+    .poll(() =>
+      document.querySelector('[role="grid"]')?.getAttribute("aria-colcount"),
+    )
+    .toBe("4");
   return screen;
 }
 
@@ -463,6 +468,26 @@ describe("searching", () => {
     await expect.poll(() => headings().length).toBe(5);
   });
 
+  test("an emoji named for what's typed comes before one that's only found by it", async () => {
+    await mount({
+      data: [
+        {
+          emoji: "🧑‍🚀",
+          label: "astronaut",
+          tags: ["rocket", "space"],
+          group: "people",
+        },
+        { emoji: "🚀", label: "rocket", tags: ["launch"], group: "travel" },
+      ],
+    });
+
+    await userEvent.fill(search(), "rocket");
+
+    await expect
+      .poll(() => [...cells()].map((cell) => cell.getAttribute("aria-label")))
+      .toEqual(["rocket", "astronaut"]);
+  });
+
   test("Enter in the search box picks the first one found", async () => {
     const onEmojiSelect = vi.fn();
     await mount({ onEmojiSelect });
@@ -644,7 +669,7 @@ describe("skin tones", () => {
       .click();
     await expect.poll(() => kept().tone).toBe(5);
 
-    screen.unmount();
+    await screen.unmount();
     await mount();
 
     await expect
@@ -720,6 +745,27 @@ describe("the ones picked before", () => {
     expect(headings()).not.toContain("Recently used");
   });
 
+  test("a recent emoji is the same emoji with and without the mark that asks for color", async () => {
+    const onRecentChange = vi.fn();
+    const marked = "👍\uFE0F";
+    await mount({
+      data: [
+        { emoji: marked, label: "thumbs up", group: "people" },
+        { emoji: "🍕", label: "pizza", group: "food" },
+      ],
+      // Kept without the mark, as most places write it.
+      recent: ["👍", "🍕"],
+      onRecentChange,
+    });
+
+    expect(headings()[0]).toBe("Recently used");
+    expect(cells()[0]?.getAttribute("aria-label")).toBe("thumbs up");
+
+    // Picked again, it's there once.
+    (cells()[0] as HTMLElement).click();
+    expect(onRecentChange).toHaveBeenCalledWith([marked, "🍕"]);
+  });
+
   test("an emoji that isn't in the list is left out of the recent ones", async () => {
     await mount({ recent: ["🍕", "🦖"] });
 
@@ -733,7 +779,7 @@ describe("the ones picked before", () => {
     expect(kept("mine").recent).toEqual(["🍕"]);
     expect(localStorage.getItem("nuvui-emoji")).toBeNull();
 
-    screen.unmount();
+    await screen.unmount();
     localStorage.clear();
     await mount({ storageKey: null });
     await emoji("pizza").click();

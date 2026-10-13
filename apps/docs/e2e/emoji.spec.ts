@@ -223,11 +223,19 @@ test.describe("emoji picker page", () => {
   }) => {
     const area = preview(page, "emoji-picker/data");
     const own = area.getByRole("grid", { name: "Emoji's" });
-    await expect(own.getByRole("gridcell")).toHaveCount(7);
-    await expect(
-      area.getByRole("searchbox", { name: "Emoji zoeken" }),
-    ).toBeVisible();
+    const find = area.getByRole("searchbox", { name: "Emoji zoeken" });
+    // The faces first, whatever order the list was given in: the groups
+    // have Unicode's order.
+    await expect(own.getByRole("gridcell").first()).toHaveText("😀");
 
+    // Everything in it that's a face or a hand, which is all it has of
+    // either: the list is the seven it was given and no more.
+    await find.fill("gezicht");
+    await expect(own.getByRole("gridcell")).toHaveCount(2);
+    await find.fill("grinning");
+    await expect(own).toBeHidden();
+
+    await find.fill("hart");
     await press(own.getByRole("gridcell", { name: "rood hart" }), isMobile);
 
     await expect(area.getByRole("status").last()).toContainText("rood hart");
@@ -240,7 +248,8 @@ test.describe("emoji picker page", () => {
     await ready(area);
     await expect(area.locator("pre")).toContainText("storageKey={null}");
 
-    await area.getByLabel("flags").uncheck();
+    // By its role, since the group of flags has a button of the same name.
+    await area.getByRole("checkbox", { name: "flags" }).uncheck();
     await area.getByLabel("emojiVersion").selectOption("16");
 
     await expect(area.locator("pre")).toContainText("emojiVersion={16}");

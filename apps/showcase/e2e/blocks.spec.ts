@@ -4333,6 +4333,26 @@ test.describe("find a branch", () => {
       await expect(count(page)).toHaveText("No branch matches");
     });
 
+    test("find a branch: the map keeps its height when a search shortens the list", async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width: 1280, height: 800 });
+      await open(page, "/blocks/view/branch-finder");
+      const map = page.locator(".nuv-map");
+      const before = (await map.boundingBox())?.height ?? 0;
+      // Beside the list, the map is as tall as the screen less the page's
+      // padding.
+      expect(before).toBeGreaterThan(700);
+
+      await find(page).fill("rot");
+      await expect(count(page)).toHaveText("1 branch");
+      expect((await map.boundingBox())?.height).toBe(before);
+
+      await find(page).fill("zzz");
+      await expect(count(page)).toHaveText("No branch matches");
+      expect((await map.boundingBox())?.height).toBe(before);
+    });
+
     test("find a branch: on a phone the page doesn't scroll sideways", async ({
       page,
     }) => {

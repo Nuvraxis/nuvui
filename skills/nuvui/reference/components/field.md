@@ -248,8 +248,11 @@ export default function Example() {
           </FieldControl>
           <SelectContent>
             <SelectItem value="viewer">Viewer</SelectItem>
+            <SelectItem value="commenter">Commenter</SelectItem>
             <SelectItem value="editor">Editor</SelectItem>
+            <SelectItem value="billing">Billing</SelectItem>
             <SelectItem value="admin">Admin</SelectItem>
+            <SelectItem value="owner">Owner</SelectItem>
           </SelectContent>
         </Select>
         <FieldDescription>

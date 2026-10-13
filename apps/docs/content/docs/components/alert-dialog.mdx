@@ -95,6 +95,10 @@ By default the action closes the dialog at once. When the work can fail, or take
 
 Disable both buttons while the request is running, so it can't be sent twice or abandoned halfway.
 
+When the work fails, leave the dialog open and say so inside it, in an element with `role="alert"` so it's read out. The buttons come back, to try again or to leave. The example's first try fails, so that this can be seen.
+
+When it's done, the button that opened the dialog is often gone or disabled, as here, and the focus has nowhere to go back to. Say where it goes in `onCloseAutoFocus`: the line that says what happened, or whatever comes after what was removed.
+
 ## Opening one from a menu
 
 A destructive item in a [dropdown menu](/docs/components/dropdown-menu) should ask before it acts. Put the alert dialog next to the menu, not inside the item, and open it from the item's `onSelect`.

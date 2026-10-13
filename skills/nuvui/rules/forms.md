@@ -74,7 +74,7 @@ One submit button, and it's the `primary` one.
 
 ## Choosing the control
 
-- Two to about five choices: `RadioGroup`, so they're all seen. With a description each: `ChoiceCard`. Some examples in the reference use a select for three, to show the select. Go by this rule.
+- Two to about five choices: `RadioGroup`, so they're all seen. With a description each: `ChoiceCard`.
 - More than that: `Select`. So many that they need a search: `Combobox`. On a phone, or where the browser's own is wanted: `NativeSelect`.
 - Yes or no, sent with the form: `Checkbox`. A setting that applies the moment it's flipped: `Switch`.
 - A number with steps: `NumberField`. Within a range, roughly: `Slider`.

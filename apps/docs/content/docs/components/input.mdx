@@ -94,7 +94,7 @@ Everything else is the browser's own text editing.
 ### What you need to handle
 
 - Give it a name. Use a [label](/docs/components/label) whose `htmlFor` matches the input's `id`, or `aria-label` when there's no visible text.
-- Set `autoComplete` on fields about the person, such as name, email and address. It lets the browser fill them in, and WCAG asks for it.
+- Set `autoComplete` on fields about the person filling in the form, such as their name, email and address. It lets the browser fill them in, and WCAG asks for it. A field about someone else, such as a teammate to invite, takes `autoComplete="off"`, or the browser offers the reader's own details for it.
 - When the value is wrong, set `aria-invalid` and describe the problem in text.
 
 ## CSS variables

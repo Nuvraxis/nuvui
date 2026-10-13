@@ -61,7 +61,9 @@ export default function Example() {
       <Field required>
         <FieldLabel>Email</FieldLabel>
         <FieldControl>
-          <Input name="email" type="email" autoComplete="email" />
+          {/* A teammate's address, so the browser isn't asked to offer
+              the reader's own. */}
+          <Input name="email" type="email" autoComplete="off" />
         </FieldControl>
         <FieldDescription>The invite goes to this address.</FieldDescription>
       </Field>
@@ -73,6 +75,10 @@ export default function Example() {
               Pick a team
             </option>
             <option value="design">Design</option>
+            <option value="engineering">Engineering</option>
+            <option value="finance">Finance</option>
+            <option value="marketing">Marketing</option>
+            <option value="sales">Sales</option>
             <option value="support">Support</option>
           </NativeSelect>
         </FieldControl>
@@ -156,7 +162,9 @@ export default function Example() {
         <FieldLabel>Full name</FieldLabel>
         <FieldControl>
           <Input
-            autoComplete="name"
+            // Someone else's name, so the browser isn't asked to offer the
+            // reader's own.
+            autoComplete="off"
             {...register("name", { required: "Enter their name." })}
           />
         </FieldControl>
@@ -168,7 +176,7 @@ export default function Example() {
         <FieldControl>
           <Input
             type="email"
-            autoComplete="email"
+            autoComplete="off"
             {...register("email", {
               required: "Enter their email address.",
               pattern: {
@@ -204,8 +212,11 @@ export default function Example() {
               </FieldControl>
               <SelectContent>
                 <SelectItem value="viewer">Viewer</SelectItem>
+                <SelectItem value="commenter">Commenter</SelectItem>
                 <SelectItem value="editor">Editor</SelectItem>
+                <SelectItem value="billing">Billing</SelectItem>
                 <SelectItem value="admin">Admin</SelectItem>
+                <SelectItem value="owner">Owner</SelectItem>
               </SelectContent>
             </Select>
           )}

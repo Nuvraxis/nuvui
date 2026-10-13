@@ -1,0 +1,134 @@
+---
+title: MapClusters
+description: Many places on a map, gathered into one button with a number on it where they're near each other, and drawn apart as the map zooms in. Each gathering and each place is a button with a name.
+added: "2026-10-13"
+---
+
+Use clusters when there are more places than a map can show one by one: every branch in a country, every charging point in a city. Zoomed out, places that would sit on top of each other are one round button that says how many. A press on it zooms the map in, and they come apart.
+
+<Preview name="map/clusters" />
+
+## Install
+
+```sh
+pnpm add @nuvui/map maplibre-gl @nuvui/react
+```
+
+## Import
+
+```tsx
+import { MapClusters, MapMarker, MapView } from "@nuvui/map";
+```
+
+Clusters go inside a [MapView](/docs/map/map-view), which is where the styles, the worker and the provider are covered.
+
+```tsx
+<MapView aria-label="Our branches" mapStyle={style} bounds={all}>
+  <MapClusters points={branches}>
+    {(branch) => <MapMarker position={branch.position} label={branch.name} />}
+  </MapClusters>
+</MapView>
+```
+
+## The places
+
+`points` is every place, in view or not. Each has an `id` that tells it from the others and a `position`, as longitude and then latitude. Whatever else is on it is yours, and comes back to you.
+
+```tsx
+interface Branch extends MapClusterPoint {
+  name: string;
+  open: boolean;
+}
+```
+
+The child is a function. It's called for each place in view that stands on its own, with that place, and returns its [MapMarker](/docs/map/map-view#markers): a pin, a popup, a drawing of your own, as for any marker. It isn't called for the places in a gathering, or for those out of view, so a thousand places don't make a thousand elements.
+
+## How near is near
+
+`radius` is how close two places are on the screen, in pixels, to be gathered. The default is 50. Smaller, and more places stand alone, closer together.
+
+`maxZoom` is the zoom past which nothing is gathered, however near. The default is 14, which is a few streets. Two places at one address stay one button until then, and past it are two markers on the same spot, so raise it where that happens.
+
+Changing either gathers the places again from the start.
+
+## What a gathering says
+
+A gathering shows its number, shortened past a thousand in the reader's own language. Its name, which is what's read, comes from `clusterLabel`. The default is "12 places". Say what they are:
+
+```tsx
+<MapClusters
+  points={chargers}
+  clusterLabel={(count) => `${count} charging points`}
+>
+```
+
+A press on a gathering zooms the map in to where it comes apart, which may be into smaller gatherings. Pressed from the keys, the focus goes to the map, since the button that had it is gone.
+
+## Props
+
+<PropsTable package="map" component="map" file="map-clusters" name="MapClustersOwnProps" />
+
+It renders markers and nothing around them, so it takes no `ref`, `className` or `style`. Style a gathering through the variables below, or by its class.
+
+### MapClusterPoint
+
+<PropsTable package="map" component="map" file="map-clusters" name="MapClusterPoint" />
+
+## Translation
+
+`clusterLabel` is the gathering's name, from its number, so it can follow the rules your language has for one, two and many. The number on the button is written by the browser in the reader's language.
+
+## Accessibility
+
+| Key | What it does |
+| --- | --- |
+| <kbd>Tab</kbd> | Goes to each gathering, then to each marker that's a button. |
+| <kbd>Enter</kbd> <kbd>Space</kbd> | On a gathering, zooms the map in to where it comes apart. |
+
+### What the component handles
+
+- A gathering is a button, read by its name and not by the bare number.
+- Only what's in view is on the page, so the Tab key doesn't go through places nobody can see.
+- A gathering takes a tap over 44 pixels on a touch screen.
+- Pressed from the keys, the focus goes to the map, where the arrow keys and plus and minus go on working.
+- Where the browser forces its own colors, a gathering has an edge in them.
+
+### What you need to handle
+
+- Say in `clusterLabel` what the places are.
+- Give each marker a `label` that names its place.
+- A map of many places is hard going without sight. Give the same places as a list that can be searched, as the [charging points block](https://nuvui.nuvraxis.com/blocks/data) does.
+
+## On small screens
+
+A narrower map shows less, so more is gathered at the same zoom. Nothing else changes: a gathering is the same size, and is pressed the same way.
+
+## CSS variables
+
+A gathering's variables are in the [MapView](/docs/map/map-view#css-variables) page's list with the rest of the map's: `--nuv-map-cluster-bg`, `--nuv-map-cluster-fg` and `--nuv-map-cluster-size`.
+
+```css
+.chargers {
+  --nuv-map-cluster-bg: var(--color-danger);
+  --nuv-map-cluster-fg: var(--color-danger-foreground);
+}
+```
+
+A gathering has the class `nuv-map__cluster` and `data-size`, which is `sm` under ten places, `md` under a hundred and `lg` from there.
+
+## Server components
+
+`MapClusters` starts with `"use client"`, and its child is a function, so it's written in a client component. It's drawn once there's a map, which is in a browser.
+
+## Do and don't
+
+**Do**
+
+- Use it from a few dozen places up, or wherever markers would cover each other.
+- Pass every place and let the map decide what's in view.
+- Keep `id` the same for a place from one render to the next.
+
+**Don't**
+
+- Don't gather three or four places that fit on the map as they are.
+- Don't use the number on a gathering as the only way to learn how many places there are. Say it beside the map.

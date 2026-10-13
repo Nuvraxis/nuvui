@@ -33,6 +33,7 @@ import { de } from "@nuvui/date-picker/locale";
 import { RichTextEditor } from "@nuvui/editor/rich-text-editor";
 // The picker, from the entry of its one component.
 import { EmojiPicker } from "@nuvui/emoji/emoji-picker";
+import { EmojiReaction } from "@nuvui/emoji/emoji-reaction";
 // The board, from the entry of its one component.
 import {
   Kanban,
@@ -126,6 +127,7 @@ function App() {
       <Barcode value="590123412345" type="ean13" aria-label="Item 5901234" />
       <RichTextEditor aria-label="Notes" defaultValue="<p>Hello</p>" />
       <EmojiPicker onEmojiSelect={(emoji) => toast(emoji)} />
+      <EmojiReaction emoji="👍" label="thumbs up" count={3} />
       <Kanban
         aria-label="Work"
         defaultValue={[{ id: "todo", cards: ["brief"] }]}

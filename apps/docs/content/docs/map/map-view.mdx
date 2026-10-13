@@ -44,7 +44,7 @@ A place is written as longitude and then latitude, which is the order GeoJSON an
 
 `defaultCenter` and `defaultZoom` are where it begins. Zoom 0 is the whole world, 10 a city, and 15 a few streets.
 
-`bounds` is an area to show all of, by its south-west and north-east corners, in place of a center and a zoom. The map fits it when first drawn and again when it changes, with `boundsPadding` pixels of room around it. It's the one to use for "show every marker".
+`bounds` is an area to show all of, by its south-west and north-east corners, in place of a center and a zoom. The map fits it when first drawn and again when it changes, with `boundsPadding` pixels of room around it. It's the one to use for "show every marker", and `mapBoundsOf` works it out from a list of places.
 
 <Preview name="map/markers" />
 
@@ -206,7 +206,7 @@ It's a `div`, and takes what a `div` takes.
 
 - Give the map an `aria-label` that says what it's of: "Our offices", and not "Map".
 - A map says little to someone who can't see it. Give what it shows another way as well: a list of the places beside it, or the address in words. The [store locator block](https://nuvui.nuvraxis.com/blocks/data) is a list and a map of the same places.
-- Keep the markers that are buttons few enough to tab through. Hundreds of stops is no way across a page.
+- Keep the markers that are buttons few enough to tab through. Hundreds of stops is no way across a page. [MapClusters](/docs/map/map-clusters) gathers the ones that are near each other.
 - The colors of the map are the style's. Check that what matters on it can be told apart, and that your markers stand off it.
 
 ## On small screens
@@ -240,6 +240,14 @@ Set any of these on a `MapView`, or on anything around it.
     "--nuv-map-marker-bg": "Color of the pin, and of the dot where the reader is.",
     "--nuv-map-marker-fg":
       "Color of the pin's edge and of the dot in it. It's what keeps the pin seen on a map of any color.",
+    "--nuv-map-cluster-size":
+      "Width and height of a gathering of under ten places. It's half a rem more from ten, and a rem more from a hundred.",
+    "--nuv-map-cluster-bg": "Background of a gathering.",
+    "--nuv-map-cluster-fg":
+      "Color of a gathering's number and of its edge. Keep it at 4.5:1 against its background.",
+    "--nuv-map-route-color": "Color of a route's line.",
+    "--nuv-map-route-edge":
+      "Color of the edge along a route's line. It's what keeps the line seen on a map of any color.",
     "--nuv-map-popup-width": "The most a popup is wide.",
     "--nuv-map-popup-padding": "Space inside a popup.",
     "--nuv-map-popup-radius": "Corner radius of a popup.",
@@ -274,6 +282,10 @@ Set any of these on a `MapView`, or on anything around it.
     "nuv-map__pin-body": "The pin's shape.",
     "nuv-map__pin-dot": "The dot in the pin.",
     "nuv-map__location": "The dot where the reader is.",
+    "nuv-map__cluster":
+      "A gathering in MapClusters. It's a marker as well, and has that class too.",
+    "nuv-map__route":
+      "MapRoute's own element. It isn't drawn: the line's colors are read from it.",
     "nuv-map__popup": "MapPopup",
     "nuv-map__popup-body": "What's in the popup.",
     "nuv-map__popup-close": "The popup's close button.",
@@ -287,7 +299,7 @@ Set any of these on a `MapView`, or on anything around it.
   }}
 />
 
-The box has `data-state`, which is `loading`, `ready` or `error`. A marker that can be moved has `data-draggable`. MapLibre's own elements keep its class names, which begin with `maplibregl-`.
+The box has `data-state`, which is `loading`, `ready` or `error`. A marker that can be moved has `data-draggable`, and a gathering has `data-size`. MapLibre's own elements keep its class names, which begin with `maplibregl-`.
 
 ## Server components
 

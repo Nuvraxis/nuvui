@@ -937,6 +937,10 @@ importers:
         version: 2.3.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(vitest@5.0.3)
 
   packages/map:
+    dependencies:
+      '@types/geojson':
+        specifier: ^7946.0.16
+        version: 7946.0.16
     devDependencies:
       '@arethetypeswrong/cli':
         specifier: 'catalog:'

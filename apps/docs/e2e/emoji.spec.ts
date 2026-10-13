@@ -199,6 +199,46 @@ test.describe("emoji picker page", () => {
     await expect(panel).toBeHidden();
   });
 
+  test("in a popover with little room the picker is made shorter, and the popover doesn't scroll", async ({
+    page,
+    isMobile,
+  }) => {
+    const { width } = page.viewportSize() ?? { width: 1280 };
+    await page.setViewportSize({ width, height: 360 });
+    const area = preview(page, "emoji-picker/popover");
+    await press(area.getByRole("button", { name: "Add an emoji" }), isMobile);
+    const panel = page.getByRole("dialog", { name: "Pick an emoji" });
+    await ready(panel);
+
+    const over = await panel.locator(".nuv-popover__body").evaluate((body) => ({
+      down: body.scrollHeight - body.clientHeight,
+      across: body.scrollWidth - body.clientWidth,
+    }));
+    expect(over.down).toBeLessThanOrEqual(0);
+    expect(over.across).toBeLessThanOrEqual(0);
+    // All of it is still there: the search over the list, the groups under.
+    await expect(search(panel)).toBeInViewport();
+    await expect(
+      panel.getByRole("navigation", { name: "Emoji groups" }),
+    ).toBeInViewport();
+  });
+
+  test("with a mouse every group's button fits, and the row doesn't scroll sideways", async ({
+    page,
+    isMobile,
+  }) => {
+    // Under a finger the buttons keep their size and the row is dragged.
+    test.skip(isMobile);
+    const area = preview(page, "emoji-picker/basic");
+    await ready(area);
+    const groups = area.getByRole("navigation", { name: "Emoji groups" });
+
+    expect(
+      await groups.evaluate((row) => row.scrollWidth - row.clientWidth),
+    ).toBeLessThanOrEqual(0);
+    await expect(groups.getByRole("button").last()).toBeInViewport();
+  });
+
   test("recent emoji and a skin tone kept by the app are what's drawn, and the app is told of a pick", async ({
     page,
     isMobile,

@@ -27,6 +27,16 @@
     }
   }
 
+  // In a popover with less room than the picker's height, the popover
+  // would scroll the whole picker, beside the list's own scrolling. The
+  // picker is made shorter to fit, and its list is the one thing that
+  // scrolls.
+  .nuv-popover__body:has(> .nuv-emoji-picker) {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
   .nuv-emoji-picker__head {
     display: flex;
     flex: none;
@@ -95,8 +105,10 @@
     position: relative;
     flex: 1;
     min-block-size: 0;
-    overflow-y: auto;
+    overflow: hidden auto;
     padding-inline: calc(var(--spacing) * 2);
+    scrollbar-color: var(--color-border-strong) transparent;
+    scrollbar-width: thin;
 
     // The keys are on one emoji, and the ring is drawn on that one.
     &:focus {
@@ -200,8 +212,9 @@
     white-space: nowrap;
   }
 
-  // The groups, in a row that scrolls sideways when there isn't room for
-  // them all.
+  // The groups, in a row. Under a finger each keeps its full size and the
+  // row is dragged sideways when there isn't room. No scrollbar is drawn
+  // for it: a bar under one row of buttons is taller than the row is worth.
   .nuv-emoji-picker__groups {
     display: flex;
     flex: none;
@@ -210,10 +223,22 @@
     overflow-x: auto;
     border-block-start: var(--nuv-border-width, 1px) solid
       var(--nuv-emoji-picker-border, var(--color-border));
+    scrollbar-width: none;
+
+    // A mouse has nothing to drag a row with, so there they're made
+    // narrower until all of them fit.
+    @include mixins.fine-pointer {
+      gap: calc(var(--spacing) * 0.5);
+    }
   }
 
   .nuv-emoji-picker__group {
     font-size: var(--text-base);
+
+    @include mixins.fine-pointer {
+      flex: 0 1 var(--nuv-emoji-picker-cell);
+      min-inline-size: 0;
+    }
 
     &[aria-current="true"] {
       background-color: var(--nuv-emoji-picker-current-bg, var(--color-muted));

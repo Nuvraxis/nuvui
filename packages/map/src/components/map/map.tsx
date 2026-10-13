@@ -582,7 +582,10 @@ export const MapMarker = forwardRef<HTMLElement, MapMarkerProps>(
     const asked = useRef(false);
     const [openState, setOpenState] = useState(defaultOpen);
     const open = popup !== undefined && (openProp ?? openState);
-    const [offset, setOffset] = useState<Offset>(0);
+    // How far the popup stands off the marker, once the marker has been
+    // measured. Until then there's no popup, so it's never drawn in the
+    // wrong place first and moved.
+    const [offset, setOffset] = useState<Offset | null>(null);
     const latest = useLatest({ position, draggable, onPositionChange });
     const [lng, lat] = position;
 
@@ -631,8 +634,8 @@ export const MapMarker = forwardRef<HTMLElement, MapMarkerProps>(
     }, [draggable]);
 
     useEffect(() => {
-      if (open) setOffset(popupOffset(holder, anchor));
-      else asked.current = false;
+      setOffset(open ? popupOffset(holder, anchor) : null);
+      if (!open) asked.current = false;
     }, [open, holder, anchor]);
 
     // A press anywhere else on the map closes the popup, another marker
@@ -726,7 +729,7 @@ export const MapMarker = forwardRef<HTMLElement, MapMarkerProps>(
           ),
           holder,
         )}
-        {open && (
+        {open && offset !== null && (
           <MapPopup
             ref={bubble}
             position={position}

@@ -145,9 +145,12 @@ const viewOf = (map: MapLibreMap): MapViewState => {
   };
 };
 
-// Close enough to be the same place on a screen. A view that's echoed back
-// from `onMove` is the map's own numbers, and isn't moved to again.
+// Close enough to be the same place on a screen.
 const near = (one: number, other: number) => Math.abs(one - other) < 1e-7;
+
+// How many views the map remembers having told the app of. An app that
+// hands each one back has them taken off as they come.
+const toldLimit = 64;
 
 const boundsKey = (bounds: MapBounds | undefined) =>
   bounds ? bounds.flat().join(",") : "";
@@ -277,6 +280,11 @@ export const MapView = forwardRef<HTMLDivElement, MapViewProps>(
     });
     const fitted = useRef(boundsKey(bounds));
     const styled = useRef(mapStyle);
+    // The views the app has been told of and hasn't handed back yet. One
+    // that comes back as `center` and `zoom` is the map's own, and not
+    // somewhere to go: by then the map may be further along, and going back
+    // to it would stop a move halfway.
+    const told = useRef<MapViewState[]>([]);
 
     const setRefs = useCallback(
       (node: HTMLDivElement | null) => {
@@ -347,8 +355,14 @@ export const MapView = forwardRef<HTMLDivElement, MapViewProps>(
             if (!hasStyle) setState("error");
             handlers.current.onError?.(toError(event.error));
           });
-          made.on("move", () => handlers.current.onMove?.(viewOf(made)));
-          made.on("moveend", () => handlers.current.onMoveEnd?.(viewOf(made)));
+          const tell = (to: "onMove" | "onMoveEnd") => {
+            const view = viewOf(made);
+            told.current.push(view);
+            if (told.current.length > toldLimit) told.current.shift();
+            handlers.current[to]?.(view);
+          };
+          made.on("move", () => tell("onMove"));
+          made.on("moveend", () => tell("onMoveEnd"));
           setDrawn({ map: made, lib });
         })
         .catch(fail);
@@ -373,6 +387,17 @@ export const MapView = forwardRef<HTMLDivElement, MapViewProps>(
     const lat = center?.[1];
     useEffect(() => {
       if (!map) return;
+      const echo = told.current.findIndex(
+        (view) =>
+          (lng === undefined ||
+            lat === undefined ||
+            (near(view.center[0], lng) && near(view.center[1], lat))) &&
+          (zoom === undefined || near(view.zoom, zoom)),
+      );
+      if (echo !== -1) {
+        told.current.splice(0, echo);
+        return;
+      }
       const now = map.getCenter();
       const moved =
         lng !== undefined &&
@@ -380,6 +405,9 @@ export const MapView = forwardRef<HTMLDivElement, MapViewProps>(
         !(near(now.lng, lng) && near(now.lat, lat));
       const zoomed = zoom !== undefined && !near(map.getZoom(), zoom);
       if (!moved && !zoomed) return;
+      // Asked for by the app. What the map told of before this is behind
+      // it now, and a place among it may be asked for again.
+      told.current = [];
       map.easeTo({
         ...(moved ? { center: [lng, lat] as MapLngLat } : null),
         ...(zoomed ? { zoom } : null),

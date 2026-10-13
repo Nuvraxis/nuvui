@@ -1,5 +1,5 @@
 {
   "title": "Emoji",
   "defaultOpen": true,
-  "pages": ["index", "emoji-picker"]
+  "pages": ["index", "emoji-picker", "emoji-reaction"]
 }

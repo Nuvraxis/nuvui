@@ -1,6 +1,6 @@
 ---
 title: Emoji
-description: The @nuvui/emoji package. An emoji picker with search, groups, skin tones and recently used emoji, in a list that draws only the rows in view, installed next to @nuvui/react.
+description: The @nuvui/emoji package. An emoji picker with search, groups, skin tones and recently used emoji, in a list that draws only the rows in view, and a reaction button with a count, installed next to @nuvui/react.
 added: "2026-10-13"
 ---
 
@@ -9,6 +9,7 @@ Picking an emoji is a package of its own, `@nuvui/emoji`, since it comes with a 
 | Component | What it is |
 | --- | --- |
 | [EmojiPicker](/docs/emoji/emoji-picker) | A panel with a search box, the emoji in their groups, a choice of skin tone, and the ones picked before. |
+| [EmojiReaction](/docs/emoji/emoji-reaction) | A button with an emoji and how many reacted with it, pressed when the reader is one of them. |
 
 <Preview name="emoji-picker/basic" />
 
@@ -47,7 +48,7 @@ To draw emoji the same everywhere takes a set of pictures, which this package do
 
 ## The list, and its size
 
-The list of emoji, with their names and the words they're found by, is loaded the first time a picker is drawn, and not before. It's about 33 kB compressed. The picker itself is about 4 kB.
+The list of emoji, with their names and the words they're found by, is loaded the first time a picker is drawn, and not before. It's about 33 kB compressed. The picker itself is about 4 kB. A reaction button needs no list, and a page with reactions and no picker loads none.
 
 The names are English. For another language, or for fewer emoji, give the picker a list of your own with `data`. [EmojiPicker](/docs/emoji/emoji-picker#a-list-of-your-own) shows one.
 
@@ -58,5 +59,5 @@ The list is written from [emojibase-data](https://github.com/milesj/emojibase), 
 - **Pictures of emoji.** See above.
 - **A button that opens it.** It's a panel. Put it in a [popover](/docs/components/popover), a [sheet](/docs/components/sheet), or on the page.
 - **Putting the emoji in your text.** It hands you the emoji. Where it goes, at the caret of a field or at the end of a message, is yours.
-- **Reactions,** the row of emoji with counts under a message. Not built yet.
+- **Who reacted.** A reaction shows a count. The names behind it, in a tooltip or a list, are yours.
 - **Shortcodes,** such as `:smile:`.

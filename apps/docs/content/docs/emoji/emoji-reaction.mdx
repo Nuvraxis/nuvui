@@ -1,0 +1,165 @@
+---
+title: EmojiReaction
+description: A button with an emoji and how many reacted with it, pressed when the reader is one of them. For the row of reactions under a message or a comment.
+added: "2026-10-13"
+---
+
+Use an emoji reaction for each emoji people have reacted with, under the thing they reacted to. It shows the emoji and the count, and a press joins the reaction or takes the reader's away. To pick an emoji that isn't there yet, put an [EmojiPicker](/docs/emoji/emoji-picker) beside the row.
+
+<Preview name="emoji-reaction/basic" />
+
+## Install
+
+```sh
+pnpm add @nuvui/emoji @nuvui/react
+```
+
+## Import
+
+```tsx
+import { EmojiReaction } from "@nuvui/emoji";
+```
+
+The styles come from `@nuvui/emoji/styles.css`, which you load once for the whole app, after `@nuvui/react/styles.css`. [Emoji](/docs/emoji) covers that. From `@nuvui/emoji/emoji-reaction` the button comes without the picker, and its styles are at `@nuvui/emoji/css/emoji-reaction.css`.
+
+```tsx
+<EmojiReaction
+  emoji="👍"
+  label="thumbs up"
+  count={others + (mine ? 1 : 0)}
+  pressed={mine}
+  onPressedChange={setMine}
+/>
+```
+
+## Playground
+
+<EmojiReactionPlayground />
+
+## The count is yours
+
+The button keeps nothing. `count` is what it shows and `pressed` is whether the reader is one of them, and a press only calls `onPressedChange` with what `pressed` would become. So the count can come from your server, be changed at once and put back if the request fails, or change when someone else reacts.
+
+Count the reader in: three others and the reader is `count={4}` with `pressed`.
+
+A reaction nobody is left on is yours to take off the row. The button doesn't hide itself at zero.
+
+## With a picker
+
+A row of reactions and a button that opens a picker, to add one that isn't there. An emoji that's picked and is there already is joined, and not added twice.
+
+<Preview name="emoji-reaction/picker" />
+
+The picker hands over the emoji's name with the emoji, as `item.label`, which is what `label` wants.
+
+## Large counts, and reactions that can't be pressed
+
+Children are drawn in place of the count, for a number written shorter. The button is still read with the number itself.
+
+`disabled` is for a reader who may look and not react: someone signed out, or a thread that's closed.
+
+<Preview name="emoji-reaction/states" />
+
+## Props
+
+<PropsTable
+  package="emoji"
+  component="emoji-reaction"
+  name="EmojiReactionOwnProps"
+/>
+
+It's a `button`, and takes what a `button` takes, including `ref`, `className`, `disabled` and `onClick`. An `onClick` that calls `preventDefault()` stops the press.
+
+## Translation
+
+The button is named `label` and the count, as in "thumbs up, 4", and whether it's pressed is said by the screen reader in its own language. `label` is the one word of yours in it. For a name put together another way, give `aria-label`.
+
+## Accessibility
+
+| Key | What it does |
+| --- | --- |
+| <kbd>Tab</kbd> | Goes to each reaction in turn. |
+| <kbd>Enter</kbd> <kbd>Space</kbd> | Joins the reaction, or takes the reader's away. |
+
+### What the component handles
+
+- It's a button that says whether it's pressed.
+- It's read by the emoji's name and the count, and not as the character, which a screen reader may name another way or not at all.
+- The reader's own has an edge in another color that's also twice as thick, so it isn't told apart by color alone. Where the browser forces its own colors the border is the thick one.
+- It's 44 pixels tall on a touch screen, and 32 with a mouse.
+- The figures are of one width, so the row doesn't shift as a count changes.
+
+### What you need to handle
+
+- Give `label` the emoji's name, in the reader's language.
+- Say what a press did, in a [live region](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Guides/Live_regions), if it isn't plain from the button: the new count is in its name, and a screen reader doesn't read a name again because it changed.
+- When the reader takes away the last of a reaction and you take its button off the row, put the focus somewhere, such as on the button that adds one. The second example does.
+- Name the row if there's more than one on the page, with `role="group"` and an `aria-label` such as "Reactions to Priya's message".
+
+## On small screens
+
+Put the reactions in a row that wraps. Each keeps its size, and a count never wraps inside its button.
+
+## CSS variables
+
+Set any of these on an `EmojiReaction`, or on anything around it.
+
+```css
+.thread {
+  --nuv-emoji-reaction-radius: var(--radius-md);
+  --nuv-emoji-reaction-height: 2.25rem;
+}
+```
+
+<CssVariables
+  package="emoji"
+  component="emoji-reaction"
+  descriptions={{
+    "--nuv-emoji-reaction-gap": "Space between the emoji and the count.",
+    "--nuv-emoji-reaction-height":
+      "Least height of the button. The touch size on a touch screen and 2rem with a mouse. Set it for both if you set it.",
+    "--nuv-emoji-reaction-padding-inline": "Space at each end.",
+    "--nuv-emoji-reaction-border":
+      "Color of the border. Keep it at 3:1 against what's behind it.",
+    "--nuv-emoji-reaction-radius": "Corner radius. A pill by default.",
+    "--nuv-emoji-reaction-bg": "Background.",
+    "--nuv-emoji-reaction-fg": "Color of the count.",
+    "--nuv-emoji-reaction-hover-bg": "Background under the pointer.",
+    "--nuv-emoji-reaction-pressed-border":
+      "Color of the edge of the reader's own, which is twice as thick.",
+    "--nuv-emoji-reaction-pressed-bg": "Background of the reader's own.",
+    "--nuv-emoji-reaction-font":
+      "The fonts the emoji is drawn in. The device's emoji fonts by default.",
+    "--nuv-emoji-reaction-emoji-size": "Size of the emoji.",
+  }}
+/>
+
+## Classes
+
+<BemClasses
+  package="emoji"
+  component="emoji-reaction"
+  descriptions={{
+    "nuv-emoji-reaction": "EmojiReaction",
+    "nuv-emoji-reaction__emoji": "The emoji.",
+    "nuv-emoji-reaction__count": "The count.",
+  }}
+/>
+
+The reader's own has `aria-pressed="true"` and a `data-pressed` attribute.
+
+## Server components
+
+EmojiReaction starts with `"use client"`. One that only shows a count, with `disabled` and no `onPressedChange`, can be rendered from a server component. With `onPressedChange`, which is a function, the component that renders it has to be a client component too.
+
+## Do and don't
+
+**Do**
+
+- Change the count at once when it's pressed, and put it back if saving fails.
+- Keep the order of the row as it is when a count changes, so nothing moves under the pointer.
+
+**Don't**
+
+- Don't use it for a vote that decides something. A reaction is light, and is read as one.
+- Don't leave `label` as the emoji itself. It's the name that's read.

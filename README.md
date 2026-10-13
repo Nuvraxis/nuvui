@@ -23,7 +23,7 @@ It needs React 18 or 19. Each add-on is installed next to it, with the library i
 | [`@nuvui/kanban`](https://www.npmjs.com/package/@nuvui/kanban) | A board of columns with cards that are moved between them | `pnpm add @nuvui/kanban` |
 | [`@nuvui/editor`](https://www.npmjs.com/package/@nuvui/editor) | A rich text editor on Tiptap, with HTML as its value | `pnpm add @nuvui/editor` |
 | `@nuvui/emoji` | An emoji picker with search, groups, skin tones and recent ones, and a reaction button. Not released yet | `pnpm add @nuvui/emoji` |
-| `@nuvui/map` | A map on MapLibre, with markers, popups and controls. Not released yet | `pnpm add @nuvui/map` |
+| `@nuvui/map` | A map on MapLibre, with markers, popups and controls. Not released yet | `pnpm add @nuvui/map maplibre-gl` |
 
 [Getting started](https://nuvui.nuvraxis.com/docs) has the rest.
 

@@ -1,5 +1,5 @@
 {
   "title": "Map",
   "defaultOpen": true,
-  "pages": ["index", "map-view"]
+  "pages": ["index", "map-view", "map-route", "map-clusters"]
 }

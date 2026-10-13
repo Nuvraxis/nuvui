@@ -51,6 +51,7 @@ export const addons = {
   kanban: pkg("kanban", "@nuvui/kanban"),
   editor: pkg("editor", "@nuvui/editor"),
   emoji: pkg("emoji", "@nuvui/emoji"),
+  map: pkg("map", "@nuvui/map"),
 };
 
 export type Addon = keyof typeof addons;

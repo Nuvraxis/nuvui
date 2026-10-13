@@ -17,6 +17,12 @@ const bare = {
   "--nuv-emoji-picker-border": "transparent",
 } as CSSProperties;
 
+// The same emoji is written with or without a mark that asks for it to be
+// drawn in color, and the picker's list writes it for some. Compared
+// without it, a thumbs up that's there is joined and not added twice.
+const plain = (emoji: string) => emoji.replaceAll("\uFE0F", "");
+const same = (one: string, other: string) => plain(one) === plain(other);
+
 export default function Example() {
   const [reactions, setReactions] = useState<Reaction[]>([
     { emoji: "👍", label: "thumbs up", others: 2, mine: false },
@@ -27,7 +33,7 @@ export default function Example() {
   // An emoji that's there is joined, or the reader's is taken away. A
   // reaction nobody is left on is taken off the row.
   function react(emoji: string, label: string) {
-    const there = reactions.find((entry) => entry.emoji === emoji);
+    const there = reactions.find((entry) => same(entry.emoji, emoji));
     // Its button is about to go, and the focus with it unless it's given
     // somewhere to be.
     if (there?.mine && there.others === 0) add.current?.focus();
@@ -35,7 +41,9 @@ export default function Example() {
       there
         ? now
             .map((entry) =>
-              entry.emoji === emoji ? { ...entry, mine: !entry.mine } : entry,
+              same(entry.emoji, emoji)
+                ? { ...entry, mine: !entry.mine }
+                : entry,
             )
             .filter((entry) => entry.mine || entry.others > 0)
         : [...now, { emoji, label, others: 0, mine: true }],

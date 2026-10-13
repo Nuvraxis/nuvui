@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "next dev",
-    "build": "next build && node ../../scripts/fix-next-export.mjs out",
+    "build": "node scripts/agent-skill.mjs --site && next build && node ../../scripts/fix-next-export.mjs out",
+    "skill": "node scripts/agent-skill.mjs",
     "start": "node ../../scripts/serve-static.mjs 3000 out --under /docs",
     "typecheck": "next typegen && tsc --noEmit",
     "test:e2e": "playwright test"

@@ -23,7 +23,9 @@
     "release": "turbo run build --filter=\"./packages/*\" && changeset publish",
     "check:package": "pnpm --recursive --if-present run check:package",
     "check:licenses": "node scripts/check-licenses.mjs",
-    "check:audit": "pnpm audit --audit-level high"
+    "check:audit": "pnpm audit --audit-level high",
+    "skill": "pnpm --filter @nuvui/docs run skill",
+    "check:skill": "pnpm --filter @nuvui/docs run skill --check"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.15",

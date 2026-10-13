@@ -17,6 +17,18 @@ export {
   type MapViewOwnProps,
   type MapViewProps,
   type MapViewState,
+  mapBoundsOf,
   setMapWorkerUrl,
   useMap,
 } from "./map";
+export {
+  type MapClusterPoint,
+  MapClusters,
+  type MapClustersOwnProps,
+  type MapClustersProps,
+} from "./map-clusters";
+export {
+  MapRoute,
+  type MapRouteOwnProps,
+  type MapRouteProps,
+} from "./map-route";

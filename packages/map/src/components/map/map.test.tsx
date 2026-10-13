@@ -3,6 +3,9 @@ import "../../styles/index.scss";
 import { axe } from "@nuvui/tooling/test/axe";
 import { emulateMedia, setViewport } from "@nuvui/tooling/test/media";
 import { renderThemed, themes } from "@nuvui/tooling/test/themed";
+// The address Vite gives MapLibre's worker, which is how an app built
+// with Vite asks for it.
+import workerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?url";
 import {
   Component,
   type ComponentProps,
@@ -10,6 +13,7 @@ import {
   type ReactNode,
   useState,
 } from "react";
+import { renderToString } from "react-dom/server";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
@@ -21,8 +25,11 @@ import {
   MapPopup,
   type MapStyle,
   MapView,
+  setMapWorkerUrl,
   useMap,
 } from ".";
+
+setMapWorkerUrl(workerUrl);
 
 const style = (element: Element) => getComputedStyle(element);
 const rect = (element: Element) => element.getBoundingClientRect();
@@ -173,13 +180,25 @@ describe("without WebGL", () => {
 });
 
 describe.skipIf(!webgl)("rendering", () => {
-  test("it says it's loading, and then it's a map with a name", async () => {
+  // What a server sends, and what's on the page until MapLibre and the
+  // style have come. Asked of the server's renderer, since in a browser
+  // the map may be ready before a test can look.
+  test("before there's a map, the box says it's loading", () => {
+    const html = renderToString(
+      <MapView mapStyle={blank} aria-label="Offices" />,
+    );
+
+    expect(html).toContain('data-state="loading"');
+    expect(html).toContain('role="status"');
+    expect(html).toContain("Loading map");
+    expect(html).not.toContain("nuv-map__marker");
+  });
+
+  test("then it's a map with a name, and the words are gone", async () => {
     const onLoad = vi.fn();
     await render(
       <MapView mapStyle={blank} aria-label="Offices" onLoad={onLoad} />,
     );
-    expect(root().dataset.state).toBe("loading");
-    expect(page.getByRole("status").element().textContent).toBe("Loading map");
 
     await expect
       .poll(() => root().dataset.state, { timeout: 20_000 })

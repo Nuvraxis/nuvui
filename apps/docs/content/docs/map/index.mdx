@@ -1,0 +1,73 @@
+---
+title: Map
+description: The @nuvui/map package. A map on MapLibre, installed next to @nuvui/react, with markers and popups that are React elements and controls that are the library's own buttons. It needs map tiles from a provider you choose.
+added: "2026-10-13"
+---
+
+The map is a package of its own, `@nuvui/map`, since drawing one needs an engine the core doesn't have:
+
+| Component | What it is |
+| --- | --- |
+| [MapView](/docs/map/map-view) | A map, with `MapMarker` for a place on it, `MapPopup` for a box that points at one, and `MapControls` for the buttons over it. |
+
+<Preview name="map/basic" />
+
+<NotPublished package="map" />
+
+## Install
+
+```sh
+pnpm add @nuvui/map @nuvui/react
+```
+
+`@nuvui/react` is a peer dependency: the controls are the core's [Button](/docs/components/button), and the map's box, its markers and its popups are drawn with the core's tokens.
+
+The map is drawn by [MapLibre GL JS](https://maplibre.org), version 5. It's BSD-3-Clause licensed and is installed with this package. You don't import it yourself, unless you use the map through [`useMap`](/docs/map/map-view#the-map-itself).
+
+## Load the styles
+
+Import the package's stylesheet once, after the core's:
+
+```tsx title="app/layout.tsx"
+import "@nuvui/react/styles.css";
+import "@nuvui/map/styles.css";
+```
+
+Both files open with the same line naming the cascade layers, so the order you import them in doesn't decide which rule wins. The map's styles are also on their own, at `@nuvui/map/css/map.css`. With that one, load `button.css` from `@nuvui/react/css/` as well.
+
+MapLibre has a stylesheet of its own, and you don't load it. The rules of it that a map can't do without are in this package's stylesheet, in the library's colors.
+
+## You bring the map
+
+A map is drawn from tiles, small squares of it that are fetched as the map moves, and tiles are served by someone. This package has no tiles and no provider. `mapStyle` takes the address of a [MapLibre style](https://maplibre.org/maplibre-style-spec/), which says where the tiles come from and how they're drawn, or the style itself.
+
+```tsx
+<MapView mapStyle="https://tiles.example.com/styles/streets.json" />
+```
+
+Who serves the style is your provider, and that's a choice:
+
+- **It has a cost.** A provider charges by how much map is looked at, or gives some away, or you run a tile server of your own. Read their terms before a map is on a page that many people open.
+- **Their names are shown.** Most terms ask that the provider, and the people whose data it is, are named on the map. The names come from the style and are drawn in the map's corner at every width. Don't hide them.
+- **They see the reader.** A reader's browser asks the provider for the tiles, so the provider learns the reader's address and what part of the world they looked at. Say so where you say such things, such as in a privacy notice.
+
+The examples on these pages use [OpenFreeMap](https://openfreemap.org)'s style, which asks for no key. So opening one of these pages asks OpenFreeMap for tiles.
+
+## It's large, so it's loaded when it's needed
+
+MapLibre is about 220 kB compressed. The package asks for it when a map is first drawn, and not before, so a page with no map on screen doesn't load it and a server never does. The rest of the package is about 4 kB.
+
+Until MapLibre and the style have come, the box says the map is loading.
+
+## What a browser needs
+
+- **WebGL.** A map is drawn with it. Where a browser has none, or it's turned off, the box says the map couldn't be drawn, and `onError` is called. Give the address in words as well where the place matters.
+- **A content security policy,** if you have one, has to let the map work. MapLibre runs a worker from a `blob:` address, so it needs `worker-src blob:`, and `connect-src` and `img-src` have to name your provider.
+
+## What it leaves out
+
+- **Tiles, and a default style.** See above.
+- **Routes and clusters.** A line along a road and markers that gather into one as the map zooms out aren't built yet. Until they are, [`useMap`](/docs/map/map-view#the-map-itself) gives you the map to add a layer to.
+- **Finding a place from words,** and directions between two. Those are services, from your provider or another.
+- **Drawing on the map,** such as an area to search in.
+- **A picture of a map** for where there's no WebGL, or for print.

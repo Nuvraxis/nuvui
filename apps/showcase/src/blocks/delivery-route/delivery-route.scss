@@ -1,0 +1,156 @@
+@use "@nuvui/react/scss/mixins";
+
+// The stops over the map on a phone, and beside it from a tablet up, where
+// the two fill the screen and the stops scroll on their own.
+.delivery-route {
+  display: grid;
+  gap: calc(var(--spacing) * 4);
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  inline-size: 100%;
+  min-block-size: 100svh;
+  padding: calc(var(--spacing) * 4);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+
+  @include mixins.breakpoint("md") {
+    grid-template-columns: minmax(0, 24rem) minmax(0, 1fr);
+
+    // One row as tall as the screen, whatever is in the list.
+    grid-template-rows: minmax(0, 1fr);
+    align-content: stretch;
+    block-size: 100svh;
+    padding: calc(var(--spacing) * 6);
+  }
+}
+
+.delivery-route__side {
+  display: grid;
+  gap: calc(var(--spacing) * 4);
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  min-block-size: 0;
+
+  @include mixins.breakpoint("md") {
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+}
+
+.delivery-route__head {
+  display: grid;
+  gap: calc(var(--spacing) * 1);
+}
+
+.delivery-route__title {
+  margin: 0;
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-2xl--line-height);
+  letter-spacing: var(--tracking-tight);
+}
+
+.delivery-route__summary {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+.delivery-route__stops {
+  display: grid;
+  gap: calc(var(--spacing) * 2);
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  @include mixins.breakpoint("md") {
+    // Room for the focus ring, which the scrolling would cut off.
+    margin: calc(var(--spacing) * -1);
+    padding: calc(var(--spacing) * 1);
+    overflow-y: auto;
+  }
+}
+
+// A stop, as a button that opens it on the map. The one that's open has
+// the primary color's edge, twice as thick, and says it's pressed.
+.delivery-route__stop {
+  display: grid;
+  gap: calc(var(--spacing) * 3);
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: start;
+  inline-size: 100%;
+  padding: calc(var(--spacing) * 3);
+  border: var(--nuv-border-width, 1px) solid var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-surface);
+  color: var(--color-surface-foreground);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+
+  @include mixins.focus-ring;
+
+  @include mixins.hover {
+    background-color: var(--color-muted);
+  }
+
+  &[aria-pressed="true"] {
+    border-color: var(--color-primary);
+    box-shadow: inset 0 0 0 var(--nuv-border-width, 1px) var(--color-primary);
+  }
+}
+
+// The stop's number, in the list and on the map. Filled for a stop that's
+// done or next, and an outline for one still to come, so the three aren't
+// told apart by color alone: the list says which in words.
+.delivery-route__number,
+.delivery-route__pin {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 1.75rem;
+  block-size: 1.75rem;
+  border: 2px solid var(--color-primary);
+  border-radius: var(--radius-full);
+  background-color: var(--color-primary);
+  color: var(--color-primary-foreground);
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+
+  &[data-state="planned"] {
+    background-color: var(--color-surface);
+    color: var(--color-surface-foreground);
+  }
+}
+
+.delivery-route__pin {
+  box-shadow: var(--shadow-sm);
+}
+
+.delivery-route__text {
+  display: grid;
+  gap: calc(var(--spacing) * 0.5);
+  min-inline-size: 0;
+}
+
+.delivery-route__name {
+  font-weight: var(--font-weight-semibold);
+}
+
+.delivery-route__line {
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+.delivery-route__map {
+  --nuv-map-height: 24rem;
+
+  @include mixins.breakpoint("md") {
+    --nuv-map-height: 100%;
+  }
+}

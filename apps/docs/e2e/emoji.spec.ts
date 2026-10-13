@@ -37,6 +37,9 @@ test.describe("emoji start page", () => {
       article.getByRole("link", { name: "EmojiPicker", exact: true }).first(),
     ).toHaveAttribute("href", "/docs/emoji/emoji-picker");
     await expect(
+      article.getByRole("link", { name: "EmojiReaction", exact: true }).first(),
+    ).toHaveAttribute("href", "/docs/emoji/emoji-reaction");
+    await expect(
       article.getByRole("heading", { name: "The device's own emoji" }),
     ).toBeVisible();
     await ready(preview(page, "emoji-picker/basic"));
@@ -322,6 +325,183 @@ test.describe("emoji picker page", () => {
   test("the examples pass axe", async ({ page }) => {
     await ready(preview(page, "emoji-picker/basic"));
     await ready(preview(page, "emoji-picker/kept"));
+
+    expect(
+      (
+        await new AxeBuilder({ page })
+          .include("[data-preview]")
+          .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
+          .analyze()
+      ).violations,
+    ).toEqual([]);
+  });
+});
+
+test.describe("emoji reaction page", () => {
+  const reaction = (within: Locator | Page, name: string | RegExp) =>
+    within.getByRole("button", { name });
+
+  test.beforeEach(async ({ page }) => {
+    await open(page, "/docs/emoji/emoji-reaction");
+  });
+
+  test("each is read by its emoji's name and its count, and says whether it's the reader's", async ({
+    page,
+  }) => {
+    const area = preview(page, "emoji-reaction/basic");
+
+    await expect(reaction(area, "party popper, 5")).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    await expect(reaction(area, "clapping hands, 2")).toHaveAttribute(
+      "aria-pressed",
+      "false",
+    );
+    await expect(reaction(area, "party popper, 5")).toHaveText("🎉5");
+  });
+
+  test("a press joins a reaction, and a press on the reader's own takes it away", async ({
+    page,
+    isMobile,
+  }) => {
+    const area = preview(page, "emoji-reaction/basic");
+
+    await press(reaction(area, "thumbs up, 11"), isMobile);
+    await expect(reaction(area, "thumbs up, 12")).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+
+    await press(reaction(area, "party popper, 5"), isMobile);
+    await expect(reaction(area, "party popper, 4")).toHaveAttribute(
+      "aria-pressed",
+      "false",
+    );
+  });
+
+  test("the keys press it", async ({ page, isMobile }) => {
+    // A phone has no keys to press it with.
+    test.skip(isMobile);
+    const area = preview(page, "emoji-reaction/basic");
+
+    await reaction(area, "clapping hands, 2").focus();
+    await page.keyboard.press("Enter");
+    await expect(reaction(area, "clapping hands, 3")).toBeFocused();
+
+    await page.keyboard.press("Space");
+    await expect(reaction(area, "clapping hands, 2")).toBeFocused();
+  });
+
+  test("an emoji from the picker is a new reaction, and one that's there is joined", async ({
+    page,
+    isMobile,
+  }) => {
+    const area = preview(page, "emoji-reaction/picker");
+    const add = area.getByRole("button", { name: "Add reaction" });
+
+    await press(add, isMobile);
+    let panel = page.getByRole("dialog", { name: "Pick an emoji" });
+    await ready(panel);
+    await search(panel).fill("party popper");
+    await expect(emoji(panel, "party popper")).toBeVisible();
+    await search(panel).press("Enter");
+    await expect(reaction(area, "party popper, 1")).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+
+    await press(add, isMobile);
+    panel = page.getByRole("dialog", { name: "Pick an emoji" });
+    await ready(panel);
+    await search(panel).fill("thumbs up");
+    await expect(emoji(panel, "thumbs up")).toBeVisible();
+    await search(panel).press("Enter");
+    await expect(reaction(area, "thumbs up, 3")).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    await expect(area.locator(".nuv-emoji-reaction")).toHaveCount(2);
+  });
+
+  test("the last of a reaction taken away leaves no button, and the focus is on the one that adds", async ({
+    page,
+    isMobile,
+  }) => {
+    const area = preview(page, "emoji-reaction/picker");
+    const add = area.getByRole("button", { name: "Add reaction" });
+    await press(add, isMobile);
+    const panel = page.getByRole("dialog", { name: "Pick an emoji" });
+    await ready(panel);
+    await search(panel).fill("party popper");
+    await expect(emoji(panel, "party popper")).toBeVisible();
+    await search(panel).press("Enter");
+
+    await press(reaction(area, "party popper, 1"), isMobile);
+
+    await expect(reaction(area, /party popper/)).toHaveCount(0);
+    // A finger leaves no focus to follow.
+    if (!isMobile) await expect(add).toBeFocused();
+  });
+
+  test("a count written shorter is still read in full, and a disabled one can't be pressed", async ({
+    page,
+  }) => {
+    const area = preview(page, "emoji-reaction/states");
+
+    await expect(reaction(area, "rocket, 1284")).toHaveText("🚀1.3K");
+    await expect(reaction(area, "eyes, 3")).toBeDisabled();
+  });
+
+  test("the playground changes the button, and the code with it", async ({
+    page,
+    isMobile,
+  }) => {
+    const area = playground(page);
+    await expect(area.locator("pre")).toContainText("count={3}");
+
+    await press(reaction(area, "thumbs up, 3"), isMobile);
+    await expect(area.locator("pre")).toContainText("count={4} pressed");
+    await expect(area.getByRole("checkbox", { name: "pressed" })).toBeChecked();
+
+    await area.getByLabel("emoji").selectOption("party popper");
+    await expect(reaction(area, "party popper, 4")).toBeVisible();
+    await expect(area.locator("pre")).toContainText('label="party popper"');
+  });
+
+  test("a reaction is 44 pixels tall under a finger and 32 with a mouse", async ({
+    page,
+    isMobile,
+  }) => {
+    const box = await reaction(
+      preview(page, "emoji-reaction/basic"),
+      "clapping hands, 2",
+    ).boundingBox();
+
+    expect(Math.round(box?.height ?? 0)).toBe(isMobile ? 44 : 32);
+  });
+
+  test("on a narrow screen the page doesn't scroll sideways", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 320, height: 640 });
+    await expect(
+      reaction(preview(page, "emoji-reaction/basic"), "party popper, 5"),
+    ).toBeVisible();
+
+    expect(
+      await page.evaluate(
+        () =>
+          document.documentElement.scrollWidth -
+          document.documentElement.clientWidth,
+      ),
+    ).toBeLessThanOrEqual(0);
+  });
+
+  test("the examples pass axe", async ({ page }) => {
+    await expect(
+      reaction(preview(page, "emoji-reaction/basic"), "party popper, 5"),
+    ).toBeVisible();
 
     expect(
       (

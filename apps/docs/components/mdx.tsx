@@ -38,6 +38,7 @@ import { DialogPlayground } from "@/components/playground/dialog";
 import { DropdownMenuPlayground } from "@/components/playground/dropdown-menu";
 import { RichTextEditorPlayground } from "@/components/playground/editor";
 import { EmojiPickerPlayground } from "@/components/playground/emoji";
+import { EmojiReactionPlayground } from "@/components/playground/emoji-reaction";
 import { EmptyPlayground } from "@/components/playground/empty";
 import { FieldPlayground } from "@/components/playground/field";
 import { FieldsetPlayground } from "@/components/playground/fieldset";
@@ -154,6 +155,7 @@ export function getMDXComponents(components?: MDXComponents) {
     DialogPlayground,
     DropdownMenuPlayground,
     EmojiPickerPlayground,
+    EmojiReactionPlayground,
     EmptyPlayground,
     FormattedNumberPlayground,
     ItemPlayground,

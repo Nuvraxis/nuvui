@@ -54,6 +54,7 @@ import { KanbanPlayground } from "@/components/playground/kanban";
 import { KbdPlayground } from "@/components/playground/kbd";
 import { LabelPlayground } from "@/components/playground/label";
 import { ListViewPlayground } from "@/components/playground/list-view";
+import { MapViewPlayground } from "@/components/playground/map";
 import { MenubarPlayground } from "@/components/playground/menubar";
 import { NativeSelectPlayground } from "@/components/playground/native-select";
 import { NavbarPlayground } from "@/components/playground/navbar";
@@ -156,6 +157,7 @@ export function getMDXComponents(components?: MDXComponents) {
     DropdownMenuPlayground,
     EmojiPickerPlayground,
     EmojiReactionPlayground,
+    MapViewPlayground,
     EmptyPlayground,
     FormattedNumberPlayground,
     ItemPlayground,

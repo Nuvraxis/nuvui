@@ -52,6 +52,12 @@ const bare = {
   "--nuv-emoji-picker-border": "transparent",
 } as CSSProperties;
 
+// The same emoji is written with or without a mark that asks for it to be
+// drawn in color, and the picker's list writes it for some. Compared
+// without it, a thumbs up that's there is joined and not added twice.
+const plain = (emoji: string) => emoji.replaceAll("\uFE0F", "");
+const same = (one: string, other: string) => plain(one) === plain(other);
+
 export default function MessageReactions() {
   const [messages, setMessages] = useState(kept);
   // Which message's picker is open, if any.
@@ -67,11 +73,15 @@ export default function MessageReactions() {
     setMessages((now) =>
       now.map((message) => {
         if (message.id !== id) return message;
-        const there = message.reactions.find((entry) => entry.emoji === emoji);
+        const there = message.reactions.find((entry) =>
+          same(entry.emoji, emoji),
+        );
         const reactions = there
           ? message.reactions
               .map((entry) =>
-                entry.emoji === emoji ? { ...entry, mine: !entry.mine } : entry,
+                same(entry.emoji, emoji)
+                  ? { ...entry, mine: !entry.mine }
+                  : entry,
               )
               .filter((entry) => entry.mine || entry.others > 0)
           : [...message.reactions, { emoji, name, others: 0, mine: true }];
@@ -79,7 +89,7 @@ export default function MessageReactions() {
       }),
     );
     const message = messages.find((entry) => entry.id === id);
-    const before = message?.reactions.find((entry) => entry.emoji === emoji);
+    const before = message?.reactions.find((entry) => same(entry.emoji, emoji));
     const mine = before?.mine;
     // The last one of a reaction was yours: its button goes, and the
     // focus with it unless it's given somewhere to be.

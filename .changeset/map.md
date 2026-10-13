@@ -11,5 +11,6 @@ A new package, for a map on MapLibre.
 - `useMap`, the MapLibre map itself, for layers, sources and events.
 - The map is one stop for the Tab key and takes the arrow keys, and each marker that does something is a button. The box says when the map is loading, and when the browser can't draw one.
 - `cooperativeGestures` leaves the wheel and one finger to a page that scrolls.
-- MapLibre GL JS 5 is a dependency, loaded when a map is first drawn. Its stylesheet isn't needed.
-- `@nuvui/react` is a peer dependency.
+- `setMapWorkerUrl` says where MapLibre's worker is, which an app built with a bundler has to do once.
+- MapLibre GL JS is a peer dependency, version 6.4.1 or newer, loaded when a map is first drawn. Its stylesheet isn't needed.
+- `@nuvui/react` is a peer dependency. The package is ESM only, as MapLibre is.

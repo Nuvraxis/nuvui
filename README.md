@@ -47,6 +47,7 @@ What exists today:
 - `DirectionProvider`, for apps in languages that read from the right.
 - The design tokens: color scales, semantic colors for both themes, chart colors, type, spacing, radius, shadow, motion and control sizes. They build to CSS custom properties, and the SCSS source ships alongside.
 - Five presets, each a stylesheet that restyles everything, and three densities.
+- A [skill for coding agents](https://nuvui.nuvraxis.com/docs/agents), in `skills/nuvui`: the rules an agent gets wrong without being told, and a reference file for each component, written from the docs so it can't fall behind them. `pnpm dlx skills add Nuvraxis/nuvui` adds it to a project, and [`NuvUIAIAgent.md`](NuvUIAIAgent.md) is its first page. The docs are also served as plain text, at `/llms.txt`.
 - A [docs site](https://nuvui.nuvraxis.com/docs) with a page for each component, a getting started page, and search that runs in the browser.
 - A [website](https://nuvui.nuvraxis.com) around the docs, built with the library's own tokens: a home page with a live dashboard, [39 charts](https://nuvui.nuvraxis.com/charts) in ten families, each one file to copy, a [theme builder](https://nuvui.nuvraxis.com/themes) that shows a theme on real components in light and dark and gives it back as CSS, and [58 blocks](https://nuvui.nuvraxis.com/blocks) in eight groups. A block is a part of an app, such as a sign-in screen, a dashboard or a pricing table, as a TSX file and an SCSS file to copy. The site also serves them as a registry for shadcn's command line tool, at `/r`. The docs carry the website's header, so either leads to the other.
 - Guides for theming, for using the tokens with Tailwind v4, for using the SCSS source, for building forms, with React Hook Form as the worked example, and for right-to-left layouts. The theming page has an editor that changes tokens in the browser and prints the CSS for what you changed.
@@ -130,6 +131,7 @@ pnpm dev         # packages in watch mode plus the website and the docs
 - `packages/tooling` is what the published packages are built, checked and tested with. It isn't published.
 - `packages/typescript-config` holds the shared tsconfig presets.
 - `fixtures` holds two small apps that install the packed library the way a stranger would.
+- `skills/nuvui` is the skill for coding agents, and `NuvUIAIAgent.md` its first page. The reference in it is written from the docs by `pnpm skill`.
 
 ## Testing
 

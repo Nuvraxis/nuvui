@@ -1,0 +1,92 @@
+---
+title: Using with AI agents
+description: A skill that teaches a coding agent to build with nuvui, the docs as plain text for any model, and what an agent gets wrong without them.
+added: "2026-10-13"
+---
+
+A coding agent that hasn't been told about nuvui writes what it knows from other libraries: utility classes on components, a `components/ui` folder, props that don't exist. Two things fix that. A skill, which is the rules and the reference in a form agents load by themselves, and the docs as plain text, for anything else that reads.
+
+Neither is needed to use the library. They're for people who build with an agent.
+
+## The skill
+
+A skill is a folder of Markdown that an agent reads when the work calls for it. nuvui's is in the repository, at [`skills/nuvui`](https://github.com/Nuvraxis/nuvui/tree/main/skills/nuvui). Add it to a project with [the `skills` installer](https://github.com/vercel-labs/skills), run from the project's folder:
+
+```sh
+pnpm dlx skills add Nuvraxis/nuvui
+```
+
+It asks which agents to install for, and copies the folder to where each one looks: `.claude/skills` for Claude Code, `.agents/skills` for Cursor, Codex, GitHub Copilot and Gemini CLI, and so on. Add `-g` to install it for every project of yours and not only this one.
+
+From then on the agent loads it when it sees nuvui in a project: a `@nuvui/` package in `package.json`, an import from one, or a class that begins with `nuv-`. There's nothing to type.
+
+### By hand
+
+An agent the installer doesn't know can still use it. The same first page is one file at the root of the repository, [`NuvUIAIAgent.md`](https://github.com/Nuvraxis/nuvui/blob/main/NuvUIAIAgent.md). Point the agent at it, or copy the `skills/nuvui` folder into the project and name it in the agent's instructions file:
+
+```md title="AGENTS.md"
+This app is built with nuvui. Before writing UI, read skills/nuvui/SKILL.md
+and the files it points to.
+```
+
+### What's in it
+
+| File | What it is |
+| --- | --- |
+| `SKILL.md` | When to use the skill, what's different about nuvui, the packages, the rules in a line each, and a table from a need to the component for it. |
+| `rules/` | A file for each kind of mistake, with the reason and the code: styling, putting components together, forms, accessibility, text and direction, server components, and the add-on packages. |
+| `reference/` | A file for each page of these docs: every component's parts, props, CSS variables, classes and examples. |
+| `reference.md` | The list of those. |
+| `blocks.md` | The website's [blocks](https://nuvui.nuvraxis.com/blocks), and the command that adds one. |
+| `recipes.md` | Common screens, and the block or the pages to build each from. |
+| `tokens.md` | Every design token. |
+| `evals/` | Tasks the skill is tried on. |
+
+An agent reads `SKILL.md` first and the rest only as it needs them, so one that's adding a date picker doesn't read about charts.
+
+### It's written from the code
+
+The reference isn't written by hand. It's made from these docs when they're built, and the docs take their props from the components' types, their CSS variables and classes from the built stylesheets, and their examples from files that run on this site. A check in the repository fails when the skill is behind the docs, and when a component is on no page at all.
+
+So the skill in the repository matches the library in the repository. After you update nuvui, run the install command again to update the skill with it.
+
+## What it tells an agent
+
+The rules are the things an agent gets wrong without being told. The short version, which is also a fair list of what to look for when you review what one wrote:
+
+- **Installed, not copied.** Components come from `@nuvui/react` and its add-ons. There's no folder of them in the app.
+- **One stylesheet per package,** loaded once by the app. A component that renders unstyled is missing its stylesheet.
+- **Not Tailwind.** A look is changed with a prop, then a `--nuv-*` variable, then a token. Never with `!important` or a heavier selector.
+- **Every color is a token.** `var(--color-primary)`, and never a color written out.
+- **A component is its parts.** A dialog has a title. A trigger takes your button through `asChild`.
+- **Every control is in a [Field](/docs/components/field),** which ties its label and its error to it.
+- **A button with only an icon has an `aria-label`,** and every `nav` has a name.
+- **`"use client"` is on the components that need it.** A file of yours needs it only for its own state and handlers.
+
+## The docs as plain text
+
+For a model with no skill, or a tool that takes a URL:
+
+| Address | What's there |
+| --- | --- |
+| [`/llms.txt`](https://nuvui.nuvraxis.com/llms.txt) | A list of every page, with a line on each. |
+| [`/docs/llms-full.txt`](https://nuvui.nuvraxis.com/docs/llms-full.txt) | Every page in one file. It's large. |
+| `/docs/llms/<page>.md` | One page, such as [`/docs/llms/components/button.md`](https://nuvui.nuvraxis.com/docs/llms/components/button.md). |
+
+They're the same pages as the skill's reference, written by the same step, with the examples' source in place of the examples.
+
+## Blocks, through shadcn's tool
+
+The [blocks](https://nuvui.nuvraxis.com/blocks) are served as a registry that shadcn's command line tool reads. An agent that knows that tool can add one with it, and the skill tells it the command:
+
+```sh
+pnpm dlx shadcn@latest add https://nuvui.nuvraxis.com/r/sign-in.json
+```
+
+That copies the block's two files and installs the packages it needs. The project doesn't have to use shadcn's components.
+
+## What it doesn't do
+
+- **It doesn't look at your app for you.** The skill tells the agent to read `package.json` for which packages are there, and to follow how the app already styles its own layout. It has no command that reports on a project.
+- **It doesn't check the result.** Run your lint and typecheck, and look at the screen: in dark mode, at the width of a phone, with a keyboard.
+- **It isn't a server.** There's nothing running that an agent asks questions of. Everything is files.

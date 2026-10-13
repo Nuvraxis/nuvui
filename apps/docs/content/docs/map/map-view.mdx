@@ -66,7 +66,7 @@ Without anything to do, a marker is a picture. With `popup`, `onClick` or `dragg
 
 `popup` is what opens over the marker when it's pressed. The popup is named for the marker, the focus goes into it, and Escape or its button closes it and puts the focus back. A press on the map, or on another marker, closes it too.
 
-`open` with `onOpenChange` is for keeping it yourself, which the example under [Where the map is](#where-the-map-is) does so that one popup is open at a time. A popup that your code opens, or that's open with the page through `defaultOpen`, leaves the focus where it is.
+`open` with `onOpenChange` is for keeping it yourself, for opening a marker from outside the map, such as from a list beside it, or for knowing which is open. The example under [Where the map is](#where-the-map-is) keeps it. A popup that your code opens, or that's open with the page through `defaultOpen`, leaves the focus where it is.
 
 ### Drawn your way
 
@@ -205,7 +205,7 @@ It's a `div`, and takes what a `div` takes.
 ### What you need to handle
 
 - Give the map an `aria-label` that says what it's of: "Our offices", and not "Map".
-- A map says little to someone who can't see it. Give what it shows another way as well: a list of the places beside it, or the address in words. The [store locator block](https://nuvui.nuvraxis.com/blocks/data) is a list and a map of the same places.
+- A map says little to someone who can't see it. Give what it shows another way as well: a list of the places beside it, or the address in words. The [Find a branch block](https://nuvui.nuvraxis.com/blocks/data) is a list and a map of the same places.
 - Keep the markers that are buttons few enough to tab through. Hundreds of stops is no way across a page. [MapClusters](/docs/map/map-clusters) gathers the ones that are near each other.
 - The colors of the map are the style's. Check that what matters on it can be told apart, and that your markers stand off it.
 

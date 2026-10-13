@@ -1,0 +1,5 @@
+{
+  "title": "Map",
+  "defaultOpen": true,
+  "pages": ["index", "map-view"]
+}

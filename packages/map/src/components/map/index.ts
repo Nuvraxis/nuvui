@@ -17,5 +17,6 @@ export {
   type MapViewOwnProps,
   type MapViewProps,
   type MapViewState,
+  setMapWorkerUrl,
   useMap,
 } from "./map";

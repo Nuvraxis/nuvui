@@ -27,7 +27,7 @@ test.describe("map start page", () => {
     const article = page.locator("article").first();
 
     await expect(
-      article.getByText("pnpm add @nuvui/map @nuvui/react").first(),
+      article.getByText("pnpm add @nuvui/map maplibre-gl @nuvui/react").first(),
     ).toBeVisible();
     await expect(
       article.getByRole("link", { name: "MapView", exact: true }).first(),

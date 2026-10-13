@@ -52,6 +52,7 @@ const published = {
   "@nuvui/kanban": "kanban",
   "@nuvui/editor": "editor",
   "@nuvui/emoji": "emoji",
+  "@nuvui/map": "map",
 };
 
 function expect(app, what, passed) {
@@ -132,6 +133,15 @@ const fixtures = {
       "it has the reaction, from its own entry, and its styles",
       css.includes(".nuv-emoji-reaction") &&
         script.includes("nuv-emoji-reaction__count"),
+    );
+    expect("vite", "it has the map's styles", css.includes(".nuv-map"));
+    // MapLibre is asked for when a map is first drawn, so it's in the
+    // build, in a file of its own.
+    expect(
+      "vite",
+      "the script has the map, and MapLibre for it to load",
+      script.includes("nuv-map__canvas") &&
+        script.includes("maplibregl-canvas"),
     );
     expect(
       "vite",
@@ -263,6 +273,12 @@ const fixtures = {
       "next",
       "it has the picker's styles",
       css.includes(".nuv-emoji-picker"),
+    );
+    expect("next", "it has the map's styles", css.includes(".nuv-map"));
+    expect(
+      "next",
+      "the server rendered the map's box, saying the map is on its way",
+      html.includes("nuv-map__canvas") && html.includes("Loading map"),
     );
     expect(
       "next",

@@ -4292,7 +4292,7 @@ async function pickEmoji(page: Page, name: string) {
 test.describe("message reactions", () => {
   const reaction = (page: Page, name: RegExp | string) =>
     page
-      .locator(".message-reactions__reaction")
+      .locator(".message-reactions .nuv-emoji-reaction")
       .and(page.getByRole("button", { name }));
   const said = (page: Page) => page.locator(".message-reactions__said");
 
@@ -4311,7 +4311,9 @@ test.describe("message reactions", () => {
       "aria-pressed",
       "false",
     );
-    await expect(page.locator(".message-reactions__reaction")).toHaveCount(2);
+    await expect(
+      page.locator(".message-reactions .nuv-emoji-reaction"),
+    ).toHaveCount(2);
   });
 
   test("message reactions: pressing a reaction joins it, and pressing yours takes it away", async ({
@@ -4378,7 +4380,9 @@ test.describe("message reactions", () => {
       "aria-pressed",
       "true",
     );
-    await expect(page.locator(".message-reactions__reaction")).toHaveCount(2);
+    await expect(
+      page.locator(".message-reactions .nuv-emoji-reaction"),
+    ).toHaveCount(2);
   });
 
   test("message reactions: on a phone the page doesn't scroll sideways", async ({

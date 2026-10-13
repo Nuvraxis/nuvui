@@ -1,6 +1,6 @@
 "use client";
 
-import { EmojiPicker } from "@nuvui/emoji";
+import { EmojiPicker, EmojiReaction } from "@nuvui/emoji";
 import { Button, Popover, PopoverContent, PopoverTrigger } from "@nuvui/react";
 import { type CSSProperties, useRef, useState } from "react";
 import "./message-reactions.scss";
@@ -107,24 +107,18 @@ export default function MessageReactions() {
             </p>
             <p className="message-reactions__text">{message.text}</p>
             <div className="message-reactions__row">
-              {message.reactions.map((reaction) => {
-                const count = reaction.others + (reaction.mine ? 1 : 0);
-                return (
-                  <button
-                    key={reaction.emoji}
-                    type="button"
-                    aria-pressed={reaction.mine}
-                    aria-label={`${reaction.name}, ${count}`}
-                    className="message-reactions__reaction"
-                    onClick={() =>
-                      react(message.id, reaction.emoji, reaction.name)
-                    }
-                  >
-                    <span aria-hidden="true">{reaction.emoji}</span>
-                    <span aria-hidden="true">{count}</span>
-                  </button>
-                );
-              })}
+              {message.reactions.map((reaction) => (
+                <EmojiReaction
+                  key={reaction.emoji}
+                  emoji={reaction.emoji}
+                  label={reaction.name}
+                  count={reaction.others + (reaction.mine ? 1 : 0)}
+                  pressed={reaction.mine}
+                  onPressedChange={() =>
+                    react(message.id, reaction.emoji, reaction.name)
+                  }
+                />
+              ))}
               <Popover
                 open={open === message.id}
                 onOpenChange={(next) => setOpen(next ? message.id : null)}

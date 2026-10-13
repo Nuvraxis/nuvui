@@ -288,12 +288,14 @@
     text-decoration: underline;
   }
 
-  // The popup's box, and the tip that points at the place.
+  // The popup's box, and the tip that points at the place. Over the
+  // buttons: on a narrow map the two meet, and the popup is what the reader
+  // has just asked for, with its own button to close it.
   .maplibregl-popup {
     position: absolute;
     inset-block-start: 0;
     left: 0;
-    z-index: 1;
+    z-index: 3;
     display: flex;
     filter: drop-shadow(0 0 1px var(--nuv-map-popup-border, var(--color-border-strong))) drop-shadow(0 2px 6px var(--nuv-map-popup-border, var(--color-border-strong)));
     pointer-events: none;
@@ -407,7 +409,7 @@
   .maplibregl-cooperative-gesture-screen {
     position: absolute;
     inset: 0;
-    z-index: 3;
+    z-index: 4;
     display: flex;
     align-items: center;
     justify-content: center;

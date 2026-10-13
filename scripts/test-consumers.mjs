@@ -136,12 +136,20 @@ const fixtures = {
     );
     expect("vite", "it has the map's styles", css.includes(".nuv-map"));
     // MapLibre is asked for when a map is first drawn, so it's in the
-    // build, in a file of its own.
+    // build, in a file of its own. Its worker is another, which the app
+    // asked Vite for the address of.
     expect(
       "vite",
       "the script has the map, and MapLibre for it to load",
       script.includes("nuv-map__canvas") &&
         script.includes("maplibregl-canvas"),
+    );
+    expect(
+      "vite",
+      "the build has MapLibre's worker, as a file of its own",
+      files(join(dir, "dist"), ".mjs").some((file) =>
+        file.includes("maplibre-gl-worker"),
+      ),
     );
     expect(
       "vite",

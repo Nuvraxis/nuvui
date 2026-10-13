@@ -1,0 +1,449 @@
+@use "../../styles/layers";
+@use "@nuvui/react/scss/mixins";
+
+@layer components {
+  // A box of a set height with the map in it. What's over the map, the
+  // buttons and the words, is over it in here too.
+  .nuv-map {
+    position: relative;
+    inline-size: 100%;
+    block-size: var(--nuv-map-height, 24rem);
+    overflow: hidden;
+    border: var(--nuv-border-width, 1px) solid var(--nuv-map-border, var(--color-border));
+    border-radius: var(--nuv-map-radius, var(--radius-lg));
+    background-color: var(--nuv-map-bg, var(--color-muted));
+    color: var(--color-foreground);
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+
+    // Kept apart from the page, so nothing on the map is over what's
+    // beside it.
+    isolation: isolate;
+
+    &:fullscreen {
+      inline-size: 100%;
+      block-size: 100%;
+      border: 0;
+      border-radius: 0;
+    }
+  }
+
+  .nuv-map__canvas {
+    position: absolute;
+    inset: 0;
+  }
+
+  // The words shown in place of the map: while it's on its way, and when
+  // it can't be drawn.
+  .nuv-map__note {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: calc(var(--spacing) * 4);
+    background-color: var(--nuv-map-bg, var(--color-muted));
+    color: var(--nuv-map-note-fg, var(--color-foreground));
+    text-align: center;
+    pointer-events: none;
+  }
+
+  // MapLibre places this one. The marker is what's drawn in it.
+  .nuv-map__marker-holder {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    will-change: transform;
+  }
+
+  .nuv-map__marker {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background-color: transparent;
+    color: var(--nuv-map-marker-bg, var(--color-primary));
+    font: inherit;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+
+    // A pin is smaller than a finger. The area that takes a tap isn't.
+    @include mixins.touch-area;
+    @include mixins.focus-ring;
+
+    &[role="img"] {
+      cursor: inherit;
+    }
+
+    &[data-draggable] {
+      cursor: grab;
+      touch-action: none;
+    }
+  }
+
+  .nuv-map__pin {
+    display: block;
+    overflow: visible;
+  }
+
+  // An edge in the other color, so the pin is seen on a map of any color.
+  .nuv-map__pin-body {
+    fill: currentcolor;
+    stroke: var(--nuv-map-marker-fg, var(--color-primary-foreground));
+    stroke-width: 1px;
+
+    @media (forced-colors: active) {
+      fill: canvastext;
+      stroke: canvas;
+    }
+  }
+
+  .nuv-map__pin-dot {
+    fill: var(--nuv-map-marker-fg, var(--color-primary-foreground));
+
+    @media (forced-colors: active) {
+      fill: canvas;
+    }
+  }
+
+  // Where the reader is.
+  .nuv-map__location {
+    display: block;
+    inline-size: 1rem;
+    block-size: 1rem;
+    border: 2px solid var(--nuv-map-marker-fg, var(--color-primary-foreground));
+    border-radius: var(--radius-full);
+    background-color: var(--nuv-map-marker-bg, var(--color-primary));
+    box-shadow: var(--shadow-sm);
+  }
+
+  // The popup. MapLibre places the box around this one and gives it a tip.
+  .nuv-map__popup {
+    position: relative;
+    max-inline-size: var(--nuv-map-popup-width, 18rem);
+    padding: var(--nuv-map-popup-padding, calc(var(--spacing) * 3));
+    padding-inline-end: calc(var(--spacing) * 10);
+    color: var(--nuv-map-popup-fg, var(--color-surface-foreground));
+
+    &:focus {
+      outline: none;
+    }
+
+    @include mixins.focus-ring(-2px);
+  }
+
+  .nuv-map__popup-body {
+    overflow-wrap: anywhere;
+  }
+
+  .nuv-map__popup-close {
+    position: absolute;
+    inset-block-start: calc(var(--spacing) * 1);
+    inset-inline-end: calc(var(--spacing) * 1);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 2rem;
+    block-size: 2rem;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-md);
+    background-color: transparent;
+    color: inherit;
+    cursor: pointer;
+
+    @include mixins.touch-area;
+    @include mixins.focus-ring;
+
+    @include mixins.hover {
+      background-color: var(--color-muted);
+    }
+  }
+
+  // The buttons, in a corner.
+  .nuv-map__controls {
+    position: absolute;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 1);
+    margin: var(--nuv-map-controls-offset, calc(var(--spacing) * 2));
+  }
+
+  .nuv-map__controls--top-start {
+    inset-block-start: 0;
+    inset-inline-start: 0;
+  }
+
+  .nuv-map__controls--top-end {
+    inset-block-start: 0;
+    inset-inline-end: 0;
+  }
+
+  .nuv-map__controls--bottom-start {
+    inset-block-end: 0;
+    inset-inline-start: 0;
+  }
+
+  // Over the names of whose map it is, which are in this corner.
+  .nuv-map__controls--bottom-end {
+    inset-block-end: calc(var(--spacing) * 6);
+    inset-inline-end: 0;
+  }
+
+  // Square, with a shadow to stand off the map.
+  // The core's variable and not a padding of its own, so it holds
+  // whichever stylesheet is loaded last.
+  .nuv-map__control {
+    --nuv-button-padding-inline: 0;
+
+    box-shadow: var(--shadow-sm);
+  }
+
+  // Read out and not drawn.
+  .nuv-map__status {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  // MapLibre's own elements, by its own class names. Its stylesheet isn't
+  // loaded: these are the rules of it that the map can't do without, in
+  // this library's colors.
+  /* stylelint-disable selector-class-pattern */
+  .maplibregl-map {
+    overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .maplibregl-canvas {
+    position: absolute;
+    inset-block-start: 0;
+    left: 0;
+
+    // The ring is drawn inside, since the box around the map cuts off
+    // what's outside it.
+    @include mixins.focus-ring(-2px);
+  }
+
+  // What a finger does over the map is the map's, and not the page's.
+  .maplibregl-touch-zoom-rotate,
+  .maplibregl-touch-zoom-rotate .maplibregl-canvas {
+    touch-action: pan-x pan-y;
+  }
+
+  .maplibregl-touch-drag-pan,
+  .maplibregl-touch-drag-pan .maplibregl-canvas {
+    touch-action: pinch-zoom;
+  }
+
+  .maplibregl-touch-zoom-rotate.maplibregl-touch-drag-pan,
+  .maplibregl-touch-zoom-rotate.maplibregl-touch-drag-pan .maplibregl-canvas {
+    touch-action: none;
+  }
+
+  .maplibregl-touch-drag-pan.maplibregl-cooperative-gestures,
+  .maplibregl-touch-drag-pan.maplibregl-cooperative-gestures .maplibregl-canvas {
+    touch-action: pan-x pan-y;
+  }
+
+  // Whose map it is, in the corner where maps have it.
+  .maplibregl-ctrl-bottom-right {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+    max-inline-size: 100%;
+  }
+
+  .maplibregl-ctrl-attrib {
+    padding: 0 calc(var(--spacing) * 1.5);
+    border-start-start-radius: var(--radius-sm);
+    background-color: var(--nuv-map-attribution-bg, var(--color-surface));
+    color: var(--nuv-map-attribution-fg, var(--color-surface-foreground));
+    font-size: var(--text-xs);
+    line-height: var(--text-xs--line-height);
+  }
+
+  // No source has named anyone.
+  .maplibregl-attrib-empty {
+    display: none;
+  }
+
+  .maplibregl-ctrl-attrib-button {
+    display: none;
+  }
+
+  .maplibregl-ctrl-attrib a {
+    color: inherit;
+    text-decoration: underline;
+  }
+
+  // The popup's box, and the tip that points at the place.
+  .maplibregl-popup {
+    position: absolute;
+    inset-block-start: 0;
+    left: 0;
+    z-index: 1;
+    display: flex;
+    filter: drop-shadow(0 0 1px var(--nuv-map-popup-border, var(--color-border-strong))) drop-shadow(0 2px 6px var(--nuv-map-popup-border, var(--color-border-strong)));
+    pointer-events: none;
+    will-change: transform;
+  }
+
+  .maplibregl-popup-anchor-top,
+  .maplibregl-popup-anchor-top-left,
+  .maplibregl-popup-anchor-top-right {
+    flex-direction: column;
+  }
+
+  .maplibregl-popup-anchor-bottom,
+  .maplibregl-popup-anchor-bottom-left,
+  .maplibregl-popup-anchor-bottom-right {
+    flex-direction: column-reverse;
+  }
+
+  .maplibregl-popup-anchor-left {
+    flex-direction: row;
+  }
+
+  .maplibregl-popup-anchor-right {
+    flex-direction: row-reverse;
+  }
+
+  .maplibregl-popup-content {
+    position: relative;
+    border-radius: var(--nuv-map-popup-radius, var(--radius-md));
+    background-color: var(--nuv-map-popup-bg, var(--color-surface));
+    pointer-events: auto;
+  }
+
+  .maplibregl-popup-tip {
+    z-index: 1;
+    inline-size: 0;
+    block-size: 0;
+    border: 8px solid transparent;
+  }
+
+  .maplibregl-popup-anchor-top .maplibregl-popup-tip {
+    align-self: center;
+    border-block-start: 0;
+    border-bottom-color: var(--nuv-map-popup-bg, var(--color-surface));
+  }
+
+  .maplibregl-popup-anchor-top-left .maplibregl-popup-tip {
+    align-self: flex-start;
+    border-block-start: 0;
+    border-left: 0;
+    border-bottom-color: var(--nuv-map-popup-bg, var(--color-surface));
+  }
+
+  .maplibregl-popup-anchor-top-right .maplibregl-popup-tip {
+    align-self: flex-end;
+    border-block-start: 0;
+    border-right: 0;
+    border-bottom-color: var(--nuv-map-popup-bg, var(--color-surface));
+  }
+
+  .maplibregl-popup-anchor-bottom .maplibregl-popup-tip {
+    align-self: center;
+    border-block-end: 0;
+    border-top-color: var(--nuv-map-popup-bg, var(--color-surface));
+  }
+
+  .maplibregl-popup-anchor-bottom-left .maplibregl-popup-tip {
+    align-self: flex-start;
+    border-block-end: 0;
+    border-left: 0;
+    border-top-color: var(--nuv-map-popup-bg, var(--color-surface));
+  }
+
+  .maplibregl-popup-anchor-bottom-right .maplibregl-popup-tip {
+    align-self: flex-end;
+    border-block-end: 0;
+    border-right: 0;
+    border-top-color: var(--nuv-map-popup-bg, var(--color-surface));
+  }
+
+  .maplibregl-popup-anchor-left .maplibregl-popup-tip {
+    align-self: center;
+    border-left: 0;
+    border-right-color: var(--nuv-map-popup-bg, var(--color-surface));
+  }
+
+  .maplibregl-popup-anchor-right .maplibregl-popup-tip {
+    align-self: center;
+    border-right: 0;
+    border-left-color: var(--nuv-map-popup-bg, var(--color-surface));
+  }
+
+  .maplibregl-popup-anchor-top-left .maplibregl-popup-content {
+    border-start-start-radius: 0;
+  }
+
+  .maplibregl-popup-anchor-top-right .maplibregl-popup-content {
+    border-start-end-radius: 0;
+  }
+
+  .maplibregl-popup-anchor-bottom-left .maplibregl-popup-content {
+    border-end-start-radius: 0;
+  }
+
+  .maplibregl-popup-anchor-bottom-right .maplibregl-popup-content {
+    border-end-end-radius: 0;
+  }
+
+  // With cooperativeGestures: the words over the map that say how to move
+  // it, shown when the wheel or one finger is used on it.
+  .maplibregl-cooperative-gesture-screen {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: calc(var(--spacing) * 4);
+    background-color: var(--nuv-map-gesture-bg, var(--color-foreground));
+    color: var(--nuv-map-gesture-fg, var(--color-background));
+    font-size: var(--text-base);
+    text-align: center;
+    opacity: 0;
+    pointer-events: none;
+
+    @include mixins.motion-safe {
+      transition: opacity 0.4s var(--ease-out) 0.6s;
+    }
+  }
+
+  .maplibregl-cooperative-gesture-screen.maplibregl-show {
+    opacity: 0.85;
+
+    @include mixins.motion-safe {
+      transition: opacity 0.05s;
+    }
+  }
+
+  .maplibregl-mobile-message {
+    display: none;
+  }
+
+  @media (pointer: coarse) {
+    .maplibregl-desktop-message {
+      display: none;
+    }
+
+    .maplibregl-mobile-message {
+      display: block;
+    }
+  }
+  /* stylelint-enable selector-class-pattern */
+}

@@ -2,7 +2,7 @@
 
 A map for [`@nuvui/react`](https://www.npmjs.com/package/@nuvui/react), on MapLibre.
 
-This is early: the package isn't on npm yet, and before 1.0 a minor version may rename or remove things. The [changelog](https://nuvui.nuvraxis.com/docs/changelog) says where one does, and the [repository README](https://github.com/Nuvraxis/nuvui#readme) says where things stand.
+This is early: the package is on npm as a 0.x version, and before 1.0 a minor version may rename or remove things. The [changelog](https://nuvui.nuvraxis.com/docs/changelog) says where one does, and the [repository README](https://github.com/Nuvraxis/nuvui#readme) says where things stand.
 
 ```sh
 pnpm add @nuvui/map maplibre-gl @nuvui/react

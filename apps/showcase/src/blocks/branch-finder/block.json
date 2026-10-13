@@ -1,0 +1,9 @@
+{
+  "name": "branch-finder",
+  "title": "Find a branch",
+  "description": "A list of branches beside a map of the same ones. A search narrows both and the map fits what's left, and choosing a branch in the list opens it on the map, as pressing its marker does in the list. The map's tiles come from a provider you choose.",
+  "category": "data",
+  "files": ["branch-finder.tsx", "branch-finder.scss"],
+  "install": ["@nuvui/map", "@nuvui/react"],
+  "height": 720
+}

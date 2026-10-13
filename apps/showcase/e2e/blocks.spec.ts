@@ -12,6 +12,7 @@ import {
   viewPath,
 } from "../src/lib/blocks";
 import {
+  drawsMaps,
   open,
   overflow,
   pageProblems,
@@ -4288,6 +4289,163 @@ async function pickEmoji(page: Page, name: string) {
   await search.press("Enter");
   await expect(panel).toBeHidden();
 }
+
+test.describe("find a branch", () => {
+  const branch = (page: Page, name: string) =>
+    page.locator(".branch-finder__branch").filter({ hasText: name });
+  const pin = (page: Page, name: string) =>
+    page.locator(".nuv-map__marker").and(page.getByRole("button", { name }));
+  const count = (page: Page) => page.locator(".branch-finder__count");
+  const find = (page: Page) =>
+    page.getByRole("searchbox", { name: "Search by name, city or street" });
+
+  test.describe("the list", () => {
+    test.beforeEach(async ({ page }) => {
+      await open(page, "/blocks/view/branch-finder");
+    });
+
+    test("find a branch: every branch is in the list, with how many there are", async ({
+      page,
+    }) => {
+      await expect(page.locator(".branch-finder__branch")).toHaveCount(5);
+      await expect(count(page)).toHaveText("5 branches");
+      await expect(branch(page, "Utrecht Vredenburg")).toContainText(
+        "Vredenburg 9, 3511 BA",
+      );
+      await expect(branch(page, "Utrecht Vredenburg")).toHaveAttribute(
+        "aria-pressed",
+        "false",
+      );
+    });
+
+    test("find a branch: a search narrows the list, and one that finds nothing says so", async ({
+      page,
+    }) => {
+      await find(page).fill("utrecht");
+      await expect(page.locator(".branch-finder__branch")).toHaveCount(1);
+      await expect(count(page)).toHaveText("1 branch");
+
+      await find(page).fill("blaak");
+      await expect(branch(page, "Rotterdam Blaak")).toBeVisible();
+
+      await find(page).fill("zzz");
+      await expect(page.locator(".branch-finder__branch")).toHaveCount(0);
+      await expect(count(page)).toHaveText("No branch matches");
+    });
+
+    test("find a branch: on a phone the page doesn't scroll sideways", async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width: 320, height: 640 });
+      await open(page, "/blocks/view/branch-finder");
+
+      expect(await overflow(page)).toBeLessThanOrEqual(0);
+    });
+
+    for (const theme of ["light", "dark"] as const) {
+      test(`find a branch: it passes axe in ${theme}`, async ({ page }) => {
+        await setTheme(page, theme);
+        await open(page, "/blocks/view/branch-finder");
+        await settleStyles(page);
+        expect(
+          (await new AxeBuilder({ page }).withTags(wcag).analyze()).violations,
+        ).toEqual([]);
+      });
+    }
+  });
+
+  test.describe("the map", () => {
+    test.beforeEach(async ({ page }) => {
+      await open(page, "/blocks/view/branch-finder");
+      test.skip(!(await drawsMaps(page)), "this browser draws no WebGL here");
+      await expect(page.locator(".nuv-map")).toHaveAttribute(
+        "data-state",
+        "ready",
+        { timeout: 20_000 },
+      );
+    });
+
+    test("find a branch: every branch has a marker, all of them in view", async ({
+      page,
+    }) => {
+      await expect(page.locator(".nuv-map__marker")).toHaveCount(5);
+      const box = await page.locator(".nuv-map").boundingBox();
+
+      for (const name of ["Amsterdam Centrum", "Eindhoven Markt"]) {
+        const at = await pin(page, name).boundingBox();
+        expect(at?.x ?? -1).toBeGreaterThanOrEqual(box?.x ?? 0);
+        expect((at?.y ?? 0) + (at?.height ?? 0)).toBeLessThanOrEqual(
+          (box?.y ?? 0) + (box?.height ?? 0),
+        );
+      }
+    });
+
+    test("find a branch: a branch chosen in the list opens on the map, and the focus stays in the list", async ({
+      page,
+      isMobile,
+    }) => {
+      await press(branch(page, "Utrecht Vredenburg"), isMobile);
+
+      await expect(branch(page, "Utrecht Vredenburg")).toHaveAttribute(
+        "aria-pressed",
+        "true",
+      );
+      await expect(
+        page.getByRole("dialog", { name: "Utrecht Vredenburg" }),
+      ).toContainText("Open until 20:00");
+      if (!isMobile) {
+        await expect(branch(page, "Utrecht Vredenburg")).toBeFocused();
+      }
+
+      await press(branch(page, "Utrecht Vredenburg"), isMobile);
+      await expect(page.getByRole("dialog")).toHaveCount(0);
+      await expect(branch(page, "Utrecht Vredenburg")).toHaveAttribute(
+        "aria-pressed",
+        "false",
+      );
+    });
+
+    test("find a branch: a marker pressed on the map is the branch chosen in the list", async ({
+      page,
+      isMobile,
+    }) => {
+      await press(pin(page, "Eindhoven Markt"), isMobile);
+
+      await expect(
+        page.getByRole("dialog", { name: "Eindhoven Markt" }),
+      ).toContainText("Markt 22, 5611 EC");
+      await expect(branch(page, "Eindhoven Markt")).toHaveAttribute(
+        "aria-pressed",
+        "true",
+      );
+
+      await press(pin(page, "Amsterdam Centrum"), isMobile);
+      await expect(page.getByRole("dialog")).toHaveCount(1);
+      await expect(branch(page, "Eindhoven Markt")).toHaveAttribute(
+        "aria-pressed",
+        "false",
+      );
+      await expect(branch(page, "Amsterdam Centrum")).toHaveAttribute(
+        "aria-pressed",
+        "true",
+      );
+    });
+
+    test("find a branch: a search leaves the markers of what it found, and closes what was open", async ({
+      page,
+      isMobile,
+    }) => {
+      await press(branch(page, "Rotterdam Blaak"), isMobile);
+      await expect(page.getByRole("dialog")).toHaveCount(1);
+
+      await find(page).fill("utrecht");
+
+      await expect(page.locator(".nuv-map__marker")).toHaveCount(1);
+      await expect(pin(page, "Utrecht Vredenburg")).toBeVisible();
+      await expect(page.getByRole("dialog")).toHaveCount(0);
+    });
+  });
+});
 
 test.describe("message reactions", () => {
   const reaction = (page: Page, name: RegExp | string) =>

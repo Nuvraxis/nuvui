@@ -8,6 +8,7 @@ import "@nuvui/chat/styles.css";
 import "@nuvui/kanban/styles.css";
 import "@nuvui/editor/styles.css";
 import "@nuvui/emoji/styles.css";
+import "@nuvui/map/styles.css";
 // The two codes, each from the entry of its own.
 import { Barcode } from "@nuvui/barcodes/barcode";
 import { QRCode } from "@nuvui/barcodes/qrcode";
@@ -41,6 +42,8 @@ import {
   KanbanCards,
   KanbanColumn,
 } from "@nuvui/kanban/kanban";
+// The map, from the entry of its one component.
+import { MapMarker, MapView } from "@nuvui/map/map";
 import {
   Button,
   type ButtonProps,
@@ -128,6 +131,12 @@ function App() {
       <RichTextEditor aria-label="Notes" defaultValue="<p>Hello</p>" />
       <EmojiPicker onEmojiSelect={(emoji) => toast(emoji)} />
       <EmojiReaction emoji="👍" label="thumbs up" count={3} />
+      <MapView
+        aria-label="Office"
+        mapStyle={{ version: 8, sources: {}, layers: [] }}
+      >
+        <MapMarker position={[13.405, 52.52]} label="Berlin office" />
+      </MapView>
       <Kanban
         aria-label="Work"
         defaultValue={[{ id: "todo", cards: ["brief"] }]}

@@ -18,6 +18,7 @@ import {
 import { DatePicker } from "@nuvui/date-picker";
 import { RichTextEditor } from "@nuvui/editor/rich-text-editor";
 import { EmojiPicker } from "@nuvui/emoji/emoji-picker";
+import { ArrowRightIcon } from "@nuvui/icons/sharp";
 import {
   Kanban,
   KanbanCard,
@@ -157,7 +158,7 @@ export function App() {
         <TabsContent value="two">The second section.</TabsContent>
       </Tabs>
       <Button size="lg" onClick={() => toast("Saved")}>
-        Save
+        Save <ArrowRightIcon title="and go on" />
       </Button>
       <Dialog>
         <DialogTrigger asChild>

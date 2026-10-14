@@ -25,7 +25,8 @@
     "check:licenses": "node scripts/check-licenses.mjs",
     "check:audit": "pnpm audit --audit-level high",
     "skill": "pnpm --filter @nuvui/docs run skill",
-    "check:skill": "pnpm --filter @nuvui/docs run skill --check"
+    "check:skill": "pnpm --filter @nuvui/docs run skill --check",
+    "icons:fetch": "pnpm --filter @nuvui/icons run icons:fetch"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.15",

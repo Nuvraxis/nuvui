@@ -1,0 +1,29 @@
+[
+  {
+    "name": "one icon from @nuvui/icons",
+    "path": "dist/index.js",
+    "import": "{ ArrowRightIcon }",
+    "limit": "500 B"
+  },
+  {
+    "name": "one icon from @nuvui/icons/rounded",
+    "path": "dist/rounded.js",
+    "import": "{ ArrowRightIcon }",
+    "limit": "500 B"
+  },
+  {
+    "name": "@nuvui/icons, every icon",
+    "path": "dist/index.js",
+    "limit": "12 kB"
+  },
+  {
+    "name": "@nuvui/icons/rounded, every icon",
+    "path": "dist/rounded.js",
+    "limit": "16 kB"
+  },
+  {
+    "name": "@nuvui/icons/sharp, every icon",
+    "path": "dist/sharp.js",
+    "limit": "12 kB"
+  }
+]

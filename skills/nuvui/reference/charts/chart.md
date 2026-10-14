@@ -86,8 +86,8 @@ const config = {
 | --- | --- | --- | --- |
 | `label` | `ReactNode` |  | The name shown in the tooltip, the legend and the table. |
 | `color` | `string` |  | Any CSS color. Left out, the series takes the next of the theme's eight chart colors, `--color-chart-1` to `--color-chart-8`, by its place in the config. |
-| `pattern` | `ChartPattern` |  | The fill of this series, always. Left out, the series is filled with its color, and with a pattern of its own when the container has `patterns` or the browser is forcing colors. |
-| `dash` | `ChartDash` |  | The same for its line. |
+| `pattern` | `"cross" \| "diagonal" \| "dots" \| "grid" \| "horizontal" \| "reverse-diagonal" \| "solid" \| "vertical"` |  | The fill of this series, always. Left out, the series is filled with its color, and with a pattern of its own when the container has `patterns` or the browser is forcing colors. |
+| `dash` | `"dash-dot" \| "dash-dot-dot" \| "dashed" \| "dotted" \| "long-dash" \| "long-short" \| "short-dash" \| "solid"` |  | The same for its line. |
 
 Make the config once, outside the component, or with `useMemo`. A new object on every render makes the container work its variables out again every time.
 
@@ -335,7 +335,7 @@ The container's child has to be the Recharts chart itself, `<BarChart>` or one o
 
 | Prop | Type | Default | What it's for |
 | --- | --- | --- | --- |
-| `indicator` | `ChartIndicator` | `"square"` | The sample drawn next to each series. |
+| `indicator` | `"line" \| "square"` | `"square"` | The sample drawn next to each series. |
 | `nameKey` | `string` |  | The field of a data row that holds the series' key. Only needed when neither the series' name nor its data key is a key of the config. |
 | `className` | `string` |  |  |
 

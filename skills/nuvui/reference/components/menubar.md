@@ -122,7 +122,7 @@ What goes inside a menu is the same as in a [dropdown menu](dropdown-menu.md), p
 | `defaultValue` | `string` |  | The menu that starts open, when you don't control it. |
 | `onValueChange` | `((value: string) => void)` |  | Called with a menu's `value` when it opens, and with an empty string when the last one closes. |
 | `loop` | `boolean` |  | Whether the arrow keys wrap from the last entry to the first and back. On unless you pass `false`. |
-| `dir` | `Direction` |  | The reading direction. With `"rtl"`, the left and right arrow keys swap, and submenus open to the left. |
+| `dir` | `"ltr" \| "rtl"` |  | The reading direction. With `"rtl"`, the left and right arrow keys swap, and submenus open to the left. |
 
 ### MenubarMenu
 

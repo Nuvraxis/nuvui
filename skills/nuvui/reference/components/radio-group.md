@@ -61,11 +61,11 @@ The styles come from `@nuvui/react/styles.css`, which you load once for the whol
 | `value` | `string \| null` |  | The picked option, when you control it yourself. Use it with `onValueChange`. |
 | `defaultValue` | `string` |  | The option picked at first, when you don't control it. |
 | `onValueChange` | `((value: string) => void)` |  | Called with an option's `value` when it's picked. |
-| `orientation` | `Orientation` |  | `"horizontal"` puts the options side by side. It also decides which arrow keys move between them. |
+| `orientation` | `"horizontal" \| "vertical"` |  | `"horizontal"` puts the options side by side. It also decides which arrow keys move between them. |
 | `disabled` | `boolean` |  | Disables every option. |
 | `required` | `boolean` |  | Marks the group as required. Inside a form, the browser won't submit until an option is picked. |
 | `name` | `string` |  | The name the value is submitted under in a form. |
-| `dir` | `Direction` |  | The reading direction. In `"rtl"` the left and right arrow keys swap. |
+| `dir` | `"ltr" \| "rtl"` |  | The reading direction. In `"rtl"` the left and right arrow keys swap. |
 | `loop` | `boolean` |  | Whether the arrow keys wrap around from the last option to the first. It's `true` by default. |
 
 ### RadioGroupItem

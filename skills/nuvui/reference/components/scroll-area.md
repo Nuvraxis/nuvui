@@ -75,7 +75,7 @@ These come from Radix.
 | Prop | Type | Default | What it's for |
 | --- | --- | --- | --- |
 | `scrollHideDelay` | `number` |  | With `type` set to `"scroll"` or `"hover"`, how long the scrollbar stays after scrolling stops or the pointer leaves, in milliseconds. |
-| `dir` | `Direction` |  | The reading direction, which decides the side the scrollbar is on. It's taken from `DirectionProvider` when not set. |
+| `dir` | `"ltr" \| "rtl"` |  | The reading direction, which decides the side the scrollbar is on. It's taken from `DirectionProvider` when not set. |
 
 Everything else is passed to the outer `<div>`, including `ref`, `className` and `style`. `aria-label` and `aria-labelledby` are the exception: [they go to the element that scrolls](#from-the-keyboard).
 

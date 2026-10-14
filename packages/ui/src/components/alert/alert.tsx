@@ -2,7 +2,8 @@ import { Slot } from "@radix-ui/react-slot";
 import { forwardRef, type HTMLAttributes, type ReactNode } from "react";
 import { cx } from "../../utils/cx";
 
-type Intent = "info" | "success" | "warning" | "danger";
+// Written out in the prop and not named there, so the docs list the values.
+type Intent = NonNullable<AlertOwnProps["intent"]>;
 
 // One shape per intent, so the meaning doesn't rest on the color.
 const paths: Record<Intent, ReactNode> = {
@@ -38,7 +39,7 @@ export interface AlertOwnProps {
    * default `role`.
    * @default "info"
    */
-  intent?: Intent;
+  intent?: "info" | "success" | "warning" | "danger";
   /**
    * An icon to draw in place of the intent's own. Pass `null` or `false`
    * for none.

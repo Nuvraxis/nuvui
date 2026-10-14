@@ -101,7 +101,7 @@ Make the window narrower than the `collapse` breakpoint to see the button.
 | --- | --- | --- | --- |
 | `sticky` | `boolean` | `false` | Keeps the bar at the top of the window while the page scrolls under it. |
 | `hideOnScroll` | `boolean` | `false` | Slides the bar out of the way while the page scrolls down, and brings it back as soon as it scrolls up. It stays while focus is inside it. The bar is sticky when this is on. |
-| `collapse` | `Collapse` | `"md"` | The breakpoint below which `NavbarNav` is hidden and the button of `NavbarMenu` is shown: 40, 48 or 64rem. |
+| `collapse` | `"lg" \| "md" \| "sm"` | `"md"` | The breakpoint below which `NavbarNav` is hidden and the button of `NavbarMenu` is shown: 40, 48 or 64rem. |
 
 ### NavbarNav
 

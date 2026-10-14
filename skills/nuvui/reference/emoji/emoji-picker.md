@@ -250,8 +250,8 @@ With `data`, the list the package comes with isn't loaded.
 | `onEmojiSelect` | `((emoji: string, item: EmojiItem) => void)` |  | Called when an emoji is picked, with the emoji as text, in the skin tone that's set, and with what the list knows about it. |
 | `data` | `EmojiItem[]` |  | The emoji to list, when the ones it comes with aren't the ones you want: another language's names, or fewer. Without it, the list it comes with is loaded when the picker is first drawn. |
 | `emojiVersion` | `number` | `15` | The newest version of Emoji to list. Newer ones are left out, since a device that doesn't have them draws an empty box. |
-| `skinTone` | `EmojiSkinTone` |  | The skin tone, when you keep it. Use it with `onSkinToneChange`. |
-| `defaultSkinTone` | `EmojiSkinTone` | `0` | The skin tone to begin with, when it's kept here. |
+| `skinTone` | `0 \| 1 \| 2 \| 3 \| 4 \| 5` |  | The skin tone, when you keep it. Use it with `onSkinToneChange`. |
+| `defaultSkinTone` | `0 \| 1 \| 2 \| 3 \| 4 \| 5` | `0` | The skin tone to begin with, when it's kept here. |
 | `onSkinToneChange` | `((tone: EmojiSkinTone) => void)` |  | Called when another skin tone is chosen. |
 | `recent` | `string[]` |  | The emoji picked before, newest first, when you keep them. Use it with `onRecentChange`. An empty list shows none. |
 | `onRecentChange` | `((recent: string[]) => void)` |  | Called with the new list when an emoji is picked. |

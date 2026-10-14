@@ -39,7 +39,7 @@ The styles come from `@nuvui/date-picker/styles.css`, which you load once for th
 
 | Prop | Type | Default | What it's for |
 | --- | --- | --- | --- |
-| `mode` | `Mode` |  | What can be picked: `"single"` for one day, `"multiple"` for several, `"range"` for a first and a last day. Left out, the calendar only shows days. |
+| `mode` | `"multiple" \| "range" \| "single"` |  | What can be picked: `"single"` for one day, `"multiple"` for several, `"range"` for a first and a last day. Left out, the calendar only shows days. |
 | `required` | `boolean` |  | With `true`, there's always something picked: pressing the picked day doesn't clear it. |
 | `disabled` | `Matcher[] \| Matcher` |  | Days that can't be picked. A date, a list of them, `{ before }`, `{ after }`, `{ from, to }`, `{ dayOfWeek: [0, 6] }`, or a function that's given a date. |
 | `defaultMonth` | `Date` |  | The month shown to begin with. Left out, it's this month. |

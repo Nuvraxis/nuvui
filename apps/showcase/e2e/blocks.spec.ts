@@ -12,6 +12,7 @@ import {
   viewPath,
 } from "../src/lib/blocks";
 import {
+  drawsMaps,
   open,
   overflow,
   pageProblems,
@@ -82,6 +83,8 @@ test.describe("the list of blocks", () => {
       // The table's column helpers come from TanStack Table, which the
       // table package asks for as a peer.
       if (imported.has("@nuvui/table")) imported.add("@tanstack/react-table");
+      // The map package draws with MapLibre, a peer the block never imports.
+      if (imported.has("@nuvui/map")) imported.add("maplibre-gl");
       expect([...block.install].sort()).toEqual([...imported].sort());
 
       // Its classes are its own: none has the library's prefix or the
@@ -4264,6 +4267,429 @@ test.describe("member card", () => {
   }
 });
 
+// The picker in a block's popover, once its list of emoji has come and its
+// rows are laid out.
+async function pickerIn(page: Page) {
+  const panel = page.getByRole("dialog", { name: "Pick an emoji" });
+  const list = panel.getByRole("grid", { name: "Emoji", exact: true });
+  await expect(list).not.toHaveAttribute("aria-busy", "true");
+  await expect
+    .poll(async () => Number(await list.getAttribute("aria-colcount")))
+    .toBeGreaterThan(1);
+  return panel;
+}
+
+// An emoji searched for by its name and picked with Enter, which works
+// the same with a mouse, a finger and a keyboard.
+async function pickEmoji(page: Page, name: string) {
+  const panel = await pickerIn(page);
+  const search = panel.getByRole("searchbox", { name: "Search emoji" });
+  await search.fill(name);
+  await expect(
+    panel.getByRole("gridcell", { name, exact: true }),
+  ).toBeVisible();
+  await search.press("Enter");
+  await expect(panel).toBeHidden();
+}
+
+test.describe("find a branch", () => {
+  const branch = (page: Page, name: string) =>
+    page.locator(".branch-finder__branch").filter({ hasText: name });
+  const pin = (page: Page, name: string) =>
+    page.locator(".nuv-map__marker").and(page.getByRole("button", { name }));
+  const count = (page: Page) => page.locator(".branch-finder__count");
+  const find = (page: Page) =>
+    page.getByRole("searchbox", { name: "Search by name, city or street" });
+
+  test.describe("the list", () => {
+    test.beforeEach(async ({ page }) => {
+      await open(page, "/blocks/view/branch-finder");
+    });
+
+    test("find a branch: every branch is in the list, with how many there are", async ({
+      page,
+    }) => {
+      await expect(page.locator(".branch-finder__branch")).toHaveCount(5);
+      await expect(count(page)).toHaveText("5 branches");
+      await expect(branch(page, "Utrecht Vredenburg")).toContainText(
+        "Vredenburg 9, 3511 BA",
+      );
+      await expect(branch(page, "Utrecht Vredenburg")).toHaveAttribute(
+        "aria-pressed",
+        "false",
+      );
+    });
+
+    test("find a branch: a search narrows the list, and one that finds nothing says so", async ({
+      page,
+    }) => {
+      await find(page).fill("utrecht");
+      await expect(page.locator(".branch-finder__branch")).toHaveCount(1);
+      await expect(count(page)).toHaveText("1 branch");
+
+      await find(page).fill("blaak");
+      await expect(branch(page, "Rotterdam Blaak")).toBeVisible();
+
+      await find(page).fill("zzz");
+      await expect(page.locator(".branch-finder__branch")).toHaveCount(0);
+      await expect(count(page)).toHaveText("No branch matches");
+    });
+
+    test("find a branch: the map keeps its height when a search shortens the list", async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width: 1280, height: 800 });
+      await open(page, "/blocks/view/branch-finder");
+      const map = page.locator(".nuv-map");
+      const before = (await map.boundingBox())?.height ?? 0;
+      // Beside the list, the map is as tall as the screen less the page's
+      // padding.
+      expect(before).toBeGreaterThan(700);
+
+      await find(page).fill("rot");
+      await expect(count(page)).toHaveText("1 branch");
+      expect((await map.boundingBox())?.height).toBe(before);
+
+      await find(page).fill("zzz");
+      await expect(count(page)).toHaveText("No branch matches");
+      expect((await map.boundingBox())?.height).toBe(before);
+    });
+
+    test("find a branch: on a phone the page doesn't scroll sideways", async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width: 320, height: 640 });
+      await open(page, "/blocks/view/branch-finder");
+
+      expect(await overflow(page)).toBeLessThanOrEqual(0);
+    });
+
+    for (const theme of ["light", "dark"] as const) {
+      test(`find a branch: it passes axe in ${theme}`, async ({ page }) => {
+        await setTheme(page, theme);
+        await open(page, "/blocks/view/branch-finder");
+        await settleStyles(page);
+        expect(
+          (await new AxeBuilder({ page }).withTags(wcag).analyze()).violations,
+        ).toEqual([]);
+      });
+    }
+  });
+
+  test.describe("the map", () => {
+    test.beforeEach(async ({ page }) => {
+      await open(page, "/blocks/view/branch-finder");
+      test.skip(!(await drawsMaps(page)), "this browser draws no WebGL here");
+      await expect(page.locator(".nuv-map")).toHaveAttribute(
+        "data-state",
+        "ready",
+        { timeout: 20_000 },
+      );
+    });
+
+    test("find a branch: every branch has a marker, all of them in view", async ({
+      page,
+    }) => {
+      await expect(page.locator(".nuv-map__marker")).toHaveCount(5);
+      const box = await page.locator(".nuv-map").boundingBox();
+
+      for (const name of ["Amsterdam Centrum", "Eindhoven Markt"]) {
+        const at = await pin(page, name).boundingBox();
+        expect(at?.x ?? -1).toBeGreaterThanOrEqual(box?.x ?? 0);
+        expect((at?.y ?? 0) + (at?.height ?? 0)).toBeLessThanOrEqual(
+          (box?.y ?? 0) + (box?.height ?? 0),
+        );
+      }
+    });
+
+    test("find a branch: a branch chosen in the list opens on the map, and the popup leaves the focus alone", async ({
+      page,
+      isMobile,
+    }) => {
+      await press(branch(page, "Utrecht Vredenburg"), isMobile);
+
+      await expect(branch(page, "Utrecht Vredenburg")).toHaveAttribute(
+        "aria-pressed",
+        "true",
+      );
+      await expect(
+        page.getByRole("dialog", { name: "Utrecht Vredenburg" }),
+      ).toContainText("Open until 20:00");
+      // The popup hasn't taken the focus. Where it is instead isn't asked:
+      // Safari doesn't give a button the focus when it's clicked.
+      await expect(
+        page.getByRole("dialog", { name: "Utrecht Vredenburg" }),
+      ).not.toBeFocused();
+
+      await press(branch(page, "Utrecht Vredenburg"), isMobile);
+      await expect(page.getByRole("dialog")).toHaveCount(0);
+      await expect(branch(page, "Utrecht Vredenburg")).toHaveAttribute(
+        "aria-pressed",
+        "false",
+      );
+    });
+
+    test("find a branch: a marker pressed on the map is the branch chosen in the list", async ({
+      page,
+      isMobile,
+    }) => {
+      await press(pin(page, "Eindhoven Markt"), isMobile);
+
+      await expect(
+        page.getByRole("dialog", { name: "Eindhoven Markt" }),
+      ).toContainText("Markt 22, 5611 EC");
+      await expect(branch(page, "Eindhoven Markt")).toHaveAttribute(
+        "aria-pressed",
+        "true",
+      );
+
+      await press(pin(page, "Amsterdam Centrum"), isMobile);
+      await expect(page.getByRole("dialog")).toHaveCount(1);
+      await expect(branch(page, "Eindhoven Markt")).toHaveAttribute(
+        "aria-pressed",
+        "false",
+      );
+      await expect(branch(page, "Amsterdam Centrum")).toHaveAttribute(
+        "aria-pressed",
+        "true",
+      );
+    });
+
+    test("find a branch: a search leaves the markers of what it found, and closes what was open", async ({
+      page,
+      isMobile,
+    }) => {
+      await press(branch(page, "Rotterdam Blaak"), isMobile);
+      await expect(page.getByRole("dialog")).toHaveCount(1);
+
+      await find(page).fill("utrecht");
+
+      await expect(page.locator(".nuv-map__marker")).toHaveCount(1);
+      await expect(pin(page, "Utrecht Vredenburg")).toBeVisible();
+      await expect(page.getByRole("dialog")).toHaveCount(0);
+    });
+  });
+});
+
+test.describe("message reactions", () => {
+  const reaction = (page: Page, name: RegExp | string) =>
+    page
+      .locator(".message-reactions .nuv-emoji-reaction")
+      .and(page.getByRole("button", { name }));
+  const said = (page: Page) => page.locator(".message-reactions__said");
+
+  test.beforeEach(async ({ page }) => {
+    await open(page, "/blocks/view/message-reactions");
+  });
+
+  test("message reactions: each reaction says its emoji's name, its count and whether it's yours", async ({
+    page,
+  }) => {
+    await expect(reaction(page, "party popper, 5")).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    await expect(reaction(page, "clapping hands, 2")).toHaveAttribute(
+      "aria-pressed",
+      "false",
+    );
+    await expect(
+      page.locator(".message-reactions .nuv-emoji-reaction"),
+    ).toHaveCount(2);
+  });
+
+  test("message reactions: pressing a reaction joins it, and pressing yours takes it away", async ({
+    page,
+    isMobile,
+  }) => {
+    await press(reaction(page, "clapping hands, 2"), isMobile);
+    await expect(reaction(page, "clapping hands, 3")).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    await expect(said(page)).toHaveText(
+      "Reacted to Priya Nair's message with clapping hands.",
+    );
+
+    await press(reaction(page, "party popper, 5"), isMobile);
+    await expect(reaction(page, "party popper, 4")).toHaveAttribute(
+      "aria-pressed",
+      "false",
+    );
+    await expect(said(page)).toHaveText(
+      "Took your party popper off Priya Nair's message.",
+    );
+  });
+
+  test("message reactions: an emoji from the picker is a new reaction, and taking it away again leaves none", async ({
+    page,
+    isMobile,
+  }) => {
+    const add = page.getByRole("button", {
+      name: "Add a reaction to Tom Becker's message",
+    });
+    await press(add, isMobile);
+    await pickEmoji(page, "thumbs up");
+
+    await expect(reaction(page, "thumbs up, 1")).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    await expect(said(page)).toHaveText(
+      "Reacted to Tom Becker's message with thumbs up.",
+    );
+
+    await press(reaction(page, "thumbs up, 1"), isMobile);
+    await expect(reaction(page, /thumbs up/)).toHaveCount(0);
+    // The button that was pressed is gone, and the focus has somewhere
+    // to be. A finger leaves no focus to follow.
+    if (!isMobile) await expect(add).toBeFocused();
+  });
+
+  test("message reactions: an emoji that's there already is joined, not added twice", async ({
+    page,
+    isMobile,
+  }) => {
+    await press(
+      page.getByRole("button", {
+        name: "Add a reaction to Priya Nair's message",
+      }),
+      isMobile,
+    );
+    await pickEmoji(page, "clapping hands");
+
+    await expect(reaction(page, "clapping hands, 3")).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    await expect(
+      page.locator(".message-reactions .nuv-emoji-reaction"),
+    ).toHaveCount(2);
+  });
+
+  test("message reactions: on a phone the page doesn't scroll sideways", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 320, height: 640 });
+    await open(page, "/blocks/view/message-reactions");
+
+    expect(await overflow(page)).toBeLessThanOrEqual(0);
+  });
+
+  for (const theme of ["light", "dark"] as const) {
+    test(`message reactions: it passes axe in ${theme}`, async ({ page }) => {
+      await setTheme(page, theme);
+      await open(page, "/blocks/view/message-reactions");
+      await settleStyles(page);
+      expect(
+        (await new AxeBuilder({ page }).withTags(wcag).analyze()).violations,
+      ).toEqual([]);
+    });
+  }
+});
+
+test.describe("set a status", () => {
+  const now = (page: Page) => page.locator(".set-status__now");
+  const words = (page: Page) => page.getByRole("textbox", { name: "Status" });
+
+  test.beforeEach(async ({ page }) => {
+    await open(page, "/blocks/view/set-status");
+  });
+
+  test("set a status: the status as it stands is over the form, with its emoji named", async ({
+    page,
+  }) => {
+    await expect(now(page)).toContainText(
+      "On holiday, until the end of this week",
+    );
+    await expect(
+      now(page).getByRole("img", { name: "beach with umbrella" }),
+    ).toBeVisible();
+    await expect(words(page)).toHaveValue("On holiday");
+  });
+
+  test("set a status: an emoji from the picker, a few words and a time make the new status", async ({
+    page,
+    isMobile,
+  }) => {
+    await press(
+      page.getByRole("button", {
+        name: "Emoji: beach with umbrella. Change it",
+      }),
+      isMobile,
+    );
+    await pickEmoji(page, "hot beverage");
+    await expect(
+      page.getByRole("button", { name: "Emoji: hot beverage. Change it" }),
+    ).toBeVisible();
+
+    await words(page).fill("Back at two");
+    await page.getByLabel("Clear it").selectOption("hour");
+    await press(page.getByRole("button", { name: "Save status" }), isMobile);
+
+    await expect(now(page)).toContainText("Back at two, for an hour");
+    await expect(
+      now(page).getByRole("img", { name: "hot beverage" }),
+    ).toBeVisible();
+  });
+
+  test("set a status: saving with no words says what's missing, and writing takes that away", async ({
+    page,
+    isMobile,
+  }) => {
+    await words(page).fill("");
+    await press(page.getByRole("button", { name: "Save status" }), isMobile);
+
+    await expect(page.getByText("Say what your status is.")).toBeVisible();
+    await expect(words(page)).toHaveAttribute("aria-invalid", "true");
+    await expect(now(page)).toContainText("On holiday");
+
+    await words(page).fill("In a meeting");
+    await expect(page.getByText("Say what your status is.")).toHaveCount(0);
+  });
+
+  test("set a status: clearing it leaves none, and an empty form", async ({
+    page,
+    isMobile,
+  }) => {
+    await press(page.getByRole("button", { name: "Clear status" }), isMobile);
+
+    await expect(now(page)).toHaveText("No status set");
+    await expect(words(page)).toHaveValue("");
+  });
+
+  test("set a status: on a phone the page doesn't scroll sideways", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 320, height: 640 });
+    await open(page, "/blocks/view/set-status");
+
+    expect(await overflow(page)).toBeLessThanOrEqual(0);
+  });
+
+  for (const theme of ["light", "dark"] as const) {
+    test(`set a status: it passes axe in ${theme}, with the error showing as well`, async ({
+      page,
+      isMobile,
+    }) => {
+      await setTheme(page, theme);
+      await open(page, "/blocks/view/set-status");
+      await settleStyles(page);
+      expect(
+        (await new AxeBuilder({ page }).withTags(wcag).analyze()).violations,
+      ).toEqual([]);
+
+      await words(page).fill("");
+      await press(page.getByRole("button", { name: "Save status" }), isMobile);
+      await expect(page.getByText("Say what your status is.")).toBeVisible();
+      await settleStyles(page);
+      expect(
+        (await new AxeBuilder({ page }).withTags(wcag).analyze()).violations,
+      ).toEqual([]);
+    });
+  }
+});
+
 test.describe("the blocks page", () => {
   test("lists every category, and each leads to its page", async ({
     page,
@@ -4321,6 +4747,9 @@ for (const category of categories) {
     test("shows every block it lists, each in a frame of its own", async ({
       page,
     }) => {
+      // Each block's preview is loaded in turn, a page of its own, so the
+      // time this takes grows with the category, as below.
+      test.setTimeout(30_000 + inCategory.length * 5_000);
       await open(page, categoryPath(category));
       const cards = page.locator("[data-block]");
       await expect(cards).toHaveCount(inCategory.length);
@@ -4506,5 +4935,253 @@ test.describe("a block's preview", () => {
         (await navigator.clipboard.readText()).replaceAll("\r\n", "\n"),
       ),
     ).toBe(await source("sign-in", "sign-in.tsx"));
+  });
+});
+
+test.describe("delivery route", () => {
+  const stop = (page: Page, name: string) =>
+    page.locator(".delivery-route__stop").filter({ hasText: name });
+  const pin = (page: Page, name: RegExp) =>
+    page.locator(".nuv-map__marker").and(page.getByRole("button", { name }));
+
+  test.describe("the list", () => {
+    test.beforeEach(async ({ page }) => {
+      await open(page, "/blocks/view/delivery-route");
+    });
+
+    test("delivery route: the stops are listed in order, each with where it stands", async ({
+      page,
+    }) => {
+      await expect(page.locator(".delivery-route__stop")).toHaveCount(6);
+      await expect(page.locator(".delivery-route__summary")).toHaveText(
+        "3 of 6 stops done. Next is Boekhandel Spui.",
+      );
+      await expect(page.locator(".delivery-route__stop").first()).toContainText(
+        "Depot",
+      );
+      await expect(stop(page, "Apotheek Jordaan")).toContainText("Done");
+      await expect(stop(page, "Boekhandel Spui")).toContainText("Next");
+      await expect(stop(page, "Café De Pijp")).toContainText("Planned");
+      await expect(stop(page, "Boekhandel Spui")).toHaveAttribute(
+        "aria-pressed",
+        "false",
+      );
+    });
+
+    test("delivery route: on a phone the page doesn't scroll sideways", async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width: 320, height: 640 });
+      await open(page, "/blocks/view/delivery-route");
+
+      expect(await overflow(page)).toBeLessThanOrEqual(0);
+    });
+
+    for (const theme of ["light", "dark"] as const) {
+      test(`delivery route: it passes axe in ${theme}`, async ({ page }) => {
+        await setTheme(page, theme);
+        await open(page, "/blocks/view/delivery-route");
+        await settleStyles(page);
+        expect(
+          (await new AxeBuilder({ page }).withTags(wcag).analyze()).violations,
+        ).toEqual([]);
+      });
+    }
+  });
+
+  test.describe("the map", () => {
+    test.beforeEach(async ({ page }) => {
+      await open(page, "/blocks/view/delivery-route");
+      test.skip(!(await drawsMaps(page)), "this browser draws no WebGL here");
+      await expect(page.locator(".nuv-map")).toHaveAttribute(
+        "data-state",
+        "ready",
+        { timeout: 20_000 },
+      );
+    });
+
+    test("delivery route: every stop has a numbered marker in view, and the way is two routes", async ({
+      page,
+    }) => {
+      await expect(page.locator(".nuv-map__marker")).toHaveCount(6);
+      await expect(page.locator(".nuv-map__route")).toHaveCount(2);
+      await expect(pin(page, /^Stop 1, Depot, done$/)).toHaveText("1");
+      await expect(pin(page, /^Stop 6, Café De Pijp, planned$/)).toHaveText(
+        "6",
+      );
+      const box = await page.locator(".nuv-map").boundingBox();
+
+      for (const name of [/^Stop 1,/, /^Stop 6,/]) {
+        const at = await pin(page, name).boundingBox();
+        expect(at?.y ?? -1).toBeGreaterThanOrEqual(box?.y ?? 0);
+        expect((at?.y ?? 0) + (at?.height ?? 0)).toBeLessThanOrEqual(
+          (box?.y ?? 0) + (box?.height ?? 0),
+        );
+      }
+    });
+
+    test("delivery route: a stop chosen in the list opens on the map, and again closes it", async ({
+      page,
+      isMobile,
+    }) => {
+      await press(stop(page, "Boekhandel Spui"), isMobile);
+
+      await expect(stop(page, "Boekhandel Spui")).toHaveAttribute(
+        "aria-pressed",
+        "true",
+      );
+      await expect(
+        page.getByRole("dialog", { name: "Stop 4, Boekhandel Spui, next" }),
+      ).toContainText("Due at 09:40");
+
+      await press(stop(page, "Boekhandel Spui"), isMobile);
+      await expect(page.getByRole("dialog")).toHaveCount(0);
+    });
+
+    test("delivery route: a marker pressed on the map is the stop chosen in the list", async ({
+      page,
+      isMobile,
+    }) => {
+      await press(pin(page, /^Stop 2,/), isMobile);
+
+      await expect(
+        page.getByRole("dialog", { name: /^Stop 2, Bakkerij Noord/ }),
+      ).toContainText("Haarlemmerstraat 62");
+      await expect(stop(page, "Bakkerij Noord")).toHaveAttribute(
+        "aria-pressed",
+        "true",
+      );
+    });
+  });
+});
+
+test.describe("charging points", () => {
+  const point = (page: Page, name: string) =>
+    page.locator(".charging-map__point").filter({
+      has: page.getByText(name, { exact: true }),
+    });
+  const gathering = (page: Page, count: number) =>
+    page.getByRole("button", { name: `${count} charging points` });
+  const free = (page: Page) =>
+    page.getByRole("switch", { name: "Only with a socket free" });
+
+  test.describe("the list", () => {
+    test.beforeEach(async ({ page }) => {
+      await open(page, "/blocks/view/charging-map");
+    });
+
+    test("charging points: every one is in the list, with how many there are", async ({
+      page,
+    }) => {
+      await expect(page.locator(".charging-map__point")).toHaveCount(23);
+      await expect(page.locator(".charging-map__count")).toHaveText(
+        "23 charging points",
+      );
+      await expect(point(page, "Amsterdam 1")).toContainText("All in use");
+      await expect(point(page, "Groningen 2")).toContainText("1 of 4 free");
+    });
+
+    test("charging points: the switch leaves those with a socket free", async ({
+      page,
+      isMobile,
+    }) => {
+      await press(free(page), isMobile);
+
+      await expect(free(page)).toBeChecked();
+      await expect(page.locator(".charging-map__point")).toHaveCount(18);
+      await expect(page.locator(".charging-map__count")).toHaveText(
+        "18 charging points",
+      );
+      await expect(point(page, "Amsterdam 1")).toHaveCount(0);
+    });
+
+    test("charging points: on a phone the page doesn't scroll sideways", async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width: 320, height: 640 });
+      await open(page, "/blocks/view/charging-map");
+
+      expect(await overflow(page)).toBeLessThanOrEqual(0);
+    });
+
+    for (const theme of ["light", "dark"] as const) {
+      test(`charging points: it passes axe in ${theme}`, async ({ page }) => {
+        await setTheme(page, theme);
+        await open(page, "/blocks/view/charging-map");
+        await settleStyles(page);
+        expect(
+          (await new AxeBuilder({ page }).withTags(wcag).analyze()).violations,
+        ).toEqual([]);
+      });
+    }
+  });
+
+  test.describe("the map", () => {
+    test.beforeEach(async ({ page }) => {
+      await open(page, "/blocks/view/charging-map");
+      test.skip(!(await drawsMaps(page)), "this browser draws no WebGL here");
+      await expect(page.locator(".nuv-map")).toHaveAttribute(
+        "data-state",
+        "ready",
+        { timeout: 20_000 },
+      );
+    });
+
+    test("charging points: each city's are one button on the map, named for how many", async ({
+      page,
+    }) => {
+      for (const count of [8, 6, 5, 4]) {
+        await expect(gathering(page, count)).toBeVisible();
+      }
+      await expect(page.locator(".nuv-map__cluster")).toHaveCount(4);
+    });
+
+    test("charging points: the switch gathers what's left", async ({
+      page,
+      isMobile,
+    }) => {
+      await expect(gathering(page, 8)).toBeVisible();
+
+      await press(free(page), isMobile);
+
+      // Amsterdam has two with every socket in use.
+      await expect(gathering(page, 6)).toBeVisible();
+      await expect(gathering(page, 8)).toHaveCount(0);
+      await expect(page.locator(".nuv-map__cluster")).toHaveCount(4);
+    });
+
+    test("charging points: one chosen in the list is gone to on the map and opened", async ({
+      page,
+      isMobile,
+    }) => {
+      await press(point(page, "Groningen 2"), isMobile);
+
+      await expect(point(page, "Groningen 2")).toHaveAttribute(
+        "aria-pressed",
+        "true",
+      );
+      await expect(
+        page.getByRole("dialog", { name: "Groningen 2, 1 of 4 free" }),
+      ).toBeVisible({ timeout: 15_000 });
+
+      await press(point(page, "Groningen 2"), isMobile);
+      await expect(page.getByRole("dialog")).toHaveCount(0);
+    });
+
+    test("charging points: a press on a gathering zooms in, and it comes apart", async ({
+      page,
+      isMobile,
+    }) => {
+      await expect(gathering(page, 4)).toBeVisible();
+
+      await press(gathering(page, 4), isMobile);
+
+      await expect(gathering(page, 4)).toHaveCount(0, { timeout: 15_000 });
+      await expect
+        .poll(() => page.locator(".nuv-map__marker").count(), {
+          timeout: 15_000,
+        })
+        .toBeGreaterThan(0);
+    });
   });
 });

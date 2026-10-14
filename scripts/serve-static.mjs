@@ -44,6 +44,12 @@ const types = {
   ".ico": "image/x-icon",
   ".js": "application/javascript; charset=utf-8",
   ".json": "application/json; charset=utf-8",
+  // The docs as plain text, for agents. Sent as text, so a browser shows
+  // a page and doesn't save a file.
+  ".md": "text/markdown; charset=utf-8",
+  // MapLibre's worker. A browser won't run a module that isn't sent as
+  // JavaScript.
+  ".mjs": "application/javascript; charset=utf-8",
   ".png": "image/png",
   ".svg": "image/svg+xml",
   ".txt": "text/plain; charset=utf-8",

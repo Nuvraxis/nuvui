@@ -1,0 +1,9 @@
+{
+  "name": "charging-map",
+  "title": "Charging points",
+  "description": "Charging points on a map, gathered into one button with a number on it where they're near each other, beside a list of the same ones. A switch leaves only those with a socket free, and choosing one in the list goes to it on the map and opens it. The map's tiles come from a provider you choose.",
+  "category": "data",
+  "files": ["charging-map.tsx", "charging-map.scss"],
+  "install": ["@nuvui/map", "maplibre-gl", "@nuvui/react"],
+  "height": 720
+}

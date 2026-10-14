@@ -1,0 +1,9 @@
+{
+  "name": "delivery-route",
+  "title": "Delivery route",
+  "description": "A van's round: the stops in order as a list, each done, next or planned, beside a map with the way drawn on it, solid for what's behind the van and in dashes for what's ahead. Choosing a stop in the list opens it on the map, as pressing its number does in the list. The map's tiles come from a provider you choose.",
+  "category": "data",
+  "files": ["delivery-route.tsx", "delivery-route.scss"],
+  "install": ["@nuvui/map", "maplibre-gl", "@nuvui/react"],
+  "height": 720
+}

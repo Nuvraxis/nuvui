@@ -51,6 +51,8 @@ const published = {
   "@nuvui/chat": "chat",
   "@nuvui/kanban": "kanban",
   "@nuvui/editor": "editor",
+  "@nuvui/emoji": "emoji",
+  "@nuvui/map": "map",
 };
 
 function expect(app, what, passed) {
@@ -121,6 +123,40 @@ const fixtures = {
     expect("vite", "it has the codes' styles", css.includes(".nuv-barcode"));
     expect("vite", "it has the chat's styles", css.includes(".nuv-message"));
     expect("vite", "it has the board's styles", css.includes(".nuv-kanban"));
+    expect(
+      "vite",
+      "it has the picker's styles",
+      css.includes(".nuv-emoji-picker"),
+    );
+    expect(
+      "vite",
+      "it has the reaction, from its own entry, and its styles",
+      css.includes(".nuv-emoji-reaction") &&
+        script.includes("nuv-emoji-reaction__count"),
+    );
+    expect("vite", "it has the map's styles", css.includes(".nuv-map"));
+    // MapLibre is asked for when a map is first drawn, so it's in the
+    // build, in a file of its own. Its worker is another, which the app
+    // asked Vite for the address of.
+    expect(
+      "vite",
+      "the script has the map, and MapLibre for it to load",
+      script.includes("nuv-map__canvas") &&
+        script.includes("maplibregl-canvas"),
+    );
+    expect(
+      "vite",
+      "the build has MapLibre's worker, as a file of its own",
+      files(join(dir, "dist"), ".mjs").some((file) =>
+        file.includes("maplibre-gl-worker"),
+      ),
+    );
+    expect(
+      "vite",
+      "the script has the picker, and the list of emoji it loads",
+      script.includes("nuv-emoji-picker__viewport") &&
+        script.includes("grinning face"),
+    );
     expect(
       "vite",
       "it has the editor's styles",
@@ -241,6 +277,23 @@ const fixtures = {
     const css = read(files(join(dir, "out"), ".css"));
     expect("next", "it has the chat's styles", css.includes(".nuv-message"));
     expect("next", "it has the board's styles", css.includes(".nuv-kanban"));
+    expect(
+      "next",
+      "it has the picker's styles",
+      css.includes(".nuv-emoji-picker"),
+    );
+    expect("next", "it has the map's styles", css.includes(".nuv-map"));
+    expect(
+      "next",
+      "the server rendered the map's box, saying the map is on its way",
+      html.includes("nuv-map__canvas") && html.includes("Loading map"),
+    );
+    expect(
+      "next",
+      "the server rendered the picker's search box and the list it fills",
+      html.includes("nuv-emoji-picker__search") &&
+        html.includes("nuv-emoji-picker__viewport"),
+    );
     expect(
       "next",
       "it has the editor's styles",

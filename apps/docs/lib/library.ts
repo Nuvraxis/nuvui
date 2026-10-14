@@ -50,6 +50,8 @@ export const addons = {
   chat: pkg("chat", "@nuvui/chat"),
   kanban: pkg("kanban", "@nuvui/kanban"),
   editor: pkg("editor", "@nuvui/editor"),
+  emoji: pkg("emoji", "@nuvui/emoji"),
+  map: pkg("map", "@nuvui/map"),
 };
 
 export type Addon = keyof typeof addons;

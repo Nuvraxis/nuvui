@@ -7,6 +7,8 @@ import "@nuvui/barcodes/styles.css";
 import "@nuvui/chat/styles.css";
 import "@nuvui/kanban/styles.css";
 import "@nuvui/editor/styles.css";
+import "@nuvui/emoji/styles.css";
+import "@nuvui/map/styles.css";
 // The two codes, each from the entry of its own.
 import { Barcode } from "@nuvui/barcodes/barcode";
 import { QRCode } from "@nuvui/barcodes/qrcode";
@@ -30,6 +32,9 @@ import { Calendar } from "@nuvui/date-picker/calendar";
 import { de } from "@nuvui/date-picker/locale";
 // The editor, from the entry of its one component.
 import { RichTextEditor } from "@nuvui/editor/rich-text-editor";
+// The picker, from the entry of its one component.
+import { EmojiPicker } from "@nuvui/emoji/emoji-picker";
+import { EmojiReaction } from "@nuvui/emoji/emoji-reaction";
 // The board, from the entry of its one component.
 import {
   Kanban,
@@ -37,6 +42,8 @@ import {
   KanbanCards,
   KanbanColumn,
 } from "@nuvui/kanban/kanban";
+// The map, from the entry of its one component.
+import { MapMarker, MapView, setMapWorkerUrl } from "@nuvui/map/map";
 import {
   Button,
   type ButtonProps,
@@ -62,9 +69,13 @@ import {
   sortFn_text,
   tableFeatures,
 } from "@tanstack/react-table";
+// MapLibre's worker, as Vite has it: a file with an address of its own.
+import mapWorkerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?url";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { Bar, BarChart, XAxis } from "recharts";
+
+setMapWorkerUrl(mapWorkerUrl);
 
 const size: ButtonProps["size"] = "lg";
 const range: DateRange = { from: new Date(2026, 9, 12), to: undefined };
@@ -122,6 +133,14 @@ function App() {
       </PromptInput>
       <Barcode value="590123412345" type="ean13" aria-label="Item 5901234" />
       <RichTextEditor aria-label="Notes" defaultValue="<p>Hello</p>" />
+      <EmojiPicker onEmojiSelect={(emoji) => toast(emoji)} />
+      <EmojiReaction emoji="👍" label="thumbs up" count={3} />
+      <MapView
+        aria-label="Office"
+        mapStyle={{ version: 8, sources: {}, layers: [] }}
+      >
+        <MapMarker position={[13.405, 52.52]} label="Berlin office" />
+      </MapView>
       <Kanban
         aria-label="Work"
         defaultValue={[{ id: "todo", cards: ["brief"] }]}

@@ -1,11 +1,57 @@
 import type { Frame, Locator, Page } from "@playwright/test";
 
+// The maps on these pages get their style, and through it their tiles,
+// from someone else's server. In a test they get a map of one color from
+// here, so no test waits on that server or fails when it's away, and a
+// test run isn't a crowd of visits to it.
+const mapped = new WeakSet<Page>();
+const blankMap = {
+  version: 8,
+  sources: {},
+  layers: [
+    {
+      id: "land",
+      type: "background",
+      paint: { "background-color": "#dfe7ec" },
+    },
+  ],
+};
+
+export async function stubMapTiles(page: Page) {
+  if (mapped.has(page)) return;
+  mapped.add(page);
+  await page.route("https://tiles.openfreemap.org/**", (route) =>
+    route.request().url().includes("/styles/")
+      ? route.fulfill({ json: blankMap })
+      : route.abort(),
+  );
+}
+
+// Whether this browser, as it's run here, can draw a map at all. One run
+// without a graphics card may not, and then the map says it couldn't be
+// drawn, which is tested on its own.
+export const drawsMaps = (page: Page) =>
+  page.evaluate(() => {
+    const canvas = document.createElement("canvas");
+    return Boolean(canvas.getContext("webgl2") ?? canvas.getContext("webgl"));
+  });
+
 // The pages are static HTML, so they're visible before React has attached
 // its handlers. Tests that press keys or click straight away wait for that.
 // The attribute is set by an effect, in this app's Hydrated component and in
 // the docs app's provider.
+//
+// The network is let settle first, for what a test measures, such as the
+// fonts. It isn't waited on for ever: a page of blocks loads a page in each
+// preview, and the router fetches ahead for every link in the header, and
+// in Firefox on a busy machine half a second with nothing asked for can
+// take minutes to come. A page that's alone is idle in a second or two.
 export async function open(page: Page, url: string) {
-  await page.goto(url, { waitUntil: "networkidle" });
+  await stubMapTiles(page);
+  await page.goto(url, { waitUntil: "domcontentloaded" });
+  await page
+    .waitForLoadState("networkidle", { timeout: 15_000 })
+    .catch(() => {});
   await page.locator("html[data-hydrated]").waitFor();
 }
 
@@ -43,7 +89,9 @@ export async function settleStyles(page: Page) {
   await settle(page.mainFrame());
   for (const frame of page.frames().slice(1)) {
     // A preview that hasn't been scrolled to has no page yet, and asking
-    // it anything waits for one. It's given a moment and then left.
+    // it anything waits for one. One that hasn't started is left at once,
+    // and one that's on its way is given a moment.
+    if (!frame.url().startsWith("http")) continue;
     await Promise.race([
       settle(frame).catch(() => {}),
       new Promise((resolve) => setTimeout(resolve, 1000)),

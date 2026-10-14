@@ -17,7 +17,13 @@ import assistantWorkspace from "@/blocks/assistant-workspace/block.json" with {
 };
 import auditLog from "@/blocks/audit-log/block.json" with { type: "json" };
 import billing from "@/blocks/billing/block.json" with { type: "json" };
+import branchFinder from "@/blocks/branch-finder/block.json" with {
+  type: "json",
+};
 import caseStudies from "@/blocks/case-studies/block.json" with {
+  type: "json",
+};
+import chargingMap from "@/blocks/charging-map/block.json" with {
   type: "json",
 };
 import commentThread from "@/blocks/comment-thread/block.json" with {
@@ -26,6 +32,9 @@ import commentThread from "@/blocks/comment-thread/block.json" with {
 import dangerZone from "@/blocks/danger-zone/block.json" with { type: "json" };
 import dashboard from "@/blocks/dashboard/block.json" with { type: "json" };
 import dealPipeline from "@/blocks/deal-pipeline/block.json" with {
+  type: "json",
+};
+import deliveryRoute from "@/blocks/delivery-route/block.json" with {
   type: "json",
 };
 import detailPanel from "@/blocks/detail-panel/block.json" with {
@@ -55,6 +64,9 @@ import forgotPassword from "@/blocks/forgot-password/block.json" with {
 import hero from "@/blocks/hero/block.json" with { type: "json" };
 import inbox from "@/blocks/inbox/block.json" with { type: "json" };
 import memberCard from "@/blocks/member-card/block.json" with { type: "json" };
+import messageReactions from "@/blocks/message-reactions/block.json" with {
+  type: "json",
+};
 import navBar from "@/blocks/nav-bar/block.json" with { type: "json" };
 import notifications from "@/blocks/notifications/block.json" with {
   type: "json",
@@ -73,6 +85,7 @@ import queryEditor from "@/blocks/query-editor/block.json" with {
   type: "json",
 };
 import reviews from "@/blocks/reviews/block.json" with { type: "json" };
+import setStatus from "@/blocks/set-status/block.json" with { type: "json" };
 import shippingLabel from "@/blocks/shipping-label/block.json" with {
   type: "json",
 };
@@ -155,14 +168,14 @@ export const categories: BlockCategory[] = [
     label: "Chat",
     title: "Chat and assistants",
     description:
-      "Conversations, with a model or with people: a whole screen for an assistant, one with its past conversations, tool calls and sources, an assistant in a panel beside the record it answers about, a help desk that opens from a button in the corner, and messages between the people on a team.",
+      "Conversations, with a model or with people: a whole screen for an assistant, one with its past conversations, tool calls and sources, an assistant in a panel beside the record it answers about, a help desk that opens from a button in the corner, messages between the people on a team, and messages with emoji reactions under them.",
   },
   {
     slug: "data",
     label: "Data",
     title: "Data",
     description:
-      "Rows to work with: a table with search, a filter, a column chooser and actions for several rows, a list with a bar of actions for the ticked rows, requests to approve with buttons in every row, a list filtered from a sentence and a sheet, folders and files in a tree, a panel that opens beside a list, a parcel's label with its barcode, a ticket with a QR code, a board of tasks in columns, a sales pipeline that adds up each column, and a page in each state it can be in.",
+      "Rows to work with: a table with search, a filter, a column chooser and actions for several rows, a list with a bar of actions for the ticked rows, requests to approve with buttons in every row, a list filtered from a sentence and a sheet, folders and files in a tree, a panel that opens beside a list, a parcel's label with its barcode, a ticket with a QR code, a board of tasks in columns, a sales pipeline that adds up each column, a list of branches beside a map of them, a van's round as a list of stops and a line on a map, charging points gathered on a map with a list of the same ones, and a page in each state it can be in.",
   },
   {
     slug: "editor",
@@ -176,7 +189,7 @@ export const categories: BlockCategory[] = [
     label: "Settings",
     title: "Settings and admin",
     description:
-      "The pages behind an account: a profile, a workspace's colors, notification preferences, team members and invitations, billing, a membership card that tilts under the pointer, the actions that can't be taken back, and an audit log.",
+      "The pages behind an account: a profile, a status with an emoji, a workspace's colors, notification preferences, team members and invitations, billing, a membership card that tilts under the pointer, the actions that can't be taken back, and an audit log.",
   },
   {
     slug: "marketing",
@@ -212,6 +225,7 @@ export const blocks: BlockManifest[] = [
   assistantWorkspace,
   supportChat,
   teamChat,
+  messageReactions,
   tableToolbar,
   inbox,
   approvals,
@@ -223,11 +237,15 @@ export const blocks: BlockManifest[] = [
   eventTicket,
   taskBoard,
   dealPipeline,
+  branchFinder,
+  deliveryRoute,
+  chargingMap,
   pageStates,
   documentEditor,
   announcementEditor,
   commentThread,
   profileForm,
+  setStatus,
   appearance,
   notifications,
   teamMembers,

@@ -8,6 +8,7 @@
     "right-to-left",
     "translation",
     "support",
+    "agents",
     "components",
     "date-picker",
     "table",
@@ -16,6 +17,8 @@
     "chat",
     "kanban",
     "editor",
+    "emoji",
+    "map",
     "changelog"
   ]
 }

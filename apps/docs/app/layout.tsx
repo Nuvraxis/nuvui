@@ -9,6 +9,8 @@ import "@nuvui/barcodes/styles.css";
 import "@nuvui/chat/styles.css";
 import "@nuvui/kanban/styles.css";
 import "@nuvui/editor/styles.css";
+import "@nuvui/emoji/styles.css";
+import "@nuvui/map/styles.css";
 // Every preset, for the examples on the Theming page and its editor.
 import "@nuvui/react/themes/ink.css";
 import "@nuvui/react/themes/ledger.css";

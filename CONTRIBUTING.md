@@ -33,6 +33,8 @@ Run these from the repository root.
 | `pnpm check:licenses` | Fails on a dependency whose license isn't on the lists in `scripts/check-licenses.mjs`: a short one for what the published packages depend on, and a longer one for the tools. |
 | `pnpm check:audit` | Fails on a dependency with a known vulnerability rated high or worse. What it leaves out is in `pnpm-workspace.yaml`, each with why. |
 | `pnpm test:consumers` | Packs the packages and installs them into a Vite app and a Next.js app. Run `pnpm build` first. |
+| `pnpm skill` | Writes the agent skill's reference, `NuvUIAIAgent.md` and the site's `llms.txt` from the docs. Run `pnpm build` first, and keep what it writes. |
+| `pnpm check:skill` | Fails if those files are behind the docs, or a component is on no docs page. CI runs it. |
 
 To run part of a suite:
 
@@ -97,6 +99,11 @@ packages/kanban               an add-on, published as @nuvui/kanban
   src/components/kanban/      the board and its parts, in one file
 packages/editor               an add-on, published as @nuvui/editor
   src/components/rich-text-editor/  the editor and its parts, in one file
+packages/emoji                an add-on, published as @nuvui/emoji
+  src/components/emoji-picker/  the picker
+  src/data/                   the list of emoji, written by scripts/generate-data.mjs
+packages/map                  an add-on, published as @nuvui/map
+  src/components/map/         the map and its parts, in one file
 packages/tooling              what every published package is built with, private
   tsdown.mjs                  the build
   build-css.mjs               compiles the SCSS, and copies the source into dist
@@ -214,7 +221,7 @@ Button is the smallest example to copy from, and Dialog the fullest.
 
 ## Add-on packages
 
-A component goes in a package of its own when it needs a library the core doesn't have. `@nuvui/date-picker` is the first, for react-day-picker and date-fns, `@nuvui/table` the second, for TanStack Table, `@nuvui/charts` the third, for Recharts, and `@nuvui/barcodes` the fourth, for JsBarcode's and uqr's encoders. `@nuvui/chat` is the fifth, and the one that isn't there for a library: it's a different kind of screen, which most apps don't have. `@nuvui/kanban` is the sixth, for dnd kit, which carries the cards, and `@nuvui/editor` the seventh, for Tiptap. An app that doesn't use the component then never installs that library.
+A component goes in a package of its own when it needs a library the core doesn't have. `@nuvui/date-picker` is the first, for react-day-picker and date-fns, `@nuvui/table` the second, for TanStack Table, `@nuvui/charts` the third, for Recharts, and `@nuvui/barcodes` the fourth, for JsBarcode's and uqr's encoders. `@nuvui/chat` is the fifth, and the one that isn't there for a library: it's a different kind of screen, which most apps don't have. `@nuvui/kanban` is the sixth, for dnd kit, which carries the cards, and `@nuvui/editor` the seventh, for Tiptap. `@nuvui/emoji` is the eighth, and what it keeps out of the core is no library but a list: nineteen hundred emoji with their names. `@nuvui/map` is the ninth, for MapLibre. An app that doesn't use the component then never installs that library.
 
 An add-on is laid out like the core and built with the same tooling, from `packages/tooling`. Its own config files only say what's particular to it. What differs from the core:
 
@@ -276,6 +283,30 @@ The site's build writes each block to `out/r/<name>.json`, in the format shadcn'
 A block that uses a package the website doesn't load yet needs that package in `apps/showcase/package.json`, and its stylesheet in `apps/showcase/src/app/layout.tsx`.
 
 Names, figures and companies in a block are made up, and look it.
+
+## The agent skill
+
+`skills/nuvui` is a skill for the coding agents people build with: what an agent has to be told to use the library well. The [docs page](https://nuvui.nuvraxis.com/docs/agents) says how it's installed. Part of it is written by hand and part by a script.
+
+By hand:
+
+- `SKILL.md`, which an agent loads first. Its header says when. Keep it short: it's read every time, and everything else only when it's needed.
+- `rules/`, a file for each kind of mistake, with the reason and code that's wrong beside code that's right.
+- `recipes.md`, common screens and the block or the pages to build each from.
+- `evals/`, tasks the skill is tried on.
+
+By `apps/docs/scripts/agent-skill.mjs`, from the docs:
+
+- `reference/`, a file for each docs page, with the tables and the examples the site shows written out as Markdown. `reference.md` is the list.
+- `blocks.md`, from the blocks' manifests, and `tokens.md`, from the built tokens.
+- `NuvUIAIAgent.md` at the root, which is `SKILL.md` without its header.
+- `apps/showcase/public/llms.txt`, the list of pages at the site's root.
+
+So after a change to a docs page, an example, a component's props or its styles, or a block's manifest, run `pnpm build` and then `pnpm skill`, and keep what changed with the rest of the work. `pnpm check:skill` fails in CI when that was left out. It also fails when a component's folder is named by no docs page, since an agent would never learn of it.
+
+The docs' build writes the same pages for the site, as `/docs/llms.txt`, `/docs/llms-full.txt` and a file for each page under `/docs/llms/`. Those aren't kept in git.
+
+When an agent gets something wrong that the skill should have stopped, change the rule and add a task to `evals/evals.json`. Don't edit a file under `reference/`: change the docs page it's written from.
 
 ## Changing a component
 

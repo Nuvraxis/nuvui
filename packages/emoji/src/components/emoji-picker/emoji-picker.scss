@@ -1,0 +1,247 @@
+@use "../../styles/layers";
+@use "@nuvui/react/scss/mixins";
+
+@layer components {
+  // A panel of a set size: the search over the list, and the groups under
+  // it. The list is the part that scrolls.
+  .nuv-emoji-picker {
+    // The size of one emoji's square. A finger gets the larger one.
+    --nuv-emoji-picker-cell: 2.75rem;
+
+    display: flex;
+    flex-direction: column;
+    inline-size: var(--nuv-emoji-picker-width, 20rem);
+    max-inline-size: 100%;
+    block-size: var(--nuv-emoji-picker-height, 24rem);
+    overflow: hidden;
+    border: var(--nuv-border-width, 1px) solid
+      var(--nuv-emoji-picker-border, var(--color-border));
+    border-radius: var(--nuv-emoji-picker-radius, var(--radius-lg));
+    background-color: var(--nuv-emoji-picker-bg, var(--color-surface));
+    color: var(--nuv-emoji-picker-fg, var(--color-surface-foreground));
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+
+    @include mixins.fine-pointer {
+      --nuv-emoji-picker-cell: 2.25rem;
+    }
+  }
+
+  // In a popover with less room than the picker's height, the popover
+  // would scroll the whole picker, beside the list's own scrolling. The
+  // picker is made shorter to fit, and its list is the one thing that
+  // scrolls.
+  .nuv-popover__body:has(> .nuv-emoji-picker) {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .nuv-emoji-picker__head {
+    display: flex;
+    flex: none;
+    gap: calc(var(--spacing) * 2);
+    align-items: center;
+    padding: calc(var(--spacing) * 2);
+  }
+
+  .nuv-emoji-picker__search {
+    flex: 1;
+    min-inline-size: 0;
+  }
+
+  // The skin tone and the groups: a square to press with an emoji in it.
+  .nuv-emoji-picker__tone,
+  .nuv-emoji-picker__group {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--nuv-emoji-picker-cell);
+    block-size: var(--nuv-emoji-picker-cell);
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-md);
+    background-color: transparent;
+    color: inherit;
+    font-family: var(
+      --nuv-emoji-picker-font,
+      "Apple Color Emoji",
+      "Segoe UI Emoji",
+      "Noto Color Emoji",
+      sans-serif
+    );
+    font-size: var(--text-lg);
+    line-height: 1;
+    cursor: pointer;
+
+    @include mixins.focus-ring;
+
+    @include mixins.hover {
+      background-color: var(--nuv-emoji-picker-hover-bg, var(--color-muted));
+    }
+  }
+
+  .nuv-emoji-picker__hand {
+    font-family: var(
+      --nuv-emoji-picker-font,
+      "Apple Color Emoji",
+      "Segoe UI Emoji",
+      "Noto Color Emoji",
+      sans-serif
+    );
+  }
+
+  // The list, and over it the words for when there's no list to show.
+  .nuv-emoji-picker__body {
+    position: relative;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-block-size: 0;
+  }
+
+  .nuv-emoji-picker__viewport {
+    position: relative;
+    flex: 1;
+    min-block-size: 0;
+    overflow: hidden auto;
+    padding-inline: calc(var(--spacing) * 2);
+    scrollbar-color: var(--color-border-strong) transparent;
+    scrollbar-width: thin;
+
+    // The keys are on one emoji, and the ring is drawn on that one.
+    &:focus {
+      outline: none;
+    }
+  }
+
+  // Never seen. It's as wide as an emoji's square and as tall as a
+  // heading, and the component reads both from it.
+  .nuv-emoji-picker__sizer {
+    position: absolute;
+    inline-size: var(--nuv-emoji-picker-cell);
+    block-size: var(--nuv-emoji-picker-heading-height, 2rem);
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  // As tall as every row would be together. The rows in view are placed
+  // in it where they'd be.
+  .nuv-emoji-picker__rows {
+    position: relative;
+  }
+
+  .nuv-emoji-picker__row {
+    position: absolute;
+    inset-inline: 0;
+    display: grid;
+  }
+
+  .nuv-emoji-picker__heading {
+    display: flex;
+    align-items: center;
+    padding-inline: calc(var(--spacing) * 1);
+    color: var(--nuv-emoji-picker-heading-fg, var(--color-muted-foreground));
+    font-size: var(--text-xs);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--text-xs--line-height);
+  }
+
+  .nuv-emoji-picker__emoji {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-md);
+    font-family: var(
+      --nuv-emoji-picker-font,
+      "Apple Color Emoji",
+      "Segoe UI Emoji",
+      "Noto Color Emoji",
+      sans-serif
+    );
+    font-size: var(--nuv-emoji-picker-emoji-size, 1.375rem);
+    line-height: 1;
+    cursor: pointer;
+    user-select: none;
+
+    @include mixins.hover {
+      background-color: var(--nuv-emoji-picker-hover-bg, var(--color-muted));
+    }
+
+    &[data-active] {
+      background-color: var(--nuv-emoji-picker-hover-bg, var(--color-muted));
+    }
+  }
+
+  // The ring is the list's, drawn on the emoji the keys are on.
+  .nuv-emoji-picker__viewport:focus-visible .nuv-emoji-picker__emoji[data-active] {
+    outline: 2px solid var(--color-ring);
+    outline-offset: -2px;
+  }
+
+  // Where the browser forces its own colors a background isn't drawn, so
+  // the emoji the keys are on has an edge whether the keys are in use
+  // or not.
+  @media (forced-colors: active) {
+    .nuv-emoji-picker__emoji[data-active] {
+      outline: 2px solid highlight;
+      outline-offset: -2px;
+    }
+  }
+
+  .nuv-emoji-picker__note {
+    position: absolute;
+    inset-inline: 0;
+    inset-block-start: 0;
+    margin: 0;
+    pointer-events: none;
+    padding: calc(var(--spacing) * 6) calc(var(--spacing) * 2);
+    color: var(--nuv-emoji-picker-heading-fg, var(--color-muted-foreground));
+    text-align: center;
+  }
+
+  // Read out and not drawn.
+  .nuv-emoji-picker__status {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  // The groups, in a row. Under a finger each keeps its full size and the
+  // row is dragged sideways when there isn't room. No scrollbar is drawn
+  // for it: a bar under one row of buttons is taller than the row is worth.
+  .nuv-emoji-picker__groups {
+    display: flex;
+    flex: none;
+    gap: calc(var(--spacing) * 1);
+    padding: calc(var(--spacing) * 1) calc(var(--spacing) * 2);
+    overflow-x: auto;
+    border-block-start: var(--nuv-border-width, 1px) solid
+      var(--nuv-emoji-picker-border, var(--color-border));
+    scrollbar-width: none;
+
+    // A mouse has nothing to drag a row with, so there they're made
+    // narrower until all of them fit.
+    @include mixins.fine-pointer {
+      gap: calc(var(--spacing) * 0.5);
+    }
+  }
+
+  .nuv-emoji-picker__group {
+    font-size: var(--text-base);
+
+    @include mixins.fine-pointer {
+      flex: 0 1 var(--nuv-emoji-picker-cell);
+      min-inline-size: 0;
+    }
+
+    &[aria-current="true"] {
+      background-color: var(--nuv-emoji-picker-current-bg, var(--color-muted));
+    }
+  }
+}

@@ -5,7 +5,12 @@ import { ToolbarSeparator } from "@nuvui/react/toolbar";
 import { axe, behindOpenList } from "@nuvui/tooling/test/axe";
 import { emulateMedia, setViewport } from "@nuvui/tooling/test/media";
 import { renderThemed, themes } from "@nuvui/tooling/test/themed";
-import { type ComponentProps, createRef, useState } from "react";
+import {
+  type ComponentProps,
+  type CSSProperties,
+  createRef,
+  useState,
+} from "react";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
@@ -581,6 +586,11 @@ describe("disabled and read only", () => {
 
     expect(text().getAttribute("contenteditable")).toBe("false");
     expect(text().getAttribute("aria-readonly")).toBe("true");
+    // The text takes no focus, so the box around it is left to be reached,
+    // where it scrolls.
+    expect(one(".nuv-rich-text-editor__body").hasAttribute("tabindex")).toBe(
+      false,
+    );
     await userEvent.click(text());
     await userEvent.keyboard("more");
     expect(text().textContent).toBe("Hello");
@@ -810,6 +820,29 @@ describe("how it's drawn", () => {
     expect(document.activeElement).toBe(text());
     expect(style(root).outlineStyle).toBe("solid");
     expect(style(text()).outlineStyle).toBe("none");
+  });
+
+  test("a box that scrolls isn't a stop for the Tab key of its own: the text is", async () => {
+    await render(
+      <div
+        style={{ "--nuv-rich-text-editor-max-height": "5rem" } as CSSProperties}
+      >
+        <RichTextEditor
+          aria-label="Notes"
+          defaultValue={"<p>A line</p>".repeat(20)}
+        />
+      </div>,
+    );
+    await expect.element(box()).toBeInTheDocument();
+    const body = one(".nuv-rich-text-editor__body");
+    expect(body.scrollHeight).toBeGreaterThan(body.clientHeight);
+    expect(body.tabIndex).toBe(-1);
+
+    (button("Redo").element() as HTMLElement).focus();
+    (button("Bold").element() as HTMLElement).focus();
+    await userEvent.keyboard("{Tab}");
+
+    expect(document.activeElement).toBe(text());
   });
 
   test("a press anywhere in the box's empty space puts the caret in the text", async () => {

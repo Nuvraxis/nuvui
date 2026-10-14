@@ -101,6 +101,13 @@
   border: 0;
 }
 
+// A comment is shown whole, so its box never scrolls. One that could, even
+// by a fraction of a pixel, would be a stop for the Tab key in Firefox,
+// with nothing to scroll and no name.
+.comment-thread__read-text {
+  overflow: visible;
+}
+
 .comment-thread__form {
   --nuv-rich-text-editor-min-height: 6rem;
 

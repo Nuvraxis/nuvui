@@ -105,19 +105,21 @@ jobs:
     name: ${{ matrix.app }} ${{ matrix.name }} ${{ matrix.slice }} of ${{ matrix.of }}
     needs: build
     runs-on: [self-hosted, "${{ vars.E2E_RUNNER || 'laptop' }}"]
-    # A slice is some 1,400 tests. With two workers, which is what a
-    # runner given three of the laptop's CPUs gets, the 1,700 of a slice
-    # as they were cut before took fifty-four minutes.
-    timeout-minutes: 60
+    # A docs slice is some 1,900 tests. With two workers, which is what a
+    # runner given three of the laptop's CPUs gets, 1,700 took fifty-four
+    # minutes, so 1,900 is more than sixty, and more again with every
+    # runner busy. A fourth docs slice would wait for a runner, and take
+    # longer in all than three slices that each take longer.
+    timeout-minutes: 90
     strategy:
       # One slice failing says nothing about the others. Let them finish, so
       # one run shows everything that's wrong.
       fail-fast: false
       matrix:
         include:
-          # Chromium, as a desktop and as a phone, and Firefox: 4,287 of
-          # the docs' tests and 1,668 of the website's. Four slices, one to
-          # each of the laptop's runners.
+          # Chromium, as a desktop and as a phone, and Firefox: 5,754 of
+          # the docs' tests and 2,622 of the website's, in October 2026.
+          # Four slices, one to each of the laptop's runners.
           #
           # `id` is the slice's number among its app's, which is what its
           # results are kept under: scripts/e2e-comment.mjs adds up

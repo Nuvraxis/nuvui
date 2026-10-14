@@ -31,7 +31,9 @@ export default function Example() {
       <Field required>
         <FieldLabel>Email</FieldLabel>
         <FieldControl>
-          <Input name="email" type="email" autoComplete="email" />
+          {/* A teammate's address, so the browser isn't asked to offer
+              the reader's own. */}
+          <Input name="email" type="email" autoComplete="off" />
         </FieldControl>
         <FieldDescription>The invite goes to this address.</FieldDescription>
       </Field>
@@ -43,6 +45,10 @@ export default function Example() {
               Pick a team
             </option>
             <option value="design">Design</option>
+            <option value="engineering">Engineering</option>
+            <option value="finance">Finance</option>
+            <option value="marketing">Marketing</option>
+            <option value="sales">Sales</option>
             <option value="support">Support</option>
           </NativeSelect>
         </FieldControl>

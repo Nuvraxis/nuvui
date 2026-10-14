@@ -1,0 +1,20 @@
+[
+  {
+    "name": "@nuvui/map, without MapLibre, which is loaded when a map is first drawn",
+    "path": "dist/index.js",
+    "ignore": ["maplibre-gl"],
+    "limit": "7 kB"
+  },
+  {
+    "name": "@nuvui/map/map, without MapLibre",
+    "path": "dist/components/map/index.js",
+    "ignore": ["maplibre-gl"],
+    "limit": "7 kB"
+  },
+  {
+    "name": "styles.css",
+    "path": "dist/styles.css",
+    "rolldown": false,
+    "limit": "2.5 kB"
+  }
+]

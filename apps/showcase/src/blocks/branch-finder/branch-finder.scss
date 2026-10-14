@@ -1,0 +1,115 @@
+@use "@nuvui/react/scss/mixins";
+
+// The list over the map on a phone, and beside it from a tablet up, where
+// the two fill the screen and the list scrolls on its own.
+.branch-finder {
+  display: grid;
+  gap: calc(var(--spacing) * 4);
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  inline-size: 100%;
+  min-block-size: 100svh;
+  padding: calc(var(--spacing) * 4);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+
+  @include mixins.breakpoint("md") {
+    grid-template-columns: minmax(0, 22rem) minmax(0, 1fr);
+
+    // One row as tall as the screen, whatever is in the list. Left to its
+    // content, the row is as tall as the list, and the map with it.
+    grid-template-rows: minmax(0, 1fr);
+    align-content: stretch;
+    block-size: 100svh;
+    padding: calc(var(--spacing) * 6);
+  }
+}
+
+.branch-finder__side {
+  display: grid;
+  gap: calc(var(--spacing) * 3);
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  min-block-size: 0;
+
+  @include mixins.breakpoint("md") {
+    grid-template-rows: auto auto auto minmax(0, 1fr);
+  }
+}
+
+.branch-finder__title {
+  margin: 0;
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-2xl--line-height);
+  letter-spacing: var(--tracking-tight);
+}
+
+.branch-finder__count {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+.branch-finder__list {
+  display: grid;
+  gap: calc(var(--spacing) * 2);
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  @include mixins.breakpoint("md") {
+    // Room for the focus ring, which the scrolling would cut off.
+    margin: calc(var(--spacing) * -1);
+    padding: calc(var(--spacing) * 1);
+    overflow-y: auto;
+  }
+}
+
+// A branch, as a button that opens it on the map. The one that's open has
+// the primary color's edge, twice as thick, and says it's pressed.
+.branch-finder__branch {
+  display: grid;
+  gap: calc(var(--spacing) * 0.5);
+  inline-size: 100%;
+  padding: calc(var(--spacing) * 3);
+  border: var(--nuv-border-width, 1px) solid var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-surface);
+  color: var(--color-surface-foreground);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+
+  @include mixins.focus-ring;
+
+  @include mixins.hover {
+    background-color: var(--color-muted);
+  }
+
+  &[aria-pressed="true"] {
+    border-color: var(--color-primary);
+    box-shadow: inset 0 0 0 var(--nuv-border-width, 1px) var(--color-primary);
+  }
+}
+
+.branch-finder__name {
+  font-weight: var(--font-weight-semibold);
+}
+
+.branch-finder__line {
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+.branch-finder__map {
+  --nuv-map-height: 22rem;
+
+  @include mixins.breakpoint("md") {
+    --nuv-map-height: 100%;
+  }
+}

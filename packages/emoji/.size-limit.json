@@ -1,0 +1,28 @@
+[
+  {
+    "name": "@nuvui/emoji, with the list of emoji it loads when first drawn",
+    "path": "dist/index.js",
+    "limit": "38 kB"
+  },
+  {
+    "name": "@nuvui/emoji/emoji-picker, with the list",
+    "path": "dist/components/emoji-picker/index.js",
+    "limit": "38 kB"
+  },
+  {
+    "name": "@nuvui/emoji/emoji-reaction",
+    "path": "dist/components/emoji-reaction/index.js",
+    "limit": "600 B"
+  },
+  {
+    "name": "the list of emoji by itself",
+    "path": "dist/data/en.js",
+    "limit": "34 kB"
+  },
+  {
+    "name": "styles.css",
+    "path": "dist/styles.css",
+    "rolldown": false,
+    "limit": "1.5 kB"
+  }
+]

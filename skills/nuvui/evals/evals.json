@@ -1,0 +1,230 @@
+{
+  "about": "Tasks to try the skill on. Each is one line, as a person would ask it, given to an agent that has this skill and a project with the packages named in `project`. `expect` and `reject` are what to look for in the files it writes: each is a regular expression, and a short reason. See README.md beside this file.",
+  "evals": [
+    {
+      "id": "invite-form",
+      "prompt": "Add a form to invite a teammate: their name, their email, a role picked from Admin, Member and Viewer, and a Send invite button. Show an error under a field that's wrong.",
+      "project": ["@nuvui/react"],
+      "expect": [
+        {
+          "pattern": "from \"@nuvui/react\"",
+          "why": "The components are imported from the package, and not written again."
+        },
+        { "pattern": "<Field[\\s>]", "why": "Each control is in a Field." },
+        {
+          "pattern": "<FieldLabel",
+          "why": "Each control has a label that's tied to it."
+        },
+        {
+          "pattern": "<FieldControl",
+          "why": "The control is inside FieldControl, which is what ties them."
+        },
+        {
+          "pattern": "<FieldError",
+          "why": "The error is a FieldError, read with its control."
+        },
+        {
+          "pattern": "type=\"submit\"",
+          "why": "A Button is type=\"button\" unless told otherwise."
+        },
+        {
+          "pattern": "name=\"",
+          "why": "A control without a name isn't in the form's data."
+        }
+      ],
+      "reject": [
+        {
+          "pattern": "#[0-9a-fA-F]{3,8}\\b",
+          "why": "A color written out. Every color is a token."
+        },
+        {
+          "pattern": "className=\"[^\"]*\\b(bg|text|border)-(red|green|blue|gray|slate|zinc)-\\d",
+          "why": "Tailwind color utilities in place of the theme's tokens."
+        },
+        {
+          "pattern": "<label[^>]*htmlFor=[^>]*>\\s*(Name|Email)",
+          "why": "A label written by hand for a control that's in a Field. Field makes the ids, and FieldLabel is the label."
+        },
+        {
+          "pattern": "components/ui/",
+          "why": "There's no folder of copied components. They're installed."
+        }
+      ]
+    },
+    {
+      "id": "delete-dialog",
+      "prompt": "Add a Delete project button that asks for confirmation before it deletes.",
+      "project": ["@nuvui/react"],
+      "expect": [
+        {
+          "pattern": "<(AlertDialog|Dialog)[\\s>]",
+          "why": "A confirmation is a dialog, and one that destroys something is an AlertDialog."
+        },
+        {
+          "pattern": "<(AlertDialog|Dialog)Title",
+          "why": "The title is the dialog's name. Without one a screen reader has nothing to say."
+        },
+        {
+          "pattern": "Trigger asChild",
+          "why": "The trigger takes the Button through asChild, and isn't a button around a button."
+        },
+        {
+          "pattern": "intent=\"danger\"",
+          "why": "The button that deletes says so by its intent."
+        }
+      ],
+      "reject": [
+        {
+          "pattern": "window\\.confirm\\(",
+          "why": "The browser's own box, which can't be themed and reads badly."
+        },
+        {
+          "pattern": "<(AlertDialog|Dialog)[^>]*\\btitle=",
+          "why": "A prop that doesn't exist. The title is a part."
+        }
+      ]
+    },
+    {
+      "id": "orders-table",
+      "prompt": "Show a list of orders in a table that can be sorted by date and by total: order number, customer, date, total.",
+      "project": [
+        "@nuvui/react",
+        "@nuvui/table",
+        "@tanstack/react-table",
+        "@tanstack/react-virtual"
+      ],
+      "expect": [
+        {
+          "pattern": "from \"@nuvui/table",
+          "why": "Tables are in their own package."
+        },
+        {
+          "pattern": "useDataTable",
+          "why": "A table that sorts is a DataTable, made with the hook."
+        },
+        {
+          "pattern": "\"use client\"",
+          "why": "The file that calls the hook is a client component."
+        },
+        {
+          "pattern": "caption=|aria-label=|aria-labelledby=",
+          "why": "A data table needs a name."
+        }
+      ],
+      "reject": [
+        {
+          "pattern": "<table[\\s>]",
+          "why": "A table written by hand, in place of the library's."
+        },
+        {
+          "pattern": "onClick=\\{[^}]*sort",
+          "why": "Sorting written by hand, in place of the table's own."
+        }
+      ]
+    },
+    {
+      "id": "brand-theme",
+      "prompt": "Make the app use our brand color, a dark green, for primary buttons and links, and follow the visitor's system for dark mode.",
+      "project": ["@nuvui/react"],
+      "expect": [
+        {
+          "pattern": "--color-primary\\s*:",
+          "why": "The brand's color is the primary token, set in CSS."
+        },
+        {
+          "pattern": "data-theme=\"system\"",
+          "why": "Dark mode is an attribute on the page."
+        }
+      ],
+      "reject": [
+        {
+          "pattern": "!important",
+          "why": "Never needed: a rule outside the layers already wins."
+        },
+        {
+          "pattern": "ThemeProvider|createTheme\\(",
+          "why": "There's no provider and no theme object. Theming is CSS."
+        },
+        {
+          "pattern": "\\.nuv-button\\s*\\{[^}]*background",
+          "why": "The component restyled by its class, where a token or a variable does it."
+        }
+      ]
+    },
+    {
+      "id": "saved-toast",
+      "prompt": "When the settings form is saved, tell the user it worked.",
+      "project": ["@nuvui/react"],
+      "expect": [
+        { "pattern": "toast\\(", "why": "A message that passes is a toast." },
+        {
+          "pattern": "<Toaster",
+          "why": "Something has to show it. Rendered once, near the root, if it isn't there yet."
+        }
+      ],
+      "reject": [{ "pattern": "alert\\(", "why": "The browser's own box." }]
+    },
+    {
+      "id": "revenue-chart",
+      "prompt": "Add a bar chart of revenue by month for this year and last year.",
+      "project": ["@nuvui/react", "@nuvui/charts", "recharts"],
+      "expect": [
+        {
+          "pattern": "<ChartContainer",
+          "why": "A chart goes in the container, which sizes it and sets its colors."
+        },
+        {
+          "pattern": "config=",
+          "why": "The container needs the series described."
+        },
+        { "pattern": "aria-label=", "why": "A chart needs a name." },
+        {
+          "pattern": "chart(Fill|Stroke|Color)\\(",
+          "why": "A series takes its color from the container's variables, so it follows the theme."
+        },
+        { "pattern": "\"use client\"", "why": "A chart is a client component." }
+      ],
+      "reject": [{ "pattern": "fill=\"#", "why": "A color written out." }]
+    },
+    {
+      "id": "office-map",
+      "prompt": "Show our three offices on a map, each with its address when it's pressed.",
+      "project": ["@nuvui/react", "@nuvui/map", "maplibre-gl"],
+      "expect": [
+        {
+          "pattern": "setMapWorkerUrl\\(",
+          "why": "Without the worker's address the map never loads."
+        },
+        { "pattern": "mapStyle=", "why": "The map has no tiles of its own." },
+        { "pattern": "<MapMarker", "why": "A place is a marker." },
+        { "pattern": "label=", "why": "A marker is read by its name." },
+        { "pattern": "aria-label=", "why": "The map says what it's of." }
+      ],
+      "reject": [
+        {
+          "pattern": "maplibre-gl/dist/maplibre-gl\\.css",
+          "why": "MapLibre's stylesheet isn't loaded. The package's own has what's needed."
+        }
+      ],
+      "ask": "Which tile provider to use. It's the owner's choice, with terms and a cost, and an agent that picks one without asking has got this wrong."
+    },
+    {
+      "id": "icon-button",
+      "prompt": "Put a small button with a trash icon at the end of each row to delete it.",
+      "project": ["@nuvui/react"],
+      "expect": [
+        { "pattern": "<Button", "why": "It's a Button." },
+        {
+          "pattern": "aria-label=",
+          "why": "A button with only an icon has no name unless it's given one."
+        }
+      ],
+      "reject": [
+        {
+          "pattern": "<div[^>]*onClick",
+          "why": "A div that's pressed can't be reached or worked by keyboard."
+        }
+      ]
+    }
+  ]
+}

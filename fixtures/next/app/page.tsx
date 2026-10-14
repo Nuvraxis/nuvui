@@ -19,6 +19,8 @@ import { Calendar, DatePicker } from "@nuvui/date-picker";
 // A client component with plain props: a server component renders it,
 // and the text is written in once the page is in a browser.
 import { RichTextEditor } from "@nuvui/editor";
+import { EmojiPicker } from "@nuvui/emoji";
+import { MapView } from "@nuvui/map";
 import {
   Button,
   Dialog,
@@ -103,6 +105,13 @@ export default function Page() {
         aria-label="Notes"
         name="notes"
         defaultValue="<p>Hello</p>"
+      />
+      <EmojiPicker />
+      {/* A style with nothing to fetch. The server draws the box, and the
+          map is drawn in a browser. */}
+      <MapView
+        aria-label="Office"
+        mapStyle={{ version: 8, sources: {}, layers: [] }}
       />
       <Visitors months={months} />
       {/* Client components from another package, used from this server

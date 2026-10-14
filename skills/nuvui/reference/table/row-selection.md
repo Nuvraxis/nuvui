@@ -1,0 +1,189 @@
+<!-- Written by apps/docs/scripts/agent-skill.mjs from apps/docs/content/docs/table/row-selection.mdx. Don't edit it here: run `pnpm skill`. -->
+
+# Row selection
+
+Select rows in a data table with a checkbox on each row and one for all of them, select a range with Shift, and act on the selection from a bar that shows while anything is selected.
+
+Add a column of checkboxes with `helper.select()`. The one in the heading selects every row on the page.
+
+```tsx
+"use client";
+
+import { Button } from "@nuvui/react";
+import { DataTable } from "@nuvui/table";
+import { createColumnHelper, useDataTable } from "@nuvui/table/full";
+import { useState } from "react";
+import { type Person, people } from "./people";
+
+const helper = createColumnHelper<Person>();
+const columns = helper.columns([
+  helper.select(),
+  helper.accessor("name", { header: "Name" }),
+  helper.accessor("email", { header: "Email" }),
+  helper.accessor("role", { header: "Role" }),
+]);
+
+export default function Example() {
+  const [rows, setRows] = useState(() => people.slice(0, 8));
+  const table = useDataTable({
+    columns,
+    data: rows,
+    // Selection is kept by id. Without this it would be kept by position,
+    // and removing a row would move the ticks to other people.
+    getRowId: (person) => person.id,
+  });
+
+  function remove(ids: string[]) {
+    setRows((current) => current.filter((person) => !ids.includes(person.id)));
+    // The table doesn't forget a row because it's gone from the data.
+    table.resetRowSelection(true);
+  }
+
+  return (
+    <DataTable
+      table={table}
+      aria-label="People"
+      rowHeader="name"
+      toolbar={false}
+      pagination={false}
+      bulkActions={(selected) => (
+        <Button
+          size="sm"
+          intent="danger"
+          onClick={() => remove(selected.map((row) => row.id))}
+        >
+          Remove
+        </Button>
+      )}
+    />
+  );
+}
+```
+
+## What to register
+
+`@nuvui/table/full` has selection. In a hook of your own:
+
+```tsx
+import { rowSelectionFeature, tableFeatures } from "@tanstack/react-table";
+
+tableFeatures({ rowSelectionFeature });
+```
+
+## The checkbox column
+
+```tsx
+const columns = helper.columns([
+  helper.select(),
+  helper.accessor("name", { header: "Name" }),
+]);
+```
+
+`helper.select()` is a column with `DataTableSelectAll` in its heading and `DataTableSelectRow` in each cell. It can't be sorted, hidden or resized. Pass it options to change that or its `id`, which is `"select"`.
+
+To put the checkbox in a column of your own, use the parts: `cell.SelectRow` in a `cell`, and `header.SelectAll` in a `header`.
+
+## Give rows an id
+
+Selection is a list of row ids. By default a row's id is its position, so after a sort from a server, or after a row is removed, the ticks sit on different rows. Set `getRowId`:
+
+```tsx
+const table = useDataTable({
+  columns,
+  data,
+  getRowId: (person) => person.id,
+});
+```
+
+It's a good default for every table in an app, which makes it something to pass to `createDataTableHook` once.
+
+## Acting on the selection
+
+`bulkActions` on `DataTable` is what the bar holds: usually a button or two. The bar is there while anything is selected, says how many rows that is, and has a button that clears the selection.
+
+As a function, `bulkActions` is given the selected rows:
+
+```tsx
+<DataTable
+  table={table}
+  caption="People"
+  bulkActions={(rows) => (
+    <Button size="sm" onClick={() => exportPeople(rows.map((row) => row.original))}>
+      Export
+    </Button>
+  )}
+/>
+```
+
+Those are the selected rows the table has loaded. With a [server](server.md) doing the paging, rows selected on other pages aren't in the browser, so they aren't in that list. `table.getSelectedRowIds()` has every selected id, whichever page it's on. Send the ids to the server and let it find the rows.
+
+The table doesn't forget a row because it's gone from `data`. After deleting the selected rows, clear the selection with `table.resetRowSelection(true)`, as the example does.
+
+## A range
+
+Click one checkbox, hold <kbd>Shift</kbd> and click another: every row between them takes the state of the second. It works across pages when the table does its own paging.
+
+## All of them
+
+The heading's checkbox selects the rows on the page, and is named "Select all rows on this page". In a table without pagination it selects every row and is named "Select all rows". It shows a dash while some of them are selected and not all.
+
+For "select all 4,312 results", across pages the browser hasn't loaded, there's nothing in the table to tick. Keep that as a flag of your own and send it to the server with the filters.
+
+## Which rows can be selected
+
+`enableRowSelection` on the hook takes a function. A row it returns `false` for has a disabled checkbox, and isn't counted by the heading's:
+
+```tsx
+useDataTable({
+  columns,
+  data,
+  enableRowSelection: (row) => row.original.role !== "Admin",
+});
+```
+
+`enableMultiRowSelection: false` allows one row at a time.
+
+## Selected to begin with
+
+```tsx
+initialState: { rowSelection: { "person-2": true } }
+```
+
+To hold the selection yourself, pass `state: { rowSelection }` and `onRowSelectionChange` together.
+
+## Accessibility
+
+### Keyboard
+
+| Key | What it does |
+| --- | --- |
+| <kbd>Tab</kbd> | Moves to the next checkbox. |
+| <kbd>Space</kbd> | Selects the row, or all rows from the heading. |
+| <kbd>Shift</kbd> with <kbd>Space</kbd> | Selects the range from the last row selected to this one. |
+
+### What the component handles
+
+- Each checkbox is named for its row: "Select Ada Lovelace" with `rowHeader` set, "Select row 3" without.
+- A selected row has `data-state="selected"` and a background. The checkbox carries the state for screen readers, and for anyone whose browser forces its own colors, the row also gets a bar at its start edge.
+- A change in the selection is read out: "3 selected".
+- The bar is a group named "Selected rows". When clearing the selection from inside it makes it go, focus moves to the heading's checkbox, so it isn't left on nothing.
+- The cell in the heading that holds the checkbox isn't a column heading, so a screen reader doesn't say "Select all rows on this page" before every cell under it.
+- On a touch screen a checkbox answers a tap anywhere in 44 pixels around it, and rows are tall enough that those areas don't overlap.
+
+### What you need to handle
+
+- Set `rowHeader` or `getRowLabel`, so the checkboxes are named for their rows.
+- Name your actions for what they do to the selection: "Remove", "Export". The count is next to them.
+- Confirm an action that can't be undone. An [alert dialog](../components/alert-dialog.md) is the place.
+
+## Do and don't
+
+**Do**
+
+- Put the checkbox column first, and [pin it](column-pinning.md) in a wide table.
+- Say how many rows an action will touch before it does.
+
+**Don't**
+
+- Don't use selection for an action on one row. Put a button or a menu in the row.
+- Don't select a row when its text is clicked. People click text to select it for copying.

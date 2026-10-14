@@ -93,7 +93,7 @@ The releases so far are 0.x. One becomes 1.0 when all of this is true:
 - Every component in every package has its page in the docs, its tests in three browser engines, and axe passing in every theme. That's done.
 - The names are frozen: props, variants, CSS variables and class names. A pass over them was made in October 2026, and from 1.0 a rename needs a major version.
 - Every piece of text the library writes has a prop, and one page lists them. That's done: [translation](https://nuvui.nuvraxis.com/docs/translation).
-- The [support policy](https://nuvui.nuvraxis.com/docs/support) is written, and what it calls supported is tested. React 18 isn't tested yet.
+- The [support policy](https://nuvui.nuvraxis.com/docs/support) is written, and what it calls supported is tested. React 18.2 is type-checked, built and rendered on a server. The component tests in a browser run on React 19 only.
 - Every component has been checked in a forced-colors theme and in a right-to-left layout by a test, and with a screen reader by a person.
 - The policy a site with a strict Content Security Policy needs is written down. That's done: [Content Security Policy](https://nuvui.nuvraxis.com/docs/content-security-policy).
 - The packages have been used in at least one real app. They're published under 0.x, which is what makes that possible.
@@ -157,7 +157,7 @@ pnpm dev         # packages in watch mode plus the website and the docs
 - `packages/telemetry` sends the site's web vitals to an OpenTelemetry collector. It isn't published.
 - `packages/tooling` is what the published packages are built, checked and tested with. It isn't published.
 - `packages/typescript-config` holds the shared tsconfig presets.
-- `fixtures` holds two small apps that install the packed library the way a stranger would.
+- `fixtures` holds three small apps that install the packed library the way a stranger would, one of them on React 18.2.
 - `skills/nuvui` is the skill for coding agents, and `NuvUIAIAgent.md` its first page. The reference in it is written from the docs by `pnpm skill`.
 
 ## Testing

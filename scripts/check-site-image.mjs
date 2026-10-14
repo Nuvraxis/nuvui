@@ -83,12 +83,13 @@ for (const path of ["/not-a-page", "/docs/not-a-page", "/.env"]) {
   check(`${path} content type`, type.startsWith("text/html"), type);
   check(
     `${path} cache-control`,
-    missing.headers.get("cache-control") === null,
+    missing.headers.get("cache-control") === "no-store",
     missing.headers.get("cache-control"),
   );
 }
 
-// A hashed file of each app is kept for good, and a missing one isn't.
+// A hashed file of each app is kept for good, and a missing one by nobody:
+// with no Cache-Control, the CDN in front gives it hours of its own.
 for (const [name, html, prefix] of [
   ["website", home, "/_next/static/"],
   ["docs", docs, "/docs/_next/static/"],
@@ -110,7 +111,7 @@ for (const [name, html, prefix] of [
   check(`missing ${name} file status`, gone.status === 404, gone.status);
   check(
     `missing ${name} file cache-control`,
-    gone.headers.get("cache-control") === null,
+    gone.headers.get("cache-control") === "no-store",
     gone.headers.get("cache-control"),
   );
 }

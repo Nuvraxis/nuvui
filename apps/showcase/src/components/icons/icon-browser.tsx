@@ -281,10 +281,8 @@ export function IconBrowser() {
                     );
                   })}
                 </div>
-                <div className="site-code">
-                  {/* It scrolls sideways on a phone, and the keyboard
-                      scrolls it once it has focus. */}
-                  <pre tabIndex={0}>
+                <div className="site-code site-code--wrap">
+                  <pre>
                     <code>{code}</code>
                   </pre>
                 </div>

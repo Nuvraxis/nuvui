@@ -90,7 +90,7 @@ export default function CommentThread() {
                 headingLevels={[]}
                 value={comment.html}
               >
-                <RichTextEditorContent />
+                <RichTextEditorContent className="comment-thread__read-text" />
               </RichTextEditor>
             </li>
           ))}

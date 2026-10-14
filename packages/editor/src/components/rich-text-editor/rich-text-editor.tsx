@@ -921,13 +921,19 @@ export const RichTextEditorContent = forwardRef<
   HTMLDivElement,
   RichTextEditorContentProps
 >(function RichTextEditorContent({ className, ...props }, ref) {
-  const { editor } = useParts("RichTextEditorContent");
+  const { editor, locked } = useParts("RichTextEditorContent");
 
   return (
     <EditorContent
       ref={ref}
       editor={editor}
       className={cx("nuv-rich-text-editor__body", className)}
+      // The box scrolls when the text is taller than its limit, and Firefox
+      // makes a box that scrolls a stop for the Tab key, with no name. The
+      // text inside is the stop, and scrolls the box as it is moved
+      // through. Read only, the text takes no focus, so the box keeps the
+      // stop, for the keys that scroll it.
+      tabIndex={locked ? undefined : -1}
       {...props}
     />
   );

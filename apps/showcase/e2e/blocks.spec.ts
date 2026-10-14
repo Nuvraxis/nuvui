@@ -366,6 +366,72 @@ test.describe("what the blocks do", () => {
     await expect(sidebar.getByRole("link", { name: "Returns" })).toBeHidden();
   });
 
+  test("app shell: the panel beside the page closes, hands the focus to the button that opens it, and opens again", async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(isMobile, "On a phone the panel is a sheet, tested below.");
+    await open(page, "/blocks/view/app-shell");
+    const panel = page.getByRole("complementary", { name: "Activity" });
+    const toggle = page.getByRole("button", { name: "Activity", exact: true });
+    await expect(panel).toBeVisible();
+    await expect(panel.getByText("Dana Whitfield")).toBeVisible();
+    await expect(toggle).toHaveAttribute("aria-expanded", "true");
+    await expect(toggle).toHaveAttribute(
+      "aria-controls",
+      (await panel.getAttribute("id")) ?? "",
+    );
+
+    await panel
+      .getByRole("button", { name: "Close the activity panel" })
+      .click();
+    await expect(panel).toHaveCount(0);
+    await expect(toggle).toBeFocused();
+    await expect(toggle).toHaveAttribute("aria-expanded", "false");
+    await expect(toggle).not.toHaveAttribute("aria-controls");
+
+    // The page takes the room the panel had.
+    const content = await page.locator(".app-shell__page").boundingBox();
+    const body = await page.locator(".app-shell__body").boundingBox();
+    // All of it but the page's margins.
+    expect((body?.width ?? 0) - (content?.width ?? 0)).toBeLessThanOrEqual(64);
+
+    await page.keyboard.press("Enter");
+    await expect(panel).toBeVisible();
+    await expect(toggle).toHaveAttribute("aria-expanded", "true");
+  });
+
+  test("app shell: on a narrow screen the panel opens over the page, and the page is left whole", async ({
+    page,
+    isMobile,
+  }) => {
+    await page.setViewportSize({ width: 390, height: 800 });
+    await open(page, "/blocks/view/app-shell");
+    const toggle = page.getByRole("button", { name: "Activity", exact: true });
+    // Hidden by the stylesheet, so it's never drawn on a phone at all.
+    await expect(
+      page.getByRole("complementary", { name: "Activity" }),
+    ).toBeHidden();
+    await expect(toggle).toHaveAttribute("aria-expanded", "false");
+    expect(await overflow(page)).toBeLessThanOrEqual(0);
+
+    await press(toggle, isMobile);
+    const sheet = page.getByRole("dialog", { name: "Activity" });
+    await expect(sheet).toBeVisible();
+    await expect(sheet.getByText("Dana Whitfield")).toBeVisible();
+    // A modal sheet hides the page behind it from screen readers, the
+    // button with it, so it's found by its place in the bar.
+    await expect(
+      page.locator(".app-shell__tools button", { hasText: "Activity" }),
+    ).toHaveAttribute("aria-expanded", "true");
+
+    if (isMobile) return;
+    await page.keyboard.press("Escape");
+    await expect(sheet).toBeHidden();
+    await expect(toggle).toBeFocused();
+    await expect(toggle).toHaveAttribute("aria-expanded", "false");
+  });
+
   test("top bar: the palette opens from the button and the keyboard, and runs a command", async ({
     page,
     isMobile,

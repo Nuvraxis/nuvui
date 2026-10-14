@@ -97,7 +97,7 @@ export default function ChargingMap() {
         <p className="charging-map__count" role="status">
           {shown.length} charging points
         </p>
-        <ul className="charging-map__list">
+        <ul className="charging-map__list" aria-label="Charging points">
           {shown.map((charger) => (
             <li key={charger.id}>
               <button

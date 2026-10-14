@@ -136,7 +136,7 @@ export default function BranchFinder() {
               ? "1 branch"
               : `${found.length} branches`}
         </p>
-        <ul className="branch-finder__list">
+        <ul className="branch-finder__list" aria-label="Branches">
           {found.map((branch) => (
             <li key={branch.id}>
               <button

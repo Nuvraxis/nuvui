@@ -120,7 +120,7 @@ export default function DeliveryRoute() {
             {done} of {stops.length} stops done. Next is {stops[reached]?.name}.
           </p>
         </header>
-        <ol className="delivery-route__stops">
+        <ol className="delivery-route__stops" aria-label="Stops">
           {stops.map((stop, index) => (
             <li key={stop.id}>
               <button

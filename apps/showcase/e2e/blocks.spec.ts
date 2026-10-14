@@ -83,6 +83,8 @@ test.describe("the list of blocks", () => {
       // The table's column helpers come from TanStack Table, which the
       // table package asks for as a peer.
       if (imported.has("@nuvui/table")) imported.add("@tanstack/react-table");
+      // The map package draws with MapLibre, a peer the block never imports.
+      if (imported.has("@nuvui/map")) imported.add("maplibre-gl");
       expect([...block.install].sort()).toEqual([...imported].sort());
 
       // Its classes are its own: none has the library's prefix or the

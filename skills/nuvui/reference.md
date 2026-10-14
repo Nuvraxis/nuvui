@@ -14,6 +14,7 @@ A file for each page of the docs. Read the one for a component before using it: 
 - [Right-to-left](reference/right-to-left.md): Use nuvui in Arabic, Hebrew, Persian and other languages that read from the right, with the dir attribute and DirectionProvider.
 - [Translation](reference/translation.md): Every piece of text nuvui writes by itself, such as "Close" and "Loading", with the prop that changes each one. A list for translators, taken from the components' own types.
 - [Support policy](reference/support.md): Which versions of React, Node and browsers nuvui works with, which of those are tested, how versions are numbered, and what a fix in a supported setup means.
+- [Content Security Policy](reference/content-security-policy.md): The policy a site with a strict Content Security Policy needs for nuvui, what each line is for, and what breaks without it.
 
 ## @nuvui/react: components
 

@@ -95,7 +95,7 @@ The releases so far are 0.x. One becomes 1.0 when all of this is true:
 - Every piece of text the library writes has a prop, and one page lists them. That's done: [translation](https://nuvui.nuvraxis.com/docs/translation).
 - The [support policy](https://nuvui.nuvraxis.com/docs/support) is written, and what it calls supported is tested. React 18 isn't tested yet.
 - Every component has been checked in a forced-colors theme and in a right-to-left layout by a test, and with a screen reader by a person.
-- The policy a site with a strict Content Security Policy needs is written down.
+- The policy a site with a strict Content Security Policy needs is written down. That's done: [Content Security Policy](https://nuvui.nuvraxis.com/docs/content-security-policy).
 - The packages have been used in at least one real app. They're published under 0.x, which is what makes that possible.
 
 Until then a minor version may rename or remove things, and the changelog says so where one does.

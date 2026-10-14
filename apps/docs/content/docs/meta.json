@@ -8,6 +8,7 @@
     "right-to-left",
     "translation",
     "support",
+    "content-security-policy",
     "agents",
     "components",
     "date-picker",

@@ -1,6 +1,6 @@
 {
   "name": "@nuvui/emoji",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "An emoji picker for @nuvui/react: search, categories, skin tones and recently used emoji, in a list that draws only the rows in view, and a reaction button with a count. It shows the device's own emoji.",
   "license": "MIT",
   "author": "Nuvraxis",

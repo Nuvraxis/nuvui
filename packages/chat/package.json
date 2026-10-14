@@ -1,6 +1,6 @@
 {
   "name": "@nuvui/chat",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Conversation components for @nuvui/react: messages, markdown and code, a prompt box that takes files, sources, tool calls, reasoning and the list of past conversations.",
   "license": "MIT",
   "author": "Nuvraxis",

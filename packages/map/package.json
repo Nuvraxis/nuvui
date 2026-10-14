@@ -1,6 +1,6 @@
 {
   "name": "@nuvui/map",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "A map for @nuvui/react, on MapLibre: markers and popups that are React elements, and controls drawn with the library's own buttons. It needs map tiles from a provider you choose.",
   "license": "MIT",
   "author": "Nuvraxis",

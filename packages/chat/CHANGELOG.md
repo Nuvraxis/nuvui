@@ -1,5 +1,11 @@
 # @nuvui/chat
 
+## 0.1.1
+
+### Patch Changes
+
+- [#62](https://github.com/Nuvraxis/nuvui/pull/62) [`679eae4`](https://github.com/Nuvraxis/nuvui/commit/679eae458b8565660a5bfbc31a9c1f1bd8d64db8) Thanks [@sajanv88](https://github.com/sajanv88)! - `createShikiHighlighter` colors the first code in a language to the end of each line on a slow machine. Shiki stops a line after half a second, and the first code in a language spends most of that building its patterns, so on a slow phone a line could be left part colored. The first time now gets five seconds.
+
 ## 0.1.0
 
 ### Minor Changes

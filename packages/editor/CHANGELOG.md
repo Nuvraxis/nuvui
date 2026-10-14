@@ -1,5 +1,11 @@
 # @nuvui/editor
 
+## 0.1.1
+
+### Patch Changes
+
+- [#62](https://github.com/Nuvraxis/nuvui/pull/62) [`679eae4`](https://github.com/Nuvraxis/nuvui/commit/679eae458b8565660a5bfbc31a9c1f1bd8d64db8) Thanks [@sajanv88](https://github.com/sajanv88)! - `RichTextEditorContent` is no longer a stop for the Tab key of its own in Firefox. When the text is taller than `--nuv-rich-text-editor-max-height`, the box around it scrolls, and Firefox made that box a stop with no name, before the text. The text is the stop, as in other browsers. A read-only editor keeps the box as a stop, since its text takes no focus and the keys that scroll it need somewhere to be.
+
 ## 0.1.0
 
 ### Minor Changes

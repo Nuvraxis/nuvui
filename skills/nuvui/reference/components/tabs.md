@@ -61,9 +61,9 @@ These are separate exports, not properties of `Tabs`. `Tabs.List` isn't availabl
 | `value` | `string` |  | The selected tab, when you control it yourself. Use it with `onValueChange`. |
 | `defaultValue` | `string` |  | The tab selected at first, when you don't control it. Without it, no tab is selected and no panel shows. |
 | `onValueChange` | `((value: string) => void)` |  | Called with the new tab's value when the selection changes. |
-| `orientation` | `Orientation` |  | Whether the tabs sit in a row above the panel or in a column beside it. It also decides which arrow keys move between them. |
-| `activationMode` | `ActivationMode` |  | With `"manual"`, the arrow keys only move focus, and Enter or Space selects the tab. |
-| `dir` | `Direction` |  | The reading direction. With `"rtl"`, the left and right arrow keys swap. |
+| `orientation` | `"horizontal" \| "vertical"` |  | Whether the tabs sit in a row above the panel or in a column beside it. It also decides which arrow keys move between them. |
+| `activationMode` | `"automatic" \| "manual"` |  | With `"manual"`, the arrow keys only move focus, and Enter or Space selects the tab. |
+| `dir` | `"ltr" \| "rtl"` |  | The reading direction. With `"rtl"`, the left and right arrow keys swap. |
 
 ### TabsList
 

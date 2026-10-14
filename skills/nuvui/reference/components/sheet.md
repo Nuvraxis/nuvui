@@ -118,7 +118,7 @@ These are separate exports, not properties of `Sheet`. `Sheet.Content` isn't ava
 
 | Prop | Type | Default | What it's for |
 | --- | --- | --- | --- |
-| `side` | `Side` | `"end"` | The edge of the screen the sheet is attached to. `"start"` is the left edge in a left-to-right layout and the right edge in a right-to-left one, and `"end"` is the other. |
+| `side` | `"bottom" \| "end" \| "start" \| "top"` | `"end"` | The edge of the screen the sheet is attached to. `"start"` is the left edge in a left-to-right layout and the right edge in a right-to-left one, and `"end"` is the other. |
 | `size` | `"lg" \| "md" \| "sm"` | `"md"` | How wide a sheet on the start or end edge is. It's never wider than the screen. A sheet on the top or bottom edge is as wide as the screen and as tall as its content, whatever the size. |
 | `showCloseButton` | `boolean` | `true` | Whether to render the close button in the corner. If you turn it off, give people another visible way to close the sheet. |
 | `closeLabel` | `string` | `"Close"` | Accessible name of the close button. Translate it with the rest of your interface. |

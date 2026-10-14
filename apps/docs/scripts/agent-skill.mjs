@@ -23,6 +23,7 @@ import { existsSync } from "node:fs";
 import { mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { createGenerator } from "fumadocs-typescript";
+import { writeOutLiterals } from "../lib/literal-union.ts";
 
 const docsDir = path.join(import.meta.dirname, "..");
 const repoDir = path.join(docsDir, "..", "..");
@@ -134,11 +135,10 @@ async function propsTable(attrs, page) {
     component,
     file.endsWith(".ts") ? file : `${file}.tsx`,
   );
-  const docs = await generatorFor(addon).generateTypeTable({
-    path: source,
-    name,
-    type,
-  });
+  const docs = await generatorFor(addon).generateTypeTable(
+    { path: source, name, type },
+    { transform: writeOutLiterals },
+  );
   const out = [];
   for (const doc of docs) {
     let entries = doc.entries;

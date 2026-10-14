@@ -225,7 +225,7 @@ Barcode also takes the attributes of an `<svg>`, and `ref` goes to it.
 | Prop | Type | Default | What it's for |
 | --- | --- | --- | --- |
 | `value` (required) | `string` |  | What the barcode holds. |
-| `type` | `BarcodeType` | `"code128"` | The kind of barcode. Each takes its own values: an EAN-13 is twelve or thirteen digits, a Code 39 is capitals, digits and a few signs, and a Code 128 is any ASCII text. |
+| `type` | `"codabar" \| "code128" \| "code39" \| "code39-mod43" \| "ean13" \| "ean8" \| "gs1-128" \| "itf" \| "itf14" \| "msi" \| "msi-mod10" \| "msi-mod1010" \| "msi-mod11" \| "msi-mod1110" \| "pharmacode" \| "upca" \| "upce"` | `"code128"` | The kind of barcode. Each takes its own values: an EAN-13 is twelve or thirteen digits, a Code 39 is capitals, digits and a few signs, and a Code 128 is any ASCII text. |
 | `barWidth` | `number` | `2` | The width of the narrowest bar, in pixels. A scanner needs it to be a whole number of the screen's or the printer's dots. |
 | `height` | `number` | `64` | The height of the bars, in pixels. The text is under that. |
 | `quietZone` | `number` | `10` | The empty space at each end, counted in narrowest bars. A scanner finds the barcode by it, and most kinds ask for ten. |

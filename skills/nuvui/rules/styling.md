@@ -128,6 +128,12 @@ A CSS variable can't be read in a media query, so in plain CSS a breakpoint is w
 
 The library styles its components and little else. A page's own frame, its width, the space around it, its headings, is the app's to write.
 
+## Under a Content Security Policy
+
+A site that sends a Content Security Policy needs `style-src-attr 'unsafe-inline'` for nuvui. Components set some styles on the element, such as how far a progress bar has filled, and a page rendered on a server sends them as `style` attributes. Without that line they're dropped, and a progress bar is empty, a slider's handle sits at the start and a scroll area doesn't scroll. Keep `style-src` itself strict: the one `<style>` element in the library is `ScrollArea`'s, and it takes the policy's nonce as `nonce`. The whole policy, line by line: [reference/content-security-policy.md](../reference/content-security-policy.md).
+
+Don't fix a blocked style by moving it into a `<style>` element, or by adding `'unsafe-inline'` to `style-src`.
+
 ## Don't
 
 - Don't copy a component's CSS into the app to change it. Set its variables.

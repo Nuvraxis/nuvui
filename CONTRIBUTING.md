@@ -6,7 +6,7 @@ Bug reports and ideas go in the [issue tracker](https://github.com/Nuvraxis/nuvu
 
 ## Setup
 
-You need Node 22 or newer and pnpm 12. The exact pnpm version is in the `packageManager` field of the root `package.json`. Use pnpm for everything here, not npm or yarn.
+You need Node 22.18 or newer and pnpm 12. The exact pnpm version is in the `packageManager` field of the root `package.json`. Use pnpm for everything here, not npm or yarn.
 
 ```sh
 pnpm install

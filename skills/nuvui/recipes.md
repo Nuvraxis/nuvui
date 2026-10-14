@@ -37,7 +37,7 @@ Don't forget the other states. The block `page-states` is one page with its rows
 
 ## A page with a sidebar
 
-Start from the block `sidebar-nested` for navigation in two levels, or `sidebar-icons` for one that folds to icons. `dashboard` is a whole screen with a sidebar in it.
+Start from the block `app-shell` for the whole of an app's screen: a sidebar that folds to its icons, a bar on top, the page, and a panel on the far side that closes and is a sheet on a phone. `sidebar-nested` is navigation in two levels, and `dashboard` a whole screen with a sidebar in it.
 
 What it's made of: `SidebarProvider` around the layout, `Sidebar` with its parts, and the page's content beside it. [reference/components/sidebar.md](reference/components/sidebar.md) has the parts, and how the sidebar becomes a sheet on a phone.
 

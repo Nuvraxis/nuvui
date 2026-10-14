@@ -73,9 +73,9 @@ These come from Radix.
 | `max` | `number` |  | The highest value. It's 100 by default. |
 | `step` | `number` |  | How far the value moves at a time. It's 1 by default. |
 | `minStepsBetweenThumbs` | `number` |  | The fewest steps two handles may be apart. |
-| `orientation` | `Orientation` |  | `"vertical"` stands the slider on end. |
+| `orientation` | `"horizontal" \| "vertical"` |  | `"vertical"` stands the slider on end. |
 | `inverted` | `boolean` |  | Fills from the far end, and turns the arrow keys around to match. |
-| `dir` | `Direction` |  | The reading direction. In `"rtl"` the slider fills from the right. |
+| `dir` | `"ltr" \| "rtl"` |  | The reading direction. In `"rtl"` the slider fills from the right. |
 | `disabled` | `boolean` |  | Stops the handles from being focused or moved. |
 | `name` | `string` |  | The name the values are submitted under in a form. |
 

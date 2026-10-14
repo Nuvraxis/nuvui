@@ -260,7 +260,7 @@ Typing a letter goes to the next row whose text starts with it. When a row start
 
 | Prop | Type | Default | What it's for |
 | --- | --- | --- | --- |
-| `selectionMode` | `SelectionMode` | `"none"` | Whether rows can be selected, and how many. With `"multiple"`, a press adds a row to the selection or takes it out, and Shift selects a run of them. |
+| `selectionMode` | `"multiple" \| "none" \| "single"` | `"none"` | Whether rows can be selected, and how many. With `"multiple"`, a press adds a row to the selection or takes it out, and Shift selects a run of them. |
 | `value` | `string[]` |  | The selected rows' values, when you control them. |
 | `defaultValue` | `string[]` |  | The rows selected at first, when you don't. |
 | `onValueChange` | `((value: string[]) => void)` |  | Called with every selected row's value when the selection changes. |

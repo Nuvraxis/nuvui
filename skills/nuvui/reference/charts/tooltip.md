@@ -125,7 +125,7 @@ export default function Example() {
 
 | Prop | Type | Default | What it's for |
 | --- | --- | --- | --- |
-| `indicator` | `ChartIndicator` | `"square"` | The sample drawn next to each series. |
+| `indicator` | `"line" \| "square"` | `"square"` | The sample drawn next to each series. |
 | `hideLabel` | `boolean` | `false` | Leaves out the line that says which point this is, for a chart where each row already says it. |
 | `nameKey` | `string` |  | The field of a data row that holds the series' key. Only needed when neither the series' name nor its data key is a key of the config. |
 | `formatValue` | `ChartValueFormatter` |  | How a value is written. The container's `formatValue` by default. |

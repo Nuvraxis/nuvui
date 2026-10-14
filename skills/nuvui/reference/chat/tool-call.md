@@ -208,7 +208,7 @@ A card starts closed. `defaultOpen` starts it open, and `open` with `onOpenChang
 
 | Prop | Type | Default | What it's for |
 | --- | --- | --- | --- |
-| `status` (required) | `ToolCallStatus` |  | Where the call stands. |
+| `status` (required) | `"approval" \| "denied" \| "done" \| "error" \| "running"` |  | Where the call stands. |
 
 It also takes the props of a [Collapsible](../components/collapsible.md#props).
 

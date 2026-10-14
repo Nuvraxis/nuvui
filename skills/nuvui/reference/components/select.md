@@ -88,7 +88,7 @@ These are separate exports, not properties of `Select`. `Select.Item` isn't avai
 | `name` | `string` |  | The name the value is submitted under in a form. |
 | `open` | `boolean` |  | Whether the list is open, when you control that yourself. |
 | `onOpenChange` | `((open: boolean) => void)` |  | Called when the list opens or closes. |
-| `dir` | `Direction` |  | The reading direction of the list. |
+| `dir` | `"ltr" \| "rtl"` |  | The reading direction of the list. |
 
 ### SelectTrigger
 
@@ -106,7 +106,7 @@ These are separate exports, not properties of `Select`. `Select.Item` isn't avai
 
 | Prop | Type | Default | What it's for |
 | --- | --- | --- | --- |
-| `position` | `Position` | `"popper"` | `"popper"` opens the list under the trigger, like a menu. `"item-aligned"` lays it over the trigger with the selected option on top of it, the way a native select does on a Mac. |
+| `position` | `"item-aligned" \| "popper"` | `"popper"` | `"popper"` opens the list under the trigger, like a menu. `"item-aligned"` lays it over the trigger with the selected option on top of it, the way a native select does on a Mac. |
 | `sideOffset` | `number` | `6` | The gap between the trigger and the list, in pixels. Only applies with `position="popper"`. |
 | `collisionPadding` | `number \| Partial<Record<"bottom" \| "left" \| "right" \| "top", number>>` | `8` | How close the list may get to the edge of the screen, in pixels. Only applies with `position="popper"`. |
 | `container` | `DocumentFragment \| Element \| null` | `document.body` | The element the list is rendered into. Set this when the list should pick up a `data-theme` from a section of the page. |

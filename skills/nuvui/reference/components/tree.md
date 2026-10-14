@@ -368,7 +368,7 @@ Keep buttons and links out of a label. A row is one thing to press, and a screen
 
 | Prop | Type | Default | What it's for |
 | --- | --- | --- | --- |
-| `selectionMode` | `SelectionMode` | `"none"` | Whether rows can be selected, and how many. With `"multiple"`, a press adds a row to the selection or takes it out, and Shift selects a run of them. |
+| `selectionMode` | `"multiple" \| "none" \| "single"` | `"none"` | Whether rows can be selected, and how many. With `"multiple"`, a press adds a row to the selection or takes it out, and Shift selects a run of them. |
 | `value` | `string[]` |  | The selected rows' values, when you control them. |
 | `defaultValue` | `string[]` |  | The rows selected at first, when you don't. |
 | `onValueChange` | `((value: string[]) => void)` |  | Called with every selected row's value when the selection changes. |

@@ -111,7 +111,7 @@ One more from Radix that's often useful:
 
 | Prop | Type | Default | What it's for |
 | --- | --- | --- | --- |
-| `checked` | `CheckedState` |  | Whether the item is on. `"indeterminate"` shows a dash. |
+| `checked` | `"indeterminate" \| boolean` |  | Whether the item is on. `"indeterminate"` shows a dash. |
 | `onCheckedChange` | `((checked: boolean) => void)` |  | Called with the new state when the item is chosen. |
 
 ### DropdownMenuRadioGroup
@@ -129,7 +129,7 @@ One more from Radix that's often useful:
 | `defaultOpen` | `boolean` |  | Whether it starts open, when you don't control it. |
 | `onOpenChange` | `((open: boolean) => void)` |  | Called when it opens or closes. |
 | `modal` | `boolean` |  | On unless you pass `false`. While a modal menu is open, the rest of the page can't be clicked or scrolled, and screen readers can't reach it. |
-| `dir` | `Direction` |  | The reading direction. With `"rtl"`, submenus open to the left and the left and right arrow keys swap. |
+| `dir` | `"ltr" \| "rtl"` |  | The reading direction. With `"rtl"`, submenus open to the left and the left and right arrow keys swap. |
 
 ### DropdownMenuSubContent
 

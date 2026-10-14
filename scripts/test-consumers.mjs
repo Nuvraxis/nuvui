@@ -325,6 +325,81 @@ const fixtures = {
       css.includes(".nuv-calendar"),
     );
   },
+
+  // The same packages on React 18.2, the oldest React they say they work
+  // with. Its types are React 18's too, so the type check is the first test.
+  react18(dir) {
+    const script = read(files(join(dir, "dist"), ".js"));
+    expect(
+      "react18",
+      "the build has React 18.2 in it, and not another React",
+      script.includes('"18.2.0"') && !/"19\.\d+\.\d+"/.test(script),
+    );
+    const css = read(files(join(dir, "dist"), ".css"));
+    expect(
+      "react18",
+      "it has the component styles",
+      css.includes(".nuv-button"),
+    );
+
+    // The app rendered by React 18's server renderer, which runs every
+    // component's render on React 18.
+    const render = pathToFileURL(join(dir, "dist-server", "render.js")).href;
+    const html = execFileSync(
+      process.execPath,
+      [
+        "--input-type=module",
+        "-e",
+        `const { render } = await import(${JSON.stringify(render)}); process.stdout.write(render());`,
+      ],
+      { cwd: dir, encoding: "utf8" },
+    );
+    expect("react18", "the app renders to HTML", html.length > 1000);
+    expect(
+      "react18",
+      "the data table rendered, sorted",
+      html.indexOf(">Ada Lovelace<") < html.indexOf(">Cleo Park<") &&
+        html.includes('aria-sort="ascending"'),
+    );
+    expect(
+      "react18",
+      "the controls in the form rendered, with the copies Radix sends",
+      /<input\s(?=[^>]*type="checkbox")(?=[^>]*name="terms")/.test(html) &&
+        /<select\s(?=[^>]*name="fruit")/.test(html) &&
+        html.includes('role="switch"') &&
+        /<input\s(?=[^>]*name="due")/.test(html),
+    );
+    expect(
+      "react18",
+      "the progress bar, the slider and the tabs rendered",
+      /<\w+\s(?=[^>]*class="nuv-progress__indicator")(?=[^>]*inline-size:64%)/.test(
+        html,
+      ) &&
+        html.includes("nuv-slider__thumb") &&
+        html.includes('role="tablist"'),
+    );
+    expect(
+      "react18",
+      "the chart's container rendered, with a variable for its series",
+      /<div\s(?=[^>]*class="nuv-chart")(?=[^>]*--chart-seats:)/.test(html),
+    );
+    expect(
+      "react18",
+      "the barcode and the QR code were drawn",
+      html.includes("nuv-barcode__bars") &&
+        html.includes("nuv-qrcode__squares"),
+    );
+    expect(
+      "react18",
+      "the message, the prompt box, the editor, the board, the picker and the map rendered",
+      html.includes("nuv-message__content") &&
+        html.includes("nuv-prompt-input__textarea") &&
+        html.includes("nuv-rich-text-editor__toolbar") &&
+        html.includes("nuv-kanban__handle") &&
+        html.includes("nuv-emoji-picker__search") &&
+        html.includes("Loading map"),
+    );
+  },
 };
 
 let failed = false;
@@ -363,7 +438,7 @@ try {
     pnpm(["run", "build"], dir);
     check(dir);
   }
-  console.log("test-consumers: both apps install, type-check and build");
+  console.log("test-consumers: the three apps install, type-check and build");
 } catch (error) {
   failed = true;
   console.error(`test-consumers failed: ${error.message}`);

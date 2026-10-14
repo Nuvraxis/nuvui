@@ -53,7 +53,7 @@ The styles come from `@nuvui/react/styles.css`, which you load once for the whol
 | `onVisibilityChange` | `((visible: boolean) => void)` |  | Called with the new state when the button is pressed. |
 | `showLabel` | `string` | `"Show password"` | Accessible name of the button while the password is hidden. Translate it with the rest of your interface. |
 | `hideLabel` | `string` | `"Hide password"` | Accessible name of the button while the password can be read. |
-| `autoComplete` | `AutoComplete` | `"current-password"` | What the browser and password managers fill in. Use `"new-password"` where someone is choosing one. |
+| `autoComplete` | `"current-password" \| "new-password"` | `"current-password"` | What the browser and password managers fill in. Use `"new-password"` where someone is choosing one. |
 
 `className` goes on the box that holds the input and the button. Everything else, `ref` and `id` included, goes to the `<input>`. It takes any input prop except `type`, which the component sets.
 

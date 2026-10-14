@@ -76,7 +76,7 @@ What exists today:
 - Five presets, each a stylesheet that restyles everything, and three densities.
 - A [skill for coding agents](https://nuvui.nuvraxis.com/docs/agents), in `skills/nuvui`: the rules an agent gets wrong without being told, and a reference file for each component, written from the docs so it can't fall behind them. [Using it with a coding agent](#using-it-with-a-coding-agent) says how to add it to a project.
 - A [docs site](https://nuvui.nuvraxis.com/docs) with a page for each component, a getting started page, and search that runs in the browser.
-- A [website](https://nuvui.nuvraxis.com) around the docs, built with the library's own tokens: a home page with a live dashboard, [39 charts](https://nuvui.nuvraxis.com/charts) in ten families, each one file to copy, a [theme builder](https://nuvui.nuvraxis.com/themes) that shows a theme on real components in light and dark and gives it back as CSS, and [58 blocks](https://nuvui.nuvraxis.com/blocks) in eight groups. A block is a part of an app, such as a sign-in screen, a dashboard or a pricing table, as a TSX file and an SCSS file to copy. The site also serves them as a registry for shadcn's command line tool, at `/r`. The docs carry the website's header, so either leads to the other.
+- A [website](https://nuvui.nuvraxis.com) around the docs, built with the library's own tokens: a home page with a live dashboard, [39 charts](https://nuvui.nuvraxis.com/charts) in ten families, each one file to copy, a [theme builder](https://nuvui.nuvraxis.com/themes) that shows a theme on real components in light and dark and gives it back as CSS, and [59 blocks](https://nuvui.nuvraxis.com/blocks) in eight groups. A block is a part of an app, such as a sign-in screen, a dashboard or a pricing table, as a TSX file and an SCSS file to copy. The site also serves them as a registry for shadcn's command line tool, at `/r`. The docs carry the website's header, so either leads to the other.
 - Guides for theming, for using the tokens with Tailwind v4, for using the SCSS source, for building forms, with React Hook Form as the worked example, and for right-to-left layouts. The theming page has an editor that changes tokens in the browser and prints the CSS for what you changed.
 
 What's missing:
@@ -93,9 +93,9 @@ The releases so far are 0.x. One becomes 1.0 when all of this is true:
 - Every component in every package has its page in the docs, its tests in three browser engines, and axe passing in every theme. That's done.
 - The names are frozen: props, variants, CSS variables and class names. A pass over them was made in October 2026, and from 1.0 a rename needs a major version.
 - Every piece of text the library writes has a prop, and one page lists them. That's done: [translation](https://nuvui.nuvraxis.com/docs/translation).
-- The [support policy](https://nuvui.nuvraxis.com/docs/support) is written, and what it calls supported is tested. React 18 isn't tested yet.
+- The [support policy](https://nuvui.nuvraxis.com/docs/support) is written, and what it calls supported is tested. React 18.2 is type-checked, built and rendered on a server. The component tests in a browser run on React 19 only.
 - Every component has been checked in a forced-colors theme and in a right-to-left layout by a test, and with a screen reader by a person.
-- The policy a site with a strict Content Security Policy needs is written down.
+- The policy a site with a strict Content Security Policy needs is written down. That's done: [Content Security Policy](https://nuvui.nuvraxis.com/docs/content-security-policy).
 - The packages have been used in at least one real app. They're published under 0.x, which is what makes that possible.
 
 Until then a minor version may rename or remove things, and the changelog says so where one does.
@@ -125,7 +125,7 @@ Dark mode is opt-in. Put `data-theme="dark"` on `<html>`, or `data-theme="system
 
 ## Working on it
 
-You need Node 22 or newer and pnpm 12.
+You need Node 22.18 or newer and pnpm 12.
 
 ```sh
 pnpm install
@@ -157,7 +157,7 @@ pnpm dev         # packages in watch mode plus the website and the docs
 - `packages/telemetry` sends the site's web vitals to an OpenTelemetry collector. It isn't published.
 - `packages/tooling` is what the published packages are built, checked and tested with. It isn't published.
 - `packages/typescript-config` holds the shared tsconfig presets.
-- `fixtures` holds two small apps that install the packed library the way a stranger would.
+- `fixtures` holds three small apps that install the packed library the way a stranger would, one of them on React 18.2.
 - `skills/nuvui` is the skill for coding agents, and `NuvUIAIAgent.md` its first page. The reference in it is written from the docs by `pnpm skill`.
 
 ## Testing

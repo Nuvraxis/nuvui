@@ -12,13 +12,13 @@ The policy applies to every released version, from the first.
 
 | Version | Status |
 | --- | --- |
-| 19 | Supported, and what every test runs on. |
-| 18.2 and later 18 releases | Supported. Not tested yet. |
+| 19 | Supported, and what the component tests run on. |
+| 18.2 and later 18 releases | Supported. Built, type-checked and rendered on a server on 18.2. |
 | 17 and older | Not supported. |
 
 The packages declare `react` and `react-dom` as peers at `^18.2.0 || ^19.0.0`. The code is written for both: components use `forwardRef`, which React 18 needs, and nothing uses an API that only React 19 has.
 
-No test runs on React 18 today. Until one does, treat a problem there as likely to be found by you first, and report it.
+On React 18.2.0 and its types, one app installs the packed packages, type-checks, builds, and renders every package's components to HTML with React 18's server renderer. That catches a type, an import or a hook that React 18 doesn't have. What it doesn't catch is behavior in a browser: the component tests, with their keys, focus and effects, run on React 19 only. Treat a problem there on 18 as likely to be found by you first, and report it.
 
 Server components are supported. A component that needs the browser is marked `"use client"` in the package, so it can be imported from a server component. This is tested with Next.js.
 
@@ -41,7 +41,7 @@ Node is only involved where your app renders on a server or builds. Each package
 
 The tests run on Node 24. Older versions on this list aren't tested.
 
-Working on the library itself needs Node 22 or newer.
+Working on the library itself needs Node 22.18 or newer, which runs TypeScript files without a build step.
 
 ## Browsers
 
@@ -51,7 +51,7 @@ The tests run in Chromium, Firefox and WebKit, in the current versions that Play
 
 ## Build tools
 
-The end-to-end tests pack the packages, install them into two apps and build those: one with Vite, one with Next.js as a static export. Other bundlers that read a package's `exports` should work, and aren't tested.
+The end-to-end tests pack the packages, install them into three apps and build those: one with Vite, one with Next.js as a static export, and one with Vite on React 18.2. Other bundlers that read a package's `exports` should work, and aren't tested.
 
 The styles are plain CSS files. The SCSS source is there for apps that compile Sass, with [one known problem](scss.md) in Next.js with Turbopack on Windows.
 

@@ -1,0 +1,9 @@
+{
+  "name": "app-shell",
+  "title": "App shell",
+  "description": "The four parts of an app's screen together: a sidebar that folds to its icons, a bar across the top, the page, and a panel on the far side that closes. On a narrow screen the sidebar and the panel open over the page.",
+  "category": "layout",
+  "files": ["app-shell.tsx", "app-shell.scss"],
+  "install": ["@nuvui/react", "lucide-react"],
+  "height": 640
+}

@@ -2,7 +2,7 @@
 
 # Blocks
 
-A block is a part of an app, such as a sign-in screen or a table with a toolbar, built from the library's components: one TSX file and one SCSS file, to copy into an app and change. There are 58. Each is shown at https://nuvui.nuvraxis.com/blocks.
+A block is a part of an app, such as a sign-in screen or a table with a toolbar, built from the library's components: one TSX file and one SCSS file, to copy into an app and change. There are 59. Each is shown at https://nuvui.nuvraxis.com/blocks.
 
 Before building a screen from nothing, look here for one that's close. To add one, with the packages it needs:
 
@@ -73,6 +73,7 @@ A block's SCSS uses the library's mixins, `@use "@nuvui/react/scss/mixins"`, so 
 
 ## Layout
 
+- **App shell** (`app-shell`): The four parts of an app's screen together: a sidebar that folds to its icons, a bar across the top, the page, and a panel on the far side that closes. On a narrow screen the sidebar and the panel open over the page. Needs `@nuvui/react`, `lucide-react`.
 - **Page with its contents** (`article`): A long page with a list of its headings that marks the one being read: beside the text on a wide screen, and behind a button on a narrow one. Needs `@nuvui/react`, `lucide-react`.
 - **Page header** (`page-header`): A breadcrumb, the page's title with its status, and the actions for the page. Needs `@nuvui/react`, `lucide-react`.
 - **Sidebar that folds to icons** (`sidebar-icons`): An app's navigation with a workspace at the top and the person's menu at the bottom. It folds down to a strip of icons, and is a panel on a phone. Needs `@nuvui/react`, `lucide-react`.

@@ -2,6 +2,7 @@ import activity from "@/blocks/activity/block.json" with { type: "json" };
 import announcementEditor from "@/blocks/announcement-editor/block.json" with {
   type: "json",
 };
+import appShell from "@/blocks/app-shell/block.json" with { type: "json" };
 import appearance from "@/blocks/appearance/block.json" with { type: "json" };
 import approvals from "@/blocks/approvals/block.json" with { type: "json" };
 import article from "@/blocks/article/block.json" with { type: "json" };
@@ -154,7 +155,7 @@ export const categories: BlockCategory[] = [
     label: "App layout",
     title: "App layout",
     description:
-      "What goes around every screen of an app: a sidebar that folds down to icons, one with sections that open, a top bar with search, a page header, and a long page with a list of its headings.",
+      "What goes around every screen of an app: the whole of it together, with a panel on the far side that closes, a sidebar that folds down to icons, one with sections that open, a top bar with search, a page header, and a long page with a list of its headings.",
   },
   {
     slug: "dashboard",
@@ -210,6 +211,7 @@ export const blocks: BlockManifest[] = [
   forgotPassword,
   verifyCode,
   onboarding,
+  appShell,
   sidebarIcons,
   sidebarNested,
   topBar,

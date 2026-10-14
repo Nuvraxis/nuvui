@@ -1,6 +1,7 @@
 import defaultMdxComponents from "fumadocs-ui/mdx";
 import type { MDXComponents } from "mdx/types";
 import { Changelog } from "@/components/changelog";
+import { IconGrid } from "@/components/icon-grid";
 import { NotPublished } from "@/components/not-published";
 import { AccordionPlayground } from "@/components/playground/accordion";
 import { ActionBarPlayground } from "@/components/playground/action-bar";
@@ -120,6 +121,7 @@ export function getMDXComponents(components?: MDXComponents) {
     CssVariables,
     BemClasses,
     TokenEditor,
+    IconGrid,
     SemanticColors,
     ColorScales,
     TokenList,

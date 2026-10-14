@@ -173,3 +173,7 @@ A file for each page of the docs. Read the one for a component before using it: 
 - [MapView](reference/map/map-view.md): A map on MapLibre, with markers that are read by name, popups, and controls that are the library's own buttons. It takes the arrow keys, says when it's loading, and says when it can't be drawn.
 - [MapRoute](reference/map/map-route.md): A line on a map through a list of places, for a way that was driven or one that's planned. It's drawn in the theme's colors, with an edge that keeps it seen on a map of any color.
 - [MapClusters](reference/map/map-clusters.md): Many places on a map, gathered into one button with a number on it where they're near each other, and drawn apart as the map zooms in. Each gathering and each place is a button with a name.
+
+## @nuvui/icons
+
+- [Icons](reference/icons/index.md): The @nuvui/icons package. 317 line icons drawn for nuvui, in three styles, each a React component in the color of the text around it and an SVG file.

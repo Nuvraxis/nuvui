@@ -32,9 +32,10 @@ Run these from the repository root.
 | `pnpm check:package` | Checks what each package would publish: its `exports` map and its types. Run `pnpm build` first. |
 | `pnpm check:licenses` | Fails on a dependency whose license isn't on the lists in `scripts/check-licenses.mjs`: a short one for what the published packages depend on, and a longer one for the tools. |
 | `pnpm check:audit` | Fails on a dependency with a known vulnerability rated high or worse. What it leaves out is in `pnpm-workspace.yaml`, each with why. |
-| `pnpm test:consumers` | Packs the packages and installs them into a Vite app and a Next.js app. Run `pnpm build` first. |
+| `pnpm test:consumers` | Packs the packages and installs them into three apps: one on Vite, one on Next.js, and one on Vite with React 18.2. Run `pnpm build` first. |
 | `pnpm skill` | Writes the agent skill's reference, `NuvUIAIAgent.md` and the site's `llms.txt` from the docs. Run `pnpm build` first, and keep what it writes. |
 | `pnpm check:skill` | Fails if those files are behind the docs, or a component is on no docs page. CI runs it. |
+| `pnpm icons:fetch` | Fetches the icons from their Figma file into `packages/icons`. It needs a Figma token: see [The icon package](#the-icon-package). |
 
 To run part of a suite:
 
@@ -104,6 +105,11 @@ packages/emoji                an add-on, published as @nuvui/emoji
   src/data/                   the list of emoji, written by scripts/generate-data.mjs
 packages/map                  an add-on, published as @nuvui/map
   src/components/map/         the map and its parts, in one file
+packages/icons                the icons, published as @nuvui/icons
+  svg/                        each icon in each style, fetched from Figma
+  manifest.json               every icon's name, component and category
+  src/create-icon.ts          what every icon is made with
+  src/generated/              a module for each icon, written by the build, not in git
 packages/tooling              what every published package is built with, private
   tsdown.mjs                  the build
   build-css.mjs               compiles the SCSS, and copies the source into dist
@@ -221,7 +227,7 @@ Button is the smallest example to copy from, and Dialog the fullest.
 
 ## Add-on packages
 
-A component goes in a package of its own when it needs a library the core doesn't have. `@nuvui/date-picker` is the first, for react-day-picker and date-fns, `@nuvui/table` the second, for TanStack Table, `@nuvui/charts` the third, for Recharts, and `@nuvui/barcodes` the fourth, for JsBarcode's and uqr's encoders. `@nuvui/chat` is the fifth, and the one that isn't there for a library: it's a different kind of screen, which most apps don't have. `@nuvui/kanban` is the sixth, for dnd kit, which carries the cards, and `@nuvui/editor` the seventh, for Tiptap. `@nuvui/emoji` is the eighth, and what it keeps out of the core is no library but a list: nineteen hundred emoji with their names. `@nuvui/map` is the ninth, for MapLibre. An app that doesn't use the component then never installs that library.
+A component goes in a package of its own when it needs a library the core doesn't have. `@nuvui/date-picker` is the first, for react-day-picker and date-fns, `@nuvui/table` the second, for TanStack Table, `@nuvui/charts` the third, for Recharts, and `@nuvui/barcodes` the fourth, for JsBarcode's and uqr's encoders. `@nuvui/chat` is the fifth, and the one that isn't there for a library: it's a different kind of screen, which most apps don't have. `@nuvui/kanban` is the sixth, for dnd kit, which carries the cards, and `@nuvui/editor` the seventh, for Tiptap. `@nuvui/emoji` is the eighth, and what it keeps out of the core is no library but a list: nineteen hundred emoji with their names. `@nuvui/map` is the ninth, for MapLibre. An app that doesn't use the component then never installs that library. `@nuvui/icons` is the tenth, and the odd one out: it needs no `@nuvui/react`, has no stylesheet, and is artwork more than code. [The icon package](#the-icon-package) says how it differs.
 
 An add-on is laid out like the core and built with the same tooling, from `packages/tooling`. Its own config files only say what's particular to it. What differs from the core:
 
@@ -237,7 +243,17 @@ An add-on is laid out like the core and built with the same tooling, from `packa
 - **It ships CommonJS as well as ES modules, unless its peer doesn't.** `@tanstack/react-table` is ES modules only, so `@nuvui/table` is too: `library({ format: ["esm"] })` in its `tsdown.config.ts`, and the `esm-only` profile in `.attw.json`.
 - **An entry that needs an optional peer, or that pulls in a lot, is a file at the top of `src`** and not a folder in `src/components`, so the package's main entry doesn't re-export it. `src/virtual.tsx` and `src/full.ts` in the table package are the two there are.
 
-A new add-on also has to be added in three places: `addons` in `apps/docs/lib/library.ts`, `published` in `scripts/test-consumers.mjs`, and the dependencies of `apps/docs` and of the two apps in `fixtures`.
+A new add-on also has to be added in four places: `addons` in `apps/docs/lib/library.ts`, `addons` and `sectionTitles` in `apps/docs/scripts/agent-skill.mjs`, `published` in `scripts/test-consumers.mjs`, and the dependencies of `apps/docs` and of the three apps in `fixtures`.
+
+### The icon package
+
+`packages/icons` holds artwork, and is built differently from the other packages:
+
+- **The SVG files in `svg/` are the source,** one for each icon in each style. They're fetched from the Figma file the icons are drawn in, and never edited by hand. To change an icon, change it in Figma and fetch again.
+- **`pnpm icons:fetch` fetches them.** It reads every component set named `Icon/<name>` in the file, exports its three variants as SVG, makes each file the same with SVGO, and writes the SVG files and `manifest.json`. It writes nothing if any icon breaks the set's rules: a size other than 24 by 24, a color other than the set's ink, a missing style, or a name that isn't lower case words joined by hyphens. Commit what it writes.
+- **Fetching needs a Figma token** that can read the file. Make one in Figma under Settings, Security, Personal access tokens, with read access to file content. Put it in `FIGMA_TOKEN`, or in a file `.env.local` at the root of the repository as `FIGMA_TOKEN=...`, which git ignores. Never commit a token.
+- **The components are generated when the package is built,** by `scripts/generate.mjs`, into `src/generated`, which git ignores. `build`, `typecheck` and `test` each run it first, so nothing but the fetch needs Figma or a token.
+- **No stylesheet and no `@nuvui/react`.** An icon is an SVG in `currentColor`. The package's `scripts/check-dist.mjs` is its own: it checks that each entry has every icon in the manifest, in both module formats, and that no file says `"use client"`.
 
 ## The website and the docs
 

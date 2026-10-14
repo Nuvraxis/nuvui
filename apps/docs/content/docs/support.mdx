@@ -15,7 +15,7 @@ The policy applies to every released version, from the first.
 | 18.2 and later 18 releases | Supported. Built, type-checked and rendered on a server on 18.2. |
 | 17 and older | Not supported. |
 
-The packages declare `react` and `react-dom` as peers at `^18.2.0 || ^19.0.0`. The code is written for both: components use `forwardRef`, which React 18 needs, and nothing uses an API that only React 19 has.
+The packages declare `react` and `react-dom` as peers at `^18.2.0 || ^19.0.0`, and `@nuvui/icons` only `react`. The code is written for both: components use `forwardRef`, which React 18 needs, and nothing uses an API that only React 19 has.
 
 On React 18.2.0 and its types, one app installs the packed packages, type-checks, builds, and renders every package's components to HTML with React 18's server renderer. That catches a type, an import or a hook that React 18 doesn't have. What it doesn't catch is behavior in a browser: the component tests, with their keys, focus and effects, run on React 19 only. Treat a problem there on 18 as likely to be found by you first, and report it.
 
@@ -36,6 +36,7 @@ Node is only involved where your app renders on a server or builds. Each package
 | `@nuvui/editor` | 18 or newer |
 | `@nuvui/emoji` | 18 or newer |
 | `@nuvui/map` | 18 or newer |
+| `@nuvui/icons` | 18 or newer |
 | `@nuvui/table` | 20 or newer, because TanStack Table 9 asks for it |
 
 The tests run on Node 24. Older versions on this list aren't tested.

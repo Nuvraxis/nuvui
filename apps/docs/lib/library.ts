@@ -13,15 +13,18 @@ function pkg(folder: string, name: string) {
     dir,
     tsconfig: path.join(dir, "tsconfig.json"),
     // A component's types are in the file named after it, unless a page
-    // names another file in the same folder.
+    // names another file in the same folder, or one from the package's
+    // root, starting with src/, for a package with no component folders.
     source: (component: string, file = component) =>
-      path.join(
-        dir,
-        "src",
-        "components",
-        component,
-        file.endsWith(".ts") ? file : `${file}.tsx`,
-      ),
+      file.startsWith("src/")
+        ? path.join(dir, file)
+        : path.join(
+            dir,
+            "src",
+            "components",
+            component,
+            file.endsWith(".ts") ? file : `${file}.tsx`,
+          ),
     css: (component: string) =>
       path.join(dir, "dist", "css", `${component}.css`),
     styles: path.join(dir, "dist", "styles.css"),
@@ -52,6 +55,7 @@ export const addons = {
   editor: pkg("editor", "@nuvui/editor"),
   emoji: pkg("emoji", "@nuvui/emoji"),
   map: pkg("map", "@nuvui/map"),
+  icons: pkg("icons", "@nuvui/icons"),
 };
 
 export type Addon = keyof typeof addons;

@@ -41,7 +41,7 @@ Node is only involved where your app renders on a server or builds. Each package
 
 The tests run on Node 24. Older versions on this list aren't tested.
 
-Working on the library itself needs Node 22 or newer.
+Working on the library itself needs Node 22.18 or newer, which runs TypeScript files without a build step.
 
 ## Browsers
 

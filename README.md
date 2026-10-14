@@ -125,7 +125,7 @@ Dark mode is opt-in. Put `data-theme="dark"` on `<html>`, or `data-theme="system
 
 ## Working on it
 
-You need Node 22 or newer and pnpm 12.
+You need Node 22.18 or newer and pnpm 12.
 
 ```sh
 pnpm install

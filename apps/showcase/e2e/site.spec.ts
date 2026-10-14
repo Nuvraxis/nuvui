@@ -15,6 +15,14 @@ import { open, overflow, press, settleStyles, wcag } from "./helpers";
 
 for (const { path } of pages) {
   test.describe(path, () => {
+    // A page of blocks has a preview of each in a frame, and each preview
+    // is a page of its own, with its own scripts and styles to load. The
+    // page waits for those, and axe goes into every one. Fifteen of them,
+    // in a Firefox on a busy machine, can take longer than thirty seconds.
+    test.slow(
+      path.startsWith("/blocks/"),
+      "a page of blocks loads a page for each",
+    );
     test("has one h1, a title, a description and a canonical URL", async ({
       page,
     }) => {
@@ -165,7 +173,10 @@ test("every page has a title and a description of its own", async ({
   const titles = new Map<string, string>();
   const descriptions = new Map<string, string>();
   for (const { path } of pages) {
-    await page.goto(path);
+    // The title and the description are in the HTML as it's sent. Waiting
+    // for the page's frames and pictures, which a page of blocks has many
+    // of, adds nothing.
+    await page.goto(path, { waitUntil: "domcontentloaded" });
     const title = await page.title();
     const description =
       (await page

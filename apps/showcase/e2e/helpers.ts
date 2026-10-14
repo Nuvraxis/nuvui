@@ -40,9 +40,18 @@ export const drawsMaps = (page: Page) =>
 // its handlers. Tests that press keys or click straight away wait for that.
 // The attribute is set by an effect, in this app's Hydrated component and in
 // the docs app's provider.
+//
+// The network is let settle first, for what a test measures, such as the
+// fonts. It isn't waited on for ever: a page of blocks loads a page in each
+// preview, and the router fetches ahead for every link in the header, and
+// in Firefox on a busy machine half a second with nothing asked for can
+// take minutes to come. A page that's alone is idle in a second or two.
 export async function open(page: Page, url: string) {
   await stubMapTiles(page);
-  await page.goto(url, { waitUntil: "networkidle" });
+  await page.goto(url, { waitUntil: "domcontentloaded" });
+  await page
+    .waitForLoadState("networkidle", { timeout: 15_000 })
+    .catch(() => {});
   await page.locator("html[data-hydrated]").waitFor();
 }
 
@@ -80,7 +89,9 @@ export async function settleStyles(page: Page) {
   await settle(page.mainFrame());
   for (const frame of page.frames().slice(1)) {
     // A preview that hasn't been scrolled to has no page yet, and asking
-    // it anything waits for one. It's given a moment and then left.
+    // it anything waits for one. One that hasn't started is left at once,
+    // and one that's on its way is given a moment.
+    if (!frame.url().startsWith("http")) continue;
     await Promise.race([
       settle(frame).catch(() => {}),
       new Promise((resolve) => setTimeout(resolve, 1000)),

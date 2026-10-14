@@ -4747,6 +4747,9 @@ for (const category of categories) {
     test("shows every block it lists, each in a frame of its own", async ({
       page,
     }) => {
+      // Each block's preview is loaded in turn, a page of its own, so the
+      // time this takes grows with the category, as below.
+      test.setTimeout(30_000 + inCategory.length * 5_000);
       await open(page, categoryPath(category));
       const cards = page.locator("[data-block]");
       await expect(cards).toHaveCount(inCategory.length);

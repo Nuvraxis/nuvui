@@ -511,5 +511,5 @@ The table inside is made of the [table elements](table.md#css-variables), and th
 **Don't**
 
 - Don't put a table inside a row's cell. Use a [panel under the row](expanding.md).
-- Don't hide the pagination bar on a table that has pages. The rows after the first page couldn't be reached.
+- Don't hide the pagination bar while the rows run past one page. The rows after the first page couldn't be reached. A table whose rows all fit on one page, ten unless you set another size, can leave the bar out, as the short examples on these pages do.
 - Don't rely on color in a cell to carry meaning. Write the status.

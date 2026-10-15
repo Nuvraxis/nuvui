@@ -47,7 +47,7 @@ export interface FormatNumberOptions {
 // hundreds of numbers the same way.
 const formatters = new Map<string, Intl.NumberFormat>();
 
-function formatterFor({
+export function formatterFor({
   locale = "en-US",
   format,
   currency,

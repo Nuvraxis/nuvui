@@ -78,6 +78,16 @@
         "default": "./dist/components/alert-dialog/index.cjs"
       }
     },
+    "./animated-number": {
+      "import": {
+        "types": "./dist/components/animated-number/index.d.ts",
+        "default": "./dist/components/animated-number/index.js"
+      },
+      "require": {
+        "types": "./dist/components/animated-number/index.d.cts",
+        "default": "./dist/components/animated-number/index.cjs"
+      }
+    },
     "./aspect-ratio": {
       "import": {
         "types": "./dist/components/aspect-ratio/index.d.ts",
@@ -216,6 +226,16 @@
       "require": {
         "types": "./dist/components/command/index.d.cts",
         "default": "./dist/components/command/index.cjs"
+      }
+    },
+    "./confetti": {
+      "import": {
+        "types": "./dist/components/confetti/index.d.ts",
+        "default": "./dist/components/confetti/index.js"
+      },
+      "require": {
+        "types": "./dist/components/confetti/index.d.cts",
+        "default": "./dist/components/confetti/index.cjs"
       }
     },
     "./context-menu": {
@@ -646,6 +666,16 @@
       "require": {
         "types": "./dist/components/tabs/index.d.cts",
         "default": "./dist/components/tabs/index.cjs"
+      }
+    },
+    "./text-reveal": {
+      "import": {
+        "types": "./dist/components/text-reveal/index.d.ts",
+        "default": "./dist/components/text-reveal/index.js"
+      },
+      "require": {
+        "types": "./dist/components/text-reveal/index.d.cts",
+        "default": "./dist/components/text-reveal/index.cjs"
       }
     },
     "./text-shimmer": {

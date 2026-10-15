@@ -125,6 +125,16 @@ const measured: [string, () => unknown][] = [
     },
   ],
   [
+    "/docs/components/text-reveal",
+    () => {
+      // Which line it is, which says when it rises.
+      const line = document.querySelectorAll(".nuv-text-reveal__line")[1];
+      return line
+        ? getComputedStyle(line).getPropertyValue("--nuv-text-reveal-index")
+        : null;
+    },
+  ],
+  [
     "/docs/table/expanding",
     () => {
       const toggle = document.querySelector(".nuv-data-table__expand");

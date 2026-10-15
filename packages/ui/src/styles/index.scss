@@ -8,6 +8,7 @@
 @use "../components/action-bar/action-bar";
 @use "../components/alert/alert";
 @use "../components/alert-dialog/alert-dialog";
+@use "../components/animated-number/animated-number";
 @use "../components/aspect-ratio/aspect-ratio";
 @use "../components/avatar/avatar";
 @use "../components/badge/badge";
@@ -22,6 +23,7 @@
 @use "../components/color-picker/color-picker";
 @use "../components/combobox/combobox";
 @use "../components/command/command";
+@use "../components/confetti/confetti";
 @use "../components/context-menu/context-menu";
 @use "../components/dialog/dialog";
 @use "../components/dropdown-menu/dropdown-menu";
@@ -65,6 +67,7 @@
 @use "../components/switch/switch";
 @use "../components/table-of-contents/table-of-contents";
 @use "../components/tabs/tabs";
+@use "../components/text-reveal/text-reveal";
 @use "../components/text-shimmer/text-shimmer";
 @use "../components/textarea/textarea";
 @use "../components/timeline/timeline";

@@ -21,6 +21,7 @@ import {
   AlertDialogFooter,
   AlertDialogTitle,
   AlertTitle,
+  AnimatedNumber,
   Avatar,
   AvatarFallback,
   Badge,
@@ -168,6 +169,7 @@ import {
   TabsList,
   TabsTrigger,
   Textarea,
+  TextReveal,
   TextShimmer,
   Timeline,
   TimelineContent,
@@ -1731,6 +1733,46 @@ describe("text shimmer, hold to confirm, action bar and table of contents", () =
     expect(bar("Usage").borderLeftStyle).toBe("solid");
     expect(contrast(bar("Usage").borderLeftColor, canvas())).toBeGreaterThan(3);
     expect(bar("Install").content).toBe("none");
+  });
+});
+
+describe("animated number and text reveal", () => {
+  test("a number is drawn in the text color, while it moves and after", async () => {
+    await emulateMedia({
+      forcedColors: "active",
+      reducedMotion: "no-preference",
+    });
+    const screen = await render(<AnimatedNumber value={120} />);
+
+    await screen.rerender(<AnimatedNumber value={135} />);
+    const numeral = document.querySelector(
+      ".nuv-animated-number__numeral",
+    ) as Element;
+    expect(contrast(style(numeral).color, canvas())).toBeGreaterThan(4.5);
+
+    await expect
+      .poll(() => document.querySelector(".nuv-animated-number__motion"), {
+        timeout: 4000,
+      })
+      .toBeNull();
+    expect(
+      contrast(style(page.getByText("135").element()).color, canvas()),
+    ).toBeGreaterThan(4.5);
+  });
+
+  test("text that rises is drawn in the text color", async () => {
+    await emulateMedia({
+      forcedColors: "active",
+      reducedMotion: "no-preference",
+    });
+    await render(<TextReveal lines={["Ship the report", "on time"]} />);
+
+    expect(
+      contrast(
+        style(page.getByText("Ship the report").element()).color,
+        canvas(),
+      ),
+    ).toBeGreaterThan(4.5);
   });
 });
 

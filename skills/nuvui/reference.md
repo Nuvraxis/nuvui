@@ -22,6 +22,7 @@ A file for each page of the docs. Read the one for a component before using it: 
 - [ActionBar](reference/components/action-bar.md): A bar that appears while something is selected, with what can be done to it, and tells a screen reader how much is selected.
 - [Alert](reference/components/alert.md): A message that sits in the page, with an icon and a color that say what kind of message it is.
 - [Alert dialog](reference/components/alert-dialog.md): A dialog that stops everything to ask one question, with a button to go ahead and a button to back out.
+- [AnimatedNumber](reference/components/animated-number.md): A number that moves to its new value. The digits that change roll like a counter or pop in, and the rest stay still. It's still for anyone who asked for less motion.
 - [AspectRatio](reference/components/aspect-ratio.md): A box that keeps its shape at any width, for pictures, videos, maps and anything else that loads late.
 - [Avatar](reference/components/avatar.md): A small picture of a person or a thing, with initials or an icon in its place when there's no picture.
 - [Badge](reference/components/badge.md): A short label that says what state something is in, or how many of something there are.
@@ -36,6 +37,7 @@ A file for each page of the docs. Read the one for a component before using it: 
 - [ColorPicker](reference/components/color-picker.md): Picks a color with an area and a hue slider, a field to type into, and presets.
 - [Combobox](reference/components/combobox.md): A select with a search field. It holds one value or several, filters as you type, and works with a label, the keyboard and forms.
 - [Command](reference/components/command.md): A search field over a list of commands that filters as you type, in the page or in a dialog opened with a shortcut.
+- [Confetti](reference/components/confetti.md): A burst of confetti from an element, for a moment worth marking, such as a first sale or a finished setup. The pieces fall back and rest on the element. It's decoration, and isn't thrown for anyone who asked for less motion.
 - [Context menu](reference/components/context-menu.md): A menu of actions that opens where someone right-clicks, or presses and holds on a touch screen.
 - [Dialog](reference/components/dialog.md): A modal window that takes over the page until it's closed. A sheet on phones, centered on larger screens.
 - [Dropdown menu](reference/components/dropdown-menu.md): A menu of actions that opens from a button, with keyboard navigation, checkable items and submenus.
@@ -79,6 +81,7 @@ A file for each page of the docs. Read the one for a component before using it: 
 - [Switch](reference/components/switch.md): An on and off control for a setting that takes effect right away.
 - [TableOfContents](reference/components/table-of-contents.md): The headings of a page as a list of links, with the one being read marked as the page scrolls.
 - [Tabs](reference/components/tabs.md): Panels of content with a row of tabs to switch between them. The row scrolls sideways when it doesn't fit the screen.
+- [TextReveal](reference/components/text-reveal.md): Lines of text that rise into place one after another, for a heading that opens a page. It's still for anyone who asked for less motion, and the text is in the page from the server.
 - [TextShimmer](reference/components/text-shimmer.md): Text with a highlight that moves across it, for a short wait such as "Thinking". It's still for anyone who asked for less motion.
 - [Textarea](reference/components/textarea.md): A text field for several lines. It can grow with what's typed into it.
 - [Timeline](reference/components/timeline.md): Events in the order they happened, each with a marker on a line, a title, a time and a description.

@@ -1,0 +1,51 @@
+@use "../../styles/layers";
+@use "../../styles/mixins";
+
+@layer components {
+  // Its lines one under the other, in the heading or paragraph it's in.
+  .nuv-text-reveal {
+    display: block;
+  }
+
+  // Each line is cut to its own height, so while it rises it comes up
+  // from under an edge rather than over the line below. The padding gives
+  // the tails of g and y room, and the margin takes it back, so the lines
+  // are spaced as they would be anyway. A line is a block in a line of its
+  // own and not a block, since two blocks' margins would fold into one
+  // and leave the lines further apart.
+  .nuv-text-reveal__line {
+    display: inline-block;
+    overflow: clip;
+    inline-size: 100%;
+    vertical-align: top;
+    margin-block: -0.15em;
+    padding-block: 0.15em;
+  }
+
+  .nuv-text-reveal__text {
+    display: block;
+  }
+
+  @include mixins.motion-safe {
+    // Out of view, and waiting to be scrolled to. Only the script sets
+    // this, once it knows where the text is.
+    .nuv-text-reveal[data-state="waiting"] .nuv-text-reveal__text {
+      transform: translateY(var(--nuv-text-reveal-distance, calc(100% + 0.2em)));
+    }
+
+    // From below its edge, each line a moment after the one before.
+    .nuv-text-reveal[data-state="rising"] .nuv-text-reveal__text {
+      animation: nuv-text-reveal-rise var(--nuv-text-reveal-duration, 700ms)
+        var(--nuv-text-reveal-easing, var(--ease-out)) both;
+      animation-delay: calc(
+        var(--nuv-text-reveal-index, 0) * var(--nuv-text-reveal-stagger, 120ms)
+      );
+    }
+  }
+
+  @keyframes nuv-text-reveal-rise {
+    from {
+      transform: translateY(var(--nuv-text-reveal-distance, calc(100% + 0.2em)));
+    }
+  }
+}

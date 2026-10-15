@@ -2,7 +2,7 @@
   {
     "name": "@nuvui/react",
     "path": "dist/index.js",
-    "limit": "104 kB"
+    "limit": "106 kB"
   },
   {
     "name": "@nuvui/react/accordion",
@@ -23,6 +23,11 @@
     "name": "@nuvui/react/alert",
     "path": "dist/components/alert/index.js",
     "limit": "2 kB"
+  },
+  {
+    "name": "@nuvui/react/animated-number",
+    "path": "dist/components/animated-number/index.js",
+    "limit": "1.8 kB"
   },
   {
     "name": "@nuvui/react/aspect-ratio",
@@ -93,6 +98,11 @@
     "name": "@nuvui/react/command",
     "path": "dist/components/command/index.js",
     "limit": "16.5 kB"
+  },
+  {
+    "name": "@nuvui/react/confetti",
+    "path": "dist/components/confetti/index.js",
+    "limit": "1.7 kB"
   },
   {
     "name": "@nuvui/react/context-menu",
@@ -370,10 +380,15 @@
     "limit": "300 B"
   },
   {
+    "name": "@nuvui/react/text-reveal",
+    "path": "dist/components/text-reveal/index.js",
+    "limit": "850 B"
+  },
+  {
     "name": "styles.css",
     "path": "dist/styles.css",
     "rolldown": false,
-    "limit": "20.5 kB"
+    "limit": "21 kB"
   },
   {
     "name": "tokens.css",
@@ -385,7 +400,7 @@
     "name": "every stylesheet in css/",
     "path": "dist/css/*.css",
     "rolldown": false,
-    "limit": "47.5 kB"
+    "limit": "49 kB"
   },
   {
     "name": "every preset in themes/",

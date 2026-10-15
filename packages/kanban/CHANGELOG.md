@@ -1,5 +1,12 @@
 # @nuvui/kanban
 
+## 0.1.1
+
+### Patch Changes
+
+- Updated dependencies [[`15bf3c3`](https://github.com/Nuvraxis/nuvui/commit/15bf3c38570b5b1952dcadc34f90c39ae9fdc592)]:
+  - @nuvui/react@0.6.0
+
 ## 0.1.0
 
 ### Minor Changes

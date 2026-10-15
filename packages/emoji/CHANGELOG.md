@@ -1,5 +1,13 @@
 # @nuvui/emoji
 
+## 0.1.1
+
+### Patch Changes
+
+- [#68](https://github.com/Nuvraxis/nuvui/pull/68) [`15bf3c3`](https://github.com/Nuvraxis/nuvui/commit/15bf3c38570b5b1952dcadc34f90c39ae9fdc592) Thanks [@sajanv88](https://github.com/sajanv88)! - `@nuvui/emoji` asks for `@nuvui/react` 0.5, the version the core is at. 0.1.0 asked for 0.4, so npm refused to install it beside the core, and pnpm warned that its peer wasn't met.
+- Updated dependencies [[`15bf3c3`](https://github.com/Nuvraxis/nuvui/commit/15bf3c38570b5b1952dcadc34f90c39ae9fdc592)]:
+  - @nuvui/react@0.6.0
+
 ## 0.1.0
 
 ### Minor Changes

@@ -1,6 +1,6 @@
 {
   "name": "@nuvui/map",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A map for @nuvui/react, on MapLibre: markers and popups that are React elements, and controls drawn with the library's own buttons. It needs map tiles from a provider you choose.",
   "license": "MIT",
   "author": "Nuvraxis",
@@ -49,7 +49,7 @@
     "size": "size-limit"
   },
   "peerDependencies": {
-    "@nuvui/react": "workspace:^0.5.0",
+    "@nuvui/react": "workspace:^0.6.0",
     "maplibre-gl": "^6.4.1",
     "react": "^18.2.0 || ^19.0.0",
     "react-dom": "^18.2.0 || ^19.0.0"

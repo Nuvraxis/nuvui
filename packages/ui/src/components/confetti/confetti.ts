@@ -126,13 +126,21 @@ function open(): Layer | null {
   });
   document.body.append(canvas);
   layer = { canvas, context, pieces: [], frame: 0, last: 0 };
+  document.addEventListener("visibilitychange", resume);
   layer.frame = requestAnimationFrame(tick);
   return layer;
+}
+
+// A hidden tab draws nothing. When it's shown again, the next frame
+// takes up where the last one left off.
+function resume() {
+  if (layer) layer.last = 0;
 }
 
 function close() {
   if (!layer) return;
   cancelAnimationFrame(layer.frame);
+  document.removeEventListener("visibilitychange", resume);
   layer.canvas.remove();
   layer = null;
 }
@@ -140,9 +148,11 @@ function close() {
 function tick(now: number) {
   if (!layer) return;
   const { canvas, context, pieces } = layer;
-  // A tab that was hidden comes back with a long gap, which would throw
-  // every piece at once to where it would be by now.
-  const seconds = layer.last === 0 ? 0 : Math.min(now - layer.last, 34) / 1000;
+  // The time since the last frame, which a busy page can make long, up to
+  // a quarter of a second, so a slow frame keeps the pieces on time and
+  // a stalled one doesn't throw them across the window. A tab that was
+  // hidden starts again from here, so the time it was away doesn't count.
+  const seconds = layer.last === 0 ? 0 : Math.min(now - layer.last, 250) / 1000;
   layer.last = now;
 
   const ratio = window.devicePixelRatio || 1;

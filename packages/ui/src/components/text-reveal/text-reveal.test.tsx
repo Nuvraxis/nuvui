@@ -17,6 +17,13 @@ const root = () => document.querySelector(".nuv-text-reveal") as HTMLElement;
 const texts = () =>
   Array.from(document.querySelectorAll(".nuv-text-reveal__text"));
 const lines = ["Ship the report", "your team asked for"];
+// Skips every animation to its end. An animation runs on the page's
+// clock, which a busy machine can hold back for longer than a test waits.
+// Where a line ends up is what's checked, and the timing on its own.
+function ended() {
+  for (const animation of document.getAnimations()) animation.finish();
+}
+
 // How far a line is from where it sits, in pixels.
 const lowered = (element: Element) =>
   new DOMMatrixReadOnly(style(element).transform).m42;
@@ -121,7 +128,8 @@ describe("with motion", () => {
     // Each is cut to its own line, so it comes up from under an edge.
     expect(style(first.parentElement as Element).overflow).toBe("clip");
 
-    await expect.poll(() => lowered(second), { timeout: 3000 }).toBe(0);
+    ended();
+    expect(lowered(second)).toBe(0);
   });
 
   test("component variables change the timing", async () => {
@@ -160,7 +168,8 @@ describe("with motion", () => {
     root().scrollIntoView({ block: "center" });
 
     await expect.poll(() => root().dataset.state).toBe("rising");
-    await expect.poll(() => lowered(first), { timeout: 3000 }).toBe(0);
+    ended();
+    expect(lowered(first)).toBe(0);
   });
 
   test('trigger="view": text already in view when it opens is shown as it is', async () => {

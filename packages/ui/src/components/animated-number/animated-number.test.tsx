@@ -33,7 +33,14 @@ const reels = () =>
   );
 
 // Waits for the moving copy to have arrived and gone.
-const settled = () => expect.poll(() => motion(), { timeout: 4000 }).toBeNull();
+// Skips every animation to its end, and waits for the moving copy to go.
+// An animation runs on the page's clock, which a busy machine can hold
+// back for longer than a test waits. What a test checks here is where the
+// digits end up, and the duration is tested on its own.
+const settled = () => {
+  for (const animation of document.getAnimations()) animation.finish();
+  return expect.poll(() => motion()).toBeNull();
+};
 
 describe("rendering", () => {
   test("is a data element with the plain number, and its text written out", async () => {

@@ -36,9 +36,11 @@ describe("rendering", () => {
   });
 
   test("the lines are spaced as they would be without it, however tight the line height", async () => {
+    // Short lines, so neither wraps in the test's narrow frame whatever the
+    // font is.
     await render(
       <p style={{ fontSize: 40, lineHeight: 1 }}>
-        <TextReveal lines={lines} />
+        <TextReveal lines={["Ship", "today"]} />
       </p>,
     );
     const [first, second] = texts().map((each) =>

@@ -71,11 +71,16 @@ const matches = (query: string) =>
 // The colors a canvas can draw with, from those given. A color the canvas
 // doesn't understand leaves its fill as it was, which is how it's found.
 function drawable(colors: string[], context: CanvasRenderingContext2D) {
-  return colors.filter((color) => {
-    context.fillStyle = "#010203";
+  // Tried from two fills, so a color that happens to be one of them isn't
+  // taken for one the canvas didn't understand.
+  const after = (start: string, color: string) => {
+    context.fillStyle = start;
     context.fillStyle = color;
-    return context.fillStyle !== "#010203" || color.trim() === "#010203";
-  });
+    return String(context.fillStyle);
+  };
+  return colors.filter(
+    (color) => after("#000000", color) === after("#ffffff", color),
+  );
 }
 
 // A color given as a variable, as it is on the target. A canvas takes a

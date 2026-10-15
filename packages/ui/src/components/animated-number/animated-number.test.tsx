@@ -132,6 +132,23 @@ describe("with motion", () => {
     await settled();
   });
 
+  test("a negative number rolls the way its size goes, since the sign is written apart", async () => {
+    await emulateMedia({ reducedMotion: "no-preference" });
+    const screen = await render(<AnimatedNumber value={-3} />);
+
+    await screen.rerender(<AnimatedNumber value={-5} />);
+
+    expect(motion()?.dataset.direction).toBe("up");
+    expect(reels()).toEqual(["345"]);
+    await settled();
+
+    await screen.rerender(<AnimatedNumber value={-4} />);
+
+    expect(motion()?.dataset.direction).toBe("down");
+    expect(reels()).toEqual(["45"]);
+    await settled();
+  });
+
   test("a place the number didn't have counts up from zero", async () => {
     await emulateMedia({ reducedMotion: "no-preference" });
     const screen = await render(<AnimatedNumber value={97} />);
@@ -205,7 +222,9 @@ describe("with motion", () => {
       offset += length;
       const want = range.getBoundingClientRect();
       const got = character.getBoundingClientRect();
-      expect(Math.abs(want.left - got.left)).toBeLessThan(0.5);
+      // A character out of order would be a whole digit away. WebKit puts
+      // one run of text and a row of spans up to a pixel apart.
+      expect(Math.abs(want.left - got.left)).toBeLessThan(1);
     }
     await settled();
   });

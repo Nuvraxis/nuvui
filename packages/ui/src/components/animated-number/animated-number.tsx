@@ -177,7 +177,9 @@ export const AnimatedNumber = forwardRef<HTMLDataElement, AnimatedNumberProps>(
       setShown({ text, value, glyphs });
       setMove({
         from,
-        up: value >= shown.value,
+        // The digits are the number's size, and the sign is written apart
+        // from them. So -1,200 to -1,300 counts up, as 1,200 to 1,300 does.
+        up: Math.abs(value) >= Math.abs(shown.value),
         run: (move?.run ?? 0) + 1,
         boxes: null,
       });

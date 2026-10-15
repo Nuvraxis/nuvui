@@ -60,15 +60,14 @@ export const TextReveal = forwardRef<HTMLSpanElement, TextRevealProps>(
       if (box.top < window.innerHeight && box.bottom > 0) return;
 
       setState("waiting");
-      const observer = new IntersectionObserver(
-        (entries) => {
-          if (!entries.some((entry) => entry.isIntersecting)) return;
-          observer.disconnect();
-          setState("rising");
-        },
-        // A little way in from the bottom, so the rise is seen.
-        { rootMargin: "0px 0px -10% 0px" },
-      );
+      // As soon as any of it is in view. Waiting until it's further in
+      // would leave text at the end of a page hidden for good, since the
+      // page can't be scrolled to bring it further in.
+      const observer = new IntersectionObserver((entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return;
+        observer.disconnect();
+        setState("rising");
+      });
       observer.observe(element);
       return () => observer.disconnect();
     }, [trigger]);

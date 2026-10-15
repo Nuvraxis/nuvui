@@ -40,8 +40,12 @@ const frames = () =>
     requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
   );
 
-afterEach(() => {
+// The canvas is on the page, not in what a test renders, and pieces left
+// in the air by one test would be drawn in the next. So each waits for the
+// last of them to land, even one that failed before it could.
+afterEach(async () => {
   vi.restoreAllMocks();
+  await expect.poll(() => canvases().length, { timeout: 8000 }).toBe(0);
 });
 
 describe("a burst", () => {
@@ -127,6 +131,21 @@ describe("a burst", () => {
     await done;
   }, 10_000);
 });
+
+test("black and white are colors like any other", async () => {
+  await emulateMedia({ reducedMotion: "no-preference" });
+  const fills = watchFills();
+  await render(<button type="button">Finish</button>);
+
+  const done = burstConfetti(button(), {
+    count: 20,
+    colors: ["black", "white"],
+  });
+  await frames();
+
+  expect([...fills].sort()).toEqual(["#000000", "#ffffff"]);
+  await done;
+}, 10_000);
 
 test("a color given as a variable is read where the target is", async () => {
   await emulateMedia({ reducedMotion: "no-preference" });

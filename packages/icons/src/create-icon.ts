@@ -68,6 +68,11 @@ export function createIcon(
       title !== undefined ||
       rest["aria-label"] !== undefined ||
       rest["aria-labelledby"] !== undefined;
+    // Safari doesn't name a picture by its <title>, so a button with only
+    // a titled icon in it would be read with no name. The title is the
+    // name as well, unless one is given. The <title> stays, for the
+    // tooltip.
+    const label = rest["aria-labelledby"] === undefined ? title : undefined;
     return createElement(
       "svg",
       {
@@ -79,7 +84,9 @@ export function createIcon(
         stroke: "currentColor",
         strokeWidth,
         ...strokes[style],
-        ...(named ? { role: "img" } : { "aria-hidden": true }),
+        ...(named
+          ? { role: "img", "aria-label": label }
+          : { "aria-hidden": true }),
         ...rest,
       },
       title === undefined ? null : createElement("title", null, title),

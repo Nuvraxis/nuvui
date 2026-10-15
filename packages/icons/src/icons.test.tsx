@@ -18,12 +18,14 @@ const entries: Record<IconStyle, Record<string, unknown>> = {
   sharp,
 };
 
-// The icons an entry exports. createIcon also ends in Icon, and starts
-// with a small letter.
+// The icons an entry exports, in the order a plain sort() gives, which is
+// what the manifest's names are compared in. localeCompare orders
+// BookOpenIcon and BookmarkIcon one way on Windows and the other on Linux.
+// createIcon also ends in Icon, and starts with a small letter.
 const iconsOf = (style: IconStyle) =>
   Object.entries(entries[style])
     .filter(([name]) => /^[A-Z]\w*Icon$/.test(name))
-    .sort(([a], [b]) => a.localeCompare(b)) as [
+    .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)) as [
     string,
     ComponentType<IconProps>,
   ][];
@@ -175,13 +177,32 @@ describe("screen readers", () => {
     expect(svg?.querySelector("title")).toBeNull();
   });
 
-  test("title names it, as a picture", async () => {
+  test("title names it, as a picture, in every browser", async () => {
     await render(<ArrowRightIcon title="Next page" />);
     const svg = svgs()[0];
 
     expect(svg?.getAttribute("role")).toBe("img");
     expect(svg?.hasAttribute("aria-hidden")).toBe(false);
+    // Safari names a picture by its label and not by its <title>, which
+    // is kept for the tooltip.
+    expect(svg?.getAttribute("aria-label")).toBe("Next page");
     expect(svg?.querySelector("title")?.textContent).toBe("Next page");
+  });
+
+  test("a name given with aria-label or aria-labelledby wins over the title", async () => {
+    await render(
+      <>
+        <ArrowRightIcon title="Next" aria-label="Next page" data-testid="a" />
+        <span id="label">Onward</span>
+        <ArrowRightIcon title="Next" aria-labelledby="label" data-testid="b" />
+      </>,
+    );
+    const a = document.querySelector('[data-testid="a"]');
+    const b = document.querySelector('[data-testid="b"]');
+
+    expect(a?.getAttribute("aria-label")).toBe("Next page");
+    expect(b?.hasAttribute("aria-label")).toBe(false);
+    expect(b?.getAttribute("aria-labelledby")).toBe("label");
   });
 
   test("a name given with aria-label does the same", async () => {

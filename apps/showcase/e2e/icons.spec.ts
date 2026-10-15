@@ -168,6 +168,19 @@ test.describe("icons page", () => {
     expect(svg).not.toContain("aria-hidden");
   });
 
+  test("the Figma file the icons are drawn in downloads", async ({ page }) => {
+    await open(page, "/icons");
+    const link = page.getByRole("link", { name: "Download the Figma file" });
+
+    await expect(link).toHaveAttribute("download", "");
+    const href = await link.getAttribute("href");
+    expect(href).toBe("/docs/NuvUI_Icons_Figma_File.fig");
+    const response = await page.request.get(href ?? "");
+    expect(response.status()).toBe(200);
+    // A .fig file is a zip, which starts with PK.
+    expect((await response.body()).subarray(0, 2).toString()).toBe("PK");
+  });
+
   test("the SVG downloads as a file named for the icon", async ({
     page,
     isMobile,

@@ -63,7 +63,7 @@ An icon is hidden from screen readers unless it's given a name, which is right f
 <ArrowRightIcon title="Next page" />
 ```
 
-With a `title` or an `aria-label`, the icon is announced as a picture by that name. An icon alone in a button is better left hidden and the button named instead, with `aria-label` on the button, since it's the button that's pressed.
+With a `title` or an `aria-label`, the icon is announced as a picture by that name. A `title` becomes the icon's `aria-label` as well as its tooltip, since Safari doesn't take a picture's name from its `<title>`. An icon alone in a button is better left hidden and the button named instead, with `aria-label` on the button, since it's the button that's pressed.
 
 ## In a right-to-left layout
 
@@ -140,6 +140,12 @@ Each icon takes these, and anything an `<svg>` element takes. Its `ref` is the `
 | `size` | `string \| number` | `24` | Width and height. A number is in pixels. |
 | `strokeWidth` | `string \| number` | `1.5` | How thick the lines are, in the units of the 24 by 24 grid the icon is drawn on, so it grows and shrinks with `size`. |
 | `title` | `string` |  | What the icon means, for a screen reader, when nothing next to it says so. Without it, or an `aria-label`, the icon is hidden from screen readers, which is right for one beside text that says the same. |
+
+## The Figma file
+
+The icons are drawn in Figma, and the file is yours to download: [NuvUI_Icons_Figma_File.fig](https://nuvui.nuvraxis.com/docs/NuvUI_Icons_Figma_File.fig). Import it from Figma's file browser, or drag it in. Each icon is a component with a variant for each style, so a design made with them uses the same icons, by the same names, as the code. It's MIT licensed like the package.
+
+The download is a copy, saved when the icons last changed. It has the icons and nothing else of the file's: no comments and no version history.
 
 ## Where they come from
 

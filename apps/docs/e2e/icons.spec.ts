@@ -50,6 +50,21 @@ test.describe("icons page", () => {
     expect(html).toContain(`data-icon="${first.name}"`);
   });
 
+  test("links to the Figma file, and the file is there", async ({ page }) => {
+    await open(page, "/docs/icons");
+    const link = page
+      .locator("article")
+      .getByRole("link", { name: "NuvUI_Icons_Figma_File.fig" });
+    const href = await link.getAttribute("href");
+    expect(href).toMatch(/\/docs\/NuvUI_Icons_Figma_File\.fig$/);
+
+    // The link is the site's full address. Here it's asked of this server.
+    const response = await page.request.get(`/docs/NuvUI_Icons_Figma_File.fig`);
+    expect(response.status()).toBe(200);
+    // A .fig file is a zip, which starts with PK.
+    expect((await response.body()).subarray(0, 2).toString()).toBe("PK");
+  });
+
   test("a search keeps the icons with every word in their name or category", async ({
     page,
   }) => {

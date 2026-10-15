@@ -4756,6 +4756,216 @@ test.describe("set a status", () => {
   }
 });
 
+test.describe("figures that roll", () => {
+  const revenue = (page: Page) =>
+    page.locator(".nuv-stat").first().locator(".nuv-animated-number");
+  const refresh = (page: Page) => page.getByRole("button", { name: "Refresh" });
+
+  test.beforeEach(async ({ page }) => {
+    await open(page, "/blocks/view/live-figures");
+  });
+
+  test("figures that roll: a refresh moves the figures to the next reading, and says the revenue once", async ({
+    page,
+    isMobile,
+  }) => {
+    await expect(page.getByRole("status")).toHaveText("");
+    await expect(
+      revenue(page).locator(".nuv-animated-number__text"),
+    ).toHaveText("€48,250.00");
+
+    await press(refresh(page), isMobile);
+
+    await expect(
+      revenue(page).locator(".nuv-animated-number__text"),
+    ).toHaveText("€49,910.00");
+    await expect(page.getByRole("status")).toHaveText(
+      "Refreshed. Revenue is €49,910.00.",
+    );
+    // The digits that moved are plain text again once they've arrived.
+    await expect(page.locator(".nuv-animated-number__motion")).toHaveCount(0, {
+      timeout: 4000,
+    });
+  });
+
+  test("figures that roll: with less motion the new figures are there at once", async ({
+    page,
+    isMobile,
+  }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+
+    await press(refresh(page), isMobile);
+
+    await expect(
+      revenue(page).locator(".nuv-animated-number__text"),
+    ).toHaveText("€49,910.00");
+    await expect(page.locator(".nuv-animated-number__motion")).toHaveCount(0);
+  });
+
+  test("figures that roll: on a phone the page doesn't scroll sideways", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 320, height: 640 });
+    await open(page, "/blocks/view/live-figures");
+    expect(await overflow(page)).toBeLessThanOrEqual(0);
+  });
+
+  for (const theme of ["light", "dark"] as const) {
+    test(`figures that roll: it passes axe in ${theme}, after a refresh as well`, async ({
+      page,
+      isMobile,
+    }) => {
+      await setTheme(page, theme);
+      await open(page, "/blocks/view/live-figures");
+      await settleStyles(page);
+      expect(
+        (await new AxeBuilder({ page }).withTags(wcag).analyze()).violations,
+      ).toEqual([]);
+
+      await press(refresh(page), isMobile);
+      await expect(page.locator(".nuv-animated-number__motion")).toHaveCount(
+        0,
+        { timeout: 4000 },
+      );
+      expect(
+        (await new AxeBuilder({ page }).withTags(wcag).analyze()).violations,
+      ).toEqual([]);
+    });
+  }
+});
+
+test.describe("getting started checklist", () => {
+  const confetti = (page: Page) => page.locator("canvas.nuv-confetti");
+  const left = [
+    "Invite your team",
+    "Connect a data source",
+    "Share your first report",
+  ];
+
+  test.beforeEach(async ({ page }) => {
+    await open(page, "/blocks/view/setup-checklist");
+  });
+
+  test("getting started checklist: the last step fills the bar, throws confetti and says it's done", async ({
+    page,
+    isMobile,
+  }) => {
+    await page.emulateMedia({ reducedMotion: "no-preference" });
+    await expect(page.getByText("2 of 5 done")).toBeVisible();
+    await expect(
+      page.getByRole("checkbox", { name: "Create your account" }),
+    ).toBeChecked();
+
+    for (const step of left) {
+      await press(page.getByRole("checkbox", { name: step }), isMobile);
+    }
+
+    await expect(page.getByText("5 of 5 done")).toBeVisible();
+    await expect(page.getByRole("progressbar")).toHaveAttribute(
+      "aria-valuenow",
+      "100",
+    );
+    await expect(page.getByRole("status")).toContainText("You're set up.");
+    await expect(
+      page.getByRole("link", { name: "Go to your dashboard" }),
+    ).toBeVisible();
+    await expect(confetti(page)).toHaveCount(1);
+    await expect(confetti(page)).toHaveAttribute("aria-hidden", "true");
+  });
+
+  test("getting started checklist: with less motion it's done in words alone", async ({
+    page,
+    isMobile,
+  }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+
+    for (const step of left) {
+      await press(page.getByRole("checkbox", { name: step }), isMobile);
+    }
+
+    await expect(page.getByRole("status")).toContainText("You're set up.");
+    await expect(confetti(page)).toHaveCount(0);
+  });
+
+  test("getting started checklist: each step's box is named by the step and described by its hint", async ({
+    page,
+  }) => {
+    await expect(
+      page.getByRole("checkbox", { name: "Invite your team" }),
+    ).toHaveAccessibleDescription(
+      "Anyone you add gets an email with a link to join.",
+    );
+  });
+
+  for (const theme of ["light", "dark"] as const) {
+    test(`getting started checklist: it passes axe in ${theme}, finished as well`, async ({
+      page,
+      isMobile,
+    }) => {
+      await page.emulateMedia({ reducedMotion: "reduce" });
+      await setTheme(page, theme);
+      await open(page, "/blocks/view/setup-checklist");
+      await settleStyles(page);
+      expect(
+        (await new AxeBuilder({ page }).withTags(wcag).analyze()).violations,
+      ).toEqual([]);
+
+      for (const step of left) {
+        await press(page.getByRole("checkbox", { name: step }), isMobile);
+      }
+      await expect(page.getByRole("status")).toContainText("You're set up.");
+      expect(
+        (await new AxeBuilder({ page }).withTags(wcag).analyze()).violations,
+      ).toEqual([]);
+    });
+  }
+});
+
+test.describe("hero that rises in", () => {
+  const headline = "Every report your team asks for, before they ask";
+
+  test("hero that rises in: the headline is one heading, and the page from the server has every word", async ({
+    page,
+  }) => {
+    const html = await (
+      await page.request.get("/blocks/view/launch-hero")
+    ).text();
+    expect(html).toContain("Every report your team");
+    expect(html).toContain("asks for, before they ask");
+
+    await open(page, "/blocks/view/launch-hero");
+    await expect(
+      page.getByRole("heading", { level: 1, name: headline }),
+    ).toBeVisible();
+  });
+
+  test("hero that rises in: the lines rise, and are in place from the start with less motion", async ({
+    page,
+  }) => {
+    await page.emulateMedia({ reducedMotion: "no-preference" });
+    await open(page, "/blocks/view/launch-hero");
+    const second = page.locator(".nuv-text-reveal__text").nth(1);
+    await expect(second).toHaveCSS("animation-name", "nuv-text-reveal-rise");
+
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await open(page, "/blocks/view/launch-hero");
+    await expect(second).toHaveCSS("animation-name", "none");
+    await expect(second).toHaveCSS("transform", "none");
+  });
+
+  for (const theme of ["light", "dark"] as const) {
+    test(`hero that rises in: it passes axe in ${theme}`, async ({ page }) => {
+      await page.emulateMedia({ reducedMotion: "reduce" });
+      await setTheme(page, theme);
+      await open(page, "/blocks/view/launch-hero");
+      await settleStyles(page);
+      expect(
+        (await new AxeBuilder({ page }).withTags(wcag).analyze()).violations,
+      ).toEqual([]);
+    });
+  }
+});
+
 test.describe("the blocks page", () => {
   test("lists every category, and each leads to its page", async ({
     page,

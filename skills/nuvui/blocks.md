@@ -2,7 +2,7 @@
 
 # Blocks
 
-A block is a part of an app, such as a sign-in screen or a table with a toolbar, built from the library's components: one TSX file and one SCSS file, to copy into an app and change. There are 59. Each is shown at https://nuvui.nuvraxis.com/blocks.
+A block is a part of an app, such as a sign-in screen or a table with a toolbar, built from the library's components: one TSX file and one SCSS file, to copy into an app and change. There are 62. Each is shown at https://nuvui.nuvraxis.com/blocks.
 
 Before building a screen from nothing, look here for one that's close. To add one, with the packages it needs:
 
@@ -25,6 +25,7 @@ A block's SCSS uses the library's mixins, `@use "@nuvui/react/scss/mixins"`, so 
 
 - **Forgotten password** (`forgot-password`): One field, and a message that says what happens next. Needs `@nuvui/react`, `lucide-react`.
 - **Set up in steps** (`onboarding`): Three steps to a new workspace: a plan chosen from cards, seats and extras, and a summary to check, with a stepper that says where you are. Needs `@nuvui/react`.
+- **Getting started checklist** (`setup-checklist`): Five steps to a new workspace with a bar that fills as they're done. The last one throws confetti up from the bar, and says in words, for everyone, that the setup is finished. Needs `@nuvui/react`.
 - **Sign in** (`sign-in`): Email and password, with the product's name beside the form on a wide screen. Needs `@nuvui/react`, `lucide-react`.
 - **Sign in with a company account** (`sign-in-sso`): A work email that leads to the company's own sign-in, with a password as the other way in. Needs `@nuvui/react`, `lucide-react`.
 - **Sign up** (`sign-up`): Name, work email and a new password, with the terms to agree to. Needs `@nuvui/react`, `lucide-react`.
@@ -45,6 +46,7 @@ A block's SCSS uses the library's mixins, `@use "@nuvui/react/scss/mixins"`, so 
 - **Ask a question** (`ask-panel`): A question in a field or from a list of examples, words that shimmer while it's worked on, and the answer in their place. Needs `@nuvui/react`.
 - **Dashboard** (`dashboard`): A whole screen: a sidebar, four figures with how each has changed, a chart of revenue against target, and a table of recent orders. Needs `@nuvui/react`, `@nuvui/charts`, `@nuvui/table`, `@tanstack/react-table`, `recharts`, `lucide-react`.
 - **Figures with trends** (`figures`): Four numbers, each with its change against last month and a small chart of the last twelve. Needs `@nuvui/react`, `@nuvui/charts`, `recharts`.
+- **Figures that roll** (`live-figures`): Four of today's figures, each with its change since the last refresh. A refresh rolls each digit that changed to its new value, and a sentence under them, which a screen reader reads out, says the one that matters most. Needs `@nuvui/react`, `lucide-react`.
 - **What's new** (`whats-new`): Release notes to read one at a time, by swiping or with Back and Next, with dots that show how many there are and a Done on the last. Needs `@nuvui/react`, `lucide-react`.
 
 ## Data
@@ -87,6 +89,7 @@ A block's SCSS uses the library's mixins, `@use "@nuvui/react/scss/mixins"`, so 
 - **Feature grid** (`feature-grid`): A heading and six cards, each with an icon, a title and a sentence, laid out as many to a row as fit. Needs `@nuvui/react`, `lucide-react`.
 - **Footer** (`footer`): The foot of a site: the name with a line about it, three lists of links, and the legal links under a rule. Needs `@nuvui/react`, `lucide-react`.
 - **Hero** (`hero`): The top of a product's home page: a line of news, the headline, two actions, and a frame where a picture of the product goes. Needs `@nuvui/react`, `lucide-react`.
+- **Hero that rises in** (`launch-hero`): The top of a launch page: the headline rises into place a line at a time, under a line that names the release, with the words that explain it and two actions. The headline is in the page from the server, and still for anyone who asked for less motion. Needs `@nuvui/react`, `lucide-react`.
 - **Navigation bar** (`nav-bar`): A site's top bar, on Navbar: a menu with a panel under one entry, two actions, and on a phone one button that opens every link in a panel. Needs `@nuvui/react`, `lucide-react`.
 - **Pricing table** (`pricing`): Three plans side by side with what each includes, and a switch between paying by the month and by the year. Needs `@nuvui/react`, `lucide-react`.
 - **Product gallery** (`product-gallery`): Photographs of a product to swipe through, with a thumbnail for each and arrows over the picture, beside its name, its price and a button to buy it. Needs `@nuvui/react`, `lucide-react`.

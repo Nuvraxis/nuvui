@@ -1,0 +1,9 @@
+{
+  "name": "setup-checklist",
+  "title": "Getting started checklist",
+  "description": "Five steps to a new workspace with a bar that fills as they're done. The last one throws confetti up from the bar, and says in words, for everyone, that the setup is finished.",
+  "category": "accounts",
+  "files": ["setup-checklist.tsx", "setup-checklist.scss"],
+  "install": ["@nuvui/react"],
+  "height": 720
+}

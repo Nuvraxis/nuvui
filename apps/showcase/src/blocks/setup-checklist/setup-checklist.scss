@@ -1,0 +1,100 @@
+@use "@nuvui/react/scss/mixins";
+
+.setup-checklist {
+  display: grid;
+  align-content: start;
+  min-block-size: 100svh;
+  padding: calc(var(--spacing) * 6) calc(var(--spacing) * 4);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+
+  @include mixins.breakpoint("md") {
+    padding: calc(var(--spacing) * 10) calc(var(--spacing) * 8);
+  }
+}
+
+.setup-checklist__panel {
+  display: grid;
+  gap: calc(var(--spacing) * 6);
+  inline-size: 100%;
+  max-inline-size: 36rem;
+  margin-inline: auto;
+  padding: calc(var(--spacing) * 6);
+  border: var(--nuv-border-width) solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background-color: var(--color-surface);
+  color: var(--color-surface-foreground);
+}
+
+.setup-checklist__head {
+  display: grid;
+  gap: calc(var(--spacing) * 1);
+}
+
+.setup-checklist__title {
+  margin: 0;
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-2xl--line-height);
+  letter-spacing: var(--tracking-tight);
+}
+
+.setup-checklist__text {
+  margin: 0;
+  color: var(--color-muted-foreground);
+}
+
+.setup-checklist__progress {
+  display: grid;
+  gap: calc(var(--spacing) * 2);
+}
+
+.setup-checklist__count {
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--text-sm--line-height);
+}
+
+.setup-checklist__steps {
+  display: grid;
+  gap: calc(var(--spacing) * 4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+// The box at the top of the step's first line, and the words beside it.
+.setup-checklist__step {
+  display: grid;
+  gap: calc(var(--spacing) * 3);
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+}
+
+.setup-checklist__words {
+  display: grid;
+  gap: calc(var(--spacing) * 0.5);
+}
+
+.setup-checklist__name {
+  font-weight: var(--font-weight-medium);
+}
+
+.setup-checklist__hint {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+.setup-checklist__done {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 2);
+  align-items: center;
+  font-weight: var(--font-weight-medium);
+}
+
+.setup-checklist__next {
+  justify-self: start;
+}

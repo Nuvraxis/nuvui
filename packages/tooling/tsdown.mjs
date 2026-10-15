@@ -9,8 +9,17 @@ import { defineConfig } from "tsdown";
  * @param {("esm" | "cjs")[]} [options.format] Both by default. A package
  *   whose peer dependency is ESM only has nothing to gain from a CommonJS
  *   build: `require` of it works exactly where `require` of the peer does.
+ * @param {boolean} [options.css] The package has a stylesheet to build.
+ * @param {boolean} [options.jsdoc] Doc comments are kept in the scripts as
+ *   well as in the types. They're always in the types, where an editor
+ *   reads them.
  */
-export function library({ entry, format = ["esm", "cjs"] }) {
+export function library({
+  entry,
+  format = ["esm", "cjs"],
+  css = true,
+  jsdoc = true,
+}) {
   const watch = process.argv.some((arg) => arg === "--watch" || arg === "-w");
   return defineConfig({
     entry,
@@ -27,9 +36,14 @@ export function library({ entry, format = ["esm", "cjs"] }) {
     clean: !watch,
     // CSS is built here rather than as a separate script step so that watch
     // mode rebuilds it too.
-    onSuccess: watch
-      ? "node scripts/build-css.mjs --watch"
-      : "node scripts/build-css.mjs",
+    onSuccess: !css
+      ? undefined
+      : watch
+        ? "node scripts/build-css.mjs --watch"
+        : "node scripts/build-css.mjs",
+    outputOptions: jsdoc
+      ? undefined
+      : { comments: { legal: true, annotation: true, jsdoc: false } },
     inputOptions: {
       // Rolldown warns that "use client" may not survive bundling. With
       // unbundle it does, and check-dist fails the build if not.

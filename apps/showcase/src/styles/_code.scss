@@ -43,6 +43,13 @@
   @include mixins.focus-ring(-2px);
 }
 
+// A line or two that wraps on a narrow screen instead of scrolling, so
+// there's nothing to scroll and nothing that needs the keyboard's focus.
+.site-code--wrap pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
 .site-code span {
   color: var(--site-code-light, var(--shiki-light)) var(--site-code-dark, var(--shiki-dark));
 }

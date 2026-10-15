@@ -7,7 +7,11 @@
   },
   "files": {
     "ignoreUnknown": true,
-    "includes": ["**", "!apps/docs/app/semantic-colors.css"]
+    "includes": [
+      "**",
+      "!apps/docs/app/semantic-colors.css",
+      "!packages/icons/svg"
+    ]
   },
   "formatter": {
     "indentStyle": "space"

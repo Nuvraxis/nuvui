@@ -1,0 +1,145 @@
+@use "@nuvui/react/scss/mixins";
+@use "layout";
+
+// The icon browser: a search and the style above, then every icon by its
+// category, and a dialog for one.
+.site-icons {
+  @include layout.container(layout.$width-wide);
+
+  display: grid;
+  gap: calc(var(--spacing) * 8);
+  padding-block-end: calc(var(--spacing) * 16);
+}
+
+.site-icons__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 4);
+  align-items: end;
+}
+
+.site-icons__field {
+  display: grid;
+  flex: 1 1 16rem;
+  gap: calc(var(--spacing) * 1.5);
+  max-inline-size: 24rem;
+}
+
+// The style switch keeps its own width.
+.site-icons__field:last-child {
+  flex: 0 0 auto;
+}
+
+.site-icons__label {
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+.site-icons__count {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+}
+
+.site-icons__category {
+  display: grid;
+  gap: calc(var(--spacing) * 3);
+}
+
+.site-icons__heading {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-sm--line-height);
+}
+
+.site-icons__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(6.5rem, 1fr));
+  gap: calc(var(--spacing) * 2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.site-icons__tile {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing) * 2);
+  align-items: center;
+  justify-content: center;
+  inline-size: 100%;
+  min-block-size: 6rem;
+  padding: calc(var(--spacing) * 3);
+  border: var(--nuv-border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font: inherit;
+  cursor: pointer;
+
+  @include mixins.focus-ring;
+
+  @include mixins.hover {
+    background-color: var(--color-muted);
+  }
+}
+
+// A long name breaks where it has to rather than widen the tile.
+.site-icons__name {
+  color: var(--color-muted-foreground);
+  font-size: var(--text-xs);
+  line-height: var(--text-xs--line-height);
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.site-icons__detail {
+  display: grid;
+  gap: calc(var(--spacing) * 6);
+}
+
+.site-icons__styles,
+.site-icons__sizes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 3);
+  margin: 0;
+}
+
+.site-icons__style,
+.site-icons__size {
+  display: grid;
+  gap: calc(var(--spacing) * 2);
+  justify-items: center;
+  margin: 0;
+  color: var(--color-foreground);
+}
+
+.site-icons__caption {
+  color: var(--color-muted-foreground);
+  font-size: var(--text-xs);
+}
+
+.site-icons__style {
+  padding: calc(var(--spacing) * 4);
+  border: var(--nuv-border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+// The style the page is showing. Said in words by the toolbar's switch,
+// and here only marked.
+.site-icons__style[data-current] {
+  border-color: var(--color-border-strong);
+  background-color: var(--color-muted);
+}
+
+.site-icons__sizes {
+  align-items: end;
+}
+
+.site-icons__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 2);
+}

@@ -1,6 +1,6 @@
 # nuvui
 
-React components for enterprise applications: the data tables, forms, charts and dashboards that business software is made of. They're built on [Radix UI](https://www.radix-ui.com/primitives) primitives and styled with plain SCSS. Class names follow BEM, and the look is controlled through CSS custom properties named after Tailwind v4's theme variables. It's published as `@nuvui/react`, with add-on packages next to it for the parts that need a library of their own. There are nine: date pickers, tables, charts, barcodes, chat, a kanban board, a rich text editor, an emoji picker and a map.
+React components for enterprise applications: the data tables, forms, charts and dashboards that business software is made of. They're built on [Radix UI](https://www.radix-ui.com/primitives) primitives and styled with plain SCSS. Class names follow BEM, and the look is controlled through CSS custom properties named after Tailwind v4's theme variables. It's published as `@nuvui/react`, with add-on packages next to it for the parts that need a library of their own. There are ten: date pickers, tables, charts, barcodes, chat, a kanban board, a rich text editor, an emoji picker, a map and a set of icons.
 
 The website and the docs are at [nuvui.nuvraxis.com](https://nuvui.nuvraxis.com).
 
@@ -24,6 +24,7 @@ It needs React 18 or 19. Each add-on is installed next to it, with the library i
 | [`@nuvui/editor`](https://www.npmjs.com/package/@nuvui/editor) | A rich text editor on Tiptap, with HTML as its value | `pnpm add @nuvui/editor` |
 | [`@nuvui/emoji`](https://www.npmjs.com/package/@nuvui/emoji) | An emoji picker with search, groups, skin tones and recent ones, and a reaction button | `pnpm add @nuvui/emoji` |
 | [`@nuvui/map`](https://www.npmjs.com/package/@nuvui/map) | A map on MapLibre, with markers, popups, controls, routes and clusters | `pnpm add @nuvui/map maplibre-gl` |
+| [`@nuvui/icons`](https://www.npmjs.com/package/@nuvui/icons) | 317 line icons drawn for nuvui, in three styles, as React components and SVG files. It needs only React | `pnpm add @nuvui/icons` |
 
 [Getting started](https://nuvui.nuvraxis.com/docs) has the rest.
 
@@ -70,6 +71,7 @@ What exists today:
 - `@nuvui/editor`, a seventh: `RichTextEditor`, a box to write formatted text in, on Tiptap. Bold and italic, headings, lists, quotes, code and links, from a toolbar, from the keyboard or from a small menu over selected text, with a character limit and a count. Its value is HTML, and it's sent with a form like any field's.
 - `@nuvui/emoji`, an eighth: `EmojiPicker`, a panel to pick an emoji from, with a search box, the emoji in their groups, a choice of skin tone and the ones picked before. It draws the device's own emoji, as text, so there's no artwork to load or to license, and it draws only the rows in view, so nineteen hundred emoji are a few dozen elements. The list is a grid with one stop for the Tab key, and each emoji is read by its name. The list of emoji is loaded when a picker is first drawn. And `EmojiReaction`, a button with an emoji and how many reacted with it, pressed when the reader is one of them.
 - `@nuvui/map`, a ninth: `MapView`, a map on MapLibre, with `MapMarker` for a place, drawn as a pin or as your own element and read by its name, `MapPopup` for a box that points at one, and `MapControls`, the library's own buttons to zoom, turn north up, find the reader and fill the screen. `MapRoute` is a line through a list of places, and `MapClusters` gathers places that are near each other into one button with a number on it. The map takes the arrow keys, and each marker that does something is a button. It has no tiles of its own: the style you give it says whose map it is. MapLibre is loaded when a map is first drawn.
+- `@nuvui/icons`, a tenth: 317 line icons drawn for this library on a 24 pixel grid, in three styles, Standard, Rounded and Sharp, with the same names in each. Each is a React component, such as `ArrowRightIcon`, in the color of the text around it and hidden from screen readers unless it has a `title`, and an SVG file. Each icon is a module of its own, so a page carries only the icons it imports. It needs only React, and none of the other packages uses it.
 - A `toast()` function for showing toasts from anywhere, with a `Toaster` to render them.
 - `DirectionProvider`, for apps in languages that read from the right.
 - The design tokens: color scales, semantic colors for both themes, chart colors, type, spacing, radius, shadow, motion and control sizes. They build to CSS custom properties, and the SCSS source ships alongside.

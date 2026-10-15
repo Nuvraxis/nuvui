@@ -53,6 +53,7 @@ const published = {
   "@nuvui/editor": "editor",
   "@nuvui/emoji": "emoji",
   "@nuvui/map": "map",
+  "@nuvui/icons": "icons",
 };
 
 function expect(app, what, passed) {
@@ -184,6 +185,31 @@ const fixtures = {
       script.includes("nuv-barcode__bars") &&
         script.includes("nuv-qrcode__squares"),
     );
+    // Each icon is a module of its own, named in its code. The app imports
+    // one, and the set has another 316 that a bundler should leave out.
+    expect(
+      "vite",
+      "the script has the icon that was imported, and not one that wasn't",
+      script.includes("ArrowRightIcon") && !script.includes("TrashIcon"),
+    );
+    const required = execFileSync(
+      process.execPath,
+      [
+        "-e",
+        `const { createElement } = require("react");
+const { renderToStaticMarkup } = require("react-dom/server");
+const { ArrowRightIcon } = require("@nuvui/icons/sharp");
+process.stdout.write(renderToStaticMarkup(createElement(ArrowRightIcon, { title: "Next" })));`,
+      ],
+      { cwd: dir, encoding: "utf8" },
+    );
+    expect(
+      "vite",
+      "an icon from the CommonJS build renders, in its style, with its name",
+      required.includes('stroke-linecap="square"') &&
+        required.includes('role="img"') &&
+        required.includes("<title>Next</title>"),
+    );
   },
 
   next(dir) {
@@ -193,6 +219,13 @@ const fixtures = {
       "the server rendered a button from a server component",
       // The two attributes, in whichever order React wrote them.
       /<a\s(?=[^>]*class="nuv-button)(?=[^>]*href="#next")/.test(html),
+    );
+    expect(
+      "next",
+      "the server rendered an icon from a server component, hidden beside its words",
+      /<svg\s(?=[^>]*width="16")(?=[^>]*stroke="currentColor")(?=[^>]*aria-hidden="true")/.test(
+        html,
+      ),
     );
     expect(
       "next",
@@ -382,6 +415,13 @@ const fixtures = {
       "react18",
       "the chart's container rendered, with a variable for its series",
       /<div\s(?=[^>]*class="nuv-chart")(?=[^>]*--chart-seats:)/.test(html),
+    );
+    expect(
+      "react18",
+      "the icon rendered, named, in the style of its entry",
+      /<svg\s(?=[^>]*role="img")(?=[^>]*stroke-linecap="square")[^>]*><title>and go on<\/title>/.test(
+        html,
+      ),
     );
     expect(
       "react18",

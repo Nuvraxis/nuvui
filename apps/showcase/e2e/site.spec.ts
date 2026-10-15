@@ -343,7 +343,7 @@ test.describe("the header", () => {
         );
       });
     const stops: string[] = [];
-    for (let index = 0; index < 10; index += 1) {
+    for (let index = 0; index < 11; index += 1) {
       await page.keyboard.press("Tab");
       stops.push(await focused());
     }
@@ -353,10 +353,11 @@ test.describe("the header", () => {
     expect(stops[3]).toBe("Components");
     expect(stops[4]).toBe("Blocks");
     expect(stops[5]).toBe("Charts");
-    expect(stops[6]).toBe("Themes");
-    expect(stops[7]).toMatch(/^Search/);
-    expect(stops[8]).toBe("GitHub repository");
-    expect(stops[9]).toMatch(/^Theme: /);
+    expect(stops[6]).toBe("Icons");
+    expect(stops[7]).toBe("Themes");
+    expect(stops[8]).toMatch(/^Search/);
+    expect(stops[9]).toBe("GitHub repository");
+    expect(stops[10]).toMatch(/^Theme: /);
   });
 
   test("the skip link goes to the content", async ({

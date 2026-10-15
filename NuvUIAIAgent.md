@@ -31,13 +31,16 @@ Three things are different from the libraries you may expect, and most mistakes 
 | `@nuvui/editor` | `RichTextEditor`, on Tiptap | |
 | `@nuvui/emoji` | `EmojiPicker`, `EmojiReaction` | |
 | `@nuvui/map` | `MapView`, markers, popups, controls, routes, clusters, on MapLibre | `maplibre-gl` |
+| `@nuvui/icons` | 317 line icons in three styles, such as `ArrowRightIcon` | |
 
-Every add-on needs `@nuvui/react` beside it, and its own stylesheet after the core's:
+Every add-on but `@nuvui/icons` needs `@nuvui/react` beside it, and its own stylesheet after the core's:
 
 ```tsx
 import "@nuvui/react/styles.css";
 import "@nuvui/table/styles.css";
 ```
+
+`@nuvui/icons` needs only React, and has no stylesheet.
 
 The first page of each package's reference says how to install it and what it needs set up. Some have a step that's easy to miss: [rules/packages.md](skills/nuvui/rules/packages.md).
 
@@ -112,10 +115,11 @@ Each links to a file with the reasons and the code. Read the file before working
 | A board of cards | [`@nuvui/kanban`](skills/nuvui/reference/kanban/index.md) |
 | Formatted text to edit | [`@nuvui/editor`](skills/nuvui/reference/editor/index.md) |
 | A place | [`@nuvui/map`](skills/nuvui/reference/map/index.md) |
+| An icon | [`@nuvui/icons`](skills/nuvui/reference/icons/index.md) |
 
 A core component's file is `reference/components/<name>.md`, with the name in lower case and hyphens: `reference/components/alert-dialog.md`.
 
-The library has no icons. Use the icon set the app already has. The blocks use `lucide-react`.
+Icons are in [`@nuvui/icons`](skills/nuvui/reference/icons/index.md): 317 line icons in three styles, each named for what it shows with `Icon` at the end, such as `ArrowRightIcon`. The reference lists every name. Don't guess one. An app that already has an icon set keeps using it. The blocks use `lucide-react`.
 
 ## Start from a block
 

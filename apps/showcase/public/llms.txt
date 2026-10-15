@@ -175,6 +175,10 @@ Each page below is plain Markdown. All of them in one file: https://nuvui.nuvrax
 - [MapRoute](https://nuvui.nuvraxis.com/docs/llms/map/map-route.md): A line on a map through a list of places, for a way that was driven or one that's planned. It's drawn in the theme's colors, with an edge that keeps it seen on a map of any color.
 - [MapClusters](https://nuvui.nuvraxis.com/docs/llms/map/map-clusters.md): Many places on a map, gathered into one button with a number on it where they're near each other, and drawn apart as the map zooms in. Each gathering and each place is a button with a name.
 
+## @nuvui/icons
+
+- [Icons](https://nuvui.nuvraxis.com/docs/llms/icons/index.md): The @nuvui/icons package. 317 line icons drawn for nuvui, in three styles, each a React component in the color of the text around it and an SVG file.
+
 ## Optional
 
 - [Design tokens](https://nuvui.nuvraxis.com/docs/llms/tokens.md): Every token the library ships.

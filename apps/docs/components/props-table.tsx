@@ -25,7 +25,8 @@ interface PropsTableProps {
   /**
    * The file in the component's folder that the type is in. Without an
    * extension it's a .tsx file. Left out, it's the one named after the
-   * component.
+   * component. One starting with `src/` is a path from the package's root,
+   * for a package with no component folders.
    */
   file?: string;
   /** Exported type to document, such as `ButtonOwnProps`. */

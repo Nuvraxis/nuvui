@@ -121,13 +121,17 @@ A second `Toaster` shows every toast twice. [reference/components/toast.md](../r
 
 ## Icons
 
-The library ships none. Use the app's icon set. An icon inside a button sits beside the text as a child, and is hidden from screen readers when there's text. A button with only an icon needs `aria-label`:
+The core components draw their own few icons. For the rest there's `@nuvui/icons`, and an app that already has an icon set keeps using it. An icon inside a button sits beside the text as a child, and is hidden from screen readers when there's text. A button with only an icon needs `aria-label`:
 
 ```tsx
+import { TrashIcon } from "@nuvui/icons";
+
 <Button aria-label="Delete invoice" intent="ghost">
-  <Trash aria-hidden="true" />
+  <TrashIcon />
 </Button>
 ```
+
+An icon from `@nuvui/icons` is hidden from screen readers unless it has a `title` or an `aria-label`, so it needs no `aria-hidden`. Its names are in [reference/icons/index.md](../reference/icons/index.md).
 
 ## Refs and other props
 

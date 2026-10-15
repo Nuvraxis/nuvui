@@ -1,6 +1,6 @@
 {
   "name": "@nuvui/icons",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "317 line icons drawn for nuvui, in three styles: Rounded, Standard and Sharp. Each is a React component in the color of the text around it, and an SVG file.",
   "license": "MIT",
   "author": "Nuvraxis",

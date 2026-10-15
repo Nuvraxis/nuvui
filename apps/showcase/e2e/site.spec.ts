@@ -167,21 +167,35 @@ for (const { path } of pages) {
   });
 }
 
+// What an attribute or a title holds, with the characters HTML writes as
+// entities put back.
+const decoded = (text: string) =>
+  text
+    .replaceAll("&lt;", "<")
+    .replaceAll("&gt;", ">")
+    .replaceAll("&quot;", '"')
+    .replaceAll("&#x27;", "'")
+    .replaceAll("&#39;", "'")
+    .replaceAll("&amp;", "&");
+
 test("every page has a title and a description of its own", async ({
-  page,
+  request,
 }) => {
   const titles = new Map<string, string>();
   const descriptions = new Map<string, string>();
   for (const { path } of pages) {
-    // The title and the description are in the HTML as it's sent. Waiting
-    // for the page's frames and pictures, which a page of blocks has many
-    // of, adds nothing.
-    await page.goto(path, { waitUntil: "domcontentloaded" });
-    const title = await page.title();
-    const description =
-      (await page
-        .locator('meta[name="description"]')
-        .getAttribute("content")) ?? "";
+    // The title and the description are in the HTML as it's sent, so
+    // they're read from it. A browser drawing every page of the site, one
+    // after another, took longer than a test is given in Firefox on CI.
+    const response = await request.get(path);
+    expect(response.ok(), `${path} is served`).toBe(true);
+    const html = await response.text();
+    const title = decoded(/<title>([^<]*)<\/title>/.exec(html)?.[1] ?? "");
+    const meta =
+      /<meta\s(?=[^>]*\bname="description")[^>]*>/.exec(html)?.[0] ?? "";
+    const description = decoded(/\scontent="([^"]*)"/.exec(meta)?.[1] ?? "");
+    expect(title, `${path} has a title`).not.toBe("");
+    expect(description, `${path} has a description`).not.toBe("");
     expect(titles.get(title), `${path} has the title of another page`).toBe(
       undefined,
     );

@@ -369,8 +369,7 @@ process.stdout.write(renderToStaticMarkup(createElement(ArrowRightIcon, { title:
     expect(
       "react18",
       "the build has React 18.2 in it, and not another React",
-      /(["'`])18\.2\.0\1/.test(script) &&
-        !/(["'`])19\.\d+\.\d+\1/.test(script),
+      /(["'`])18\.2\.0\1/.test(script) && !/(["'`])19\.\d+\.\d+\1/.test(script),
     );
     const css = read(files(join(dir, "dist"), ".css"));
     expect(

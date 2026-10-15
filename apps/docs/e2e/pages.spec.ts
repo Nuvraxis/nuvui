@@ -185,21 +185,35 @@ for (const path of pages) {
   });
 }
 
-test("no two pages share a title or a description", async ({ page }) => {
-  // One test opens every page in turn, so its time grows with the site.
-  test.setTimeout(30_000 + pages.length * 2_000);
+// What an attribute or a title holds, with the characters HTML writes as
+// entities put back.
+const decoded = (text: string) =>
+  text
+    .replaceAll("&lt;", "<")
+    .replaceAll("&gt;", ">")
+    .replaceAll("&quot;", '"')
+    .replaceAll("&#x27;", "'")
+    .replaceAll("&#39;", "'")
+    .replaceAll("&amp;", "&");
+
+test("no two pages share a title or a description", async ({ request }) => {
+  // Both are in the HTML as it's sent, so they're read from it. A browser
+  // drawing every page in turn takes longer the larger the site gets.
   const titles: string[] = [];
   const descriptions: string[] = [];
 
   for (const path of pages) {
-    await page.goto(path);
-    titles.push(await page.title());
-    descriptions.push(
-      (await page
-        .locator('meta[name="description"]')
-        .getAttribute("content")) ?? "",
-    );
+    const response = await request.get(path);
+    expect(response.ok(), `${path} is served`).toBe(true);
+    const html = await response.text();
+    const meta =
+      /<meta\s(?=[^>]*\bname="description")[^>]*>/.exec(html)?.[0] ?? "";
+    titles.push(decoded(/<title>([^<]*)<\/title>/.exec(html)?.[1] ?? ""));
+    descriptions.push(decoded(/\scontent="([^"]*)"/.exec(meta)?.[1] ?? ""));
   }
+
+  expect(titles.filter((title) => title === "")).toEqual([]);
+  expect(descriptions.filter((description) => description === "")).toEqual([]);
 
   expect(new Set(titles).size).toBe(pages.length);
   expect(new Set(descriptions).size).toBe(pages.length);

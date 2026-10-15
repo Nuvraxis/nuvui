@@ -2,6 +2,7 @@ import activity from "@/blocks/activity/block.json" with { type: "json" };
 import announcementEditor from "@/blocks/announcement-editor/block.json" with {
   type: "json",
 };
+import appShell from "@/blocks/app-shell/block.json" with { type: "json" };
 import appearance from "@/blocks/appearance/block.json" with { type: "json" };
 import approvals from "@/blocks/approvals/block.json" with { type: "json" };
 import article from "@/blocks/article/block.json" with { type: "json" };
@@ -63,6 +64,10 @@ import forgotPassword from "@/blocks/forgot-password/block.json" with {
 };
 import hero from "@/blocks/hero/block.json" with { type: "json" };
 import inbox from "@/blocks/inbox/block.json" with { type: "json" };
+import launchHero from "@/blocks/launch-hero/block.json" with { type: "json" };
+import liveFigures from "@/blocks/live-figures/block.json" with {
+  type: "json",
+};
 import memberCard from "@/blocks/member-card/block.json" with { type: "json" };
 import messageReactions from "@/blocks/message-reactions/block.json" with {
   type: "json",
@@ -86,6 +91,9 @@ import queryEditor from "@/blocks/query-editor/block.json" with {
 };
 import reviews from "@/blocks/reviews/block.json" with { type: "json" };
 import setStatus from "@/blocks/set-status/block.json" with { type: "json" };
+import setupChecklist from "@/blocks/setup-checklist/block.json" with {
+  type: "json",
+};
 import shippingLabel from "@/blocks/shipping-label/block.json" with {
   type: "json",
 };
@@ -147,21 +155,21 @@ export const categories: BlockCategory[] = [
     label: "Accounts",
     title: "Sign in and accounts",
     description:
-      "The screens in front of an app: signing in with a password or a company account, signing up, a forgotten password, a code sent by email, and setting up in steps.",
+      "The screens in front of an app: signing in with a password or a company account, signing up, a forgotten password, a code sent by email, setting up in steps, and a checklist for getting started that ends in confetti.",
   },
   {
     slug: "layout",
     label: "App layout",
     title: "App layout",
     description:
-      "What goes around every screen of an app: a sidebar that folds down to icons, one with sections that open, a top bar with search, a page header, and a long page with a list of its headings.",
+      "What goes around every screen of an app: the whole of it together, with a panel on the far side that closes, a sidebar that folds down to icons, one with sections that open, a top bar with search, a page header, and a long page with a list of its headings.",
   },
   {
     slug: "dashboard",
     label: "Dashboard",
     title: "Dashboard",
     description:
-      "A whole dashboard with a sidebar, figures, a chart and a table, two of its parts on their own, figures with trends and a list of recent activity, and a panel to ask a question in.",
+      "A whole dashboard with a sidebar, figures, a chart and a table, two of its parts on their own, figures with trends, figures that roll to new values when they're refreshed, and a list of recent activity, and a panel to ask a question in.",
   },
   {
     slug: "chat",
@@ -196,7 +204,7 @@ export const categories: BlockCategory[] = [
     label: "Marketing",
     title: "Marketing pages",
     description:
-      "A product's public pages in seven parts: a navigation bar, a hero, a grid of features, a pricing table, reviews, questions and answers, and a footer.",
+      "A product's public pages in ten parts: a navigation bar, a hero, a hero whose headline rises in, a grid of features, a pricing table, reviews, customer stories, a gallery of products, questions and answers, and a footer.",
   },
 ];
 
@@ -210,6 +218,8 @@ export const blocks: BlockManifest[] = [
   forgotPassword,
   verifyCode,
   onboarding,
+  setupChecklist,
+  appShell,
   sidebarIcons,
   sidebarNested,
   topBar,
@@ -217,6 +227,7 @@ export const blocks: BlockManifest[] = [
   article,
   dashboard,
   figures,
+  liveFigures,
   activity,
   whatsNew,
   askPanel,
@@ -255,6 +266,7 @@ export const blocks: BlockManifest[] = [
   auditLog,
   navBar,
   hero,
+  launchHero,
   featureGrid,
   pricing,
   reviews,

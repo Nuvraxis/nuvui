@@ -1,0 +1,1591 @@
+{
+  "source": "https://www.figma.com/design/zJXmLZTLY57dhyhVSmZD1I",
+  "styles": ["rounded", "standard", "sharp"],
+  "icons": [
+    {
+      "name": "arrow-right",
+      "component": "ArrowRightIcon",
+      "category": "Arrows"
+    },
+    {
+      "name": "arrow-left",
+      "component": "ArrowLeftIcon",
+      "category": "Arrows"
+    },
+    {
+      "name": "arrow-up",
+      "component": "ArrowUpIcon",
+      "category": "Arrows"
+    },
+    {
+      "name": "arrow-down",
+      "component": "ArrowDownIcon",
+      "category": "Arrows"
+    },
+    {
+      "name": "arrow-up-right",
+      "component": "ArrowUpRightIcon",
+      "category": "Arrows"
+    },
+    {
+      "name": "arrow-up-left",
+      "component": "ArrowUpLeftIcon",
+      "category": "Arrows"
+    },
+    {
+      "name": "arrow-down-right",
+      "component": "ArrowDownRightIcon",
+      "category": "Arrows"
+    },
+    {
+      "name": "arrow-down-left",
+      "component": "ArrowDownLeftIcon",
+      "category": "Arrows"
+    },
+    {
+      "name": "chevron-right",
+      "component": "ChevronRightIcon",
+      "category": "Arrows"
+    },
+    {
+      "name": "chevron-left",
+      "component": "ChevronLeftIcon",
+      "category": "Arrows"
+    },
+    {
+      "name": "chevron-up",
+      "component": "ChevronUpIcon",
+      "category": "Arrows"
+    },
+    {
+      "name": "chevron-down",
+      "component": "ChevronDownIcon",
+      "category": "Arrows"
+    },
+    {
+      "name": "chevrons-right",
+      "component": "ChevronsRightIcon",
+      "category": "Arrows"
+    },
+    {
+      "name": "chevrons-left",
+      "component": "ChevronsLeftIcon",
+      "category": "Arrows"
+    },
+    {
+      "name": "chevrons-up",
+      "component": "ChevronsUpIcon",
+      "category": "Arrows"
+    },
+    {
+      "name": "chevrons-down",
+      "component": "ChevronsDownIcon",
+      "category": "Arrows"
+    },
+    {
+      "name": "arrow-left-right",
+      "component": "ArrowLeftRightIcon",
+      "category": "Arrows"
+    },
+    {
+      "name": "arrow-up-down",
+      "component": "ArrowUpDownIcon",
+      "category": "Arrows"
+    },
+    {
+      "name": "rotate-cw",
+      "component": "RotateCwIcon",
+      "category": "Arrows"
+    },
+    {
+      "name": "rotate-ccw",
+      "component": "RotateCcwIcon",
+      "category": "Arrows"
+    },
+    {
+      "name": "undo",
+      "component": "UndoIcon",
+      "category": "Arrows"
+    },
+    {
+      "name": "redo",
+      "component": "RedoIcon",
+      "category": "Arrows"
+    },
+    {
+      "name": "corner-down-right",
+      "component": "CornerDownRightIcon",
+      "category": "Arrows"
+    },
+    {
+      "name": "expand",
+      "component": "ExpandIcon",
+      "category": "Arrows"
+    },
+    {
+      "name": "collapse",
+      "component": "CollapseIcon",
+      "category": "Arrows"
+    },
+    {
+      "name": "move",
+      "component": "MoveIcon",
+      "category": "Arrows"
+    },
+    {
+      "name": "menu",
+      "component": "MenuIcon",
+      "category": "Navigation"
+    },
+    {
+      "name": "close",
+      "component": "CloseIcon",
+      "category": "Navigation"
+    },
+    {
+      "name": "home",
+      "component": "HomeIcon",
+      "category": "Navigation"
+    },
+    {
+      "name": "search",
+      "component": "SearchIcon",
+      "category": "Navigation"
+    },
+    {
+      "name": "more-horizontal",
+      "component": "MoreHorizontalIcon",
+      "category": "Navigation"
+    },
+    {
+      "name": "more-vertical",
+      "component": "MoreVerticalIcon",
+      "category": "Navigation"
+    },
+    {
+      "name": "grid",
+      "component": "GridIcon",
+      "category": "Navigation"
+    },
+    {
+      "name": "list",
+      "component": "ListIcon",
+      "category": "Navigation"
+    },
+    {
+      "name": "sidebar",
+      "component": "SidebarIcon",
+      "category": "Navigation"
+    },
+    {
+      "name": "layout-dashboard",
+      "component": "LayoutDashboardIcon",
+      "category": "Navigation"
+    },
+    {
+      "name": "external-link",
+      "component": "ExternalLinkIcon",
+      "category": "Navigation"
+    },
+    {
+      "name": "filter",
+      "component": "FilterIcon",
+      "category": "Navigation"
+    },
+    {
+      "name": "log-out",
+      "component": "LogOutIcon",
+      "category": "Navigation"
+    },
+    {
+      "name": "log-in",
+      "component": "LogInIcon",
+      "category": "Navigation"
+    },
+    {
+      "name": "maximize",
+      "component": "MaximizeIcon",
+      "category": "Navigation"
+    },
+    {
+      "name": "plus",
+      "component": "PlusIcon",
+      "category": "Navigation"
+    },
+    {
+      "name": "minus",
+      "component": "MinusIcon",
+      "category": "Navigation"
+    },
+    {
+      "name": "sliders",
+      "component": "SlidersIcon",
+      "category": "Navigation"
+    },
+    {
+      "name": "check",
+      "component": "CheckIcon",
+      "category": "Navigation"
+    },
+    {
+      "name": "edit",
+      "component": "EditIcon",
+      "category": "Actions"
+    },
+    {
+      "name": "trash",
+      "component": "TrashIcon",
+      "category": "Actions"
+    },
+    {
+      "name": "copy",
+      "component": "CopyIcon",
+      "category": "Actions"
+    },
+    {
+      "name": "clipboard",
+      "component": "ClipboardIcon",
+      "category": "Actions"
+    },
+    {
+      "name": "save",
+      "component": "SaveIcon",
+      "category": "Actions"
+    },
+    {
+      "name": "download",
+      "component": "DownloadIcon",
+      "category": "Actions"
+    },
+    {
+      "name": "upload",
+      "component": "UploadIcon",
+      "category": "Actions"
+    },
+    {
+      "name": "share",
+      "component": "ShareIcon",
+      "category": "Actions"
+    },
+    {
+      "name": "pin",
+      "component": "PinIcon",
+      "category": "Actions"
+    },
+    {
+      "name": "lock",
+      "component": "LockIcon",
+      "category": "Actions"
+    },
+    {
+      "name": "unlock",
+      "component": "UnlockIcon",
+      "category": "Actions"
+    },
+    {
+      "name": "eye",
+      "component": "EyeIcon",
+      "category": "Actions"
+    },
+    {
+      "name": "eye-off",
+      "component": "EyeOffIcon",
+      "category": "Actions"
+    },
+    {
+      "name": "bookmark",
+      "component": "BookmarkIcon",
+      "category": "Actions"
+    },
+    {
+      "name": "star",
+      "component": "StarIcon",
+      "category": "Actions"
+    },
+    {
+      "name": "heart",
+      "component": "HeartIcon",
+      "category": "Actions"
+    },
+    {
+      "name": "flag",
+      "component": "FlagIcon",
+      "category": "Actions"
+    },
+    {
+      "name": "bell",
+      "component": "BellIcon",
+      "category": "Actions"
+    },
+    {
+      "name": "bell-off",
+      "component": "BellOffIcon",
+      "category": "Actions"
+    },
+    {
+      "name": "refresh",
+      "component": "RefreshIcon",
+      "category": "Actions"
+    },
+    {
+      "name": "link",
+      "component": "LinkIcon",
+      "category": "Actions"
+    },
+    {
+      "name": "settings",
+      "component": "SettingsIcon",
+      "category": "Actions"
+    },
+    {
+      "name": "zoom-in",
+      "component": "ZoomInIcon",
+      "category": "Actions"
+    },
+    {
+      "name": "zoom-out",
+      "component": "ZoomOutIcon",
+      "category": "Actions"
+    },
+    {
+      "name": "print",
+      "component": "PrintIcon",
+      "category": "Actions"
+    },
+    {
+      "name": "send",
+      "component": "SendIcon",
+      "category": "Actions"
+    },
+    {
+      "name": "reply",
+      "component": "ReplyIcon",
+      "category": "Actions"
+    },
+    {
+      "name": "forward",
+      "component": "ForwardIcon",
+      "category": "Actions"
+    },
+    {
+      "name": "archive",
+      "component": "ArchiveIcon",
+      "category": "Actions"
+    },
+    {
+      "name": "inbox",
+      "component": "InboxIcon",
+      "category": "Actions"
+    },
+    {
+      "name": "tag",
+      "component": "TagIcon",
+      "category": "Actions"
+    },
+    {
+      "name": "plus-circle",
+      "component": "PlusCircleIcon",
+      "category": "Actions"
+    },
+    {
+      "name": "minus-circle",
+      "component": "MinusCircleIcon",
+      "category": "Actions"
+    },
+    {
+      "name": "x-circle",
+      "component": "XCircleIcon",
+      "category": "Actions"
+    },
+    {
+      "name": "check-circle",
+      "component": "CheckCircleIcon",
+      "category": "Actions"
+    },
+    {
+      "name": "grip-vertical",
+      "component": "GripVerticalIcon",
+      "category": "Actions"
+    },
+    {
+      "name": "power",
+      "component": "PowerIcon",
+      "category": "Actions"
+    },
+    {
+      "name": "paperclip",
+      "component": "PaperclipIcon",
+      "category": "Actions"
+    },
+    {
+      "name": "file",
+      "component": "FileIcon",
+      "category": "Files & media"
+    },
+    {
+      "name": "file-text",
+      "component": "FileTextIcon",
+      "category": "Files & media"
+    },
+    {
+      "name": "file-plus",
+      "component": "FilePlusIcon",
+      "category": "Files & media"
+    },
+    {
+      "name": "file-minus",
+      "component": "FileMinusIcon",
+      "category": "Files & media"
+    },
+    {
+      "name": "file-check",
+      "component": "FileCheckIcon",
+      "category": "Files & media"
+    },
+    {
+      "name": "file-x",
+      "component": "FileXIcon",
+      "category": "Files & media"
+    },
+    {
+      "name": "file-code",
+      "component": "FileCodeIcon",
+      "category": "Files & media"
+    },
+    {
+      "name": "folder",
+      "component": "FolderIcon",
+      "category": "Files & media"
+    },
+    {
+      "name": "folder-open",
+      "component": "FolderOpenIcon",
+      "category": "Files & media"
+    },
+    {
+      "name": "folder-plus",
+      "component": "FolderPlusIcon",
+      "category": "Files & media"
+    },
+    {
+      "name": "folder-minus",
+      "component": "FolderMinusIcon",
+      "category": "Files & media"
+    },
+    {
+      "name": "image",
+      "component": "ImageIcon",
+      "category": "Files & media"
+    },
+    {
+      "name": "camera",
+      "component": "CameraIcon",
+      "category": "Files & media"
+    },
+    {
+      "name": "video",
+      "component": "VideoIcon",
+      "category": "Files & media"
+    },
+    {
+      "name": "play",
+      "component": "PlayIcon",
+      "category": "Files & media"
+    },
+    {
+      "name": "pause",
+      "component": "PauseIcon",
+      "category": "Files & media"
+    },
+    {
+      "name": "stop",
+      "component": "StopIcon",
+      "category": "Files & media"
+    },
+    {
+      "name": "skip-forward",
+      "component": "SkipForwardIcon",
+      "category": "Files & media"
+    },
+    {
+      "name": "skip-back",
+      "component": "SkipBackIcon",
+      "category": "Files & media"
+    },
+    {
+      "name": "fast-forward",
+      "component": "FastForwardIcon",
+      "category": "Files & media"
+    },
+    {
+      "name": "rewind",
+      "component": "RewindIcon",
+      "category": "Files & media"
+    },
+    {
+      "name": "volume",
+      "component": "VolumeIcon",
+      "category": "Files & media"
+    },
+    {
+      "name": "volume-x",
+      "component": "VolumeXIcon",
+      "category": "Files & media"
+    },
+    {
+      "name": "mic",
+      "component": "MicIcon",
+      "category": "Files & media"
+    },
+    {
+      "name": "mic-off",
+      "component": "MicOffIcon",
+      "category": "Files & media"
+    },
+    {
+      "name": "music",
+      "component": "MusicIcon",
+      "category": "Files & media"
+    },
+    {
+      "name": "cloud",
+      "component": "CloudIcon",
+      "category": "Files & media"
+    },
+    {
+      "name": "cloud-download",
+      "component": "CloudDownloadIcon",
+      "category": "Files & media"
+    },
+    {
+      "name": "cloud-upload",
+      "component": "CloudUploadIcon",
+      "category": "Files & media"
+    },
+    {
+      "name": "film",
+      "component": "FilmIcon",
+      "category": "Files & media"
+    },
+    {
+      "name": "headphones",
+      "component": "HeadphonesIcon",
+      "category": "Files & media"
+    },
+    {
+      "name": "shuffle",
+      "component": "ShuffleIcon",
+      "category": "Files & media"
+    },
+    {
+      "name": "repeat",
+      "component": "RepeatIcon",
+      "category": "Files & media"
+    },
+    {
+      "name": "disc",
+      "component": "DiscIcon",
+      "category": "Files & media"
+    },
+    {
+      "name": "speaker",
+      "component": "SpeakerIcon",
+      "category": "Files & media"
+    },
+    {
+      "name": "info",
+      "component": "InfoIcon",
+      "category": "Status"
+    },
+    {
+      "name": "help-circle",
+      "component": "HelpCircleIcon",
+      "category": "Status"
+    },
+    {
+      "name": "alert-circle",
+      "component": "AlertCircleIcon",
+      "category": "Status"
+    },
+    {
+      "name": "alert-triangle",
+      "component": "AlertTriangleIcon",
+      "category": "Status"
+    },
+    {
+      "name": "alert-octagon",
+      "component": "AlertOctagonIcon",
+      "category": "Status"
+    },
+    {
+      "name": "x-octagon",
+      "component": "XOctagonIcon",
+      "category": "Status"
+    },
+    {
+      "name": "ban",
+      "component": "BanIcon",
+      "category": "Status"
+    },
+    {
+      "name": "loader",
+      "component": "LoaderIcon",
+      "category": "Status"
+    },
+    {
+      "name": "clock",
+      "component": "ClockIcon",
+      "category": "Status"
+    },
+    {
+      "name": "calendar",
+      "component": "CalendarIcon",
+      "category": "Status"
+    },
+    {
+      "name": "calendar-check",
+      "component": "CalendarCheckIcon",
+      "category": "Status"
+    },
+    {
+      "name": "timer",
+      "component": "TimerIcon",
+      "category": "Status"
+    },
+    {
+      "name": "shield",
+      "component": "ShieldIcon",
+      "category": "Status"
+    },
+    {
+      "name": "shield-check",
+      "component": "ShieldCheckIcon",
+      "category": "Status"
+    },
+    {
+      "name": "shield-alert",
+      "component": "ShieldAlertIcon",
+      "category": "Status"
+    },
+    {
+      "name": "activity",
+      "component": "ActivityIcon",
+      "category": "Status"
+    },
+    {
+      "name": "zap",
+      "component": "ZapIcon",
+      "category": "Status"
+    },
+    {
+      "name": "circle",
+      "component": "CircleIcon",
+      "category": "Status"
+    },
+    {
+      "name": "square",
+      "component": "SquareIcon",
+      "category": "Status"
+    },
+    {
+      "name": "triangle",
+      "component": "TriangleIcon",
+      "category": "Status"
+    },
+    {
+      "name": "hexagon",
+      "component": "HexagonIcon",
+      "category": "Status"
+    },
+    {
+      "name": "octagon",
+      "component": "OctagonIcon",
+      "category": "Status"
+    },
+    {
+      "name": "diamond",
+      "component": "DiamondIcon",
+      "category": "Status"
+    },
+    {
+      "name": "wifi",
+      "component": "WifiIcon",
+      "category": "Status"
+    },
+    {
+      "name": "wifi-off",
+      "component": "WifiOffIcon",
+      "category": "Status"
+    },
+    {
+      "name": "battery",
+      "component": "BatteryIcon",
+      "category": "Status"
+    },
+    {
+      "name": "battery-charging",
+      "component": "BatteryChargingIcon",
+      "category": "Status"
+    },
+    {
+      "name": "thumbs-up",
+      "component": "ThumbsUpIcon",
+      "category": "Status"
+    },
+    {
+      "name": "thumbs-down",
+      "component": "ThumbsDownIcon",
+      "category": "Status"
+    },
+    {
+      "name": "hourglass",
+      "component": "HourglassIcon",
+      "category": "Status"
+    },
+    {
+      "name": "lightbulb",
+      "component": "LightbulbIcon",
+      "category": "Status"
+    },
+    {
+      "name": "check-square",
+      "component": "CheckSquareIcon",
+      "category": "Status"
+    },
+    {
+      "name": "x-square",
+      "component": "XSquareIcon",
+      "category": "Status"
+    },
+    {
+      "name": "minus-square",
+      "component": "MinusSquareIcon",
+      "category": "Status"
+    },
+    {
+      "name": "mail",
+      "component": "MailIcon",
+      "category": "Communication"
+    },
+    {
+      "name": "mail-open",
+      "component": "MailOpenIcon",
+      "category": "Communication"
+    },
+    {
+      "name": "message-circle",
+      "component": "MessageCircleIcon",
+      "category": "Communication"
+    },
+    {
+      "name": "message-square",
+      "component": "MessageSquareIcon",
+      "category": "Communication"
+    },
+    {
+      "name": "phone",
+      "component": "PhoneIcon",
+      "category": "Communication"
+    },
+    {
+      "name": "phone-call",
+      "component": "PhoneCallIcon",
+      "category": "Communication"
+    },
+    {
+      "name": "at-sign",
+      "component": "AtSignIcon",
+      "category": "Communication"
+    },
+    {
+      "name": "user",
+      "component": "UserIcon",
+      "category": "Communication"
+    },
+    {
+      "name": "users",
+      "component": "UsersIcon",
+      "category": "Communication"
+    },
+    {
+      "name": "user-plus",
+      "component": "UserPlusIcon",
+      "category": "Communication"
+    },
+    {
+      "name": "user-minus",
+      "component": "UserMinusIcon",
+      "category": "Communication"
+    },
+    {
+      "name": "user-check",
+      "component": "UserCheckIcon",
+      "category": "Communication"
+    },
+    {
+      "name": "user-x",
+      "component": "UserXIcon",
+      "category": "Communication"
+    },
+    {
+      "name": "hash",
+      "component": "HashIcon",
+      "category": "Communication"
+    },
+    {
+      "name": "smile",
+      "component": "SmileIcon",
+      "category": "Communication"
+    },
+    {
+      "name": "frown",
+      "component": "FrownIcon",
+      "category": "Communication"
+    },
+    {
+      "name": "meh",
+      "component": "MehIcon",
+      "category": "Communication"
+    },
+    {
+      "name": "megaphone",
+      "component": "MegaphoneIcon",
+      "category": "Communication"
+    },
+    {
+      "name": "rss",
+      "component": "RssIcon",
+      "category": "Communication"
+    },
+    {
+      "name": "globe",
+      "component": "GlobeIcon",
+      "category": "Communication"
+    },
+    {
+      "name": "id-card",
+      "component": "IdCardIcon",
+      "category": "Communication"
+    },
+    {
+      "name": "laugh",
+      "component": "LaughIcon",
+      "category": "Communication"
+    },
+    {
+      "name": "wink",
+      "component": "WinkIcon",
+      "category": "Communication"
+    },
+    {
+      "name": "surprised",
+      "component": "SurprisedIcon",
+      "category": "Communication"
+    },
+    {
+      "name": "angry",
+      "component": "AngryIcon",
+      "category": "Communication"
+    },
+    {
+      "name": "sleepy",
+      "component": "SleepyIcon",
+      "category": "Communication"
+    },
+    {
+      "name": "heart-eyes",
+      "component": "HeartEyesIcon",
+      "category": "Communication"
+    },
+    {
+      "name": "cool",
+      "component": "CoolIcon",
+      "category": "Communication"
+    },
+    {
+      "name": "emoji-picker",
+      "component": "EmojiPickerIcon",
+      "category": "Communication"
+    },
+    {
+      "name": "shopping-cart",
+      "component": "ShoppingCartIcon",
+      "category": "Commerce"
+    },
+    {
+      "name": "shopping-bag",
+      "component": "ShoppingBagIcon",
+      "category": "Commerce"
+    },
+    {
+      "name": "credit-card",
+      "component": "CreditCardIcon",
+      "category": "Commerce"
+    },
+    {
+      "name": "dollar-sign",
+      "component": "DollarSignIcon",
+      "category": "Commerce"
+    },
+    {
+      "name": "euro-sign",
+      "component": "EuroSignIcon",
+      "category": "Commerce"
+    },
+    {
+      "name": "percent",
+      "component": "PercentIcon",
+      "category": "Commerce"
+    },
+    {
+      "name": "gift",
+      "component": "GiftIcon",
+      "category": "Commerce"
+    },
+    {
+      "name": "package",
+      "component": "PackageIcon",
+      "category": "Commerce"
+    },
+    {
+      "name": "truck",
+      "component": "TruckIcon",
+      "category": "Commerce"
+    },
+    {
+      "name": "receipt",
+      "component": "ReceiptIcon",
+      "category": "Commerce"
+    },
+    {
+      "name": "wallet",
+      "component": "WalletIcon",
+      "category": "Commerce"
+    },
+    {
+      "name": "store",
+      "component": "StoreIcon",
+      "category": "Commerce"
+    },
+    {
+      "name": "banknote",
+      "component": "BanknoteIcon",
+      "category": "Commerce"
+    },
+    {
+      "name": "coins",
+      "component": "CoinsIcon",
+      "category": "Commerce"
+    },
+    {
+      "name": "barcode",
+      "component": "BarcodeIcon",
+      "category": "Commerce"
+    },
+    {
+      "name": "qr-code",
+      "component": "QrCodeIcon",
+      "category": "Commerce"
+    },
+    {
+      "name": "scale",
+      "component": "ScaleIcon",
+      "category": "Commerce"
+    },
+    {
+      "name": "building",
+      "component": "BuildingIcon",
+      "category": "Commerce"
+    },
+    {
+      "name": "briefcase",
+      "component": "BriefcaseIcon",
+      "category": "Commerce"
+    },
+    {
+      "name": "bar-chart",
+      "component": "BarChartIcon",
+      "category": "Data & charts"
+    },
+    {
+      "name": "bar-chart-horizontal",
+      "component": "BarChartHorizontalIcon",
+      "category": "Data & charts"
+    },
+    {
+      "name": "line-chart",
+      "component": "LineChartIcon",
+      "category": "Data & charts"
+    },
+    {
+      "name": "area-chart",
+      "component": "AreaChartIcon",
+      "category": "Data & charts"
+    },
+    {
+      "name": "pie-chart",
+      "component": "PieChartIcon",
+      "category": "Data & charts"
+    },
+    {
+      "name": "donut-chart",
+      "component": "DonutChartIcon",
+      "category": "Data & charts"
+    },
+    {
+      "name": "trending-up",
+      "component": "TrendingUpIcon",
+      "category": "Data & charts"
+    },
+    {
+      "name": "trending-down",
+      "component": "TrendingDownIcon",
+      "category": "Data & charts"
+    },
+    {
+      "name": "database",
+      "component": "DatabaseIcon",
+      "category": "Data & charts"
+    },
+    {
+      "name": "server",
+      "component": "ServerIcon",
+      "category": "Data & charts"
+    },
+    {
+      "name": "table",
+      "component": "TableIcon",
+      "category": "Data & charts"
+    },
+    {
+      "name": "columns",
+      "component": "ColumnsIcon",
+      "category": "Data & charts"
+    },
+    {
+      "name": "rows",
+      "component": "RowsIcon",
+      "category": "Data & charts"
+    },
+    {
+      "name": "layers",
+      "component": "LayersIcon",
+      "category": "Data & charts"
+    },
+    {
+      "name": "sort-asc",
+      "component": "SortAscIcon",
+      "category": "Data & charts"
+    },
+    {
+      "name": "sort-desc",
+      "component": "SortDescIcon",
+      "category": "Data & charts"
+    },
+    {
+      "name": "sigma",
+      "component": "SigmaIcon",
+      "category": "Data & charts"
+    },
+    {
+      "name": "gauge",
+      "component": "GaugeIcon",
+      "category": "Data & charts"
+    },
+    {
+      "name": "scatter-chart",
+      "component": "ScatterChartIcon",
+      "category": "Data & charts"
+    },
+    {
+      "name": "kanban",
+      "component": "KanbanIcon",
+      "category": "Data & charts"
+    },
+    {
+      "name": "calculator",
+      "component": "CalculatorIcon",
+      "category": "Data & charts"
+    },
+    {
+      "name": "network",
+      "component": "NetworkIcon",
+      "category": "Data & charts"
+    },
+    {
+      "name": "workflow",
+      "component": "WorkflowIcon",
+      "category": "Data & charts"
+    },
+    {
+      "name": "filter-x",
+      "component": "FilterXIcon",
+      "category": "Data & charts"
+    },
+    {
+      "name": "filter-plus",
+      "component": "FilterPlusIcon",
+      "category": "Data & charts"
+    },
+    {
+      "name": "filter-check",
+      "component": "FilterCheckIcon",
+      "category": "Data & charts"
+    },
+    {
+      "name": "filter-active",
+      "component": "FilterActiveIcon",
+      "category": "Data & charts"
+    },
+    {
+      "name": "filter-off",
+      "component": "FilterOffIcon",
+      "category": "Data & charts"
+    },
+    {
+      "name": "filter-list",
+      "component": "FilterListIcon",
+      "category": "Data & charts"
+    },
+    {
+      "name": "search-filter",
+      "component": "SearchFilterIcon",
+      "category": "Data & charts"
+    },
+    {
+      "name": "table-filter",
+      "component": "TableFilterIcon",
+      "category": "Data & charts"
+    },
+    {
+      "name": "sliders-vertical",
+      "component": "SlidersVerticalIcon",
+      "category": "Data & charts"
+    },
+    {
+      "name": "code",
+      "component": "CodeIcon",
+      "category": "Developer"
+    },
+    {
+      "name": "code-slash",
+      "component": "CodeSlashIcon",
+      "category": "Developer"
+    },
+    {
+      "name": "terminal",
+      "component": "TerminalIcon",
+      "category": "Developer"
+    },
+    {
+      "name": "terminal-window",
+      "component": "TerminalWindowIcon",
+      "category": "Developer"
+    },
+    {
+      "name": "git-branch",
+      "component": "GitBranchIcon",
+      "category": "Developer"
+    },
+    {
+      "name": "git-commit",
+      "component": "GitCommitIcon",
+      "category": "Developer"
+    },
+    {
+      "name": "git-merge",
+      "component": "GitMergeIcon",
+      "category": "Developer"
+    },
+    {
+      "name": "git-pull-request",
+      "component": "GitPullRequestIcon",
+      "category": "Developer"
+    },
+    {
+      "name": "cpu",
+      "component": "CpuIcon",
+      "category": "Developer"
+    },
+    {
+      "name": "hard-drive",
+      "component": "HardDriveIcon",
+      "category": "Developer"
+    },
+    {
+      "name": "bug",
+      "component": "BugIcon",
+      "category": "Developer"
+    },
+    {
+      "name": "braces",
+      "component": "BracesIcon",
+      "category": "Developer"
+    },
+    {
+      "name": "brackets",
+      "component": "BracketsIcon",
+      "category": "Developer"
+    },
+    {
+      "name": "keyboard",
+      "component": "KeyboardIcon",
+      "category": "Developer"
+    },
+    {
+      "name": "monitor",
+      "component": "MonitorIcon",
+      "category": "Developer"
+    },
+    {
+      "name": "smartphone",
+      "component": "SmartphoneIcon",
+      "category": "Developer"
+    },
+    {
+      "name": "tablet",
+      "component": "TabletIcon",
+      "category": "Developer"
+    },
+    {
+      "name": "laptop",
+      "component": "LaptopIcon",
+      "category": "Developer"
+    },
+    {
+      "name": "key",
+      "component": "KeyIcon",
+      "category": "Developer"
+    },
+    {
+      "name": "rocket",
+      "component": "RocketIcon",
+      "category": "Developer"
+    },
+    {
+      "name": "plug",
+      "component": "PlugIcon",
+      "category": "Developer"
+    },
+    {
+      "name": "scan-line",
+      "component": "ScanLineIcon",
+      "category": "Developer"
+    },
+    {
+      "name": "flask",
+      "component": "FlaskIcon",
+      "category": "Developer"
+    },
+    {
+      "name": "bot",
+      "component": "BotIcon",
+      "category": "Developer"
+    },
+    {
+      "name": "sparkles",
+      "component": "SparklesIcon",
+      "category": "Developer"
+    },
+    {
+      "name": "git-fork",
+      "component": "GitForkIcon",
+      "category": "Developer"
+    },
+    {
+      "name": "git-compare",
+      "component": "GitCompareIcon",
+      "category": "Developer"
+    },
+    {
+      "name": "git-graph",
+      "component": "GitGraphIcon",
+      "category": "Developer"
+    },
+    {
+      "name": "git-cherry-pick",
+      "component": "GitCherryPickIcon",
+      "category": "Developer"
+    },
+    {
+      "name": "git-stash",
+      "component": "GitStashIcon",
+      "category": "Developer"
+    },
+    {
+      "name": "diff",
+      "component": "DiffIcon",
+      "category": "Developer"
+    },
+    {
+      "name": "repository",
+      "component": "RepositoryIcon",
+      "category": "Developer"
+    },
+    {
+      "name": "issue-open",
+      "component": "IssueOpenIcon",
+      "category": "Developer"
+    },
+    {
+      "name": "issue-closed",
+      "component": "IssueClosedIcon",
+      "category": "Developer"
+    },
+    {
+      "name": "git-pull-request-draft",
+      "component": "GitPullRequestDraftIcon",
+      "category": "Developer"
+    },
+    {
+      "name": "git-pull-request-closed",
+      "component": "GitPullRequestClosedIcon",
+      "category": "Developer"
+    },
+    {
+      "name": "bold",
+      "component": "BoldIcon",
+      "category": "Text editing"
+    },
+    {
+      "name": "italic",
+      "component": "ItalicIcon",
+      "category": "Text editing"
+    },
+    {
+      "name": "underline",
+      "component": "UnderlineIcon",
+      "category": "Text editing"
+    },
+    {
+      "name": "strikethrough",
+      "component": "StrikethroughIcon",
+      "category": "Text editing"
+    },
+    {
+      "name": "align-left",
+      "component": "AlignLeftIcon",
+      "category": "Text editing"
+    },
+    {
+      "name": "align-center",
+      "component": "AlignCenterIcon",
+      "category": "Text editing"
+    },
+    {
+      "name": "align-right",
+      "component": "AlignRightIcon",
+      "category": "Text editing"
+    },
+    {
+      "name": "align-justify",
+      "component": "AlignJustifyIcon",
+      "category": "Text editing"
+    },
+    {
+      "name": "list-checks",
+      "component": "ListChecksIcon",
+      "category": "Text editing"
+    },
+    {
+      "name": "heading",
+      "component": "HeadingIcon",
+      "category": "Text editing"
+    },
+    {
+      "name": "quote",
+      "component": "QuoteIcon",
+      "category": "Text editing"
+    },
+    {
+      "name": "type",
+      "component": "TypeIcon",
+      "category": "Text editing"
+    },
+    {
+      "name": "indent",
+      "component": "IndentIcon",
+      "category": "Text editing"
+    },
+    {
+      "name": "outdent",
+      "component": "OutdentIcon",
+      "category": "Text editing"
+    },
+    {
+      "name": "text-cursor",
+      "component": "TextCursorIcon",
+      "category": "Text editing"
+    },
+    {
+      "name": "pilcrow",
+      "component": "PilcrowIcon",
+      "category": "Text editing"
+    },
+    {
+      "name": "eraser",
+      "component": "EraserIcon",
+      "category": "Text editing"
+    },
+    {
+      "name": "spell-check",
+      "component": "SpellCheckIcon",
+      "category": "Text editing"
+    },
+    {
+      "name": "wrap-text",
+      "component": "WrapTextIcon",
+      "category": "Text editing"
+    },
+    {
+      "name": "remove-formatting",
+      "component": "RemoveFormattingIcon",
+      "category": "Text editing"
+    },
+    {
+      "name": "map-pin",
+      "component": "MapPinIcon",
+      "category": "Objects"
+    },
+    {
+      "name": "map",
+      "component": "MapIcon",
+      "category": "Objects"
+    },
+    {
+      "name": "compass",
+      "component": "CompassIcon",
+      "category": "Objects"
+    },
+    {
+      "name": "navigation",
+      "component": "NavigationIcon",
+      "category": "Objects"
+    },
+    {
+      "name": "palette",
+      "component": "PaletteIcon",
+      "category": "Objects"
+    },
+    {
+      "name": "droplet",
+      "component": "DropletIcon",
+      "category": "Objects"
+    },
+    {
+      "name": "thermometer",
+      "component": "ThermometerIcon",
+      "category": "Objects"
+    },
+    {
+      "name": "flame",
+      "component": "FlameIcon",
+      "category": "Objects"
+    },
+    {
+      "name": "leaf",
+      "component": "LeafIcon",
+      "category": "Objects"
+    },
+    {
+      "name": "award",
+      "component": "AwardIcon",
+      "category": "Objects"
+    },
+    {
+      "name": "trophy",
+      "component": "TrophyIcon",
+      "category": "Objects"
+    },
+    {
+      "name": "crown",
+      "component": "CrownIcon",
+      "category": "Objects"
+    },
+    {
+      "name": "umbrella",
+      "component": "UmbrellaIcon",
+      "category": "Objects"
+    },
+    {
+      "name": "coffee",
+      "component": "CoffeeIcon",
+      "category": "Objects"
+    },
+    {
+      "name": "car",
+      "component": "CarIcon",
+      "category": "Objects"
+    },
+    {
+      "name": "anchor",
+      "component": "AnchorIcon",
+      "category": "Objects"
+    },
+    {
+      "name": "scissors",
+      "component": "ScissorsIcon",
+      "category": "Objects"
+    },
+    {
+      "name": "target",
+      "component": "TargetIcon",
+      "category": "Objects"
+    },
+    {
+      "name": "crosshair",
+      "component": "CrosshairIcon",
+      "category": "Objects"
+    },
+    {
+      "name": "languages",
+      "component": "LanguagesIcon",
+      "category": "Objects"
+    },
+    {
+      "name": "accessibility",
+      "component": "AccessibilityIcon",
+      "category": "Objects"
+    },
+    {
+      "name": "gem",
+      "component": "GemIcon",
+      "category": "Objects"
+    },
+    {
+      "name": "graduation-cap",
+      "component": "GraduationCapIcon",
+      "category": "Objects"
+    },
+    {
+      "name": "book",
+      "component": "BookIcon",
+      "category": "Objects"
+    },
+    {
+      "name": "book-open",
+      "component": "BookOpenIcon",
+      "category": "Objects"
+    },
+    {
+      "name": "watch",
+      "component": "WatchIcon",
+      "category": "Objects"
+    },
+    {
+      "name": "utensils",
+      "component": "UtensilsIcon",
+      "category": "Objects"
+    },
+    {
+      "name": "sun",
+      "component": "SunIcon",
+      "category": "Objects"
+    },
+    {
+      "name": "moon",
+      "component": "MoonIcon",
+      "category": "Objects"
+    }
+  ]
+}

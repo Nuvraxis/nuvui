@@ -273,7 +273,7 @@ QRCode also takes the attributes of an `<svg>`, and `ref` goes to it.
 | --- | --- | --- | --- |
 | `value` (required) | `string` |  | What the code holds: an address, most often, or any text. |
 | `size` | `number` | `160` | The width and the height, in pixels, with the empty edge. |
-| `errorCorrection` | `QRCodeErrorCorrection` |  | How much of the code can be lost and still be read, from `"L"`, about 7%, to `"H"`, about 30%. Left out, it's `"M"`, or `"H"` when there's an `overlay`, which covers part of the code. |
+| `errorCorrection` | `"H" \| "L" \| "M" \| "Q"` |  | How much of the code can be lost and still be read, from `"L"`, about 7%, to `"H"`, about 30%. Left out, it's `"M"`, or `"H"` when there's an `overlay`, which covers part of the code. |
 | `quietZone` | `number` | `4` | The empty space around the code, counted in its squares. A scanner finds the code by it, and the standard asks for four. |
 | `overlay` | `ReactNode` |  | Something drawn over the middle, such as a logo. It's SVG, drawn in a box 100 by 100: an `<image>`, shapes of your own, or `<QRCodeSwissCross />`. The squares under it are lost, which the error correction makes up for. |
 | `overlaySize` | `number` | `0.2` | How much of the code's side the overlay takes, from 0.1 to 0.3. More than a fifth and some phones stop reading it: try the code you ship. |

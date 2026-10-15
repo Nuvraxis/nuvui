@@ -56,15 +56,15 @@ These come from Radix.
 | `defaultValue` | `string` |  | The code it starts with, when you don't control it. |
 | `onValueChange` | `((value: string) => void)` |  | Called with the whole code each time a box changes. |
 | `validationType` | `OtpPrimitive.InputValidationType` |  | Which characters a box takes: `"numeric"`, `"alpha"`, `"alphanumeric"` or `"none"`. Anything else is ignored as it's typed or pasted. |
-| `type` | `InputType` |  | `"password"` shows dots in place of the characters. |
-| `autoComplete` | `AutoComplete` |  | `"one-time-code"` lets the browser offer a code that has just arrived by text message. `"off"` stops that. |
+| `type` | `"password" \| "text"` |  | `"password"` shows dots in place of the characters. |
+| `autoComplete` | `"off" \| "one-time-code"` |  | `"one-time-code"` lets the browser offer a code that has just arrived by text message. `"off"` stops that. |
 | `autoSubmit` | `boolean` |  | Submits the form around it once the last box is filled. |
 | `onAutoSubmit` | `((value: string) => void)` |  | Called with the code just before `autoSubmit` submits. |
 | `name` | `string` |  | The name the whole code is submitted under in a form. |
 | `disabled` | `boolean` |  | Disables every box. |
 | `readOnly` | `boolean` |  | Lets the code be read and copied and not changed. |
 | `placeholder` | `string` |  | One character per box, shown while the field is empty. |
-| `dir` | `Direction` |  | The reading direction, which decides where the first box is. |
+| `dir` | `"ltr" \| "rtl"` |  | The reading direction, which decides where the first box is. |
 
 Everything else is passed to the `<div>` around the boxes, including `ref`, `id` and `className`.
 

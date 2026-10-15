@@ -38,6 +38,7 @@ export const docs = {
 };
 
 export const themesHome = "/themes";
+export const iconsHome = "/icons";
 
 export interface NavItem {
   label: string;
@@ -54,6 +55,7 @@ export const navigation: NavItem[] = [
   { label: "Components", href: docs.components, docs: true },
   { label: "Blocks", href: blocksHome },
   { label: "Charts", href: chartsHome },
+  { label: "Icons", href: iconsHome },
   { label: "Themes", href: themesHome },
 ];
 
@@ -84,6 +86,12 @@ export const pages = [
     title: family.title,
     description: family.description,
   })),
+  {
+    path: iconsHome,
+    title: "Icons",
+    description:
+      "317 line icons drawn for the library, in three styles. Search them, see each at the sizes it's used at, and copy it as a React import or as SVG.",
+  },
   {
     path: themesHome,
     title: "Themes",

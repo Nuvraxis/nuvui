@@ -20,6 +20,7 @@ import { Calendar, DatePicker } from "@nuvui/date-picker";
 // and the text is written in once the page is in a browser.
 import { RichTextEditor } from "@nuvui/editor";
 import { EmojiPicker } from "@nuvui/emoji";
+import { ArrowRightIcon } from "@nuvui/icons";
 import { MapView } from "@nuvui/map";
 import {
   Button,
@@ -60,7 +61,9 @@ export default function Page() {
   return (
     <main>
       <Button asChild>
-        <a href="#next">Read on</a>
+        <a href="#next">
+          Read on <ArrowRightIcon size={16} />
+        </a>
       </Button>
       <Switch aria-label="Email me product updates" />
       <Dialog>

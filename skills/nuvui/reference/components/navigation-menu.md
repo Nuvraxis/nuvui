@@ -151,7 +151,7 @@ What goes in `NavigationMenuContent` is up to you. The examples use a `ul` of li
 | `onValueChange` | `((value: string) => void)` |  | Called with an entry's `value` when its panel opens, and with an empty string when the panel closes. |
 | `delayDuration` | `number` | `200` | How long the pointer has to rest on a button before its panel opens, in milliseconds. It's 200 unless you say otherwise. |
 | `skipDelayDuration` | `number` | `300` | After the panel closes, how long another button can open it without waiting, in milliseconds. It's 300 unless you say otherwise. |
-| `dir` | `Direction` |  | The reading direction. With `"rtl"`, the left and right arrow keys swap. |
+| `dir` | `"ltr" \| "rtl"` |  | The reading direction. With `"rtl"`, the left and right arrow keys swap. |
 
 ### NavigationMenuItem
 

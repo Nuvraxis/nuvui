@@ -23,6 +23,7 @@ import { existsSync } from "node:fs";
 import { mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { createGenerator } from "fumadocs-typescript";
+import { writeOutLiterals } from "../lib/literal-union.ts";
 
 const docsDir = path.join(import.meta.dirname, "..");
 const repoDir = path.join(docsDir, "..", "..");
@@ -46,6 +47,7 @@ const addons = [
   "editor",
   "emoji",
   "map",
+  "icons",
 ];
 const packageDir = (addon) => path.join(repoDir, "packages", addon ?? core);
 const packageName = (addon) => (addon ? `@nuvui/${addon}` : "@nuvui/react");
@@ -127,18 +129,20 @@ const table = (head, rows) =>
 
 async function propsTable(attrs, page) {
   const { component, package: addon, file = component, name, type } = attrs;
-  const source = path.join(
-    packageDir(addon),
-    "src",
-    "components",
-    component,
-    file.endsWith(".ts") ? file : `${file}.tsx`,
+  // As lib/library.ts reads it.
+  const source = file.startsWith("src/")
+    ? path.join(packageDir(addon), file)
+    : path.join(
+        packageDir(addon),
+        "src",
+        "components",
+        component,
+        file.endsWith(".ts") ? file : `${file}.tsx`,
+      );
+  const docs = await generatorFor(addon).generateTypeTable(
+    { path: source, name, type },
+    { transform: writeOutLiterals },
   );
-  const docs = await generatorFor(addon).generateTypeTable({
-    path: source,
-    name,
-    type,
-  });
   const out = [];
   for (const doc of docs) {
     let entries = doc.entries;
@@ -512,6 +516,27 @@ async function renderTag(tag, page, profile, slugs) {
       if (!map) throw new Error("No $breakpoints map found in the mixins.");
       return `\`\`\`scss\n${map}\n\`\`\``;
     }
+    case "IconGrid": {
+      // The grid is for finding an icon by eye. An agent needs the names,
+      // and one that guesses a name gets an import that doesn't exist.
+      const manifest = JSON.parse(
+        await read(path.join(packageDir("icons"), "manifest.json")),
+      );
+      const categories = new Map();
+      for (const icon of manifest.icons) {
+        categories.set(icon.category, [
+          ...(categories.get(icon.category) ?? []),
+          code(icon.component),
+        ]);
+      }
+      return table(
+        ["Category", "Icons"],
+        [...categories].map(([category, icons]) => [
+          cell(category),
+          icons.join(", "),
+        ]),
+      );
+    }
     default:
       // Something to try in a browser, which has nothing to say here.
       if (name.endsWith("Playground") || name === "TokenEditor") return "";
@@ -576,6 +601,7 @@ const sectionTitles = {
   editor: "@nuvui/editor",
   emoji: "@nuvui/emoji",
   map: "@nuvui/map",
+  icons: "@nuvui/icons",
 };
 
 function listing(pages, href) {
@@ -687,6 +713,8 @@ async function checkCoverage(pages) {
   const missing = [];
   for (const folder of [core, ...addons]) {
     const dir = path.join(repoDir, "packages", folder, "src", "components");
+    // The icons are generated, one per file, and have no folders of their own.
+    if (!existsSync(dir)) continue;
     for (const entry of await readdir(dir, { withFileTypes: true })) {
       if (!entry.isDirectory()) continue;
       if (!documented.has(`${folder}/${entry.name}`)) {

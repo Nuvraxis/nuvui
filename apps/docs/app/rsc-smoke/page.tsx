@@ -54,6 +54,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
   AlertTitle,
+  AnimatedNumber,
   AspectRatio,
   Badge,
   Breadcrumb,
@@ -157,6 +158,7 @@ import {
   TabsContent,
   TabsList,
   TabsTrigger,
+  TextReveal,
   TextShimmer,
   Timeline,
   TimelineContent,
@@ -367,6 +369,12 @@ export default function RscSmokePage() {
       <TextShimmer data-testid="server-shimmer">
         Shimmer from the server
       </TextShimmer>
+      {/* Two client components given plain values from the server. */}
+      <AnimatedNumber data-testid="server-animated-number" value={1234.5} />
+      <TextReveal
+        data-testid="server-reveal"
+        lines={["Rises from", "the server"]}
+      />
       <TableOfContents
         aria-label="Contents from the server"
         items={[

@@ -1,0 +1,9 @@
+{
+  "name": "launch-hero",
+  "title": "Hero that rises in",
+  "description": "The top of a launch page: the headline rises into place a line at a time, under a line that names the release, with the words that explain it and two actions. The headline is in the page from the server, and still for anyone who asked for less motion.",
+  "category": "marketing",
+  "files": ["launch-hero.tsx", "launch-hero.scss"],
+  "install": ["@nuvui/react", "lucide-react"],
+  "height": 640
+}

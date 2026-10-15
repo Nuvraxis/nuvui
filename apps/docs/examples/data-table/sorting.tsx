@@ -27,6 +27,9 @@ export default function Example() {
       aria-label="People, sorted by name"
       rowHeader="name"
       toolbar={false}
+      // Eight rows fit on the first page, which holds ten. A table with
+      // more keeps the bar, or the rows after the first page can't be
+      // reached.
       pagination={false}
     />
   );

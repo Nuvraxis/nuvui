@@ -107,7 +107,7 @@ toast.dismiss(id);
 | `limit` | `number` | `3` | The most toasts shown at once. Any others wait, and each shows when one before it closes. A waiting toast's `duration` starts when it shows. |
 | `closeLabel` | `string` | `"Close"` | Accessible name of the close button on each toast. Translate it with the rest of your interface. |
 | `toastLabel` | `string` | `"Notification"` | What a screen reader says before the text of each toast. Translate it with the rest of your interface. |
-| `swipeDirection` | `SwipeDirection` | `"right"` | The direction a toast is swiped in to dismiss it. |
+| `swipeDirection` | `"down" \| "left" \| "right" \| "up"` | `"right"` | The direction a toast is swiped in to dismiss it. |
 
 Two more come from Radix:
 

@@ -83,9 +83,9 @@ All of these come from Radix.
 
 | Prop | Type | Default | What it's for |
 | --- | --- | --- | --- |
-| `orientation` | `Orientation` |  | `"horizontal"` or `"vertical"`. It sets the layout and which arrow keys move focus. Horizontal by default. |
+| `orientation` | `"horizontal" \| "vertical"` |  | `"horizontal"` or `"vertical"`. It sets the layout and which arrow keys move focus. Horizontal by default. |
 | `loop` | `boolean` |  | Whether the arrow keys go round from the last control to the first. On by default. |
-| `dir` | `Direction` |  | The reading direction, which decides which of the left and right arrows goes forward. It's taken from `DirectionProvider` when not set. |
+| `dir` | `"ltr" \| "rtl"` |  | The reading direction, which decides which of the left and right arrows goes forward. It's taken from `DirectionProvider` when not set. |
 
 ### ToolbarToggleGroup
 

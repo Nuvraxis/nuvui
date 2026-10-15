@@ -122,5 +122,5 @@ Pages suit a table people look things up in: they give a place to come back to, 
 
 **Don't**
 
-- Don't page a table that fits on one page. A table from `@nuvui/table/full` with a dozen rows can pass `pagination={false}` and a page size that holds them all.
+- Don't page a table that fits on one page. A table from `@nuvui/table/full` can pass `pagination={false}`, with a page size that holds every row. The size is ten unless you set another, so a table that can grow past ten sets `initialState.pagination.pageSize` as well.
 - Don't use pages for a table that has to be compared from top to bottom.

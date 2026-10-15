@@ -2,6 +2,7 @@ import { createGenerator, type Generator } from "fumadocs-typescript";
 import { AutoTypeTable } from "fumadocs-typescript/ui";
 import { codeHighlight } from "@/lib/code-themes";
 import { type Addon, packageOf } from "@/lib/library";
+import { writeOutLiterals } from "@/lib/literal-union";
 
 // One for each package, made the first time a page asks for it. Each reads
 // its package's own tsconfig.
@@ -24,7 +25,8 @@ interface PropsTableProps {
   /**
    * The file in the component's folder that the type is in. Without an
    * extension it's a .tsx file. Left out, it's the one named after the
-   * component.
+   * component. One starting with `src/` is a path from the package's root,
+   * for a package with no component folders.
    */
   file?: string;
   /** Exported type to document, such as `ButtonOwnProps`. */
@@ -92,9 +94,10 @@ export function PropsTable({
       options={{
         // The collapsed row would otherwise say "union" for most props. The
         // real type is short enough to show, and says a lot more.
-        transform(entry) {
-          const type = entry.type.replace(/ \| undefined$/, "");
-          if (type.length <= 64) entry.simplifiedType = type;
+        transform(entry, type) {
+          writeOutLiterals.call(this, entry, type);
+          const shown = entry.type.replace(/ \| undefined$/, "");
+          if (shown.length <= 64) entry.simplifiedType = shown;
         },
       }}
     />

@@ -58,11 +58,11 @@ These come from Radix.
 | `value` | `string \| string[]` |  | The pressed button, or buttons, when you control it yourself: a string for `"single"` and an array of strings for `"multiple"`. |
 | `defaultValue` | `string \| string[]` |  | The same, for what's pressed at first when you don't control it. |
 | `onValueChange` | `((value: string) => void) \| ((value: string[]) => void)` |  | Called with the new value. With `"single"`, it's an empty string when the pressed button is pressed again. |
-| `orientation` | `Orientation` |  | `"vertical"` stacks the buttons. It also decides which arrow keys move between them. |
+| `orientation` | `"horizontal" \| "vertical"` |  | `"vertical"` stacks the buttons. It also decides which arrow keys move between them. |
 | `disabled` | `boolean` |  | Disables every button. |
 | `rovingFocus` | `boolean` |  | Whether the group is one tab stop that the arrow keys move inside. It's `true` by default. |
 | `loop` | `boolean` |  | Whether the arrow keys wrap around from the last button to the first. It's `true` by default. |
-| `dir` | `Direction` |  | The reading direction. In `"rtl"` the left and right arrow keys swap. |
+| `dir` | `"ltr" \| "rtl"` |  | The reading direction. In `"rtl"` the left and right arrow keys swap. |
 
 ### ToggleGroupItem
 

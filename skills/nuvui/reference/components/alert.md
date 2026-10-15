@@ -53,7 +53,7 @@ The styles come from `@nuvui/react/styles.css`, which you load once for the whol
 
 | Prop | Type | Default | What it's for |
 | --- | --- | --- | --- |
-| `intent` | `Intent` | `"info"` | What kind of message it is. It sets the icon and the color, and the default `role`. |
+| `intent` | `"danger" \| "info" \| "success" \| "warning"` | `"info"` | What kind of message it is. It sets the icon and the color, and the default `role`. |
 | `icon` | `ReactNode` |  | An icon to draw in place of the intent's own. Pass `null` or `false` for none. |
 
 It also takes what a `<div>` takes. `role` is the one to know about, and [the section below](#when-a-screen-reader-reads-it) covers it.

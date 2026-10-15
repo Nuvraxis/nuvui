@@ -37,7 +37,19 @@ const toolsOnly = new Set([
 ]);
 
 // The folders of the packages that are published.
-const published = ["ui", "table", "date-picker", "charts"];
+const published = [
+  "ui",
+  "date-picker",
+  "table",
+  "charts",
+  "barcodes",
+  "chat",
+  "kanban",
+  "editor",
+  "emoji",
+  "map",
+  "icons",
+];
 
 // One string, run by a shell: pnpm is a .cmd file on Windows, which only
 // runs through one. Nothing in it comes from outside this file.

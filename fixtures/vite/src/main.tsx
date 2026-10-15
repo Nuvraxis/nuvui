@@ -35,6 +35,7 @@ import { RichTextEditor } from "@nuvui/editor/rich-text-editor";
 // The picker, from the entry of its one component.
 import { EmojiPicker } from "@nuvui/emoji/emoji-picker";
 import { EmojiReaction } from "@nuvui/emoji/emoji-reaction";
+import { ArrowRightIcon } from "@nuvui/icons";
 // The board, from the entry of its one component.
 import {
   Kanban,
@@ -161,7 +162,7 @@ function App() {
       </Kanban>
       <QRCode value="https://example.com" aria-label="Open the example" />
       <Button size={size} onClick={() => toast("Saved")}>
-        Save
+        Save <ArrowRightIcon size={16} />
       </Button>
       <Switch aria-label="Email me product updates" />
       <Dialog>

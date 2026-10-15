@@ -167,21 +167,35 @@ for (const { path } of pages) {
   });
 }
 
+// What an attribute or a title holds, with the characters HTML writes as
+// entities put back.
+const decoded = (text: string) =>
+  text
+    .replaceAll("&lt;", "<")
+    .replaceAll("&gt;", ">")
+    .replaceAll("&quot;", '"')
+    .replaceAll("&#x27;", "'")
+    .replaceAll("&#39;", "'")
+    .replaceAll("&amp;", "&");
+
 test("every page has a title and a description of its own", async ({
-  page,
+  request,
 }) => {
   const titles = new Map<string, string>();
   const descriptions = new Map<string, string>();
   for (const { path } of pages) {
-    // The title and the description are in the HTML as it's sent. Waiting
-    // for the page's frames and pictures, which a page of blocks has many
-    // of, adds nothing.
-    await page.goto(path, { waitUntil: "domcontentloaded" });
-    const title = await page.title();
-    const description =
-      (await page
-        .locator('meta[name="description"]')
-        .getAttribute("content")) ?? "";
+    // The title and the description are in the HTML as it's sent, so
+    // they're read from it. A browser drawing every page of the site, one
+    // after another, took longer than a test is given in Firefox on CI.
+    const response = await request.get(path);
+    expect(response.ok(), `${path} is served`).toBe(true);
+    const html = await response.text();
+    const title = decoded(/<title>([^<]*)<\/title>/.exec(html)?.[1] ?? "");
+    const meta =
+      /<meta\s(?=[^>]*\bname="description")[^>]*>/.exec(html)?.[0] ?? "";
+    const description = decoded(/\scontent="([^"]*)"/.exec(meta)?.[1] ?? "");
+    expect(title, `${path} has a title`).not.toBe("");
+    expect(description, `${path} has a description`).not.toBe("");
     expect(titles.get(title), `${path} has the title of another page`).toBe(
       undefined,
     );
@@ -343,7 +357,7 @@ test.describe("the header", () => {
         );
       });
     const stops: string[] = [];
-    for (let index = 0; index < 10; index += 1) {
+    for (let index = 0; index < 11; index += 1) {
       await page.keyboard.press("Tab");
       stops.push(await focused());
     }
@@ -353,10 +367,11 @@ test.describe("the header", () => {
     expect(stops[3]).toBe("Components");
     expect(stops[4]).toBe("Blocks");
     expect(stops[5]).toBe("Charts");
-    expect(stops[6]).toBe("Themes");
-    expect(stops[7]).toMatch(/^Search/);
-    expect(stops[8]).toBe("GitHub repository");
-    expect(stops[9]).toMatch(/^Theme: /);
+    expect(stops[6]).toBe("Icons");
+    expect(stops[7]).toBe("Themes");
+    expect(stops[8]).toMatch(/^Search/);
+    expect(stops[9]).toBe("GitHub repository");
+    expect(stops[10]).toMatch(/^Theme: /);
   });
 
   test("the skip link goes to the content", async ({

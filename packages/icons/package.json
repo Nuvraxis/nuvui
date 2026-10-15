@@ -1,0 +1,102 @@
+{
+  "name": "@nuvui/icons",
+  "version": "0.0.0",
+  "description": "317 line icons drawn for nuvui, in three styles: Rounded, Standard and Sharp. Each is a React component in the color of the text around it, and an SVG file.",
+  "license": "MIT",
+  "author": "Nuvraxis",
+  "homepage": "https://nuvui.nuvraxis.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nuvraxis/nuvui.git",
+    "directory": "packages/icons"
+  },
+  "bugs": {
+    "url": "https://github.com/Nuvraxis/nuvui/issues"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "svg",
+    "manifest.json"
+  ],
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.cts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./rounded": {
+      "import": {
+        "types": "./dist/rounded.d.ts",
+        "default": "./dist/rounded.js"
+      },
+      "require": {
+        "types": "./dist/rounded.d.cts",
+        "default": "./dist/rounded.cjs"
+      }
+    },
+    "./sharp": {
+      "import": {
+        "types": "./dist/sharp.d.ts",
+        "default": "./dist/sharp.js"
+      },
+      "require": {
+        "types": "./dist/sharp.d.cts",
+        "default": "./dist/sharp.cjs"
+      }
+    },
+    "./manifest.json": "./manifest.json",
+    "./svg/*": "./svg/*",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "node scripts/generate.mjs && tsdown && node scripts/check-dist.mjs",
+    "dev": "node scripts/generate.mjs && tsdown --watch src",
+    "typecheck": "node scripts/generate.mjs && tsc --noEmit",
+    "test": "node scripts/generate.mjs && vitest run",
+    "test:watch": "node scripts/generate.mjs && vitest",
+    "check:package": "publint && pnpm pack --out node_modules/.cache/attw/package.tgz && attw node_modules/.cache/attw/package.tgz",
+    "size": "size-limit",
+    "icons:fetch": "node scripts/fetch.mjs && biome format --write manifest.json && node scripts/generate.mjs"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0 || ^19.0.0"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/cli": "catalog:",
+    "@nuvui/tooling": "workspace:*",
+    "@nuvui/typescript-config": "workspace:*",
+    "@size-limit/preset-small-lib": "catalog:",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@vitest/browser-playwright": "catalog:",
+    "axe-core": "catalog:",
+    "playwright": "catalog:",
+    "publint": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "size-limit": "catalog:",
+    "svgo": "^4.1.0",
+    "tsdown": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:",
+    "vitest-browser-react": "catalog:"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  }
+}

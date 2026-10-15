@@ -1,0 +1,150 @@
+---
+title: AnimatedNumber
+description: A number that moves to its new value. The digits that change roll like a counter or pop in, and the rest stay still. It's still for anyone who asked for less motion.
+added: "2026-10-15"
+---
+
+Use an animated number for a figure that changes while someone is looking at it: a total that goes up as items are added, a count that's refreshed, a price that changes with the plan. The movement says the number changed, and roughly by how much. For a number that doesn't change on the page, use [FormattedNumber](/docs/components/formatted-number).
+
+<Preview name="animated-number/basic" />
+
+## Install
+
+```sh
+pnpm add @nuvui/react
+```
+
+## Import
+
+```tsx
+import { AnimatedNumber } from "@nuvui/react";
+```
+
+The styles come from `@nuvui/react/styles.css`, which you load once for the whole app. [Getting started](/docs) covers that, and how to load only this component's CSS.
+
+## Try it
+
+<AnimatedNumberPlayground />
+
+## Props
+
+<PropsTable component="animated-number" name="AnimatedNumberOwnProps" />
+
+It's a `data` element, as `FormattedNumber` is, with the plain number in its `value`. It takes what a `data` element takes, including `ref` and `className`.
+
+## Roll or pop
+
+With `animation="roll"`, the default, each digit that changes turns through the digits between the old one and the new one, the way the number went: up through nine to zero when it rose, down when it fell. With `animation="pop"`, the old digit rises out of sight as the new one rises into place, coming into focus.
+
+<Preview name="animated-number/pop" />
+
+Either way only the digits that changed move, from the left, each a moment after the one before. Separators, signs, currency symbols and the letters of a short form such as 1.2K stay where they are.
+
+## What changes and what doesn't
+
+The first value is drawn as it is. The page from the server has it, and nothing moves when the page opens. Only a change after that moves.
+
+The number takes the width it ends at as soon as it changes, and keeps it while the digits move. With digits of one width, as the component gives them, a number with as many digits as before takes the same room, so nothing beside it moves.
+
+## Languages and currencies
+
+It writes the number as [FormattedNumber](/docs/components/formatted-number) does, with the same props: a language, a currency, a percentage, a short form. Any currency is given by its ISO 4217 code, such as `"EUR"`, `"GBP"` or `"JPY"`, and `locale` says how it's written: the sign before the number or after it, a comma or a point, and how many decimals the currency has. The sign stays where it is, and only the digits move.
+
+<Preview name="animated-number/currencies" />
+
+The two have to agree with your customer, not with each other: a price in euros for someone in Ireland is `locale="en-IE"`, and for someone in Germany `locale="de-DE"`. In a language whose numbers have digits of their own, such as Arabic or Hindi, those are the digits that roll. In a language read from the right, the number is laid out the way the browser lays it out, and what moves is drawn over it.
+
+## Saying that it changed
+
+A screen reader doesn't read out a number because it changed. That's on purpose: a dashboard where every refresh was read out would be hard to use. For a number whose change someone needs to hear, such as the items in a cart, put it in an element with `aria-live="polite"`. It's read once, when the number has changed, and the moving digits aren't read at all.
+
+<Preview name="animated-number/announced" />
+
+## Accessibility
+
+An animated number has no role and no keyboard behavior. It can't take focus.
+
+### What the component handles
+
+- The number is ordinary text, read as one number while it moves and after. What moves is a copy drawn over it, which is hidden from screen readers.
+- A copy and paste gets the number once. The moving copy can't be selected.
+- For a visitor who asked for less motion, the new number is there at once and nothing moves.
+- Where the browser forces its own colors, the digits are drawn in the browser's text color while they move and after.
+- Only position, opacity and a slight blur move. Nothing around the number is laid out again.
+
+### What you need to handle
+
+- Say a change out loud where it matters, with `aria-live` around it, as above.
+- Don't change it every second. A number that never stops moving can't be read, and motion that goes on for more than five seconds beside other content is something WCAG asks for a way to stop.
+
+## CSS variables
+
+Set any of these on the `AnimatedNumber`, or on anything around it.
+
+```css
+.revenue {
+  --nuv-animated-number-duration: 1.2s;
+}
+```
+
+<CssVariables
+  component="animated-number"
+  descriptions={{
+    "--nuv-animated-number-numeric":
+      "The digits' font-variant-numeric. Digits of one width keep a changing number from pushing what's next to it.",
+    "--nuv-animated-number-duration":
+      "How long one digit takes to move. The first default is for roll, the second for pop.",
+    "--nuv-animated-number-easing": "How a digit speeds up and slows down.",
+    "--nuv-animated-number-stagger":
+      "How long each digit that changes waits after the one before it.",
+    "--nuv-animated-number-rise":
+      "With pop, how far a digit travels as it comes in or goes out.",
+    "--nuv-animated-number-blur":
+      "With pop, how out of focus a digit is as it comes in or goes out.",
+    "--nuv-animated-number-order":
+      "Which of the digits that change this is, from the left. The component writes this. Don't set it.",
+    "--nuv-animated-number-from":
+      "Where a rolling column starts. The component writes this. Don't set it.",
+    "--nuv-animated-number-to":
+      "Where a rolling column stops. The component writes this. Don't set it.",
+    "--nuv-animated-number-sign":
+      "1 for a digit that went up and -1 for one that went down, which turns pop over. Set by the component's stylesheet.",
+  }}
+/>
+
+## Classes
+
+<BemClasses
+  component="animated-number"
+  descriptions={{
+    "nuv-animated-number": "AnimatedNumber.",
+    "nuv-animated-number--roll": 'With animation="roll".',
+    "nuv-animated-number__text": "The number as text. See-through while it moves.",
+    "nuv-animated-number__motion":
+      "The copy that moves, over the text. Only there while it moves.",
+    "nuv-animated-number__gap": "In the copy, the place a moving digit ends up.",
+    "nuv-animated-number__digit": "A digit that moves, over its place.",
+    "nuv-animated-number__reel": "With roll, the column of digits that turns.",
+    "nuv-animated-number__numeral": "With roll, one digit in the column.",
+    "nuv-animated-number__old": "With pop, the digit that leaves.",
+    "nuv-animated-number__new": "With pop, the digit that comes in.",
+  }}
+/>
+
+While it moves, the element has `data-state="moving"`, and `data-state="still"` otherwise. The copy has `data-direction`: `up` or `down`.
+
+## Server components
+
+AnimatedNumber starts with `"use client"`: it remembers the last number to move from it. It takes no functions, so a server component can render it, and the page from the server has the number written out.
+
+## Do and don't
+
+**Do**
+
+- Use it for a figure that changes in front of someone, after they did something or when it's refreshed.
+- Keep its format the same from one value to the next, so the places line up.
+
+**Don't**
+
+- Don't use it for a number that's only drawn once. There's nothing to move from.
+- Don't put many on a screen that all change at once. Movement draws the eye, and twenty numbers moving together draw it nowhere.

@@ -42,6 +42,13 @@
   color: var(--color-muted-foreground);
 }
 
+// Buttons under the words, such as a file to download.
+.site-intro__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 3);
+}
+
 // A link in a sentence is underlined: color alone doesn't tell it from the
 // words around it.
 .site-intro__link {

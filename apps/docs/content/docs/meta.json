@@ -8,6 +8,7 @@
     "right-to-left",
     "translation",
     "support",
+    "content-security-policy",
     "agents",
     "components",
     "date-picker",
@@ -19,6 +20,7 @@
     "editor",
     "emoji",
     "map",
+    "icons",
     "changelog"
   ]
 }

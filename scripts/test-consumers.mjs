@@ -53,6 +53,7 @@ const published = {
   "@nuvui/editor": "editor",
   "@nuvui/emoji": "emoji",
   "@nuvui/map": "map",
+  "@nuvui/icons": "icons",
 };
 
 function expect(app, what, passed) {
@@ -184,6 +185,31 @@ const fixtures = {
       script.includes("nuv-barcode__bars") &&
         script.includes("nuv-qrcode__squares"),
     );
+    // Each icon is a module of its own, named in its code. The app imports
+    // one, and the set has another 316 that a bundler should leave out.
+    expect(
+      "vite",
+      "the script has the icon that was imported, and not one that wasn't",
+      script.includes("ArrowRightIcon") && !script.includes("TrashIcon"),
+    );
+    const required = execFileSync(
+      process.execPath,
+      [
+        "-e",
+        `const { createElement } = require("react");
+const { renderToStaticMarkup } = require("react-dom/server");
+const { ArrowRightIcon } = require("@nuvui/icons/sharp");
+process.stdout.write(renderToStaticMarkup(createElement(ArrowRightIcon, { title: "Next" })));`,
+      ],
+      { cwd: dir, encoding: "utf8" },
+    );
+    expect(
+      "vite",
+      "an icon from the CommonJS build renders, in its style, with its name",
+      required.includes('stroke-linecap="square"') &&
+        required.includes('role="img"') &&
+        required.includes("<title>Next</title>"),
+    );
   },
 
   next(dir) {
@@ -193,6 +219,13 @@ const fixtures = {
       "the server rendered a button from a server component",
       // The two attributes, in whichever order React wrote them.
       /<a\s(?=[^>]*class="nuv-button)(?=[^>]*href="#next")/.test(html),
+    );
+    expect(
+      "next",
+      "the server rendered an icon from a server component, hidden beside its words",
+      /<svg\s(?=[^>]*width="16")(?=[^>]*stroke="currentColor")(?=[^>]*aria-hidden="true")/.test(
+        html,
+      ),
     );
     expect(
       "next",
@@ -325,6 +358,91 @@ const fixtures = {
       css.includes(".nuv-calendar"),
     );
   },
+
+  // The same packages on React 18.2, the oldest React they say they work
+  // with. Its types are React 18's too, so the type check is the first test.
+  react18(dir) {
+    const script = read(files(join(dir, "dist"), ".js"));
+    // React's version is a string in its own code. The minifier picks the
+    // quote marks around it, and Vite 8.3.4's writes backticks, so any of
+    // the three will do.
+    expect(
+      "react18",
+      "the build has React 18.2 in it, and not another React",
+      /(["'`])18\.2\.0\1/.test(script) && !/(["'`])19\.\d+\.\d+\1/.test(script),
+    );
+    const css = read(files(join(dir, "dist"), ".css"));
+    expect(
+      "react18",
+      "it has the component styles",
+      css.includes(".nuv-button"),
+    );
+
+    // The app rendered by React 18's server renderer, which runs every
+    // component's render on React 18.
+    const render = pathToFileURL(join(dir, "dist-server", "render.js")).href;
+    const html = execFileSync(
+      process.execPath,
+      [
+        "--input-type=module",
+        "-e",
+        `const { render } = await import(${JSON.stringify(render)}); process.stdout.write(render());`,
+      ],
+      { cwd: dir, encoding: "utf8" },
+    );
+    expect("react18", "the app renders to HTML", html.length > 1000);
+    expect(
+      "react18",
+      "the data table rendered, sorted",
+      html.indexOf(">Ada Lovelace<") < html.indexOf(">Cleo Park<") &&
+        html.includes('aria-sort="ascending"'),
+    );
+    expect(
+      "react18",
+      "the controls in the form rendered, with the copies Radix sends",
+      /<input\s(?=[^>]*type="checkbox")(?=[^>]*name="terms")/.test(html) &&
+        /<select\s(?=[^>]*name="fruit")/.test(html) &&
+        html.includes('role="switch"') &&
+        /<input\s(?=[^>]*name="due")/.test(html),
+    );
+    expect(
+      "react18",
+      "the progress bar, the slider and the tabs rendered",
+      /<\w+\s(?=[^>]*class="nuv-progress__indicator")(?=[^>]*inline-size:64%)/.test(
+        html,
+      ) &&
+        html.includes("nuv-slider__thumb") &&
+        html.includes('role="tablist"'),
+    );
+    expect(
+      "react18",
+      "the chart's container rendered, with a variable for its series",
+      /<div\s(?=[^>]*class="nuv-chart")(?=[^>]*--chart-seats:)/.test(html),
+    );
+    expect(
+      "react18",
+      "the icon rendered, named, in the style of its entry",
+      /<svg\s(?=[^>]*role="img")(?=[^>]*stroke-linecap="square")[^>]*><title>and go on<\/title>/.test(
+        html,
+      ),
+    );
+    expect(
+      "react18",
+      "the barcode and the QR code were drawn",
+      html.includes("nuv-barcode__bars") &&
+        html.includes("nuv-qrcode__squares"),
+    );
+    expect(
+      "react18",
+      "the message, the prompt box, the editor, the board, the picker and the map rendered",
+      html.includes("nuv-message__content") &&
+        html.includes("nuv-prompt-input__textarea") &&
+        html.includes("nuv-rich-text-editor__toolbar") &&
+        html.includes("nuv-kanban__handle") &&
+        html.includes("nuv-emoji-picker__search") &&
+        html.includes("Loading map"),
+    );
+  },
 };
 
 let failed = false;
@@ -363,7 +481,7 @@ try {
     pnpm(["run", "build"], dir);
     check(dir);
   }
-  console.log("test-consumers: both apps install, type-check and build");
+  console.log("test-consumers: the three apps install, type-check and build");
 } catch (error) {
   failed = true;
   console.error(`test-consumers failed: ${error.message}`);

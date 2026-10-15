@@ -1,0 +1,65 @@
+@use "@nuvui/react/scss/mixins";
+
+// A wash of the brand color behind the words. It's mixed from the theme's
+// own color, so a theme changes it, and no text depends on it.
+.launch-hero {
+  display: grid;
+  gap: calc(var(--spacing) * 6);
+  justify-items: center;
+  align-content: center;
+  min-block-size: 100svh;
+  padding: calc(var(--spacing) * 16) calc(var(--spacing) * 4);
+  background-color: var(--color-background);
+  background-image: radial-gradient(
+    ellipse 65% 50% at 50% 100%,
+    color-mix(in oklab, var(--color-primary) 16%, transparent),
+    transparent
+  );
+  color: var(--color-foreground);
+  text-align: center;
+
+  @include mixins.breakpoint("md") {
+    padding: calc(var(--spacing) * 24) calc(var(--spacing) * 8);
+  }
+
+  // A forced-colors theme has a background of its own.
+  @media (forced-colors: active) {
+    background-image: none;
+  }
+}
+
+.launch-hero__eyebrow {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-sm--line-height);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+}
+
+.launch-hero__title {
+  max-inline-size: 52rem;
+  margin: 0;
+  font-size: clamp(2.25rem, 1.4rem + 4vw, 4.5rem);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+
+.launch-hero__lead {
+  max-inline-size: 38rem;
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-lg);
+  line-height: var(--leading-relaxed);
+  text-wrap: pretty;
+}
+
+.launch-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 3);
+  justify-content: center;
+}

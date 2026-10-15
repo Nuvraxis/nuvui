@@ -73,7 +73,7 @@
     "generate": "node scripts/generate-data.mjs && biome format --write src/data/en.ts"
   },
   "peerDependencies": {
-    "@nuvui/react": "workspace:^0.4.0",
+    "@nuvui/react": "workspace:^0.5.0",
     "react": "^18.2.0 || ^19.0.0",
     "react-dom": "^18.2.0 || ^19.0.0"
   },

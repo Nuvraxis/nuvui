@@ -239,11 +239,30 @@ test.describe("changelog page", () => {
   });
 
   test("lists the changes waiting for a release", async ({ page }) => {
-    // Every changeset that gives a bump to a package that's published, the
-    // same ones the page reads. One for an add-on alone counts as well.
-    const dir = path.join(library, "..", "..", ".changeset");
-    const bumped =
-      /^["']?@nuvui\/(react|date-picker|table|charts|barcodes|chat|kanban|editor|emoji|map)["']?:\s*(major|minor|patch)\s*$/m;
+    // Every changeset that gives a bump to a package that's published. One
+    // for an add-on alone counts as well. What's published is read from the
+    // packages themselves, so a new one is counted the day it's added.
+    const packages = path.join(library, "..");
+    const published = readdirSync(packages)
+      .map((folder) => path.join(packages, folder, "package.json"))
+      .filter((file) => existsSync(file))
+      .map(
+        (file) =>
+          JSON.parse(readFileSync(file, "utf8")) as {
+            name: string;
+            private?: boolean;
+          },
+      )
+      .filter((pkg) => pkg.private !== true)
+      .map((pkg) => pkg.name);
+    // The core and the add-ons, eleven when this was written.
+    expect(published).toContain("@nuvui/react");
+    expect(published).toContain("@nuvui/icons");
+    const dir = path.join(packages, "..", ".changeset");
+    const bumped = new RegExp(
+      `^["']?(${published.join("|")})["']?:\\s*(major|minor|patch)\\s*$`,
+      "m",
+    );
     const notes = readdirSync(dir)
       .filter((name) => name.endsWith(".md") && name !== "README.md")
       .filter((name) =>
@@ -487,6 +506,7 @@ test.describe("support policy page", () => {
       ["editor", "@nuvui/editor"],
       ["emoji", "@nuvui/emoji"],
       ["map", "@nuvui/map"],
+      ["icons", "@nuvui/icons"],
     ] as const) {
       const oldest = manifest(folder).engines.node.replace(">=", "");
       await expect(
@@ -510,6 +530,7 @@ test.describe("the notice that a package isn't published", () => {
     ["editor", "@nuvui/editor", "/docs/editor"],
     ["emoji", "@nuvui/emoji", "/docs/emoji"],
     ["map", "@nuvui/map", "/docs/map"],
+    ["icons", "@nuvui/icons", "/docs/icons"],
   ] as const) {
     test(`is on ${address} only while ${name} has never been released`, async ({
       page,

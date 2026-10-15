@@ -132,7 +132,7 @@ The menu opens at the pointer, so there's no `side` or `align` to set.
 | --- | --- | --- | --- |
 | `onOpenChange` | `((open: boolean) => void)` |  | Called when it opens or closes. |
 | `modal` | `boolean` |  | On unless you pass `false`. While a modal menu is open, the rest of the page can't be clicked or scrolled, and screen readers can't reach it. |
-| `dir` | `Direction` |  | The reading direction. With `"rtl"`, submenus open to the left and the left and right arrow keys swap. |
+| `dir` | `"ltr" \| "rtl"` |  | The reading direction. With `"rtl"`, submenus open to the left and the left and right arrow keys swap. |
 
 A context menu can't start out open, because it has no place to open at until someone points. There's no `defaultOpen`.
 

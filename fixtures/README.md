@@ -1,9 +1,10 @@
 # Consumer fixtures
 
-Two small apps that use `@nuvui/react`, `@nuvui/date-picker`, `@nuvui/table`, `@nuvui/charts`, `@nuvui/barcodes`, `@nuvui/chat`, `@nuvui/kanban`, `@nuvui/editor`, `@nuvui/emoji` and `@nuvui/map` the way someone outside this repository would: installed from tarballs, not linked from the workspace.
+Three small apps that use `@nuvui/react`, `@nuvui/date-picker`, `@nuvui/table`, `@nuvui/charts`, `@nuvui/barcodes`, `@nuvui/chat`, `@nuvui/kanban`, `@nuvui/editor`, `@nuvui/emoji`, `@nuvui/map` and `@nuvui/icons` the way someone outside this repository would: installed from tarballs, not linked from the workspace.
 
 - `vite`: a Vite and React app.
 - `next`: a Next.js app whose page is a server component.
+- `react18`: a Vite app on React 18.2 and its types, the oldest React the packages say they work with. Its app is also rendered to HTML by React 18's server renderer, which runs every component's render on React 18.
 
 They aren't workspace packages and have no `node_modules` here. `pnpm test:consumers` copies each one to a temporary folder, points its `@nuvui` dependencies at freshly packed tarballs, installs, type-checks and builds it, and then reads the output. It needs the packages built first, so run `pnpm build` before it.
 

@@ -1,0 +1,35 @@
+{
+  "name": "nuvui-fixture-react18",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build": "vite build && vite build --ssr src/render.tsx --outDir dist-server"
+  },
+  "dependencies": {
+    "@nuvui/barcodes": "file:../../packages/barcodes",
+    "@nuvui/charts": "file:../../packages/charts",
+    "@nuvui/chat": "file:../../packages/chat",
+    "@nuvui/date-picker": "file:../../packages/date-picker",
+    "@nuvui/editor": "file:../../packages/editor",
+    "@nuvui/emoji": "file:../../packages/emoji",
+    "@nuvui/icons": "file:../../packages/icons",
+    "@nuvui/map": "file:../../packages/map",
+    "maplibre-gl": "^6.4.1",
+    "@nuvui/kanban": "file:../../packages/kanban",
+    "@nuvui/react": "file:../../packages/ui",
+    "@nuvui/table": "file:../../packages/table",
+    "@tanstack/react-table": "^9.2.6",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-is": "18.2.0",
+    "recharts": "^3.10.1"
+  },
+  "devDependencies": {
+    "@types/react": "~18.2.0",
+    "@types/react-dom": "~18.2.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.3"
+  }
+}

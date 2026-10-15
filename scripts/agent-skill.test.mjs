@@ -115,3 +115,35 @@ test("the site's llms.txt lists the pages by their plain-text addresses", () => 
   assert.match(text, /docs\/llms\/components\/button\.md/);
   assert.match(text, /docs\/llms-full\.txt/);
 });
+
+test("a prop that takes one of a few values lists them, not a type's name", () => {
+  // Radix's and the library's own names for a few strings, such as
+  // `Orientation`, say nothing an agent can type.
+  const names = [
+    "ActivationMode",
+    "CheckedState",
+    "Direction",
+    "Intent",
+    "Orientation",
+    "Side",
+    "SwipeDirection",
+  ];
+  for (const file of markdownIn(path.join(skillDir, "reference"))) {
+    const text = readFileSync(file, "utf8");
+    for (const name of names) {
+      assert.ok(
+        !text.includes(`| \`${name}\` |`),
+        `${show(file)} has a prop typed as ${name}`,
+      );
+    }
+  }
+
+  const alert = readFileSync(
+    path.join(skillDir, "reference", "components", "alert.md"),
+    "utf8",
+  );
+  assert.match(
+    alert,
+    /\| `intent` \| `"danger" \\| "info" \\| "success" \\| "warning"` \|/,
+  );
+});

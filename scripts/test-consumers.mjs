@@ -363,10 +363,14 @@ process.stdout.write(renderToStaticMarkup(createElement(ArrowRightIcon, { title:
   // with. Its types are React 18's too, so the type check is the first test.
   react18(dir) {
     const script = read(files(join(dir, "dist"), ".js"));
+    // React's version is a string in its own code. The minifier picks the
+    // quote marks around it, and Vite 8.3.4's writes backticks, so any of
+    // the three will do.
     expect(
       "react18",
       "the build has React 18.2 in it, and not another React",
-      script.includes('"18.2.0"') && !/"19\.\d+\.\d+"/.test(script),
+      /(["'`])18\.2\.0\1/.test(script) &&
+        !/(["'`])19\.\d+\.\d+\1/.test(script),
     );
     const css = read(files(join(dir, "dist"), ".css"));
     expect(

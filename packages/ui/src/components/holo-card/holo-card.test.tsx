@@ -42,6 +42,16 @@ function Member(props: React.ComponentProps<typeof HoloCard>) {
   );
 }
 
+// Skips every transition on the page to where it ends. A transition runs
+// on the page's clock, which a busy machine can hold back for longer than
+// a test waits: WebKit has been seen a second in and a hundredth of the
+// way. The tests below are about where the card ends up, so they skip to
+// the end. How long it takes is tested on its own, from the duration the
+// stylesheet gives it.
+function ended() {
+  for (const animation of document.getAnimations()) animation.finish();
+}
+
 // A pointer of a chosen kind at a place in the card, from 0 to 1 each way.
 // The browser's own mouse is used where a test is about a mouse. This is
 // for a finger and a pen, which the test browser doesn't have.
@@ -144,10 +154,9 @@ describe("under a mouse", () => {
     await expect.poll(() => card().hasAttribute("data-active")).toBe(true);
     expect(Number(at("x"))).toBeCloseTo(0.25, 1);
     expect(Number(at("y"))).toBeCloseTo(0.25, 1);
-    await expect
-      .poll(() => new DOMMatrixReadOnly(style(surface()).transform).is2D)
-      .toBe(false);
-    await expect.poll(() => style(shine() as HTMLElement).opacity).toBe("0.7");
+    ended();
+    expect(new DOMMatrixReadOnly(style(surface()).transform).is2D).toBe(false);
+    expect(style(shine() as HTMLElement).opacity).toBe("0.7");
   });
 
   test("it goes flat again when the pointer leaves", async () => {
@@ -161,10 +170,11 @@ describe("under a mouse", () => {
     await expect.poll(() => card().hasAttribute("data-active")).toBe(false);
     expect(at("x")).toBe("");
     expect(at("y")).toBe("");
-    await expect
-      .poll(() => new DOMMatrixReadOnly(style(surface()).transform).isIdentity)
-      .toBe(true);
-    await expect.poll(() => style(shine() as HTMLElement).opacity).toBe("0");
+    ended();
+    expect(new DOMMatrixReadOnly(style(surface()).transform).isIdentity).toBe(
+      true,
+    );
+    expect(style(shine() as HTMLElement).opacity).toBe("0");
   });
 
   test("the corners are the ends of the range, and no further", async () => {
@@ -218,12 +228,16 @@ describe("the content", () => {
 
     await userEvent.hover(card(), { position: { x: 80, y: 50 } });
 
+    await expect.poll(() => card().hasAttribute("data-active")).toBe(true);
+    ended();
     // A rem and a half.
-    await expect.poll(() => raised(content())).toBe(24);
-    await expect.poll(() => style(content()).filter).toContain("drop-shadow");
+    expect(raised(content())).toBe(24);
+    expect(style(content()).filter).toContain("drop-shadow");
 
     await userEvent.hover(page.getByRole("button", { name: "Elsewhere" }));
-    await expect.poll(() => raised(content())).toBe(0);
+    await expect.poll(() => card().hasAttribute("data-active")).toBe(false);
+    ended();
+    expect(raised(content())).toBe(0);
   });
 
   test("the face keeps the depth of what's on it, and cuts nothing off", async () => {
@@ -253,7 +267,9 @@ describe("the content", () => {
 
     await userEvent.hover(card(), { position: { x: 80, y: 50 } });
 
-    await expect.poll(() => raised(content())).toBe(40);
+    await expect.poll(() => card().hasAttribute("data-active")).toBe(true);
+    ended();
+    expect(raised(content())).toBe(40);
   });
 
   test("with less motion, and when it's disabled, it stays on the face", async () => {
@@ -297,14 +313,14 @@ describe("the texture", () => {
     expect(style(texture() as HTMLElement).opacity).toBe("0.2");
 
     await userEvent.hover(card(), { position: { x: 80, y: 50 } });
-    await expect
-      .poll(() => style(texture() as HTMLElement).opacity)
-      .toBe("0.5");
+    await expect.poll(() => card().hasAttribute("data-active")).toBe(true);
+    ended();
+    expect(style(texture() as HTMLElement).opacity).toBe("0.5");
 
     await userEvent.hover(page.getByRole("button", { name: "Elsewhere" }));
-    await expect
-      .poll(() => style(texture() as HTMLElement).opacity)
-      .toBe("0.2");
+    await expect.poll(() => card().hasAttribute("data-active")).toBe(false);
+    ended();
+    expect(style(texture() as HTMLElement).opacity).toBe("0.2");
   });
 
   test("with less motion it's there and doesn't change", async () => {
@@ -401,10 +417,11 @@ describe("disabled", () => {
 
     await screen.rerender(<Member disabled />);
 
-    await expect
-      .poll(() => new DOMMatrixReadOnly(style(surface()).transform).isIdentity)
-      .toBe(true);
-    await expect.poll(() => style(shine() as HTMLElement).opacity).toBe("0");
+    ended();
+    expect(new DOMMatrixReadOnly(style(surface()).transform).isIdentity).toBe(
+      true,
+    );
+    expect(style(shine() as HTMLElement).opacity).toBe("0");
   });
 });
 
@@ -473,7 +490,9 @@ describe("styles", () => {
     );
 
     await userEvent.hover(card(), { position: { x: 80, y: 50 } });
-    await expect.poll(() => style(shine() as HTMLElement).opacity).toBe("0.3");
+    await expect.poll(() => card().hasAttribute("data-active")).toBe(true);
+    ended();
+    expect(style(shine() as HTMLElement).opacity).toBe("0.3");
   });
 
   test("a larger tilt turns it further", async () => {

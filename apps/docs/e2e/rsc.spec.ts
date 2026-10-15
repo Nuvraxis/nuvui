@@ -122,6 +122,16 @@ test("components used from a server component hydrate and work", async ({
   await expect(page.getByTestId("server-shimmer")).toHaveClass(
     /nuv-text-shimmer--active/,
   );
+  await expect(page.getByTestId("server-animated-number")).toHaveText(
+    "1,234.5",
+  );
+  await expect(page.getByTestId("server-animated-number")).toHaveAttribute(
+    "value",
+    "1234.5",
+  );
+  await expect(page.getByTestId("server-reveal")).toHaveText(
+    "Rises from the server",
+  );
   const contents = page.getByRole("navigation", {
     name: "Contents from the server",
   });

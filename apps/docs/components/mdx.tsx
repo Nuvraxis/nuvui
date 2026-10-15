@@ -7,6 +7,7 @@ import { AccordionPlayground } from "@/components/playground/accordion";
 import { ActionBarPlayground } from "@/components/playground/action-bar";
 import { AlertPlayground } from "@/components/playground/alert";
 import { AlertDialogPlayground } from "@/components/playground/alert-dialog";
+import { AnimatedNumberPlayground } from "@/components/playground/animated-number";
 import { AspectRatioPlayground } from "@/components/playground/aspect-ratio";
 import { AvatarPlayground } from "@/components/playground/avatar";
 import { BadgePlayground } from "@/components/playground/badge";
@@ -29,6 +30,7 @@ import { CollapsiblePlayground } from "@/components/playground/collapsible";
 import { ColorPickerPlayground } from "@/components/playground/color-picker";
 import { ComboboxPlayground } from "@/components/playground/combobox";
 import { CommandPlayground } from "@/components/playground/command";
+import { ConfettiPlayground } from "@/components/playground/confetti";
 import { ContextMenuPlayground } from "@/components/playground/context-menu";
 import {
   CalendarPlayground,
@@ -86,6 +88,7 @@ import {
 } from "@/components/playground/table";
 import { TableOfContentsPlayground } from "@/components/playground/table-of-contents";
 import { TabsPlayground } from "@/components/playground/tabs";
+import { TextRevealPlayground } from "@/components/playground/text-reveal";
 import { TextShimmerPlayground } from "@/components/playground/text-shimmer";
 import { TextareaPlayground } from "@/components/playground/textarea";
 import { TimelinePlayground } from "@/components/playground/timeline";
@@ -133,6 +136,7 @@ export function getMDXComponents(components?: MDXComponents) {
     AccordionPlayground,
     AlertPlayground,
     AlertDialogPlayground,
+    AnimatedNumberPlayground,
     AspectRatioPlayground,
     AvatarPlayground,
     BadgePlayground,
@@ -151,6 +155,7 @@ export function getMDXComponents(components?: MDXComponents) {
     CollapsiblePlayground,
     ComboboxPlayground,
     CommandPlayground,
+    ConfettiPlayground,
     ContextMenuPlayground,
     DataTablePlayground,
     DatePickerPlayground,
@@ -172,6 +177,7 @@ export function getMDXComponents(components?: MDXComponents) {
     HoldToConfirmPlayground,
     HoloCardPlayground,
     TableOfContentsPlayground,
+    TextRevealPlayground,
     TextShimmerPlayground,
     TreePlayground,
     ListViewPlayground,

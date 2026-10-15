@@ -1,0 +1,9 @@
+{
+  "name": "live-figures",
+  "title": "Figures that roll",
+  "description": "Four of today's figures, each with its change since the last refresh. A refresh rolls each digit that changed to its new value, and a sentence under them, which a screen reader reads out, says the one that matters most.",
+  "category": "dashboard",
+  "files": ["live-figures.tsx", "live-figures.scss"],
+  "install": ["@nuvui/react", "lucide-react"],
+  "height": 420
+}

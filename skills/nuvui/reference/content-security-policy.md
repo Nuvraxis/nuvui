@@ -46,6 +46,7 @@ A page that's built in the browser sets these from JavaScript, and a policy does
 | `Rating` | A part of a star isn't filled. |
 | `AspectRatio` | The box has no height. |
 | `ColorPicker` | The swatch in the trigger is empty. |
+| `TextReveal` | The lines rise together rather than one after another. |
 | `DataTable` | A nested row isn't indented. |
 | `Checkbox`, `RadioGroup`, `Switch` and `Select` in a form | Radix's hidden copy of the control shows on the page. |
 

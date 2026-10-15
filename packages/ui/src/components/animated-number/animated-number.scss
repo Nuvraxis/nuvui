@@ -1,0 +1,143 @@
+@use "../../styles/layers";
+@use "../../styles/mixins";
+
+@layer components {
+  // The number is plain text. While it moves, a copy drawn over it does
+  // the moving, and the text is see-through under it, still there for a
+  // screen reader and for a copy and paste. The box is one line tall, so
+  // the copy's line and the text's line are the same line.
+  .nuv-animated-number {
+    position: relative;
+    display: inline-block;
+    font-variant-numeric: var(--nuv-animated-number-numeric, tabular-nums);
+    white-space: nowrap;
+  }
+
+  .nuv-animated-number[data-state="moving"] > .nuv-animated-number__text {
+    opacity: 0;
+  }
+
+  .nuv-animated-number__motion {
+    position: absolute;
+    inset: 0;
+    user-select: none;
+    pointer-events: none;
+  }
+
+  // Where a digit that moves will end up. The browser lays it out, and
+  // the component measures it.
+  .nuv-animated-number__gap {
+    visibility: hidden;
+  }
+
+  // A digit that moves, over its gap: as wide and as tall as the letter,
+  // with what's above and below it cut off.
+  .nuv-animated-number__digit {
+    position: absolute;
+  }
+
+  .nuv-animated-number--roll .nuv-animated-number__digit {
+    overflow: hidden;
+  }
+
+  .nuv-animated-number__reel {
+    display: flex;
+    flex-direction: column;
+    block-size: 100%;
+    transform: translateY(var(--nuv-animated-number-to));
+  }
+
+  // Each digit is centered in a box the letter's height, which puts it on
+  // the line where the text has it.
+  .nuv-animated-number__numeral,
+  .nuv-animated-number__old,
+  .nuv-animated-number__new {
+    display: flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    block-size: 100%;
+  }
+
+  .nuv-animated-number__old,
+  .nuv-animated-number__new {
+    position: absolute;
+    inset: 0;
+  }
+
+  .nuv-animated-number__old {
+    opacity: 0;
+  }
+
+  // Each digit that moves starts a moment after the one before it.
+  @include mixins.motion-safe {
+    .nuv-animated-number__reel {
+      animation: nuv-animated-number-roll var(--nuv-animated-number-duration, 800ms)
+        var(--nuv-animated-number-easing, var(--ease-out)) both;
+      animation-delay: calc(
+        var(--nuv-animated-number-order, 0) * var(--nuv-animated-number-stagger, 40ms)
+      );
+    }
+
+    .nuv-animated-number__old,
+    .nuv-animated-number__new {
+      animation-duration: var(--nuv-animated-number-duration, 500ms);
+      animation-timing-function: var(--nuv-animated-number-easing, var(--ease-out));
+      animation-delay: calc(
+        var(--nuv-animated-number-order, 0) * var(--nuv-animated-number-stagger, 40ms)
+      );
+      animation-fill-mode: both;
+    }
+
+    .nuv-animated-number__old {
+      animation-name: nuv-animated-number-out;
+    }
+
+    .nuv-animated-number__new {
+      animation-name: nuv-animated-number-in;
+    }
+
+    // A digit that went down drops: the new one comes from above.
+    .nuv-animated-number__digit[data-direction="down"] {
+      --nuv-animated-number-sign: -1;
+    }
+  }
+
+  @keyframes nuv-animated-number-roll {
+    from {
+      transform: translateY(var(--nuv-animated-number-from));
+    }
+
+    to {
+      transform: translateY(var(--nuv-animated-number-to));
+    }
+  }
+
+  // The new digit rises into place and into focus, and the old one rises
+  // out of both.
+  @keyframes nuv-animated-number-in {
+    from {
+      opacity: 0;
+      filter: blur(var(--nuv-animated-number-blur, 0.12em));
+      transform: translateY(
+        calc(var(--nuv-animated-number-sign, 1) * var(--nuv-animated-number-rise, 0.6em))
+      );
+    }
+  }
+
+  @keyframes nuv-animated-number-out {
+    from {
+      opacity: 1;
+      filter: none;
+      transform: none;
+    }
+
+    to {
+      opacity: 0;
+      filter: blur(var(--nuv-animated-number-blur, 0.12em));
+      transform: translateY(
+        calc(var(--nuv-animated-number-sign, 1) * var(--nuv-animated-number-rise, 0.6em) * -1)
+      );
+    }
+  }
+}

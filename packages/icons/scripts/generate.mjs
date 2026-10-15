@@ -6,6 +6,8 @@ import {
   mkdirSync,
   readdirSync,
   readFileSync,
+  renameSync,
+  rmSync,
   unlinkSync,
   writeFileSync,
 } from "node:fs";
@@ -138,6 +140,34 @@ function preview(svg) {
   return `data:image/svg+xml;base64,${Buffer.from(shown).toString("base64")}`;
 }
 
+// Build, typecheck and test each run this first, and Turborepo runs them at
+// once. A file emptied by one run to be written again can be read by
+// another's tsc in between, half there. So a file is written only when what
+// it holds changes, and then whole: written elsewhere, under a name tsc
+// doesn't read, and moved into place in one step.
+const scratch = join(root, "src", "generated", `.writing-${process.pid}`);
+let written = 0;
+
+function write(file, text) {
+  if (existsSync(file) && readFileSync(file, "utf8") === text) return;
+  mkdirSync(scratch, { recursive: true });
+  written += 1;
+  const temporary = join(scratch, `${written}.tmp`);
+  writeFileSync(temporary, text);
+  // Windows refuses to replace a file another process has open for a
+  // moment, so it's tried again for a while before giving up.
+  for (let attempt = 0; ; attempt += 1) {
+    try {
+      renameSync(temporary, file);
+      return;
+    } catch (error) {
+      if (attempt >= 20 || !["EPERM", "EBUSY", "EACCES"].includes(error.code))
+        throw error;
+      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 50);
+    }
+  }
+}
+
 const title = (style) => style[0].toUpperCase() + style.slice(1);
 
 for (const style of iconStyles) {
@@ -158,7 +188,7 @@ for (const style of iconStyles) {
 
     files.add(`${name}.ts`);
     exports.push(`export { ${component} } from "./${name}";`);
-    writeFileSync(
+    write(
       join(dir, `${name}.ts`),
       [
         `// Written by scripts/generate.mjs from svg/${style}/${name}.svg.`,
@@ -175,7 +205,7 @@ for (const style of iconStyles) {
     );
   }
 
-  writeFileSync(
+  write(
     join(dir, "index.ts"),
     `// Written by scripts/generate.mjs.\n${exports.join("\n")}\n`,
   );
@@ -184,6 +214,8 @@ for (const style of iconStyles) {
     if (!files.has(old)) unlinkSync(join(dir, old));
   }
 }
+
+rmSync(scratch, { recursive: true, force: true });
 
 const count = manifest.icons.length;
 console.log(

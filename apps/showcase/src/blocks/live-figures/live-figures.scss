@@ -1,0 +1,45 @@
+.live-figures {
+  display: grid;
+  gap: calc(var(--spacing) * 4);
+  padding: calc(var(--spacing) * 4);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+}
+
+// The heading and the button on one line, and the button under the
+// heading where there isn't room for both.
+.live-figures__head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 3);
+  align-items: center;
+  justify-content: space-between;
+}
+
+.live-figures__title {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-lg--line-height);
+  letter-spacing: var(--tracking-tight);
+}
+
+// As many cards to a row as fit, and never one narrower than 13rem.
+.live-figures__list {
+  display: grid;
+  gap: calc(var(--spacing) * 4);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+}
+
+.live-figures__card {
+  block-size: 100%;
+}
+
+// Room for the sentence from the start, so nothing moves when it comes.
+.live-figures__status {
+  min-block-size: var(--text-sm--line-height);
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}

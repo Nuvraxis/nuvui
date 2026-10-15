@@ -1,0 +1,10 @@
+@use "../../styles/layers";
+
+@layer components {
+  // The canvas the pieces are drawn on, over everything, toasts included.
+  // Where it sits and that it lets presses through are set by the script,
+  // so they hold without this stylesheet too.
+  .nuv-confetti {
+    z-index: var(--nuv-confetti-z-index, calc(var(--nuv-z-toast) + 1));
+  }
+}

@@ -1,6 +1,6 @@
 {
   "name": "@nuvui/kanban",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A kanban board for @nuvui/react: columns of cards that are moved between and within them with a mouse, a finger or the keyboard, and read out as they move.",
   "license": "MIT",
   "author": "Nuvraxis",
@@ -62,7 +62,7 @@
     "size": "size-limit"
   },
   "peerDependencies": {
-    "@nuvui/react": "workspace:^0.6.0",
+    "@nuvui/react": "workspace:^0.7.0",
     "react": "^18.2.0 || ^19.0.0",
     "react-dom": "^18.2.0 || ^19.0.0"
   },

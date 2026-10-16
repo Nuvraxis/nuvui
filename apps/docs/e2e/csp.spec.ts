@@ -135,6 +135,17 @@ const measured: [string, () => unknown][] = [
     },
   ],
   [
+    "/docs/components/compare",
+    () => {
+      // The position the component wrote, not where the divider is drawn:
+      // the stylesheet draws a divider with no position in the middle too.
+      const frame = document.querySelector(".nuv-compare__frame");
+      return frame
+        ? getComputedStyle(frame).getPropertyValue("--nuv-compare-position")
+        : null;
+    },
+  ],
+  [
     "/docs/table/expanding",
     () => {
       const toggle = document.querySelector(".nuv-data-table__expand");

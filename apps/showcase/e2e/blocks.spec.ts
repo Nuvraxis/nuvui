@@ -4966,6 +4966,95 @@ test.describe("hero that rises in", () => {
   }
 });
 
+test.describe("before and after", () => {
+  test("before and after: the line is dragged by its handle, and what changed is in words", async ({
+    page,
+  }) => {
+    await open(page, "/blocks/view/before-after");
+    const divider = page.getByRole("slider", {
+      name: "Version 2 and version 3",
+    });
+    await expect(divider).toHaveAttribute("aria-valuenow", "50");
+    await expect(
+      page.getByRole("img", { name: /^Acme Reports 2:/ }),
+    ).toBeAttached();
+    await expect(
+      page.getByRole("img", { name: /^Acme Reports 3:/ }),
+    ).toBeAttached();
+    await expect(page.getByRole("listitem")).toHaveCount(3);
+
+    const frame = await page.locator(".nuv-compare__frame").boundingBox();
+    const handle = await divider.boundingBox();
+    if (!frame || !handle) throw new Error("the block isn't drawn");
+    const y = frame.y + frame.height / 2;
+    await page.mouse.move(handle.x + handle.width / 2, y);
+    await page.mouse.down();
+    await page.mouse.move(frame.x + frame.width * 0.2, y, { steps: 5 });
+    await page.mouse.up();
+    const now = Number(await divider.getAttribute("aria-valuenow"));
+    expect(now).toBeGreaterThan(15);
+    expect(now).toBeLessThan(25);
+  });
+});
+
+test.describe("photograph to review", () => {
+  test("photograph to review: the switch shows the retouched one, and a decision is said and shown", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/blocks/view/image-review");
+    await expect(page.getByText("Waiting for review")).toBeVisible();
+    await expect(
+      page.getByRole("img", { name: /as photographed/ }),
+    ).toBeVisible();
+
+    await press(page.getByRole("radio", { name: "Retouched" }), isMobile);
+    await expect(page.getByRole("radio", { name: "Retouched" })).toBeChecked();
+    await expect(page.locator(".nuv-compare__layer--before")).toHaveAttribute(
+      "aria-hidden",
+      "true",
+    );
+
+    await press(page.getByRole("button", { name: "Approve" }), isMobile);
+    await expect(page.getByRole("status")).toHaveText(
+      "Approved. Studio North has been told.",
+    );
+    await expect(page.getByText("Approved", { exact: true })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Approve" })).toBeDisabled();
+
+    await press(
+      page.getByRole("button", { name: "Ask for changes" }),
+      isMobile,
+    );
+    await expect(
+      page.getByText("Changes asked for", { exact: true }),
+    ).toBeVisible();
+    await expect(page.getByRole("button", { name: "Approve" })).toBeEnabled();
+  });
+
+  for (const theme of ["light", "dark"] as const) {
+    test(`photograph to review: it passes axe in ${theme}, decided as well`, async ({
+      page,
+      isMobile,
+    }) => {
+      await page.emulateMedia({ reducedMotion: "reduce" });
+      await setTheme(page, theme);
+      await open(page, "/blocks/view/image-review");
+      await settleStyles(page);
+      expect(
+        (await new AxeBuilder({ page }).withTags(wcag).analyze()).violations,
+      ).toEqual([]);
+
+      await press(page.getByRole("radio", { name: "Retouched" }), isMobile);
+      await press(page.getByRole("button", { name: "Approve" }), isMobile);
+      await expect(page.getByRole("status")).not.toBeEmpty();
+      expect(
+        (await new AxeBuilder({ page }).withTags(wcag).analyze()).violations,
+      ).toEqual([]);
+    });
+  }
+});
+
 test.describe("the blocks page", () => {
   test("lists every category, and each leads to its page", async ({
     page,

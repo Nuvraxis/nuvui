@@ -1,0 +1,9 @@
+{
+  "name": "before-after",
+  "title": "Before and after",
+  "description": "A section of a release page: an app's screen before the release and after it in one box, split by a line that's dragged across, beside a list of what changed in words.",
+  "category": "marketing",
+  "files": ["before-after.tsx", "before-after.scss"],
+  "install": ["@nuvui/react", "lucide-react"],
+  "height": 720
+}

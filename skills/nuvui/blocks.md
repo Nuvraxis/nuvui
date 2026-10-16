@@ -2,7 +2,7 @@
 
 # Blocks
 
-A block is a part of an app, such as a sign-in screen or a table with a toolbar, built from the library's components: one TSX file and one SCSS file, to copy into an app and change. There are 62. Each is shown at https://nuvui.nuvraxis.com/blocks.
+A block is a part of an app, such as a sign-in screen or a table with a toolbar, built from the library's components: one TSX file and one SCSS file, to copy into an app and change. There are 64. Each is shown at https://nuvui.nuvraxis.com/blocks.
 
 Before building a screen from nothing, look here for one that's close. To add one, with the packages it needs:
 
@@ -60,6 +60,7 @@ A block's SCSS uses the library's mixins, `@use "@nuvui/react/scss/mixins"`, so 
 - **Event ticket** (`event-ticket`): A ticket to show at the door: the event, when and where it is, the seat and who holds it, and a QR code to scan with the same code written under it and a link beside it. Needs `@nuvui/barcodes`, `@nuvui/react`.
 - **File browser** (`file-browser`): Folders and files in a tree, with the chosen one's details in a panel beside it. A folder's panel lists what's inside, and choosing from there opens the tree to it. Files and folders can be moved by dragging, with the keyboard, or from a list in the panel. Needs `@nuvui/react`, `lucide-react`.
 - **Filters in a sentence and a sheet** (`filter-sheet`): A list whose two main filters are selects in the sentence that describes it, with the rest in a sheet that opens half way up and can be pulled taller or swiped away. Needs `@nuvui/react`, `lucide-react`.
+- **Photograph to review** (`image-review`): A retouched photograph to approve or send back, with a switch between the original and the retouched one, a list of what the retoucher changed, and a status that says what was decided. Needs `@nuvui/react`, `lucide-react`.
 - **List with an action bar** (`inbox`): Messages to tick, and a bar that appears with what can be done to the ticked ones: mark as read, archive, and delete by holding the button down. Needs `@nuvui/react`, `lucide-react`.
 - **Empty, loading and error** (`page-states`): One page in each state it can be in: with its rows, waiting for them, with none yet, and after a request that failed. Needs `@nuvui/react`, `lucide-react`.
 - **Query editor** (`query-editor`): A query above and its rows below, with a handle between them to give either more room. The sizes are remembered for the next visit. Needs `@nuvui/react`, `@nuvui/table`, `@tanstack/react-table`, `lucide-react`.
@@ -84,6 +85,7 @@ A block's SCSS uses the library's mixins, `@use "@nuvui/react/scss/mixins"`, so 
 
 ## Marketing
 
+- **Before and after** (`before-after`): A section of a release page: an app's screen before the release and after it in one box, split by a line that's dragged across, beside a list of what changed in words. Needs `@nuvui/react`, `lucide-react`.
 - **Customer stories** (`case-studies`): Cards with a figure, what it measures and a quote, in a row that's swiped or moved with arrows. One shows on a phone, two on a tablet and three on a desktop. Needs `@nuvui/react`.
 - **Questions and answers** (`faq`): A heading beside a list of questions, each one opening to its answer, one at a time. Needs `@nuvui/react`.
 - **Feature grid** (`feature-grid`): A heading and six cards, each with an icon, a title and a sentence, laid out as many to a row as fit. Needs `@nuvui/react`, `lucide-react`.

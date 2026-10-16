@@ -18,26 +18,40 @@ test.describe("compare page", () => {
     const divider = example.getByRole("slider", { name: "Before and after" });
     const frame = example.locator(".nuv-compare__frame");
     await expect(divider).toHaveAttribute("aria-valuenow", "50");
-    const box = await frame.boundingBox();
-    const handle = await divider.boundingBox();
-    if (!box || !handle) throw new Error("the example isn't drawn");
-    const y = box.y + box.height / 2;
+    // The mouse goes where it's told, in view or not. A phone's screen can
+    // end above the middle of the picture.
+    await frame.scrollIntoViewIfNeeded();
+    // Measured again before each drag: on a phone, a drag on the picture
+    // scrolls the page, as it's meant to.
+    const measure = async () => {
+      const box = await frame.boundingBox();
+      if (!box) throw new Error("the example isn't drawn");
+      return { box, y: box.y + box.height / 2 };
+    };
 
     // On the picture, three quarters across: nothing moves.
-    await page.mouse.move(box.x + box.width * 0.75, y);
+    const before = await measure();
+    await page.mouse.move(before.box.x + before.box.width * 0.75, before.y);
     await page.mouse.down();
-    await page.mouse.move(box.x + box.width * 0.6, y, { steps: 5 });
+    await page.mouse.move(before.box.x + before.box.width * 0.6, before.y, {
+      steps: 5,
+    });
     await page.mouse.up();
     await expect(divider).toHaveAttribute("aria-valuenow", "50");
 
-    // On the handle, to a quarter across.
-    await page.mouse.move(handle.x + handle.width / 2, y);
+    // On the handle, which is in the middle, to a quarter across.
+    await frame.scrollIntoViewIfNeeded();
+    const { box, y } = await measure();
+    await page.mouse.move(box.x + box.width / 2, y);
     await page.mouse.down();
     await page.mouse.move(box.x + box.width * 0.25, y, { steps: 5 });
     await page.mouse.up();
-    const now = Number(await divider.getAttribute("aria-valuenow"));
-    expect(now).toBeGreaterThan(22);
-    expect(now).toBeLessThan(28);
+    // React draws a move a moment later than a key, and in WebKit that's
+    // after the mouse has been let go.
+    const now = () =>
+      divider.getAttribute("aria-valuenow").then((value) => Number(value));
+    await expect.poll(now).toBeLessThan(28);
+    expect(await now()).toBeGreaterThan(22);
   });
 
   test("the keys move the divider", async ({ page }) => {

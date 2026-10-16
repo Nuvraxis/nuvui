@@ -197,6 +197,9 @@ test.describe("under the Content Security Policy the docs give", () => {
   }
 
   test("nothing the packages draw is blocked", async ({ page }) => {
+    // It opens every page above in turn, which in Firefox on Linux has
+    // taken longer than one test's thirty seconds.
+    test.slow();
     await servePolicy(page, policy);
     await recordViolations(page);
 

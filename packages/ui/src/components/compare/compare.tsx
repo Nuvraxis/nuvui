@@ -253,6 +253,18 @@ export const Compare = forwardRef<HTMLDivElement, CompareProps>(
       afterLayer.current?.toggleAttribute("inert", hides("after"));
     });
 
+    // A press on a picture would pick up a copy of it to drag, where
+    // someone reaching for the divider meant nothing of the kind. The
+    // stylesheet stops it where it can. This is for Firefox, which has no
+    // such property.
+    useLayoutEffect(() => {
+      const element = frame.current;
+      if (!element) return;
+      const stop = (event: DragEvent) => event.preventDefault();
+      element.addEventListener("dragstart", stop);
+      return () => element.removeEventListener("dragstart", stop);
+    }, []);
+
     // The server sends the position as a style attribute, which a Content
     // Security Policy can block, and hydrating doesn't write it again. Set
     // through the CSSOM it can't be blocked.

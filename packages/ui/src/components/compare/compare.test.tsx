@@ -153,6 +153,26 @@ describe("dragging", () => {
     expect(onPositionChange).not.toHaveBeenCalled();
   });
 
+  test("a picture can't be picked up and dragged out of the box", async () => {
+    await render(
+      <Compare
+        before={
+          <img alt="Before" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" />
+        }
+        after={
+          <img alt="After" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" />
+        }
+      />,
+    );
+    const event = new DragEvent("dragstart", {
+      bubbles: true,
+      cancelable: true,
+    });
+    page.getByAltText("After").element().dispatchEvent(event);
+
+    expect(event.defaultPrevented).toBe(true);
+  });
+
   test("it stops at the edges", async () => {
     await render(<Pictures />);
 

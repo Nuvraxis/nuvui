@@ -80,7 +80,7 @@ Use two pictures of the same size, taken from the same place. The divider only r
 
 ## The divider
 
-The divider moves only when it's dragged: by its handle, or by the line anywhere along its length. A drag anywhere else on the picture is the page's, so on a phone a finger on the picture scrolls the page as it does everywhere else. The line is as wide as a finger to take hold of, though it's drawn thinner.
+The divider moves only when it's dragged: by its handle, or by the line anywhere along its length. A drag anywhere else on the picture is the page's, so on a phone a finger on the picture scrolls the page as it does everywhere else. The line is as wide as a finger to take hold of, though it's drawn thinner. A picture in the box can't be picked up and dragged out of it, as a browser lets an image be, since a press on it was most likely meant for the divider.
 
 `position` is how much of before shows, from 0 to 100. Leave it out and the divider starts at `defaultPosition`, which is 50. Set it, with `onPositionChange`, to move the divider from your own controls:
 

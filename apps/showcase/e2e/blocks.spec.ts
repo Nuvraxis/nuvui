@@ -4983,6 +4983,9 @@ test.describe("before and after", () => {
     ).toBeAttached();
     await expect(page.getByRole("listitem")).toHaveCount(3);
 
+    // On a phone the picture is under the words, and can be below the
+    // screen, where the mouse would press nothing.
+    await page.locator(".nuv-compare__frame").scrollIntoViewIfNeeded();
     const frame = await page.locator(".nuv-compare__frame").boundingBox();
     const handle = await divider.boundingBox();
     if (!frame || !handle) throw new Error("the block isn't drawn");
@@ -4991,9 +4994,12 @@ test.describe("before and after", () => {
     await page.mouse.down();
     await page.mouse.move(frame.x + frame.width * 0.2, y, { steps: 5 });
     await page.mouse.up();
-    const now = Number(await divider.getAttribute("aria-valuenow"));
-    expect(now).toBeGreaterThan(15);
-    expect(now).toBeLessThan(25);
+    // React draws a move a moment later than a key, and in WebKit that's
+    // after the mouse has been let go.
+    const now = () =>
+      divider.getAttribute("aria-valuenow").then((value) => Number(value));
+    await expect.poll(now).toBeLessThan(25);
+    expect(await now()).toBeGreaterThan(15);
   });
 });
 

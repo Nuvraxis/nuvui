@@ -25,6 +25,11 @@
     block-size: 100%;
   }
 
+  // A picture can't be picked up and dragged out of the box.
+  .nuv-compare__layer img {
+    -webkit-user-drag: none;
+  }
+
   .nuv-compare__layer > img,
   .nuv-compare__layer > video {
     display: block;

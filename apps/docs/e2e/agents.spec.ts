@@ -45,6 +45,54 @@ test.describe("using with AI agents", () => {
   });
 });
 
+test.describe("the MCP server's page", () => {
+  test("gives the address, and how to add it to each agent", async ({
+    page,
+  }) => {
+    await open(page, "/docs/mcp");
+    const article = page.locator("article").first();
+
+    await expect(
+      article.getByRole("heading", { level: 1, name: "MCP server" }),
+    ).toBeVisible();
+    await expect(
+      article.getByText("https://nuvui.nuvraxis.com/mcp", { exact: true }),
+    ).toBeVisible();
+    for (const agent of [
+      "Claude Code",
+      "Cursor",
+      "VS Code",
+      "Codex",
+      "Other clients",
+    ]) {
+      await expect(
+        article.getByRole("heading", { level: 3, name: agent }),
+      ).toBeVisible();
+    }
+    await expect(
+      article
+        .getByText(
+          "claude mcp add --transport http nuvui https://nuvui.nuvraxis.com/mcp",
+        )
+        .first(),
+    ).toBeVisible();
+    // A row for each tool the server has.
+    for (const tool of ["get_rules", "get_page", "search_docs", "get_tokens"]) {
+      await expect(
+        article.getByRole("cell", { name: tool, exact: true }),
+      ).toBeVisible();
+    }
+  });
+
+  test("the skill's page leads to it", async ({ page }) => {
+    await open(page, "/docs/agents");
+
+    await expect(
+      page.locator("article").first().getByRole("link", { name: "MCP server" }),
+    ).toHaveAttribute("href", "/docs/mcp");
+  });
+});
+
 test.describe("the docs as plain text", () => {
   test("llms.txt lists every page by the address of its Markdown", async ({
     request,

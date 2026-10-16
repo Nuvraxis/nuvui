@@ -1,0 +1,119 @@
+---
+title: MCP server
+description: A server that a coding agent asks about nuvui while it works, over the Model Context Protocol, with the same rules and reference as the skill. How to add it to Claude Code, Cursor, VS Code, Codex and others.
+added: "2026-10-16"
+---
+
+The [skill](/docs/agents) is files an agent loads from your project. The MCP server is the same knowledge behind an address: the agent asks it for the rules, a component's page, a block or the tokens when it needs them, and nothing is copied into your project. Use either, or both.
+
+It only reads. Everything it answers with is public and MIT licensed, so it needs no account and no key.
+
+## The address
+
+```txt
+https://nuvui.nuvraxis.com/mcp
+```
+
+It speaks the protocol's Streamable HTTP transport. A client that asks which transport to use wants that one, sometimes written as `http`.
+
+## Adding it
+
+### Claude Code
+
+```sh
+claude mcp add --transport http nuvui https://nuvui.nuvraxis.com/mcp
+```
+
+Add `--scope project` to write it to the project's `.mcp.json`, for everyone who works on it.
+
+### Cursor
+
+In `.cursor/mcp.json` at the project's root, or `~/.cursor/mcp.json` for every project:
+
+```json
+{
+  "mcpServers": {
+    "nuvui": {
+      "url": "https://nuvui.nuvraxis.com/mcp"
+    }
+  }
+}
+```
+
+### VS Code
+
+In `.vscode/mcp.json`, for GitHub Copilot's agent mode:
+
+```json
+{
+  "servers": {
+    "nuvui": {
+      "type": "http",
+      "url": "https://nuvui.nuvraxis.com/mcp"
+    }
+  }
+}
+```
+
+### Codex
+
+```sh
+codex mcp add nuvui --url https://nuvui.nuvraxis.com/mcp
+```
+
+Or in `~/.codex/config.toml`, or `.codex/config.toml` in the project:
+
+```toml
+[mcp_servers.nuvui]
+url = "https://nuvui.nuvraxis.com/mcp"
+```
+
+### Other clients
+
+A client that connects to a server at an address takes the one above, with the Streamable HTTP transport. A client that only starts a server on your machine can start this one with Docker, over standard input and output:
+
+```json
+{
+  "command": "docker",
+  "args": ["run", "--rm", "--interactive", "ghcr.io/nuvraxis/nuvui-mcp", "--stdio"]
+}
+```
+
+The same command works in any of the clients above, in place of the address. Nothing it does leaves your machine.
+
+## What it can be asked
+
+| Tool | What it answers with |
+| --- | --- |
+| `get_rules` | What to know before writing code with nuvui: the packages, the rules in a line each, and which component meets which need. With a topic, such as `styling` or `forms`, that rule in full. Agents are told to start here. |
+| `list_components` | Every component page, by package, with what each is for. |
+| `list_guides` | The pages that aren't about one component, such as theming, forms and the Content Security Policy, and recipes for whole screens. |
+| `get_page` | One page, by its id or a component's name, such as `Compare` or `DataTable`: its parts, props, examples, CSS variables, classes and accessibility. A `section` gives one part of it, such as `Props`. |
+| `search_docs` | The sections that best answer a few words, such as "sortable table", each with its page and section. |
+| `list_blocks` and `get_block` | The [blocks](https://nuvui.nuvraxis.com/blocks), and one block's files in full with the command that adds it. |
+| `list_charts` and `get_chart` | The [charts](https://nuvui.nuvraxis.com/charts), and one chart's file in full. |
+| `get_tokens` | The design tokens as CSS custom properties, all of them or those that start with a prefix, such as `--radius-`. |
+
+The answers are Markdown. A link in one to `page:components/button` is another page, for `get_page`.
+
+The pages are these docs, written out as text from the same source as the skill. They're as new as the image the server runs from, which is built from the main branch each time the docs change.
+
+## Limits
+
+One caller can make 120 requests a minute. Over that, the server answers with 429 and a `Retry-After` header that says how many seconds until the next minute starts.
+
+## What it keeps
+
+Nothing about who asks. It counts how many times each tool is called and how each call ended, and how many requests were refused for coming too often, and nothing else: no address, no arguments, no words searched for. The counts go to the same collector as the website's [web vitals](https://github.com/Nuvraxis/nuvui/blob/main/CONTRIBUTING.md#telemetry).
+
+## Running it yourself
+
+The server is `apps/mcp` in the repository, built on [FastMCP](https://github.com/punkpeye/fastmcp). To run it from a clone:
+
+```sh
+pnpm install
+pnpm --filter @nuvui/mcp build
+pnpm --filter @nuvui/mcp start
+```
+
+That serves `http://localhost:8080/mcp`. `start:stdio` in place of `start` runs it over standard input and output. "The MCP server" in `CONTRIBUTING.md` has its settings and how it's deployed.

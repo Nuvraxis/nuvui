@@ -16,6 +16,7 @@ Each page below is plain Markdown. All of them in one file: https://nuvui.nuvrax
 - [Support policy](https://nuvui.nuvraxis.com/docs/llms/support.md): Which versions of React, Node and browsers nuvui works with, which of those are tested, how versions are numbered, and what a fix in a supported setup means.
 - [Content Security Policy](https://nuvui.nuvraxis.com/docs/llms/content-security-policy.md): The policy a site with a strict Content Security Policy needs for nuvui, what each line is for, and what breaks without it.
 - [Using with AI agents](https://nuvui.nuvraxis.com/docs/llms/agents.md): A skill that teaches a coding agent to build with nuvui, the docs as plain text for any model, and what an agent gets wrong without them.
+- [MCP server](https://nuvui.nuvraxis.com/docs/llms/mcp.md): A server that a coding agent asks about nuvui while it works, over the Model Context Protocol, with the same rules and reference as the skill. How to add it to Claude Code, Cursor, VS Code, Codex and others.
 
 ## @nuvui/react: components
 

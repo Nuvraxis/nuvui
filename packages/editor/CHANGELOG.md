@@ -1,5 +1,12 @@
 # @nuvui/editor
 
+## 0.1.3
+
+### Patch Changes
+
+- Updated dependencies [[`edff9a4`](https://github.com/Nuvraxis/nuvui/commit/edff9a4b8620d36176a4875fad6e00e6b53c121d)]:
+  - @nuvui/react@0.7.0
+
 ## 0.1.2
 
 ### Patch Changes

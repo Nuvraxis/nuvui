@@ -1,5 +1,12 @@
 # @nuvui/table
 
+## 0.1.7
+
+### Patch Changes
+
+- Updated dependencies [[`edff9a4`](https://github.com/Nuvraxis/nuvui/commit/edff9a4b8620d36176a4875fad6e00e6b53c121d)]:
+  - @nuvui/react@0.7.0
+
 ## 0.1.6
 
 ### Patch Changes

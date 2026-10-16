@@ -228,6 +228,16 @@
         "default": "./dist/components/command/index.cjs"
       }
     },
+    "./compare": {
+      "import": {
+        "types": "./dist/components/compare/index.d.ts",
+        "default": "./dist/components/compare/index.js"
+      },
+      "require": {
+        "types": "./dist/components/compare/index.d.cts",
+        "default": "./dist/components/compare/index.cjs"
+      }
+    },
     "./confetti": {
       "import": {
         "types": "./dist/components/confetti/index.d.ts",

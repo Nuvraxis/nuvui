@@ -61,6 +61,7 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
+  Compare,
   ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
@@ -2049,5 +2050,29 @@ describe("carousel", () => {
     expect(Number.parseFloat(here?.width ?? "0")).toBeGreaterThan(
       Number.parseFloat(there?.width ?? "0"),
     );
+  });
+});
+
+describe("compare", () => {
+  test("the divider's line, its handle and the names stand out from the page", async () => {
+    await render(
+      <Compare
+        before={<div style={{ blockSize: 120 }} />}
+        after={<div style={{ blockSize: 120 }} />}
+      />,
+    );
+    const divider = page.getByRole("slider").element();
+    const handle = divider.querySelector(".nuv-compare__handle") as Element;
+    const label = document.querySelector(".nuv-compare__label") as Element;
+
+    expect(
+      contrast(getComputedStyle(divider, "::before").backgroundColor, canvas()),
+    ).toBeGreaterThan(3);
+    expect(contrast(style(handle).borderTopColor, canvas())).toBeGreaterThan(3);
+    expect(contrast(style(handle).color, canvas())).toBeGreaterThan(3);
+    expect(
+      contrast(style(label).color, style(label).backgroundColor),
+    ).toBeGreaterThan(4.5);
+    expect(style(label).borderTopStyle).toBe("solid");
   });
 });

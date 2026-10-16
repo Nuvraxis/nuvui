@@ -1,0 +1,197 @@
+@use "../../styles/layers";
+@use "../../styles/mixins";
+
+@layer components {
+  .nuv-compare {
+    display: grid;
+    gap: var(--nuv-compare-gap, 0.75rem);
+    justify-items: center;
+  }
+
+  .nuv-compare__frame {
+    position: relative;
+    isolation: isolate;
+    inline-size: 100%;
+    overflow: hidden;
+    border-radius: var(--nuv-compare-radius, var(--radius-lg));
+    background-color: var(--color-muted);
+    aspect-ratio: var(--nuv-compare-ratio, auto);
+  }
+
+  // After is in the flow and gives the frame its height, unless a ratio
+  // does. Before lies over it, cut off at the divider.
+  .nuv-compare__layer {
+    position: relative;
+    block-size: 100%;
+  }
+
+  .nuv-compare__layer > img,
+  .nuv-compare__layer > video {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: var(--nuv-compare-fit, cover);
+  }
+
+  .nuv-compare__layer--before {
+    position: absolute;
+    z-index: 1;
+    inset: 0;
+    clip-path: inset(0 calc(100% - var(--nuv-compare-position, 50%)) 0 0);
+
+    @include mixins.rtl {
+      clip-path: inset(0 0 0 calc(100% - var(--nuv-compare-position, 50%)));
+    }
+
+    // A switch wipes from one to the other. A divider that's dragged
+    // follows the pointer without it.
+    .nuv-compare--toggle & {
+      @include mixins.motion-safe {
+        transition: clip-path var(--nuv-duration-slow) var(--ease-in-out);
+      }
+    }
+  }
+
+  .nuv-compare--vertical .nuv-compare__layer--before {
+    clip-path: inset(0 0 calc(100% - var(--nuv-compare-position, 50%)) 0);
+  }
+
+  .nuv-compare__label {
+    position: absolute;
+    inset-block-end: var(--nuv-compare-label-inset, 0.75rem);
+    padding: 0.125rem 0.5rem;
+    border-radius: var(--radius-sm);
+    background-color: var(
+      --nuv-compare-label-bg,
+      color-mix(in oklab, var(--color-black) 65%, transparent)
+    );
+    color: var(--nuv-compare-label-fg, var(--color-white));
+    font-size: var(--text-xs);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--text-xs--line-height);
+    pointer-events: none;
+
+    @media (forced-colors: active) {
+      border: 1px solid canvastext;
+      background-color: canvas;
+      color: canvastext;
+      forced-color-adjust: none;
+    }
+  }
+
+  .nuv-compare__label--before {
+    inset-inline-start: var(--nuv-compare-label-inset, 0.75rem);
+  }
+
+  .nuv-compare__label--after {
+    inset-inline-end: var(--nuv-compare-label-inset, 0.75rem);
+  }
+
+  // Before on top, after below, both at the start of the line.
+  .nuv-compare--vertical .nuv-compare__label--before {
+    inset-block: var(--nuv-compare-label-inset, 0.75rem) auto;
+  }
+
+  .nuv-compare--vertical .nuv-compare__label--after {
+    inset-inline: var(--nuv-compare-label-inset, 0.75rem) auto;
+  }
+
+  // As wide as a finger, along the whole line, so the line itself can be
+  // taken anywhere and not only by the handle. Only here does a drag move
+  // something rather than scroll the page.
+  .nuv-compare__divider {
+    position: absolute;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    inset-block: 0;
+    inset-inline-start: var(--nuv-compare-position, 50%);
+    inline-size: var(--nuv-touch-size, 2.75rem);
+    translate: -50% 0;
+    cursor: ew-resize;
+    touch-action: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+
+    &::before {
+      position: absolute;
+      inset-block: 0;
+      inset-inline-start: 50%;
+      inline-size: var(--nuv-compare-line-width, 2px);
+      translate: -50% 0;
+      background-color: var(--nuv-compare-line, var(--color-white));
+      box-shadow: 0 0 0 1px
+        color-mix(in oklab, var(--color-black) 20%, transparent);
+      content: "";
+
+      @media (forced-colors: active) {
+        background-color: canvastext;
+        forced-color-adjust: none;
+      }
+    }
+
+    &:focus-visible {
+      outline: none;
+    }
+
+    @include mixins.rtl {
+      translate: 50% 0;
+
+      &::before {
+        translate: 50% 0;
+      }
+    }
+  }
+
+  .nuv-compare--vertical .nuv-compare__divider {
+    inset-block: var(--nuv-compare-position, 50%) auto;
+    inset-inline: 0;
+    inline-size: auto;
+    block-size: var(--nuv-touch-size, 2.75rem);
+    translate: 0 -50%;
+    cursor: ns-resize;
+
+    &::before {
+      inset-block: 50% auto;
+      inset-inline: 0;
+      inline-size: auto;
+      block-size: var(--nuv-compare-line-width, 2px);
+      translate: 0 -50%;
+    }
+  }
+
+  .nuv-compare__handle {
+    position: relative;
+    display: grid;
+    place-items: center;
+    inline-size: var(--nuv-touch-size, 2.75rem);
+    block-size: var(--nuv-touch-size, 2.75rem);
+    border: var(--nuv-border-width) solid var(--color-border);
+    border-radius: var(--nuv-compare-handle-radius, var(--radius-md));
+    background-color: var(--nuv-compare-handle-bg, var(--color-surface));
+    color: var(--nuv-compare-handle-fg, var(--color-surface-foreground));
+    box-shadow: var(--shadow-md);
+
+    @media (forced-colors: active) {
+      border-color: buttontext;
+      background-color: canvas;
+      color: buttontext;
+      forced-color-adjust: none;
+    }
+
+    .nuv-compare__divider:focus-visible & {
+      outline: var(--nuv-focus-ring-width, 2px) solid
+        var(--nuv-focus-ring-color, var(--color-ring));
+      outline-offset: var(--nuv-focus-ring-offset, 2px);
+    }
+  }
+
+  .nuv-compare__icon {
+    inline-size: 1rem;
+    block-size: 1rem;
+  }
+
+  .nuv-compare--vertical .nuv-compare__icon {
+    rotate: 90deg;
+  }
+}

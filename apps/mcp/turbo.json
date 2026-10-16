@@ -1,0 +1,29 @@
+{
+  "$schema": "https://turborepo.dev/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/skills/nuvui/**",
+        "$TURBO_ROOT$/apps/showcase/src/blocks/**",
+        "$TURBO_ROOT$/apps/showcase/src/charts/**",
+        "$TURBO_ROOT$/apps/showcase/src/lib/charts.ts",
+        "$TURBO_ROOT$/packages/ui/package.json"
+      ]
+    },
+    "test": {
+      "dependsOn": ["^build"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/skills/nuvui/**",
+        "$TURBO_ROOT$/apps/showcase/src/blocks/**",
+        "$TURBO_ROOT$/apps/showcase/src/charts/**",
+        "$TURBO_ROOT$/apps/showcase/src/lib/charts.ts",
+        "$TURBO_ROOT$/packages/ui/package.json"
+      ]
+    }
+  }
+}

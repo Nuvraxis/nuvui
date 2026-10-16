@@ -53,6 +53,14 @@ and the files it points to.
 
 [`NuvUIAIAgent.md`](NuvUIAIAgent.md) is the skill's first page as one file, to hand to a model directly. For one that takes a URL, the docs are served as plain text: [`/llms.txt`](https://nuvui.nuvraxis.com/llms.txt) lists every page, and [`/docs/llms-full.txt`](https://nuvui.nuvraxis.com/docs/llms-full.txt) is all of them in one file.
 
+There's also an MCP server, for an agent to ask while it works, with nothing copied into the project: the same rules and reference, at `https://nuvui.nuvraxis.com/mcp`. For Claude Code:
+
+```sh
+claude mcp add --transport http nuvui https://nuvui.nuvraxis.com/mcp
+```
+
+[MCP server](https://nuvui.nuvraxis.com/docs/mcp) has the steps for Cursor, VS Code, Codex and others.
+
 The skill doesn't check what the agent wrote. Run your lint and typecheck, and look at the screen. [Using with AI agents](https://nuvui.nuvraxis.com/docs/agents) has the rest: what's in the skill, and what it tells an agent.
 
 ## Status
@@ -76,7 +84,7 @@ What exists today:
 - `DirectionProvider`, for apps in languages that read from the right.
 - The design tokens: color scales, semantic colors for both themes, chart colors, type, spacing, radius, shadow, motion and control sizes. They build to CSS custom properties, and the SCSS source ships alongside.
 - Five presets, each a stylesheet that restyles everything, and three densities.
-- A [skill for coding agents](https://nuvui.nuvraxis.com/docs/agents), in `skills/nuvui`: the rules an agent gets wrong without being told, and a reference file for each component, written from the docs so it can't fall behind them. [Using it with a coding agent](#using-it-with-a-coding-agent) says how to add it to a project.
+- A [skill for coding agents](https://nuvui.nuvraxis.com/docs/agents), in `skills/nuvui`: the rules an agent gets wrong without being told, and a reference file for each component, written from the docs so it can't fall behind them. [Using it with a coding agent](#using-it-with-a-coding-agent) says how to add it to a project. And an [MCP server](https://nuvui.nuvraxis.com/docs/mcp) with the same rules and reference, for an agent to ask while it works.
 - A [docs site](https://nuvui.nuvraxis.com/docs) with a page for each component, a getting started page, and search that runs in the browser.
 - A [website](https://nuvui.nuvraxis.com) around the docs, built with the library's own tokens: a home page with a live dashboard, [39 charts](https://nuvui.nuvraxis.com/charts) in ten families, each one file to copy, a [theme builder](https://nuvui.nuvraxis.com/themes) that shows a theme on real components in light and dark and gives it back as CSS, and [64 blocks](https://nuvui.nuvraxis.com/blocks) in eight groups. A block is a part of an app, such as a sign-in screen, a dashboard or a pricing table, as a TSX file and an SCSS file to copy. The site also serves them as a registry for shadcn's command line tool, at `/r`. The docs carry the website's header, so either leads to the other.
 - Guides for theming, for using the tokens with Tailwind v4, for using the SCSS source, for building forms, with React Hook Form as the worked example, and for right-to-left layouts. The theming page has an editor that changes tokens in the browser and prints the CSS for what you changed.
@@ -161,6 +169,7 @@ pnpm dev         # packages in watch mode plus the website and the docs
 - `packages/typescript-config` holds the shared tsconfig presets.
 - `fixtures` holds three small apps that install the packed library the way a stranger would, one of them on React 18.2.
 - `skills/nuvui` is the skill for coding agents, and `NuvUIAIAgent.md` its first page. The reference in it is written from the docs by `pnpm skill`.
+- `apps/mcp` is the MCP server, which answers from the skill and the blocks. `apps/mcp/Dockerfile` builds its image. It isn't published.
 
 ## Testing
 

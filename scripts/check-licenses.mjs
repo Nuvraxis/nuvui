@@ -36,6 +36,23 @@ const toolsOnly = new Set([
   "Python-2.0",
 ]);
 
+// A package whose manifest doesn't name its license the way the lists do,
+// by its name, its version and what the manifest says, with the license
+// its own files give. A new version is read again.
+const readAs = new Map([
+  // Through FastMCP's proxy, in the MCP server. Its LICENSE file is the
+  // Apache License 2.0, written in the manifest as "Apache2".
+  ["human-readable-ids 1.0.4 Apache2", "Apache-2.0"],
+  // Through FastMCP, in the MCP server. The manifest names a link, and the
+  // README says it's released into the public domain, for anyone to change
+  // or license again. CC0 is the nearest SPDX name for that, and is on the
+  // list already.
+  [
+    "uri-templates 0.2.0 http://geraintluff.github.io/tv4/LICENSE.txt",
+    "CC0-1.0",
+  ],
+]);
+
 // The folders of the packages that are published.
 const published = [
   "ui",
@@ -86,6 +103,10 @@ function check(name, found, list) {
     count += packages.length;
     if (allowed(license, list)) continue;
     for (const item of packages) {
+      const read = item.versions.map((version) =>
+        readAs.get(`${item.name} ${version} ${license}`),
+      );
+      if (read.every((as) => as !== undefined && allowed(as, list))) continue;
       problems.push(`  ${item.name} ${item.versions.join(", ")}: ${license}`);
     }
   }

@@ -1,0 +1,30 @@
+{
+  "name": "@nuvui/mcp",
+  "version": "0.0.0",
+  "private": true,
+  "description": "An MCP server that answers a coding agent's questions about nuvui, from the same reference as the skill.",
+  "license": "MIT",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown && node dist/build-data.mjs",
+    "start": "node dist/main.mjs",
+    "start:stdio": "node dist/main.mjs --stdio",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "fastmcp": "^4.22.10",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.1",
+    "@nuvui/typescript-config": "workspace:*",
+    "@types/node": "catalog:",
+    "tsdown": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

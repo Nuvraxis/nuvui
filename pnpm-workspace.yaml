@@ -2,13 +2,16 @@ packages:
   - apps/*
   - packages/*
 
-# Install scripts are off unless listed as true. Neither of these needs its
-# script: both ship a prebuilt binary as an optional dependency, and the
-# script only exists to fetch or compile one when that's missing.
+# Install scripts are off unless listed as true. Neither of the first two
+# needs its script: both ship a prebuilt binary as an optional dependency,
+# and the script only exists to fetch or compile one when that's missing.
 # @parcel/watcher comes in through sass-embedded, esbuild through fumadocs-mdx.
+# tldjs comes in through FastMCP's proxy, and its script does nothing unless
+# told to download a new list of domain suffixes.
 allowBuilds:
   "@parcel/watcher": false
   esbuild: false
+  tldjs: false
 
 # What `pnpm audit` leaves out, each with why.
 #

@@ -72,6 +72,16 @@ What `ComboboxEmpty` says is its children, which you write.
 | --- | --- | --- | --- |
 | `title` | `string` | `"Command palette"` | The dialog's name. It isn't drawn. |
 
+### Compare
+
+| Prop | Type | Default | What it's for |
+| --- | --- | --- | --- |
+| `beforeLabel` | `string` | `"Before"` | The name of before, on the picture and on the switch. |
+| `afterLabel` | `string` | `"After"` | The name of after, on the picture and on the switch. |
+| `dividerLabel` | `string` | `"Before and after"` | The divider's name, which a screen reader reads as a slider. |
+| `valueLabel` | `((position: number, before: string, after: string) => string)` | `(position, before, after) => '${position}% ${before}, ${100 - position}% ${after}'` | What a screen reader says the divider's position is, given the position and the two names. |
+| `switchLabel` | `string` | `"Show"` | The name of the switch, when one picture shows at a time. |
+
 ### Dialog and Sheet
 
 | Prop | Type | Default | What it's for |

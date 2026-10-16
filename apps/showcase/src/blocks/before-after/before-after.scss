@@ -1,0 +1,170 @@
+@use "@nuvui/react/scss/mixins";
+
+.before-after {
+  display: grid;
+  gap: calc(var(--spacing) * 8);
+  grid-template-columns: minmax(0, 1fr);
+  align-items: center;
+  inline-size: 100%;
+  max-inline-size: 72rem;
+  min-block-size: 100svh;
+  margin-inline: auto;
+  padding: calc(var(--spacing) * 12) calc(var(--spacing) * 4);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+
+  // The words beside the pictures from the lg breakpoint, above them on
+  // anything narrower.
+  @include mixins.breakpoint("lg") {
+    gap: calc(var(--spacing) * 12);
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    padding: calc(var(--spacing) * 16) calc(var(--spacing) * 8);
+  }
+}
+
+.before-after__text {
+  display: grid;
+  gap: calc(var(--spacing) * 4);
+}
+
+.before-after__eyebrow {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-sm--line-height);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+}
+
+.before-after__title {
+  margin: 0;
+  font-size: clamp(1.875rem, 1.4rem + 2vw, 2.75rem);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+
+.before-after__lead {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-lg);
+  line-height: var(--leading-relaxed);
+  text-wrap: pretty;
+}
+
+.before-after__changes {
+  display: grid;
+  gap: calc(var(--spacing) * 3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.before-after__change {
+  display: flex;
+  gap: calc(var(--spacing) * 3);
+  align-items: start;
+  line-height: var(--leading-normal);
+
+  > svg {
+    flex: none;
+    margin-block-start: 0.2em;
+    color: var(--color-success);
+  }
+}
+
+.before-after__compare {
+  --nuv-compare-ratio: 16 / 10;
+  --nuv-compare-radius: var(--radius-xl);
+
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+}
+
+// Each screen fills the box. What's in them only has to read as a screen
+// at a glance, so it's blocks of color from the theme.
+.before-after__screen {
+  display: grid;
+  block-size: 100%;
+  padding: 5%;
+}
+
+.before-after__screen--old {
+  gap: 2.5%;
+  grid-auto-rows: 1fr;
+  background-color: var(--color-muted);
+}
+
+.before-after__menu {
+  border-radius: var(--radius-xs);
+  background-color: var(--color-border-strong);
+}
+
+.before-after__row {
+  border-block-end: var(--nuv-border-width) solid var(--color-border-strong);
+  background-color: var(--color-surface);
+}
+
+.before-after__screen--new {
+  gap: 4%;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: 1fr 2.4fr;
+  background-color: var(--color-background);
+}
+
+.before-after__card {
+  border: var(--nuv-border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+  background-image: linear-gradient(
+    var(--color-foreground),
+    var(--color-foreground)
+  );
+  background-repeat: no-repeat;
+  background-position: 14% 62%;
+  background-size: 48% 16%;
+}
+
+.before-after__chart {
+  display: flex;
+  grid-column: 1 / -1;
+  gap: 5%;
+  align-items: end;
+  padding: 5% 6%;
+  border: var(--nuv-border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+}
+
+.before-after__bar {
+  flex: 1;
+  block-size: 50%;
+  border-radius: var(--radius-xs) var(--radius-xs) 0 0;
+  background-color: var(--color-chart-1);
+
+  &:nth-child(2) {
+    block-size: 70%;
+  }
+
+  &:nth-child(3) {
+    block-size: 60%;
+  }
+
+  &:nth-child(4) {
+    block-size: 90%;
+  }
+
+  &:nth-child(5) {
+    block-size: 75%;
+  }
+
+  &:nth-child(6) {
+    block-size: 100%;
+  }
+
+  &:nth-child(7) {
+    block-size: 85%;
+  }
+}

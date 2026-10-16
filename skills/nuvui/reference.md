@@ -37,6 +37,7 @@ A file for each page of the docs. Read the one for a component before using it: 
 - [ColorPicker](reference/components/color-picker.md): Picks a color with an area and a hue slider, a field to type into, and presets.
 - [Combobox](reference/components/combobox.md): A select with a search field. It holds one value or several, filters as you type, and works with a label, the keyboard and forms.
 - [Command](reference/components/command.md): A search field over a list of commands that filters as you type, in the page or in a dialog opened with a shortcut.
+- [Compare](reference/components/compare.md): Two pictures of the same thing, before and after, in one box. A divider dragged by its handle shows part of each, or a switch shows one at a time.
 - [Confetti](reference/components/confetti.md): A burst of confetti from an element, for a moment worth marking, such as a first sale or a finished setup. The pieces fall back and rest on the element. It's decoration, and isn't thrown for anyone who asked for less motion.
 - [Context menu](reference/components/context-menu.md): A menu of actions that opens where someone right-clicks, or presses and holds on a touch screen.
 - [Dialog](reference/components/dialog.md): A modal window that takes over the page until it's closed. A sheet on phones, centered on larger screens.

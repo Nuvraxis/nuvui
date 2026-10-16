@@ -100,6 +100,11 @@
     "limit": "16.5 kB"
   },
   {
+    "name": "@nuvui/react/compare",
+    "path": "dist/components/compare/index.js",
+    "limit": "9 kB"
+  },
+  {
     "name": "@nuvui/react/confetti",
     "path": "dist/components/confetti/index.js",
     "limit": "1.7 kB"
@@ -388,7 +393,7 @@
     "name": "styles.css",
     "path": "dist/styles.css",
     "rolldown": false,
-    "limit": "21 kB"
+    "limit": "21.5 kB"
   },
   {
     "name": "tokens.css",
@@ -400,7 +405,7 @@
     "name": "every stylesheet in css/",
     "path": "dist/css/*.css",
     "rolldown": false,
-    "limit": "49 kB"
+    "limit": "50 kB"
   },
   {
     "name": "every preset in themes/",

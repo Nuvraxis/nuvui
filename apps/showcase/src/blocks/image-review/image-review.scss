@@ -1,0 +1,108 @@
+@use "@nuvui/react/scss/mixins";
+
+.image-review {
+  display: grid;
+  gap: calc(var(--spacing) * 6);
+  align-content: start;
+  inline-size: 100%;
+  max-inline-size: 64rem;
+  min-block-size: 100svh;
+  margin-inline: auto;
+  padding: calc(var(--spacing) * 6) calc(var(--spacing) * 4);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+
+  @include mixins.breakpoint("md") {
+    padding: calc(var(--spacing) * 8);
+  }
+}
+
+.image-review__head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 3);
+  align-items: start;
+  justify-content: space-between;
+}
+
+.image-review__heading {
+  display: grid;
+  gap: calc(var(--spacing) * 1);
+}
+
+.image-review__title {
+  margin: 0;
+  font-size: var(--text-xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-xl--line-height);
+}
+
+.image-review__meta,
+.image-review__said {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+// The photograph above what was changed on a phone, beside it from the md
+// breakpoint.
+.image-review__layout {
+  display: grid;
+  gap: calc(var(--spacing) * 6);
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+
+  @include mixins.breakpoint("md") {
+    gap: calc(var(--spacing) * 8);
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  }
+}
+
+.image-review__compare {
+  --nuv-compare-ratio: 4 / 3;
+}
+
+.image-review__photo {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  block-size: 100%;
+}
+
+.image-review__photo--before {
+  background-color: var(--color-gray-300);
+  color: var(--color-gray-600);
+}
+
+.image-review__photo--after {
+  background-color: var(--color-amber-100);
+  color: var(--color-amber-900);
+}
+
+.image-review__side {
+  display: grid;
+  gap: calc(var(--spacing) * 4);
+  align-content: start;
+}
+
+.image-review__subtitle {
+  margin: 0;
+  font-size: var(--text-base);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-base--line-height);
+}
+
+.image-review__edits {
+  display: grid;
+  gap: calc(var(--spacing) * 2);
+  margin: 0;
+  padding-inline-start: calc(var(--spacing) * 5);
+  line-height: var(--leading-normal);
+}
+
+.image-review__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 3);
+}

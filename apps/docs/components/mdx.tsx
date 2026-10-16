@@ -30,6 +30,7 @@ import { CollapsiblePlayground } from "@/components/playground/collapsible";
 import { ColorPickerPlayground } from "@/components/playground/color-picker";
 import { ComboboxPlayground } from "@/components/playground/combobox";
 import { CommandPlayground } from "@/components/playground/command";
+import { ComparePlayground } from "@/components/playground/compare";
 import { ConfettiPlayground } from "@/components/playground/confetti";
 import { ContextMenuPlayground } from "@/components/playground/context-menu";
 import {
@@ -155,6 +156,7 @@ export function getMDXComponents(components?: MDXComponents) {
     CollapsiblePlayground,
     ComboboxPlayground,
     CommandPlayground,
+    ComparePlayground,
     ConfettiPlayground,
     ContextMenuPlayground,
     DataTablePlayground,

@@ -92,6 +92,7 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
+  Compare,
   Dialog,
   DialogClose,
   DialogContent,
@@ -369,11 +370,17 @@ export default function RscSmokePage() {
       <TextShimmer data-testid="server-shimmer">
         Shimmer from the server
       </TextShimmer>
-      {/* Two client components given plain values from the server. */}
+      {/* Three client components given plain values from the server. */}
       <AnimatedNumber data-testid="server-animated-number" value={1234.5} />
       <TextReveal
         data-testid="server-reveal"
         lines={["Rises from", "the server"]}
+      />
+      <Compare
+        data-testid="server-compare"
+        defaultPosition={30}
+        before={<p>Before from the server</p>}
+        after={<p>After from the server</p>}
       />
       <TableOfContents
         aria-label="Contents from the server"

@@ -25,6 +25,8 @@ on:
     branches: [main]
     paths:
       - "apps/**"
+      # The MCP server has an image of its own, in mcp-docker.yaml.
+      - "!apps/mcp/**"
       - "packages/**"
       - "scripts/**"
       - "package.json"

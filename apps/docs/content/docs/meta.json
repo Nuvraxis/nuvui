@@ -10,6 +10,7 @@
     "support",
     "content-security-policy",
     "agents",
+    "mcp",
     "components",
     "date-picker",
     "table",

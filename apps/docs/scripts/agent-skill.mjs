@@ -737,7 +737,8 @@ async function build() {
     (page) => page.slug !== "changelog",
   );
   const slugs = new Set(pages.map((page) => page.slug));
-  const aboutTheSkill = (page) => page.slug === "agents";
+  // The skill's page and the MCP server's: how a person sets an agent up.
+  const aboutTheSkill = (page) => page.slug === "agents" || page.slug === "mcp";
   const inSkill = new Set(
     pages.filter((page) => !aboutTheSkill(page)).map((page) => page.slug),
   );

@@ -133,10 +133,15 @@ apps/showcase                 the website (Next.js, SCSS and the library's token
   src/styles/                 its own styles, BEM with the prefix "site"
   scripts/add-docs.mjs        copies the built docs into its export, under /docs
   e2e/                        Playwright tests, of its pages and of where the two apps meet
+apps/mcp                      the MCP server (FastMCP), answering from the skill and the blocks (private)
+  src/sources.ts              reads its data from the repository when it's built
+  src/server.ts               its tools
+  Dockerfile                  builds its image
 apps/Dockerfile               builds the site's image: both apps as static files, behind nginx
 apps/nginx.conf               how that image serves them
 apps/otel-collector.example.yaml  an example collector for what the pages send
 scripts/check-site-image.mjs  asks a running container of that image for the site
+scripts/check-mcp-image.mjs   asks a running container of the MCP server's image for its tools
 scripts/make-icons.mjs        draws the favicon and the home screen icons from one SVG
 scripts/serve-static.mjs      serves an exported site, for the e2e tests and for pnpm start
 scripts/fix-next-export.mjs   puts right what Next's export gets wrong on Windows
@@ -321,7 +326,7 @@ By `apps/docs/scripts/agent-skill.mjs`, from the docs:
 
 So after a change to a docs page, an example, a component's props or its styles, or a block's manifest, run `pnpm build` and then `pnpm skill`, and keep what changed with the rest of the work. `pnpm check:skill` fails in CI when that was left out. It also fails when a component's folder is named by no docs page, since an agent would never learn of it.
 
-The docs' build writes the same pages for the site, as `/docs/llms.txt`, `/docs/llms-full.txt` and a file for each page under `/docs/llms/`. Those aren't kept in git.
+The docs' build writes the same pages for the site, as `/docs/llms.txt`, `/docs/llms-full.txt` and a file for each page under `/docs/llms/`. Those aren't kept in git. The [MCP server](#the-mcp-server) answers from the skill's files as well.
 
 When an agent gets something wrong that the skill should have stopped, change the rule and add a task to `evals/evals.json`. Don't edit a file under `reference/`: change the docs page it's written from.
 
@@ -361,6 +366,7 @@ A pull request needs:
   - `ci.yml` runs for every pull request: an audit of the dependencies and a check of their licenses, then lint, typecheck, build and the component tests, then a check of the package that would be published and of the size of each entry point.
   - `e2e.yml` runs only for a pull request with the `invoke-e2e` label: the end-to-end tests, and a check that the packed library installs and builds in a Vite app and a Next.js app. A maintainer adds the label when a change is ready for it. Without the label nothing runs these for you, so run `pnpm test:e2e` yourself. The workflow builds the site once and cuts the tests into 17 slices, each on a runner of its own, because one runner would need hours for all of them. A last job named E2E passes when every slice has.
   - `apps-docker.yaml` runs for a pull request that changes `apps/Dockerfile`, `apps/nginx.conf`, `scripts/check-site-image.mjs` or `.dockerignore`. It builds the site's image, starts it and runs `scripts/check-site-image.mjs` against it. On `main` the same workflow also pushes the image to `ghcr.io/nuvraxis/nuvui-site`.
+  - `mcp-docker.yaml` does the same for the MCP server, for a pull request that changes `apps/mcp/Dockerfile`, `scripts/check-mcp-image.mjs` or `.dockerignore`, and pushes `ghcr.io/nuvraxis/nuvui-mcp` from `main`.
 - Tests for what changed.
 - The docs page updated, if behavior, props, CSS variables or class names changed.
 - A changeset, if the change reaches the published package.
@@ -380,6 +386,43 @@ node scripts/check-site-image.mjs http://localhost:8080
 The end-to-end tests don't run against nginx. They run against `scripts/serve-static.mjs`, and `apps/nginx.conf` is written to answer the way it does. If you change how one of them answers, change the other, and add what you changed to `scripts/check-site-image.mjs`.
 
 Keep a pull request to one change. A fix and an unrelated cleanup are easier to review, and to revert, as two.
+
+### The MCP server
+
+`apps/mcp` is a server a coding agent asks about the library while it works, over the Model Context Protocol, on [FastMCP](https://github.com/punkpeye/fastmcp). The [docs page](https://nuvui.nuvraxis.com/docs/mcp) says how people add it. Every tool only reads.
+
+It answers from the agent skill, `skills/nuvui`, and from the website's blocks and charts, so there's one way of turning a docs page into text. `pnpm build` reads them into `apps/mcp/dist/data.json`, which the server loads when it starts. A change to the docs reaches it through `pnpm skill`, as it reaches the skill. `apps/mcp/turbo.json` names those files as inputs of its build, since they're outside the package.
+
+To run it:
+
+```sh
+pnpm --filter @nuvui/mcp build
+pnpm --filter @nuvui/mcp start          # http://localhost:8080/mcp
+pnpm --filter @nuvui/mcp start:stdio    # over standard input and output
+```
+
+Or its image, with Docker running:
+
+```sh
+docker build --file apps/mcp/Dockerfile --tag nuvui-mcp .
+docker run --rm --publish 8080:8080 --env RATE_LIMIT_PER_MINUTE=30 nuvui-mcp
+node scripts/check-mcp-image.mjs http://localhost:8080 30
+```
+
+What it reads from its environment, all optional:
+
+| Variable | What it is |
+| --- | --- |
+| `PORT` | The port it listens on. 8080 unless you say otherwise. |
+| `HOST` | The address it listens on. `0.0.0.0` unless you say otherwise. |
+| `RATE_LIMIT_PER_MINUTE` | How many requests one caller may make in a minute. 120 unless you say otherwise. It's counted in each process, so with several replicas a caller can make this many times their number. |
+| `TRUSTED_PROXIES` | How many proxies in front of it add to `X-Forwarded-For`, such as a CDN and an ingress. 0 unless you say otherwise, which makes every caller the address the connection came from. Set it to the number there is: with too few, every caller is the proxy, and with too many, a caller can name themselves. |
+| `OTLP_ENDPOINT` | Where to send the counts, without `/v1/metrics`, as a full address, such as the collector's service in the cluster. Unset means nothing is sent. |
+| `SERVICE_VERSION` | What to call the build in the counts. The image is built with the commit. |
+
+It's meant to be reached at `/mcp` on the site's own address, with the ingress sending that path to the server's own deployment and nothing else to it. Route `/mcp` alone: FastMCP also answers an older transport at `/sse`, and the limit doesn't run there. `/healthz` is for the liveness and readiness probes, and isn't for the internet either. The server keeps nothing between requests, so any replica can answer any of them, and none needs sticky sessions. It writes nothing, and runs with a read-only root filesystem as user 1000.
+
+The counts are sums over OTLP/HTTP in JSON, sent each minute, under the service name `nuvui-mcp`: `mcp.tool.calls`, with the tool as `mcp.tool` and how the call ended as `mcp.outcome` (`ok`, `not_found` or `error`), and `mcp.requests.limited`. Nothing in them says who asked or what they asked for. `apps/otel-collector.example.yaml` takes them as it takes the site's.
 
 ### Telemetry
 

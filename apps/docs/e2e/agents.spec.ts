@@ -56,7 +56,9 @@ test.describe("the MCP server's page", () => {
       article.getByRole("heading", { level: 1, name: "MCP server" }),
     ).toBeVisible();
     await expect(
-      article.getByText("https://nuvui.nuvraxis.com/mcp", { exact: true }),
+      article
+        .getByText("https://nuvui.nuvraxis.com/mcp", { exact: true })
+        .first(),
     ).toBeVisible();
     for (const agent of [
       "Claude Code",
@@ -88,7 +90,11 @@ test.describe("the MCP server's page", () => {
     await open(page, "/docs/agents");
 
     await expect(
-      page.locator("article").first().getByRole("link", { name: "MCP server" }),
+      // Exactly: the card for the next page, at the foot, says more.
+      page
+        .locator("article")
+        .first()
+        .getByRole("link", { name: "MCP server", exact: true }),
     ).toHaveAttribute("href", "/docs/mcp");
   });
 });

@@ -2,7 +2,7 @@ import type { IncomingMessage } from "node:http";
 import { FastMCP, UserError } from "fastmcp";
 import { z } from "zod";
 import { type Data, type Page, registryUrl, site } from "./data";
-import { search, termsOf } from "./search";
+import { search, stemOf, termsOf } from "./search";
 
 /** How a call ended, for the counts. */
 export type Outcome = "ok" | "not_found" | "error";
@@ -58,10 +58,12 @@ function closest<T>(
   query: string,
   key: (item: T) => string,
 ) {
-  const terms = termsOf(query.replaceAll("/", " "));
+  // By the start of each word, as search finds them, so "tables" suggests
+  // "@nuvui/table".
+  const stems = termsOf(query.replaceAll("/", " ")).map(stemOf);
   return items
     .filter((item) =>
-      terms.some((term) => key(item).toLowerCase().includes(term)),
+      stems.some((stem) => key(item).toLowerCase().includes(stem)),
     )
     .slice(0, 5)
     .map(key);

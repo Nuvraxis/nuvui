@@ -32,7 +32,15 @@ beforeAll(async () => {
   });
   await server.start({
     transportType: "httpStream",
-    httpStream: { port, endpoint: "/mcp", stateless: true, cors: true },
+    // An address and not "localhost", which can be the IPv6 one to the
+    // server and the IPv4 one to fetch.
+    httpStream: {
+      port,
+      host: "127.0.0.1",
+      endpoint: "/mcp",
+      stateless: true,
+      cors: true,
+    },
   });
 });
 
@@ -40,7 +48,7 @@ afterAll(async () => {
   await server.stop();
 });
 
-const url = (path: string) => `http://localhost:${port}${path}`;
+const url = (path: string) => `http://127.0.0.1:${port}${path}`;
 
 // The same request a client sends first, without a client.
 const listTools = () =>

@@ -17,6 +17,9 @@ import assistantWorkspace from "@/blocks/assistant-workspace/block.json" with {
   type: "json",
 };
 import auditLog from "@/blocks/audit-log/block.json" with { type: "json" };
+import beforeAfter from "@/blocks/before-after/block.json" with {
+  type: "json",
+};
 import billing from "@/blocks/billing/block.json" with { type: "json" };
 import branchFinder from "@/blocks/branch-finder/block.json" with {
   type: "json",
@@ -63,6 +66,9 @@ import forgotPassword from "@/blocks/forgot-password/block.json" with {
   type: "json",
 };
 import hero from "@/blocks/hero/block.json" with { type: "json" };
+import imageReview from "@/blocks/image-review/block.json" with {
+  type: "json",
+};
 import inbox from "@/blocks/inbox/block.json" with { type: "json" };
 import launchHero from "@/blocks/launch-hero/block.json" with { type: "json" };
 import liveFigures from "@/blocks/live-figures/block.json" with {
@@ -183,7 +189,7 @@ export const categories: BlockCategory[] = [
     label: "Data",
     title: "Data",
     description:
-      "Rows to work with: a table with search, a filter, a column chooser and actions for several rows, a list with a bar of actions for the ticked rows, requests to approve with buttons in every row, a list filtered from a sentence and a sheet, folders and files in a tree, a panel that opens beside a list, a parcel's label with its barcode, a ticket with a QR code, a board of tasks in columns, a sales pipeline that adds up each column, a list of branches beside a map of them, a van's round as a list of stops and a line on a map, charging points gathered on a map with a list of the same ones, and a page in each state it can be in.",
+      "Rows to work with: a table with search, a filter, a column chooser and actions for several rows, a list with a bar of actions for the ticked rows, requests to approve with buttons in every row, a retouched photograph to approve with a switch between it and the original, a list filtered from a sentence and a sheet, folders and files in a tree, a panel that opens beside a list, a parcel's label with its barcode, a ticket with a QR code, a board of tasks in columns, a sales pipeline that adds up each column, a list of branches beside a map of them, a van's round as a list of stops and a line on a map, charging points gathered on a map with a list of the same ones, and a page in each state it can be in.",
   },
   {
     slug: "editor",
@@ -204,7 +210,7 @@ export const categories: BlockCategory[] = [
     label: "Marketing",
     title: "Marketing pages",
     description:
-      "A product's public pages in ten parts: a navigation bar, a hero, a hero whose headline rises in, a grid of features, a pricing table, reviews, customer stories, a gallery of products, questions and answers, and a footer.",
+      "A product's public pages in eleven parts: a navigation bar, a hero, a hero whose headline rises in, a grid of features, a release's screen before and after, a pricing table, reviews, customer stories, a gallery of products, questions and answers, and a footer.",
   },
 ];
 
@@ -240,6 +246,7 @@ export const blocks: BlockManifest[] = [
   tableToolbar,
   inbox,
   approvals,
+  imageReview,
   filterSheet,
   fileBrowser,
   queryEditor,
@@ -268,6 +275,7 @@ export const blocks: BlockManifest[] = [
   hero,
   launchHero,
   featureGrid,
+  beforeAfter,
   pricing,
   reviews,
   caseStudies,

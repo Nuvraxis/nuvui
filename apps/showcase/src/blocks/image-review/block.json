@@ -1,0 +1,9 @@
+{
+  "name": "image-review",
+  "title": "Photograph to review",
+  "description": "A retouched photograph to approve or send back, with a switch between the original and the retouched one, a list of what the retoucher changed, and a status that says what was decided.",
+  "category": "data",
+  "files": ["image-review.tsx", "image-review.scss"],
+  "install": ["@nuvui/react", "lucide-react"],
+  "height": 720
+}

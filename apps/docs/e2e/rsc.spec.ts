@@ -132,6 +132,12 @@ test("components used from a server component hydrate and work", async ({
   await expect(page.getByTestId("server-reveal")).toHaveText(
     "Rises from the server",
   );
+  const compare = page.getByTestId("server-compare");
+  await expect(compare).toContainText("Before from the server");
+  await expect(compare).toContainText("After from the server");
+  await expect(
+    compare.getByRole("slider", { name: "Before and after" }),
+  ).toHaveAttribute("aria-valuenow", "30");
   const contents = page.getByRole("navigation", {
     name: "Contents from the server",
   });

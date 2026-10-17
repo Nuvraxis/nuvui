@@ -6,7 +6,7 @@ added: "2026-10-17"
 
 Use a flow diagram for something that goes from step to step: how an order moves, who approves a request, what a service calls. A diagram shows the shape of the whole. If the steps only go one way, a [stepper](/docs/components/stepper) or a list says the same more plainly.
 
-<Preview name="flow/basic" />
+<Preview name="flow/basic" wide />
 
 ## Install
 
@@ -46,7 +46,7 @@ A node has an `id`, a `label` and a `position`: its top left corner, in the diag
 
 `size` changes one node's size. `intent` draws its outline in a color: `neutral`, `primary`, `success`, `warning` or `danger`. `description` is read after its name and shown in the list.
 
-<Preview name="flow/shapes" />
+<Preview name="flow/shapes" wide />
 
 The label wraps inside the shape, and after as many lines as the shape has room for it ends with an ellipsis. The whole label is still its name. A circle's and a diamond's words sit in the box that fits inside them, so they're narrower than the shape.
 
@@ -61,7 +61,7 @@ An edge goes `from` one node `to` another, or to the same node, which draws a lo
 
 `arrow` puts an arrowhead at the `end`, the default, the `start`, `both` or `none`. `label` writes words on the line, such as "yes" after a decision. `dashed` draws it dashed, and `animated` draws it dashed and moving toward its end, which stops when less motion is asked for. `intent` colors it as a node's.
 
-<Preview name="flow/edges" />
+<Preview name="flow/edges" wide />
 
 ## Editing
 
@@ -73,7 +73,7 @@ With `editable`, the diagram can be changed:
 
 A node with `locked` can be selected but not moved, joined or removed.
 
-<Preview name="flow/editable" />
+<Preview name="flow/editable" wide />
 
 ### Who keeps the diagram
 

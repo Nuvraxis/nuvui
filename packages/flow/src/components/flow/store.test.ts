@@ -313,6 +313,27 @@ describe("finding things", () => {
     expect(store.hitTest({ x: 560, y: 28 }, 1, true)?.kind).toBe("node");
   });
 
+  test("zoomed out, a node's middle is the node and not its handle, and below full detail there are no handles", () => {
+    const store = storeWith([node("a", 0, 0)]);
+    store.setHandlesOn("a");
+    store.setSize({ width: 300, height: 400 });
+    // Full detail still. The top handle is 28 from the middle, inside
+    // the 33 a handle reaches at this zoom.
+    store.setViewport({ x: 0, y: 0, zoom: 0.6 });
+    store.refresh();
+    expect(store.getDetail()).toBe(0);
+    expect(store.hitTest({ x: 80, y: 28 }, 0.42, true)).toEqual({
+      kind: "node",
+      id: "a",
+    });
+    expect(store.hitTest({ x: 80, y: 2 }, 0.42, true)?.kind).toBe("handle");
+
+    store.setViewport({ x: 0, y: 0, zoom: 0.42 });
+    store.refresh();
+    expect(store.getDetail()).toBe(1);
+    expect(store.hitTest({ x: 80, y: 2 }, 0.42, true)?.kind).toBe("node");
+  });
+
   test("the nodes a box touches", () => {
     const store = storeWith([
       node("a", 0, 0),

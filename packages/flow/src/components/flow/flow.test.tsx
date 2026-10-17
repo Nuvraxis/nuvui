@@ -782,6 +782,38 @@ describe("the view", () => {
       .toBeInTheDocument();
   });
 
+  test("a fitted view is fitted again when the frame changes size, until it's zoomed", async () => {
+    function Resized() {
+      const [width, setWidth] = useState(800);
+      return (
+        <div style={{ width }}>
+          <button type="button" onClick={() => setWidth(320)}>
+            Narrow
+          </button>
+          <button type="button" onClick={() => setWidth(600)}>
+            Wider
+          </button>
+          <Diagram />
+        </div>
+      );
+    }
+    await render(<Resized />);
+    const wide = viewport().zoom;
+    await page.getByRole("button", { name: "Narrow" }).click();
+    await expect.poll(() => viewport().zoom).toBeLessThan(wide);
+    const narrow = viewport();
+    // Fitted means all of it is in the frame, the same both times.
+    const frameWidth = one(".nuv-flow__frame").clientWidth;
+    expect(narrow.x).toBeGreaterThanOrEqual(0);
+    expect(narrow.x).toBeLessThan(frameWidth / 2);
+
+    await page.getByRole("button", { name: "Zoom in" }).click();
+    await expect.poll(() => viewport().zoom).toBeCloseTo(narrow.zoom * 1.25, 3);
+    await page.getByRole("button", { name: "Wider" }).click();
+    await new Promise((resolve) => setTimeout(resolve, 200));
+    expect(viewport().zoom).toBeCloseTo(narrow.zoom * 1.25, 3);
+  });
+
   test("the wheel zooms only while the diagram has focus, so the page scrolls past it", async () => {
     await render(<Diagram />);
     const fitted = viewport().zoom;
@@ -1022,9 +1054,11 @@ describe("how it's drawn", () => {
     ];
     await render(<Diagram defaultEdges={moving} />);
     const line = one(".nuv-flow__edge .nuv-flow__line");
-    expect(getComputedStyle(line).animationName).toBe("nuv-flow-dash");
-    await emulateMedia({ reducedMotion: "reduce" });
+    // Said outright: WebKit on Linux asks for less motion by default.
+    await emulateMedia({ reducedMotion: "no-preference" });
     try {
+      expect(getComputedStyle(line).animationName).toBe("nuv-flow-dash");
+      await emulateMedia({ reducedMotion: "reduce" });
       expect(getComputedStyle(line).animationName).toBe("none");
     } finally {
       await emulateMedia({ reducedMotion: null });

@@ -86,6 +86,19 @@ test.describe("flow page", () => {
     );
   });
 
+  test("each diagram takes the whole width of its preview", async ({
+    page,
+  }) => {
+    for (const name of ["flow/basic", "flow/edges", "flow/editable"]) {
+      const area = preview(page, name);
+      const outer = await area.boundingBox();
+      const frame = await area.locator(".nuv-flow__frame").boundingBox();
+      // The preview's padding aside, not the 300 pixels an SVG is by
+      // default.
+      expect(frame?.width ?? 0, name).toBeGreaterThan((outer?.width ?? 0) - 60);
+    }
+  });
+
   test("the arrow keys go from node to node", async ({ page }) => {
     const area = preview(page, "flow/basic");
     await diagram(area).focus();
@@ -192,9 +205,11 @@ test.describe("flow page", () => {
   });
 
   test("passes axe", async ({ page }) => {
+    // The rendered examples, not the code blocks beside them, which are
+    // the docs' and not the diagram's.
     const results = await new AxeBuilder({ page })
-      .include('[data-preview="flow/basic"]')
-      .include('[data-preview="flow/editable"]')
+      .include('[data-preview="flow/basic"] > div:first-child')
+      .include('[data-preview="flow/editable"] > div:first-child')
       .analyze();
     expect(results.violations).toEqual([]);
   });

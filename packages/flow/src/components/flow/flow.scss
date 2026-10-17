@@ -2,8 +2,11 @@
 @use "@nuvui/react/scss/mixins";
 
 @layer components {
+  // The whole width it's given. In a flex row it would otherwise shrink to
+  // the SVG's own width, which is the browser's 300 pixels.
   .nuv-flow {
     position: relative;
+    inline-size: 100%;
     color: var(--nuv-flow-fg, var(--color-foreground));
     font-size: var(--text-sm);
     line-height: var(--text-sm--line-height);

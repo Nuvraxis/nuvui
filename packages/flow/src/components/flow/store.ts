@@ -663,13 +663,19 @@ export class FlowStore {
    */
   hitTest(point: Point, zoom: number, handles: boolean): Hit | null {
     const reach = 10 / zoom;
-    if (handles && this.handlesOn) {
+    // Handles are drawn only at full detail, so only then are they hit.
+    if (handles && this.handlesOn && this.detail === 0) {
       const state = this.nodes.get(this.handlesOn);
       if (state && !state.node.locked) {
-        for (const handle of handlePoints(state.rect)) {
+        const { rect } = state;
+        for (const [i, handle] of handlePoints(rect).entries()) {
+          // Zoomed out, a handle's reach would cover the node's middle,
+          // and pressing there would start a link instead of a drag. It
+          // reaches halfway in at most.
+          const half = i % 2 === 0 ? rect.height / 2 : rect.width / 2;
           if (
             Math.hypot(handle.x - point.x, handle.y - point.y) <=
-            reach * 1.4
+            Math.min(reach * 1.4, half / 2)
           ) {
             return { kind: "handle", id: this.handlesOn, point: handle };
           }

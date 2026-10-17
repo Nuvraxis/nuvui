@@ -318,6 +318,10 @@ export const Flow = forwardRef<HTMLDivElement, FlowProps>(function Flow(
 
   const frame = useRef({ queued: false, lastRefresh: 0, markerZoom: 0 });
   const restTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  // Whether the view is still the fitted one. While it is, it's fitted
+  // again when the frame changes size, since a page often lays out a
+  // little after the first measure. A pan or a zoom ends it.
+  const fitted = useRef(false);
 
   // Writes the view's transform straight onto the group, once a frame. A
   // pan or a zoom never re-renders React. What's in view is worked out
@@ -347,7 +351,8 @@ export const Flow = forwardRef<HTMLDivElement, FlowProps>(function Flow(
   }, [store]);
 
   const setView = useCallback(
-    (next: FlowViewport) => {
+    (next: FlowViewport, fit = false) => {
+      fitted.current = fit;
       const { minZoom: min, maxZoom: max } = latest.current;
       store.setViewport({ ...next, zoom: clamp(next.zoom, min, max) });
       if (!frame.current.queued) {
@@ -367,7 +372,10 @@ export const Flow = forwardRef<HTMLDivElement, FlowProps>(function Flow(
     const bounds = boundsOf(store.rects());
     if (!bounds || !store.size) return;
     const { minZoom: min, maxZoom: max } = latest.current;
-    setView(fitViewport(bounds, store.size, fitPadding, min, Math.min(1, max)));
+    setView(
+      fitViewport(bounds, store.size, fitPadding, min, Math.min(1, max)),
+      true,
+    );
   }, [store, setView]);
 
   const zoomBy = useCallback(
@@ -468,11 +476,21 @@ export const Flow = forwardRef<HTMLDivElement, FlowProps>(function Flow(
           Math.min(1, maxZoom),
         ),
       );
+      fitted.current = true;
     }
     setMeasured(true);
     const observer = new ResizeObserver(() => {
-      store.setSize(read());
-      store.refresh();
+      const before = store.size;
+      const size = read();
+      store.setSize(size);
+      if (
+        fitted.current &&
+        (size.width !== before?.width || size.height !== before?.height)
+      ) {
+        fit();
+      } else {
+        store.refresh();
+      }
     });
     observer.observe(element);
     return () => observer.disconnect();

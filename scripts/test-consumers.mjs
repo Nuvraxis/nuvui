@@ -53,6 +53,7 @@ const published = {
   "@nuvui/editor": "editor",
   "@nuvui/emoji": "emoji",
   "@nuvui/map": "map",
+  "@nuvui/flow": "flow",
   "@nuvui/icons": "icons",
 };
 
@@ -128,6 +129,12 @@ const fixtures = {
       "vite",
       "it has the picker's styles",
       css.includes(".nuv-emoji-picker"),
+    );
+    expect("vite", "it has the diagram's styles", css.includes(".nuv-flow"));
+    expect(
+      "vite",
+      "the script has the diagram",
+      script.includes("nuv-flow__canvas"),
     );
     expect(
       "vite",
@@ -316,6 +323,14 @@ process.stdout.write(renderToStaticMarkup(createElement(ArrowRightIcon, { title:
       css.includes(".nuv-emoji-picker"),
     );
     expect("next", "it has the map's styles", css.includes(".nuv-map"));
+    expect("next", "it has the diagram's styles", css.includes(".nuv-flow"));
+    expect(
+      "next",
+      "the server drew the diagram whole, with both its steps",
+      /<div[^>]*class="nuv-flow__canvas"[^>]*role="listbox"/.test(html) &&
+        (html.match(/role="option"/g) ?? []).length >= 2 &&
+        html.includes("viewBox="),
+    );
     expect(
       "next",
       "the server rendered the map's box, saying the map is on its way",
@@ -434,13 +449,14 @@ process.stdout.write(renderToStaticMarkup(createElement(ArrowRightIcon, { title:
     );
     expect(
       "react18",
-      "the message, the prompt box, the editor, the board, the picker and the map rendered",
+      "the message, the prompt box, the editor, the board, the picker, the map and the diagram rendered",
       html.includes("nuv-message__content") &&
         html.includes("nuv-prompt-input__textarea") &&
         html.includes("nuv-rich-text-editor__toolbar") &&
         html.includes("nuv-kanban__handle") &&
         html.includes("nuv-emoji-picker__search") &&
-        html.includes("Loading map"),
+        html.includes("Loading map") &&
+        html.includes("nuv-flow__canvas"),
     );
   },
 };

@@ -18,6 +18,7 @@ import {
 import { DatePicker } from "@nuvui/date-picker";
 import { RichTextEditor } from "@nuvui/editor/rich-text-editor";
 import { EmojiPicker } from "@nuvui/emoji/emoji-picker";
+import { Flow } from "@nuvui/flow/flow";
 import { ArrowRightIcon } from "@nuvui/icons/sharp";
 import {
   Kanban,
@@ -112,6 +113,14 @@ export function App() {
       >
         <MapMarker position={[13.405, 52.52]} label="Berlin office" />
       </MapView>
+      <Flow
+        aria-label="Steps"
+        nodes={[
+          { id: "a", label: "Start", shape: "pill", position: { x: 0, y: 0 } },
+          { id: "b", label: "Review", position: { x: 220, y: -4 } },
+        ]}
+        edges={[{ id: "a-b", from: "a", to: "b" }]}
+      />
       <Kanban
         aria-label="Work"
         defaultValue={[{ id: "todo", cards: ["brief"] }]}

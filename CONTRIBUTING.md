@@ -424,6 +424,22 @@ It's meant to be reached at `/mcp` on the site's own address, with the ingress s
 
 The counts are sums over OTLP/HTTP in JSON, sent each minute, under the service name `nuvui-mcp`: `mcp.tool.calls`, with the tool as `mcp.tool` and how the call ended as `mcp.outcome` (`ok`, `not_found` or `error`), and `mcp.requests.limited`. Nothing in them says who asked or what they asked for. `apps/otel-collector.example.yaml` takes them as it takes the site's.
 
+#### Its listing in the MCP Registry
+
+`apps/mcp/server.json` lists the server in the [MCP Registry](https://registry.modelcontextprotocol.io), as `io.github.Nuvraxis/nuvui`, at its address on the site. The registry keeps only the listing. It doesn't check the address, so publish once the server is answering there.
+
+The listing's version is `@nuvui/react`'s, which is what the server says it is. `pnpm version-packages` runs `scripts/mcp-server-version.mjs` after `changeset version`, so the release's pull request changes both. The registry takes a version once, so publish again after each release, from `apps/mcp`, with [`mcp-publisher`](https://github.com/modelcontextprotocol/registry/releases):
+
+```powershell
+mcp-publisher validate
+$t = Read-Host "GitHub token" -MaskInput
+mcp-publisher login github --token=$t
+Remove-Variable t
+mcp-publisher publish
+```
+
+Only an owner of the Nuvraxis organization can publish under its name, and the registry has to see that. `mcp-publisher login github` on its own, through the registry's GitHub App, gave only the publisher's own name. A classic token with just the `read:org` scope works. Give it a short expiry and delete it after publishing.
+
 ### Telemetry
 
 The website and the docs can send their web vitals to an OpenTelemetry collector. The image does, to `/otlp` on the site's own address. A build made with `pnpm build`, on your machine or for the tests, sends nothing unless it's given a collector.

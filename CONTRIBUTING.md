@@ -367,6 +367,7 @@ A pull request needs:
   - `e2e.yml` runs only for a pull request with the `invoke-e2e` label: the end-to-end tests, and a check that the packed library installs and builds in a Vite app and a Next.js app. A maintainer adds the label when a change is ready for it. Without the label nothing runs these for you, so run `pnpm test:e2e` yourself. The workflow builds the site once and cuts the tests into 17 slices, each on a runner of its own, because one runner would need hours for all of them. A last job named E2E passes when every slice has.
   - `apps-docker.yaml` runs for a pull request that changes `apps/Dockerfile`, `apps/nginx.conf`, `scripts/check-site-image.mjs` or `.dockerignore`. It builds the site's image, starts it and runs `scripts/check-site-image.mjs` against it. On `main` the same workflow also pushes the image to `ghcr.io/nuvraxis/nuvui-site`.
   - `mcp-docker.yaml` does the same for the MCP server, for a pull request that changes `apps/mcp/Dockerfile`, `scripts/check-mcp-image.mjs` or `.dockerignore`, and pushes `ghcr.io/nuvraxis/nuvui-mcp` from `main`.
+  - `mcp-publish.yaml` publishes the MCP server's listing to the MCP Registry, when a push to `main` changes `apps/mcp` and the listing has a version the registry doesn't. See [its listing](#its-listing-in-the-mcp-registry).
 - Tests for what changed.
 - The docs page updated, if behavior, props, CSS variables or class names changed.
 - A changeset, if the change reaches the published package.
@@ -428,7 +429,13 @@ The counts are sums over OTLP/HTTP in JSON, sent each minute, under the service 
 
 `apps/mcp/server.json` lists the server in the [MCP Registry](https://registry.modelcontextprotocol.io), as `io.github.Nuvraxis/nuvui`, at its address on the site. The registry keeps only the listing. It doesn't check the address, so publish once the server is answering there.
 
-The listing's version is `@nuvui/react`'s, which is what the server says it is. `pnpm version-packages` runs `scripts/mcp-server-version.mjs` after `changeset version`, so the release's pull request changes both. The registry takes a version once, so publish again after each release, from `apps/mcp`, with [`mcp-publisher`](https://github.com/modelcontextprotocol/registry/releases):
+The listing's version is `@nuvui/react`'s, which is what the server says it is. `pnpm version-packages` runs `scripts/mcp-server-version.mjs` after `changeset version`, so the release's pull request changes both. The registry takes a version once.
+
+`mcp-publish.yaml` publishes it when a push to `main` changes `apps/mcp`. It asks the registry for the listing's version first, and publishes only one it doesn't have, so a change to the server alone publishes nothing.
+
+The workflow signs in with the run's OIDC token from GitHub, which the registry trusts for `io.github.Nuvraxis/*` because the repository is the organization's. There's no secret to keep or renew.
+
+By hand, only an owner of the Nuvraxis organization can publish under its name, and the registry has to see that. `mcp-publisher login github` on its own, through the registry's GitHub App, gave only the publisher's own name. A classic token of an owner with just the `read:org` scope works. Give it a short expiry and delete it after publishing. From `apps/mcp`, with [`mcp-publisher`](https://github.com/modelcontextprotocol/registry/releases):
 
 ```powershell
 mcp-publisher validate
@@ -437,8 +444,6 @@ mcp-publisher login github --token=$t
 Remove-Variable t
 mcp-publisher publish
 ```
-
-Only an owner of the Nuvraxis organization can publish under its name, and the registry has to see that. `mcp-publisher login github` on its own, through the registry's GitHub App, gave only the publisher's own name. A classic token with just the `read:org` scope works. Give it a short expiry and delete it after publishing.
 
 ### Telemetry
 

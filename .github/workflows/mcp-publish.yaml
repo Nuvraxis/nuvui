@@ -1,0 +1,120 @@
+name: MCP Registry
+
+# Publishes the MCP server's listing, apps/mcp/server.json, to the MCP
+# Registry as io.github.Nuvraxis/nuvui, when a push to main changes
+# apps/mcp. The registry keeps only the listing, which points at the server
+# on the site.
+#
+# The registry takes a version once. A change to apps/mcp that leaves the
+# listing's version alone, such as a fix to the server, finds that version
+# there already and publishes nothing. The version moves with @nuvui/react's,
+# in the pull request that releases the library.
+#
+# It signs in with the run's own OIDC token from GitHub, which says which
+# repository the run belongs to. The registry gives that the owner's names,
+# io.github.Nuvraxis/*, so there's no secret to keep or renew.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/mcp/**"
+      - ".github/workflows/mcp-publish.yaml"
+  workflow_dispatch:
+
+# One at a time, and each one finishes: the second finds the version the
+# first published.
+concurrency:
+  group: mcp-publish
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  LISTING: apps/mcp/server.json
+  REGISTRY: https://registry.modelcontextprotocol.io
+  # The publisher, and the checksum its release lists for it.
+  PUBLISHER_VERSION: 1.8.1
+  PUBLISHER_SHA256: a06c9096dcb9727c13555b6be26c7effa707b01f06a4c561ba7a3635443cf2cc
+
+jobs:
+  publish:
+    name: Publish the MCP server's listing
+    # Forks can't publish under the organization's name, and only main
+    # publishes, including a run started by hand.
+    if: github.repository == 'Nuvraxis/nuvui' && github.ref == 'refs/heads/main'
+    # Not the self-hosted runners, which pull requests can run on.
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      # For the OIDC token the registry signs in with.
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Read the listing's name and version
+        id: listing
+        run: |
+          echo "name=$(jq -r .name "$LISTING")" >> "$GITHUB_OUTPUT"
+          echo "version=$(jq -r .version "$LISTING")" >> "$GITHUB_OUTPUT"
+
+      # 200 when the registry has this version, 404 when it hasn't. Anything
+      # else stops the run, so a registry that's down isn't taken for one
+      # without the version.
+      - name: Ask the registry whether it has this version
+        id: known
+        env:
+          NAME: ${{ steps.listing.outputs.name }}
+          VERSION: ${{ steps.listing.outputs.version }}
+        run: |
+          status=$(curl --silent --output /dev/null --write-out "%{http_code}" \
+            --max-time 30 \
+            "$REGISTRY/v0.1/servers/${NAME//\//%2F}/versions/$VERSION")
+          case "$status" in
+            200) echo "published=true" >> "$GITHUB_OUTPUT" ;;
+            404) echo "published=false" >> "$GITHUB_OUTPUT" ;;
+            *) echo "::error::The registry answered $status."; exit 1 ;;
+          esac
+
+      - name: Install the publisher
+        if: steps.known.outputs.published == 'false'
+        run: |
+          file="mcp-publisher_linux_amd64.tar.gz"
+          curl --silent --show-error --fail --location --max-time 60 \
+            --output "$RUNNER_TEMP/$file" \
+            "https://github.com/modelcontextprotocol/registry/releases/download/v$PUBLISHER_VERSION/$file"
+          echo "$PUBLISHER_SHA256  $RUNNER_TEMP/$file" | sha256sum --check --quiet
+          tar -xzf "$RUNNER_TEMP/$file" -C "$RUNNER_TEMP" mcp-publisher
+
+      - name: Check the listing
+        if: steps.known.outputs.published == 'false'
+        working-directory: apps/mcp
+        run: '"$RUNNER_TEMP/mcp-publisher" validate'
+
+      - name: Sign in to the registry
+        if: steps.known.outputs.published == 'false'
+        run: '"$RUNNER_TEMP/mcp-publisher" login github-oidc --registry "$REGISTRY"'
+
+      - name: Publish
+        if: steps.known.outputs.published == 'false'
+        working-directory: apps/mcp
+        run: '"$RUNNER_TEMP/mcp-publisher" publish'
+
+      # The registry's token is kept in the runner's home. Ending the run
+      # throws the runner away, and this throws the token away before that.
+      - name: Sign out
+        if: always() && steps.known.outputs.published == 'false'
+        run: '"$RUNNER_TEMP/mcp-publisher" logout || true'
+
+      - name: Say what happened
+        env:
+          NAME: ${{ steps.listing.outputs.name }}
+          VERSION: ${{ steps.listing.outputs.version }}
+          PUBLISHED: ${{ steps.known.outputs.published }}
+        run: |
+          if [ "$PUBLISHED" = "true" ]; then
+            echo "The registry has $NAME $VERSION already. Nothing was published." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Published $NAME $VERSION to $REGISTRY." >> "$GITHUB_STEP_SUMMARY"
+          fi

@@ -42,6 +42,7 @@ import { Markdown } from "@nuvui/chat/markdown";
 import { Calendar, DatePicker } from "@nuvui/date-picker";
 // One import from an entry of the add-on's own, to check those resolve too.
 import { DateRangePicker } from "@nuvui/date-picker/date-picker";
+import { Flow } from "@nuvui/flow/flow";
 import {
   Alert,
   AlertDescription,
@@ -613,6 +614,24 @@ export default function RscSmokePage() {
           </div>
         </SidebarMain>
       </SidebarProvider>
+      {/* A client component given its lists by this server component. The
+          server draws the whole diagram, fitted by its viewBox. */}
+      <div className="w-full">
+        <Flow
+          aria-label="Server flow"
+          editable
+          nodes={[
+            {
+              id: "in",
+              label: "Received",
+              shape: "pill",
+              position: { x: 0, y: 0 },
+            },
+            { id: "check", label: "Checked", position: { x: 220, y: -4 } },
+          ]}
+          edges={[{ id: "in-check", from: "in", to: "check" }]}
+        />
+      </div>
       <DirectionProvider dir="rtl">
         <div dir="rtl">
           <Tabs defaultValue="one">

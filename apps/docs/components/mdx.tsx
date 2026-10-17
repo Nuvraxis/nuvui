@@ -47,6 +47,7 @@ import { EmptyPlayground } from "@/components/playground/empty";
 import { FieldPlayground } from "@/components/playground/field";
 import { FieldsetPlayground } from "@/components/playground/fieldset";
 import { FileUploadPlayground } from "@/components/playground/file-upload";
+import { FlowPlayground } from "@/components/playground/flow";
 import { FormattedNumberPlayground } from "@/components/playground/formatted-number";
 import { HoldToConfirmPlayground } from "@/components/playground/hold-to-confirm";
 import { HoloCardPlayground } from "@/components/playground/holo-card";
@@ -194,6 +195,7 @@ export function getMDXComponents(components?: MDXComponents) {
     InputPlayground,
     InputGroupPlayground,
     KanbanPlayground,
+    FlowPlayground,
     RichTextEditorPlayground,
     KbdPlayground,
     LabelPlayground,

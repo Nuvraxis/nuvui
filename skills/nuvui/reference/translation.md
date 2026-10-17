@@ -266,6 +266,33 @@ A data table takes all its text in one prop, `labels`. Pass the ones to change:
 
 A chart writes no text of its own. Its name is the `aria-label` you give it, a series is named by its `label` in the config, and numbers are written by `formatValue`.
 
+## Flow diagrams
+
+A diagram's name is the `aria-label` you give it, and a node's is its `label`. What it adds, the meaning of each shape, where a node leads, the buttons and what's said as it changes, is in one prop, `labels`:
+
+| Prop | Type | Default | What it's for |
+| --- | --- | --- | --- |
+| `roleDescription` | `string` |  | What kind of thing the diagram is, read after its name. |
+| `shapes` | `Partial<Record<FlowShape, string>>` |  | What each shape means, read after a node's name. |
+| `leadsTo` | `((targets: FlowLinkTarget[]) => string)` |  | Where a node leads, read after its name and shown in the list. |
+| `instructions` | `string` |  | How to get around the diagram with the keyboard. |
+| `editInstructions` | `string` |  | How to change it with the keyboard, read after `instructions`. |
+| `controls` | `string` |  | The name of the group of buttons. |
+| `zoomIn` | `string` |  |  |
+| `zoomOut` | `string` |  |  |
+| `fit` | `string` |  |  |
+| `showList` | `string` |  | The button that shows the diagram as a list. |
+| `hideList` | `string` |  |  |
+| `list` | `string` |  | The name of the list. |
+| `showMore` | `((count: number) => string)` |  | The button at the end of a long list. |
+| `find` | `((label: string) => string)` |  | A step's button in the list, which finds it in the diagram. |
+| `removeLink` | `((from: string, to: string) => string)` |  | A link's button in the list of an editable diagram. |
+| `linking` | `((from: string) => string)` |  | Said when a link is started with the keyboard. |
+| `linked` | `((from: string, to: string) => string)` |  | Said when a link is made. |
+| `linkCancelled` | `string` |  | Said when a link that was started is let go. |
+| `moved` | `((labels: string[]) => string)` |  | Said when nodes are moved. |
+| `removed` | `((nodes: number, links: number) => string)` |  | Said when nodes and links are removed. |
+
 ## What isn't text
 
 - A [field](components/field.md) marks a required label with `*`, which `FieldLabel` changes with `requiredIndicator`. Screen readers don't hear it. They hear "required" from the control, in the browser's own language.

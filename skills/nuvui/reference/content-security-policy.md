@@ -57,6 +57,7 @@ A `style` attribute can only style the element it's on. It can't select other el
 
 - **`@nuvui/map`:** the tiles and the style come from a provider. Add its address to `connect-src`.
 - **`@nuvui/chat`:** what your app sends a model and gets back is your app's own requests, under your `connect-src`.
+- **`@nuvui/flow`:** nothing. Every position is an SVG attribute, so a diagram sent by a server is drawn whole under a policy without `style-src-attr 'unsafe-inline'`.
 - **`@nuvui/barcodes`:** a picture laid over a QR code is fetched once to save it in the file, from its own address, under `connect-src`.
 
 ## How it was checked

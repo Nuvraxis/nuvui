@@ -88,6 +88,15 @@ import "@nuvui/<package>/styles.css";
 - Give the map an `aria-label`, each marker a `label`, and the same places in words beside the map.
 - It's ESM only.
 
+## @nuvui/flow
+
+- Nothing else to install. A diagram is data: `nodes`, each with an `id`, a `label` and a `position` (its top left corner), and `edges`, each `from` one id `to` another. Positions come from the app. Nothing lays a diagram out by itself.
+- `aria-label` is required, and each node's `label` is its name for a screen reader: make each one tell it from the others.
+- With `editable`, `onNodesChange` and `onEdgesChange` are called once per change, a drag when it ends, with the lists as they are now and the change. That's when to save. Don't save from `onNodeDrag`, which comes every frame.
+- Keep the lists in state, or in `useMemo` for generated ones. The nodes that didn't change are the same objects, and a new object is read again.
+- A node holds words, not React content: it's drawn in SVG.
+- The frame's height is `--nuv-flow-height`, 24rem by default.
+
 ## @nuvui/barcodes
 
 - A code is black on white in every theme, on purpose: a scanner needs the contrast. Don't theme it.

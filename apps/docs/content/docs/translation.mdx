@@ -350,6 +350,12 @@ A data table takes all its text in one prop, `labels`. Pass the ones to change:
 
 A chart writes no text of its own. Its name is the `aria-label` you give it, a series is named by its `label` in the config, and numbers are written by `formatValue`.
 
+## Flow diagrams
+
+A diagram's name is the `aria-label` you give it, and a node's is its `label`. What it adds, the meaning of each shape, where a node leads, the buttons and what's said as it changes, is in one prop, `labels`:
+
+<PropsTable package="flow" component="flow" file="labels.ts" name="FlowLabels" />
+
 ## What isn't text
 
 - A [field](/docs/components/field) marks a required label with `*`, which `FieldLabel` changes with `requiredIndicator`. Screen readers don't hear it. They hear "required" from the control, in the browser's own language.

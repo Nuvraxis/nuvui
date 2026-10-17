@@ -153,22 +153,24 @@ describe("without WebGL", () => {
     const onError = vi.fn();
     await render(<MapView mapStyle={blank} onError={onError} />);
 
+    // MapLibre is loaded first, the first time in this file, which on a
+    // busy machine takes longer than an element is usually waited for.
     await expect
-      .element(page.getByRole("alert"))
+      .element(page.getByRole("alert"), { timeout: 20_000 })
       .toHaveTextContent("The map couldn't be drawn");
     expect(root().dataset.state).toBe("error");
     expect(onError).toHaveBeenCalledTimes(1);
     expect(onError.mock.calls[0]?.[0]).toBeInstanceOf(Error);
-  });
+  }, 30_000);
 
   test("the words are yours to give", async () => {
     vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue(null);
     await render(<MapView mapStyle={blank} labels={{ error: "Geen kaart" }} />);
 
     await expect
-      .element(page.getByRole("alert"))
+      .element(page.getByRole("alert"), { timeout: 20_000 })
       .toHaveTextContent("Geen kaart");
-  });
+  }, 30_000);
 
   test("a part outside a MapView says where it belongs", async () => {
     const quiet = vi.spyOn(console, "error").mockImplementation(() => {});

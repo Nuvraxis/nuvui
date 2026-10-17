@@ -58,6 +58,11 @@ async function mount() {
   await expect
     .poll(() => onLoad.mock.calls.length, { timeout: 20_000 })
     .toBe(1);
+  // The marker is put on the map by an effect, which on a busy machine
+  // can run after the map says it has loaded.
+  await expect
+    .element(page.getByRole("button", { name: "Berlin office" }))
+    .toBeInTheDocument();
 }
 
 test("the browser reports a touch screen", () => {

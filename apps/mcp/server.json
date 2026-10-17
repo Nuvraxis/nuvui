@@ -1,0 +1,19 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.Nuvraxis/nuvui",
+  "title": "NuvUI",
+  "description": "The docs, rules, blocks, charts and design tokens of nuvui, a React UI library, for coding agents.",
+  "websiteUrl": "https://nuvui.nuvraxis.com/docs/mcp",
+  "repository": {
+    "url": "https://github.com/Nuvraxis/nuvui",
+    "source": "github",
+    "subfolder": "apps/mcp"
+  },
+  "version": "0.7.0",
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://nuvui.nuvraxis.com/mcp"
+    }
+  ]
+}

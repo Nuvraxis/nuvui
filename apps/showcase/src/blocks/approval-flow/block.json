@@ -1,0 +1,9 @@
+{
+  "name": "approval-flow",
+  "title": "Approval path",
+  "description": "A purchase request's way to an order as a diagram: the steps that are done, the one it waits at, the ones to come, and a way it didn't need to take, dashed. A step selected with a click or the keyboard shows who has it and when, in a panel beside it.",
+  "category": "flows",
+  "files": ["approval-flow.tsx", "approval-flow.scss"],
+  "install": ["@nuvui/flow", "@nuvui/react"],
+  "height": 760
+}

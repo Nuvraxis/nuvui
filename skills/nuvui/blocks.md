@@ -2,7 +2,7 @@
 
 # Blocks
 
-A block is a part of an app, such as a sign-in screen or a table with a toolbar, built from the library's components: one TSX file and one SCSS file, to copy into an app and change. There are 64. Each is shown at https://nuvui.nuvraxis.com/blocks.
+A block is a part of an app, such as a sign-in screen or a table with a toolbar, built from the library's components: one TSX file and one SCSS file, to copy into an app and change. There are 66. Each is shown at https://nuvui.nuvraxis.com/blocks.
 
 Before building a screen from nothing, look here for one that's close. To add one, with the packages it needs:
 
@@ -73,6 +73,11 @@ A block's SCSS uses the library's mixins, `@use "@nuvui/react/scss/mixins"`, so 
 - **Announcement editor** (`announcement-editor`): A form that writes an announcement: a title, and a body in a rich text editor with a limit and a count. Beside it the announcement is shown as its readers will see it, drawn by the editor itself so nothing in it can run, and publishing with nothing written says what's missing. Needs `@nuvui/editor`, `@nuvui/react`.
 - **Comment thread** (`comment-thread`): Comments on a record, and a small rich text editor under them with a toolbar cut down to bold, italic, code, lists and links. A posted comment joins the list, each one drawn by a read-only editor so nothing in it can run, and posting nothing says what's missing. Needs `@nuvui/editor`, `@nuvui/react`.
 - **Document editor** (`document-editor`): A page of a knowledge base being edited: a title, a body in a rich text editor with the whole toolbar, and beside it the page's headings as an outline with a count of words, both read from the HTML as it's written. It says whether there are unsaved changes, and they can be saved or thrown away. Needs `@nuvui/editor`, `@nuvui/react`.
+
+## Flows
+
+- **Approval path** (`approval-flow`): A purchase request's way to an order as a diagram: the steps that are done, the one it waits at, the ones to come, and a way it didn't need to take, dashed. A step selected with a click or the keyboard shows who has it and when, in a panel beside it. Needs `@nuvui/flow`, `@nuvui/react`.
+- **Workflow builder** (`workflow-builder`): An automation drawn as a diagram and edited in place: steps are dragged onto a grid and joined from their edges, with a pointer or the keyboard, buttons add a trigger, a condition or an action after the selected step, and a panel beside it renames or removes the step that's selected. Needs `@nuvui/flow`, `@nuvui/react`.
 
 ## Layout
 

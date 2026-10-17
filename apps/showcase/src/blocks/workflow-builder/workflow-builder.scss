@@ -1,0 +1,90 @@
+@use "@nuvui/react/scss/mixins";
+
+.workflow-builder {
+  display: grid;
+  gap: calc(var(--spacing) * 4);
+  align-content: start;
+  inline-size: 100%;
+  min-block-size: 100svh;
+  padding: calc(var(--spacing) * 6) calc(var(--spacing) * 4);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+
+  @include mixins.breakpoint("md") {
+    padding: calc(var(--spacing) * 8);
+  }
+}
+
+.workflow-builder__head {
+  display: grid;
+  gap: calc(var(--spacing) * 1);
+}
+
+.workflow-builder__title {
+  margin: 0;
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-2xl--line-height);
+  letter-spacing: var(--tracking-tight);
+}
+
+.workflow-builder__text {
+  max-inline-size: 60ch;
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+// One line is kept for it, so the page stays put when it first speaks.
+.workflow-builder__said {
+  min-block-size: var(--text-sm--line-height);
+  margin: 0;
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+.workflow-builder__tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 2);
+}
+
+.workflow-builder__body {
+  display: grid;
+  gap: calc(var(--spacing) * 4);
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+
+  @include mixins.breakpoint("md") {
+    grid-template-columns: minmax(0, 1fr) 16rem;
+  }
+}
+
+.workflow-builder__diagram {
+  --nuv-flow-height: 30rem;
+}
+
+.workflow-builder__panel {
+  display: grid;
+  gap: calc(var(--spacing) * 3);
+  justify-items: start;
+  padding: calc(var(--spacing) * 4);
+  border: var(--nuv-border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-surface);
+  color: var(--color-surface-foreground);
+}
+
+.workflow-builder__field {
+  display: grid;
+  gap: calc(var(--spacing) * 1);
+  justify-self: stretch;
+}
+
+.workflow-builder__empty {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}

@@ -1,0 +1,332 @@
+---
+title: Flow
+description: A diagram of shapes joined by arrows, drawn as SVG, in a frame that pans and zooms. Nodes are dragged, joined and removed with a pointer or the keyboard, and only what's in view is drawn.
+added: "2026-10-17"
+---
+
+Use a flow diagram for something that goes from step to step: how an order moves, who approves a request, what a service calls. A diagram shows the shape of the whole. If the steps only go one way, a [stepper](/docs/components/stepper) or a list says the same more plainly.
+
+<Preview name="flow/basic" wide />
+
+## Install
+
+```sh
+pnpm add @nuvui/flow @nuvui/react
+```
+
+## Import
+
+```tsx
+import { Flow } from "@nuvui/flow";
+```
+
+The styles come from `@nuvui/flow/styles.css`, which you load once for the whole app, after `@nuvui/react/styles.css`. [Flow diagrams](/docs/flow) covers that.
+
+```tsx
+<Flow aria-label="How an order goes" nodes={nodes} edges={edges} />
+```
+
+## Playground
+
+<FlowPlayground />
+
+## Nodes
+
+A node has an `id`, a `label` and a `position`: its top left corner, in the diagram's own units. The diagram is fitted into its frame, so the units are whatever you like.
+
+`shape` is one of five, each with a meaning a screen reader hears after the label:
+
+| Shape | Read as | Default size |
+| --- | --- | --- |
+| `box` | step | 160 by 56 |
+| `rounded`, the default | step | 160 by 56 |
+| `circle` | event | 88 by 88 |
+| `diamond` | decision | 144 by 88 |
+| `pill` | start or end | 160 by 48 |
+
+`size` changes one node's size. `intent` draws its outline in a color: `neutral`, `primary`, `success`, `warning` or `danger`. `description` is read after its name and shown in the list.
+
+<Preview name="flow/shapes" wide />
+
+The label wraps inside the shape, and after as many lines as the shape has room for it ends with an ellipsis. The whole label is still its name. A circle's and a diamond's words sit in the box that fits inside them, so they're narrower than the shape.
+
+## Edges
+
+An edge goes `from` one node `to` another, or to the same node, which draws a loop. `path` says how the line goes:
+
+- `curved`, the default, and `step`, at right angles, join the sides of the two nodes that face each other.
+- `straight` runs from one outline to the other, toward the middles.
+
+`edgePath` on the diagram changes the default for every edge that doesn't say.
+
+`arrow` puts an arrowhead at the `end`, the default, the `start`, `both` or `none`. `label` writes words on the line, such as "yes" after a decision. `dashed` draws it dashed, and `animated` draws it dashed and moving toward its end, which stops when less motion is asked for. `intent` colors it as a node's.
+
+<Preview name="flow/edges" wide />
+
+## Editing
+
+With `editable`, the diagram can be changed:
+
+- **Moving.** Drag a node, or several selected ones. With the keyboard, hold Shift and press an arrow key. `snap` puts moved nodes on a grid of that step, and the arrow keys move by it, or by 10 without one.
+- **Joining.** Drag from one of the handles on a node's sides to another node. Handles show on the node under the pointer and on a node that's selected alone. With the keyboard, press L on one node, move to another and press L again.
+- **Removing.** Select nodes or edges and press Delete. A node takes its edges with it.
+
+A node with `locked` can be selected but not moved, joined or removed.
+
+<Preview name="flow/editable" wide />
+
+### Who keeps the diagram
+
+Pass `nodes` and `edges`, and the diagram draws them and tells you of changes. Pass `defaultNodes` and `defaultEdges` instead, and it keeps them itself and still tells you.
+
+`onNodesChange` is called with the nodes as they are after a change, and the change: `{ type: "move", ids }` or `{ type: "remove", ids }`. A drag is reported once, when it ends, and keys once they rest, so a diagram with thousands of nodes isn't copied on every frame. `onNodeDrag` is called on every frame of a drag for an app that wants that. The nodes that didn't change are the same objects as before.
+
+`onEdgesChange` is the same for edges, with `{ type: "add", ids }` or `{ type: "remove", ids }`.
+
+When you keep `nodes`, a move you don't take is undone: the node goes back to where your nodes say. That's how a step is kept in a lane, or saving that fails is put right.
+
+### Which links may be made
+
+By default any two different nodes may be joined, once each way. `canConnect` decides instead: it's called with the two ids, and a link it refuses isn't made. `createEdge` makes the new edge, which by default is `{ id: "from->to", from, to }`.
+
+## Selecting
+
+A click selects a node or an edge. Shift and a click adds one or takes it away. Shift and a drag on empty space selects what the box touches, and a click on empty space clears the selection. With the keyboard, Space selects, Ctrl+A selects every node, and Escape clears.
+
+`selection`, with `onSelectionChange`, keeps the selection yourself. It's `{ nodes, edges }`, by id, in the order of your lists.
+
+`onNodeOpen` is called on a double click on a node, or on Enter, for something such as opening a panel with its details.
+
+## The view
+
+The diagram is fitted into its frame when it first shows, and never zoomed in past its own size for that. `defaultViewport` starts it somewhere else instead, and `onViewportChange` is called when the view stops moving.
+
+Drag empty space to pan. Pinch on a touch screen. The wheel zooms while the diagram has focus, or with Ctrl held, which is what a pinch on a trackpad sends. Otherwise it scrolls the page past the diagram, as it would past a picture. The buttons in the corner zoom out, zoom in and fit, and so do minus, plus and 0. `minZoom` and `maxZoom` are the limits, 0.05 and 2.5 by default. `controls={false}` leaves the buttons out.
+
+`handleRef` gives you the same from your own code:
+
+```tsx
+const flow = useRef<FlowHandle>(null);
+
+<Flow aria-label="Services" nodes={nodes} edges={edges} handleRef={flow} />;
+
+flow.current?.center("billing");
+```
+
+| Method | What it does |
+| --- | --- |
+| `fit()` | Shows the whole diagram. |
+| `zoomIn()`, `zoomOut()` | Zooms around the middle of the frame. |
+| `center(id)` | Moves the view so a node is in the middle. |
+| `getViewport()` | Where the view is now: `{ x, y, zoom }`. |
+
+## Large diagrams
+
+The diagram stays quick with thousands of nodes because the work is kept to what can be seen:
+
+- Only the nodes and edges in view, and a margin around it, are on the page. They're found through an index of where everything is, not by looking at every node.
+- From far out, where words can't be read, nodes are shapes with no words and edges have no arrowheads. Further out, or with too many nodes in view to draw one by one, the diagram is a few paths, one for each color.
+- Panning and zooming change one attribute, once a frame, and don't render React. A node that moves renders itself and its edges and nothing else.
+- Nothing is measured: every node's size comes from its shape or from you.
+
+The text version, the list, is built when it's opened, two hundred steps at a time.
+
+## Server rendering and a strict policy
+
+Every position is an SVG attribute, and nothing is set with a `style` attribute. A server sends the diagram fitted by the SVG's `viewBox`, which needs no size, and a [Content Security Policy](/docs/content-security-policy) without `style-src-attr 'unsafe-inline'` changes nothing.
+
+Up to `serverLimit` nodes, 300 by default, the server sends the whole diagram. A larger one is drawn by the browser once it knows the frame's size: the server sends the frame, the controls and the list's button.
+
+Flow starts with `"use client"`. A server component can render it and hand it the lists.
+
+## Flow props
+
+<PropsTable package="flow" component="flow" name="FlowOwnProps" />
+
+It also takes the attributes of a `div`, and passes `ref` to it.
+
+## FlowNode
+
+<PropsTable package="flow" component="flow" file="types.ts" name="FlowNode" />
+
+## FlowEdge
+
+<PropsTable package="flow" component="flow" file="types.ts" name="FlowEdge" />
+
+## Translation
+
+Everything the diagram says and doesn't draw is in `labels`, in English until you give another. The ones that put names into a sentence are functions.
+
+<PropsTable package="flow" component="flow" file="labels.ts" name="FlowLabels" />
+
+```tsx
+<Flow
+  aria-label="Bestelling"
+  labels={{
+    roleDescription: "stroomdiagram",
+    shapes: { diamond: "keuze", pill: "begin of einde" },
+    leadsTo: (targets) =>
+      `gaat naar ${targets.map((target) => target.label).join(" en ")}`,
+  }}
+/>
+```
+
+## Accessibility
+
+### Keyboard
+
+| Key | What it does |
+| --- | --- |
+| <kbd>Tab</kbd> | Into the diagram, on the first node or the one you were on, and on to its buttons. |
+| <kbd>↑</kbd> <kbd>↓</kbd> <kbd>←</kbd> <kbd>→</kbd> | To the nearest node that way, brought into view. |
+| <kbd>Space</kbd> | Selects the node, or takes it out of the selection. |
+| <kbd>Enter</kbd> | Opens the node, with `onNodeOpen`, or selects it. |
+| <kbd>Ctrl</kbd>+<kbd>A</kbd> | Selects every node. |
+| <kbd>Esc</kbd> | Lets go of a link that was started, or clears the selection. |
+| <kbd>+</kbd> <kbd>-</kbd> <kbd>0</kbd> | Zooms in, zooms out, fits the diagram. |
+
+In an editable diagram:
+
+| Key | What it does |
+| --- | --- |
+| <kbd>Shift</kbd>+arrow | Moves the selected nodes, or the one you're on, by the grid's step or by 10. |
+| <kbd>L</kbd> | Starts a link from the node you're on. Move to another and press it again to join them. |
+| <kbd>Delete</kbd> | Removes what's selected, or the node you're on. |
+
+The arrows go by where things are on the screen, so they're the same where the page reads right to left. The diagram itself isn't mirrored: its positions are yours.
+
+### What the component handles
+
+- The diagram is a listbox, with its name and "flow diagram" as what it is. Each node is an option, named for its label, what its shape means, its description and where it leads, such as "In stock?, decision, leads to Pack and ship (yes) and Reorder (no)".
+- Focus stays on the diagram and the node you're on is its active option, so a node that isn't drawn can't lose the focus. Each option says its place among all the nodes, not only the drawn ones.
+- How to use the keys is written out and read with the diagram, with the editing keys when it's editable.
+- Moves, links and removals are said in a live region.
+- **The list.** The button in the corner shows the same diagram as a list of steps, each with where it leads. A step's name is a button that finds it in the diagram. In an editable diagram each link has a button that removes it. It's what a screen reader, a keyboard and print can all follow.
+- The buttons are 44 pixels on a touch screen. In forced colors the outlines are in the text color and what's selected in the highlight color.
+
+### What you need to handle
+
+- Name the diagram with `aria-label`, and give each node a label that tells it from the others.
+- Dragging is never the only way: the keyboard does everything a pointer does, and the list removes links. For adding nodes, give a button of your own, as the example above does.
+- What a screen reader says for each node hasn't been checked with NVDA and VoiceOver yet. The tests check the names, roles and states a browser passes on.
+
+## On small screens
+
+The frame is as wide as its container and 24rem tall. One finger drags empty space to pan and two pinch to zoom, so the page doesn't scroll while a finger is on the diagram. Keep the frame shorter than the screen, so there's page to scroll by around it.
+
+## CSS variables
+
+Set any of these on a `Flow`, or on anything around it.
+
+```css
+.diagram {
+  --nuv-flow-height: 32rem;
+  --nuv-flow-node-bg: var(--color-muted);
+}
+```
+
+<CssVariables
+  package="flow"
+  component="flow"
+  descriptions={{
+    "--nuv-flow-fg": "Color of the text around the diagram, such as the list.",
+    "--nuv-flow-height": "Height of the frame.",
+    "--nuv-flow-border": "Color of the frame's border, and the buttons' group.",
+    "--nuv-flow-radius": "Corner radius of the frame.",
+    "--nuv-flow-bg":
+      "Background of the frame, behind edge labels and inside handles.",
+    "--nuv-flow-grid": "Color of the background's dots or lines.",
+    "--nuv-flow-node-bg": "Fill of a node.",
+    "--nuv-flow-node-border":
+      "Outline of a node, for every intent, and of the boxes from far out. Keep it at 3:1 against the frame.",
+    "--nuv-flow-selected-bg": "Fill of a selected node.",
+    "--nuv-flow-selected-border":
+      "Outline of a selected node or edge, of handles and of a link being made.",
+    "--nuv-flow-node-fg": "Color of a node's words. Keep it at 4.5:1 against its fill.",
+    "--nuv-flow-selected-fg": "Color of a selected node's words.",
+    "--nuv-flow-edge":
+      "Color of every edge and arrowhead, for every intent. Keep it at 3:1 against the frame.",
+    "--nuv-flow-edge-fg": "Color of an edge's words. Keep it at 4.5:1 against the frame.",
+    "--nuv-flow-controls-bg": "Background of the buttons' group.",
+    "--nuv-flow-control-fg": "Color of a button's icon.",
+    "--nuv-flow-control-hover-bg": "Background of a button under the pointer.",
+    "--nuv-flow-muted-fg":
+      "Color of the quieter words in the list. Keep it at 4.5:1 against the page.",
+  }}
+/>
+
+## Classes
+
+<BemClasses
+  package="flow"
+  component="flow"
+  descriptions={{
+    "nuv-flow": "Flow",
+    "nuv-flow__frame": "The frame the diagram is drawn in.",
+    "nuv-flow__canvas": "The listbox around the drawing, which takes focus.",
+    "nuv-flow__svg": "The drawing.",
+    "nuv-flow__background": "The background's grid.",
+    "nuv-flow__dot": "A dot of the grid.",
+    "nuv-flow__grid-line": "A line of the grid.",
+    "nuv-flow__node": "A node, with its intent as a modifier.",
+    "nuv-flow__node--primary": "A primary node.",
+    "nuv-flow__node--success": "A success node.",
+    "nuv-flow__node--warning": "A warning node.",
+    "nuv-flow__node--danger": "A danger node.",
+    "nuv-flow__shape": "A node's outline.",
+    "nuv-flow__label": "The box a node's words are in.",
+    "nuv-flow__label-text": "A node's words.",
+    "nuv-flow__edge": "An edge, with its intent as a modifier.",
+    "nuv-flow__edge--primary": "A primary edge.",
+    "nuv-flow__edge--success": "A success edge.",
+    "nuv-flow__edge--warning": "A warning edge.",
+    "nuv-flow__edge--danger": "A danger edge.",
+    "nuv-flow__line": "An edge's line.",
+    "nuv-flow__arrow": "An arrowhead.",
+    "nuv-flow__arrow--primary": "A primary edge's arrowhead.",
+    "nuv-flow__arrow--success": "A success edge's arrowhead.",
+    "nuv-flow__arrow--warning": "A warning edge's arrowhead.",
+    "nuv-flow__arrow--danger": "A danger edge's arrowhead.",
+    "nuv-flow__arrow--selected": "A selected edge's arrowhead.",
+    "nuv-flow__edge-label": "The box an edge's words are in.",
+    "nuv-flow__edge-label-text": "An edge's words.",
+    "nuv-flow__overview": "The boxes of one intent, from far out.",
+    "nuv-flow__overview--primary": "The primary ones.",
+    "nuv-flow__overview--success": "The success ones.",
+    "nuv-flow__overview--warning": "The warning ones.",
+    "nuv-flow__overview--danger": "The danger ones.",
+    "nuv-flow__overview-edges": "Every edge, from far out.",
+    "nuv-flow__focus": "The ring around the node the keyboard is on.",
+    "nuv-flow__handle": "A handle a link is dragged from.",
+    "nuv-flow__new-link": "The line of a link being made.",
+    "nuv-flow__selection-box": "The box drawn to select with Shift and a drag.",
+    "nuv-flow__controls": "The group of buttons in the corner.",
+    "nuv-flow__control": "One of those buttons.",
+    "nuv-flow__icon": "A button's icon.",
+    "nuv-flow__list": "The list's container, hidden until it's shown.",
+    "nuv-flow__steps": "The list of steps.",
+    "nuv-flow__step-name": "A step's name, the button that finds it.",
+    "nuv-flow__step-kind": "What its shape means.",
+    "nuv-flow__step-description": "Its description.",
+    "nuv-flow__step-links": "Where it leads.",
+    "nuv-flow__step-remove": "The button that removes a link.",
+    "nuv-flow__more": "The button that shows two hundred more steps.",
+    "nuv-flow__hidden": "Text for screen readers only: the instructions and the live region.",
+  }}
+/>
+
+A state is an attribute: `data-editable` on the diagram, `data-detail` on the canvas (0 for everything, 1 for no words, 2 for the overview), `data-selected`, `data-linking` and `data-locked` on a node, `data-shape` on a node, and `data-selected`, `data-dashed` and `data-animated` on an edge.
+
+## Do and don't
+
+**Do**
+
+- Keep the diagram to what one reader can follow, and split one that grows past that.
+- Give every node a label that reads well on its own, since that's its name.
+- Save changes when `onNodesChange` and `onEdgesChange` are called, once each.
+
+**Don't**
+
+- Don't use a diagram for steps that only ever go one way. A list says it more plainly.
+- Don't make color the only difference between nodes. Say it in the label or the description too.
+- Don't save on every frame of a drag with `onNodeDrag`.

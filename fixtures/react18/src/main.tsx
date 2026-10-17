@@ -8,6 +8,7 @@ import "@nuvui/kanban/styles.css";
 import "@nuvui/editor/styles.css";
 import "@nuvui/emoji/styles.css";
 import "@nuvui/map/styles.css";
+import "@nuvui/flow/styles.css";
 import { setMapWorkerUrl } from "@nuvui/map/map";
 import { DirectionProvider } from "@nuvui/react/direction";
 import mapWorkerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?url";

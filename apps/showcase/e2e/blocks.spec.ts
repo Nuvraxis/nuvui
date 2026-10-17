@@ -5556,3 +5556,143 @@ test.describe("charging points", () => {
     });
   });
 });
+
+test.describe("approval path", () => {
+  const diagram = (page: Page) =>
+    page.getByRole("listbox", { name: "Approval path of PR-1042" });
+  const panel = (page: Page) =>
+    page.getByRole("region", { name: /./ }).filter({ has: page.locator("dl") });
+
+  test("approval path: the step it waits at is selected, and its panel says who has it", async ({
+    page,
+  }) => {
+    await open(page, "/blocks/view/approval-flow");
+    await expect(diagram(page).getByRole("option")).toHaveCount(6);
+    await expect(
+      diagram(page).getByRole("option", {
+        name: /^Finance checks, step, waiting here/,
+      }),
+    ).toHaveAttribute("aria-selected", "true");
+    await expect(panel(page)).toContainText("Finance team");
+    await expect(panel(page)).toContainText("Waiting here");
+  });
+
+  test("approval path: a step chosen with the keyboard shows its own panel, and one that wasn't needed says so", async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(isMobile, "A phone has no arrow keys.");
+    await open(page, "/blocks/view/approval-flow");
+    await diagram(page).focus();
+    await page.keyboard.press("ArrowDown");
+    await page.keyboard.press("ArrowDown");
+    await page.keyboard.press("ArrowRight");
+    await page.keyboard.press("Space");
+
+    await expect(
+      page.getByRole("heading", { name: "Director signs", level: 2 }),
+    ).toBeVisible();
+    await expect(panel(page)).toContainText("Not needed");
+    await expect(panel(page)).toContainText("Not yet");
+  });
+
+  test("approval path: on a phone the panel is under the diagram, and the page doesn't scroll sideways", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 320, height: 640 });
+    await open(page, "/blocks/view/approval-flow");
+    const frame = await page.locator(".nuv-flow__frame").boundingBox();
+    const step = await page.locator(".approval-flow__panel").boundingBox();
+    expect(step?.y ?? 0).toBeGreaterThan(
+      (frame?.y ?? 0) + (frame?.height ?? 0),
+    );
+    expect(await overflow(page)).toBe(0);
+  });
+
+  for (const theme of ["light", "dark"] as const) {
+    test(`approval path: it passes axe in ${theme}`, async ({ page }) => {
+      await setTheme(page, theme);
+      await open(page, "/blocks/view/approval-flow");
+      await settleStyles(page);
+      expect(
+        (await new AxeBuilder({ page }).withTags(wcag).analyze()).violations,
+      ).toEqual([]);
+    });
+  }
+});
+
+test.describe("workflow builder", () => {
+  const diagram = (page: Page) =>
+    page.getByRole("listbox", { name: "New customer automation" });
+  const said = (page: Page) => page.locator(".workflow-builder__said");
+
+  test("workflow builder: a step added after the selected one is joined to it, renamed, and removed", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/blocks/view/workflow-builder");
+    await expect(diagram(page).getByRole("option")).toHaveCount(4);
+    await expect(page.getByText("Select one step to rename")).toBeVisible();
+
+    await diagram(page).focus();
+    await page.keyboard.press("ArrowDown");
+    await page.keyboard.press("ArrowRight");
+    await page.keyboard.press("Space");
+    await press(page.getByRole("button", { name: "Add an action" }), isMobile);
+
+    await expect(said(page)).toHaveText(
+      "An action was added after Book an onboarding call.",
+    );
+    await expect(diagram(page).getByRole("option")).toHaveCount(5);
+    await expect(
+      diagram(page).getByRole("option", {
+        name: /^Book an onboarding call, step, leads to Send the welcome email and Do this$/,
+      }),
+    ).toBeAttached();
+
+    const name = page.getByLabel("Step name");
+    await name.fill("Send a survey");
+    await expect(
+      diagram(page).getByRole("option", { name: /^Send a survey, step$/ }),
+    ).toBeAttached();
+
+    await press(page.getByRole("button", { name: "Remove step" }), isMobile);
+    await expect(said(page)).toHaveText("Send a survey was removed.");
+    await expect(diagram(page).getByRole("option")).toHaveCount(4);
+  });
+
+  test("workflow builder: Delete in the diagram removes a step and its links", async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(isMobile, "A phone has no Delete key.");
+    await open(page, "/blocks/view/workflow-builder");
+    await diagram(page).focus();
+    await page.keyboard.press("ArrowDown");
+    await page.keyboard.press("Delete");
+    await expect(said(page)).toHaveText("1 step was removed.");
+    await expect(diagram(page).getByRole("option")).toHaveCount(3);
+    await expect(
+      page.locator('.nuv-flow__edge[data-id="signup->business"]'),
+    ).toHaveCount(0);
+  });
+
+  for (const theme of ["light", "dark"] as const) {
+    test(`workflow builder: it passes axe in ${theme}, with a step selected`, async ({
+      page,
+    }) => {
+      await setTheme(page, theme);
+      await open(page, "/blocks/view/workflow-builder");
+      await settleStyles(page);
+      expect(
+        (await new AxeBuilder({ page }).withTags(wcag).analyze()).violations,
+      ).toEqual([]);
+      await diagram(page).focus();
+      await page.keyboard.press(" ");
+      await expect(page.getByLabel("Step name")).toBeVisible();
+      expect(
+        (await new AxeBuilder({ page }).withTags(wcag).analyze()).violations,
+      ).toEqual([]);
+    });
+  }
+});

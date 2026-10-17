@@ -47,6 +47,7 @@ const addons = [
   "editor",
   "emoji",
   "map",
+  "flow",
   "icons",
 ];
 const packageDir = (addon) => path.join(repoDir, "packages", addon ?? core);

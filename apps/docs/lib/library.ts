@@ -55,6 +55,7 @@ export const addons = {
   editor: pkg("editor", "@nuvui/editor"),
   emoji: pkg("emoji", "@nuvui/emoji"),
   map: pkg("map", "@nuvui/map"),
+  flow: pkg("flow", "@nuvui/flow"),
   icons: pkg("icons", "@nuvui/icons"),
 };
 

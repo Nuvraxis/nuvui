@@ -146,6 +146,16 @@ describe("rendering", () => {
       .toBeInTheDocument();
   });
 
+  // Firefox makes a video a Tab stop of its own, with no name.
+  test("Tab reaches the controls and not the video, unless the browser's controls are shown", async () => {
+    const screen = await render(<Player />);
+    await loaded();
+    expect(video().tabIndex).toBe(-1);
+    // Controls of the app's own, from the parts.
+    await screen.rerender(<Player controls={false} />);
+    expect(video().tabIndex).toBe(-1);
+  });
+
   test("without a title it's named Video, or by its aria-label", async () => {
     const screen = await render(<VideoPlayer src={clip} />);
     expect(root().getAttribute("aria-label")).toBe("Video");

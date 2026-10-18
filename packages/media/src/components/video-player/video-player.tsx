@@ -890,6 +890,10 @@ export function VideoPlayer({
                 loop={loop}
                 crossOrigin={crossOrigin}
                 controls={!showControls && controls}
+                // Firefox puts a video in the Tab order even without its own
+                // controls, as a stop with no name. The player's controls,
+                // or the app's, are what Tab should reach.
+                tabIndex={!showControls && controls ? undefined : -1}
                 src={
                   streamKind !== "file" || !near
                     ? undefined

@@ -9,6 +9,7 @@ import { AlertPlayground } from "@/components/playground/alert";
 import { AlertDialogPlayground } from "@/components/playground/alert-dialog";
 import { AnimatedNumberPlayground } from "@/components/playground/animated-number";
 import { AspectRatioPlayground } from "@/components/playground/aspect-ratio";
+import { AudioPlayerPlayground } from "@/components/playground/audio-player";
 import { AvatarPlayground } from "@/components/playground/avatar";
 import { BadgePlayground } from "@/components/playground/badge";
 import {
@@ -141,6 +142,7 @@ export function getMDXComponents(components?: MDXComponents) {
     AlertDialogPlayground,
     AnimatedNumberPlayground,
     AspectRatioPlayground,
+    AudioPlayerPlayground,
     AvatarPlayground,
     BadgePlayground,
     BreadcrumbPlayground,

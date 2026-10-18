@@ -9,14 +9,22 @@ import { VideoPlayer } from "@nuvui/media/video-player";
 
 export default function Example() {
   return (
-    <VideoPlayer
-      title="Building a screen with nuvui"
-      src={[
-        { src: "/docs/clips/demo-720.webm", type: "video/webm" },
-        { src: "/docs/clips/demo-720.mp4", type: "video/mp4" },
-      ]}
-      poster="/docs/clips/poster.jpg"
-    />
+    <div className="w-full px-6 py-8">
+      <VideoPlayer
+        title="A music player, close up"
+        src="/docs/clips/demo_video.mp4"
+        poster="/docs/clips/demo_video.jpg"
+        tracks={[
+          {
+            kind: "captions",
+            src: "/docs/clips/demo_video.en.vtt",
+            srcLang: "en",
+            label: "English",
+          },
+        ]}
+        ambient
+      />
+    </div>
   );
 }
 ```
@@ -42,8 +50,25 @@ import { VideoPlayer } from "@nuvui/media/video-player";
 `src` takes an address, a source, or a list of them.
 
 - **One file:** `src="/videos/intro.mp4"`.
-- **The same video in several formats,** of which the browser plays the first it can: a list of sources with a `type` each, as in the example at the top. WebM is smaller, and MP4 plays everywhere.
+- **The same video in several formats,** of which the browser plays the first it can: a list of sources with a `type` each, as in the example below. WebM is smaller, and MP4 plays everywhere.
 - **The same video in several qualities:** a list of sources with a `height` or a `label` each. They fill the quality menu, the first is played first, and a change keeps the place and whether it was playing.
+
+```tsx
+import { VideoPlayer } from "@nuvui/media/video-player";
+
+export default function Example() {
+  return (
+    <VideoPlayer
+      title="Building a screen with nuvui"
+      src={[
+        { src: "/docs/clips/demo-720.webm", type: "video/webm" },
+        { src: "/docs/clips/demo-720.mp4", type: "video/mp4" },
+      ]}
+      poster="/docs/clips/poster.jpg"
+    />
+  );
+}
+```
 
 ```tsx
 import { VideoPlayer } from "@nuvui/media/video-player";
@@ -97,6 +122,8 @@ export default function Example() {
 ```
 
 The player draws the captions itself rather than leaving them to the browser, so they're the same in every browser, take your theme, and come in the size the viewer picked, measured against the width of the frame. The italics and voices in a cue are kept. A track on another site needs that site to allow it with CORS, and the player needs `crossOrigin="anonymous"`.
+
+The same words can sit beside the video as text, with the line being said marked: that's [MediaTranscript](media-transcript.md).
 
 ## Chapters and previews
 
@@ -302,41 +329,41 @@ const player = useRef<MediaPlayerHandle>(null);
 
 | Prop | Type | Default | What it's for |
 | --- | --- | --- | --- |
-| `src` (required) | `string \| MediaSourceItem[] \| MediaSourceItem` |  | What to play: an address, a source, or several. Sources with a `height` or a `label` are qualities, and fill the quality menu. Sources without are alternatives, such as WebM and MP4, of which the browser plays the first it can. An `.m3u8` or `.mpd` address is a stream. |
-| `poster` | `string` |  | The picture shown before it plays. |
-| `title` | `string` |  | The video's title: the player's name, and what the lock screen shows. |
-| `aria-label` | `string` |  | The player's name for a screen reader. Defaults to `title`. |
 | `tracks` | `MediaTrackItem[]` |  | Captions, subtitles and chapters, as WebVTT files. |
 | `chapters` | `MediaChapter[]` |  | Chapters, which replace a chapters track if there is one. |
-| `thumbnails` | `string` |  | A WebVTT file of frames for the preview over the seek bar. |
-| `autoPlay` | `boolean` |  | Starts on its own. Only allowed muted, as browsers require, so it's muted when this is set. Moving video that starts by itself is a problem for some people: give it a reason. |
 | `defaultMuted` | `boolean` | `false` |  |
 | `defaultVolume` | `number` | `1` | From 0 to 1. |
 | `defaultRate` | `number` | `1` |  |
 | `loop` | `boolean` |  |  |
 | `startTime` | `number` |  | Where to start, in seconds. |
-| `preload` | `"auto" \| "metadata" \| "none"` | `"metadata"` | How much to load before it plays. With `lazy`, nothing until the player is near the screen. |
-| `lazy` | `boolean` |  | Loads nothing until the player is near the screen. |
-| `facade` | `boolean` |  | Shows only the poster and a play button, and puts the video on the page at the first press. For a page with many videos. |
 | `crossOrigin` | `"anonymous" \| "use-credentials"` |  |  |
 | `rates` | `number[]` | `[0.5, 0.75, 1, 1.25, 1.5, 1.75, 2]` | The speeds in the menu. |
-| `skip` | `number` | `10` | Seconds the J and L keys and a double tap go. |
 | `persist` | `string \| boolean` |  | Keeps volume, speed, captions and quality between visits, in `localStorage`, under this key, or "nuvui-media" with `true`. |
 | `exclusive` | `string \| boolean` |  | Starting this player pauses every other player in the same group. A name for the group, or `true` for one shared by all. |
-| `ambient` | `boolean` |  | A soft glow around the frame in the video's own colors. |
-| `controls` | `boolean` | `true` | The player's own controls. Set to false to lay out your own from the parts, as children. |
 | `hls` | `HlsLoader` |  | Loads hls.js for an HLS stream: `() => import("hls.js")`. |
 | `dash` | `DashLoader` |  | Loads dashjs for a DASH stream: `() => import("dashjs")`. |
 | `hlsConfig` | `Record<string, unknown>` |  | Passed to `new Hls()`. |
 | `dashSettings` | `Record<string, unknown>` |  | Passed to dashjs's `updateSettings()`. |
 | `attachSource` | `((media: HTMLMediaElement, source: MediaSourceItem) => (() => void) \| undefined)` |  | Plays the source yourself, for DRM or a library of your own: given the media element and the source, it returns what undoes it. |
 | `labels` | `Partial<MediaLabels>` |  | The words, to translate the player. |
-| `handleRef` | `Ref<MediaPlayerHandle>` |  |  |
+| `handleRef` | `React.Ref<MediaPlayerHandle>` |  |  |
 | `onPlay` | `(() => void)` |  |  |
 | `onPause` | `(() => void)` |  |  |
 | `onEnded` | `(() => void)` |  |  |
 | `onTimeUpdate` | `((time: number) => void)` |  | About four times a second while it plays, with the time in seconds. |
 | `onError` | `((kind: StreamError) => void)` |  |  |
+| `src` (required) | `string \| MediaSourceItem[] \| MediaSourceItem` |  | What to play: an address, a source, or several. Sources with a `height` or a `label` are qualities, and fill the quality menu. Sources without are alternatives, such as WebM and MP4, of which the browser plays the first it can. An `.m3u8` or `.mpd` address is a stream. |
+| `poster` | `string` |  | The picture shown before it plays. |
+| `title` | `string` |  | The video's title: the player's name, and what the lock screen shows. |
+| `aria-label` | `string` |  | The player's name for a screen reader. Defaults to `title`. |
+| `thumbnails` | `string` |  | A WebVTT file of frames for the preview over the seek bar. |
+| `autoPlay` | `boolean` |  | Starts on its own. Only allowed muted, as browsers require, so it's muted when this is set. Moving video that starts by itself is a problem for some people: give it a reason. |
+| `preload` | `"auto" \| "metadata" \| "none"` | `"metadata"` | How much to load before it plays. With `lazy`, nothing until the player is near the screen. |
+| `lazy` | `boolean` |  | Loads nothing until the player is near the screen. |
+| `facade` | `boolean` |  | Shows only the poster and a play button, and puts the video on the page at the first press. For a page with many videos. |
+| `skip` | `number` | `10` | Seconds the J and L keys and a double tap go. |
+| `ambient` | `boolean` |  | A soft glow around the frame in the video's own colors. |
+| `controls` | `boolean` | `true` | The player's own controls. Set to false to lay out your own from the parts, as children. |
 | `children` | `ReactNode` |  | Over the video: your own controls from the parts, or anything else. |
 
 It also takes the attributes of a `section`, which is what it's drawn as.
@@ -385,7 +412,9 @@ Every word the player shows or says is in `labels`, in English until you give an
 
 | Prop | Type | Default | What it's for |
 | --- | --- | --- | --- |
-| `video` (required) | `string` |  | The player's name when it's given no `aria-label` and no `title`. |
+| `video` (required) | `string` |  | The video player's name when it's given no `aria-label` and no `title`. |
+| `audio` (required) | `string` |  | The audio player's name when it's given no `aria-label` and no `title`. |
+| `transcript` (required) | `string` |  | The transcript's name when it's given no `aria-label`. |
 | `play` (required) | `string` |  |  |
 | `pause` (required) | `string` |  |  |
 | `replay` (required) | `string` |  |  |
@@ -418,6 +447,9 @@ Every word the player shows or says is in `labels`, in English until you give an
 | `errorNetwork` (required) | `string` |  |  |
 | `errorDecode` (required) | `string` |  |  |
 | `errorUnsupported` (required) | `string` |  |  |
+| `audioErrorNetwork` (required) | `string` |  | The same three, for the audio player. |
+| `audioErrorDecode` (required) | `string` |  |  |
+| `audioErrorUnsupported` (required) | `string` |  |  |
 | `retry` (required) | `string` |  |  |
 | `shortcuts` (required) | `string` |  |  |
 | `close` (required) | `string` |  |  |
@@ -430,8 +462,6 @@ Every word the player shows or says is in `labels`, in English until you give an
 | `speedChanged` (required) | `(rate: string) => string` |  |  |
 | `qualityChanged` (required) | `(quality: string) => string` |  |  |
 | `shortcutPlay` (required) | `string` |  | What each shortcut does, in the shortcuts sheet. |
-| `shortcutBack` (required) | `string` |  |  |
-| `shortcutAhead` (required) | `string` |  |  |
 | `shortcutVolume` (required) | `string` |  |  |
 | `shortcutMute` (required) | `string` |  |  |
 | `shortcutFullscreen` (required) | `string` |  |  |
@@ -488,7 +518,7 @@ On the seek bar and the volume, the arrows move the slider, Page Up and Page Dow
 
 ### What you need to handle
 
-- **Captions.** A video with speech needs a captions track, and it's yours to write or have written.
+- **Captions.** A video with speech needs a captions track, and it's yours to write or have written. A [transcript](media-transcript.md) beside it reads the same track.
 - **A text alternative** for what's only seen. A description track, or the same information on the page.
 - **A reason to autoplay.** Moving video that starts by itself is a problem for some people (WCAG 2.2.2). Start muted, and keep it short, or don't.
 - **The title.** It's the player's name for a screen reader: say what the video is.
@@ -526,7 +556,7 @@ The controls the players share read these:
 | `--nuv-media-button-hover-bg` | `color-mix(in oklab, var(--color-white) 18%, transparent)` | Background of a control under the pointer. |
 | `--nuv-media-live` | `var(--color-danger)` | Color of the dot beside Live. |
 | `--nuv-media-track-bg` | `color-mix(in oklab, var(--color-white) 30%, transparent)` | Color of a slider's track. |
-| `--nuv-media-accent` | `var(--color-primary)` | Color of what's played on the seek bar and the volume, and of the big button on hover. |
+| `--nuv-media-accent` | `var(--color-primary)` | Color of what's played on the seek bar, the waveform and the volume, of the audio player's play button, and of the big button on hover. |
 | `--nuv-media-fill` | `0` | How far a slider is, from 0 to 1. Set by the script. |
 | `--nuv-media-thumb` | `var(--color-white)` | Color of a slider's handle. |
 | `--nuv-media-buffered-bg` | `color-mix(in oklab, var(--color-white) 45%, transparent)` | Color of what's loaded on the seek bar. |
@@ -534,6 +564,8 @@ The controls the players share read these:
 | `--nuv-media-part-fill` | `0` | How much of a part of the seek bar is played, from 0 to 1. Set by the script. |
 | `--nuv-media-hover` | `0` | Where the pointer is across the seek bar, from 0 to 1. Set by the script. |
 | `--nuv-media-preview-bg` | `color-mix(in oklab, var(--color-black) 82%, transparent)` | Background of the preview over the seek bar. |
+| `--nuv-media-waveform-height` | `2.5rem` | Height of the waveform, in the audio player. |
+| `--nuv-media-wave-bg` | `color-mix(in oklab, currentcolor 28%, transparent)` | Color of the waveform's bars that aren't played yet, in the audio player. |
 
 ## Classes
 
@@ -587,6 +619,10 @@ The parts the players share:
 | `.nuv-media-time__total` | The length after the time played, which a narrow player leaves out. |
 | `.nuv-media-volume` | Mute and the volume slider. |
 | `.nuv-media-volume__slider` | The volume slider. |
+| `.nuv-media-waveform` | The waveform to seek on, in the audio player. |
+| `.nuv-media-waveform__bars` | The box the bars are drawn in. |
+| `.nuv-media-waveform__played` | The bars of what's played, in the accent color. |
+| `.nuv-media-waveform__shape` | The bars, drawn twice: once whole, once for what's played. |
 
 ## Do and don't
 

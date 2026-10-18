@@ -193,6 +193,7 @@ test.describe("video player page", () => {
 
   test("passes axe", async ({ page }) => {
     const results = await new AxeBuilder({ page })
+      .include('[data-preview="video-player/demo"] > div:first-child')
       .include('[data-preview="video-player/basic"] > div:first-child')
       .include('[data-preview="video-player/captions"] > div:first-child')
       .include('[data-preview="video-player/custom"] > div:first-child')

@@ -32,7 +32,7 @@ Three things are different from the libraries you may expect, and most mistakes 
 | `@nuvui/emoji` | `EmojiPicker`, `EmojiReaction` | |
 | `@nuvui/map` | `MapView`, markers, popups, controls, routes, clusters, on MapLibre | `maplibre-gl` |
 | `@nuvui/flow` | `Flow`, a diagram of shapes joined by arrows that pans, zooms and can be edited | |
-| `@nuvui/media` | `VideoPlayer` and its parts: captions, chapters, qualities, streams | `hls.js` or `dashjs`, only for streams |
+| `@nuvui/media` | `VideoPlayer`, `AudioPlayer`, `MediaTranscript` and their parts: captions, chapters, qualities, a waveform, streams | `hls.js` or `dashjs`, only for streams |
 | `@nuvui/icons` | 317 line icons in three styles, such as `ArrowRightIcon` | |
 
 Every add-on but `@nuvui/icons` needs `@nuvui/react` beside it, and its own stylesheet after the core's:
@@ -118,7 +118,7 @@ Each links to a file with the reasons and the code. Read the file before working
 | Formatted text to edit | [`@nuvui/editor`](skills/nuvui/reference/editor/index.md) |
 | A place | [`@nuvui/map`](skills/nuvui/reference/map/index.md) |
 | Steps joined by arrows, a process or an approval path | [`@nuvui/flow`](skills/nuvui/reference/flow/index.md) |
-| A video, a lesson, a recording | [`@nuvui/media`](skills/nuvui/reference/media/index.md) |
+| A video, a lesson, a recording, a podcast, a voice message | [`@nuvui/media`](skills/nuvui/reference/media/index.md) |
 | An icon | [`@nuvui/icons`](skills/nuvui/reference/icons/index.md) |
 
 A core component's file is `reference/components/<name>.md`, with the name in lower case and hyphens: `reference/components/alert-dialog.md`.

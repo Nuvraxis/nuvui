@@ -293,13 +293,15 @@ A diagram's name is the `aria-label` you give it, and a node's is its `label`. W
 | `moved` | `((labels: string[]) => string)` |  | Said when nodes are moved. |
 | `removed` | `((nodes: number, links: number) => string)` |  | Said when nodes and links are removed. |
 
-## Video
+## Video and audio
 
-A player's name is its `title`, or the `aria-label` you give it. Every button's name, the menus, the seek bar's value in words, and what's said as things change, are in one prop, `labels`:
+A player's name is its `title`, or the `aria-label` you give it. Every button's name, the menus, the seek bar's value in words, and what's said as things change, are in one prop, `labels`, the same on the video player, the audio player and the transcript:
 
 | Prop | Type | Default | What it's for |
 | --- | --- | --- | --- |
-| `video` (required) | `string` |  | The player's name when it's given no `aria-label` and no `title`. |
+| `video` (required) | `string` |  | The video player's name when it's given no `aria-label` and no `title`. |
+| `audio` (required) | `string` |  | The audio player's name when it's given no `aria-label` and no `title`. |
+| `transcript` (required) | `string` |  | The transcript's name when it's given no `aria-label`. |
 | `play` (required) | `string` |  |  |
 | `pause` (required) | `string` |  |  |
 | `replay` (required) | `string` |  |  |
@@ -332,6 +334,9 @@ A player's name is its `title`, or the `aria-label` you give it. Every button's 
 | `errorNetwork` (required) | `string` |  |  |
 | `errorDecode` (required) | `string` |  |  |
 | `errorUnsupported` (required) | `string` |  |  |
+| `audioErrorNetwork` (required) | `string` |  | The same three, for the audio player. |
+| `audioErrorDecode` (required) | `string` |  |  |
+| `audioErrorUnsupported` (required) | `string` |  |  |
 | `retry` (required) | `string` |  |  |
 | `shortcuts` (required) | `string` |  |  |
 | `close` (required) | `string` |  |  |
@@ -344,8 +349,6 @@ A player's name is its `title`, or the `aria-label` you give it. Every button's 
 | `speedChanged` (required) | `(rate: string) => string` |  |  |
 | `qualityChanged` (required) | `(quality: string) => string` |  |  |
 | `shortcutPlay` (required) | `string` |  | What each shortcut does, in the shortcuts sheet. |
-| `shortcutBack` (required) | `string` |  |  |
-| `shortcutAhead` (required) | `string` |  |  |
 | `shortcutVolume` (required) | `string` |  |  |
 | `shortcutMute` (required) | `string` |  |  |
 | `shortcutFullscreen` (required) | `string` |  |  |

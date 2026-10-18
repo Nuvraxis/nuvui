@@ -42,8 +42,17 @@ const types = {
   ".css": "text/css; charset=utf-8",
   ".html": "text/html; charset=utf-8",
   ".ico": "image/x-icon",
+  ".jpg": "image/jpeg",
   ".js": "application/javascript; charset=utf-8",
   ".json": "application/json; charset=utf-8",
+  // The video clips and their streams. Firefox won't show captions from a
+  // file that isn't sent as text/vtt.
+  ".m3u8": "application/vnd.apple.mpegurl",
+  ".m4s": "video/iso.segment",
+  ".mp4": "video/mp4",
+  ".mpd": "application/dash+xml",
+  ".vtt": "text/vtt; charset=utf-8",
+  ".webm": "video/webm",
   // The docs as plain text, for agents. Sent as text, so a browser shows
   // a page and doesn't save a file.
   ".md": "text/markdown; charset=utf-8",
@@ -101,6 +110,20 @@ function inside(pathname) {
     : undefined;
 }
 
+// The one range a `Range: bytes=…` header asks for, undefined for the whole
+// file, or null for a range outside it. Browsers ask for one range at a
+// time, so a list of several is answered with the whole file.
+function byteRange(header, size) {
+  const match = /^bytes=(\d*)-(\d*)$/.exec(header ?? "");
+  if (!match || (match[1] === "" && match[2] === "")) return undefined;
+  const [, from, to] = match;
+  // `bytes=-500` is the last 500 bytes.
+  const start = from === "" ? Math.max(0, size - Number(to)) : Number(from);
+  const end =
+    from === "" || to === "" ? size - 1 : Math.min(Number(to), size - 1);
+  return start > end || start >= size ? null : { start, end };
+}
+
 const server = createServer(async (request, response) => {
   try {
     if (request.method !== "GET" && request.method !== "HEAD") {
@@ -129,14 +152,31 @@ const server = createServer(async (request, response) => {
 
     const found = local === undefined ? undefined : await resolve(local);
     const file = found ?? join(root, "404.html");
-    const body = await readFile(file);
-    response.writeHead(found ? 200 : 404, {
+    const whole = await readFile(file);
+    const headers = {
       "content-type": types[extname(file)] ?? "application/octet-stream",
-      "content-length": body.length,
       // A build's file names change when their contents do. Nothing else
       // here should outlive a rebuild.
       "cache-control": "no-cache",
-    });
+      "accept-ranges": "bytes",
+    };
+    // A video is fetched a part at a time, as a static host sends it.
+    // Without this a browser can only seek within what it has already
+    // loaded.
+    const range = found && byteRange(request.headers.range, whole.length);
+    if (range === null) {
+      response
+        .writeHead(416, { "content-range": `bytes */${whole.length}` })
+        .end();
+      return;
+    }
+    const body = range ? whole.subarray(range.start, range.end + 1) : whole;
+    if (range) {
+      headers["content-range"] =
+        `bytes ${range.start}-${range.end}/${whole.length}`;
+    }
+    headers["content-length"] = body.length;
+    response.writeHead(range ? 206 : found ? 200 : 404, headers);
     response.end(request.method === "HEAD" ? undefined : body);
   } catch (error) {
     if (!response.headersSent) response.writeHead(500);

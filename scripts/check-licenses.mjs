@@ -66,6 +66,7 @@ const published = [
   "emoji",
   "map",
   "flow",
+  "media",
   "icons",
 ];
 

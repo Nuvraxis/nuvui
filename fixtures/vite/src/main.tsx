@@ -10,6 +10,7 @@ import "@nuvui/editor/styles.css";
 import "@nuvui/emoji/styles.css";
 import "@nuvui/map/styles.css";
 import "@nuvui/flow/styles.css";
+import "@nuvui/media/styles.css";
 // The two codes, each from the entry of its own.
 import { Barcode } from "@nuvui/barcodes/barcode";
 import { QRCode } from "@nuvui/barcodes/qrcode";
@@ -48,6 +49,8 @@ import {
 } from "@nuvui/kanban/kanban";
 // The map, from the entry of its one component.
 import { MapMarker, MapView, setMapWorkerUrl } from "@nuvui/map/map";
+// The video player, from the entry of its one component.
+import { VideoPlayer } from "@nuvui/media/video-player";
 import {
   Button,
   type ButtonProps,
@@ -153,6 +156,7 @@ function App() {
         ]}
         edges={[{ id: "a-b", from: "a", to: "b" }]}
       />
+      <VideoPlayer title="Intro" src="/intro.mp4" poster="/intro.jpg" />
       <Kanban
         aria-label="Work"
         defaultValue={[{ id: "todo", cards: ["brief"] }]}

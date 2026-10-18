@@ -590,19 +590,13 @@ function links(text, page, profile, slugs) {
 // ---------------------------------------------------------------------
 // The lists.
 
+// Each add-on's section is its package's name, read from the list above, so
+// a new add-on can't be left out here. The MCP server reads these headings
+// to know which pages belong to which package.
 const sectionTitles = {
   "": "Guides",
   components: "@nuvui/react: components",
-  "date-picker": "@nuvui/date-picker",
-  table: "@nuvui/table",
-  charts: "@nuvui/charts",
-  barcodes: "@nuvui/barcodes",
-  chat: "@nuvui/chat",
-  kanban: "@nuvui/kanban",
-  editor: "@nuvui/editor",
-  emoji: "@nuvui/emoji",
-  map: "@nuvui/map",
-  icons: "@nuvui/icons",
+  ...Object.fromEntries(addons.map((addon) => [addon, packageName(addon)])),
 };
 
 function listing(pages, href) {

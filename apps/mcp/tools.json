@@ -1,0 +1,253 @@
+[
+  {
+    "name": "get_block",
+    "description": "A block's files in full, the packages they need, and the command that adds it to a project.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9 /_-]*$",
+          "description": "A block's name from list_blocks, such as sign-in."
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "additionalProperties": false
+    },
+    "annotations": {
+      "title": "Read a block",
+      "readOnlyHint": true,
+      "idempotentHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "get_chart",
+    "description": "A chart's file in full, such as bar/stacked, from list_charts.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9 /_-]*$",
+          "description": "A chart's id from list_charts, such as bar/stacked."
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "additionalProperties": false
+    },
+    "annotations": {
+      "title": "Read a chart",
+      "readOnlyHint": true,
+      "idempotentHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "get_page",
+    "description": "One page of the reference, as Markdown: a component's parts, props, examples, CSS variables, classes and accessibility, or a guide. Takes a page's id from list_components, list_guides or search_docs, or a component's name, such as Compare or DataTable. A section gives only that part of the page, such as Props or CSS variables.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "page": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9 /_-]*$",
+          "description": "A page's id, such as components/compare, or a component's name."
+        },
+        "section": {
+          "description": "A `##` heading on the page, such as Props, Accessibility or CSS variables.",
+          "type": "string",
+          "maxLength": 100
+        }
+      },
+      "required": [
+        "page"
+      ],
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "additionalProperties": false
+    },
+    "annotations": {
+      "title": "Read a page of the docs",
+      "readOnlyHint": true,
+      "idempotentHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "get_rules",
+    "description": "Start here. Without a topic: what to know before writing code with nuvui, the packages, the rules in a line each, and which component meets which need. With a topic: that rule in full, with wrong and right code.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "topic": {
+          "description": "One of: accessibility, composition, forms, packages, server-components, styling, text-and-direction.",
+          "type": "string",
+          "enum": [
+            "accessibility",
+            "composition",
+            "forms",
+            "packages",
+            "server-components",
+            "styling",
+            "text-and-direction"
+          ]
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "additionalProperties": false
+    },
+    "annotations": {
+      "title": "Rules for using nuvui",
+      "readOnlyHint": true,
+      "idempotentHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "get_tokens",
+    "description": "The design tokens as CSS custom properties, for your own CSS: var(--color-primary), never a color written out. A prefix gives only those, such as --color-, --radius- or --text-.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "prefix": {
+          "type": "string",
+          "maxLength": 60,
+          "pattern": "^[a-z0-9-]*$"
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "additionalProperties": false
+    },
+    "annotations": {
+      "title": "Read the design tokens",
+      "readOnlyHint": true,
+      "idempotentHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "list_blocks",
+    "description": "Blocks are screens and parts of apps built from the components, such as a sign-in screen, a dashboard or a pricing table, each a TSX file and an SCSS file to copy and change. Look here before building a screen from nothing.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "category": {
+          "description": "One of: accounts, chat, dashboard, data, editor, flows, layout, marketing, settings.",
+          "type": "string",
+          "maxLength": 40
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "additionalProperties": false
+    },
+    "annotations": {
+      "title": "List the blocks",
+      "readOnlyHint": true,
+      "idempotentHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "list_charts",
+    "description": "Charts built with @nuvui/charts on Recharts, each one file to copy: area, bar, line, pie, radar, radial, scatter and more.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "family": {
+          "description": "One of: area, bar, line, pie, radar, radial, tooltip, composed, scatter, dashboard.",
+          "type": "string",
+          "maxLength": 40
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "additionalProperties": false
+    },
+    "annotations": {
+      "title": "List the charts",
+      "readOnlyHint": true,
+      "idempotentHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "list_components",
+    "description": "Every component page, by package, with what each is for in a line. Pass a package to see only its pages.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "package": {
+          "description": "A package, such as @nuvui/table or table. One of: @nuvui/react, @nuvui/date-picker, @nuvui/table, @nuvui/charts, @nuvui/barcodes, @nuvui/chat, @nuvui/kanban, @nuvui/editor, @nuvui/emoji, @nuvui/map, @nuvui/flow, @nuvui/icons.",
+          "type": "string",
+          "maxLength": 40
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "additionalProperties": false
+    },
+    "annotations": {
+      "title": "List the components",
+      "readOnlyHint": true,
+      "idempotentHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "list_guides",
+    "description": "The pages that aren't about one component: getting started, theming, Tailwind, SCSS, forms, right to left, translation, the Content Security Policy, support, and recipes for whole screens.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {},
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "additionalProperties": false
+    },
+    "annotations": {
+      "title": "List the guides",
+      "readOnlyHint": true,
+      "idempotentHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "search_docs",
+    "description": "Finds the sections of the reference that best answer a question or a few words, such as 'sortable table', 'dark mode' or 'error message on a field'. Each result names its page and section, for get_page.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "limit": {
+          "default": 8,
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 20
+        }
+      },
+      "required": [
+        "query"
+      ],
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "additionalProperties": false
+    },
+    "annotations": {
+      "title": "Search the docs",
+      "readOnlyHint": true,
+      "idempotentHint": true,
+      "openWorldHint": false
+    }
+  }
+]

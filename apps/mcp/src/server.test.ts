@@ -75,6 +75,23 @@ describe("the server", () => {
       });
     }
   });
+
+  // What an agent reads before it calls anything: each tool's name, title,
+  // description and input schema. It builds its calls on what it last
+  // read, so a change here changes every client, and nothing tells them.
+  // tools.json is the list as it was last agreed. This fails until it's
+  // written again on purpose, with `pnpm --filter @nuvui/mcp test -u`,
+  // which puts the change in the pull request's diff. Some parameters
+  // list the packages, rule topics, block categories and chart families,
+  // so adding one of those changes it too.
+  test("lists its tools exactly as tools.json has them", async () => {
+    const { tools } = await (await connect()).listTools();
+    const sorted = [...tools].sort((a, b) => a.name.localeCompare(b.name));
+
+    await expect(`${JSON.stringify(sorted, null, 2)}\n`).toMatchFileSnapshot(
+      "../tools.json",
+    );
+  });
 });
 
 describe("get_rules", () => {

@@ -101,6 +101,7 @@ import { ToolbarPlayground } from "@/components/playground/toolbar";
 import { TooltipPlayground } from "@/components/playground/tooltip";
 import { TreePlayground } from "@/components/playground/tree";
 import { TrendPlayground } from "@/components/playground/trend";
+import { VideoPlayerPlayground } from "@/components/playground/video-player";
 import { VisuallyHiddenPlayground } from "@/components/playground/visually-hidden";
 import { PresetList } from "@/components/preset-reference";
 import { Preview } from "@/components/preview";
@@ -225,6 +226,7 @@ export function getMDXComponents(components?: MDXComponents) {
     ToggleGroupPlayground,
     ToolbarPlayground,
     TooltipPlayground,
+    VideoPlayerPlayground,
     VisuallyHiddenPlayground,
     ...components,
   } satisfies MDXComponents;

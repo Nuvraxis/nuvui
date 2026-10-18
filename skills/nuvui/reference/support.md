@@ -38,6 +38,7 @@ Node is only involved where your app renders on a server or builds. Each package
 | `@nuvui/emoji` | 18 or newer |
 | `@nuvui/map` | 18 or newer |
 | `@nuvui/flow` | 18 or newer |
+| `@nuvui/media` | 18 or newer |
 | `@nuvui/icons` | 18 or newer |
 | `@nuvui/table` | 20 or newer, because TanStack Table 9 asks for it |
 

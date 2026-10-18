@@ -356,6 +356,12 @@ A diagram's name is the `aria-label` you give it, and a node's is its `label`. W
 
 <PropsTable package="flow" component="flow" file="labels.ts" name="FlowLabels" />
 
+## Video
+
+A player's name is its `title`, or the `aria-label` you give it. Every button's name, the menus, the seek bar's value in words, and what's said as things change, are in one prop, `labels`:
+
+<PropsTable package="media" component="video-player" file="src/core/labels.ts" name="MediaLabels" />
+
 ## What isn't text
 
 - A [field](/docs/components/field) marks a required label with `*`, which `FieldLabel` changes with `requiredIndicator`. Screen readers don't hear it. They hear "required" from the control, in the browser's own language.

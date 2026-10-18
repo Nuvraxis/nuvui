@@ -1,0 +1,345 @@
+---
+title: VideoPlayer
+description: A video with its own controls. Play, seek with chapters and previews, volume, speed, quality, captions drawn in the theme, picture in picture and fullscreen, from a pointer, a finger or the keyboard. Plays files, and HLS and DASH streams.
+added: "2026-10-18"
+---
+
+<Preview name="video-player/basic" wide />
+
+## Install
+
+```sh
+pnpm add @nuvui/media @nuvui/react
+```
+
+## Import
+
+```tsx
+import { VideoPlayer } from "@nuvui/media/video-player";
+
+<VideoPlayer title="Getting started" src="/videos/intro.mp4" poster="/videos/intro.jpg" />
+```
+
+`title` names the player for a screen reader and is what the phone's lock screen shows while it plays. Without one, give an `aria-label`.
+
+## Playground
+
+<VideoPlayerPlayground />
+
+## Sources
+
+`src` takes an address, a source, or a list of them.
+
+- **One file:** `src="/videos/intro.mp4"`.
+- **The same video in several formats,** of which the browser plays the first it can: a list of sources with a `type` each, as in the example at the top. WebM is smaller, and MP4 plays everywhere.
+- **The same video in several qualities:** a list of sources with a `height` or a `label` each. They fill the quality menu, the first is played first, and a change keeps the place and whether it was playing.
+
+<Preview name="video-player/qualities" wide />
+
+## Captions and subtitles
+
+Give each WebVTT file as a track. A track with `default` is shown from the start, unless the viewer turned captions off before. The captions button turns them on and off, and the settings menu chooses the language and the size.
+
+<Preview name="video-player/captions" wide />
+
+The player draws the captions itself rather than leaving them to the browser, so they're the same in every browser, take your theme, and come in the size the viewer picked, measured against the width of the frame. The italics and voices in a cue are kept. A track on another site needs that site to allow it with CORS, and the player needs `crossOrigin="anonymous"`.
+
+## Chapters and previews
+
+A chapters track, or a `chapters` list, splits the seek bar into parts with a gap between each. A WebVTT thumbnails file, as video services make them, gives a frame over the bar where the pointer hovers, beside the chapter's name and the time.
+
+<Preview name="video-player/chapters" wide />
+
+```tsx
+<VideoPlayer
+  src="/videos/intro.mp4"
+  chapters={[
+    { start: 0, title: "Getting started" },
+    { start: 95, title: "Building the screen" },
+    { start: 310, title: "Shipping it" },
+  ]}
+  thumbnails="/videos/intro-thumbnails.vtt"
+/>
+```
+
+A thumbnails file has a cue for each span of time, naming an image and, when frames share one image, where in it the frame is:
+
+```txt title="intro-thumbnails.vtt"
+WEBVTT
+
+00:00:00.000 --> 00:00:02.000
+intro-thumbnails.jpg#xywh=0,0,160,90
+
+00:00:02.000 --> 00:00:04.000
+intro-thumbnails.jpg#xywh=160,0,160,90
+```
+
+## Streaming
+
+An address that ends in `.m3u8` is an HLS stream, and one that ends in `.mpd` is DASH. When the address doesn't say, give the source a `type`. Hand the player the library that plays it, as a function that imports it:
+
+<Preview name="video-player/hls" wide />
+
+<Preview name="video-player/dash" wide />
+
+- **The library is loaded when a stream plays, and only then.** The function is yours, so your bundler sees the import and splits it into a file of its own, and an app that never streams never loads it.
+- **A stream's qualities fill the quality menu,** with Auto first, which is the library choosing as the connection allows, and says which quality it's on now. A stream's audio tracks fill a menu of their own.
+- **Safari plays HLS by itself.** Where `hls.js` isn't given or can't run, and the browser can play HLS, the player lets it. Then there's no quality menu, since the browser chooses.
+- **In a server component,** a function can't be handed to a client component. Put the player in a file of your own with `"use client"` at the top, as these examples are.
+- **`hlsConfig` and `dashSettings`** are passed to the library as they are, for anything the player doesn't set.
+- **`attachSource`** plays a source yourself. It's given the media element and the source, and returns what undoes it. Use it for DRM, or a library of your own.
+
+## Loading less
+
+Each player loads the video's length and first frame by default, which is `preload="metadata"`. On a page with many videos:
+
+- **`lazy`** loads nothing until the player is near the screen.
+- **`facade`** puts only the poster and a play button on the page, and the video at the first press, which then plays.
+
+<Preview name="video-player/facade" wide />
+
+## Remembering settings
+
+With `persist`, the viewer's volume, mute, speed, captions, caption size and quality are kept between visits, in `localStorage`. Give it a key, `persist="course-player"`, so that two kinds of player in one app keep their own, or `persist` alone for one key shared by all. It's off unless you ask for it, since some apps can't store anything without the visitor's consent. In a browser that refuses storage, the player plays as if nothing was kept.
+
+## Ambient light
+
+`ambient` puts a soft glow around the frame, in the colors of the picture, drawn from it a few times a second. It's off when the visitor asks for less motion, in fullscreen, and where the browser forces its own colors. Give the player room around it for the glow to be seen.
+
+<Preview name="video-player/ambient" wide />
+
+## One at a time
+
+Players with the same `exclusive` group pause each other: starting one pauses the one playing. `exclusive` alone puts a player in one group shared by all.
+
+## Your own controls
+
+With `controls={false}`, the player draws none of its controls, and the parts are yours to lay out as its children, over the picture. Each part reads the player it's in.
+
+<Preview name="video-player/custom" wide />
+
+| Part | What it is |
+| --- | --- |
+| `MediaPlayButton` | Plays and pauses, and plays again from the start at the end. |
+| `MediaSkipButton` | Goes back or ahead `seconds`, which is below zero for back. |
+| `MediaSeek` | The seek bar, with chapters, what's loaded, and the preview over it. |
+| `MediaTime` | The time played and the length, or the time left. A press swaps them. |
+| `MediaVolume` | Mute, and the volume beside it with a mouse. |
+| `MediaCaptionsButton` | Captions on and off. Not shown when there are none. |
+| `MediaSettings` | The menu: speed, quality, captions and their size, audio tracks, and the shortcuts. |
+| `MediaPictureInPictureButton` | Picture in picture. Not shown where the browser has none. |
+| `MediaFullscreenButton` | Fullscreen. Not shown where the browser has none. |
+
+## From your app
+
+`handleRef` plays, pauses and seeks the player, and hands you its media element.
+
+```tsx
+const player = useRef<MediaPlayerHandle>(null);
+
+<VideoPlayer src="/videos/intro.mp4" title="Intro" handleRef={player} />
+<button onClick={() => player.current?.seek(95)}>Go to Building the screen</button>
+```
+
+`onTimeUpdate` is called about four times a second while it plays, with the time in seconds, and is where to save how far someone got. Give that back as `startTime` next time.
+
+## VideoPlayer props
+
+<PropsTable package="media" component="video-player" name="VideoPlayerOwnProps" />
+
+It also takes the attributes of a `section`, which is what it's drawn as.
+
+## MediaSourceItem
+
+<PropsTable package="media" component="video-player" file="src/core/sources.ts" name="MediaSourceItem" />
+
+## MediaTrackItem
+
+<PropsTable package="media" component="video-player" name="MediaTrackItem" />
+
+## MediaChapter
+
+<PropsTable package="media" component="video-player" file="src/core/store.ts" name="MediaChapter" />
+
+## MediaPlayerHandle
+
+<PropsTable package="media" component="video-player" name="MediaPlayerHandle" />
+
+## Translation
+
+Every word the player shows or says is in `labels`, in English until you give another. The ones that put a number or a name into a sentence are functions.
+
+<PropsTable package="media" component="video-player" file="src/core/labels.ts" name="MediaLabels" />
+
+```tsx
+<VideoPlayer
+  src="/videos/intro.mp4"
+  title="Introducción"
+  labels={{
+    play: "Reproducir",
+    pause: "Pausar",
+    captions: "Subtítulos",
+    skipBack: (seconds) => `Retroceder ${seconds} segundos`,
+  }}
+/>
+```
+
+## Accessibility
+
+### Keyboard
+
+The keys work while focus is anywhere in the player, and a press on the picture gives it focus. A key the player uses goes no further, so your app's own shortcuts don't also act on it, and outside the player the keys are the page's.
+
+| Key | What it does |
+| --- | --- |
+| <kbd>Space</kbd> or <kbd>K</kbd> | Plays and pauses. On a button, Space presses the button. |
+| <kbd>J</kbd> and <kbd>L</kbd> | Back and ahead ten seconds, or `skip`. |
+| <kbd>←</kbd> and <kbd>→</kbd> | Back and ahead five seconds. On a right-to-left page, the arrow that points back goes back. |
+| <kbd>↑</kbd> and <kbd>↓</kbd> | Volume up and down. |
+| <kbd>M</kbd> | Mutes and unmutes. |
+| <kbd>F</kbd> | Fullscreen. |
+| <kbd>C</kbd> | Captions on and off. |
+| <kbd>0</kbd> to <kbd>9</kbd> | Goes to that tenth of the way. |
+| <kbd>&lt;</kbd> and <kbd>&gt;</kbd> | Slower and faster. |
+| <kbd>,</kbd> and <kbd>.</kbd> | One frame back and ahead, while paused. |
+| <kbd>?</kbd> | Shows these shortcuts. |
+
+On the seek bar and the volume, the arrows move the slider, Page Up and Page Down move it further, and Home and End go to the ends.
+
+### What the component handles
+
+- **Every control is a button or a slider with a name,** and a button whose name changes says what it'll do now: Play, then Pause.
+- **The seek bar's value is in words,** "1 minute 5 seconds of 4 minutes", and changes for a screen reader at most once a second, not with every frame.
+- **Changes the viewer makes are said once,** in a live region: captions on, the speed, the quality, a double tap's skip.
+- **The controls hide while it plays,** after a few seconds without a move, and come back on a move, a tap, a key, or focus on any control. They never hide while it's paused, while a menu is open, or while a control has focus.
+- **On a touch screen,** every control is 44 pixels each way, a tap shows and hides the controls, and a double tap on either side skips.
+- **Nothing starts with sound by itself.** `autoPlay` mutes the player, as browsers require anyway.
+- **Forced colors, less motion and right to left** are each followed: the seek bar runs from the right on a right-to-left page.
+
+### What you need to handle
+
+- **Captions.** A video with speech needs a captions track, and it's yours to write or have written.
+- **A text alternative** for what's only seen. A description track, or the same information on the page.
+- **A reason to autoplay.** Moving video that starts by itself is a problem for some people (WCAG 2.2.2). Start muted, and keep it short, or don't.
+- **The title.** It's the player's name for a screen reader: say what the video is.
+
+## On small screens
+
+The controls keep their size. Under a touch screen the volume slider isn't there, since a phone's volume is in its buttons and a page can't change it. In a player under 26rem wide, picture in picture leaves the row, and the time shows only what's played.
+
+## Server rendering and a strict policy
+
+The server sends the video element with its poster and the browser's own controls, so it plays before the script arrives, or without it. Once the script runs, the player's controls take over.
+
+Nothing the player draws needs a `style` attribute: what moves is set through the CSSOM. A stream played by `hls.js` or `dashjs` plays through Media Source Extensions, whose sources are `blob:` addresses, so a Content Security Policy needs `media-src blob:` beside your video's own origin. `hls.js` also starts a worker from a `blob:` address, which needs `worker-src blob:`, unless you pass `hlsConfig={{ enableWorker: false }}`.
+
+## CSS variables
+
+<CssVariables
+  package="media"
+  component="video-player"
+  descriptions={{
+    "--nuv-video-player-radius": "Corner radius of the player.",
+    "--nuv-video-player-fg": "Color of the controls and their words.",
+    "--nuv-video-player-bg": "Color behind the picture, seen where its shape doesn't fill the frame.",
+    "--nuv-video-player-aspect": "The frame's shape, such as 4 / 3. Fullscreen fills the screen.",
+    "--nuv-video-player-fit": "How the picture fills the frame: contain shows all of it, cover fills it.",
+    "--nuv-video-player-controls-bg": "The shade under the controls, at the bottom of the picture.",
+    "--nuv-video-player-big-play-bg": "Background of the big play button over the poster.",
+    "--nuv-video-player-caption-bg": "Background behind each line of captions.",
+    "--nuv-video-player-caption-fg": "Color of the captions.",
+    "--nuv-video-player-caption-scale": "Size of the captions against the frame's width. Set by the size the viewer picks.",
+    "--nuv-video-player-ambient-opacity": "How strong the ambient glow is.",
+  }}
+/>
+
+The controls the players share read these:
+
+<CssVariables
+  package="media"
+  component="media"
+  shared
+  descriptions={{
+    "--nuv-media-accent": "Color of what's played on the seek bar and the volume, and of the big button on hover.",
+    "--nuv-media-track-bg": "Color of a slider's track.",
+    "--nuv-media-buffered-bg": "Color of what's loaded on the seek bar.",
+    "--nuv-media-thumb": "Color of a slider's handle.",
+    "--nuv-media-button-hover-bg": "Background of a control under the pointer.",
+    "--nuv-media-preview-bg": "Background of the preview over the seek bar.",
+    "--nuv-media-live": "Color of the dot beside Live.",
+    "--nuv-media-fill": "How far a slider is, from 0 to 1. Set by the script.",
+    "--nuv-media-part-fill": "How much of a part of the seek bar is played, from 0 to 1. Set by the script.",
+    "--nuv-media-part-buffered": "How much of a part of the seek bar is loaded, from 0 to 1. Set by the script.",
+    "--nuv-media-hover": "Where the pointer is across the seek bar, from 0 to 1. Set by the script.",
+  }}
+/>
+
+## Classes
+
+<BemClasses
+  package="media"
+  component="video-player"
+  descriptions={{
+    "nuv-video-player": "VideoPlayer",
+    "nuv-video-player__frame": "The frame the picture is in.",
+    "nuv-video-player__media": "The video element.",
+    "nuv-video-player__poster": "The poster, with `facade`, before the video is on the page.",
+    "nuv-video-player__surface": "The layer over the picture that takes a press or a tap.",
+    "nuv-video-player__captions": "The captions shown now.",
+    "nuv-video-player__cue": "A line of captions.",
+    "nuv-video-player__big-play": "The big play button over the poster.",
+    "nuv-video-player__spinner": "Shown while it waits for the video.",
+    "nuv-video-player__error": "What went wrong, and the button to try again.",
+    "nuv-video-player__ripple": "The mark a double tap leaves.",
+    "nuv-video-player__controls": "The controls, over the bottom of the picture.",
+    "nuv-video-player__seek": "The seek bar in the controls.",
+    "nuv-video-player__bar": "The row of buttons under the seek bar.",
+    "nuv-video-player__spacer": "The space between the buttons on each side.",
+    "nuv-video-player__pip": "The picture in picture button, which a narrow player leaves out.",
+    "nuv-video-player__ambient": "The glow behind the frame, with `ambient`.",
+  }}
+/>
+
+The parts the players share:
+
+<BemClasses
+  package="media"
+  component="media"
+  shared
+  descriptions={{
+    "nuv-media-button": "A control with an icon.",
+    "nuv-media-icon": "A control's icon.",
+    "nuv-media-time": "The time.",
+    "nuv-media-time--live": "Live, in place of the time, for a live stream.",
+    "nuv-media-time__total": "The length after the time played, which a narrow player leaves out.",
+    "nuv-media-volume": "Mute and the volume slider.",
+    "nuv-media-volume__slider": "The volume slider.",
+    "nuv-media-slider": "A slider: the seek bar or the volume.",
+    "nuv-media-slider__track": "A slider's track.",
+    "nuv-media-slider__fill": "What's filled of a slider's track.",
+    "nuv-media-slider__thumb": "A slider's handle.",
+    "nuv-media-seek": "The seek bar.",
+    "nuv-media-seek__parts": "The chapters along the seek bar.",
+    "nuv-media-seek__part": "One chapter, or the whole bar when there are none.",
+    "nuv-media-seek__buffered": "What's loaded of a part.",
+    "nuv-media-seek__fill": "What's played of a part.",
+    "nuv-media-seek__preview": "What shows over the bar where the pointer is.",
+    "nuv-media-seek__frame": "The frame in the preview.",
+    "nuv-media-seek__chapter": "The chapter's name in the preview.",
+    "nuv-media-seek__time": "The time in the preview.",
+    "nuv-media-menu": "The settings menu and its parts.",
+    "nuv-media-menu__name": "A setting's name in the menu.",
+    "nuv-media-menu__value": "A setting's value in the menu.",
+    "nuv-media-shortcuts__list": "The list in the shortcuts sheet.",
+    "nuv-media-shortcuts__row": "A shortcut and what it does.",
+    "nuv-media-hidden": "Words for a screen reader only.",
+  }}
+/>
+
+## Do and don't
+
+- **Do** give every video a `title` that says what it is, and a captions track if anyone speaks.
+- **Do** give a poster, so the player has a picture before it plays, and its shape is known before the video loads.
+- **Do** use `facade` or `lazy` on a page with many videos.
+- **Don't** autoplay with sound. Browsers refuse it, and the player mutes it.
+- **Don't** put a player in a box narrower than its controls. Under about 320 pixels, use the parts and lay out fewer.

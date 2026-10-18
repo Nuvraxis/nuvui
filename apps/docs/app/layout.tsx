@@ -12,6 +12,7 @@ import "@nuvui/editor/styles.css";
 import "@nuvui/emoji/styles.css";
 import "@nuvui/map/styles.css";
 import "@nuvui/flow/styles.css";
+import "@nuvui/media/styles.css";
 // Every preset, for the examples on the Theming page and its editor.
 import "@nuvui/react/themes/ink.css";
 import "@nuvui/react/themes/ledger.css";

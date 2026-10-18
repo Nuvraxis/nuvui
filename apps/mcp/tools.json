@@ -144,7 +144,7 @@
       "type": "object",
       "properties": {
         "category": {
-          "description": "One of: accounts, chat, dashboard, data, editor, flows, layout, marketing, settings.",
+          "description": "One of: accounts, chat, dashboard, data, editor, flows, layout, marketing, media, settings.",
           "type": "string",
           "maxLength": 40
         }
@@ -188,7 +188,7 @@
       "type": "object",
       "properties": {
         "package": {
-          "description": "A package, such as @nuvui/table or table. One of: @nuvui/react, @nuvui/date-picker, @nuvui/table, @nuvui/charts, @nuvui/barcodes, @nuvui/chat, @nuvui/kanban, @nuvui/editor, @nuvui/emoji, @nuvui/map, @nuvui/flow, @nuvui/icons.",
+          "description": "A package, such as @nuvui/table or table. One of: @nuvui/react, @nuvui/date-picker, @nuvui/table, @nuvui/charts, @nuvui/barcodes, @nuvui/chat, @nuvui/kanban, @nuvui/editor, @nuvui/emoji, @nuvui/map, @nuvui/flow, @nuvui/media, @nuvui/icons.",
           "type": "string",
           "maxLength": 40
         }

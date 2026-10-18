@@ -1,0 +1,9 @@
+{
+  "name": "voice-messages",
+  "title": "Voice messages",
+  "description": "A team's chat with voice messages among the text: each one a play button, its waveform, its length and a press for the speed, in the colors of its bubble. They load nothing until played, starting one pauses the one playing, and the next voice message plays when one ends. A message typed in the box is added to the thread.",
+  "category": "media",
+  "files": ["voice-messages.tsx", "voice-messages.scss"],
+  "install": ["@nuvui/media", "@nuvui/react"],
+  "height": 800
+}

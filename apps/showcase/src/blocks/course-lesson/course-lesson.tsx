@@ -4,6 +4,7 @@ import {
   formatTime,
   type MediaChapter,
   type MediaPlayerHandle,
+  MediaTranscript,
   VideoPlayer,
 } from "@nuvui/media";
 import { Badge, Button } from "@nuvui/react";
@@ -83,28 +84,36 @@ export default function CourseLesson() {
             }
           />
 
-          <div className="course-lesson__chapters">
-            <h2 className="course-lesson__heading">In this lesson</h2>
-            <ol className="course-lesson__chapter-list">
-              {chapters.map((chapter, i) => (
-                <li key={chapter.start}>
-                  <button
-                    type="button"
-                    className="course-lesson__chapter"
-                    aria-current={i === chapterNow ? "true" : undefined}
-                    onClick={() => {
-                      player.current?.seek(chapter.start);
-                      player.current?.play();
-                    }}
-                  >
-                    <span className="course-lesson__chapter-time">
-                      {formatTime(chapter.start)}
-                    </span>
-                    <span>{chapter.title}</span>
-                  </button>
-                </li>
-              ))}
-            </ol>
+          <div className="course-lesson__more">
+            <div className="course-lesson__chapters">
+              <h2 className="course-lesson__heading">In this lesson</h2>
+              <ol className="course-lesson__chapter-list">
+                {chapters.map((chapter, i) => (
+                  <li key={chapter.start}>
+                    <button
+                      type="button"
+                      className="course-lesson__chapter"
+                      aria-current={i === chapterNow ? "true" : undefined}
+                      onClick={() => {
+                        player.current?.seek(chapter.start);
+                        player.current?.play();
+                      }}
+                    >
+                      <span className="course-lesson__chapter-time">
+                        {formatTime(chapter.start)}
+                      </span>
+                      <span>{chapter.title}</span>
+                    </button>
+                  </li>
+                ))}
+              </ol>
+            </div>
+
+            {/* The captions as text, in the language chosen for them. */}
+            <div className="course-lesson__transcript">
+              <h2 className="course-lesson__heading">Transcript</h2>
+              <MediaTranscript player={player} />
+            </div>
           </div>
         </section>
 

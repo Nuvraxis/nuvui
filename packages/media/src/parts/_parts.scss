@@ -1,0 +1,396 @@
+@use "../styles/layers";
+@use "@nuvui/react/scss/mixins";
+
+// The controls every player shares. They sit on the media's backing, so
+// they're light on dark whatever the theme, from the theme's own white and
+// black.
+@layer components {
+  .nuv-media-icon {
+    flex: none;
+    inline-size: 1.25rem;
+    block-size: 1.25rem;
+  }
+
+  .nuv-media-button {
+    position: relative;
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+
+    @include mixins.touch-target;
+    @include mixins.focus-ring(0);
+
+    @include mixins.hover {
+      background-color: var(
+        --nuv-media-button-hover-bg,
+        color-mix(in oklab, var(--color-white) 18%, transparent)
+      );
+    }
+
+    @include mixins.fine-pointer {
+      min-inline-size: 2.25rem;
+      min-block-size: 2.25rem;
+    }
+
+    // Pressed, as captions on: a bar under the icon, not a color alone.
+    &[aria-pressed="true"]::after {
+      position: absolute;
+      inset-block-end: 0.375rem;
+      inset-inline: 30%;
+      block-size: 2px;
+      border-radius: var(--radius-full);
+      background-color: currentcolor;
+      content: "";
+    }
+  }
+
+  .nuv-media-time {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    padding-block: 0;
+    padding-inline: 0.5rem;
+    border: 0;
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    cursor: pointer;
+
+    @include mixins.touch-target;
+    @include mixins.focus-ring(0);
+
+    @include mixins.fine-pointer {
+      min-block-size: 2.25rem;
+    }
+  }
+
+  .nuv-media-time--live {
+    gap: 0.375rem;
+    font-weight: var(--font-weight-semibold);
+    cursor: default;
+
+    &::before {
+      inline-size: 0.5rem;
+      block-size: 0.5rem;
+      border-radius: var(--radius-full);
+      background-color: var(--nuv-media-live, var(--color-danger));
+      content: "";
+    }
+  }
+
+  // A slider runs from the inline start, so it's mirrored on a right-to-left
+  // page. Its value is --nuv-media-fill, from 0 to 1, set by the script.
+  .nuv-media-slider {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-block-size: 2.75rem;
+    outline: none;
+    cursor: pointer;
+    touch-action: none;
+
+    @include mixins.fine-pointer {
+      min-block-size: 1.5rem;
+    }
+
+    &:focus-visible .nuv-media-slider__track,
+    &:focus-visible .nuv-media-seek__parts {
+      outline: var(--nuv-focus-ring-width, 2px) solid
+        var(--nuv-focus-ring-color, var(--color-ring));
+      outline-offset: 3px;
+    }
+
+    &[aria-disabled="true"] {
+      cursor: default;
+      opacity: 0.5;
+    }
+  }
+
+  .nuv-media-slider__track {
+    position: relative;
+    flex: 1;
+    block-size: 0.25rem;
+    overflow: hidden;
+    border-radius: var(--radius-full);
+    background-color: var(
+      --nuv-media-track-bg,
+      color-mix(in oklab, var(--color-white) 30%, transparent)
+    );
+  }
+
+  .nuv-media-slider__fill {
+    position: absolute;
+    inset: 0;
+    background-color: var(--nuv-media-accent, var(--color-primary));
+    transform: scaleX(var(--nuv-media-fill, 0));
+    transform-origin: left center;
+
+    @include mixins.rtl {
+      transform-origin: right center;
+    }
+  }
+
+  .nuv-media-slider__thumb {
+    position: absolute;
+    inset-inline-start: calc(var(--nuv-media-fill, 0) * 100%);
+    inline-size: 0.875rem;
+    block-size: 0.875rem;
+    border-radius: var(--radius-full);
+    background-color: var(--nuv-media-thumb, var(--color-white));
+    box-shadow: var(--shadow-sm);
+    translate: -50% 0;
+    pointer-events: none;
+
+    @include mixins.rtl {
+      translate: 50% 0;
+    }
+
+    // With a mouse it shows on hover, on focus and while dragged. Under a
+    // finger it's always there, as the thing to take hold of.
+    @include mixins.fine-pointer {
+      scale: 0;
+
+      @include mixins.motion-safe {
+        transition: scale var(--nuv-duration-fast) var(--ease-out);
+      }
+    }
+  }
+
+  .nuv-media-slider:is(:hover, :focus-visible, [data-dragging])
+    .nuv-media-slider__thumb {
+    scale: 1;
+  }
+
+  .nuv-media-volume {
+    display: flex;
+    align-items: center;
+  }
+
+  // A phone keeps its volume in its buttons, and ignores a page's. The
+  // slider is for a mouse, and opens beside the button.
+  .nuv-media-volume__slider {
+    display: none;
+
+    @include mixins.fine-pointer {
+      display: flex;
+      inline-size: 0;
+      overflow: hidden;
+      padding-inline: 0;
+
+      @include mixins.motion-safe {
+        transition:
+          inline-size var(--nuv-duration-base) var(--ease-out),
+          padding-inline var(--nuv-duration-base) var(--ease-out);
+      }
+    }
+  }
+
+  .nuv-media-volume:is(:hover, :focus-within) .nuv-media-volume__slider {
+    @include mixins.fine-pointer {
+      inline-size: 5rem;
+      overflow: visible;
+      padding-inline: 0.5rem;
+    }
+  }
+
+  // The seek bar: the chapters are parts side by side, each with what's
+  // loaded and what's played as shares of it, set by the script.
+  .nuv-media-seek {
+    flex: 1;
+  }
+
+  .nuv-media-seek__parts {
+    display: flex;
+    flex: 1;
+    gap: 0.1875rem;
+    block-size: 0.25rem;
+    border-radius: var(--radius-full);
+  }
+
+  .nuv-media-seek__part {
+    position: relative;
+    flex: 1 1 0;
+    overflow: hidden;
+    border-radius: var(--radius-full);
+    background-color: var(
+      --nuv-media-track-bg,
+      color-mix(in oklab, var(--color-white) 30%, transparent)
+    );
+
+    @include mixins.motion-safe {
+      transition: scale var(--nuv-duration-fast) var(--ease-out);
+    }
+
+    @include mixins.hover {
+      scale: 1 1.75;
+    }
+  }
+
+  .nuv-media-seek__buffered,
+  .nuv-media-seek__fill {
+    position: absolute;
+    inset: 0;
+    transform-origin: left center;
+
+    @include mixins.rtl {
+      transform-origin: right center;
+    }
+  }
+
+  .nuv-media-seek__buffered {
+    background-color: var(
+      --nuv-media-buffered-bg,
+      color-mix(in oklab, var(--color-white) 45%, transparent)
+    );
+    transform: scaleX(var(--nuv-media-part-buffered, 0));
+  }
+
+  .nuv-media-seek__fill {
+    background-color: var(--nuv-media-accent, var(--color-primary));
+    transform: scaleX(var(--nuv-media-part-fill, 0));
+  }
+
+  // Over the bar where a pointer hovers: a frame, the chapter and the time.
+  .nuv-media-seek__preview {
+    position: absolute;
+    inset-block-end: calc(100% + 0.25rem);
+    inset-inline-start: clamp(
+      5.5rem,
+      calc(var(--nuv-media-hover, 0) * 100%),
+      calc(100% - 5.5rem)
+    );
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    align-items: center;
+    max-inline-size: 11rem;
+    padding: 0.25rem;
+    border-radius: var(--radius-md);
+    background-color: var(
+      --nuv-media-preview-bg,
+      color-mix(in oklab, var(--color-black) 82%, transparent)
+    );
+    color: var(--color-white);
+    font-size: var(--text-xs);
+    text-align: center;
+    translate: -50% 0;
+    pointer-events: none;
+
+    @include mixins.rtl {
+      translate: 50% 0;
+    }
+
+    &[hidden] {
+      display: none;
+    }
+  }
+
+  .nuv-media-seek__frame {
+    display: block;
+    inline-size: 10rem;
+    block-size: 5.625rem;
+    border-radius: var(--radius-sm);
+    background-color: var(--color-black);
+    background-repeat: no-repeat;
+  }
+
+  .nuv-media-seek__chapter {
+    font-weight: var(--font-weight-semibold);
+  }
+
+  .nuv-media-seek__time {
+    padding-inline: 0.25rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .nuv-media-menu {
+    min-inline-size: 13rem;
+  }
+
+  .nuv-media-menu__name {
+    flex: 1;
+  }
+
+  .nuv-media-menu__value {
+    padding-inline-start: 1rem;
+    color: var(--color-muted-foreground);
+
+    // On the highlighted row, whose fill the muted color can't be read on.
+    [data-highlighted] > & {
+      color: inherit;
+    }
+  }
+
+  .nuv-media-shortcuts__list {
+    display: grid;
+    gap: 0.5rem;
+    margin: 0;
+  }
+
+  .nuv-media-shortcuts__row {
+    display: grid;
+    grid-template-columns: 7rem 1fr;
+    gap: 0.75rem;
+    align-items: center;
+
+    dt {
+      display: flex;
+      gap: 0.25rem;
+    }
+
+    dd {
+      margin: 0;
+    }
+  }
+
+  .nuv-media-hidden {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    border: 0;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  @media (forced-colors: active) {
+    .nuv-media-slider__track,
+    .nuv-media-seek__part {
+      outline: 1px solid CanvasText;
+      background-color: Canvas;
+    }
+
+    .nuv-media-slider__fill,
+    .nuv-media-seek__fill {
+      background-color: Highlight;
+    }
+
+    .nuv-media-seek__buffered {
+      background-color: GrayText;
+    }
+
+    .nuv-media-slider__thumb {
+      background-color: Highlight;
+      forced-color-adjust: none;
+    }
+
+    .nuv-media-seek__preview {
+      border: 1px solid CanvasText;
+      background-color: Canvas;
+      color: CanvasText;
+    }
+  }
+}

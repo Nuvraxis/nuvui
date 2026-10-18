@@ -23,7 +23,7 @@ import { EmojiPicker } from "@nuvui/emoji";
 import { Flow } from "@nuvui/flow";
 import { ArrowRightIcon } from "@nuvui/icons";
 import { MapView } from "@nuvui/map";
-import { VideoPlayer } from "@nuvui/media";
+import { AudioPlayer, VideoPlayer } from "@nuvui/media";
 import {
   Button,
   Dialog,
@@ -131,6 +131,7 @@ export default function Page() {
       {/* The server sends the video with the browser's own controls, and
           the player's take over once the script runs. */}
       <VideoPlayer title="Intro" src="/intro.mp4" poster="/intro.jpg" />
+      <AudioPlayer title="Episode" src="/episode.mp3" peaks={[0.2, 1, 0.5]} />
       <Visitors months={months} />
       {/* Client components from another package, used from this server
           component with nothing but plain props. */}

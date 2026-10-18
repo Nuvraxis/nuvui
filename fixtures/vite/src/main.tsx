@@ -49,7 +49,9 @@ import {
 } from "@nuvui/kanban/kanban";
 // The map, from the entry of its one component.
 import { MapMarker, MapView, setMapWorkerUrl } from "@nuvui/map/map";
-// The video player, from the entry of its one component.
+// The players and the transcript, each from the entry of its own.
+import { AudioPlayer, type MediaPlayerHandle } from "@nuvui/media/audio-player";
+import { MediaTranscript } from "@nuvui/media/media-transcript";
 import { VideoPlayer } from "@nuvui/media/video-player";
 import {
   Button,
@@ -78,7 +80,7 @@ import {
 } from "@tanstack/react-table";
 // MapLibre's worker, as Vite has it: a file with an address of its own.
 import mapWorkerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?url";
-import { StrictMode } from "react";
+import { StrictMode, useRef } from "react";
 import { createRoot } from "react-dom/client";
 import { Bar, BarChart, XAxis } from "recharts";
 
@@ -115,6 +117,24 @@ const seats = [
   { team: "Design", seats: 4 },
   { team: "Engineering", seats: 9 },
 ];
+
+// A sound with its waveform, and its transcript beside it, read through
+// the player's handle.
+function Episode() {
+  const player = useRef<MediaPlayerHandle>(null);
+  return (
+    <>
+      <AudioPlayer
+        title="Episode"
+        src="/episode.mp3"
+        peaks={[0.2, 1, 0.5]}
+        tracks={[{ kind: "captions", src: "/episode.vtt", srcLang: "en" }]}
+        handleRef={player}
+      />
+      <MediaTranscript player={player} />
+    </>
+  );
+}
 
 function Seats() {
   return (
@@ -157,6 +177,7 @@ function App() {
         edges={[{ id: "a-b", from: "a", to: "b" }]}
       />
       <VideoPlayer title="Intro" src="/intro.mp4" poster="/intro.jpg" />
+      <Episode />
       <Kanban
         aria-label="Work"
         defaultValue={[{ id: "todo", cards: ["brief"] }]}

@@ -109,10 +109,12 @@ packages/flow                 an add-on, published as @nuvui/flow
   src/components/flow/        the diagram: its geometry, its spatial index, its store and the component
   scripts/bench.mjs           times it on large diagrams, run by hand
 packages/media                an add-on, published as @nuvui/media
-  src/core/                   the store, sources and streams, WebVTT, the words, kept settings
-  src/parts/                  the controls every player shares
+  src/core/                   the store, what both players do with their media, sources and streams, WebVTT, the keys, the words, kept settings, peaks
+  src/parts/                  the controls every player shares, the waveform and the shortcuts sheet
   src/components/video-player/  the video player
-  scripts/make-media.sh       makes the clips the docs, the blocks and the tests play
+  src/components/audio-player/  the audio player
+  src/components/media-transcript/  the transcript
+  scripts/make-media.sh       makes the clips and sounds the docs, the blocks and the tests play
 packages/icons                the icons, published as @nuvui/icons
   svg/                        each icon in each style, fetched from Figma
   manifest.json               every icon's name, component and category

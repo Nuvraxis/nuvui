@@ -36,6 +36,9 @@ import chargingMap from "@/blocks/charging-map/block.json" with {
 import commentThread from "@/blocks/comment-thread/block.json" with {
   type: "json",
 };
+import courseLesson from "@/blocks/course-lesson/block.json" with {
+  type: "json",
+};
 import dangerZone from "@/blocks/danger-zone/block.json" with { type: "json" };
 import dashboard from "@/blocks/dashboard/block.json" with { type: "json" };
 import dealPipeline from "@/blocks/deal-pipeline/block.json" with {
@@ -89,6 +92,9 @@ import onboarding from "@/blocks/onboarding/block.json" with { type: "json" };
 import pageHeader from "@/blocks/page-header/block.json" with { type: "json" };
 import pageStates from "@/blocks/page-states/block.json" with { type: "json" };
 import pricing from "@/blocks/pricing/block.json" with { type: "json" };
+import productDemo from "@/blocks/product-demo/block.json" with {
+  type: "json",
+};
 import productGallery from "@/blocks/product-gallery/block.json" with {
   type: "json",
 };
@@ -96,6 +102,9 @@ import profileForm from "@/blocks/profile-form/block.json" with {
   type: "json",
 };
 import queryEditor from "@/blocks/query-editor/block.json" with {
+  type: "json",
+};
+import recordingReview from "@/blocks/recording-review/block.json" with {
   type: "json",
 };
 import reviews from "@/blocks/reviews/block.json" with { type: "json" };
@@ -205,6 +214,13 @@ export const categories: BlockCategory[] = [
       "Steps joined by arrows: a purchase request's way through its approvals, with the step it waits at and a panel for the one that's selected, and an automation built in place, with steps that are added, dragged, joined, renamed and removed.",
   },
   {
+    slug: "media",
+    label: "Media",
+    title: "Video and media",
+    description:
+      "Video in an app: a course's lesson with its chapters listed to jump to and the lessons beside it, a product's demo that loads only when it's played, and a recorded meeting with comments pinned to its moments.",
+  },
+  {
     slug: "editor",
     label: "Editor",
     title: "Writing and editors",
@@ -274,6 +290,9 @@ export const blocks: BlockManifest[] = [
   pageStates,
   approvalFlow,
   workflowBuilder,
+  courseLesson,
+  productDemo,
+  recordingReview,
   documentEditor,
   announcementEditor,
   commentThread,

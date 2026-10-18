@@ -1,0 +1,62 @@
+@use "@nuvui/react/scss/mixins";
+
+.product-demo {
+  display: grid;
+  gap: calc(var(--spacing) * 10);
+  justify-items: center;
+  inline-size: 100%;
+  min-block-size: 100svh;
+  padding: calc(var(--spacing) * 14) calc(var(--spacing) * 4);
+  overflow: hidden;
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+
+  @include mixins.breakpoint("md") {
+    padding-inline: calc(var(--spacing) * 8);
+  }
+}
+
+.product-demo__inner {
+  display: grid;
+  gap: calc(var(--spacing) * 4);
+  justify-items: center;
+  max-inline-size: 44rem;
+  text-align: center;
+}
+
+.product-demo__eyebrow {
+  margin: 0;
+  color: var(--color-primary);
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+.product-demo__title {
+  margin: 0;
+  font-size: clamp(2rem, 1.4rem + 3vw, 3.5rem);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+.product-demo__lead {
+  max-inline-size: 36rem;
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-lg);
+  line-height: var(--text-lg--line-height);
+}
+
+.product-demo__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 3);
+  justify-content: center;
+}
+
+// Room on every side for the glow the video casts.
+.product-demo__video {
+  max-inline-size: 60rem;
+  box-shadow: var(--shadow-xl);
+}

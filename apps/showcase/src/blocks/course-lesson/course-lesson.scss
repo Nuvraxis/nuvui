@@ -1,0 +1,145 @@
+@use "@nuvui/react/scss/mixins";
+
+.course-lesson {
+  display: grid;
+  gap: calc(var(--spacing) * 6);
+  align-content: start;
+  inline-size: 100%;
+  min-block-size: 100svh;
+  padding: calc(var(--spacing) * 6) calc(var(--spacing) * 4);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+
+  @include mixins.breakpoint("md") {
+    padding: calc(var(--spacing) * 8);
+  }
+}
+
+.course-lesson__head {
+  display: grid;
+  gap: calc(var(--spacing) * 1);
+}
+
+.course-lesson__course,
+.course-lesson__progress {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+.course-lesson__title {
+  margin: 0;
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-2xl--line-height);
+  letter-spacing: var(--tracking-tight);
+}
+
+// The video and its chapters, and the lessons beside them on a wide
+// screen and under them on a phone.
+.course-lesson__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: calc(var(--spacing) * 6);
+  align-items: start;
+
+  @include mixins.breakpoint("lg") {
+    grid-template-columns: minmax(0, 1fr) 18rem;
+  }
+}
+
+.course-lesson__main {
+  display: grid;
+  gap: calc(var(--spacing) * 5);
+}
+
+.course-lesson__heading {
+  margin: 0 0 calc(var(--spacing) * 2);
+  font-size: var(--text-base);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-base--line-height);
+}
+
+.course-lesson__chapter-list,
+.course-lesson__lesson-list {
+  display: grid;
+  gap: calc(var(--spacing) * 1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.course-lesson__chapter {
+  display: flex;
+  gap: calc(var(--spacing) * 3);
+  align-items: center;
+  inline-size: 100%;
+  padding: calc(var(--spacing) * 2) calc(var(--spacing) * 3);
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: var(--text-sm);
+  text-align: start;
+  cursor: pointer;
+
+  @include mixins.touch-target;
+  @include mixins.focus-ring;
+
+  @include mixins.hover {
+    background-color: var(--color-muted);
+  }
+
+  &[aria-current="true"] {
+    background-color: var(--color-muted);
+    font-weight: var(--font-weight-semibold);
+  }
+}
+
+.course-lesson__chapter-time {
+  min-inline-size: 3ch;
+  color: var(--color-muted-foreground);
+  font-variant-numeric: tabular-nums;
+}
+
+.course-lesson__lessons {
+  display: grid;
+  gap: calc(var(--spacing) * 3);
+  padding: calc(var(--spacing) * 4);
+  border: var(--nuv-border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-surface);
+  color: var(--color-surface-foreground);
+}
+
+.course-lesson__lesson {
+  display: grid;
+  gap: calc(var(--spacing) * 1);
+  padding: calc(var(--spacing) * 2) calc(var(--spacing) * 3);
+  border-inline-start: 3px solid transparent;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+
+  // The lesson playing now: a bar at its side, not a color alone.
+  &[aria-current="step"] {
+    border-inline-start-color: var(--color-primary);
+    background-color: var(--color-muted);
+    font-weight: var(--font-weight-semibold);
+  }
+}
+
+.course-lesson__lesson-meta {
+  display: flex;
+  gap: calc(var(--spacing) * 2);
+  align-items: center;
+  color: var(--color-muted-foreground);
+  font-weight: var(--font-weight-normal);
+  font-variant-numeric: tabular-nums;
+}
+
+.course-lesson__next {
+  justify-self: start;
+}

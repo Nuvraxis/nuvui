@@ -9,6 +9,7 @@ import "@nuvui/kanban/styles.css";
 import "@nuvui/editor/styles.css";
 import "@nuvui/emoji/styles.css";
 import "@nuvui/map/styles.css";
+import "@nuvui/flow/styles.css";
 // The two codes, each from the entry of its own.
 import { Barcode } from "@nuvui/barcodes/barcode";
 import { QRCode } from "@nuvui/barcodes/qrcode";
@@ -35,6 +36,8 @@ import { RichTextEditor } from "@nuvui/editor/rich-text-editor";
 // The picker, from the entry of its one component.
 import { EmojiPicker } from "@nuvui/emoji/emoji-picker";
 import { EmojiReaction } from "@nuvui/emoji/emoji-reaction";
+// The diagram, from the entry of its one component.
+import { Flow } from "@nuvui/flow/flow";
 import { ArrowRightIcon } from "@nuvui/icons";
 // The board, from the entry of its one component.
 import {
@@ -142,6 +145,14 @@ function App() {
       >
         <MapMarker position={[13.405, 52.52]} label="Berlin office" />
       </MapView>
+      <Flow
+        aria-label="Steps"
+        nodes={[
+          { id: "a", label: "Start", shape: "pill", position: { x: 0, y: 0 } },
+          { id: "b", label: "Review", position: { x: 220, y: -4 } },
+        ]}
+        edges={[{ id: "a-b", from: "a", to: "b" }]}
+      />
       <Kanban
         aria-label="Work"
         defaultValue={[{ id: "todo", cards: ["brief"] }]}

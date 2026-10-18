@@ -105,6 +105,9 @@ packages/emoji                an add-on, published as @nuvui/emoji
   src/data/                   the list of emoji, written by scripts/generate-data.mjs
 packages/map                  an add-on, published as @nuvui/map
   src/components/map/         the map and its parts, in one file
+packages/flow                 an add-on, published as @nuvui/flow
+  src/components/flow/        the diagram: its geometry, its spatial index, its store and the component
+  scripts/bench.mjs           times it on large diagrams, run by hand
 packages/icons                the icons, published as @nuvui/icons
   svg/                        each icon in each style, fetched from Figma
   manifest.json               every icon's name, component and category
@@ -232,7 +235,7 @@ Button is the smallest example to copy from, and Dialog the fullest.
 
 ## Add-on packages
 
-A component goes in a package of its own when it needs a library the core doesn't have. `@nuvui/date-picker` is the first, for react-day-picker and date-fns, `@nuvui/table` the second, for TanStack Table, `@nuvui/charts` the third, for Recharts, and `@nuvui/barcodes` the fourth, for JsBarcode's and uqr's encoders. `@nuvui/chat` is the fifth, and the one that isn't there for a library: it's a different kind of screen, which most apps don't have. `@nuvui/kanban` is the sixth, for dnd kit, which carries the cards, and `@nuvui/editor` the seventh, for Tiptap. `@nuvui/emoji` is the eighth, and what it keeps out of the core is no library but a list: nineteen hundred emoji with their names. `@nuvui/map` is the ninth, for MapLibre. An app that doesn't use the component then never installs that library. `@nuvui/icons` is the tenth, and the odd one out: it needs no `@nuvui/react`, has no stylesheet, and is artwork more than code. [The icon package](#the-icon-package) says how it differs.
+A component goes in a package of its own when it needs a library the core doesn't have. `@nuvui/date-picker` is the first, for react-day-picker and date-fns, `@nuvui/table` the second, for TanStack Table, `@nuvui/charts` the third, for Recharts, and `@nuvui/barcodes` the fourth, for JsBarcode's and uqr's encoders. `@nuvui/chat` is the fifth, and the one that isn't there for a library: it's a different kind of screen, which most apps don't have. `@nuvui/kanban` is the sixth, for dnd kit, which carries the cards, and `@nuvui/editor` the seventh, for Tiptap. `@nuvui/emoji` is the eighth, and what it keeps out of the core is no library but a list: nineteen hundred emoji with their names. `@nuvui/map` is the ninth, for MapLibre. An app that doesn't use the component then never installs that library. `@nuvui/flow` is the tenth, and needs no library either: what it keeps out of the core is a kind of screen most apps don't have, and its size. `@nuvui/icons` is the eleventh, and the odd one out: it needs no `@nuvui/react`, has no stylesheet, and is artwork more than code. [The icon package](#the-icon-package) says how it differs.
 
 An add-on is laid out like the core and built with the same tooling, from `packages/tooling`. Its own config files only say what's particular to it. What differs from the core:
 

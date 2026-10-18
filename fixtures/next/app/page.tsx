@@ -20,6 +20,7 @@ import { Calendar, DatePicker } from "@nuvui/date-picker";
 // and the text is written in once the page is in a browser.
 import { RichTextEditor } from "@nuvui/editor";
 import { EmojiPicker } from "@nuvui/emoji";
+import { Flow } from "@nuvui/flow";
 import { ArrowRightIcon } from "@nuvui/icons";
 import { MapView } from "@nuvui/map";
 import {
@@ -115,6 +116,16 @@ export default function Page() {
       <MapView
         aria-label="Office"
         mapStyle={{ version: 8, sources: {}, layers: [] }}
+      />
+      {/* A client component handed its lists by this server component.
+          The server draws the whole diagram. */}
+      <Flow
+        aria-label="Steps"
+        nodes={[
+          { id: "a", label: "Start", shape: "pill", position: { x: 0, y: 0 } },
+          { id: "b", label: "Review", position: { x: 220, y: -4 } },
+        ]}
+        edges={[{ id: "a-b", from: "a", to: "b" }]}
       />
       <Visitors months={months} />
       {/* Client components from another package, used from this server

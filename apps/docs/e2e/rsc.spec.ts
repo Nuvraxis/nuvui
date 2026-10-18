@@ -383,6 +383,14 @@ test("components used from a server component hydrate and work", async ({
     ).toHaveAttribute("aria-current", "page");
   }
 
+  // The diagram was drawn by the server, and the arrow keys work once it
+  // has hydrated.
+  const flow = page.getByRole("listbox", { name: "Server flow" });
+  await expect(flow.getByRole("option")).toHaveCount(2);
+  await flow.focus();
+  await page.keyboard.press("ArrowRight");
+  await expect(flow).toHaveAttribute("aria-activedescendant", /-n1$/);
+
   // The provider was rendered on the server, and the tabs inside it take
   // their direction from it: the left arrow goes forward.
   await page.getByRole("tab", { name: "One" }).focus();

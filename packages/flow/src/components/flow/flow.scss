@@ -1,0 +1,508 @@
+@use "../../styles/layers";
+@use "@nuvui/react/scss/mixins";
+
+@layer components {
+  // The whole width it's given. In a flex row it would otherwise shrink to
+  // the SVG's own width, which is the browser's 300 pixels.
+  .nuv-flow {
+    position: relative;
+    inline-size: 100%;
+    color: var(--nuv-flow-fg, var(--color-foreground));
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+  }
+
+  // The window onto the diagram. Its height is the app's to set. The
+  // diagram is fitted into whatever it is.
+  .nuv-flow__frame {
+    position: relative;
+    block-size: var(--nuv-flow-height, 24rem);
+    overflow: hidden;
+    border: var(--nuv-border-width) solid
+      var(--nuv-flow-border, var(--color-border));
+    border-radius: var(--nuv-flow-radius, var(--radius-lg));
+    background-color: var(--nuv-flow-bg, var(--color-background));
+  }
+
+  // A finger on the diagram pans and pinches it, so the browser's own
+  // scrolling and zooming are off there, and so is selecting its words.
+  .nuv-flow__canvas {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+    outline: none;
+    cursor: default;
+    touch-action: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+
+    &[data-hover="node"],
+    &[data-hover="edge"] {
+      cursor: pointer;
+    }
+
+    &[data-hover="handle"] {
+      cursor: crosshair;
+    }
+
+    // From far out the grid would be a grey wash.
+    &[data-detail="2"] .nuv-flow__background {
+      display: none;
+    }
+  }
+
+  .nuv-flow__svg {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+    overflow: hidden;
+  }
+
+  .nuv-flow[data-editable] .nuv-flow__canvas[data-hover="node"] {
+    cursor: grab;
+  }
+
+  .nuv-flow__dot {
+    fill: var(--nuv-flow-grid, var(--color-border-strong));
+  }
+
+  .nuv-flow__grid-line {
+    stroke: var(--nuv-flow-grid, var(--color-border));
+    stroke-width: 1;
+  }
+
+  // Nodes. The outline is drawn the same width at every zoom, so a
+  // zoomed-out diagram doesn't turn to hairlines or blobs.
+  .nuv-flow__shape {
+    fill: var(--nuv-flow-node-bg, var(--color-surface));
+    stroke: var(--nuv-flow-node-border, var(--color-border-strong));
+    stroke-width: 1.5;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .nuv-flow__node--primary .nuv-flow__shape {
+    stroke: var(--nuv-flow-node-border, var(--color-primary));
+    stroke-width: 2;
+  }
+
+  .nuv-flow__node--success .nuv-flow__shape {
+    stroke: var(--nuv-flow-node-border, var(--color-success));
+    stroke-width: 2;
+  }
+
+  .nuv-flow__node--warning .nuv-flow__shape {
+    stroke: var(--nuv-flow-node-border, var(--color-warning));
+    stroke-width: 2;
+  }
+
+  .nuv-flow__node--danger .nuv-flow__shape {
+    stroke: var(--nuv-flow-node-border, var(--color-danger));
+    stroke-width: 2;
+  }
+
+  // Selected: a heavier edge in the ring's color, and a tint, so it shows
+  // on a shape of any color.
+  .nuv-flow__node[data-selected] .nuv-flow__shape {
+    fill: var(--nuv-flow-selected-bg, var(--color-muted));
+    stroke: var(--nuv-flow-selected-border, var(--color-ring));
+    stroke-width: 3;
+  }
+
+  .nuv-flow__node[data-linking] .nuv-flow__shape {
+    stroke: var(--nuv-flow-selected-border, var(--color-ring));
+    stroke-dasharray: 6 4;
+    stroke-width: 3;
+  }
+
+  // The words in a shape, centered, wrapped, and cut off with an ellipsis
+  // after as many lines as the shape has room for. Their size is fixed in
+  // the diagram's units: the component works out the lines from it.
+  .nuv-flow__label {
+    display: flex;
+    box-sizing: border-box;
+    align-items: center;
+    justify-content: center;
+    inline-size: 100%;
+    block-size: 100%;
+    overflow: hidden;
+    color: var(--nuv-flow-node-fg, var(--color-surface-foreground));
+    font-size: 14px;
+    line-height: 20px;
+    text-align: center;
+    overflow-wrap: anywhere;
+    pointer-events: none;
+  }
+
+  .nuv-flow__label-text {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+
+    @for $lines from 2 through 6 {
+      &[data-lines="#{$lines}"] {
+        -webkit-line-clamp: $lines;
+      }
+    }
+  }
+
+  .nuv-flow__node[data-selected] .nuv-flow__label {
+    color: var(--nuv-flow-selected-fg, var(--color-foreground));
+  }
+
+  // Edges. Every line is the same width at every zoom.
+  .nuv-flow__line {
+    fill: none;
+    stroke: var(--nuv-flow-edge, var(--color-muted-foreground));
+    stroke-width: 1.5;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .nuv-flow__edge--primary .nuv-flow__line {
+    stroke: var(--nuv-flow-edge, var(--color-primary));
+  }
+
+  .nuv-flow__edge--success .nuv-flow__line {
+    stroke: var(--nuv-flow-edge, var(--color-success));
+  }
+
+  .nuv-flow__edge--warning .nuv-flow__line {
+    stroke: var(--nuv-flow-edge, var(--color-warning));
+  }
+
+  .nuv-flow__edge--danger .nuv-flow__line {
+    stroke: var(--nuv-flow-edge, var(--color-danger));
+  }
+
+  .nuv-flow__edge[data-dashed] .nuv-flow__line,
+  .nuv-flow__edge[data-animated] .nuv-flow__line {
+    stroke-dasharray: 6 5;
+  }
+
+  .nuv-flow__edge[data-selected] .nuv-flow__line {
+    stroke: var(--nuv-flow-selected-border, var(--color-ring));
+    stroke-width: 3;
+  }
+
+  @include mixins.motion-safe {
+    .nuv-flow__edge[data-animated] .nuv-flow__line {
+      animation: nuv-flow-dash 0.6s linear infinite;
+    }
+  }
+
+  @keyframes nuv-flow-dash {
+    to {
+      stroke-dashoffset: -11;
+    }
+  }
+
+  .nuv-flow__arrow {
+    fill: var(--nuv-flow-edge, var(--color-muted-foreground));
+  }
+
+  .nuv-flow__arrow--primary {
+    fill: var(--nuv-flow-edge, var(--color-primary));
+  }
+
+  .nuv-flow__arrow--success {
+    fill: var(--nuv-flow-edge, var(--color-success));
+  }
+
+  .nuv-flow__arrow--warning {
+    fill: var(--nuv-flow-edge, var(--color-warning));
+  }
+
+  .nuv-flow__arrow--danger {
+    fill: var(--nuv-flow-edge, var(--color-danger));
+  }
+
+  .nuv-flow__arrow--selected {
+    fill: var(--nuv-flow-selected-border, var(--color-ring));
+  }
+
+  // An edge's words sit on the line, on a patch of the frame's color so
+  // the line doesn't run through them.
+  .nuv-flow__edge-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 100%;
+    block-size: 100%;
+    pointer-events: none;
+  }
+
+  .nuv-flow__edge-label-text {
+    max-inline-size: 100%;
+    padding-inline: 6px;
+    overflow: hidden;
+    border-radius: 4px;
+    background-color: var(--nuv-flow-bg, var(--color-background));
+    color: var(--nuv-flow-edge-fg, var(--color-muted-foreground));
+    font-size: 12px;
+    line-height: 18px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  // From far out: every node a box, one path for each color.
+  .nuv-flow__overview {
+    fill: var(--nuv-flow-node-border, var(--color-border-strong));
+  }
+
+  .nuv-flow__overview--primary {
+    fill: var(--nuv-flow-node-border, var(--color-primary));
+  }
+
+  .nuv-flow__overview--success {
+    fill: var(--nuv-flow-node-border, var(--color-success));
+  }
+
+  .nuv-flow__overview--warning {
+    fill: var(--nuv-flow-node-border, var(--color-warning));
+  }
+
+  .nuv-flow__overview--danger {
+    fill: var(--nuv-flow-node-border, var(--color-danger));
+  }
+
+  .nuv-flow__overview-edges {
+    fill: none;
+    stroke: var(--nuv-flow-edge, var(--color-border-strong));
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+  }
+
+  // The keyboard's place, shown while the diagram has focus from the
+  // keyboard.
+  .nuv-flow__focus {
+    display: none;
+    fill: none;
+    stroke: var(--color-ring);
+    stroke-width: 2;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .nuv-flow__canvas:focus-visible .nuv-flow__focus {
+    display: inline;
+  }
+
+  // With no node to ring, the frame has the ring.
+  .nuv-flow__frame:has(.nuv-flow__canvas:focus-visible) {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
+  }
+
+  .nuv-flow__handle {
+    fill: var(--nuv-flow-bg, var(--color-background));
+    stroke: var(--nuv-flow-selected-border, var(--color-ring));
+    stroke-width: 2;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .nuv-flow__new-link {
+    fill: none;
+    stroke: var(--nuv-flow-selected-border, var(--color-ring));
+    stroke-dasharray: 6 4;
+    stroke-width: 2;
+    vector-effect: non-scaling-stroke;
+    pointer-events: none;
+  }
+
+  .nuv-flow__selection-box {
+    fill: var(--nuv-flow-selected-border, var(--color-ring));
+    fill-opacity: 0.08;
+    stroke: var(--nuv-flow-selected-border, var(--color-ring));
+    stroke-dasharray: 4 3;
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+    pointer-events: none;
+  }
+
+  // The buttons, in the corner at the end of the line.
+  .nuv-flow__controls {
+    display: flex;
+    position: absolute;
+    inset-block-end: calc(var(--spacing) * 2);
+    inset-inline-end: calc(var(--spacing) * 2);
+    gap: calc(var(--spacing) * 1);
+    padding: calc(var(--spacing) * 1);
+    border: var(--nuv-border-width) solid
+      var(--nuv-flow-border, var(--color-border));
+    border-radius: var(--radius-md);
+    background-color: var(--nuv-flow-controls-bg, var(--color-surface));
+    box-shadow: var(--shadow-sm);
+  }
+
+  .nuv-flow__control,
+  .nuv-flow__step-remove {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--nuv-touch-size);
+    block-size: var(--nuv-touch-size);
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: none;
+    color: var(--nuv-flow-control-fg, var(--color-surface-foreground));
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+
+    @include mixins.fine-pointer {
+      inline-size: calc(var(--spacing) * 8);
+      block-size: calc(var(--spacing) * 8);
+    }
+
+    @include mixins.hover {
+      background-color: var(--nuv-flow-control-hover-bg, var(--color-muted));
+    }
+
+    @include mixins.focus-ring;
+  }
+
+  .nuv-flow__icon {
+    inline-size: calc(var(--spacing) * 4);
+    block-size: calc(var(--spacing) * 4);
+  }
+
+  // The same diagram as a list of steps.
+  .nuv-flow__list {
+    margin-block-start: calc(var(--spacing) * 3);
+
+    &[hidden] {
+      display: none;
+    }
+  }
+
+  .nuv-flow__steps {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 2);
+    margin: 0;
+    padding-inline-start: calc(var(--spacing) * 6);
+  }
+
+  .nuv-flow__step-name {
+    min-block-size: var(--nuv-touch-size);
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    font-weight: var(--font-weight-medium);
+    text-align: start;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    cursor: pointer;
+
+    @include mixins.fine-pointer {
+      min-block-size: 0;
+    }
+
+    @include mixins.focus-ring;
+  }
+
+  .nuv-flow__step-kind,
+  .nuv-flow__step-description,
+  .nuv-flow__step-links {
+    color: var(--nuv-flow-muted-fg, var(--color-muted-foreground));
+  }
+
+  .nuv-flow__step-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(var(--spacing) * 1);
+    align-items: center;
+  }
+
+  .nuv-flow__more {
+    min-block-size: var(--nuv-touch-size);
+    margin-block-start: calc(var(--spacing) * 2);
+    padding-inline: calc(var(--spacing) * 3);
+    border: var(--nuv-border-width) solid
+      var(--nuv-flow-border, var(--color-border));
+    border-radius: var(--radius-md);
+    background: none;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+
+    @include mixins.fine-pointer {
+      min-block-size: calc(var(--spacing) * 8);
+    }
+
+    @include mixins.focus-ring;
+  }
+
+  // There for screen readers and not for the eye. The same rules as the
+  // core's VisuallyHidden, which this stylesheet can't load.
+  .nuv-flow__hidden {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    border: 0;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  // The browser's own colors: outlines in the text color, the selected in
+  // the highlight color, and the fills in the page's.
+  @media (forced-colors: active) {
+    .nuv-flow__node .nuv-flow__shape {
+      fill: Canvas;
+      stroke: CanvasText;
+    }
+
+    .nuv-flow__node[data-selected] .nuv-flow__shape,
+    .nuv-flow__node[data-linking] .nuv-flow__shape,
+    .nuv-flow__edge[data-selected] .nuv-flow__line,
+    .nuv-flow__focus,
+    .nuv-flow__handle,
+    .nuv-flow__new-link {
+      stroke: Highlight;
+    }
+
+    .nuv-flow__node .nuv-flow__label {
+      color: CanvasText;
+    }
+
+    .nuv-flow__edge .nuv-flow__line,
+    .nuv-flow__overview-edges {
+      stroke: CanvasText;
+    }
+
+    .nuv-flow__arrow,
+    .nuv-flow__arrow--primary,
+    .nuv-flow__arrow--success,
+    .nuv-flow__arrow--warning,
+    .nuv-flow__arrow--danger,
+    .nuv-flow__overview,
+    .nuv-flow__overview--primary,
+    .nuv-flow__overview--success,
+    .nuv-flow__overview--warning,
+    .nuv-flow__overview--danger {
+      fill: CanvasText;
+    }
+
+    .nuv-flow__arrow--selected {
+      fill: Highlight;
+    }
+
+    .nuv-flow__dot {
+      fill: GrayText;
+    }
+
+    .nuv-flow__grid-line {
+      stroke: GrayText;
+    }
+
+    .nuv-flow__edge-label-text {
+      background-color: Canvas;
+      color: CanvasText;
+    }
+  }
+}

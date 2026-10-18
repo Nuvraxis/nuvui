@@ -4,6 +4,9 @@ import announcementEditor from "@/blocks/announcement-editor/block.json" with {
 };
 import appShell from "@/blocks/app-shell/block.json" with { type: "json" };
 import appearance from "@/blocks/appearance/block.json" with { type: "json" };
+import approvalFlow from "@/blocks/approval-flow/block.json" with {
+  type: "json",
+};
 import approvals from "@/blocks/approvals/block.json" with { type: "json" };
 import article from "@/blocks/article/block.json" with { type: "json" };
 import askPanel from "@/blocks/ask-panel/block.json" with { type: "json" };
@@ -126,6 +129,9 @@ import teamMembers from "@/blocks/team-members/block.json" with {
 import topBar from "@/blocks/top-bar/block.json" with { type: "json" };
 import verifyCode from "@/blocks/verify-code/block.json" with { type: "json" };
 import whatsNew from "@/blocks/whats-new/block.json" with { type: "json" };
+import workflowBuilder from "@/blocks/workflow-builder/block.json" with {
+  type: "json",
+};
 
 /** A block's `block.json`, the file that says what the block is. */
 export interface BlockManifest {
@@ -190,6 +196,13 @@ export const categories: BlockCategory[] = [
     title: "Data",
     description:
       "Rows to work with: a table with search, a filter, a column chooser and actions for several rows, a list with a bar of actions for the ticked rows, requests to approve with buttons in every row, a retouched photograph to approve with a switch between it and the original, a list filtered from a sentence and a sheet, folders and files in a tree, a panel that opens beside a list, a parcel's label with its barcode, a ticket with a QR code, a board of tasks in columns, a sales pipeline that adds up each column, a list of branches beside a map of them, a van's round as a list of stops and a line on a map, charging points gathered on a map with a list of the same ones, and a page in each state it can be in.",
+  },
+  {
+    slug: "flows",
+    label: "Flows",
+    title: "Flows and diagrams",
+    description:
+      "Steps joined by arrows: a purchase request's way through its approvals, with the step it waits at and a panel for the one that's selected, and an automation built in place, with steps that are added, dragged, joined, renamed and removed.",
   },
   {
     slug: "editor",
@@ -259,6 +272,8 @@ export const blocks: BlockManifest[] = [
   deliveryRoute,
   chargingMap,
   pageStates,
+  approvalFlow,
+  workflowBuilder,
   documentEditor,
   announcementEditor,
   commentThread,

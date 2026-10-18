@@ -9,6 +9,7 @@ import "@nuvui/kanban/styles.css";
 import "@nuvui/editor/styles.css";
 import "@nuvui/emoji/styles.css";
 import "@nuvui/map/styles.css";
+import "@nuvui/flow/styles.css";
 // A client component from an entry of its own, used from this server
 // component with nothing but plain props.
 import { DirectionProvider } from "@nuvui/react/direction";

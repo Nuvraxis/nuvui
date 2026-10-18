@@ -1,0 +1,9 @@
+{
+  "name": "workflow-builder",
+  "title": "Workflow builder",
+  "description": "An automation drawn as a diagram and edited in place: steps are dragged onto a grid and joined from their edges, with a pointer or the keyboard, buttons add a trigger, a condition or an action after the selected step, and a panel beside it renames or removes the step that's selected.",
+  "category": "flows",
+  "files": ["workflow-builder.tsx", "workflow-builder.scss"],
+  "install": ["@nuvui/flow", "@nuvui/react"],
+  "height": 820
+}

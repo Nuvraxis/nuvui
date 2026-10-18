@@ -4,6 +4,6 @@
   "description": "A podcast's episode: its artwork, the waveform to seek on with the part played in the theme's color, back and ahead buttons, the chapters listed to jump to with the one playing marked, and show notes. The listener's volume and speed are kept between episodes.",
   "category": "media",
   "files": ["podcast-episode.tsx", "podcast-episode.scss"],
-  "install": ["@nuvui/media", "@nuvui/react"],
+  "install": ["@nuvui/media"],
   "height": 900
 }

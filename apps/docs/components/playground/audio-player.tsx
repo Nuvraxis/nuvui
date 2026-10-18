@@ -22,7 +22,7 @@ export function AudioPlayerPlayground() {
 
   const lines = [
     layout !== "bar" && `layout="${layout}"`,
-    'title="Demo track"',
+    'title="Playground track"',
     layout === "podcast" && 'artist="nuvui radio"',
     layout === "podcast" && 'artwork="/docs/clips/demo_audio.jpg"',
     'src="/docs/clips/demo_audio.mp3"',
@@ -63,7 +63,7 @@ export function AudioPlayerPlayground() {
           // A new player when the tracks change, so the browser reads them again.
           key={String(chapters)}
           layout={layout}
-          title="Demo track"
+          title="Playground track"
           artist={layout === "podcast" ? "nuvui radio" : undefined}
           artwork={
             layout === "podcast" ? "/docs/clips/demo_audio.jpg" : undefined

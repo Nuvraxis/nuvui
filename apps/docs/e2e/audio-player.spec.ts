@@ -35,7 +35,7 @@ test.describe("audio player page", () => {
     await area.scrollIntoViewIfNeeded();
     await expect(area.locator(".nuv-audio-player__artwork")).toBeVisible();
     await expect(area.locator(".nuv-audio-player__title")).toHaveText(
-      "Demo track",
+      "Episode 12",
     );
     await expect(
       area.locator(".nuv-media-waveform rect").first(),

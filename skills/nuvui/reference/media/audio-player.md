@@ -56,7 +56,7 @@ export default function Example() {
   return (
     <AudioPlayer
       layout="podcast"
-      title="Demo track"
+      title="Episode 12"
       artist="nuvui radio"
       artwork="/docs/clips/demo_audio.jpg"
       src="/docs/clips/demo_audio.mp3"
@@ -196,7 +196,7 @@ import {
 export default function Example() {
   return (
     <AudioPlayer
-      title="Demo track"
+      title="Controls of your own"
       src="/docs/clips/demo_audio.mp3"
       controls={false}
     >

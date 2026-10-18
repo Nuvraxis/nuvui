@@ -10,7 +10,7 @@ import {
 export default function Example() {
   return (
     <AudioPlayer
-      title="Demo track"
+      title="Controls of your own"
       src="/docs/clips/demo_audio.mp3"
       controls={false}
     >

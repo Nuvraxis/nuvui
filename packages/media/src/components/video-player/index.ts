@@ -1,6 +1,7 @@
 export type { MediaLabels } from "../../core/labels";
 export { englishLabels } from "../../core/labels";
 export type { SavedSettings } from "../../core/persist";
+export type { MediaPlayerCommonProps } from "../../core/player";
 export type {
   DashLoader,
   DashModule,

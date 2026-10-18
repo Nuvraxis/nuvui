@@ -437,10 +437,10 @@ export function MediaCaptionsButton(props: MediaButtonProps) {
 /**
  * The settings menu: speed, quality, captions and their size, the audio
  * track, and the keyboard shortcuts. Each part shows only when there's a
- * choice to make.
+ * choice to make, and captions only in a video player.
  */
 export function MediaSettings(props: MediaButtonProps) {
-  const { store, labels, rates, root, save, showShortcuts } =
+  const { kind, store, labels, rates, root, save, showShortcuts } =
     useMediaContext("MediaSettings");
   const rate = useMediaState(store, (s) => s.rate);
   const qualities = useMediaState(store, (s) => s.qualities);
@@ -542,7 +542,8 @@ export function MediaSettings(props: MediaButtonProps) {
           </DropdownMenuSub>
         )}
 
-        {tracks.length > 0 && (
+        {/* Audio has no captions to draw. Its tracks are for a transcript. */}
+        {tracks.length > 0 && kind === "video" && (
           <DropdownMenuSub>
             <DropdownMenuSubTrigger>
               <span className="nuv-media-menu__name">{labels.captions}</span>

@@ -178,7 +178,7 @@ A file for each page of the docs. Read the one for a component before using it: 
 - [MapRoute](reference/map/map-route.md): A line on a map through a list of places, for a way that was driven or one that's planned. It's drawn in the theme's colors, with an edge that keeps it seen on a map of any color.
 - [MapClusters](reference/map/map-clusters.md): Many places on a map, gathered into one button with a number on it where they're near each other, and drawn apart as the map zooms in. Each gathering and each place is a button with a name.
 
-## flow
+## @nuvui/flow
 
 - [Flow diagrams](reference/flow/index.md): The @nuvui/flow package. Boxes, circles and other shapes joined by arrows, drawn as SVG, in a view that pans and zooms, and edited with a pointer or the keyboard.
 - [Flow](reference/flow/flow.md): A diagram of shapes joined by arrows, drawn as SVG, in a frame that pans and zooms. Nodes are dragged, joined and removed with a pointer or the keyboard, and only what's in view is drawn.

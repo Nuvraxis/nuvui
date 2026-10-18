@@ -397,6 +397,8 @@ Keep a pull request to one change. A fix and an unrelated cleanup are easier to 
 
 It answers from the agent skill, `skills/nuvui`, and from the website's blocks and charts, so there's one way of turning a docs page into text. `pnpm build` reads them into `apps/mcp/dist/data.json`, which the server loads when it starts. A change to the docs reaches it through `pnpm skill`, as it reaches the skill. `apps/mcp/turbo.json` names those files as inputs of its build, since they're outside the package.
 
+`apps/mcp/tools.json` is what an agent reads before it calls anything: each tool's name, title, description and input schema. An agent builds its calls on the list it last read, so a change to it reaches every client without telling them. A test fails when the server's list differs from the file. When the change is meant, write the file again with `pnpm --filter @nuvui/mcp test -u` and keep it in the pull request, where the diff shows what agents will see. Some parameters list the packages, rule topics, block categories and chart families, so a new package or category changes it too.
+
 To run it:
 
 ```sh

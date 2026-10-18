@@ -1,6 +1,6 @@
 {
   "name": "@nuvui/flow",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Flow diagrams for @nuvui/react: boxes, circles and other shapes joined by arrows, drawn as SVG, in a view that pans and zooms, and edited by dragging or with the keyboard.",
   "license": "MIT",
   "author": "Nuvraxis",

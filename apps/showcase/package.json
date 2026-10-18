@@ -19,6 +19,7 @@
     "@nuvui/editor": "workspace:*",
     "@nuvui/emoji": "workspace:*",
     "@nuvui/flow": "workspace:*",
+    "@nuvui/media": "workspace:*",
     "@nuvui/icons": "workspace:*",
     "@nuvui/kanban": "workspace:*",
     "@nuvui/map": "workspace:*",

@@ -1,0 +1,9 @@
+{
+  "name": "course-lesson",
+  "title": "Course lesson",
+  "description": "A lesson of a course: its video with chapters along the seek bar, previews over it, captions in two languages and two qualities, the chapters listed under it to jump to, and the course's lessons beside it with the ones watched marked. The viewer's volume, speed and captions are kept between lessons.",
+  "category": "media",
+  "files": ["course-lesson.tsx", "course-lesson.scss"],
+  "install": ["@nuvui/media", "@nuvui/react"],
+  "height": 900
+}

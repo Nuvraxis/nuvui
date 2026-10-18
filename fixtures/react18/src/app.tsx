@@ -27,6 +27,7 @@ import {
   KanbanColumn,
 } from "@nuvui/kanban/kanban";
 import { MapMarker, MapView } from "@nuvui/map/map";
+import { VideoPlayer } from "@nuvui/media/video-player";
 import {
   Button,
   Checkbox,
@@ -121,6 +122,7 @@ export function App() {
         ]}
         edges={[{ id: "a-b", from: "a", to: "b" }]}
       />
+      <VideoPlayer title="Intro" src="/intro.mp4" poster="/intro.jpg" />
       <Kanban
         aria-label="Work"
         defaultValue={[{ id: "todo", cards: ["brief"] }]}

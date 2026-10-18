@@ -1,0 +1,5 @@
+{
+  "title": "Media",
+  "defaultOpen": true,
+  "pages": ["index", "video-player"]
+}

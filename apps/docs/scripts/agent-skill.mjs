@@ -48,6 +48,7 @@ const addons = [
   "emoji",
   "map",
   "flow",
+  "media",
   "icons",
 ];
 const packageDir = (addon) => path.join(repoDir, "packages", addon ?? core);
@@ -231,8 +232,10 @@ async function cssVariables(attrs) {
 }
 
 async function bemClasses(attrs) {
-  const { component, package: addon, descriptions } = attrs;
-  const css = await cssOf(addon, component);
+  const { component, package: addon, descriptions, shared } = attrs;
+  const css = shared
+    ? await read(path.join(packageDir(addon), "dist", "styles.css"))
+    : await cssOf(addon, component);
   const pattern = new RegExp(`\\.(nuv-${component}[a-z0-9_-]*)`, "g");
   const classes = [
     ...new Set([...css.matchAll(pattern)].map(([, name]) => name)),

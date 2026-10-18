@@ -1,0 +1,18 @@
+[
+  {
+    "name": "@nuvui/media",
+    "path": "dist/index.js",
+    "limit": "13.5 kB"
+  },
+  {
+    "name": "@nuvui/media/video-player",
+    "path": "dist/components/video-player/index.js",
+    "limit": "13.5 kB"
+  },
+  {
+    "name": "styles.css",
+    "path": "dist/styles.css",
+    "rolldown": false,
+    "limit": "3 kB"
+  }
+]

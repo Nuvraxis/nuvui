@@ -5696,3 +5696,98 @@ test.describe("workflow builder", () => {
     });
   }
 });
+
+test.describe("course lesson", () => {
+  const time = (page: Page) =>
+    page.locator("video").evaluate((v: HTMLVideoElement) => v.currentTime);
+
+  test("course lesson: the lesson playing is marked, and a chapter in the list goes to its moment", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/blocks/view/course-lesson");
+    await expect(
+      page
+        .getByRole("navigation", { name: "Lessons" })
+        .locator('[aria-current="step"]'),
+    ).toContainText("Building the first screen");
+    await expect(page.locator(".nuv-media-seek__part")).toHaveCount(3);
+    await press(page.getByRole("button", { name: /Shipping it/ }), isMobile);
+    await expect.poll(() => time(page)).toBeGreaterThanOrEqual(16);
+    await expect(
+      page.getByRole("button", { name: /Shipping it/ }),
+    ).toHaveAttribute("aria-current", "true");
+  });
+
+  test("course lesson: on a phone the lessons are under the video, and the page doesn't scroll sideways", async ({
+    page,
+  }) => {
+    await page.setViewportSize(phone);
+    await open(page, "/blocks/view/course-lesson");
+    const video = await page.locator(".nuv-video-player").boundingBox();
+    const lessons = await page
+      .getByRole("navigation", { name: "Lessons" })
+      .boundingBox();
+    expect(lessons?.y ?? 0).toBeGreaterThan(
+      (video?.y ?? 0) + (video?.height ?? 0),
+    );
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth - window.innerWidth,
+      ),
+    ).toBeLessThanOrEqual(0);
+  });
+});
+
+test.describe("product demo", () => {
+  test("product demo: only the poster is on the page until the first press, then the video plays", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/blocks/view/product-demo");
+    await expect(
+      page.getByRole("heading", { level: 1, name: /blank page/ }),
+    ).toBeVisible();
+    await expect(page.locator("video")).toHaveCount(0);
+    await press(page.getByRole("button", { name: "Play" }), isMobile);
+    await expect
+      .poll(() =>
+        page.locator("video").evaluate((v: HTMLVideoElement) => v.currentTime),
+      )
+      .toBeGreaterThan(0.2);
+  });
+});
+
+test.describe("recording review", () => {
+  const time = (page: Page) =>
+    page.locator("video").evaluate((v: HTMLVideoElement) => v.currentTime);
+
+  test("recording review: a comment's time goes to its moment, and the comments mark the seek bar", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/blocks/view/recording-review");
+    // Three comments, and the time before the first: four parts.
+    await expect(page.locator(".nuv-media-seek__part")).toHaveCount(4);
+    await press(page.getByRole("button", { name: "Go to 0:10" }), isMobile);
+    await expect.poll(() => time(page)).toBeGreaterThanOrEqual(10);
+  });
+
+  test("recording review: a new comment is pinned to where the video is", async ({
+    page,
+  }) => {
+    await open(page, "/blocks/view/recording-review");
+    await page.locator("video").evaluate((v: HTMLVideoElement) => {
+      v.currentTime = 7;
+    });
+    await expect(page.getByText("Comment at 0:07")).toBeVisible();
+    await page.getByLabel("Comment at 0:07").fill("The title wraps here.");
+    await page.getByRole("button", { name: "Add comment" }).click();
+    const comments = page.getByRole("region", { name: "Comments" });
+    await expect(comments.getByRole("listitem")).toHaveCount(4);
+    await expect(comments.getByRole("listitem").nth(1)).toContainText(
+      "The title wraps here.",
+    );
+    await expect(page.locator(".nuv-media-seek__part")).toHaveCount(5);
+  });
+});

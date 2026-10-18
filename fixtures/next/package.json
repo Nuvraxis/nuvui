@@ -14,6 +14,7 @@
     "@nuvui/editor": "file:../../packages/editor",
     "@nuvui/emoji": "file:../../packages/emoji",
     "@nuvui/flow": "file:../../packages/flow",
+    "@nuvui/media": "file:../../packages/media",
     "@nuvui/icons": "file:../../packages/icons",
     "@nuvui/map": "file:../../packages/map",
     "maplibre-gl": "^6.4.1",

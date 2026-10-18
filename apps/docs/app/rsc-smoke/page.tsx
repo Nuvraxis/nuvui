@@ -43,6 +43,7 @@ import { Calendar, DatePicker } from "@nuvui/date-picker";
 // One import from an entry of the add-on's own, to check those resolve too.
 import { DateRangePicker } from "@nuvui/date-picker/date-picker";
 import { Flow } from "@nuvui/flow/flow";
+import { VideoPlayer } from "@nuvui/media/video-player";
 import {
   Alert,
   AlertDescription,
@@ -630,6 +631,16 @@ export default function RscSmokePage() {
             { id: "check", label: "Checked", position: { x: 220, y: -4 } },
           ]}
           edges={[{ id: "in-check", from: "in", to: "check" }]}
+        />
+      </div>
+      {/* A client component with its source from this server component.
+          The server sends the video with the browser's own controls. */}
+      <div className="w-full">
+        <VideoPlayer
+          title="Server video"
+          src="/docs/clips/demo-360.mp4"
+          poster="/docs/clips/poster.jpg"
+          defaultMuted
         />
       </div>
       <DirectionProvider dir="rtl">

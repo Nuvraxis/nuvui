@@ -87,7 +87,8 @@ interface ReferenceProps {
 interface CssVariablesProps extends ReferenceProps {
   /**
    * Look in the whole stylesheet instead of one component's. For variables
-   * that several components read, where `component` is their shared prefix.
+   * and classes that several components share, where `component` is their
+   * shared prefix.
    */
   shared?: boolean;
 }
@@ -154,8 +155,13 @@ export async function BemClasses({
   component,
   package: addon,
   descriptions,
-}: ReferenceProps) {
-  const css = await readFile(packageOf(addon).css(component), "utf8");
+  shared = false,
+}: CssVariablesProps) {
+  const source = packageOf(addon);
+  const css = await readFile(
+    shared ? source.styles : source.css(component),
+    "utf8",
+  );
   const pattern = new RegExp(`\\.(nuv-${component}[a-z0-9_-]*)`, "g");
   const classes = [
     ...new Set([...css.matchAll(pattern)].map(([, name]) => name)),

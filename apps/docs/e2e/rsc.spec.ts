@@ -391,6 +391,17 @@ test("components used from a server component hydrate and work", async ({
   await page.keyboard.press("ArrowRight");
   await expect(flow).toHaveAttribute("aria-activedescendant", /-n1$/);
 
+  // The server sent the video with the browser's own controls. Once it has
+  // hydrated, the player's own take over, and its play button plays it.
+  const video = page.getByRole("region", { name: "Server video" });
+  await expect(video.locator("video")).toHaveJSProperty("controls", false);
+  await video.getByRole("button", { name: "Play" }).first().click();
+  await expect
+    .poll(() =>
+      video.locator("video").evaluate((v: HTMLVideoElement) => v.currentTime),
+    )
+    .toBeGreaterThan(0.2);
+
   // The provider was rendered on the server, and the tabs inside it take
   // their direction from it: the left arrow goes forward.
   await page.getByRole("tab", { name: "One" }).focus();

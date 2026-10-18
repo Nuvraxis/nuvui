@@ -1,0 +1,9 @@
+{
+  "name": "product-demo",
+  "title": "Product demo",
+  "description": "A product's page with its demo video under the headline: only the poster and a play button until the first press, so visitors who don't watch load no video, then the video with captions and a glow around it in its own colors.",
+  "category": "media",
+  "files": ["product-demo.tsx", "product-demo.scss"],
+  "install": ["@nuvui/media", "@nuvui/react"],
+  "height": 1000
+}

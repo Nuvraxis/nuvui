@@ -293,6 +293,68 @@ A diagram's name is the `aria-label` you give it, and a node's is its `label`. W
 | `moved` | `((labels: string[]) => string)` |  | Said when nodes are moved. |
 | `removed` | `((nodes: number, links: number) => string)` |  | Said when nodes and links are removed. |
 
+## Video
+
+A player's name is its `title`, or the `aria-label` you give it. Every button's name, the menus, the seek bar's value in words, and what's said as things change, are in one prop, `labels`:
+
+| Prop | Type | Default | What it's for |
+| --- | --- | --- | --- |
+| `video` (required) | `string` |  | The player's name when it's given no `aria-label` and no `title`. |
+| `play` (required) | `string` |  |  |
+| `pause` (required) | `string` |  |  |
+| `replay` (required) | `string` |  |  |
+| `mute` (required) | `string` |  |  |
+| `unmute` (required) | `string` |  |  |
+| `volume` (required) | `string` |  |  |
+| `seek` (required) | `string` |  | The seek bar's name. |
+| `enterFullscreen` (required) | `string` |  |  |
+| `exitFullscreen` (required) | `string` |  |  |
+| `enterPictureInPicture` (required) | `string` |  |  |
+| `exitPictureInPicture` (required) | `string` |  |  |
+| `captions` (required) | `string` |  |  |
+| `settings` (required) | `string` |  |  |
+| `speed` (required) | `string` |  |  |
+| `normalSpeed` (required) | `string` |  | The speed of 1, in the speed menu. |
+| `quality` (required) | `string` |  |  |
+| `auto` (required) | `(current?: string) => string` |  | Quality chosen by the player, with the one it's on now if known. |
+| `audioTrack` (required) | `string` |  |  |
+| `off` (required) | `string` |  | Captions turned off, in the captions menu. |
+| `captionSize` (required) | `string` |  |  |
+| `small` (required) | `string` |  |  |
+| `medium` (required) | `string` |  |  |
+| `large` (required) | `string` |  |  |
+| `skipBack` (required) | `(seconds: number) => string` |  |  |
+| `skipAhead` (required) | `(seconds: number) => string` |  |  |
+| `showRemaining` (required) | `string` |  | The time button's name while it shows the time played. |
+| `showElapsed` (required) | `string` |  | The time button's name while it shows the time left. |
+| `live` (required) | `string` |  |  |
+| `loading` (required) | `string` |  |  |
+| `errorNetwork` (required) | `string` |  |  |
+| `errorDecode` (required) | `string` |  |  |
+| `errorUnsupported` (required) | `string` |  |  |
+| `retry` (required) | `string` |  |  |
+| `shortcuts` (required) | `string` |  |  |
+| `close` (required) | `string` |  |  |
+| `hours` (required) | `(count: number) => string` |  | Spoken lengths of time, for the seek bar's value. |
+| `minutes` (required) | `(count: number) => string` |  |  |
+| `seconds` (required) | `(count: number) => string` |  |  |
+| `timeOf` (required) | `(current: string, total: string) => string` |  | The seek bar's value: "1 minute 5 seconds of 4 minutes". |
+| `captionsOn` (required) | `(track: string) => string` |  | Said when captions are turned on, with the track's name. |
+| `captionsOff` (required) | `string` |  |  |
+| `speedChanged` (required) | `(rate: string) => string` |  |  |
+| `qualityChanged` (required) | `(quality: string) => string` |  |  |
+| `shortcutPlay` (required) | `string` |  | What each shortcut does, in the shortcuts sheet. |
+| `shortcutBack` (required) | `string` |  |  |
+| `shortcutAhead` (required) | `string` |  |  |
+| `shortcutVolume` (required) | `string` |  |  |
+| `shortcutMute` (required) | `string` |  |  |
+| `shortcutFullscreen` (required) | `string` |  |  |
+| `shortcutCaptions` (required) | `string` |  |  |
+| `shortcutJump` (required) | `string` |  |  |
+| `shortcutSpeed` (required) | `string` |  |  |
+| `shortcutFrame` (required) | `string` |  |  |
+| `shortcutShortcuts` (required) | `string` |  |  |
+
 ## What isn't text
 
 - A [field](components/field.md) marks a required label with `*`, which `FieldLabel` changes with `requiredIndicator`. Screen readers don't hear it. They hear "required" from the control, in the browser's own language.

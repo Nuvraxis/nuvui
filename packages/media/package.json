@@ -1,6 +1,6 @@
 {
   "name": "@nuvui/media",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Video and audio players for @nuvui/react: captions, chapters, a transcript, streaming with hls.js or dashjs, and controls that work with a pointer, a finger or the keyboard.",
   "license": "MIT",
   "author": "Nuvraxis",

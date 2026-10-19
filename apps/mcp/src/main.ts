@@ -1,4 +1,4 @@
-import { loadData } from "./data";
+import { loadData, loadSnapshots } from "./data";
 import { createLimiter } from "./limit";
 import { createCounts } from "./metrics";
 import { createServer } from "./server";
@@ -17,11 +17,12 @@ function whole(name: string, fallback: number, min: number) {
 }
 
 const data = loadData();
+const snapshots = loadSnapshots();
 
 if (process.argv.includes("--stdio")) {
   // On one machine, for one agent: nothing to limit and nothing to count.
   // Standard output is the protocol's, so nothing else is written to it.
-  const server = createServer(data);
+  const server = createServer(data, { snapshots });
   await server.start({ transportType: "stdio" });
 } else {
   const endpoint = process.env.OTLP_ENDPOINT?.trim();
@@ -37,6 +38,7 @@ if (process.argv.includes("--stdio")) {
     : undefined;
 
   const server = createServer(data, {
+    snapshots,
     record: counts?.call,
     authenticate: createLimiter({
       perMinute: whole("RATE_LIMIT_PER_MINUTE", 120, 1),

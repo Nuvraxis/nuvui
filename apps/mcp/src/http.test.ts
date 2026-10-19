@@ -82,7 +82,7 @@ describe("over HTTP", () => {
     });
     await client.close();
 
-    expect(tools).toHaveLength(10);
+    expect(tools).toHaveLength(11);
     expect((result.content as { text: string }[])[0]?.text).toContain(
       "pnpm add @nuvui/react",
     );

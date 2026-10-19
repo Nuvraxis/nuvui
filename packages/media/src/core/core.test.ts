@@ -1,5 +1,7 @@
 import { afterEach, describe, expect, test, vi } from "vitest";
+import { barsFor } from "../parts/waveform";
 import { englishLabels } from "./labels";
+import { computePeaks } from "./peaks";
 import { readSettings, writeSettings } from "./persist";
 import { kindOf } from "./sources";
 import { completeChapters } from "./store";
@@ -150,5 +152,52 @@ describe("remembered settings", () => {
   test("something that isn't settings is ignored", () => {
     localStorage.setItem("test-media", "not json");
     expect(readSettings("test-media")).toEqual({});
+  });
+});
+
+// Eight seconds of a tone, four quiet and four loud, made by
+// packages/media/scripts/make-media.sh.
+const tone = new URL("../../test/fixtures/tone.mp3", import.meta.url).href;
+
+describe("the waveform", () => {
+  test("as many bars as fit, each the loudest of what it covers, and the loudest of all full height", () => {
+    // Bars of 3px with 2px between: 23px holds five.
+    expect(barsFor([1, 2, 4, 2, 1, 0, 8, 0, 4, 2], 23)).toEqual([
+      0.25, 0.5, 0.125, 1, 0.5,
+    ]);
+    // More bars than peaks: each peak is drawn as wide as it needs.
+    expect(barsFor([0, 1], 23)).toEqual([0, 0, 0, 1, 1]);
+    expect(barsFor([], 100)).toEqual([]);
+    expect(barsFor([1, 2], 0)).toEqual([]);
+    expect(barsFor([0, 0], 23)).toEqual([0, 0, 0, 0, 0]);
+  });
+
+  test("peaks worked out from a file: quiet, then loud", async () => {
+    const peaks = await computePeaks(tone, { count: 8 });
+    expect(peaks).toHaveLength(8);
+    expect(Math.max(...peaks)).toBe(1);
+    expect(Math.max(...peaks.slice(0, 3))).toBeLessThan(0.3);
+    expect(Math.min(...peaks.slice(5))).toBeGreaterThan(0.9);
+  });
+
+  test("from a Blob too, as a recording is", async () => {
+    const blob = await (await fetch(tone)).blob();
+    const peaks = await computePeaks(blob, { count: 4 });
+    expect(peaks[0]).toBeLessThan(0.3);
+    expect(peaks[3]).toBeGreaterThan(0.9);
+  });
+
+  test("a file that can't be had is an error", async () => {
+    await expect(
+      computePeaks(new URL("missing.mp3", tone).href),
+    ).rejects.toThrow();
+  });
+
+  test("it stops when asked", async () => {
+    const controller = new AbortController();
+    controller.abort();
+    await expect(
+      computePeaks(tone, { signal: controller.signal }),
+    ).rejects.toThrow();
   });
 });

@@ -1,23 +1,14 @@
 "use client";
 
 import { Button } from "@nuvui/react/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-} from "@nuvui/react/dialog";
-import { Kbd } from "@nuvui/react/kbd";
 import { TooltipProvider } from "@nuvui/react/tooltip";
 import {
   type HTMLAttributes,
   type KeyboardEvent,
   type PointerEvent,
   type ReactNode,
-  type Ref,
   useCallback,
   useEffect,
-  useImperativeHandle,
   useMemo,
   useRef,
   useState,
@@ -25,32 +16,25 @@ import {
 import {
   MediaContext,
   type MediaContextValue,
-  useIsomorphicLayoutEffect,
-  useLatest,
   useMediaState,
 } from "../../core/context";
-import { joinGroup } from "../../core/exclusive";
 import {
   enterFullscreen,
   exitFullscreen,
   fullscreenElement,
 } from "../../core/fullscreen";
-import { englishLabels, type MediaLabels } from "../../core/labels";
+import { handlePlayerKey } from "../../core/keys";
+import { englishLabels } from "../../core/labels";
+import { readSettings } from "../../core/persist";
 import {
-  defaultStorageKey,
-  readSettings,
-  type SavedSettings,
-  writeSettings,
-} from "../../core/persist";
-import {
-  attachStream,
-  type DashLoader,
-  type HlsLoader,
-  kindOf,
-  type MediaSourceItem,
-  type StreamError,
-} from "../../core/sources";
-import { type MediaChapter, MediaStore } from "../../core/store";
+  defaultRates,
+  type MediaPlayerCommonProps,
+  sourcesOf,
+  storageKeyOf,
+  usePlayer,
+} from "../../core/player";
+import type { MediaSourceItem } from "../../core/sources";
+import { MediaStore } from "../../core/store";
 import { parseThumbnails } from "../../core/vtt";
 import { PlayIcon } from "../../parts/icons";
 import {
@@ -63,33 +47,13 @@ import {
   MediaTime,
   MediaVolume,
 } from "../../parts/parts";
+import { MediaShortcuts, videoShortcuts } from "../../parts/shortcuts";
 import { cx } from "../../utils/cx";
 
-/** A text track: captions, subtitles, chapters or descriptions, as WebVTT. */
-export interface MediaTrackItem {
-  src: string;
-  kind: "captions" | "subtitles" | "chapters" | "descriptions" | "metadata";
-  /** Its language, such as "en" or "pt-BR". */
-  srcLang?: string;
-  /** Its name in the captions menu. */
-  label?: string;
-  /** Shown from the start, unless the viewer turned captions off before. */
-  default?: boolean;
-}
+export type { MediaPlayerHandle, MediaTrackItem } from "../../core/player";
 
-/** What an app can do to a player from outside it. */
-export interface MediaPlayerHandle {
-  play: () => void;
-  pause: () => void;
-  toggle: () => void;
-  seek: (time: number) => void;
-  /** The media element, once it's on the page. */
-  readonly media: HTMLMediaElement | null;
-  /** The player's state, for a part outside it such as `MediaTranscript`. */
-  readonly store: MediaStore;
-}
-
-export interface VideoPlayerOwnProps {
+// The video player's own, listed before what both players take.
+interface VideoProps {
   /**
    * What to play: an address, a source, or several. Sources with a `height`
    * or a `label` are qualities, and fill the quality menu. Sources without
@@ -103,10 +67,6 @@ export interface VideoPlayerOwnProps {
   title?: string;
   /** The player's name for a screen reader. Defaults to `title`. */
   "aria-label"?: string;
-  /** Captions, subtitles and chapters, as WebVTT files. */
-  tracks?: MediaTrackItem[];
-  /** Chapters, which replace a chapters track if there is one. */
-  chapters?: MediaChapter[];
   /** A WebVTT file of frames for the preview over the seek bar. */
   thumbnails?: string;
   /**
@@ -115,15 +75,6 @@ export interface VideoPlayerOwnProps {
    * problem for some people: give it a reason.
    */
   autoPlay?: boolean;
-  /** @default false */
-  defaultMuted?: boolean;
-  /** From 0 to 1. @default 1 */
-  defaultVolume?: number;
-  /** @default 1 */
-  defaultRate?: number;
-  loop?: boolean;
-  /** Where to start, in seconds. */
-  startTime?: number;
   /**
    * How much to load before it plays. With `lazy`, nothing until the player
    * is near the screen.
@@ -137,21 +88,8 @@ export interface VideoPlayerOwnProps {
    * at the first press. For a page with many videos.
    */
   facade?: boolean;
-  crossOrigin?: "anonymous" | "use-credentials";
-  /** The speeds in the menu. @default [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2] */
-  rates?: number[];
   /** Seconds the J and L keys and a double tap go. @default 10 */
   skip?: number;
-  /**
-   * Keeps volume, speed, captions and quality between visits, in
-   * `localStorage`, under this key, or "nuvui-media" with `true`.
-   */
-  persist?: boolean | string;
-  /**
-   * Starting this player pauses every other player in the same group. A
-   * name for the group, or `true` for one shared by all.
-   */
-  exclusive?: boolean | string;
   /** A soft glow around the frame in the video's own colors. */
   ambient?: boolean;
   /**
@@ -160,49 +98,22 @@ export interface VideoPlayerOwnProps {
    * @default true
    */
   controls?: boolean;
-  /** Loads hls.js for an HLS stream: `() => import("hls.js")`. */
-  hls?: HlsLoader;
-  /** Loads dashjs for a DASH stream: `() => import("dashjs")`. */
-  dash?: DashLoader;
-  /** Passed to `new Hls()`. */
-  hlsConfig?: Record<string, unknown>;
-  /** Passed to dashjs's `updateSettings()`. */
-  dashSettings?: Record<string, unknown>;
-  /**
-   * Plays the source yourself, for DRM or a library of your own: given the
-   * media element and the source, it returns what undoes it.
-   */
-  attachSource?: (
-    media: HTMLMediaElement,
-    source: MediaSourceItem,
-  ) => (() => void) | undefined;
-  /** The words, to translate the player. */
-  labels?: Partial<MediaLabels>;
-  handleRef?: Ref<MediaPlayerHandle>;
-  onPlay?: () => void;
-  onPause?: () => void;
-  onEnded?: () => void;
-  /** About four times a second while it plays, with the time in seconds. */
-  onTimeUpdate?: (time: number) => void;
-  onError?: (kind: StreamError) => void;
   /** Over the video: your own controls from the parts, or anything else. */
   children?: ReactNode;
 }
+
+export interface VideoPlayerOwnProps
+  extends VideoProps,
+    Omit<MediaPlayerCommonProps, "preload"> {}
 
 export interface VideoPlayerProps
   extends VideoPlayerOwnProps,
     Omit<HTMLAttributes<HTMLElement>, keyof VideoPlayerOwnProps> {}
 
-const defaultRates = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
 // How long the controls stay after the last move while it plays.
 const idleAfter = 2500;
 // Two taps closer than this are a double tap.
 const doubleTap = 300;
-
-function sourcesOf(src: VideoPlayerProps["src"]): MediaSourceItem[] {
-  if (typeof src === "string") return [{ src }];
-  return Array.isArray(src) ? src : [src];
-}
 
 const qualityLabel = (source: MediaSourceItem, index: number) =>
   source.label ?? (source.height ? `${source.height}p` : String(index + 1));
@@ -224,8 +135,8 @@ export function VideoPlayer({
   thumbnails,
   autoPlay = false,
   defaultMuted = false,
-  defaultVolume = 1,
-  defaultRate = 1,
+  defaultVolume,
+  defaultRate,
   loop,
   startTime,
   preload = "metadata",
@@ -262,9 +173,7 @@ export function VideoPlayer({
     () => ({ ...englishLabels, ...labelsProp }),
     [labelsProp],
   );
-  const storageKey =
-    persist === true ? defaultStorageKey : persist || undefined;
-  const latest = useLatest({ onError, startTime, storageKey });
+  const storageKey = storageKeyOf(persist);
 
   // Until the script runs, the browser's own controls are shown, so the
   // video plays from the server's HTML alone.
@@ -275,8 +184,37 @@ export function VideoPlayer({
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
 
   const sources = useMemo(() => sourcesOf(src), [src]);
-  const first = sources[0] ?? { src: "" };
-  const streamKind = kindOf(first);
+  const { save, streamKind, first } = usePlayer({
+    store,
+    media: videoRef,
+    sources,
+    storageKey,
+    autoPlay,
+    defaultMuted,
+    defaultVolume,
+    defaultRate,
+    startTime,
+    exclusive,
+    chapters,
+    tracks,
+    hls,
+    dash,
+    hlsConfig,
+    dashSettings,
+    attachSource,
+    handleRef,
+    onError,
+    element: activated ? attempt : -1,
+    load: near && activated,
+    session: {
+      title: title ?? ariaLabel,
+      artwork: poster,
+      back: skip,
+      ahead: skip,
+    },
+    onHandlePlay: () => setActivated(true),
+  });
+
   const qualityMode =
     streamKind === "file" &&
     sources.some(
@@ -307,16 +245,9 @@ export function VideoPlayer({
     if (found >= 0) setQualityIndex(found);
   }, [qualityMode, hydrated, storageKey, playable]);
 
-  const save = useCallback(
-    (change: SavedSettings) => {
-      const key = latest.current.storageKey;
-      if (key) writeSettings(key, change);
-    },
-    [latest],
-  );
-
   const context = useMemo<MediaContextValue>(
     () => ({
+      kind: "video",
       store,
       labels,
       root: rootRef,
@@ -328,67 +259,7 @@ export function VideoPlayer({
     [store, labels, rates, skip, save],
   );
 
-  useImperativeHandle(
-    handleRef,
-    () => ({
-      play: () => {
-        setActivated(true);
-        store.play();
-      },
-      pause: () => store.pause(),
-      toggle: () => store.toggle(),
-      seek: (time: number) => store.seek(time),
-      get media() {
-        return store.media;
-      },
-      store,
-    }),
-    [store],
-  );
-
   useEffect(() => setHydrated(true), []);
-
-  // The media element comes and goes with the facade and with `key`.
-  useIsomorphicLayoutEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-    return store.attach(video);
-  }, [store, activated, attempt]);
-
-  // Settings kept from before, then the app's defaults where none were kept.
-  // biome-ignore lint/correctness/useExhaustiveDependencies: once per element
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-    const saved = storageKey ? readSettings(storageKey) : {};
-    video.volume = saved.volume ?? defaultVolume;
-    video.muted = autoPlay || (saved.muted ?? defaultMuted);
-    video.playbackRate = saved.rate ?? defaultRate;
-    if (saved.captionSize) store.set({ captionSize: saved.captionSize });
-  }, [store, activated, attempt]);
-
-  useEffect(() => store.setChapterList(chapters), [store, chapters]);
-
-  useEffect(() => {
-    if (!exclusive || !activated) return;
-    const video = videoRef.current;
-    if (!video) return;
-    return joinGroup(exclusive === true ? "nuvui-media" : exclusive, video);
-  }, [exclusive, activated]);
-
-  // A file's start time, once its length is known.
-  // biome-ignore lint/correctness/useExhaustiveDependencies: once per element
-  useEffect(() => {
-    const video = videoRef.current;
-    const start = latest.current.startTime;
-    if (!video || !start || streamKind !== "file") return;
-    const go = () => {
-      video.currentTime = start;
-    };
-    if (video.readyState >= HTMLMediaElement.HAVE_METADATA) go();
-    else video.addEventListener("loadedmetadata", go, { once: true });
-    return () => video.removeEventListener("loadedmetadata", go);
-  }, [activated, attempt]);
 
   // Qualities from the sources, for files.
   useEffect(() => {
@@ -422,100 +293,6 @@ export function VideoPlayer({
       setQualityIndex(Number(id));
     };
   }, [qualityMode, streamKind, playable, qualityIndex, store]);
-
-  // Streams, and sources the app plays itself.
-  // biome-ignore lint/correctness/useExhaustiveDependencies: the loaders and settings are read once per source
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video || !near || !activated) return;
-    if (attachSource) {
-      const undo = attachSource(video, first);
-      return () => undo?.();
-    }
-    if (streamKind === "file") return;
-    let current = true;
-    let stream: Awaited<ReturnType<typeof attachStream>> = null;
-    const saved = storageKey ? readSettings(storageKey) : {};
-    void attachStream(
-      video,
-      first,
-      streamKind,
-      {
-        hls,
-        dash,
-        hlsConfig,
-        dashSettings,
-        startTime: latest.current.startTime,
-        isCurrent: () => current,
-      },
-      {
-        qualities: (qualities) => {
-          store.set({ qualities, quality: "auto" });
-          const kept = qualities.find(
-            (q) =>
-              saved.quality &&
-              saved.quality !== "auto" &&
-              String(q.height) === saved.quality,
-          );
-          if (kept) store.setQuality(kept.id);
-        },
-        playing: (id) => store.set({ playingQuality: id }),
-        audioTracks: (audioTracks, audioTrack) =>
-          store.set({ audioTracks, audioTrack }),
-        error: (kind) => {
-          store.set({ error: kind });
-          latest.current.onError?.(kind);
-        },
-      },
-    ).then((made) => {
-      if (!current) {
-        made?.destroy();
-        return;
-      }
-      stream = made;
-      store.handlers.quality = (id) => stream?.setQuality(id);
-      store.handlers.audioTrack = (id) => stream?.setAudioTrack(id);
-    });
-    return () => {
-      current = false;
-      stream?.destroy();
-      stream = null;
-      store.handlers = {};
-      store.set({
-        qualities: [],
-        audioTracks: [],
-        audioTrack: null,
-        playingQuality: null,
-      });
-    };
-  }, [first.src, streamKind, near, activated, attempt, store]);
-
-  // Captions: the one the viewer chose before, or the default track.
-  const captionChoice = useRef(false);
-  const textTracks = useMediaState(store, (s) => s.textTracks);
-  useEffect(() => {
-    if (captionChoice.current || textTracks.length === 0) return;
-    captionChoice.current = true;
-    const saved = storageKey ? readSettings(storageKey).captions : undefined;
-    if (saved === "") return;
-    const wanted =
-      saved !== undefined
-        ? textTracks.find((t) => t.lang === saved || t.label === saved)
-        : undefined;
-    const preset = tracks?.find(
-      (item) =>
-        item.default && (item.kind === "captions" || item.kind === "subtitles"),
-    );
-    const fallback = preset
-      ? textTracks.find(
-          (t) =>
-            t.lang === (preset.srcLang ?? "") &&
-            (preset.label === undefined || t.label === preset.label),
-        )
-      : undefined;
-    const chosen = wanted ?? fallback;
-    if (chosen) store.setTextTrack(chosen.id);
-  }, [textTracks, tracks, storageKey, store]);
 
   // The thumbnails track, which browsers don't read.
   useEffect(() => {
@@ -581,39 +358,8 @@ export function VideoPlayer({
     };
   }, [store]);
 
-  // The lock screen and the system's media controls, for the player that
-  // played last.
-  const paused = useMediaState(store, (s) => s.paused);
-  useEffect(() => {
-    if (
-      paused ||
-      typeof navigator === "undefined" ||
-      !("mediaSession" in navigator)
-    )
-      return;
-    const session = navigator.mediaSession;
-    try {
-      session.metadata = new MediaMetadata({
-        title: title ?? ariaLabel ?? "",
-        artwork: poster
-          ? [{ src: new URL(poster, window.location.href).href }]
-          : [],
-      });
-      const handlers: [MediaSessionAction, MediaSessionActionHandler][] = [
-        ["play", () => store.play()],
-        ["pause", () => store.pause()],
-        ["seekbackward", (d) => store.skip(-(d.seekOffset ?? skip))],
-        ["seekforward", (d) => store.skip(d.seekOffset ?? skip)],
-        ["seekto", (d) => d.seekTime !== undefined && store.seek(d.seekTime)],
-      ];
-      for (const [action, handler] of handlers)
-        session.setActionHandler(action, handler);
-    } catch {
-      // An action this browser doesn't have. The rest still work.
-    }
-  }, [paused, title, ariaLabel, poster, skip, store]);
-
   // The controls hide while it plays and nothing moves.
+  const paused = useMediaState(store, (s) => s.paused);
   const idleTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const wake = useCallback(() => {
     store.set({ controlsVisible: true });
@@ -700,123 +446,40 @@ export function VideoPlayer({
   // The keys work while focus is anywhere in the player.
   const onPlayerKeyDown = (event: KeyboardEvent<HTMLElement>) => {
     onKeyDown?.(event);
-    if (
-      event.defaultPrevented ||
-      event.ctrlKey ||
-      event.metaKey ||
-      event.altKey
-    )
-      return;
-    const target = event.target as HTMLElement;
-    if (
-      target.closest(
-        'input, textarea, select, [contenteditable="true"], [role="menu"], [role="dialog"]',
-      )
-    ) {
-      return;
-    }
-    const onButton = target.closest("button") !== null;
-    const state = store.getState();
-    const rtl = rootRef.current
-      ? getComputedStyle(rootRef.current).direction === "rtl"
-      : false;
-    const step = (by: number) => {
+    const frame = (by: number) => () => {
+      if (!store.getState().paused) return false;
       store.skip(by);
-      wake();
+      return true;
     };
-    let handled = true;
-    switch (event.key) {
-      case " ":
-      case "Enter":
-        if (onButton) return;
-        store.toggle();
-        break;
-      case "k":
-        store.toggle();
-        break;
-      case "j":
-        step(-skip);
-        break;
-      case "l":
-        step(skip);
-        break;
-      case "ArrowLeft":
-        step(rtl ? 5 : -5);
-        break;
-      case "ArrowRight":
-        step(rtl ? -5 : 5);
-        break;
-      // Read from the element, not the state: a held key repeats faster
-      // than the element says it changed.
-      case "ArrowUp":
-      case "ArrowDown": {
-        const media = store.media;
-        if (!media) break;
-        store.setVolume(
-          media.volume + (event.key === "ArrowUp" ? 0.05 : -0.05),
-        );
-        save({ volume: media.volume, muted: media.muted });
-        break;
-      }
-      case "m": {
-        const muted = !store.media?.muted;
-        store.setMuted(muted);
-        save({ muted });
-        break;
-      }
-      case "f":
-        toggleFullscreen();
-        break;
-      case "c": {
-        const button = rootRef.current?.querySelector<HTMLButtonElement>(
-          ".nuv-video-player__captions-button",
-        );
-        if (button) button.click();
-        else handled = false;
-        break;
-      }
-      case "<":
-      case ">": {
-        const index = rates.indexOf(store.media?.playbackRate ?? state.rate);
-        const next =
-          rates[
-            Math.min(
-              rates.length - 1,
-              Math.max(
-                0,
-                (index === -1 ? rates.indexOf(1) : index) +
-                  (event.key === ">" ? 1 : -1),
-              ),
-            )
-          ];
-        if (next !== undefined) {
-          store.setRate(next);
-          store.say(
-            labels.speedChanged(next === 1 ? labels.normalSpeed : `${next}×`),
+    const handled = handlePlayerKey(event, {
+      store,
+      root: rootRef.current,
+      labels,
+      rates,
+      back: skip,
+      ahead: skip,
+      save,
+      extra: {
+        f: () => {
+          toggleFullscreen();
+          return true;
+        },
+        c: () => {
+          const button = rootRef.current?.querySelector<HTMLButtonElement>(
+            ".nuv-video-player__captions-button",
           );
-          save({ rate: next });
-        }
-        break;
-      }
-      case ",":
-      case ".":
-        if (!state.paused) return;
-        store.skip(event.key === "," ? -1 / 30 : 1 / 30);
-        break;
-      case "?":
-        setShortcutsOpen(true);
-        break;
-      default:
-        if (/^[0-9]$/.test(event.key) && state.duration > 0) {
-          store.seek((Number(event.key) / 10) * state.duration);
-        } else handled = false;
-    }
-    if (handled) {
-      event.preventDefault();
-      // The page's own shortcuts don't also act on a key the player used.
-      event.stopPropagation();
-      wake();
-    }
+          button?.click();
+          return Boolean(button);
+        },
+        ",": frame(-1 / 30),
+        ".": frame(1 / 30),
+        "?": () => {
+          setShortcutsOpen(true);
+          return true;
+        },
+      },
+    });
+    if (handled) wake();
   };
 
   const started = useMediaState(store, (s) => s.started);
@@ -1024,10 +687,11 @@ export function VideoPlayer({
             {message}
           </div>
 
-          <Shortcuts
+          <MediaShortcuts
             open={shortcutsOpen}
             onOpenChange={setShortcutsOpen}
             labels={labels}
+            list={videoShortcuts(labels, skip)}
             container={rootRef}
           />
         </section>
@@ -1125,58 +789,5 @@ function Ambient({
       width={32}
       height={18}
     />
-  );
-}
-
-const shortcutKeys = (labels: MediaLabels): [string[], string][] => [
-  [["Space", "K"], labels.shortcutPlay],
-  [["J"], labels.shortcutBack],
-  [["L"], labels.shortcutAhead],
-  [["←", "→"], `${labels.skipBack(5)}, ${labels.skipAhead(5)}`],
-  [["↑", "↓"], labels.shortcutVolume],
-  [["M"], labels.shortcutMute],
-  [["F"], labels.shortcutFullscreen],
-  [["C"], labels.shortcutCaptions],
-  [["0", "9"], labels.shortcutJump],
-  [["<", ">"], labels.shortcutSpeed],
-  [[",", "."], labels.shortcutFrame],
-  [["?"], labels.shortcutShortcuts],
-];
-
-function Shortcuts({
-  open,
-  onOpenChange,
-  labels,
-  container,
-}: {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  labels: MediaLabels;
-  container: { current: HTMLElement | null };
-}) {
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent
-        container={container.current}
-        className="nuv-media-shortcuts"
-      >
-        <DialogTitle>{labels.shortcuts}</DialogTitle>
-        <DialogDescription className="nuv-media-hidden">
-          {labels.shortcutShortcuts}
-        </DialogDescription>
-        <dl className="nuv-media-shortcuts__list">
-          {shortcutKeys(labels).map(([keys, what]) => (
-            <div key={what} className="nuv-media-shortcuts__row">
-              <dt>
-                {keys.map((key) => (
-                  <Kbd key={key}>{key}</Kbd>
-                ))}
-              </dt>
-              <dd>{what}</dd>
-            </div>
-          ))}
-        </dl>
-      </DialogContent>
-    </Dialog>
   );
 }

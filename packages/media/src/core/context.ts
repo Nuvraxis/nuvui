@@ -14,6 +14,8 @@ import type { SavedSettings } from "./persist";
 import { initialState, type MediaState, type MediaStore } from "./store";
 
 export interface MediaContextValue {
+  /** Which player the parts are in. An audio player has no captions to size. */
+  kind: "video" | "audio";
   store: MediaStore;
   labels: MediaLabels;
   /** The player's outer element: where menus and the shortcuts sheet open, so they're seen in fullscreen. */
@@ -32,7 +34,7 @@ export const MediaContext = createContext<MediaContextValue | null>(null);
 export function useMediaContext(part: string): MediaContextValue {
   const context = useContext(MediaContext);
   if (!context) {
-    throw new Error(`${part} must be inside a VideoPlayer.`);
+    throw new Error(`${part} must be inside a VideoPlayer or an AudioPlayer.`);
   }
   return context;
 }

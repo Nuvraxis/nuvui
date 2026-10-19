@@ -45,10 +45,11 @@ const types = {
   ".jpg": "image/jpeg",
   ".js": "application/javascript; charset=utf-8",
   ".json": "application/json; charset=utf-8",
-  // The video clips and their streams. Firefox won't show captions from a
-  // file that isn't sent as text/vtt.
+  // The video and sound clips and their streams. Firefox won't show
+  // captions from a file that isn't sent as text/vtt.
   ".m3u8": "application/vnd.apple.mpegurl",
   ".m4s": "video/iso.segment",
+  ".mp3": "audio/mpeg",
   ".mp4": "video/mp4",
   ".mpd": "application/dash+xml",
   ".vtt": "text/vtt; charset=utf-8",

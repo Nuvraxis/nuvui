@@ -1,0 +1,233 @@
+---
+title: AudioPlayer
+description: A sound with its own controls. Play, seek on a bar or a waveform, the time, volume and speed, from a pointer, a finger or the keyboard. One row, a podcast layout, or a voice message small enough for a chat. Plays files, and HLS and DASH streams.
+added: "2026-10-18"
+---
+
+<Preview name="audio-player/basic" wide />
+
+## Install
+
+```sh
+pnpm add @nuvui/media @nuvui/react
+```
+
+## Import
+
+```tsx
+import { AudioPlayer } from "@nuvui/media/audio-player";
+
+<AudioPlayer title="Designing for every screen" src="/audio/episode-12.mp3" />
+```
+
+`title` names the player for a screen reader and is what the phone's lock screen shows while it plays. Without one, give an `aria-label`.
+
+## Playground
+
+<AudioPlayerPlayground />
+
+## Layouts
+
+`layout` chooses how much the player shows.
+
+- **`bar`,** the default: one row, with play, the seek bar or the waveform, the time, the volume and the settings. For anywhere.
+- **`podcast`:** the `artwork`, the `title` and who it's by in `artist`, a larger play button between back 15 seconds and ahead 30, and the seek bar or the waveform across. The artwork sits beside the rest when the player is 30rem wide or more, and above it, smaller, when it isn't.
+- **`voice`:** a play button, the waveform, the time and a press for the speed, small enough for a message in a chat. It has no frame of its own and takes the color of the text around it, so it sits in a bubble of any color.
+
+<Preview name="audio-player/podcast" wide />
+
+<Preview name="audio-player/voice" wide />
+
+`skipBack` and `skipAhead` change how far the podcast's buttons go, and the J and L keys in every layout.
+
+## A waveform
+
+Give the player `peaks` and it draws the sound's waveform in place of the seek bar, with what's played in the accent color and the time under the pointer. It's a slider like the seek bar, for the keyboard and a screen reader.
+
+Peaks are how loud the sound is along its length, from the start to the end. A few hundred is plenty, in any scale: the loudest is drawn the full height. Work them out once, when the file is uploaded, and keep them beside it, as the podcast example fetches them.
+
+For a recording just made, or a short file, `computePeaks` works them out in the browser:
+
+```tsx
+import { computePeaks } from "@nuvui/media/audio-player";
+
+const peaks = await computePeaks("/audio/message.mp3", { count: 48 });
+// Or from a recording: computePeaks(blob)
+```
+
+The browser decodes the sound on a thread of its own, and the peaks are measured in short slices that leave the page free to draw. It takes an address, a `Blob` or the bytes, and `signal` stops it, as when the component that asked has gone. Decoding the whole of a long file in the page takes memory, which is why an hour's episode is better done on a server.
+
+<PropsTable package="media" component="audio-player" file="src/core/peaks.ts" name="ComputePeaksOptions" />
+
+## Sources and streams
+
+`src` takes an address, a source, or a list of the same sound in several formats, of which the browser plays the first it can:
+
+```tsx
+<AudioPlayer
+  title="Designing for every screen"
+  src={[
+    { src: "/audio/episode-12.ogg", type: "audio/ogg" },
+    { src: "/audio/episode-12.mp3", type: "audio/mpeg" },
+  ]}
+/>
+```
+
+An address that ends in `.m3u8` or `.mpd` is a stream, played as the [video player plays one](/docs/media/video-player#streaming): hand it `hls={() => import("hls.js")}` or `dash={() => import("dashjs")}`, and the library is loaded when it plays and only then. `attachSource` plays a source yourself.
+
+## Chapters and a transcript
+
+A chapters track, or a `chapters` list, names the part of the episode under the pointer, over the seek bar or the waveform, and splits the seek bar into parts.
+
+A sound has no picture to draw captions on. Give a recording with speech a captions track all the same, and put a [MediaTranscript](/docs/media/media-transcript) beside it: the words, with the line being said marked, and a press on a line to play from there. That's what someone who can't hear it reads.
+
+## Loading less
+
+Each player loads the sound's length by default, which is `preload="metadata"`. In a long list, such as a chat with many voice messages, `preload="none"` loads nothing until one plays, and `duration` gives the length to show until then:
+
+```tsx
+<AudioPlayer layout="voice" src={message.url} duration={message.seconds} preload="none" />
+```
+
+## Remembering settings
+
+With `persist`, the listener's volume, mute and speed are kept between visits, in `localStorage`. Give it a key, `persist="podcast"`, or `persist` alone for one key shared by all. It's off unless you ask for it.
+
+## One at a time
+
+Players with the same `exclusive` group pause each other, video players among them: starting one pauses the one playing. The voice example puts both messages in one group.
+
+## Your own controls
+
+With `controls={false}`, the player draws none of its controls, and the parts are yours to lay out as its children. Each part reads the player it's in.
+
+<Preview name="audio-player/custom" wide />
+
+| Part | What it is |
+| --- | --- |
+| `MediaPlayButton` | Plays and pauses, and plays again from the start at the end. |
+| `MediaSkipButton` | Goes back or ahead `seconds`, which is below zero for back. |
+| `MediaSeek` | The seek bar, with chapters and what's loaded. |
+| `MediaWaveform` | The waveform to seek on, from `peaks`. |
+| `MediaTime` | The time played and the length, or the time left. A press swaps them. |
+| `MediaVolume` | Mute, and the volume beside it with a mouse. |
+| `MediaSettings` | The menu: speed, a stream's quality and audio track, and the shortcuts. |
+
+## From your app
+
+`handleRef` plays, pauses and seeks the player, and hands you its media element. It's also what a [MediaTranscript](/docs/media/media-transcript) reads.
+
+```tsx
+const player = useRef<MediaPlayerHandle>(null);
+
+<AudioPlayer src="/audio/episode-12.mp3" title="Episode 12" handleRef={player} />
+<button onClick={() => player.current?.seek(95)}>Go to the interview</button>
+```
+
+`onTimeUpdate` is called about four times a second while it plays, with the time in seconds, and is where to save how far someone got. Give that back as `startTime` next time.
+
+## AudioPlayer props
+
+<PropsTable package="media" component="audio-player" name="AudioPlayerOwnProps" />
+
+It also takes the attributes of a `section`, which is what it's drawn as. `MediaSourceItem`, `MediaTrackItem`, `MediaChapter` and `MediaPlayerHandle` are as on the [VideoPlayer page](/docs/media/video-player#mediasourceitem).
+
+## Translation
+
+Every word is in `labels`, the same as the video player's. The audio player's own are `audio`, its name when it has no title, and the three for what went wrong: `audioErrorNetwork`, `audioErrorDecode` and `audioErrorUnsupported`. The [VideoPlayer page](/docs/media/video-player#translation) lists them all.
+
+## Accessibility
+
+### Keyboard
+
+The keys work while focus is anywhere in the player. A key the player uses goes no further, so your app's own shortcuts don't also act on it.
+
+| Key | What it does |
+| --- | --- |
+| <kbd>Space</kbd> or <kbd>K</kbd> | Plays and pauses. On a button, Space presses the button. |
+| <kbd>J</kbd> and <kbd>L</kbd> | Back 15 seconds and ahead 30, or `skipBack` and `skipAhead`. |
+| <kbd>←</kbd> and <kbd>→</kbd> | Back and ahead five seconds. On a right-to-left page, the arrow that points back goes back. |
+| <kbd>↑</kbd> and <kbd>↓</kbd> | Volume up and down. |
+| <kbd>M</kbd> | Mutes and unmutes. |
+| <kbd>0</kbd> to <kbd>9</kbd> | Goes to that tenth of the way. |
+| <kbd>&lt;</kbd> and <kbd>&gt;</kbd> | Slower and faster. |
+| <kbd>?</kbd> | Shows these shortcuts. |
+
+On the seek bar, the waveform and the volume, the arrows move the slider, Page Up and Page Down move it further, and Home and End go to the ends.
+
+### What the component handles
+
+- **Every control is a button or a slider with a name,** and a button whose name changes says what it'll do now: Play, then Pause. The voice layout's speed is named with its value, "Speed 1.5×".
+- **The seek bar's and the waveform's value is in words,** "1 minute 5 seconds of 4 minutes", and changes for a screen reader at most once a second.
+- **Changes the listener makes are said once,** in a live region, such as the speed.
+- **On a touch screen,** every control answers a tap 44 pixels each way, the voice layout's small speed too.
+- **Nothing starts by itself.** The audio player has no `autoPlay`.
+- **Forced colors, less motion and right to left** are each followed: the waveform is mirrored on a right-to-left page.
+
+### What you need to handle
+
+- **A transcript** of a recording with speech, for anyone who can't hear it (WCAG 1.2.1). A captions track and a [MediaTranscript](/docs/media/media-transcript) are one way.
+- **The title.** It's the player's name for a screen reader: say what the sound is. In a chat, name each message for who sent it, as the voice example does.
+
+## Server rendering and a strict policy
+
+The server sends the audio element with the browser's own controls, so it plays before the script arrives, or without it. Once the script runs, the player's controls take over.
+
+Nothing the player draws needs a `style` attribute: the waveform is drawn as SVG, and what moves is set through the CSSOM. `computePeaks` fetches the file, so its origin needs to be in `connect-src`.
+
+## CSS variables
+
+<CssVariables
+  package="media"
+  component="audio-player"
+  descriptions={{
+    "--nuv-audio-player-track-bg": "Color of a slider's track.",
+    "--nuv-audio-player-buffered-bg": "Color of what's loaded on the seek bar.",
+    "--nuv-audio-player-hover-bg": "Background of a control under the pointer.",
+    "--nuv-audio-player-border": "Color of the player's border, in the bar and podcast layouts.",
+    "--nuv-audio-player-radius": "Corner radius of the player.",
+    "--nuv-audio-player-bg": "Background of the player, in the bar and podcast layouts.",
+    "--nuv-audio-player-fg": "Color of the controls and their words.",
+    "--nuv-audio-player-play-fg": "Color of the play button's icon.",
+    "--nuv-audio-player-muted-fg": "Color of who it's by, under the title.",
+    "--nuv-audio-player-accent": "Color of what's played, in the voice layout. The text's color by default.",
+    "--nuv-audio-player-voice-width": "Width of the voice layout.",
+  }}
+/>
+
+The parts the players share read the variables listed on the [VideoPlayer page](/docs/media/video-player#css-variables), `--nuv-media-accent` among them.
+
+## Classes
+
+<BemClasses
+  package="media"
+  component="audio-player"
+  descriptions={{
+    "nuv-audio-player": "AudioPlayer",
+    "nuv-audio-player__media": "The audio element, with the browser's controls until the script runs.",
+    "nuv-audio-player__bar": "The row of controls.",
+    "nuv-audio-player__seek": "The seek bar or the waveform in the row.",
+    "nuv-audio-player__play": "The play button and the ring around it while it waits.",
+    "nuv-audio-player__play-button": "The play button.",
+    "nuv-audio-player__spinner": "The ring that turns while it waits for the sound.",
+    "nuv-audio-player__error": "What went wrong, and the button to try again.",
+    "nuv-audio-player__artwork": "The artwork, in the podcast layout.",
+    "nuv-audio-player__meta": "The title and who it's by, in the podcast layout.",
+    "nuv-audio-player__title": "The title.",
+    "nuv-audio-player__artist": "Who it's by.",
+    "nuv-audio-player__track": "The seek bar's row, in the podcast layout.",
+    "nuv-audio-player__group": "A group of controls in the podcast layout's row.",
+    "nuv-audio-player__group--end": "The group at the end of the row.",
+    "nuv-audio-player__time": "The time, in the voice layout.",
+    "nuv-audio-player__speed": "The speed, in the voice layout.",
+  }}
+/>
+
+The classes of the parts the players share are on the [VideoPlayer page](/docs/media/video-player#classes).
+
+## Do and don't
+
+- **Do** give every player a `title`, or an `aria-label` that says whose message it is.
+- **Do** keep peaks beside a long file, worked out once, rather than working them out in every visitor's browser.
+- **Do** use `preload="none"` with `duration` in a long list of messages.
+- **Don't** put the voice layout in a bubble narrower than about 12rem. Set `--nuv-audio-player-voice-width` to fit, or use the parts.

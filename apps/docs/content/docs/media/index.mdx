@@ -1,16 +1,20 @@
 ---
 title: Media
-description: The @nuvui/media package. A video player with captions in the theme, chapters, previews over the seek bar, qualities, streaming with hls.js or dashjs, and controls for a pointer, a finger and the keyboard.
+description: The @nuvui/media package. A video player and an audio player with captions in the theme, chapters, a waveform to seek on, a transcript that follows along, streaming with hls.js or dashjs, and controls for a pointer, a finger and the keyboard.
 added: "2026-10-18"
 ---
 
-Video is a package of its own, `@nuvui/media`. It plays through the browser's own `<video>` element, with nuvui's controls over it, and needs nothing the core doesn't have. An audio player follows in the same package.
+Video and sound are a package of their own, `@nuvui/media`. The players play through the browser's own `<video>` and `<audio>` elements, with nuvui's controls over them, and need nothing the core doesn't have.
 
 | Component | What it is |
 | --- | --- |
 | [VideoPlayer](/docs/media/video-player) | A video with its own controls: play, seek with chapters and previews, volume, speed, quality, captions drawn in the theme, picture in picture and fullscreen. Plays files, and HLS and DASH streams. |
+| [AudioPlayer](/docs/media/audio-player) | A sound with its own controls: play, seek on a bar or a waveform, the time, volume and speed. One row, a podcast layout, or a voice message small enough for a chat. |
+| [MediaTranscript](/docs/media/media-transcript) | The words of a player's captions beside it, with the line being said marked and kept in view, and a press on a line to play from there. |
 
 <Preview name="video-player/chapters" wide />
+
+<Preview name="audio-player/podcast" wide />
 
 <NotPublished package="media" />
 
@@ -40,16 +44,26 @@ import "@nuvui/react/styles.css";
 import "@nuvui/media/styles.css";
 ```
 
-Both files open with the same line naming the cascade layers, so the order you import them in doesn't decide which rule wins. The player's styles are also on their own, at `@nuvui/media/css/video-player.css`.
+Both files open with the same line naming the cascade layers, so the order you import them in doesn't decide which rule wins. Each component's styles are also on their own, at `@nuvui/media/css/video-player.css`, `audio-player.css` and `media-transcript.css`.
+
+## Imports
+
+Each component has an entry of its own, so an app with only sound loads only what sound needs:
+
+```tsx
+import { VideoPlayer } from "@nuvui/media/video-player";
+import { AudioPlayer, computePeaks } from "@nuvui/media/audio-player";
+import { MediaTranscript } from "@nuvui/media/media-transcript";
+```
 
 ## What it keeps and what you keep
 
-The player keeps its own state: whether it plays, the time, the volume, the speed, the captions shown. You hear about it through `onPlay`, `onPause`, `onEnded` and `onTimeUpdate`, and you can play, pause and seek it through `handleRef`. With `persist`, it keeps the viewer's volume, speed, captions and quality between visits, in the browser's storage, under a key you give.
+A player keeps its own state: whether it plays, the time, the volume, the speed, the captions shown. You hear about it through `onPlay`, `onPause`, `onEnded` and `onTimeUpdate`, and you can play, pause and seek it through `handleRef`. With `persist`, it keeps the listener's volume and speed between visits, and a video's captions and quality too, in the browser's storage, under a key you give.
 
 ## What it leaves out
 
 - **Recording,** from a camera or a microphone.
 - **DRM.** `attachSource` hands you the media element, so a DRM library or a vendor's player can take over the source.
-- **Playlists,** one video after another. Change `src` when one ends.
+- **Playlists,** one after another. Change `src` when one ends.
 - **Ads,** and anything that plays between parts of a video.
-- **A transcript beside the video.** It's planned, in the same package.
+- **A live visualizer** that moves with the sound. The waveform is drawn from peaks worked out before.

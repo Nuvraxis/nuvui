@@ -1,0 +1,55 @@
+@use "../styles/layers";
+@use "@nuvui/react/scss/mixins";
+
+// The waveform: the same bars twice, the second in the accent color and cut
+// to what's played, from --nuv-media-fill on the slider. On a right-to-left
+// page both are mirrored, so the sound runs the way the page reads.
+@layer components {
+  .nuv-media-waveform {
+    flex: 1;
+    min-inline-size: 0;
+  }
+
+  .nuv-media-waveform__bars {
+    position: relative;
+    display: block;
+    flex: 1;
+    block-size: var(--nuv-media-waveform-height, 2.5rem);
+    border-radius: var(--radius-sm);
+
+    .nuv-media-slider:focus-visible & {
+      outline: var(--nuv-focus-ring-width, 2px) solid
+        var(--nuv-focus-ring-color, var(--color-ring));
+      outline-offset: 3px;
+    }
+  }
+
+  .nuv-media-waveform__shape {
+    position: absolute;
+    inset: 0;
+    display: block;
+    fill: var(
+      --nuv-media-wave-bg,
+      color-mix(in oklab, currentcolor 28%, transparent)
+    );
+
+    @include mixins.rtl {
+      scale: -1 1;
+    }
+  }
+
+  .nuv-media-waveform__played {
+    fill: var(--nuv-media-accent, var(--color-primary));
+    clip-path: inset(0 calc((1 - var(--nuv-media-fill, 0)) * 100%) 0 0);
+  }
+
+  @media (forced-colors: active) {
+    .nuv-media-waveform__shape {
+      fill: GrayText;
+    }
+
+    .nuv-media-waveform__played {
+      fill: Highlight;
+    }
+  }
+}

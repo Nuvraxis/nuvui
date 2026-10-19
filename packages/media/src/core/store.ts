@@ -54,6 +54,8 @@ export interface MediaState {
   showRemaining: boolean;
   /** Something for a screen reader to hear, said once. */
   message: string;
+  /** Counts the text track files loaded, so a transcript reads its cues again. */
+  trackLoads: number;
 }
 
 export const initialState: MediaState = {
@@ -83,6 +85,7 @@ export const initialState: MediaState = {
   controlsVisible: true,
   showRemaining: false,
   message: "",
+  trackLoads: 0,
 };
 
 type Listener = () => void;
@@ -141,6 +144,8 @@ export class MediaStore {
   private chapterDuration = -1;
   private shownTrack: TextTrack | null = null;
   media: HTMLMediaElement | null = null;
+  /** The length the app gave, shown until the media says its own. */
+  durationHint = 0;
   /** How the player changes quality and audio track, set by its source. */
   handlers: {
     quality?: (id: string) => void;
@@ -255,7 +260,10 @@ export class MediaStore {
         media.readyState < HTMLMediaElement.HAVE_FUTURE_DATA &&
         !media.ended,
       started: this.state.started || !media.paused || media.currentTime > 0,
-      duration: Number.isFinite(duration) ? duration : 0,
+      duration:
+        Number.isFinite(duration) && duration > 0
+          ? duration
+          : this.durationHint,
       live: duration === Number.POSITIVE_INFINITY,
       volume: media.volume,
       muted: media.muted,
@@ -317,6 +325,7 @@ export class MediaStore {
   refreshTracks() {
     this.syncTracks();
     this.onCueChange();
+    this.set({ trackLoads: this.state.trackLoads + 1 });
   }
 
   private syncTracks() {
@@ -382,10 +391,16 @@ export class MediaStore {
     this.showTrack(track);
   }
 
-  /** Every cue of the track shown, for a transcript. */
-  allCues(): TextTrackCue[] {
-    const cues = this.shownTrack?.cues;
-    return cues ? Array.from(cues) : [];
+  /**
+   * Every cue of the captions shown, for a transcript, or of the first
+   * captions track while none is shown. That one is loaded without being
+   * drawn. Empty until its file has loaded, which `trackLoads` counts.
+   */
+  transcriptCues(): TextTrackCue[] {
+    const track = this.shownTrack ?? this.captionTracks()[0];
+    if (!track) return [];
+    if (track.mode === "disabled") track.mode = "hidden";
+    return track.cues ? Array.from(track.cues) : [];
   }
 
   // Chapters ----------------------------------------------------------------

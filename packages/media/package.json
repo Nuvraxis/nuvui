@@ -47,6 +47,26 @@
         "default": "./dist/components/video-player/index.cjs"
       }
     },
+    "./audio-player": {
+      "import": {
+        "types": "./dist/components/audio-player/index.d.ts",
+        "default": "./dist/components/audio-player/index.js"
+      },
+      "require": {
+        "types": "./dist/components/audio-player/index.d.cts",
+        "default": "./dist/components/audio-player/index.cjs"
+      }
+    },
+    "./media-transcript": {
+      "import": {
+        "types": "./dist/components/media-transcript/index.d.ts",
+        "default": "./dist/components/media-transcript/index.js"
+      },
+      "require": {
+        "types": "./dist/components/media-transcript/index.d.cts",
+        "default": "./dist/components/media-transcript/index.cjs"
+      }
+    },
     "./styles.css": "./dist/styles.css",
     "./css/*.css": "./dist/css/*.css",
     "./package.json": "./package.json"

@@ -27,6 +27,8 @@ import {
   KanbanColumn,
 } from "@nuvui/kanban/kanban";
 import { MapMarker, MapView } from "@nuvui/map/map";
+import { AudioPlayer, type MediaPlayerHandle } from "@nuvui/media/audio-player";
+import { MediaTranscript } from "@nuvui/media/media-transcript";
 import { VideoPlayer } from "@nuvui/media/video-player";
 import {
   Button,
@@ -59,6 +61,7 @@ import {
   sortFn_text,
   tableFeatures,
 } from "@tanstack/react-table";
+import { useRef } from "react";
 import { Bar, BarChart, XAxis } from "recharts";
 
 type Person = { id: string; name: string; team: string };
@@ -78,6 +81,24 @@ const columns = helper.columns([
   helper.accessor("name", { header: "Name" }),
   helper.accessor("team", { header: "Team" }),
 ]);
+
+// A sound with its waveform, and its transcript beside it, read through
+// the player's handle.
+function Episode() {
+  const player = useRef<MediaPlayerHandle>(null);
+  return (
+    <>
+      <AudioPlayer
+        title="Episode"
+        src="/episode.mp3"
+        peaks={[0.2, 1, 0.5]}
+        tracks={[{ kind: "captions", src: "/episode.vtt", srcLang: "en" }]}
+        handleRef={player}
+      />
+      <MediaTranscript player={player} />
+    </>
+  );
+}
 
 function People() {
   const table = useDataTable({
@@ -123,6 +144,7 @@ export function App() {
         edges={[{ id: "a-b", from: "a", to: "b" }]}
       />
       <VideoPlayer title="Intro" src="/intro.mp4" poster="/intro.jpg" />
+      <Episode />
       <Kanban
         aria-label="Work"
         defaultValue={[{ id: "todo", cards: ["brief"] }]}

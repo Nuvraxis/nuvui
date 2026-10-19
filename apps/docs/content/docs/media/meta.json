@@ -1,5 +1,5 @@
 {
   "title": "Media",
   "defaultOpen": true,
-  "pages": ["index", "video-player"]
+  "pages": ["index", "video-player", "audio-player", "media-transcript"]
 }

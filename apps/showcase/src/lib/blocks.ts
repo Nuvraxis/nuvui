@@ -91,6 +91,9 @@ import notifications from "@/blocks/notifications/block.json" with {
 import onboarding from "@/blocks/onboarding/block.json" with { type: "json" };
 import pageHeader from "@/blocks/page-header/block.json" with { type: "json" };
 import pageStates from "@/blocks/page-states/block.json" with { type: "json" };
+import podcastEpisode from "@/blocks/podcast-episode/block.json" with {
+  type: "json",
+};
 import pricing from "@/blocks/pricing/block.json" with { type: "json" };
 import productDemo from "@/blocks/product-demo/block.json" with {
   type: "json",
@@ -137,6 +140,9 @@ import teamMembers from "@/blocks/team-members/block.json" with {
 };
 import topBar from "@/blocks/top-bar/block.json" with { type: "json" };
 import verifyCode from "@/blocks/verify-code/block.json" with { type: "json" };
+import voiceMessages from "@/blocks/voice-messages/block.json" with {
+  type: "json",
+};
 import whatsNew from "@/blocks/whats-new/block.json" with { type: "json" };
 import workflowBuilder from "@/blocks/workflow-builder/block.json" with {
   type: "json",
@@ -216,9 +222,9 @@ export const categories: BlockCategory[] = [
   {
     slug: "media",
     label: "Media",
-    title: "Video and media",
+    title: "Video and audio",
     description:
-      "Video in an app: a course's lesson with its chapters listed to jump to and the lessons beside it, a product's demo that loads only when it's played, and a recorded meeting with comments pinned to its moments.",
+      "Video and sound in an app: a course's lesson with its chapters and transcript and the lessons beside it, a product's demo that loads only when it's played, a recorded meeting with comments pinned to its moments, a podcast's episode with its waveform and chapters, and a team's chat with voice messages among the text.",
   },
   {
     slug: "editor",
@@ -293,6 +299,8 @@ export const blocks: BlockManifest[] = [
   courseLesson,
   productDemo,
   recordingReview,
+  podcastEpisode,
+  voiceMessages,
   documentEditor,
   announcementEditor,
   commentThread,

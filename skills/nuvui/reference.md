@@ -185,8 +185,10 @@ A file for each page of the docs. Read the one for a component before using it: 
 
 ## @nuvui/media
 
-- [Media](reference/media/index.md): The @nuvui/media package. A video player with captions in the theme, chapters, previews over the seek bar, qualities, streaming with hls.js or dashjs, and controls for a pointer, a finger and the keyboard.
+- [Media](reference/media/index.md): The @nuvui/media package. A video player and an audio player with captions in the theme, chapters, a waveform to seek on, a transcript that follows along, streaming with hls.js or dashjs, and controls for a pointer, a finger and the keyboard.
 - [VideoPlayer](reference/media/video-player.md): A video with its own controls. Play, seek with chapters and previews, volume, speed, quality, captions drawn in the theme, picture in picture and fullscreen, from a pointer, a finger or the keyboard. Plays files, and HLS and DASH streams.
+- [AudioPlayer](reference/media/audio-player.md): A sound with its own controls. Play, seek on a bar or a waveform, the time, volume and speed, from a pointer, a finger or the keyboard. One row, a podcast layout, or a voice message small enough for a chat. Plays files, and HLS and DASH streams.
+- [MediaTranscript](reference/media/media-transcript.md): The words of a player's captions as text beside it or under it, with the line being said marked and kept in view, and a press on a line to play from there.
 
 ## @nuvui/icons
 

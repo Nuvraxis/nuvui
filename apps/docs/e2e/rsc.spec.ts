@@ -402,6 +402,19 @@ test("components used from a server component hydrate and work", async ({
     )
     .toBeGreaterThan(0.2);
 
+  // And the audio, whose waveform came from the server.
+  const audio = page.getByRole("region", { name: "Server audio" });
+  await expect(audio.locator("audio")).toHaveJSProperty("controls", false);
+  await expect(
+    audio.locator(".nuv-media-waveform rect").first(),
+  ).toBeAttached();
+  await audio.getByRole("button", { name: "Play" }).click();
+  await expect
+    .poll(() =>
+      audio.locator("audio").evaluate((a: HTMLAudioElement) => a.currentTime),
+    )
+    .toBeGreaterThan(0.2);
+
   // The provider was rendered on the server, and the tabs inside it take
   // their direction from it: the left arrow goes forward.
   await page.getByRole("tab", { name: "One" }).focus();

@@ -9,13 +9,18 @@
 # DejaVu fonts, such as a Debian container:
 #
 #   apt-get install ffmpeg fonts-dejavu-core
-#   bash packages/media/scripts/make-media.sh <out>
+#   bash packages/media/scripts/make-media.sh <out> [video|audio]
 #
 # <out>/site has what the docs and the website serve, and <out>/fixtures
-# the small clips the tests use.
+# the small clips the tests use. With video or audio, only those are made,
+# so the files of the other stay as they are in git. Audio reads the demo
+# video and sound, demo_video.mp4 and demo_audio.mp3, from <out>/site, and
+# needs Node too, for the waveform's peaks.
 set -euo pipefail
 
 out=${1:?say where to write the clips}
+only=${2:-all}
+here=$(cd "$(dirname "$0")" && pwd)
 bold=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf
 mono=/usr/share/fonts/truetype/dejavu/DejaVuSansMono-Bold.ttf
 ff() { ffmpeg -hide_banner -loglevel error -y "$@"; }
@@ -89,19 +94,43 @@ frames() {
     -frames:v 1 -q:v 5 "$dir/thumbnails.jpg"
 }
 
-site="$out/site"
-clip demo 1280 720 24 "$site"
-ff -i "$site/demo.mp4" -vf scale=640:360 -c:v libx264 -preset slow -crf 30 \
-  -g 60 -keyint_min 60 -sc_threshold 0 -c:a copy -movflags +faststart "$site/demo-360.mp4"
-mv "$site/demo.mp4" "$site/demo-720.mp4"
-mv "$site/demo.webm" "$site/demo-720.webm"
-streams "$site/demo-720.mp4" "$site" 360 720
-frames "$site/demo-720.mp4" "$site" 2 4 3 160
-ff -ss 1 -i "$site/demo-720.mp4" -frames:v 1 -vf scale=960:-2 -q:v 4 "$site/poster.jpg"
+# peaks <mp3> <count>: the waveform's peaks beside it, as JSON.
+peaks() {
+  local file=$1 count=$2
+  ffmpeg -hide_banner -loglevel error -i "$file" -ac 1 -ar 8000 -f f32le - |
+    node "$here/peaks-from-pcm.mjs" "$count" >"${file%.mp3}.peaks.json"
+}
 
-fixtures="$out/fixtures"
-clip clip 320 180 6 "$fixtures"
-streams "$fixtures/clip.mp4" "$fixtures" 180 360
-frames "$fixtures/clip.mp4" "$fixtures" 2 3 1 96
+if [ "$only" != audio ]; then
+  site="$out/site"
+  clip demo 1280 720 24 "$site"
+  ff -i "$site/demo.mp4" -vf scale=640:360 -c:v libx264 -preset slow -crf 30 \
+    -g 60 -keyint_min 60 -sc_threshold 0 -c:a copy -movflags +faststart "$site/demo-360.mp4"
+  mv "$site/demo.mp4" "$site/demo-720.mp4"
+  mv "$site/demo.webm" "$site/demo-720.webm"
+  streams "$site/demo-720.mp4" "$site" 360 720
+  frames "$site/demo-720.mp4" "$site" 2 4 3 160
+  ff -ss 1 -i "$site/demo-720.mp4" -frames:v 1 -vf scale=960:-2 -q:v 4 "$site/poster.jpg"
+
+  fixtures="$out/fixtures"
+  clip clip 320 180 6 "$fixtures"
+  streams "$fixtures/clip.mp4" "$fixtures" 180 360
+  frames "$fixtures/clip.mp4" "$fixtures" 2 3 1 96
+fi
+
+if [ "$only" != video ]; then
+  # From the demo video and sound beside them in <out>/site, which aren't
+  # made here: the video's poster, the sound's artwork from a frame of the
+  # video, and the sound's peaks, for the whole and for a voice message.
+  site="$out/site"
+  ff -ss 2.5 -i "$site/demo_video.mp4" -frames:v 1 -vf scale=960:-2 -q:v 4 "$site/demo_video.jpg"
+  ff -ss 4.5 -i "$site/demo_video.mp4" -frames:v 1     -vf "crop=ih:ih:(iw-ih)/2:0,scale=600:600" -q:v 4 "$site/demo_audio.jpg"
+  peaks "$site/demo_audio.mp3" 400
+
+  # Four seconds quiet and four loud, so the tests know the peaks to expect.
+  fixtures="$out/fixtures"
+  mkdir -p "$fixtures"
+  ff -f lavfi -i "aevalsrc='if(lt(t,4),0.1,0.8)*sin(2*PI*440*t)':s=44100:d=8"     -ac 1 -c:a libmp3lame -b:a 64k "$fixtures/tone.mp3"
+fi
 
 du -ah "$out" | sort -k2

@@ -1,0 +1,317 @@
+@use "../../styles/layers";
+@use "../../parts/parts";
+@use "../../parts/waveform";
+@use "@nuvui/react/scss/mixins";
+
+@layer components {
+  // The shared controls are drawn for the dark backing of a video. On the
+  // page, the audio player gives them the theme's colors instead, from the
+  // text color, so they suit any surface it's put on.
+  .nuv-audio-player {
+    --nuv-media-track-bg: var(
+      --nuv-audio-player-track-bg,
+      color-mix(in oklab, currentcolor 18%, transparent)
+    );
+    --nuv-media-buffered-bg: var(
+      --nuv-audio-player-buffered-bg,
+      color-mix(in oklab, currentcolor 32%, transparent)
+    );
+    --nuv-media-button-hover-bg: var(
+      --nuv-audio-player-hover-bg,
+      color-mix(in oklab, currentcolor 10%, transparent)
+    );
+    --nuv-media-thumb: var(--nuv-media-accent, var(--color-primary));
+
+    position: relative;
+    display: block;
+    inline-size: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--nuv-audio-player-border, var(--color-border));
+    border-radius: var(--nuv-audio-player-radius, var(--radius-lg));
+    background-color: var(--nuv-audio-player-bg, var(--color-surface));
+    color: var(--nuv-audio-player-fg, var(--color-surface-foreground));
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+
+    // It takes focus from a press on it, so its keys work, and shows no
+    // ring for that: the controls show theirs.
+    &:focus {
+      outline: none;
+    }
+  }
+
+  // The browser's own controls until the script runs. Without them, the
+  // element draws nothing.
+  .nuv-audio-player__media {
+    display: block;
+    inline-size: 100%;
+
+    &:not([controls]) {
+      display: none;
+    }
+  }
+
+  .nuv-audio-player__bar {
+    display: flex;
+    gap: 0.25rem;
+    align-items: center;
+    min-inline-size: 0;
+  }
+
+  .nuv-audio-player__seek {
+    min-inline-size: 3rem;
+    padding-inline: 0.5rem;
+  }
+
+  // The play button, filled with the accent, and the ring that turns
+  // around it while it waits for the sound.
+  .nuv-audio-player__play {
+    position: relative;
+    display: inline-flex;
+    flex: none;
+  }
+
+  .nuv-audio-player__play-button {
+    border-radius: var(--radius-full);
+    background-color: var(--nuv-media-accent, var(--color-primary));
+    color: var(--nuv-audio-player-play-fg, var(--color-primary-foreground));
+
+    @include mixins.hover {
+      background-color: color-mix(
+        in oklab,
+        var(--nuv-media-accent, var(--color-primary)) 85%,
+        var(--color-foreground)
+      );
+    }
+  }
+
+  .nuv-audio-player__spinner {
+    position: absolute;
+    inset: -0.1875rem;
+    border: 2px solid transparent;
+    border-block-start-color: var(--nuv-media-accent, var(--color-primary));
+    border-radius: var(--radius-full);
+    pointer-events: none;
+
+    @include mixins.motion-safe {
+      animation: nuv-audio-player-spin 0.9s linear infinite;
+    }
+  }
+
+  @keyframes nuv-audio-player-spin {
+    to {
+      rotate: 1turn;
+    }
+  }
+
+  .nuv-audio-player__error {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 0.75rem;
+    align-items: center;
+    margin-block-start: 0.5rem;
+
+    p {
+      flex: 1 1 12rem;
+      margin: 0;
+    }
+  }
+
+  // The bar: one row that fits a narrow column by dropping the length.
+  .nuv-audio-player[data-layout="bar"] {
+    container-type: inline-size;
+  }
+
+  // The podcast layout: the artwork beside the title, the seek bar and the
+  // controls when there's room, and above them, smaller, when there isn't.
+  .nuv-audio-player[data-layout="podcast"] {
+    container-type: inline-size;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.75rem 1rem;
+    align-items: center;
+    padding: 1rem;
+
+    &[data-artwork] {
+      grid-template-columns: auto minmax(0, 1fr);
+    }
+
+    .nuv-audio-player__play-button {
+      inline-size: 3.25rem;
+      block-size: 3.25rem;
+
+      .nuv-media-icon {
+        inline-size: 1.5rem;
+        block-size: 1.5rem;
+      }
+    }
+
+    .nuv-audio-player__bar {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+    }
+  }
+
+  .nuv-audio-player__artwork {
+    grid-row: 1;
+    inline-size: 4rem;
+    block-size: 4rem;
+    border-radius: var(--radius-md);
+    object-fit: cover;
+  }
+
+  .nuv-audio-player__meta {
+    min-inline-size: 0;
+  }
+
+  .nuv-audio-player__title {
+    margin: 0;
+    overflow: hidden;
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--text-base--line-height);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .nuv-audio-player__artist {
+    margin: 0;
+    overflow: hidden;
+    color: var(--nuv-audio-player-muted-fg, var(--color-muted-foreground));
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .nuv-audio-player__track {
+    display: flex;
+  }
+
+  .nuv-audio-player__group {
+    display: flex;
+    gap: 0.25rem;
+    align-items: center;
+  }
+
+  .nuv-audio-player__group--end {
+    justify-self: end;
+  }
+
+  .nuv-audio-player[data-layout="podcast"] > :is(
+      .nuv-audio-player__media,
+      .nuv-audio-player__track,
+      .nuv-audio-player__bar,
+      .nuv-audio-player__error
+    ) {
+    grid-column: 1 / -1;
+  }
+
+  @container (width >= 30rem) {
+    .nuv-audio-player__artwork {
+      grid-row: 1 / span 3;
+      inline-size: 8rem;
+      block-size: 8rem;
+    }
+
+    .nuv-audio-player[data-artwork] > :is(
+        .nuv-audio-player__media,
+        .nuv-audio-player__track,
+        .nuv-audio-player__bar
+      ) {
+      grid-column: 2;
+    }
+  }
+
+  @container (width < 26rem) {
+    .nuv-audio-player__bar .nuv-media-time__total {
+      display: none;
+    }
+  }
+
+  // The voice layout: small, with no frame of its own, in the color of the
+  // text around it, so it sits in a chat bubble of any color.
+  .nuv-audio-player[data-layout="voice"] {
+    --nuv-media-accent: var(--nuv-audio-player-accent, currentcolor);
+    --nuv-media-waveform-height: 1.75rem;
+
+    inline-size: var(--nuv-audio-player-voice-width, 16rem);
+    max-inline-size: 100%;
+    padding: 0;
+    border: 0;
+    background-color: transparent;
+    color: inherit;
+
+    .nuv-audio-player__bar {
+      gap: 0.5rem;
+    }
+
+    .nuv-audio-player__seek {
+      padding-inline: 0;
+    }
+
+    .nuv-audio-player__play-button {
+      background-color: color-mix(in oklab, currentcolor 14%, transparent);
+      color: inherit;
+
+      @include mixins.hover {
+        background-color: color-mix(in oklab, currentcolor 22%, transparent);
+      }
+    }
+  }
+
+  .nuv-audio-player__time {
+    flex: none;
+    min-inline-size: 2.25rem;
+    font-size: var(--text-xs);
+    font-variant-numeric: tabular-nums;
+    text-align: end;
+  }
+
+  .nuv-audio-player__speed {
+    position: relative;
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    min-inline-size: 2.25rem;
+    block-size: 1.5rem;
+    padding-inline: 0.375rem;
+    border: 0;
+    border-radius: var(--radius-full);
+
+    // A ring and no fill, so the words sit on the bubble's own color, which
+    // the theme makes readable with the text's.
+    background-color: transparent;
+    box-shadow: inset 0 0 0 1px
+      color-mix(in oklab, currentcolor 45%, transparent);
+    color: inherit;
+    font: inherit;
+    font-size: var(--text-xs);
+    font-variant-numeric: tabular-nums;
+    font-weight: var(--font-weight-semibold);
+    cursor: pointer;
+
+    @include mixins.touch-area;
+    @include mixins.focus-ring;
+
+    @include mixins.hover {
+      box-shadow: inset 0 0 0 1px currentcolor;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .nuv-audio-player {
+      border-color: CanvasText;
+    }
+
+    .nuv-audio-player__play-button,
+    .nuv-audio-player__speed {
+      border: 1px solid ButtonText;
+      background: ButtonFace;
+      color: ButtonText;
+    }
+
+    .nuv-audio-player__spinner {
+      border-block-start-color: Highlight;
+    }
+  }
+}

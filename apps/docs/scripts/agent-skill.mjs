@@ -180,10 +180,10 @@ const cssOf = (addon, component) =>
 
 // The same walk as components/style-reference.tsx.
 function findVariables(css, component) {
-  const start = `var(--nuv-${component}-`;
+  const start = new RegExp(String.raw`var\(\s*--nuv-${component}-`, "g");
   const variables = new Map();
-  let from = css.indexOf(start);
-  while (from !== -1) {
+  for (let found = start.exec(css); found; found = start.exec(css)) {
+    const from = found.index;
     let depth = 0;
     let end = from + 3;
     for (; end < css.length; end += 1) {
@@ -210,17 +210,32 @@ function findVariables(css, component) {
       );
     }
     variables.set(name, fallbacks);
-    from = css.indexOf(start, from + start.length);
+    start.lastIndex = from + 4;
   }
   return variables;
 }
 
+// The same rule as components/style-reference.tsx: with `shared`, the
+// names of the package's components in `exclude` are left out.
+const excluded = (name, exclude = []) =>
+  exclude.some(
+    (other) =>
+      name.startsWith(`--nuv-${other}-`) ||
+      name === `nuv-${other}` ||
+      name.startsWith(`nuv-${other}_`) ||
+      name.startsWith(`nuv-${other}-`),
+  );
+
 async function cssVariables(attrs) {
-  const { component, package: addon, descriptions, shared } = attrs;
+  const { component, package: addon, descriptions, shared, exclude } = attrs;
   const css = shared
     ? await read(path.join(packageDir(addon), "dist", "styles.css"))
     : await cssOf(addon, component);
-  const variables = findVariables(css, component);
+  const variables = new Map(
+    [...findVariables(css, component)].filter(
+      ([name]) => !excluded(name, exclude),
+    ),
+  );
   return table(
     ["Variable", "Default", "What it sets"],
     [...variables].map(([name, fallbacks]) => [
@@ -232,14 +247,16 @@ async function cssVariables(attrs) {
 }
 
 async function bemClasses(attrs) {
-  const { component, package: addon, descriptions, shared } = attrs;
+  const { component, package: addon, descriptions, shared, exclude } = attrs;
   const css = shared
     ? await read(path.join(packageDir(addon), "dist", "styles.css"))
     : await cssOf(addon, component);
   const pattern = new RegExp(`\\.(nuv-${component}[a-z0-9_-]*)`, "g");
   const classes = [
     ...new Set([...css.matchAll(pattern)].map(([, name]) => name)),
-  ].sort();
+  ]
+    .filter((name) => !excluded(name, exclude))
+    .sort();
   return table(
     ["Class", "What it's on"],
     classes.map((name) => [code(`.${name}`), cell(descriptions[name])]),

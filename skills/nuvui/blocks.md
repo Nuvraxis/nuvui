@@ -2,7 +2,7 @@
 
 # Blocks
 
-A block is a part of an app, such as a sign-in screen or a table with a toolbar, built from the library's components: one TSX file and one SCSS file, to copy into an app and change. There are 69. Each is shown at https://nuvui.nuvraxis.com/blocks.
+A block is a part of an app, such as a sign-in screen or a table with a toolbar, built from the library's components: one TSX file and one SCSS file, to copy into an app and change. There are 71. Each is shown at https://nuvui.nuvraxis.com/blocks.
 
 Before building a screen from nothing, look here for one that's close. To add one, with the packages it needs:
 
@@ -104,9 +104,11 @@ A block's SCSS uses the library's mixins, `@use "@nuvui/react/scss/mixins"`, so 
 
 ## Media
 
-- **Course lesson** (`course-lesson`): A lesson of a course: its video with chapters along the seek bar, previews over it, captions in two languages and two qualities, the chapters listed under it to jump to, and the course's lessons beside it with the ones watched marked. The viewer's volume, speed and captions are kept between lessons. Needs `@nuvui/media`, `@nuvui/react`.
+- **Course lesson** (`course-lesson`): A lesson of a course: its video with chapters along the seek bar, previews over it, captions in two languages and two qualities, the chapters listed under it to jump to, the transcript beside them in the language of the captions, and the course's lessons beside it with the ones watched marked. The viewer's volume, speed and captions are kept between lessons. Needs `@nuvui/media`, `@nuvui/react`.
+- **Podcast episode** (`podcast-episode`): A podcast's episode: its artwork, the waveform to seek on with the part played in the theme's color, back and ahead buttons, the chapters listed to jump to with the one playing marked, and show notes. The listener's volume and speed are kept between episodes. Needs `@nuvui/media`.
 - **Product demo** (`product-demo`): A product's page with its demo video under the headline: only the poster and a play button until the first press, so visitors who don't watch load no video, then the video with captions and a glow around it in its own colors. Needs `@nuvui/media`, `@nuvui/react`.
 - **Recording review** (`recording-review`): A recorded meeting with comments pinned to its moments: each comment is a mark along the seek bar and a line beside the video, a press on its time goes to that moment, and a new comment is pinned to wherever the video is. Needs `@nuvui/media`, `@nuvui/react`.
+- **Voice messages** (`voice-messages`): A team's chat with voice messages among the text: each one a play button, its waveform, its length and a press for the speed, in the colors of its bubble. They load nothing until played, starting one pauses the one playing, and the next voice message plays when one ends. A message typed in the box is added to the thread. Needs `@nuvui/media`, `@nuvui/react`.
 
 ## Settings
 

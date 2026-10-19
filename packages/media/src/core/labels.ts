@@ -3,8 +3,12 @@
  * to translate a player.
  */
 export interface MediaLabels {
-  /** The player's name when it's given no `aria-label` and no `title`. */
+  /** The video player's name when it's given no `aria-label` and no `title`. */
   video: string;
+  /** The audio player's name when it's given no `aria-label` and no `title`. */
+  audio: string;
+  /** The transcript's name when it's given no `aria-label`. */
+  transcript: string;
   play: string;
   pause: string;
   replay: string;
@@ -43,6 +47,10 @@ export interface MediaLabels {
   errorNetwork: string;
   errorDecode: string;
   errorUnsupported: string;
+  /** The same three, for the audio player. */
+  audioErrorNetwork: string;
+  audioErrorDecode: string;
+  audioErrorUnsupported: string;
   retry: string;
   shortcuts: string;
   close: string;
@@ -59,8 +67,6 @@ export interface MediaLabels {
   qualityChanged: (quality: string) => string;
   /** What each shortcut does, in the shortcuts sheet. */
   shortcutPlay: string;
-  shortcutBack: string;
-  shortcutAhead: string;
   shortcutVolume: string;
   shortcutMute: string;
   shortcutFullscreen: string;
@@ -76,6 +82,8 @@ const count = (one: string, many: string) => (n: number) =>
 
 export const englishLabels: MediaLabels = {
   video: "Video",
+  audio: "Audio",
+  transcript: "Transcript",
   play: "Play",
   pause: "Pause",
   replay: "Play again",
@@ -109,6 +117,10 @@ export const englishLabels: MediaLabels = {
     "The video couldn't be loaded. Check the connection and try again.",
   errorDecode: "The video couldn't be played.",
   errorUnsupported: "This video can't be played in this browser.",
+  audioErrorNetwork:
+    "The audio couldn't be loaded. Check the connection and try again.",
+  audioErrorDecode: "The audio couldn't be played.",
+  audioErrorUnsupported: "This audio can't be played in this browser.",
   retry: "Try again",
   shortcuts: "Keyboard shortcuts",
   close: "Close",
@@ -121,8 +133,6 @@ export const englishLabels: MediaLabels = {
   speedChanged: (rate) => `Speed ${rate}`,
   qualityChanged: (quality) => `Quality ${quality}`,
   shortcutPlay: "Play or pause",
-  shortcutBack: "Back 10 seconds",
-  shortcutAhead: "Ahead 10 seconds",
   shortcutVolume: "Volume up or down",
   shortcutMute: "Mute or unmute",
   shortcutFullscreen: "Full screen",

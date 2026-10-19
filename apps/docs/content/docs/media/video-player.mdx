@@ -4,7 +4,7 @@ description: A video with its own controls. Play, seek with chapters and preview
 added: "2026-10-18"
 ---
 
-<Preview name="video-player/basic" wide />
+<Preview name="video-player/demo" wide />
 
 ## Install
 
@@ -31,8 +31,10 @@ import { VideoPlayer } from "@nuvui/media/video-player";
 `src` takes an address, a source, or a list of them.
 
 - **One file:** `src="/videos/intro.mp4"`.
-- **The same video in several formats,** of which the browser plays the first it can: a list of sources with a `type` each, as in the example at the top. WebM is smaller, and MP4 plays everywhere.
+- **The same video in several formats,** of which the browser plays the first it can: a list of sources with a `type` each, as in the example below. WebM is smaller, and MP4 plays everywhere.
 - **The same video in several qualities:** a list of sources with a `height` or a `label` each. They fill the quality menu, the first is played first, and a change keeps the place and whether it was playing.
+
+<Preview name="video-player/basic" wide />
 
 <Preview name="video-player/qualities" wide />
 
@@ -43,6 +45,8 @@ Give each WebVTT file as a track. A track with `default` is shown from the start
 <Preview name="video-player/captions" wide />
 
 The player draws the captions itself rather than leaving them to the browser, so they're the same in every browser, take your theme, and come in the size the viewer picked, measured against the width of the frame. The italics and voices in a cue are kept. A track on another site needs that site to allow it with CORS, and the player needs `crossOrigin="anonymous"`.
+
+The same words can sit beside the video as text, with the line being said marked: that's [MediaTranscript](/docs/media/media-transcript).
 
 ## Chapters and previews
 
@@ -218,7 +222,7 @@ On the seek bar and the volume, the arrows move the slider, Page Up and Page Dow
 
 ### What you need to handle
 
-- **Captions.** A video with speech needs a captions track, and it's yours to write or have written.
+- **Captions.** A video with speech needs a captions track, and it's yours to write or have written. A [transcript](/docs/media/media-transcript) beside it reads the same track.
 - **A text alternative** for what's only seen. A description track, or the same information on the page.
 - **A reason to autoplay.** Moving video that starts by itself is a problem for some people (WCAG 2.2.2). Start muted, and keep it short, or don't.
 - **The title.** It's the player's name for a screen reader: say what the video is.
@@ -259,8 +263,9 @@ The controls the players share read these:
   package="media"
   component="media"
   shared
+  exclude={["media-transcript"]}
   descriptions={{
-    "--nuv-media-accent": "Color of what's played on the seek bar and the volume, and of the big button on hover.",
+    "--nuv-media-accent": "Color of what's played on the seek bar, the waveform and the volume, of the audio player's play button, and of the big button on hover.",
     "--nuv-media-track-bg": "Color of a slider's track.",
     "--nuv-media-buffered-bg": "Color of what's loaded on the seek bar.",
     "--nuv-media-thumb": "Color of a slider's handle.",
@@ -271,6 +276,8 @@ The controls the players share read these:
     "--nuv-media-part-fill": "How much of a part of the seek bar is played, from 0 to 1. Set by the script.",
     "--nuv-media-part-buffered": "How much of a part of the seek bar is loaded, from 0 to 1. Set by the script.",
     "--nuv-media-hover": "Where the pointer is across the seek bar, from 0 to 1. Set by the script.",
+    "--nuv-media-wave-bg": "Color of the waveform's bars that aren't played yet, in the audio player.",
+    "--nuv-media-waveform-height": "Height of the waveform, in the audio player.",
   }}
 />
 
@@ -306,6 +313,7 @@ The parts the players share:
   package="media"
   component="media"
   shared
+  exclude={["media-transcript"]}
   descriptions={{
     "nuv-media-button": "A control with an icon.",
     "nuv-media-icon": "A control's icon.",
@@ -333,6 +341,10 @@ The parts the players share:
     "nuv-media-shortcuts__list": "The list in the shortcuts sheet.",
     "nuv-media-shortcuts__row": "A shortcut and what it does.",
     "nuv-media-hidden": "Words for a screen reader only.",
+    "nuv-media-waveform": "The waveform to seek on, in the audio player.",
+    "nuv-media-waveform__bars": "The box the bars are drawn in.",
+    "nuv-media-waveform__shape": "The bars, drawn twice: once whole, once for what's played.",
+    "nuv-media-waveform__played": "The bars of what's played, in the accent color.",
   }}
 />
 

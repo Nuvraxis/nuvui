@@ -54,6 +54,20 @@
   gap: calc(var(--spacing) * 5);
 }
 
+// The chapters and the transcript, side by side where there's room.
+.course-lesson__more {
+  display: grid;
+  gap: calc(var(--spacing) * 5);
+
+  @include mixins.breakpoint("md") {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
+
+.course-lesson__transcript {
+  --nuv-media-transcript-height: 16rem;
+}
+
 .course-lesson__heading {
   margin: 0 0 calc(var(--spacing) * 2);
   font-size: var(--text-base);

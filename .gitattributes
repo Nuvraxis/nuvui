@@ -1,1 +1,5 @@
 * text=auto eol=lf
+
+# The docs of each release, for the MCP server, written by its snapshot
+# step. Too long to read as a diff.
+apps/mcp/versions/*.json -diff linguist-generated

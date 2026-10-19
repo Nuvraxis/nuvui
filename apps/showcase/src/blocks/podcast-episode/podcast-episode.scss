@@ -1,0 +1,116 @@
+@use "@nuvui/react/scss/mixins";
+
+.podcast-episode {
+  display: grid;
+  gap: calc(var(--spacing) * 6);
+  align-content: start;
+  inline-size: 100%;
+  min-block-size: 100svh;
+  padding: calc(var(--spacing) * 6) calc(var(--spacing) * 4);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+
+  @include mixins.breakpoint("md") {
+    padding: calc(var(--spacing) * 8);
+  }
+}
+
+.podcast-episode__head {
+  display: grid;
+  gap: calc(var(--spacing) * 1);
+}
+
+.podcast-episode__show,
+.podcast-episode__meta {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+.podcast-episode__title {
+  margin: 0;
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-2xl--line-height);
+  letter-spacing: var(--tracking-tight);
+}
+
+// The episode, then its chapters and notes, in a column a line of text
+// can be read across.
+.podcast-episode__body {
+  display: grid;
+  gap: calc(var(--spacing) * 6);
+  max-inline-size: 48rem;
+}
+
+.podcast-episode__section {
+  display: grid;
+  gap: calc(var(--spacing) * 2);
+}
+
+.podcast-episode__heading {
+  margin: 0 0 calc(var(--spacing) * 2);
+  font-size: var(--text-base);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-base--line-height);
+}
+
+.podcast-episode__chapters,
+.podcast-episode__links {
+  display: grid;
+  gap: calc(var(--spacing) * 1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.podcast-episode__chapter {
+  display: flex;
+  gap: calc(var(--spacing) * 3);
+  align-items: center;
+  inline-size: 100%;
+  padding: calc(var(--spacing) * 2) calc(var(--spacing) * 3);
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: var(--text-sm);
+  text-align: start;
+  cursor: pointer;
+
+  @include mixins.touch-target;
+  @include mixins.focus-ring;
+
+  @include mixins.hover {
+    background-color: var(--color-muted);
+  }
+
+  // The chapter playing now: in bold on a fill, not a color alone.
+  &[aria-current="true"] {
+    background-color: var(--color-muted);
+    font-weight: var(--font-weight-semibold);
+  }
+}
+
+.podcast-episode__chapter-time {
+  min-inline-size: 3ch;
+  color: var(--color-muted-foreground);
+  font-variant-numeric: tabular-nums;
+}
+
+.podcast-episode__notes {
+  max-inline-size: 65ch;
+  margin: 0;
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+.podcast-episode__links a {
+  color: var(--color-primary);
+  font-size: var(--text-sm);
+  text-underline-offset: 0.2em;
+
+  @include mixins.focus-ring;
+}

@@ -1,0 +1,28 @@
+[
+  {
+    "name": "@nuvui/media",
+    "path": "dist/index.js",
+    "limit": "16.5 kB"
+  },
+  {
+    "name": "@nuvui/media/video-player",
+    "path": "dist/components/video-player/index.js",
+    "limit": "13.5 kB"
+  },
+  {
+    "name": "@nuvui/media/audio-player",
+    "path": "dist/components/audio-player/index.js",
+    "limit": "12.5 kB"
+  },
+  {
+    "name": "@nuvui/media/media-transcript",
+    "path": "dist/components/media-transcript/index.js",
+    "limit": "2.5 kB"
+  },
+  {
+    "name": "styles.css",
+    "path": "dist/styles.css",
+    "rolldown": false,
+    "limit": "4 kB"
+  }
+]

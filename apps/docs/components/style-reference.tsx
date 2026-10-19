@@ -30,11 +30,13 @@ export function checkDescriptions(
 }
 
 function findVariables(css: string, component: string) {
-  const start = `var(--nuv-${component}-`;
+  // A long value is written across lines, with the name on the line
+  // after "var(".
+  const start = new RegExp(String.raw`var\(\s*--nuv-${component}-`, "g");
   const variables = new Map<string, Set<string>>();
 
-  let from = css.indexOf(start);
-  while (from !== -1) {
+  for (let found = start.exec(css); found; found = start.exec(css)) {
+    const from = found.index;
     // Fallbacks nest var() and calc(), so walk to the bracket that closes
     // this var() instead of stopping at the first ")".
     let depth = 0;
@@ -69,7 +71,7 @@ function findVariables(css: string, component: string) {
     variables.set(name, fallbacks);
 
     // Start just inside this var(), so a variable in its fallback is found.
-    from = css.indexOf(start, from + start.length);
+    start.lastIndex = from + 4;
   }
 
   return variables;
@@ -87,23 +89,44 @@ interface ReferenceProps {
 interface CssVariablesProps extends ReferenceProps {
   /**
    * Look in the whole stylesheet instead of one component's. For variables
-   * that several components read, where `component` is their shared prefix.
+   * and classes that several components share, where `component` is their
+   * shared prefix.
    */
   shared?: boolean;
+  /**
+   * With `shared`, leave out the names of these components of the same
+   * package, whose own names start with the shared prefix.
+   */
+  exclude?: string[];
 }
+
+// Whether a name belongs to one of the components left out.
+const excluded = (name: string, exclude: string[]) =>
+  exclude.some(
+    (other) =>
+      name.startsWith(`--nuv-${other}-`) ||
+      name === `nuv-${other}` ||
+      name.startsWith(`nuv-${other}_`) ||
+      name.startsWith(`nuv-${other}-`),
+  );
 
 export async function CssVariables({
   component,
   package: addon,
   descriptions,
   shared = false,
+  exclude = [],
 }: CssVariablesProps) {
   const source = packageOf(addon);
   const css = await readFile(
     shared ? source.styles : source.css(component),
     "utf8",
   );
-  const variables = findVariables(css, component);
+  const variables = new Map(
+    [...findVariables(css, component)].filter(
+      ([name]) => !excluded(name, exclude),
+    ),
+  );
   checkDescriptions(
     "CSS variables",
     component,
@@ -154,13 +177,21 @@ export async function BemClasses({
   component,
   package: addon,
   descriptions,
-}: ReferenceProps) {
-  const css = await readFile(packageOf(addon).css(component), "utf8");
+  shared = false,
+  exclude = [],
+}: CssVariablesProps) {
+  const source = packageOf(addon);
+  const css = await readFile(
+    shared ? source.styles : source.css(component),
+    "utf8",
+  );
   const pattern = new RegExp(`\\.(nuv-${component}[a-z0-9_-]*)`, "g");
   const classes = [
     ...new Set([...css.matchAll(pattern)].map(([, name]) => name)),
   ]
-    .filter((name): name is string => name !== undefined)
+    .filter(
+      (name): name is string => name !== undefined && !excluded(name, exclude),
+    )
     .sort();
   checkDescriptions("classes", component, classes, descriptions);
 

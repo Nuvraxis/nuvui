@@ -54,6 +54,7 @@ const published = {
   "@nuvui/emoji": "emoji",
   "@nuvui/map": "map",
   "@nuvui/flow": "flow",
+  "@nuvui/media": "media",
   "@nuvui/icons": "icons",
 };
 
@@ -131,6 +132,20 @@ const fixtures = {
       css.includes(".nuv-emoji-picker"),
     );
     expect("vite", "it has the diagram's styles", css.includes(".nuv-flow"));
+    expect(
+      "vite",
+      "it has the video player's styles, and the script has the player",
+      css.includes(".nuv-video-player") &&
+        script.includes("nuv-video-player__controls"),
+    );
+    expect(
+      "vite",
+      "it has the audio player's and the transcript's styles, and the script has both",
+      css.includes(".nuv-audio-player") &&
+        css.includes(".nuv-media-transcript") &&
+        script.includes("nuv-audio-player__bar") &&
+        script.includes("nuv-media-transcript__line"),
+    );
     expect(
       "vite",
       "the script has the diagram",
@@ -326,6 +341,20 @@ process.stdout.write(renderToStaticMarkup(createElement(ArrowRightIcon, { title:
     expect("next", "it has the diagram's styles", css.includes(".nuv-flow"));
     expect(
       "next",
+      "the server sent the video, named, with the browser's own controls until the script runs",
+      css.includes(".nuv-video-player") &&
+        html.includes('<section aria-label="Intro"') &&
+        /<video[^>]*controls=""/.test(html),
+    );
+    expect(
+      "next",
+      "the server sent the audio, named, with the browser's own controls until the script runs",
+      css.includes(".nuv-audio-player") &&
+        html.includes('aria-label="Episode"') &&
+        /<audio[^>]*controls=""/.test(html),
+    );
+    expect(
+      "next",
       "the server drew the diagram whole, with both its steps",
       /<div[^>]*class="nuv-flow__canvas"[^>]*role="listbox"/.test(html) &&
         (html.match(/role="option"/g) ?? []).length >= 2 &&
@@ -449,14 +478,17 @@ process.stdout.write(renderToStaticMarkup(createElement(ArrowRightIcon, { title:
     );
     expect(
       "react18",
-      "the message, the prompt box, the editor, the board, the picker, the map and the diagram rendered",
+      "the message, the prompt box, the editor, the board, the picker, the map, the diagram, the video, the audio and its transcript rendered",
       html.includes("nuv-message__content") &&
         html.includes("nuv-prompt-input__textarea") &&
         html.includes("nuv-rich-text-editor__toolbar") &&
         html.includes("nuv-kanban__handle") &&
         html.includes("nuv-emoji-picker__search") &&
         html.includes("Loading map") &&
-        html.includes("nuv-flow__canvas"),
+        html.includes("nuv-flow__canvas") &&
+        html.includes("nuv-video-player__media") &&
+        html.includes("nuv-audio-player__media") &&
+        html.includes("nuv-media-transcript"),
     );
   },
 };

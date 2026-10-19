@@ -6,10 +6,12 @@
   "license": "MIT",
   "type": "module",
   "files": [
-    "dist"
+    "dist",
+    "versions"
   ],
   "scripts": {
     "build": "tsdown && node dist/build-data.mjs",
+    "snapshot": "tsdown && node dist/snapshot.mjs",
     "start": "node dist/main.mjs",
     "start:stdio": "node dist/main.mjs --stdio",
     "typecheck": "tsc --noEmit",

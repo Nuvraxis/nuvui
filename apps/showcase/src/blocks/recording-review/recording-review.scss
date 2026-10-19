@@ -1,0 +1,149 @@
+@use "@nuvui/react/scss/mixins";
+
+.recording-review {
+  display: grid;
+  gap: calc(var(--spacing) * 6);
+  align-content: start;
+  inline-size: 100%;
+  min-block-size: 100svh;
+  padding: calc(var(--spacing) * 6) calc(var(--spacing) * 4);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+
+  @include mixins.breakpoint("md") {
+    padding: calc(var(--spacing) * 8);
+  }
+}
+
+.recording-review__head {
+  display: grid;
+  gap: calc(var(--spacing) * 1);
+}
+
+.recording-review__title {
+  margin: 0;
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-2xl--line-height);
+  letter-spacing: var(--tracking-tight);
+}
+
+.recording-review__text {
+  max-inline-size: 60ch;
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+// The recording, and the comments beside it on a wide screen and under it
+// on a phone.
+.recording-review__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: calc(var(--spacing) * 6);
+  align-items: start;
+
+  @include mixins.breakpoint("lg") {
+    grid-template-columns: minmax(0, 1fr) 22rem;
+  }
+}
+
+.recording-review__notes {
+  display: grid;
+  gap: calc(var(--spacing) * 3);
+  padding: calc(var(--spacing) * 4);
+  border: var(--nuv-border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-surface);
+  color: var(--color-surface-foreground);
+}
+
+.recording-review__heading {
+  margin: 0;
+  font-size: var(--text-base);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-base--line-height);
+
+  span {
+    color: var(--color-muted-foreground);
+    font-weight: var(--font-weight-normal);
+  }
+}
+
+.recording-review__list {
+  display: grid;
+  gap: calc(var(--spacing) * 2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.recording-review__note {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: calc(var(--spacing) * 3);
+  padding: calc(var(--spacing) * 2);
+  border-inline-start: 3px solid transparent;
+  border-radius: var(--radius-sm);
+
+  // The comment at the moment the video is on: a bar at its side.
+  &[data-here] {
+    border-inline-start-color: var(--color-primary);
+    background-color: var(--color-muted);
+  }
+}
+
+.recording-review__note-body {
+  display: grid;
+  gap: calc(var(--spacing) * 1);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+.recording-review__note-head {
+  display: flex;
+  gap: calc(var(--spacing) * 2);
+  align-items: center;
+  margin: 0;
+}
+
+.recording-review__who {
+  font-weight: var(--font-weight-semibold);
+}
+
+.recording-review__at {
+  position: relative;
+  padding: 0 calc(var(--spacing) * 1.5);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-muted);
+  color: var(--color-primary);
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+
+  @include mixins.touch-area;
+  @include mixins.focus-ring;
+}
+
+.recording-review__note-text {
+  margin: 0;
+}
+
+.recording-review__form {
+  display: grid;
+  gap: calc(var(--spacing) * 2);
+  padding-block-start: calc(var(--spacing) * 3);
+  border-block-start: var(--nuv-border-width) solid var(--color-border);
+}
+
+.recording-review__label {
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  font-variant-numeric: tabular-nums;
+}
+
+.recording-review__send {
+  justify-self: end;
+}

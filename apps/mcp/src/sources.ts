@@ -1,7 +1,8 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { families } from "../../showcase/src/lib/charts";
-import type { Block, Chart, Data, Page, Rule, Section } from "./data";
+import type { Block, Chart, Data, Docs, Page, Rule, Section } from "./data";
+import { type Change, changesOf, type Pending, pendingOf } from "./versions";
 
 // The skill is written from the docs by apps/docs/scripts/agent-skill.mjs,
 // and `pnpm check:skill` holds it to them. Reading it here, and not the
@@ -186,13 +187,57 @@ function readTokens(root: string): string {
   return css;
 }
 
-/** The server's data, read from the repository at `root`. */
-export function readSources(root: string): Data {
-  const ui = JSON.parse(
-    read(path.join(root, "packages", "ui", "package.json")),
+interface Manifest {
+  name: string;
+  version: string;
+  private?: boolean;
+}
+
+// The packages people install, each with its folder.
+function readPackages(root: string) {
+  const dir = path.join(root, "packages");
+  return readdirSync(dir)
+    .filter((folder) => existsSync(path.join(dir, folder, "package.json")))
+    .map((folder) => ({
+      folder: path.join(dir, folder),
+      manifest: JSON.parse(
+        read(path.join(dir, folder, "package.json")),
+      ) as Manifest,
+    }))
+    .filter(
+      ({ manifest }) =>
+        !manifest.private && manifest.name.startsWith("@nuvui/"),
+    )
+    .sort((a, b) => a.manifest.name.localeCompare(b.manifest.name));
+}
+
+function readChanges(root: string): Change[] {
+  return readPackages(root).flatMap(({ folder, manifest }) => {
+    const file = path.join(folder, "CHANGELOG.md");
+    return existsSync(file) ? changesOf(manifest.name, read(file)) : [];
+  });
+}
+
+function readPending(root: string): Pending[] {
+  const dir = path.join(root, ".changeset");
+  if (!existsSync(dir)) return [];
+  return readdirSync(dir)
+    .filter((file) => file.endsWith(".md") && file !== "README.md")
+    .sort()
+    .flatMap((file) => pendingOf(read(path.join(dir, file))));
+}
+
+/**
+ * The docs alone, read from the repository at `root`. Also what's kept
+ * for each release, so it reads only what an older release had too.
+ */
+export function readDocs(root: string): Docs {
+  const packages = Object.fromEntries(
+    readPackages(root).map(({ manifest }) => [manifest.name, manifest.version]),
   );
   return {
-    version: ui.version,
+    version: packages["@nuvui/react"] ?? "0.0.0",
+    packages,
     overview: relink(
       unmarked(read(path.join(skillDir(root), "SKILL.md"))),
       "SKILL.md",
@@ -200,7 +245,16 @@ export function readSources(root: string): Data {
     rules: readRules(root),
     pages: readPages(root),
     blocks: readBlocks(root),
-    charts: readCharts(root),
     tokens: readTokens(root),
+  };
+}
+
+/** The server's data, read from the repository at `root`. */
+export function readSources(root: string): Data {
+  return {
+    ...readDocs(root),
+    charts: readCharts(root),
+    changes: readChanges(root),
+    pending: readPending(root),
   };
 }

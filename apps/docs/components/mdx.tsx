@@ -9,6 +9,7 @@ import { AlertPlayground } from "@/components/playground/alert";
 import { AlertDialogPlayground } from "@/components/playground/alert-dialog";
 import { AnimatedNumberPlayground } from "@/components/playground/animated-number";
 import { AspectRatioPlayground } from "@/components/playground/aspect-ratio";
+import { AudioPlayerPlayground } from "@/components/playground/audio-player";
 import { AvatarPlayground } from "@/components/playground/avatar";
 import { BadgePlayground } from "@/components/playground/badge";
 import {
@@ -101,6 +102,7 @@ import { ToolbarPlayground } from "@/components/playground/toolbar";
 import { TooltipPlayground } from "@/components/playground/tooltip";
 import { TreePlayground } from "@/components/playground/tree";
 import { TrendPlayground } from "@/components/playground/trend";
+import { VideoPlayerPlayground } from "@/components/playground/video-player";
 import { VisuallyHiddenPlayground } from "@/components/playground/visually-hidden";
 import { PresetList } from "@/components/preset-reference";
 import { Preview } from "@/components/preview";
@@ -140,6 +142,7 @@ export function getMDXComponents(components?: MDXComponents) {
     AlertDialogPlayground,
     AnimatedNumberPlayground,
     AspectRatioPlayground,
+    AudioPlayerPlayground,
     AvatarPlayground,
     BadgePlayground,
     BreadcrumbPlayground,
@@ -225,6 +228,7 @@ export function getMDXComponents(components?: MDXComponents) {
     ToggleGroupPlayground,
     ToolbarPlayground,
     TooltipPlayground,
+    VideoPlayerPlayground,
     VisuallyHiddenPlayground,
     ...components,
   } satisfies MDXComponents;

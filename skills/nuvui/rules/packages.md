@@ -97,6 +97,21 @@ import "@nuvui/<package>/styles.css";
 - A node holds words, not React content: it's drawn in SVG.
 - The frame's height is `--nuv-flow-height`, 24rem by default.
 
+## @nuvui/media
+
+- A file (MP4, WebM) needs nothing else. A stream needs its library, handed over as a function, so it loads only when a stream plays: `hls={() => import("hls.js")}` for `.m3u8`, `dash={() => import("dashjs")}` for `.mpd`. Install the one used. A function can't cross from a server component, so a player with one goes in a file with `"use client"`.
+- Give every player a `title`: it's its name for a screen reader and what the lock screen shows.
+- Sources with a `height` are qualities and fill the quality menu. Sources with only a `type` are formats, of which the browser plays the first it can.
+- Captions, subtitles and chapters are `tracks`, as WebVTT. The player draws captions itself, so don't style `::cue`. Previews over the seek bar come from `thumbnails`, a WebVTT file.
+- Never autoplay with sound. `autoPlay` mutes the player.
+- `persist="a-key"` keeps the viewer's volume, speed, captions and quality. Leave it off where storage needs consent.
+- `controls={false}` and the parts (`MediaPlayButton`, `MediaSeek`, `MediaTime` and the rest) as children lay out controls of your own. `handleRef` plays, pauses and seeks from outside.
+- The frame's shape is `--nuv-video-player-aspect`, 16 / 9 by default.
+- `AudioPlayer` takes the same sources, tracks and streams. `layout` is `bar` (the default), `podcast` (with `artwork` and `artist`) or `voice` (small, for a chat bubble, in the text's color).
+- A waveform comes from `peaks`: work them out once on the server and keep them with the file. `computePeaks(fileOrBlob)` does it in the browser, for a recording just made or a short file.
+- In a list of voice messages, `preload="none"` with `duration` loads nothing until one plays.
+- A transcript needs the player's `handleRef`: `<MediaTranscript player={ref} />`, in a client component. It reads the captions shown, or the first captions track, so an audio player needs a captions track for it.
+
 ## @nuvui/barcodes
 
 - A code is black on white in every theme, on purpose: a scanner needs the contrast. Don't theme it.

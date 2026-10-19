@@ -20,12 +20,15 @@ test("only the version changes, and the fields stay in their order", () => {
   assert.deepEqual({ ...changed, version: listing.version }, listing);
 });
 
-test("version-packages writes it after changeset version", () => {
+// Both read the versions changeset version has just written: the listing
+// takes @nuvui/react's, and the MCP server keeps the release's docs under
+// its line.
+test("version-packages writes it, and the release's docs, after changeset version", () => {
   const { scripts } = read("package.json");
 
   assert.match(
     scripts["version-packages"],
-    /^changeset version && node scripts\/mcp-server-version\.mjs$/,
+    /^changeset version && node scripts\/mcp-server-version\.mjs && pnpm --filter @nuvui\/mcp snapshot$/,
   );
 });
 

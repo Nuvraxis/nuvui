@@ -108,6 +108,13 @@ packages/map                  an add-on, published as @nuvui/map
 packages/flow                 an add-on, published as @nuvui/flow
   src/components/flow/        the diagram: its geometry, its spatial index, its store and the component
   scripts/bench.mjs           times it on large diagrams, run by hand
+packages/media                an add-on, published as @nuvui/media
+  src/core/                   the store, what both players do with their media, sources and streams, WebVTT, the keys, the words, kept settings, peaks
+  src/parts/                  the controls every player shares, the waveform and the shortcuts sheet
+  src/components/video-player/  the video player
+  src/components/audio-player/  the audio player
+  src/components/media-transcript/  the transcript
+  scripts/make-media.sh       makes the clips and sounds the docs, the blocks and the tests play
 packages/icons                the icons, published as @nuvui/icons
   svg/                        each icon in each style, fetched from Figma
   manifest.json               every icon's name, component and category
@@ -235,7 +242,7 @@ Button is the smallest example to copy from, and Dialog the fullest.
 
 ## Add-on packages
 
-A component goes in a package of its own when it needs a library the core doesn't have. `@nuvui/date-picker` is the first, for react-day-picker and date-fns, `@nuvui/table` the second, for TanStack Table, `@nuvui/charts` the third, for Recharts, and `@nuvui/barcodes` the fourth, for JsBarcode's and uqr's encoders. `@nuvui/chat` is the fifth, and the one that isn't there for a library: it's a different kind of screen, which most apps don't have. `@nuvui/kanban` is the sixth, for dnd kit, which carries the cards, and `@nuvui/editor` the seventh, for Tiptap. `@nuvui/emoji` is the eighth, and what it keeps out of the core is no library but a list: nineteen hundred emoji with their names. `@nuvui/map` is the ninth, for MapLibre. An app that doesn't use the component then never installs that library. `@nuvui/flow` is the tenth, and needs no library either: what it keeps out of the core is a kind of screen most apps don't have, and its size. `@nuvui/icons` is the eleventh, and the odd one out: it needs no `@nuvui/react`, has no stylesheet, and is artwork more than code. [The icon package](#the-icon-package) says how it differs.
+A component goes in a package of its own when it needs a library the core doesn't have. `@nuvui/date-picker` is the first, for react-day-picker and date-fns, `@nuvui/table` the second, for TanStack Table, `@nuvui/charts` the third, for Recharts, and `@nuvui/barcodes` the fourth, for JsBarcode's and uqr's encoders. `@nuvui/chat` is the fifth, and the one that isn't there for a library: it's a different kind of screen, which most apps don't have. `@nuvui/kanban` is the sixth, for dnd kit, which carries the cards, and `@nuvui/editor` the seventh, for Tiptap. `@nuvui/emoji` is the eighth, and what it keeps out of the core is no library but a list: nineteen hundred emoji with their names. `@nuvui/map` is the ninth, for MapLibre. An app that doesn't use the component then never installs that library. `@nuvui/flow` is the tenth, and needs no library either: what it keeps out of the core is a kind of screen most apps don't have, and its size. `@nuvui/media` is the eleventh, and keeps out of the core a kind of screen most apps don't have, and the streaming libraries, which an app hands it only if it streams. `@nuvui/icons` is the twelfth, and the odd one out: it needs no `@nuvui/react`, has no stylesheet, and is artwork more than code. [The icon package](#the-icon-package) says how it differs.
 
 An add-on is laid out like the core and built with the same tooling, from `packages/tooling`. Its own config files only say what's particular to it. What differs from the core:
 
@@ -396,6 +403,14 @@ Keep a pull request to one change. A fix and an unrelated cleanup are easier to 
 `apps/mcp` is a server a coding agent asks about the library while it works, over the Model Context Protocol, on [FastMCP](https://github.com/punkpeye/fastmcp). The [docs page](https://nuvui.nuvraxis.com/docs/mcp) says how people add it. Every tool only reads.
 
 It answers from the agent skill, `skills/nuvui`, and from the website's blocks and charts, so there's one way of turning a docs page into text. `pnpm build` reads them into `apps/mcp/dist/data.json`, which the server loads when it starts. A change to the docs reaches it through `pnpm skill`, as it reaches the skill. `apps/mcp/turbo.json` names those files as inputs of its build, since they're outside the package.
+
+It also answers for older releases. `apps/mcp/versions/` keeps the docs of each release line, such as `0.6.json`, and a tool given a `version` answers from that file. `pnpm version-packages` writes the new release's file after `changeset version`, with `pnpm --filter @nuvui/mcp snapshot`, so the release's pull request has it, and a patch release writes over its line's file. A release from before can be written from its tag, as 0.6 and 0.7 were:
+
+```sh
+pnpm --filter @nuvui/mcp snapshot @nuvui/react@0.6.0
+```
+
+The skill first shipped in 0.6.0, so nothing older can be kept. `get_changes` reads every package's `CHANGELOG.md`, and the changesets in `.changeset/` for what's merged but not released, so it covers every version. The files in `versions/` are written, not edited: Git shows no diff for them, and Biome doesn't read them.
 
 `apps/mcp/tools.json` is what an agent reads before it calls anything: each tool's name, title, description and input schema. An agent builds its calls on the list it last read, so a change to it reaches every client without telling them. A test fails when the server's list differs from the file. When the change is meant, write the file again with `pnpm --filter @nuvui/mcp test -u` and keep it in the pull request, where the diff shows what agents will see. Some parameters list the packages, rule topics, block categories and chart families, so a new package or category changes it too.
 

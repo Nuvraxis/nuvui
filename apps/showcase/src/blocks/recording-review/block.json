@@ -1,0 +1,9 @@
+{
+  "name": "recording-review",
+  "title": "Recording review",
+  "description": "A recorded meeting with comments pinned to its moments: each comment is a mark along the seek bar and a line beside the video, a press on its time goes to that moment, and a new comment is pinned to wherever the video is.",
+  "category": "media",
+  "files": ["recording-review.tsx", "recording-review.scss"],
+  "install": ["@nuvui/media", "@nuvui/react"],
+  "height": 900
+}

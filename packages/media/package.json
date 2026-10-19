@@ -1,0 +1,118 @@
+{
+  "name": "@nuvui/media",
+  "version": "0.0.0",
+  "description": "Video and audio players for @nuvui/react: captions, chapters, a transcript, streaming with hls.js or dashjs, and controls that work with a pointer, a finger or the keyboard.",
+  "license": "MIT",
+  "author": "Nuvraxis",
+  "homepage": "https://nuvui.nuvraxis.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nuvraxis/nuvui.git",
+    "directory": "packages/media"
+  },
+  "bugs": {
+    "url": "https://github.com/Nuvraxis/nuvui/issues"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.cts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./video-player": {
+      "import": {
+        "types": "./dist/components/video-player/index.d.ts",
+        "default": "./dist/components/video-player/index.js"
+      },
+      "require": {
+        "types": "./dist/components/video-player/index.d.cts",
+        "default": "./dist/components/video-player/index.cjs"
+      }
+    },
+    "./audio-player": {
+      "import": {
+        "types": "./dist/components/audio-player/index.d.ts",
+        "default": "./dist/components/audio-player/index.js"
+      },
+      "require": {
+        "types": "./dist/components/audio-player/index.d.cts",
+        "default": "./dist/components/audio-player/index.cjs"
+      }
+    },
+    "./media-transcript": {
+      "import": {
+        "types": "./dist/components/media-transcript/index.d.ts",
+        "default": "./dist/components/media-transcript/index.js"
+      },
+      "require": {
+        "types": "./dist/components/media-transcript/index.d.cts",
+        "default": "./dist/components/media-transcript/index.cjs"
+      }
+    },
+    "./styles.css": "./dist/styles.css",
+    "./css/*.css": "./dist/css/*.css",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "tsdown && node scripts/check-dist.mjs",
+    "dev": "tsdown --watch src",
+    "lint": "stylelint \"src/**/*.scss\"",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "check:package": "publint && pnpm pack --out node_modules/.cache/attw/package.tgz && attw node_modules/.cache/attw/package.tgz",
+    "size": "size-limit"
+  },
+  "peerDependencies": {
+    "@nuvui/react": "workspace:^0.7.0",
+    "react": "^18.2.0 || ^19.0.0",
+    "react-dom": "^18.2.0 || ^19.0.0"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/cli": "catalog:",
+    "@nuvui/react": "workspace:*",
+    "@nuvui/tooling": "workspace:*",
+    "@nuvui/typescript-config": "workspace:*",
+    "@size-limit/preset-small-lib": "catalog:",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@vitest/browser-playwright": "catalog:",
+    "axe-core": "catalog:",
+    "dashjs": "^5.2.1",
+    "hls.js": "^1.7.3",
+    "playwright": "catalog:",
+    "publint": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "sass-embedded": "catalog:",
+    "size-limit": "catalog:",
+    "stylelint": "catalog:",
+    "tsdown": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:",
+    "vitest-browser-react": "catalog:"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  }
+}

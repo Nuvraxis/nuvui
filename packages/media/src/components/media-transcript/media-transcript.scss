@@ -1,0 +1,92 @@
+@use "../../styles/layers";
+@use "@nuvui/react/scss/mixins";
+
+@layer components {
+  // Its own scroll box, which keeps the line being said in view without
+  // moving the page.
+  .nuv-media-transcript {
+    position: relative;
+    display: block;
+    max-block-size: var(--nuv-media-transcript-height, 20rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border: 1px solid var(--nuv-media-transcript-border, var(--color-border));
+    border-radius: var(--nuv-media-transcript-radius, var(--radius-lg));
+    background-color: var(--nuv-media-transcript-bg, var(--color-surface));
+    color: var(--nuv-media-transcript-fg, var(--color-surface-foreground));
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+  }
+
+  .nuv-media-transcript__list {
+    margin: 0;
+    padding: 0.25rem;
+    list-style: none;
+  }
+
+  .nuv-media-transcript__voice {
+    display: block;
+    padding-block: 0.5rem 0;
+    padding-inline: 0.5rem;
+    color: var(--color-muted-foreground);
+    font-size: var(--text-xs);
+    font-weight: var(--font-weight-semibold);
+  }
+
+  .nuv-media-transcript__line {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.75rem;
+    inline-size: 100%;
+    min-block-size: 2.75rem;
+    padding-block: 0.375rem;
+    padding-inline: 0.5rem;
+    border: 0;
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: start;
+    cursor: pointer;
+
+    @include mixins.focus-ring(-2px);
+
+    @include mixins.fine-pointer {
+      min-block-size: 0;
+    }
+
+    @include mixins.hover {
+      background-color: var(--color-muted);
+    }
+
+    // The line being said.
+    &[aria-current="time"] {
+      background-color: color-mix(in oklab, var(--color-primary) 14%, transparent);
+    }
+  }
+
+  .nuv-media-transcript__time {
+    color: var(--color-muted-foreground);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .nuv-media-transcript__line[aria-current="time"] .nuv-media-transcript__text {
+    font-weight: var(--font-weight-medium);
+  }
+
+  // On paper, the whole of it.
+  @media print {
+    .nuv-media-transcript {
+      max-block-size: none;
+      overflow: visible;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .nuv-media-transcript__line[aria-current="time"] {
+      background-color: Highlight;
+      color: HighlightText;
+      forced-color-adjust: none;
+    }
+  }
+}

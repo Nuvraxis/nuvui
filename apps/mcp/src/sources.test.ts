@@ -159,3 +159,42 @@ describe("the rest", () => {
     expect(data.version).toBe(ui.version);
   });
 });
+
+describe("versions", () => {
+  test("every published package is here with its version, and no private one", () => {
+    for (const folder of readdirSync(path.join(root, "packages"))) {
+      const file = path.join(root, "packages", folder, "package.json");
+      let manifest: { name: string; version: string; private?: boolean };
+      try {
+        manifest = JSON.parse(readFileSync(file, "utf8"));
+      } catch {
+        continue;
+      }
+      expect(data.packages[manifest.name], manifest.name).toBe(
+        manifest.private ? undefined : manifest.version,
+      );
+    }
+    expect(data.packages["@nuvui/react"]).toBe(data.version);
+  });
+
+  test("the changes are every package's changelog, and the pending ones the changesets", () => {
+    const published = Object.keys(data.packages);
+
+    expect(
+      data.changes.some(
+        (change) =>
+          change.package === "@nuvui/react" && change.version === "0.1.0",
+      ),
+    ).toBe(true);
+    for (const change of data.changes) {
+      expect(published, change.package).toContain(change.package);
+    }
+    const changesets = readdirSync(path.join(root, ".changeset")).filter(
+      (file) => file.endsWith(".md") && file !== "README.md",
+    );
+    expect(data.pending.length).toBeGreaterThanOrEqual(changesets.length);
+    for (const pending of data.pending) {
+      expect(published, pending.package).toContain(pending.package);
+    }
+  });
+});

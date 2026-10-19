@@ -93,10 +93,21 @@ The same command works in any of the clients above, in place of the address. Not
 | `list_blocks` and `get_block` | The [blocks](https://nuvui.nuvraxis.com/blocks), and one block's files in full with the command that adds it. |
 | `list_charts` and `get_chart` | The [charts](https://nuvui.nuvraxis.com/charts), and one chart's file in full. |
 | `get_tokens` | The design tokens as CSS custom properties, all of them or those that start with a prefix, such as `--radius-`. |
+| `get_changes` | What each package added and changed after the versions a project has, from the packages' changelogs, and what's in the docs but in no release yet. |
 
 The answers are Markdown. A link in one to `page:components/button` is another page, for `get_page`.
 
 The pages are these docs, written out as text from the same source as the skill. They're as new as the image the server runs from, which is built from the main branch each time the docs change.
+
+## Older versions
+
+Every answer starts with the versions it describes. Without being asked for another, that's the latest release, and a page of something that isn't released yet says so.
+
+A project on an older `@nuvui/react` can pass its version, as its `package.json` writes it, such as `^0.6.0`, to the tools that read the docs. They then answer from the docs of that release. A page or a block that came later is an error that says when it came, so an agent doesn't use a component the project doesn't have. The docs are kept for each release from 0.6, which is when they were first written for agents. For anything older, the answer is from the latest docs, and says first that it may describe props, parts and tokens the project doesn't have.
+
+`get_changes` takes the `@nuvui/*` entries of the project's `package.json` and returns what came after each one, newest first. The server's instructions tell agents to read the project's versions first, and to call it when they're behind.
+
+The charts are kept for the latest release only.
 
 ## Limits
 

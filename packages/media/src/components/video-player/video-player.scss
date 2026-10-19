@@ -1,0 +1,379 @@
+@use "../../styles/layers";
+@use "../../parts/parts";
+@use "@nuvui/react/scss/mixins";
+
+@layer components {
+  .nuv-video-player {
+    position: relative;
+    isolation: isolate;
+    display: block;
+    inline-size: 100%;
+    border-radius: var(--nuv-video-player-radius, var(--radius-lg));
+    color: var(--nuv-video-player-fg, var(--color-white));
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+
+    // It takes focus from a press on the picture, so its keys work, and
+    // shows no ring for that: the controls show theirs.
+    &:focus {
+      outline: none;
+    }
+
+    &[data-fullscreen] {
+      display: flex;
+      align-items: center;
+      border-radius: 0;
+      background-color: var(--nuv-video-player-bg, var(--color-black));
+    }
+  }
+
+  .nuv-video-player__frame {
+    position: relative;
+    container-type: inline-size;
+    inline-size: 100%;
+    aspect-ratio: var(--nuv-video-player-aspect, 16 / 9);
+    overflow: hidden;
+    border-radius: inherit;
+    background-color: var(--nuv-video-player-bg, var(--color-black));
+
+    .nuv-video-player[data-fullscreen] & {
+      block-size: 100%;
+      aspect-ratio: auto;
+    }
+  }
+
+  .nuv-video-player__media,
+  .nuv-video-player__poster {
+    position: absolute;
+    inset: 0;
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: var(--nuv-video-player-fit, contain);
+  }
+
+  // A press on the picture plays and pauses. Under a finger, a tap shows the
+  // controls and a double tap skips, and the browser's own double tap zoom
+  // is off here.
+  .nuv-video-player__surface {
+    position: absolute;
+    inset: 0;
+    cursor: pointer;
+    touch-action: manipulation;
+
+    .nuv-video-player[data-started]:not([data-controls]) & {
+      cursor: none;
+    }
+  }
+
+  // The controls, over the bottom of the picture on a shade that keeps
+  // them readable on any video.
+  .nuv-video-player__controls {
+    position: absolute;
+    inset-block-end: 0;
+    inset-inline: 0;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    padding-block: 2rem 0.25rem;
+    padding-inline: 0.5rem;
+
+    // The shade above the controls is the picture's: a press there plays
+    // and pauses, and a tap shows and hides them. Only the controls take
+    // presses themselves.
+    pointer-events: none;
+    background: linear-gradient(
+      to top,
+      var(
+        --nuv-video-player-controls-bg,
+        color-mix(in oklab, var(--color-black) 72%, transparent)
+      ),
+      transparent
+    );
+
+    @include mixins.motion-safe {
+      transition: opacity var(--nuv-duration-base) var(--ease-out);
+    }
+
+    // Hidden while it plays and nothing moves, and still in the tab order:
+    // focus on a control brings them back.
+    @include mixins.breakpoint(sm) {
+      padding-inline: 0.75rem;
+    }
+  }
+
+  .nuv-video-player__seek {
+    padding-inline: 0.25rem;
+  }
+
+  .nuv-video-player__seek,
+  .nuv-video-player__bar {
+    pointer-events: auto;
+
+    .nuv-video-player:not([data-controls]) & {
+      pointer-events: none;
+    }
+  }
+
+  .nuv-video-player:not([data-controls]) .nuv-video-player__controls {
+    opacity: 0;
+  }
+
+  .nuv-video-player__bar {
+    display: flex;
+    gap: 0.125rem;
+    align-items: center;
+    min-inline-size: 0;
+  }
+
+  .nuv-video-player__spacer {
+    flex: 1;
+    min-inline-size: 0;
+  }
+
+  // A narrow player, as on a phone held upright, keeps the row to what's
+  // used most. Measured against the frame, not the screen, so a narrow
+  // column on a wide screen does the same.
+  @container (width < 26rem) {
+    .nuv-video-player__pip,
+    .nuv-video-player__bar .nuv-media-time__total {
+      display: none;
+    }
+  }
+
+  // The big button over the poster, until it first plays. Above the
+  // controls, which reach its middle in a short player.
+  .nuv-video-player__big-play {
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-start: 50%;
+    z-index: 3;
+    display: grid;
+    place-items: center;
+    inline-size: 4rem;
+    block-size: 4rem;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-full);
+    background-color: var(
+      --nuv-video-player-big-play-bg,
+      color-mix(in oklab, var(--color-black) 60%, transparent)
+    );
+    color: var(--color-white);
+    cursor: pointer;
+    translate: -50% -50%;
+
+    @include mixins.rtl {
+      translate: 50% -50%;
+    }
+
+    @include mixins.focus-ring;
+
+    @include mixins.hover {
+      background-color: var(--nuv-media-accent, var(--color-primary));
+    }
+
+    @include mixins.motion-safe {
+      transition: background-color var(--nuv-duration-fast) var(--ease-out);
+    }
+
+    .nuv-media-icon {
+      inline-size: 1.75rem;
+      block-size: 1.75rem;
+      margin-inline-start: 0.2rem;
+    }
+  }
+
+  .nuv-video-player__spinner {
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-start: 50%;
+    inline-size: 3rem;
+    block-size: 3rem;
+    margin-block-start: -1.5rem;
+    margin-inline-start: -1.5rem;
+    border: 3px solid color-mix(in oklab, var(--color-white) 30%, transparent);
+    border-block-start-color: var(--color-white);
+    border-radius: var(--radius-full);
+    pointer-events: none;
+
+    @include mixins.motion-safe {
+      animation: nuv-video-player-spin 0.9s linear infinite;
+    }
+  }
+
+  @keyframes nuv-video-player-spin {
+    to {
+      rotate: 1turn;
+    }
+  }
+
+  .nuv-video-player__error {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    background-color: color-mix(in oklab, var(--color-black) 78%, transparent);
+    text-align: center;
+
+    p {
+      max-inline-size: 26rem;
+      margin: 0;
+    }
+  }
+
+  // Captions, drawn by the player in the size the viewer chose, measured
+  // against the frame's width. They rise above the controls when those show.
+  .nuv-video-player__captions {
+    --nuv-video-player-caption-scale: 3.2cqi;
+
+    position: absolute;
+    inset-block-end: 6%;
+    inset-inline: 5%;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.125em;
+    align-items: center;
+    text-align: center;
+    pointer-events: none;
+
+    @include mixins.motion-safe {
+      transition: inset-block-end var(--nuv-duration-base) var(--ease-out);
+    }
+
+    .nuv-video-player[data-controls] & {
+      inset-block-end: 5.25rem;
+    }
+
+    &[hidden] {
+      display: none;
+    }
+
+    &[data-size="small"] {
+      --nuv-video-player-caption-scale: 2.4cqi;
+    }
+
+    &[data-size="large"] {
+      --nuv-video-player-caption-scale: 4.4cqi;
+    }
+  }
+
+  .nuv-video-player__cue {
+    max-inline-size: 100%;
+    padding-block: 0.1em;
+    padding-inline: 0.45em;
+    border-radius: var(--radius-sm);
+    background-color: var(
+      --nuv-video-player-caption-bg,
+      color-mix(in oklab, var(--color-black) 78%, transparent)
+    );
+    color: var(--nuv-video-player-caption-fg, var(--color-white));
+    font-size: clamp(0.875rem, var(--nuv-video-player-caption-scale), 2.5rem);
+    line-height: 1.35;
+    white-space: pre-line;
+    box-decoration-break: clone;
+  }
+
+  // The mark a double tap leaves, on the side it skipped toward.
+  .nuv-video-player__ripple {
+    position: absolute;
+    inset-block: 0;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    inline-size: 35%;
+    background: radial-gradient(
+      circle,
+      color-mix(in oklab, var(--color-white) 22%, transparent),
+      transparent 70%
+    );
+    font-size: var(--text-lg);
+    font-weight: var(--font-weight-semibold);
+    pointer-events: none;
+    animation: nuv-video-player-fade 0.6s var(--ease-out) forwards;
+
+    &[data-side="back"] {
+      inset-inline-start: 0;
+    }
+
+    &[data-side="ahead"] {
+      inset-inline-end: 0;
+    }
+
+    @include mixins.motion-safe {
+      animation-name: nuv-video-player-ripple;
+    }
+  }
+
+  // Less motion still fades the mark, which only changes how see-through
+  // it is.
+  @keyframes nuv-video-player-fade {
+    from {
+      opacity: 1;
+    }
+
+    to {
+      opacity: 0;
+    }
+  }
+
+  @keyframes nuv-video-player-ripple {
+    from {
+      opacity: 1;
+      scale: 0.85;
+    }
+
+    to {
+      opacity: 0;
+      scale: 1.05;
+    }
+  }
+
+  // The glow: the picture drawn small, blurred and spread behind the frame.
+  .nuv-video-player__ambient {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    inline-size: 100%;
+    block-size: 100%;
+    border-radius: inherit;
+    filter: blur(2.5rem) saturate(1.5);
+    opacity: var(--nuv-video-player-ambient-opacity, 0.55);
+    scale: 1.08 1.15;
+    pointer-events: none;
+
+    .nuv-video-player[data-fullscreen] & {
+      display: none;
+    }
+
+    @include mixins.reduced-motion {
+      display: none;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .nuv-video-player__controls,
+    .nuv-video-player__error,
+    .nuv-video-player__cue {
+      border-color: CanvasText;
+      background: Canvas;
+      color: CanvasText;
+    }
+
+    .nuv-video-player__big-play {
+      border: 2px solid ButtonText;
+      background: ButtonFace;
+      color: ButtonText;
+    }
+
+    .nuv-video-player__ambient {
+      display: none;
+    }
+  }
+}

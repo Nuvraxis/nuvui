@@ -5696,3 +5696,198 @@ test.describe("workflow builder", () => {
     });
   }
 });
+
+test.describe("course lesson", () => {
+  const time = (page: Page) =>
+    page.locator("video").evaluate((v: HTMLVideoElement) => v.currentTime);
+
+  test("course lesson: the lesson playing is marked, and a chapter in the list goes to its moment", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/blocks/view/course-lesson");
+    await expect(
+      page
+        .getByRole("navigation", { name: "Lessons" })
+        .locator('[aria-current="step"]'),
+    ).toContainText("Building the first screen");
+    await expect(page.locator(".nuv-media-seek__part")).toHaveCount(3);
+    // The transcript has a line that says it too.
+    const chapter = page
+      .locator(".course-lesson__chapters")
+      .getByRole("button", { name: /Shipping it/ });
+    await press(chapter, isMobile);
+    await expect.poll(() => time(page)).toBeGreaterThanOrEqual(16);
+    await expect(chapter).toHaveAttribute("aria-current", "true");
+  });
+
+  test("course lesson: the transcript beside the chapters marks the line being said", async ({
+    page,
+  }) => {
+    await open(page, "/blocks/view/course-lesson");
+    const transcript = page.getByRole("region", { name: "Transcript" });
+    const lines = transcript.locator(".nuv-media-transcript__line");
+    await expect(lines).toHaveCount(6);
+    await page.locator("video").evaluate((v: HTMLVideoElement) => {
+      v.currentTime = 13;
+    });
+    await expect(lines.nth(3)).toHaveAttribute("aria-current", "time");
+  });
+
+  test("course lesson: on a phone the lessons are under the video, and the page doesn't scroll sideways", async ({
+    page,
+  }) => {
+    await page.setViewportSize(phone);
+    await open(page, "/blocks/view/course-lesson");
+    const video = await page.locator(".nuv-video-player").boundingBox();
+    const lessons = await page
+      .getByRole("navigation", { name: "Lessons" })
+      .boundingBox();
+    expect(lessons?.y ?? 0).toBeGreaterThan(
+      (video?.y ?? 0) + (video?.height ?? 0),
+    );
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth - window.innerWidth,
+      ),
+    ).toBeLessThanOrEqual(0);
+  });
+});
+
+test.describe("product demo", () => {
+  test("product demo: only the poster is on the page until the first press, then the video plays", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/blocks/view/product-demo");
+    await expect(
+      page.getByRole("heading", { level: 1, name: /blank page/ }),
+    ).toBeVisible();
+    await expect(page.locator("video")).toHaveCount(0);
+    await press(page.getByRole("button", { name: "Play" }), isMobile);
+    await expect
+      .poll(() =>
+        page.locator("video").evaluate((v: HTMLVideoElement) => v.currentTime),
+      )
+      .toBeGreaterThan(0.2);
+  });
+});
+
+test.describe("recording review", () => {
+  const time = (page: Page) =>
+    page.locator("video").evaluate((v: HTMLVideoElement) => v.currentTime);
+
+  test("recording review: a comment's time goes to its moment, and the comments mark the seek bar", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/blocks/view/recording-review");
+    // Three comments, and the time before the first: four parts.
+    await expect(page.locator(".nuv-media-seek__part")).toHaveCount(4);
+    await press(page.getByRole("button", { name: "Go to 0:10" }), isMobile);
+    await expect.poll(() => time(page)).toBeGreaterThanOrEqual(10);
+  });
+
+  test("recording review: a new comment is pinned to where the video is", async ({
+    page,
+  }) => {
+    await open(page, "/blocks/view/recording-review");
+    await page.locator("video").evaluate((v: HTMLVideoElement) => {
+      v.currentTime = 7;
+    });
+    await expect(page.getByText("Comment at 0:07")).toBeVisible();
+    await page.getByLabel("Comment at 0:07").fill("The title wraps here.");
+    await page.getByRole("button", { name: "Add comment" }).click();
+    const comments = page.getByRole("region", { name: "Comments" });
+    await expect(comments.getByRole("listitem")).toHaveCount(4);
+    await expect(comments.getByRole("listitem").nth(1)).toContainText(
+      "The title wraps here.",
+    );
+    await expect(page.locator(".nuv-media-seek__part")).toHaveCount(5);
+  });
+});
+
+test.describe("podcast episode", () => {
+  const time = (page: Page) =>
+    page.locator("audio").evaluate((a: HTMLAudioElement) => a.currentTime);
+
+  test("podcast episode: the waveform is drawn, and a chapter in the list goes to its moment", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/blocks/view/podcast-episode");
+    await expect(
+      page.locator(".nuv-media-waveform rect").first(),
+    ).toBeAttached();
+    await expect(page.locator(".nuv-audio-player__artwork")).toBeVisible();
+    const chapter = page
+      .locator(".podcast-episode__chapters")
+      .getByRole("button", { name: /Part three/ });
+    await press(chapter, isMobile);
+    await expect.poll(() => time(page)).toBeGreaterThanOrEqual(40);
+    await expect(chapter).toHaveAttribute("aria-current", "true");
+  });
+});
+
+test.describe("voice messages", () => {
+  const audio = (page: Page, name: string) =>
+    page.getByRole("region", { name }).locator("audio");
+
+  test("voice messages: each shows its length before anything loads, and starting one pauses the one playing", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/blocks/view/voice-messages");
+    const ana = page.getByRole("region", {
+      name: "Voice message from Ana Costa",
+    });
+    const mine = page.getByRole("region", { name: "Your voice message" });
+    await expect(ana.locator(".nuv-audio-player__time")).toHaveText("1:02");
+    await expect(mine.locator(".nuv-audio-player__time")).toHaveText("1:02");
+    await expect(
+      ana.locator(".nuv-media-waveform rect").first(),
+    ).toBeAttached();
+    expect(
+      await audio(page, "Voice message from Ana Costa").evaluate(
+        (a: HTMLAudioElement) => a.readyState,
+      ),
+    ).toBe(0);
+    await press(ana.getByRole("button", { name: "Play" }), isMobile);
+    await expect(ana.getByRole("button", { name: "Pause" })).toBeVisible();
+    await press(mine.getByRole("button", { name: "Play" }), isMobile);
+    await expect(ana.getByRole("button", { name: "Play" })).toBeVisible();
+    await expect(mine.getByRole("button", { name: "Pause" })).toBeVisible();
+  });
+
+  test("voice messages: when one ends, the next one plays", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/blocks/view/voice-messages");
+    const mine = page.getByRole("region", { name: "Your voice message" });
+    const ben = page.getByRole("region", {
+      name: "Voice message from Ben Okafor",
+    });
+    await press(mine.getByRole("button", { name: "Play" }), isMobile);
+    await expect(mine.getByRole("button", { name: "Pause" })).toBeVisible();
+    // Most of the way through, so the test doesn't wait for all of it.
+    await audio(page, "Your voice message").evaluate((a: HTMLAudioElement) => {
+      a.currentTime = a.duration - 0.5;
+    });
+    await expect(ben.getByRole("button", { name: "Pause" })).toBeVisible();
+  });
+
+  test("voice messages: a message typed in the box is added to the thread", async ({
+    page,
+  }) => {
+    await open(page, "/blocks/view/voice-messages");
+    const thread = page.getByRole("list", { name: "Messages" });
+    await expect(thread.getByRole("listitem")).toHaveCount(6);
+    await page.getByLabel("Message", { exact: true }).fill("See you Thursday.");
+    await page.getByRole("button", { name: "Send" }).click();
+    await expect(thread.getByRole("listitem")).toHaveCount(7);
+    await expect(thread.getByRole("listitem").last()).toContainText(
+      "See you Thursday.",
+    );
+  });
+});

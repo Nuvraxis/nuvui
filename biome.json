@@ -11,6 +11,7 @@
       "**",
       "!apps/docs/app/semantic-colors.css",
       "!apps/mcp/tools.json",
+      "!apps/mcp/versions",
       "!apps/*/public/clips/*.peaks.json",
       "!packages/icons/svg"
     ]

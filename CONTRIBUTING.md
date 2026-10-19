@@ -404,6 +404,14 @@ Keep a pull request to one change. A fix and an unrelated cleanup are easier to 
 
 It answers from the agent skill, `skills/nuvui`, and from the website's blocks and charts, so there's one way of turning a docs page into text. `pnpm build` reads them into `apps/mcp/dist/data.json`, which the server loads when it starts. A change to the docs reaches it through `pnpm skill`, as it reaches the skill. `apps/mcp/turbo.json` names those files as inputs of its build, since they're outside the package.
 
+It also answers for older releases. `apps/mcp/versions/` keeps the docs of each release line, such as `0.6.json`, and a tool given a `version` answers from that file. `pnpm version-packages` writes the new release's file after `changeset version`, with `pnpm --filter @nuvui/mcp snapshot`, so the release's pull request has it, and a patch release writes over its line's file. A release from before can be written from its tag, as 0.6 and 0.7 were:
+
+```sh
+pnpm --filter @nuvui/mcp snapshot @nuvui/react@0.6.0
+```
+
+The skill first shipped in 0.6.0, so nothing older can be kept. `get_changes` reads every package's `CHANGELOG.md`, and the changesets in `.changeset/` for what's merged but not released, so it covers every version. The files in `versions/` are written, not edited: Git shows no diff for them, and Biome doesn't read them.
+
 `apps/mcp/tools.json` is what an agent reads before it calls anything: each tool's name, title, description and input schema. An agent builds its calls on the list it last read, so a change to it reaches every client without telling them. A test fails when the server's list differs from the file. When the change is meant, write the file again with `pnpm --filter @nuvui/mcp test -u` and keep it in the pull request, where the diff shows what agents will see. Some parameters list the packages, rule topics, block categories and chart families, so a new package or category changes it too.
 
 To run it:

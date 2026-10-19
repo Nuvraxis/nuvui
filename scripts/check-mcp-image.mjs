@@ -86,7 +86,7 @@ check(
 
 const list = await rpc("tools/list");
 const tools = (list.body?.result?.tools ?? []).map((tool) => tool.name);
-check("ten tools", tools.length === 10, tools.join(", "));
+check("eleven tools", tools.length === 11, tools.join(", "));
 check(
   "every tool only reads",
   (list.body?.result?.tools ?? []).every(
@@ -122,6 +122,16 @@ check(
   "a page that isn't there",
   missing.body?.result?.isError === true,
   JSON.stringify(missing.body).slice(0, 200),
+);
+// The docs of earlier releases are in the image too, beside the data.
+const older = await rpc("tools/call", {
+  name: "get_page",
+  arguments: { page: "compare", version: "0.6.0" },
+});
+check(
+  "an earlier release's docs",
+  older.body?.result?.content?.[0]?.text?.includes("came after 0.6.0"),
+  JSON.stringify(older.body).slice(0, 200),
 );
 
 const other = await fetch(new URL("/nope", base));

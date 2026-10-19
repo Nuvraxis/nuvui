@@ -11,6 +11,13 @@
           "maxLength": 100,
           "pattern": "^[A-Za-z0-9][A-Za-z0-9 /_-]*$",
           "description": "A block's name from list_blocks, such as sign-in."
+        },
+        "version": {
+          "description": "The @nuvui/react version in the project's package.json, such as 0.6.2 or ^0.6.0, for the docs of that release. Leave it out for the latest release.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40,
+          "pattern": "^(?:\\^|~|>=|=)?v?\\d+(?:\\.(?:\\d+|x|\\*)){0,2}(?:-[0-9A-Za-z.-]+)?$"
         }
       },
       "required": [
@@ -21,6 +28,108 @@
     },
     "annotations": {
       "title": "Read a block",
+      "readOnlyHint": true,
+      "idempotentHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "get_changes",
+    "description": "What each @nuvui/* package added and changed after the versions a project has, from the packages' changelogs, newest first, and what's in the docs but in no release yet. Pass the @nuvui/* entries of the project's package.json. Without them: the latest version of each package.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "installed": {
+          "description": "The @nuvui/* packages in the project's package.json, with their versions as written there, such as { \"@nuvui/react\": \"^0.6.0\", \"@nuvui/table\": \"0.1.6\" }.",
+          "type": "object",
+          "properties": {
+            "@nuvui/barcodes": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40,
+              "pattern": "^(?:\\^|~|>=|=)?v?\\d+(?:\\.(?:\\d+|x|\\*)){0,2}(?:-[0-9A-Za-z.-]+)?$"
+            },
+            "@nuvui/charts": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40,
+              "pattern": "^(?:\\^|~|>=|=)?v?\\d+(?:\\.(?:\\d+|x|\\*)){0,2}(?:-[0-9A-Za-z.-]+)?$"
+            },
+            "@nuvui/chat": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40,
+              "pattern": "^(?:\\^|~|>=|=)?v?\\d+(?:\\.(?:\\d+|x|\\*)){0,2}(?:-[0-9A-Za-z.-]+)?$"
+            },
+            "@nuvui/date-picker": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40,
+              "pattern": "^(?:\\^|~|>=|=)?v?\\d+(?:\\.(?:\\d+|x|\\*)){0,2}(?:-[0-9A-Za-z.-]+)?$"
+            },
+            "@nuvui/editor": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40,
+              "pattern": "^(?:\\^|~|>=|=)?v?\\d+(?:\\.(?:\\d+|x|\\*)){0,2}(?:-[0-9A-Za-z.-]+)?$"
+            },
+            "@nuvui/emoji": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40,
+              "pattern": "^(?:\\^|~|>=|=)?v?\\d+(?:\\.(?:\\d+|x|\\*)){0,2}(?:-[0-9A-Za-z.-]+)?$"
+            },
+            "@nuvui/flow": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40,
+              "pattern": "^(?:\\^|~|>=|=)?v?\\d+(?:\\.(?:\\d+|x|\\*)){0,2}(?:-[0-9A-Za-z.-]+)?$"
+            },
+            "@nuvui/icons": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40,
+              "pattern": "^(?:\\^|~|>=|=)?v?\\d+(?:\\.(?:\\d+|x|\\*)){0,2}(?:-[0-9A-Za-z.-]+)?$"
+            },
+            "@nuvui/kanban": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40,
+              "pattern": "^(?:\\^|~|>=|=)?v?\\d+(?:\\.(?:\\d+|x|\\*)){0,2}(?:-[0-9A-Za-z.-]+)?$"
+            },
+            "@nuvui/map": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40,
+              "pattern": "^(?:\\^|~|>=|=)?v?\\d+(?:\\.(?:\\d+|x|\\*)){0,2}(?:-[0-9A-Za-z.-]+)?$"
+            },
+            "@nuvui/media": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40,
+              "pattern": "^(?:\\^|~|>=|=)?v?\\d+(?:\\.(?:\\d+|x|\\*)){0,2}(?:-[0-9A-Za-z.-]+)?$"
+            },
+            "@nuvui/react": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40,
+              "pattern": "^(?:\\^|~|>=|=)?v?\\d+(?:\\.(?:\\d+|x|\\*)){0,2}(?:-[0-9A-Za-z.-]+)?$"
+            },
+            "@nuvui/table": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40,
+              "pattern": "^(?:\\^|~|>=|=)?v?\\d+(?:\\.(?:\\d+|x|\\*)){0,2}(?:-[0-9A-Za-z.-]+)?$"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "additionalProperties": false
+    },
+    "annotations": {
+      "title": "What changed since a version",
       "readOnlyHint": true,
       "idempotentHint": true,
       "openWorldHint": false
@@ -70,6 +179,13 @@
           "description": "A `##` heading on the page, such as Props, Accessibility or CSS variables.",
           "type": "string",
           "maxLength": 100
+        },
+        "version": {
+          "description": "The @nuvui/react version in the project's package.json, such as 0.6.2 or ^0.6.0, for the docs of that release. Leave it out for the latest release.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40,
+          "pattern": "^(?:\\^|~|>=|=)?v?\\d+(?:\\.(?:\\d+|x|\\*)){0,2}(?:-[0-9A-Za-z.-]+)?$"
         }
       },
       "required": [
@@ -87,7 +203,7 @@
   },
   {
     "name": "get_rules",
-    "description": "Start here. Without a topic: what to know before writing code with nuvui, the packages, the rules in a line each, and which component meets which need. With a topic: that rule in full, with wrong and right code.",
+    "description": "Start here. Without a topic: the versions these docs describe, what to know before writing code with nuvui, the packages, the rules in a line each, and which component meets which need. With a topic: that rule in full, with wrong and right code.",
     "inputSchema": {
       "type": "object",
       "properties": {
@@ -103,6 +219,13 @@
             "styling",
             "text-and-direction"
           ]
+        },
+        "version": {
+          "description": "The @nuvui/react version in the project's package.json, such as 0.6.2 or ^0.6.0, for the docs of that release. Leave it out for the latest release.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40,
+          "pattern": "^(?:\\^|~|>=|=)?v?\\d+(?:\\.(?:\\d+|x|\\*)){0,2}(?:-[0-9A-Za-z.-]+)?$"
         }
       },
       "$schema": "http://json-schema.org/draft-07/schema#",
@@ -125,6 +248,13 @@
           "type": "string",
           "maxLength": 60,
           "pattern": "^[a-z0-9-]*$"
+        },
+        "version": {
+          "description": "The @nuvui/react version in the project's package.json, such as 0.6.2 or ^0.6.0, for the docs of that release. Leave it out for the latest release.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40,
+          "pattern": "^(?:\\^|~|>=|=)?v?\\d+(?:\\.(?:\\d+|x|\\*)){0,2}(?:-[0-9A-Za-z.-]+)?$"
         }
       },
       "$schema": "http://json-schema.org/draft-07/schema#",
@@ -147,6 +277,13 @@
           "description": "One of: accounts, chat, dashboard, data, editor, flows, layout, marketing, media, settings.",
           "type": "string",
           "maxLength": 40
+        },
+        "version": {
+          "description": "The @nuvui/react version in the project's package.json, such as 0.6.2 or ^0.6.0, for the docs of that release. Leave it out for the latest release.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40,
+          "pattern": "^(?:\\^|~|>=|=)?v?\\d+(?:\\.(?:\\d+|x|\\*)){0,2}(?:-[0-9A-Za-z.-]+)?$"
         }
       },
       "$schema": "http://json-schema.org/draft-07/schema#",
@@ -191,6 +328,13 @@
           "description": "A package, such as @nuvui/table or table. One of: @nuvui/react, @nuvui/date-picker, @nuvui/table, @nuvui/charts, @nuvui/barcodes, @nuvui/chat, @nuvui/kanban, @nuvui/editor, @nuvui/emoji, @nuvui/map, @nuvui/flow, @nuvui/media, @nuvui/icons.",
           "type": "string",
           "maxLength": 40
+        },
+        "version": {
+          "description": "The @nuvui/react version in the project's package.json, such as 0.6.2 or ^0.6.0, for the docs of that release. Leave it out for the latest release.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40,
+          "pattern": "^(?:\\^|~|>=|=)?v?\\d+(?:\\.(?:\\d+|x|\\*)){0,2}(?:-[0-9A-Za-z.-]+)?$"
         }
       },
       "$schema": "http://json-schema.org/draft-07/schema#",
@@ -208,7 +352,15 @@
     "description": "The pages that aren't about one component: getting started, theming, Tailwind, SCSS, forms, right to left, translation, the Content Security Policy, support, and recipes for whole screens.",
     "inputSchema": {
       "type": "object",
-      "properties": {},
+      "properties": {
+        "version": {
+          "description": "The @nuvui/react version in the project's package.json, such as 0.6.2 or ^0.6.0, for the docs of that release. Leave it out for the latest release.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40,
+          "pattern": "^(?:\\^|~|>=|=)?v?\\d+(?:\\.(?:\\d+|x|\\*)){0,2}(?:-[0-9A-Za-z.-]+)?$"
+        }
+      },
       "$schema": "http://json-schema.org/draft-07/schema#",
       "additionalProperties": false
     },
@@ -235,6 +387,13 @@
           "type": "integer",
           "minimum": 1,
           "maximum": 20
+        },
+        "version": {
+          "description": "The @nuvui/react version in the project's package.json, such as 0.6.2 or ^0.6.0, for the docs of that release. Leave it out for the latest release.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40,
+          "pattern": "^(?:\\^|~|>=|=)?v?\\d+(?:\\.(?:\\d+|x|\\*)){0,2}(?:-[0-9A-Za-z.-]+)?$"
         }
       },
       "required": [

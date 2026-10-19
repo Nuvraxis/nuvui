@@ -1,8 +1,22 @@
 import type { IncomingMessage } from "node:http";
 import { FastMCP, UserError } from "fastmcp";
 import { z } from "zod";
-import { type Data, type Page, registryUrl, site } from "./data";
+import {
+  type Data,
+  type Docs,
+  type Page,
+  registryUrl,
+  type Snapshots,
+  site,
+} from "./data";
 import { search, stemOf, termsOf } from "./search";
+import {
+  compareVersions,
+  formatVersion,
+  lineOf,
+  parseVersion,
+  type Version,
+} from "./versions";
 
 /** How a call ended, for the counts. */
 export type Outcome = "ok" | "not_found" | "error";
@@ -12,6 +26,8 @@ export interface ServerOptions {
   record?: (tool: string, outcome: Outcome) => void;
   /** Runs before each HTTP request, and throws a `Response` to refuse it. */
   authenticate?: (request: IncomingMessage) => Promise<Record<string, unknown>>;
+  /** The docs kept for earlier releases, for an agent that asks for one. */
+  snapshots?: Snapshots;
 }
 
 // To standard error, since over stdio standard output is the protocol's.
@@ -48,6 +64,24 @@ const name = z
   .regex(
     /^[A-Za-z0-9][A-Za-z0-9 /_-]*$/,
     "Letters, digits, spaces, - and / only",
+  );
+
+// A version as a package.json writes it, which is what an agent has to
+// hand. A range is read as the version it starts from.
+const versionText = z
+  .string()
+  .trim()
+  .min(1)
+  .max(40)
+  .regex(
+    /^(?:\^|~|>=|=)?v?\d+(?:\.(?:\d+|x|\*)){0,2}(?:-[0-9A-Za-z.-]+)?$/,
+    "A version such as 0.6.2, ^0.6.0 or ~0.6.0",
+  );
+
+const version = versionText
+  .optional()
+  .describe(
+    "The @nuvui/react version in the project's package.json, such as 0.6.2 or ^0.6.0, for the docs of that release. Leave it out for the latest release.",
   );
 
 const listLine = (id: string, title: string, description: string) =>
@@ -121,9 +155,17 @@ function findPage(pages: readonly Page[], query: string) {
   );
 }
 
-const instructions = `This server answers questions about nuvui, an open source React component library for business software (@nuvui/react and nine add-on packages). Everything here is read-only and public.
+// A changelog's headings, one level down, to sit under a heading of ours.
+const demoted = (markdown: string) => markdown.replace(/^(#+) /gm, "#$1 ");
+
+const unreleased = (packageVersion: string | undefined) =>
+  packageVersion === undefined || packageVersion === "0.0.0";
+
+const instructions = `This server answers questions about nuvui, an open source React component library for business software (@nuvui/react and its add-on packages). Everything here is read-only and public.
 
 Before writing code with nuvui, call get_rules: it says what's different about the library and the rules that are easy to get wrong. Then find what you need with search_docs or list_components, and read its page with get_page before using it. A page has the component's parts, props, an example of each thing it does, its CSS variables and classes, and what it leaves to you for accessibility.
+
+Every answer starts with the versions it describes, which are the latest releases unless you ask for another. Read the project's package.json first: if its @nuvui/react is older, pass that version to the tools that take one, and call get_changes with its @nuvui/* packages to see what came after them. Don't use a prop, part or token the project's version doesn't have.
 
 In what comes back, a link to page:<id> is another page, for get_page. rule:<topic> is for get_rules, and tool:<name> is another tool here.
 
@@ -141,6 +183,92 @@ export function createServer(data: Data, options: ServerOptions = {}) {
     logger,
     ...(options.authenticate ? { authenticate: options.authenticate } : {}),
   });
+
+  const latest = parseVersion(data.version) ?? ([0, 0, 0] as Version);
+  const pendingPackages = new Set(data.pending.map((p) => p.package));
+
+  // The docs for the version an agent asked for, and what to say about
+  // them. Asked with no version, or for one that isn't kept, it's the
+  // latest, and the answer says which.
+  interface Answer {
+    docs: Docs;
+    /** Whether these are the latest docs, which may be ahead of npm. */
+    current: boolean;
+    /** Said first when the docs aren't for the version asked for. */
+    warning?: string;
+  }
+
+  function docsFor(asked: string | undefined): Answer {
+    if (asked === undefined) return { docs: data, current: true };
+    const wanted = parseVersion(asked);
+    if (!wanted) throw new UserError(`"${asked}" isn't a version.`);
+    const line = lineOf(wanted);
+    const kept = options.snapshots?.load(line);
+    if (kept) return { docs: kept, current: false };
+    if (line === lineOf(latest)) return { docs: data, current: true };
+    const oldest = options.snapshots?.lines[0];
+    return {
+      docs: data,
+      current: true,
+      warning:
+        compareVersions(wanted, latest) > 0
+          ? `There are no docs here for @nuvui/react ${line} yet. What follows is for ${data.version}, the latest these docs have, and the project may have more than they describe.`
+          : `There are no docs here for @nuvui/react ${line}${oldest ? `: the oldest kept is ${oldest}` : ""}. What follows is for ${data.version}, the latest release, and may have props, parts and tokens that ${line} doesn't. Call get_changes with the project's @nuvui/* versions before using any of it.`,
+    };
+  }
+
+  // The line every answer starts with, so an agent never has to guess
+  // which release it's reading about.
+  function about(answer: Answer, pkg: string | null = null) {
+    const { docs, current, warning } = answer;
+    if (warning) return `> ${warning}`;
+    const react = `@nuvui/react ${docs.version}`;
+    const addOn = pkg && pkg !== "@nuvui/react" ? pkg : null;
+    if (!current) {
+      const withAddOn =
+        addOn && docs.packages[addOn]
+          ? `${addOn} ${docs.packages[addOn]} and `
+          : "";
+      return `> These docs are for ${withAddOn}${react}, the release asked for.`;
+    }
+    const lines: string[] = [];
+    if (addOn && unreleased(docs.packages[addOn])) {
+      lines.push(
+        `${addOn} isn't on npm yet: what's here is coming in its first release. The rest is for ${react}, the latest release.`,
+      );
+    } else {
+      lines.push(
+        addOn
+          ? `These docs are for ${addOn} ${docs.packages[addOn]} and ${react}, the latest releases.`
+          : `These docs are for ${react}, the latest release.`,
+      );
+      if (pkg && pendingPackages.has(pkg)) {
+        lines.push(
+          "Some of what's here is in no release yet: get_changes lists it.",
+        );
+      }
+    }
+    lines.push(
+      "If the project's package.json has an older @nuvui/react, pass it as `version`, and call get_changes with its @nuvui/* versions.",
+    );
+    return `> ${lines.join(" ")}`;
+  }
+
+  const withAbout = (answer: Answer, text: string, pkg: string | null = null) =>
+    `${about(answer, pkg)}\n\n${text}`;
+
+  // When an older release hasn't something, says whether the latest has,
+  // which is the difference between a typo and a thing that came later.
+  function laterThan(answer: Answer, what: string, latestPackage?: string) {
+    if (answer.current) return "";
+    if (latestPackage === undefined) {
+      return ` It isn't in the docs for @nuvui/react ${answer.docs.version}.`;
+    }
+    return unreleased(data.packages[latestPackage]) ||
+      pendingPackages.has(latestPackage)
+      ? ` ${what} is in the latest docs, but in no release yet.`
+      : ` ${what} is in the latest docs, for @nuvui/react ${data.version}: it came after ${answer.docs.version}, so the project doesn't have it until it updates.`;
+  }
 
   const tool = <P extends z.ZodType>(definition: {
     name: string;
@@ -174,20 +302,41 @@ export function createServer(data: Data, options: ServerOptions = {}) {
     name: "get_rules",
     title: "Rules for using nuvui",
     description:
-      "Start here. Without a topic: what to know before writing code with nuvui, the packages, the rules in a line each, and which component meets which need. With a topic: that rule in full, with wrong and right code.",
+      "Start here. Without a topic: the versions these docs describe, what to know before writing code with nuvui, the packages, the rules in a line each, and which component meets which need. With a topic: that rule in full, with wrong and right code.",
     parameters: z.object({
       topic: z
         .enum(ruleTopics as [string, ...string[]])
         .optional()
         .describe(`One of: ${ruleTopics.join(", ")}.`),
+      version,
     }),
-    run: ({ topic }) =>
-      topic === undefined
-        ? data.overview
-        : (data.rules.find((rule) => rule.topic === topic)?.markdown ?? ""),
+    run: ({ topic, version: asked }) => {
+      const answer = docsFor(asked);
+      const { docs } = answer;
+      if (topic !== undefined) {
+        const rule = docs.rules.find((r) => r.topic === topic);
+        if (!rule) {
+          throw new UserError(
+            `The docs for @nuvui/react ${docs.version} have no rule called "${topic}". Theirs: ${docs.rules.map((r) => r.topic).join(", ")}.`,
+          );
+        }
+        return withAbout(answer, rule.markdown);
+      }
+      const versions = Object.entries(docs.packages)
+        .map(([pkg, v]) =>
+          answer.current && unreleased(v)
+            ? `- ${pkg}: not released yet`
+            : `- ${pkg} ${v}`,
+        )
+        .join("\n");
+      return withAbout(
+        answer,
+        `## Versions\n\nThese docs describe these releases. Compare them with the project's package.json: a package it has at an older version may not have everything described here.\n\n${versions}\n\n${docs.overview}`,
+      );
+    },
   });
 
-  const packages = [
+  const latestPackages = [
     ...new Set(data.pages.flatMap((page) => page.package ?? [])),
   ];
   tool({
@@ -202,10 +351,16 @@ export function createServer(data: Data, options: ServerOptions = {}) {
         .max(40)
         .optional()
         .describe(
-          `A package, such as @nuvui/table or table. One of: ${packages.join(", ")}.`,
+          `A package, such as @nuvui/table or table. One of: ${latestPackages.join(", ")}.`,
         ),
+      version,
     }),
-    run: ({ package: wanted }) => {
+    run: ({ package: wanted, version: asked }) => {
+      const answer = docsFor(asked);
+      const { docs } = answer;
+      const packages = [
+        ...new Set(docs.pages.flatMap((page) => page.package ?? [])),
+      ];
       const full =
         wanted === undefined || wanted === ""
           ? undefined
@@ -213,6 +368,11 @@ export function createServer(data: Data, options: ServerOptions = {}) {
             ? wanted
             : `@nuvui/${wanted}`;
       if (full !== undefined && !packages.includes(full)) {
+        if (!answer.current && latestPackages.includes(full)) {
+          throw new UserError(
+            `No package is called "${wanted}" in the docs for @nuvui/react ${docs.version}.${laterThan(answer, full, full)}`,
+          );
+        }
         notFound(
           "package",
           wanted ?? "",
@@ -221,16 +381,20 @@ export function createServer(data: Data, options: ServerOptions = {}) {
         );
       }
       const groups = new Map<string, Page[]>();
-      for (const page of data.pages) {
+      for (const page of docs.pages) {
         if (page.package === null || (full && page.package !== full)) continue;
         groups.set(page.group, [...(groups.get(page.group) ?? []), page]);
       }
-      return [...groups]
-        .map(
-          ([group, pages]) =>
-            `## ${group}\n\n${pages.map((page) => listLine(page.id, page.title, page.description)).join("\n")}`,
-        )
-        .join("\n\n");
+      return withAbout(
+        answer,
+        [...groups]
+          .map(
+            ([group, pages]) =>
+              `## ${group}\n\n${pages.map((page) => listLine(page.id, page.title, page.description)).join("\n")}`,
+          )
+          .join("\n\n"),
+        full ?? null,
+      );
     },
   });
 
@@ -239,12 +403,17 @@ export function createServer(data: Data, options: ServerOptions = {}) {
     title: "List the guides",
     description:
       "The pages that aren't about one component: getting started, theming, Tailwind, SCSS, forms, right to left, translation, the Content Security Policy, support, and recipes for whole screens.",
-    parameters: z.object({}),
-    run: () =>
-      data.pages
-        .filter((page) => page.package === null)
-        .map((page) => listLine(page.id, page.title, page.description))
-        .join("\n"),
+    parameters: z.object({ version }),
+    run: ({ version: asked }) => {
+      const answer = docsFor(asked);
+      return withAbout(
+        answer,
+        answer.docs.pages
+          .filter((page) => page.package === null)
+          .map((page) => listLine(page.id, page.title, page.description))
+          .join("\n"),
+      );
+    },
   });
 
   tool({
@@ -264,18 +433,28 @@ export function createServer(data: Data, options: ServerOptions = {}) {
         .describe(
           "A `##` heading on the page, such as Props, Accessibility or CSS variables.",
         ),
+      version,
     }),
-    run: ({ page: query, section }) => {
-      const page = findPage(data.pages, query);
+    run: ({ page: query, section, version: asked }) => {
+      const answer = docsFor(asked);
+      const page = findPage(answer.docs.pages, query);
       if (!page) {
+        const later = answer.current ? undefined : findPage(data.pages, query);
+        if (later) {
+          throw new UserError(
+            `No page is called "${query}" in the docs for @nuvui/react ${answer.docs.version}.${laterThan(answer, `\`${later.id}\``, later.package ?? "@nuvui/react")}`,
+          );
+        }
         notFound(
           "page",
           query,
-          closest(data.pages, query, (p) => p.id),
+          closest(answer.docs.pages, query, (p) => p.id),
           "list_components or list_guides",
         );
       }
-      if (section === undefined || section === "") return page.markdown;
+      if (section === undefined || section === "") {
+        return withAbout(answer, page.markdown, page.package);
+      }
       const wanted = section.toLowerCase();
       const found = page.sections.find(
         (s) => s.heading.toLowerCase() === wanted,
@@ -285,7 +464,7 @@ export function createServer(data: Data, options: ServerOptions = {}) {
           `"${page.title}" has no section called "${section}". Its sections: ${page.sections.map((s) => s.heading).join(", ")}.`,
         );
       }
-      return found.markdown;
+      return withAbout(answer, found.markdown, page.package);
     },
   });
 
@@ -297,22 +476,32 @@ export function createServer(data: Data, options: ServerOptions = {}) {
     parameters: z.object({
       query: z.string().trim().min(1).max(200),
       limit: z.number().int().min(1).max(20).default(8),
+      version,
     }),
-    run: ({ query, limit }) => {
-      const hits = search(data.pages, query, limit);
+    run: ({ query, limit, version: asked }) => {
+      const answer = docsFor(asked);
+      const hits = search(answer.docs.pages, query, limit);
       if (hits.length === 0) {
-        return `Nothing in the docs matches "${query}". Try other words, or list_components.`;
+        return withAbout(
+          answer,
+          `Nothing in the docs matches "${query}". Try other words, or list_components.`,
+        );
       }
-      return hits
-        .map(
-          (hit) =>
-            `### ${hit.title}: ${hit.section}\n\nget_page \`${hit.page}\`, section \`${hit.section}\`\n\n${hit.snippet}`,
-        )
-        .join("\n\n");
+      return withAbout(
+        answer,
+        hits
+          .map(
+            (hit) =>
+              `### ${hit.title}: ${hit.section}\n\nget_page \`${hit.page}\`, section \`${hit.section}\`\n\n${hit.snippet}`,
+          )
+          .join("\n\n"),
+      );
     },
   });
 
-  const categories = [...new Set(data.blocks.map((block) => block.category))];
+  const latestCategories = [
+    ...new Set(data.blocks.map((block) => block.category)),
+  ];
   tool({
     name: "list_blocks",
     title: "List the blocks",
@@ -324,9 +513,13 @@ export function createServer(data: Data, options: ServerOptions = {}) {
         .trim()
         .max(40)
         .optional()
-        .describe(`One of: ${categories.join(", ")}.`),
+        .describe(`One of: ${latestCategories.join(", ")}.`),
+      version,
     }),
-    run: ({ category }) => {
+    run: ({ category, version: asked }) => {
+      const answer = docsFor(asked);
+      const { blocks } = answer.docs;
+      const categories = [...new Set(blocks.map((block) => block.category))];
       if (category && !categories.includes(category)) {
         notFound(
           "category",
@@ -335,18 +528,21 @@ export function createServer(data: Data, options: ServerOptions = {}) {
           "list_blocks without a category",
         );
       }
-      return categories
-        .filter((c) => !category || c === category)
-        .map(
-          (c) =>
-            `## ${c}\n\n${data.blocks
-              .filter((block) => block.category === c)
-              .map((block) =>
-                listLine(block.name, block.title, block.description),
-              )
-              .join("\n")}`,
-        )
-        .join("\n\n");
+      return withAbout(
+        answer,
+        categories
+          .filter((c) => !category || c === category)
+          .map(
+            (c) =>
+              `## ${c}\n\n${blocks
+                .filter((block) => block.category === c)
+                .map((block) =>
+                  listLine(block.name, block.title, block.description),
+                )
+                .join("\n")}`,
+          )
+          .join("\n\n"),
+      );
     },
   });
 
@@ -357,33 +553,55 @@ export function createServer(data: Data, options: ServerOptions = {}) {
       "A block's files in full, the packages they need, and the command that adds it to a project.",
     parameters: z.object({
       name: name.describe("A block's name from list_blocks, such as sign-in."),
+      version,
     }),
-    run: ({ name: query }) => {
+    run: ({ name: query, version: asked }) => {
+      const answer = docsFor(asked);
       const wanted = kebab(query);
-      const block = data.blocks.find((b) => b.name === wanted);
+      const block = answer.docs.blocks.find((b) => b.name === wanted);
       if (!block) {
+        const later = answer.current
+          ? undefined
+          : data.blocks.find((b) => b.name === wanted);
+        if (later) {
+          throw new UserError(
+            `No block is called "${query}" in the docs for @nuvui/react ${answer.docs.version}.${laterThan(answer, `\`${later.name}\``, later.install.find((p) => p !== "@nuvui/react") ?? "@nuvui/react")}`,
+          );
+        }
         notFound(
           "block",
           query,
-          closest(data.blocks, query, (b) => b.name),
+          closest(answer.docs.blocks, query, (b) => b.name),
           "list_blocks",
         );
       }
       const fence = (file: string) => (file.endsWith(".scss") ? "scss" : "tsx");
-      return [
-        `# ${block.title}`,
-        block.description,
-        `To add it, with the packages it needs, from the project's root:\n\n\`\`\`sh\npnpm dlx shadcn@latest add ${registryUrl(block.name)}\n\`\`\``,
-        `It needs: ${block.install.join(", ")}. It's a starting point: take its structure, and leave out what wasn't asked for.`,
-        ...block.files.map(
-          (file) =>
-            `## ${file.name}\n\n\`\`\`${fence(file.name)}\n${file.content.trim()}\n\`\`\``,
-        ),
-      ].join("\n\n");
+      return withAbout(
+        answer,
+        [
+          `# ${block.title}`,
+          block.description,
+          // The registry serves the latest block. For an older release the
+          // files below are the ones to copy.
+          answer.current
+            ? `To add it, with the packages it needs, from the project's root:\n\n\`\`\`sh\npnpm dlx shadcn@latest add ${registryUrl(block.name)}\n\`\`\``
+            : `Copy the files below. The command that adds a block, \`pnpm dlx shadcn@latest add ${registryUrl(block.name)}\`, adds the latest one, which may use what ${answer.docs.version} doesn't have.`,
+          `It needs: ${block.install.join(", ")}. It's a starting point: take its structure, and leave out what wasn't asked for.`,
+          ...block.files.map(
+            (file) =>
+              `## ${file.name}\n\n\`\`\`${fence(file.name)}\n${file.content.trim()}\n\`\`\``,
+          ),
+        ].join("\n\n"),
+        block.install.find((p) => p !== "@nuvui/react") ?? null,
+      );
     },
   });
 
+  // The charts are kept for the latest release only: each is one file of
+  // Recharts and a few parts, and an agent can see from get_changes what
+  // @nuvui/charts gained since the project's version.
   const families = [...new Set(data.charts.map((chart) => chart.family))];
+  const latestAnswer: Answer = { docs: data, current: true };
   tool({
     name: "list_charts",
     title: "List the charts",
@@ -406,16 +624,20 @@ export function createServer(data: Data, options: ServerOptions = {}) {
           "list_charts without a family",
         );
       }
-      return data.charts
-        .filter((chart) => !family || chart.family === family)
-        .map((chart) =>
-          listLine(
-            `${chart.family}/${chart.name}`,
-            chart.title,
-            chart.description,
-          ),
-        )
-        .join("\n");
+      return withAbout(
+        latestAnswer,
+        data.charts
+          .filter((chart) => !family || chart.family === family)
+          .map((chart) =>
+            listLine(
+              `${chart.family}/${chart.name}`,
+              chart.title,
+              chart.description,
+            ),
+          )
+          .join("\n"),
+        "@nuvui/charts",
+      );
     },
   });
 
@@ -441,7 +663,11 @@ export function createServer(data: Data, options: ServerOptions = {}) {
           "list_charts",
         );
       }
-      return `# ${chart.familyTitle}: ${chart.title}\n\n${chart.description}\n\n\`\`\`tsx\n${chart.source.trim()}\n\`\`\``;
+      return withAbout(
+        latestAnswer,
+        `# ${chart.familyTitle}: ${chart.title}\n\n${chart.description}\n\n\`\`\`tsx\n${chart.source.trim()}\n\`\`\``,
+        "@nuvui/charts",
+      );
     },
   });
 
@@ -457,17 +683,105 @@ export function createServer(data: Data, options: ServerOptions = {}) {
         .max(60)
         .regex(/^[a-z0-9-]*$/, "Lowercase letters, digits and - only")
         .optional(),
+      version,
     }),
-    run: ({ prefix }) => {
-      if (!prefix) return `\`\`\`css\n${data.tokens}\n\`\`\``;
+    run: ({ prefix, version: asked }) => {
+      const answer = docsFor(asked);
+      const { tokens } = answer.docs;
+      if (!prefix) return withAbout(answer, `\`\`\`css\n${tokens}\n\`\`\``);
       const wanted = prefix.startsWith("--") ? prefix : `--${prefix}`;
-      const kept = tokensStartingWith(data.tokens, wanted);
+      const kept = tokensStartingWith(tokens, wanted);
       if (kept === "") {
         throw new UserError(
-          `No token starts with ${wanted}. Leave the prefix out to see them all.`,
+          `No token starts with ${wanted}${answer.current ? "" : ` in @nuvui/react ${answer.docs.version}`}.${!answer.current && tokensStartingWith(data.tokens, wanted) !== "" ? ` The latest release, ${data.version}, has some: they came after ${answer.docs.version}.` : ""} Leave the prefix out to see them all.`,
         );
       }
-      return `\`\`\`css\n${kept}\n\`\`\``;
+      return withAbout(answer, `\`\`\`css\n${kept}\n\`\`\``);
+    },
+  });
+
+  const packageNames = Object.keys(data.packages);
+  tool({
+    name: "get_changes",
+    title: "What changed since a version",
+    description:
+      "What each @nuvui/* package added and changed after the versions a project has, from the packages' changelogs, newest first, and what's in the docs but in no release yet. Pass the @nuvui/* entries of the project's package.json. Without them: the latest version of each package.",
+    parameters: z.object({
+      installed: z
+        .object(
+          Object.fromEntries(
+            packageNames.map((pkg) => [pkg, versionText.optional()]),
+          ),
+        )
+        .optional()
+        .describe(
+          'The @nuvui/* packages in the project\'s package.json, with their versions as written there, such as { "@nuvui/react": "^0.6.0", "@nuvui/table": "0.1.6" }.',
+        ),
+    }),
+    run: ({ installed }) => {
+      const parts: string[] = ["# What changed in nuvui"];
+      const asked = Object.entries(installed ?? {}).filter(
+        (entry): entry is [string, string] => entry[1] !== undefined,
+      );
+      if (asked.length === 0) {
+        parts.push(
+          `The latest release of each package:\n\n${Object.entries(
+            data.packages,
+          )
+            .map(([pkg, v]) =>
+              unreleased(v) ? `- ${pkg}: not released yet` : `- ${pkg} ${v}`,
+            )
+            .join(
+              "\n",
+            )}\n\nPass \`installed\`, with the @nuvui/* versions in the project's package.json, to see what came after them.`,
+        );
+      }
+      for (const [pkg, text] of asked) {
+        const have = parseVersion(text) as Version;
+        const newest = data.packages[pkg];
+        const newestVersion = newest ? parseVersion(newest) : undefined;
+        if (!newestVersion || unreleased(newest)) {
+          parts.push(
+            `## ${pkg}\n\nIt isn't released yet, so the project can't have it from npm.`,
+          );
+          continue;
+        }
+        if (compareVersions(have, newestVersion) > 0) {
+          parts.push(
+            `## ${pkg}\n\nThe project has ${formatVersion(have)}, newer than ${newest}, the latest these docs know of. What they say may be out of date for it.`,
+          );
+          continue;
+        }
+        const after = data.changes.filter((change) => {
+          const v = parseVersion(change.version);
+          return change.package === pkg && v && compareVersions(v, have) > 0;
+        });
+        if (after.length === 0) {
+          parts.push(
+            `## ${pkg}\n\n${formatVersion(have)} is the latest release: the docs describe what the project has.`,
+          );
+          continue;
+        }
+        parts.push(
+          `## ${pkg}: ${formatVersion(have)} to ${newest}\n\nWhat came after the project's version, newest first. What's added here isn't in the project's version, and what's changed works the old way there, until it updates.\n\n${after
+            .map(
+              (change) =>
+                `### ${change.version}\n\n${demoted(change.markdown)}`,
+            )
+            .join("\n\n")}`,
+        );
+      }
+      if (data.pending.length > 0) {
+        parts.push(
+          `## Not released yet\n\nThese are in the latest docs, but in no version on npm, so no project has them yet.\n\n${data.pending
+            .map(
+              (p) =>
+                `### ${p.package}, in its next ${p.bump} release\n\n${demoted(p.markdown)}`,
+            )
+            .join("\n\n")}`,
+        );
+      }
+      return parts.join("\n\n");
     },
   });
 

@@ -59,6 +59,7 @@ A `style` attribute can only style the element it's on. It can't select other el
 - **`@nuvui/chat`:** what your app sends a model and gets back is your app's own requests, under your `connect-src`.
 - **`@nuvui/flow`:** nothing. Every position is an SVG attribute, so a diagram sent by a server is drawn whole under a policy without `style-src-attr 'unsafe-inline'`.
 - **`@nuvui/media`:** a file needs nothing more than its own origin in `media-src`, and a thumbnails picture its origin in `img-src`. A stream played through hls.js or dashjs plays from `blob:` addresses, so add `media-src blob:`. hls.js also starts a worker from a `blob:` address, so add `worker-src blob:`, or pass `hlsConfig={{ enableWorker: false }}`. `computePeaks` fetches the file it measures, so add that file's origin to `connect-src`. Nothing the players or the transcript draw needs a `style` attribute.
+- **`@nuvui/backgrounds`:** nothing. Nothing is drawn with a `style` attribute, and what follows the pointer is set from script, which such a policy allows. A background on a canvas draws on it from script, and needs nothing else.
 - **`@nuvui/barcodes`:** a picture laid over a QR code is fetched once to save it in the file, from its own address, under `connect-src`.
 
 ## How it was checked

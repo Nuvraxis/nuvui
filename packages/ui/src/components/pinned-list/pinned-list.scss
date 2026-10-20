@@ -1,0 +1,138 @@
+@use "../../styles/layers";
+@use "../../styles/mixins";
+
+@layer components {
+  .nuv-pinned-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nuv-pinned-list-gap, calc(var(--spacing) * 4));
+    min-inline-size: 0;
+    color: var(--nuv-pinned-list-fg, var(--color-foreground));
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+  }
+
+  .nuv-pinned-list__group {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 1.5);
+    min-inline-size: 0;
+  }
+
+  .nuv-pinned-list__label {
+    padding-inline: var(
+      --nuv-pinned-list-padding-inline,
+      calc(var(--spacing) * 3)
+    );
+    color: var(--nuv-pinned-list-label-fg, var(--color-muted-foreground));
+    font-size: var(--text-xs);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--text-xs--line-height);
+  }
+
+  .nuv-pinned-list__items {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  // A row is as tall as a finger needs, and taller when what's in it is.
+  .nuv-pinned-list__item {
+    display: flex;
+    position: relative;
+    gap: calc(var(--spacing) * 2);
+    align-items: center;
+    box-sizing: border-box;
+    min-inline-size: 0;
+    min-block-size: var(--nuv-touch-size);
+    padding-block: var(--nuv-pinned-list-padding-block, calc(var(--spacing) * 1));
+    padding-inline: var(--nuv-pinned-list-padding-inline, calc(var(--spacing) * 3))
+      calc(var(--spacing) * 1);
+    border-radius: var(--nuv-pinned-list-radius, var(--radius-md));
+    background-color: var(--nuv-pinned-list-item-bg, transparent);
+
+    // The one that's moving goes over the others while they make room.
+    &[data-moving] {
+      z-index: 1;
+      background-color: var(--nuv-pinned-list-moving-bg, var(--color-background));
+      box-shadow: var(--nuv-pinned-list-moving-shadow, var(--shadow-md));
+    }
+  }
+
+  .nuv-pinned-list__item + .nuv-pinned-list__item {
+    border-block-start: var(--nuv-border-width) solid
+      var(--nuv-pinned-list-divider, var(--color-border));
+  }
+
+  .nuv-pinned-list__content {
+    flex: 1;
+    min-inline-size: 0;
+  }
+
+  // A square as big as a finger needs, smaller with a mouse.
+  .nuv-pinned-list__pin {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: var(--nuv-pinned-list-pin-fg, var(--color-muted-foreground));
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+
+    @include mixins.touch-target;
+    @include mixins.focus-ring;
+
+    @include mixins.fine-pointer {
+      min-block-size: 2rem;
+      min-inline-size: 2rem;
+    }
+
+    @include mixins.hover {
+      background-color: var(--nuv-pinned-list-pin-hover-bg, var(--color-muted));
+      color: var(--color-foreground);
+    }
+
+    &[aria-pressed="true"] {
+      color: var(--nuv-pinned-list-pin-active-fg, var(--color-primary));
+    }
+
+    &:disabled {
+      opacity: var(--nuv-disabled-opacity);
+      cursor: not-allowed;
+    }
+
+    @include mixins.motion-safe {
+      transition:
+        background-color var(--nuv-duration-fast) var(--ease-out),
+        color var(--nuv-duration-fast) var(--ease-out);
+    }
+
+    // The outline of the pin is what's drawn, in the browser's color for a
+    // button, and a pressed one in its color for what's chosen. Left to
+    // itself the browser would give both the button's color.
+    @media (forced-colors: active) {
+      color: buttontext;
+      forced-color-adjust: none;
+
+      &[aria-pressed="true"] {
+        color: highlight;
+      }
+    }
+  }
+
+  .nuv-pinned-list__status {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}

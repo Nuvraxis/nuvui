@@ -1,0 +1,90 @@
+---
+title: FireworksBackground
+description: "Rockets that rise from the bottom and burst into sparks in the theme's chart colors, which fall and fade. A press bursts one where it lands."
+added: "2026-10-20"
+---
+
+<Preview name="fireworks-background/basic" wide />
+
+## Install
+
+```sh
+pnpm add @nuvui/backgrounds @nuvui/react
+```
+
+## Import
+
+```tsx
+import { FireworksBackground } from "@nuvui/backgrounds/fireworks-background";
+```
+
+It's a client component. It can be rendered from a server component, which sends what's laid on it, and the background is drawn once the page's script has run.
+
+## What it draws
+
+A rocket rises from the bottom every second or so and bursts into sparks, which fall and fade with a short tail. Each burst is one of five colors, the theme's chart colors unless you set your own.
+
+A press bursts one where it lands. The pointer's moves do nothing. A press on a button, a link or a field laid on it is the control's alone.
+
+<FireworksBackgroundPlayground />
+
+## Only once something's done
+
+<Preview name="fireworks-background/celebrate" wide />
+
+## Props
+
+<PropsTable package="backgrounds" component="fireworks-background" name="FireworksBackgroundOwnProps" props={{
+  children: "What's laid on the background, such as a headline or a form.",
+  scrim: "Lays the background's own color over it, so what's on it reads. `strong` keeps body text at 4.5:1.",
+  paused: "Stops it on the frame it's at.",
+  interactive: "Whether it answers the pointer: a move, and a press on it.",
+  speed: "How fast it moves: 1 as designed, 0.5 half as fast.",
+  density: "How many sparks a burst has: 1 as designed, 2 twice as dense.",
+}} />
+
+It also takes the attributes of a `div`, which is what it's drawn as. Give it a size, such as `min-height`, and lay out what's on it with `className`: it's the box its children are in.
+
+## Accessibility
+
+### What the component handles
+
+- **It's hidden from screen readers,** and never in the Tab order. What's laid on it is read as it would be anywhere else.
+- **For anyone who asked for less motion,** it's one finished frame that holds still, and the pointer moves nothing.
+- **Where the browser forces its colors,** nothing is drawn, and the box is the system's background.
+- **It stops when it can't be seen:** while it's scrolled out of view, and while the tab is in the background.
+- **Nothing flashes.** The sparks are small and fade, and no large area changes its brightness, so it stays well inside the limit of three flashes a second.
+
+### What you need to handle
+
+- **A way to stop it.** Anything that moves for more than five seconds beside other content needs one. A button that sets `paused` will do, as in [the example on the start page](/docs/backgrounds#a-way-to-stop-it).
+- **Text that reads.** `scrim="strong"` keeps body text at 4.5:1 or more over any part of it in its own colors. With colors of your own, check them.
+
+## CSS variables
+
+<CssVariables
+  package="backgrounds"
+  component="fireworks-background"
+  descriptions={{
+    "--nuv-fireworks-background-bg": "The color under the fireworks, and the scrim's color.",
+    "--nuv-fireworks-background-color-1": "The first of the five colors a burst can be.",
+    "--nuv-fireworks-background-color-2": "The second.",
+    "--nuv-fireworks-background-color-3": "The third.",
+    "--nuv-fireworks-background-color-4": "The fourth.",
+    "--nuv-fireworks-background-color-5": "The fifth.",
+  }}
+/>
+
+The scrim's strengths are shared by every background, and listed on [the start page](/docs/backgrounds#a-scrim).
+
+## Classes
+
+<BemClasses
+  package="backgrounds"
+  component="fireworks-background"
+  descriptions={{
+    "nuv-fireworks-background": "FireworksBackground",
+  }}
+/>
+
+Every background also has the classes on [the start page](/docs/backgrounds#classes).

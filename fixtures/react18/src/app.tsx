@@ -1,6 +1,8 @@
 // The app, on React 18.2, the oldest React the packages say they work with.
 // It imports no styles and touches no browser, so it can be rendered to HTML
 // on a server as well as drawn in a page.
+
+import { StarsBackground } from "@nuvui/backgrounds/stars-background";
 import { Barcode } from "@nuvui/barcodes/barcode";
 import { QRCode } from "@nuvui/barcodes/qrcode";
 import {
@@ -144,6 +146,9 @@ export function App() {
         edges={[{ id: "a-b", from: "a", to: "b" }]}
       />
       <VideoPlayer title="Intro" src="/intro.mp4" poster="/intro.jpg" />
+      <StarsBackground scrim="soft">
+        <p>Under the stars</p>
+      </StarsBackground>
       <Episode />
       <Kanban
         aria-label="Work"

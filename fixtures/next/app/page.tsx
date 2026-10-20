@@ -5,6 +5,7 @@
 // plain props. The dates are made in UTC and read in UTC, so they're the
 // same day on this server and in whichever browser opens the page.
 
+import { GradientBackground, StarsBackground } from "@nuvui/backgrounds";
 import { Barcode, QRCode } from "@nuvui/barcodes";
 import {
   Conversation,
@@ -132,6 +133,12 @@ export default function Page() {
           the player's take over once the script runs. */}
       <VideoPlayer title="Intro" src="/intro.mp4" poster="/intro.jpg" />
       <AudioPlayer title="Episode" src="/episode.mp3" peaks={[0.2, 1, 0.5]} />
+      <GradientBackground scrim="soft">
+        <p>On a gradient</p>
+      </GradientBackground>
+      <StarsBackground>
+        <p>Under the stars</p>
+      </StarsBackground>
       <Visitors months={months} />
       {/* Client components from another package, used from this server
           component with nothing but plain props. */}

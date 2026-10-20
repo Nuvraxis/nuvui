@@ -1,0 +1,9 @@
+{
+  "name": "call-to-action",
+  "title": "Call to action",
+  "description": "The last word on a product's page: a headline, a line under it and two actions, over soft fields of the theme's colors that drift slowly.",
+  "category": "marketing",
+  "files": ["call-to-action.tsx", "call-to-action.scss"],
+  "install": ["@nuvui/backgrounds", "@nuvui/react", "lucide-react"],
+  "height": 520
+}

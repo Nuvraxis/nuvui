@@ -1,0 +1,90 @@
+@use "@nuvui/react/scss/mixins";
+
+.launch-complete {
+  color: var(--color-foreground);
+}
+
+.launch-complete__stage {
+  display: grid;
+  place-items: center;
+  min-block-size: 100dvh;
+  padding: calc(var(--spacing) * 16) calc(var(--spacing) * 4);
+}
+
+// The words on a card, so no spark ever runs behind them.
+.launch-complete__card {
+  display: grid;
+  gap: calc(var(--spacing) * 5);
+  justify-items: start;
+  inline-size: 100%;
+  max-inline-size: 28rem;
+  padding: calc(var(--spacing) * 8) calc(var(--spacing) * 6);
+  border: var(--nuv-border-width) solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-xl);
+  color: var(--color-surface-foreground);
+}
+
+.launch-complete__title {
+  margin: 0;
+  font-size: var(--text-3xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.1;
+}
+
+.launch-complete__text {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  line-height: var(--leading-relaxed);
+}
+
+.launch-complete__list {
+  display: grid;
+  gap: calc(var(--spacing) * 2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.launch-complete__item {
+  display: inline-flex;
+  gap: calc(var(--spacing) * 2);
+  align-items: center;
+
+  svg {
+    color: var(--color-success);
+  }
+}
+
+.launch-complete__address {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 2);
+  align-items: center;
+  inline-size: 100%;
+}
+
+.launch-complete__url {
+  flex: 1 1 12rem;
+  min-inline-size: 0;
+  padding: calc(var(--spacing) * 2) calc(var(--spacing) * 3);
+  overflow-wrap: anywhere;
+  border-radius: var(--radius-md);
+  background-color: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+}
+
+.launch-complete__status {
+  min-block-size: 1lh;
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+}
+
+.launch-complete__pause {
+  position: absolute;
+  inset-block-start: calc(var(--spacing) * 3);
+  inset-inline-end: calc(var(--spacing) * 3);
+}

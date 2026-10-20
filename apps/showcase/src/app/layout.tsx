@@ -13,6 +13,7 @@ import "@nuvui/emoji/styles.css";
 import "@nuvui/map/styles.css";
 import "@nuvui/flow/styles.css";
 import "@nuvui/media/styles.css";
+import "@nuvui/backgrounds/styles.css";
 import "@/styles/index.scss";
 import { Toaster } from "@nuvui/react/toast";
 import type { Metadata } from "next";

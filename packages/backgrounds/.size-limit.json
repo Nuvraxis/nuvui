@@ -1,0 +1,53 @@
+[
+  {
+    "name": "@nuvui/backgrounds",
+    "path": "dist/index.js",
+    "limit": "6.5 kB"
+  },
+  {
+    "name": "@nuvui/backgrounds/fireworks-background",
+    "path": "dist/components/fireworks-background/index.js",
+    "limit": "2.8 kB"
+  },
+  {
+    "name": "@nuvui/backgrounds/glyph-background",
+    "path": "dist/components/glyph-background/index.js",
+    "limit": "3.3 kB"
+  },
+  {
+    "name": "@nuvui/backgrounds/gradient-background",
+    "path": "dist/components/gradient-background/index.js",
+    "limit": "500 B"
+  },
+  {
+    "name": "@nuvui/backgrounds/grid-background",
+    "path": "dist/components/grid-background/index.js",
+    "limit": "850 B"
+  },
+  {
+    "name": "@nuvui/backgrounds/hexagon-background",
+    "path": "dist/components/hexagon-background/index.js",
+    "limit": "2.7 kB"
+  },
+  {
+    "name": "@nuvui/backgrounds/hole-background",
+    "path": "dist/components/hole-background/index.js",
+    "limit": "2.8 kB"
+  },
+  {
+    "name": "@nuvui/backgrounds/stars-background",
+    "path": "dist/components/stars-background/index.js",
+    "limit": "2.6 kB"
+  },
+  {
+    "name": "@nuvui/backgrounds/topography-background",
+    "path": "dist/components/topography-background/index.js",
+    "limit": "3.2 kB"
+  },
+  {
+    "name": "styles.css",
+    "path": "dist/styles.css",
+    "rolldown": false,
+    "limit": "1.5 kB"
+  }
+]

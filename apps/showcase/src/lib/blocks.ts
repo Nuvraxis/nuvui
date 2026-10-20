@@ -2,6 +2,7 @@ import activity from "@/blocks/activity/block.json" with { type: "json" };
 import announcementEditor from "@/blocks/announcement-editor/block.json" with {
   type: "json",
 };
+import apiHero from "@/blocks/api-hero/block.json" with { type: "json" };
 import appShell from "@/blocks/app-shell/block.json" with { type: "json" };
 import appearance from "@/blocks/appearance/block.json" with { type: "json" };
 import approvalFlow from "@/blocks/approval-flow/block.json" with {
@@ -25,6 +26,9 @@ import beforeAfter from "@/blocks/before-after/block.json" with {
 };
 import billing from "@/blocks/billing/block.json" with { type: "json" };
 import branchFinder from "@/blocks/branch-finder/block.json" with {
+  type: "json",
+};
+import callToAction from "@/blocks/call-to-action/block.json" with {
   type: "json",
 };
 import caseStudies from "@/blocks/case-studies/block.json" with {
@@ -53,6 +57,9 @@ import detailPanel from "@/blocks/detail-panel/block.json" with {
 import documentEditor from "@/blocks/document-editor/block.json" with {
   type: "json",
 };
+import emptyProjects from "@/blocks/empty-projects/block.json" with {
+  type: "json",
+};
 import eventTicket from "@/blocks/event-ticket/block.json" with {
   type: "json",
 };
@@ -76,10 +83,14 @@ import imageReview from "@/blocks/image-review/block.json" with {
   type: "json",
 };
 import inbox from "@/blocks/inbox/block.json" with { type: "json" };
+import launchComplete from "@/blocks/launch-complete/block.json" with {
+  type: "json",
+};
 import launchHero from "@/blocks/launch-hero/block.json" with { type: "json" };
 import liveFigures from "@/blocks/live-figures/block.json" with {
   type: "json",
 };
+import maintenance from "@/blocks/maintenance/block.json" with { type: "json" };
 import memberCard from "@/blocks/member-card/block.json" with { type: "json" };
 import messageReactions from "@/blocks/message-reactions/block.json" with {
   type: "json",
@@ -125,8 +136,10 @@ import sidebarNested from "@/blocks/sidebar-nested/block.json" with {
   type: "json",
 };
 import signIn from "@/blocks/sign-in/block.json" with { type: "json" };
+import signInGrid from "@/blocks/sign-in-grid/block.json" with { type: "json" };
 import signInSso from "@/blocks/sign-in-sso/block.json" with { type: "json" };
 import signUp from "@/blocks/sign-up/block.json" with { type: "json" };
+import starsHero from "@/blocks/stars-hero/block.json" with { type: "json" };
 import supportChat from "@/blocks/support-chat/block.json" with {
   type: "json",
 };
@@ -143,6 +156,7 @@ import verifyCode from "@/blocks/verify-code/block.json" with { type: "json" };
 import voiceMessages from "@/blocks/voice-messages/block.json" with {
   type: "json",
 };
+import waitlist from "@/blocks/waitlist/block.json" with { type: "json" };
 import whatsNew from "@/blocks/whats-new/block.json" with { type: "json" };
 import workflowBuilder from "@/blocks/workflow-builder/block.json" with {
   type: "json",
@@ -182,7 +196,7 @@ export const categories: BlockCategory[] = [
     label: "Accounts",
     title: "Sign in and accounts",
     description:
-      "The screens in front of an app: signing in with a password or a company account, signing up, a forgotten password, a code sent by email, setting up in steps, and a checklist for getting started that ends in confetti.",
+      "The screens in front of an app: signing in with a password, on its own or over a grid, or with a company account, signing up, a forgotten password, a code sent by email, setting up in steps, a checklist for getting started that ends in confetti, and the page that says a store is live, over fireworks.",
   },
   {
     slug: "layout",
@@ -210,7 +224,7 @@ export const categories: BlockCategory[] = [
     label: "Data",
     title: "Data",
     description:
-      "Rows to work with: a table with search, a filter, a column chooser and actions for several rows, a list with a bar of actions for the ticked rows, requests to approve with buttons in every row, a retouched photograph to approve with a switch between it and the original, a list filtered from a sentence and a sheet, folders and files in a tree, a panel that opens beside a list, a parcel's label with its barcode, a ticket with a QR code, a board of tasks in columns, a sales pipeline that adds up each column, a list of branches beside a map of them, a van's round as a list of stops and a line on a map, charging points gathered on a map with a list of the same ones, and a page in each state it can be in.",
+      "Rows to work with: a table with search, a filter, a column chooser and actions for several rows, a list with a bar of actions for the ticked rows, requests to approve with buttons in every row, a retouched photograph to approve with a switch between it and the original, a list filtered from a sentence and a sheet, folders and files in a tree, a panel that opens beside a list, a parcel's label with its barcode, a ticket with a QR code, a board of tasks in columns, a sales pipeline that adds up each column, a list of branches beside a map of them, a van's round as a list of stops and a line on a map, charging points gathered on a map with a list of the same ones, a page in each state it can be in, a list page with nothing in it yet, over hexagons, and the page shown while the app is down for maintenance.",
   },
   {
     slug: "flows",
@@ -245,7 +259,7 @@ export const categories: BlockCategory[] = [
     label: "Marketing",
     title: "Marketing pages",
     description:
-      "A product's public pages in eleven parts: a navigation bar, a hero, a hero whose headline rises in, a grid of features, a release's screen before and after, a pricing table, reviews, customer stories, a gallery of products, questions and answers, and a footer.",
+      "A product's public pages in fifteen parts: a navigation bar, a hero, a hero whose headline rises in, a hero under the stars, a hero for an API over a field of characters, a waiting list over a tunnel of rings, a grid of features, a release's screen before and after, a pricing table, reviews, customer stories, a gallery of products, questions and answers, a call to action over drifting colors, and a footer.",
   },
 ];
 
@@ -254,12 +268,14 @@ export const categories: BlockCategory[] = [
 // checks this list against the folders.
 export const blocks: BlockManifest[] = [
   signIn,
+  signInGrid,
   signInSso,
   signUp,
   forgotPassword,
   verifyCode,
   onboarding,
   setupChecklist,
+  launchComplete,
   appShell,
   sidebarIcons,
   sidebarNested,
@@ -294,6 +310,8 @@ export const blocks: BlockManifest[] = [
   deliveryRoute,
   chargingMap,
   pageStates,
+  emptyProjects,
+  maintenance,
   approvalFlow,
   workflowBuilder,
   courseLesson,
@@ -316,6 +334,9 @@ export const blocks: BlockManifest[] = [
   navBar,
   hero,
   launchHero,
+  starsHero,
+  apiHero,
+  waitlist,
   featureGrid,
   beforeAfter,
   pricing,
@@ -323,6 +344,7 @@ export const blocks: BlockManifest[] = [
   caseStudies,
   productGallery,
   faq,
+  callToAction,
   footer,
 ];
 

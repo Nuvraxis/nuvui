@@ -11,6 +11,16 @@ import { AnimatedNumberPlayground } from "@/components/playground/animated-numbe
 import { AspectRatioPlayground } from "@/components/playground/aspect-ratio";
 import { AudioPlayerPlayground } from "@/components/playground/audio-player";
 import { AvatarPlayground } from "@/components/playground/avatar";
+import {
+  FireworksBackgroundPlayground,
+  GlyphBackgroundPlayground,
+  GradientBackgroundPlayground,
+  GridBackgroundPlayground,
+  HexagonBackgroundPlayground,
+  HoleBackgroundPlayground,
+  StarsBackgroundPlayground,
+  TopographyBackgroundPlayground,
+} from "@/components/playground/backgrounds";
 import { BadgePlayground } from "@/components/playground/badge";
 import {
   BarcodePlayground,
@@ -144,6 +154,14 @@ export function getMDXComponents(components?: MDXComponents) {
     AspectRatioPlayground,
     AudioPlayerPlayground,
     AvatarPlayground,
+    FireworksBackgroundPlayground,
+    GlyphBackgroundPlayground,
+    GradientBackgroundPlayground,
+    GridBackgroundPlayground,
+    HexagonBackgroundPlayground,
+    HoleBackgroundPlayground,
+    StarsBackgroundPlayground,
+    TopographyBackgroundPlayground,
     BadgePlayground,
     BreadcrumbPlayground,
     ButtonPlayground,

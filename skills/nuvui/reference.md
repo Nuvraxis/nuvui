@@ -190,6 +190,18 @@ A file for each page of the docs. Read the one for a component before using it: 
 - [AudioPlayer](reference/media/audio-player.md): A sound with its own controls. Play, seek on a bar or a waveform, the time, volume and speed, from a pointer, a finger or the keyboard. One row, a podcast layout, or a voice message small enough for a chat. Plays files, and HLS and DASH streams.
 - [MediaTranscript](reference/media/media-transcript.md): The words of a player's captions as text beside it or under it, with the line being said marked and kept in view, and a press on a line to play from there.
 
+## @nuvui/backgrounds
+
+- [Backgrounds](reference/backgrounds/index.md): The @nuvui/backgrounds package. Moving backgrounds for a hero, a sign-in page or an empty state, in the theme's colors, quiet enough to put text over, still for anyone who asked for less motion, and with no dependencies.
+- [GradientBackground](reference/backgrounds/gradient-background.md): Soft fields of the theme's colors that drift and change places slowly. Drawn in CSS alone, so it works in a server component and looks the same before any script has run.
+- [GridBackground](reference/backgrounds/grid-background.md): A grid of lines or dots that fades out from the middle, with a soft light under the pointer that lights the lines near it.
+- [StarsBackground](reference/backgrounds/stars-background.md): A starfield: dots of several sizes drifting the way the page reads, the nearer ones larger and faster, leaning away from the pointer a little.
+- [TopographyBackground](reference/backgrounds/topography-background.md): Contour lines of a land that shifts slowly, as on a map. The pointer raises a hill where it is, and a press sends a wave across.
+- [HexagonBackground](reference/backgrounds/hexagon-background.md): A grid of hexagons. The ones under the pointer light up in the accent color and fade after it, and now and then one lights on its own.
+- [FireworksBackground](reference/backgrounds/fireworks-background.md): Rockets that rise from the bottom and burst into sparks in the theme's chart colors, which fall and fade. A press bursts one where it lands.
+- [HoleBackground](reference/backgrounds/hole-background.md): A tunnel of rings receding into the distance, with motes rising through it toward the viewer. The far end leans toward the pointer, and a press speeds it up for a moment.
+- [GlyphBackground](reference/backgrounds/glyph-background.md): A field of characters lit by glows that wander over it. The pointer leaves a trail of light, a press sends a ring of it outward, and now and then a character changes.
+
 ## @nuvui/icons
 
 - [Icons](reference/icons/index.md): The @nuvui/icons package. 317 line icons drawn for nuvui, in three styles, each a React component in the color of the text around it and an SVG file.

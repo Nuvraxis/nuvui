@@ -67,6 +67,7 @@ const published = [
   "map",
   "flow",
   "media",
+  "backgrounds",
   "icons",
 ];
 

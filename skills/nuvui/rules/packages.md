@@ -112,6 +112,15 @@ import "@nuvui/<package>/styles.css";
 - In a list of voice messages, `preload="none"` with `duration` loads nothing until one plays.
 - A transcript needs the player's `handleRef`: `<MediaTranscript player={ref} />`, in a client component. It reads the captions shown, or the first captions track, so an audio player needs a captions track for it.
 
+## @nuvui/backgrounds
+
+- A background is a box with its content as children: `<StarsBackground className="hero">…</StarsBackground>`. Give it a size and a layout with `className`. Don't put it in a box of its own behind the content.
+- Body text on one needs `scrim="strong"`, which keeps it at 4.5:1. `soft` dims the background and promises no contrast, so text on it goes on a card of its own.
+- Anything that moves for more than five seconds beside other content needs a way to stop it: a button that sets `paused`, with `aria-pressed` and a name that doesn't change. `GridBackground` doesn't move by itself and needs none.
+- Colors are CSS variables, such as `--nuv-stars-background-color`, and default to the theme's. Don't pass colors as props.
+- Less motion, forced colors, a hidden tab and being out of view are handled by the component. Don't add a media query for them.
+- `GradientBackground` works in a server component. The others are client components, and can still be rendered from one.
+
 ## @nuvui/barcodes
 
 - A code is black on white in every theme, on purpose: a scanner needs the contrast. Don't theme it.

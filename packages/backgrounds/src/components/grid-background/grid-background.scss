@@ -1,0 +1,65 @@
+@use "../../styles/background";
+@use "@nuvui/react/scss/mixins";
+
+@layer components {
+  .nuv-grid-background {
+    --nuv-background-bg: var(--nuv-grid-background-bg, var(--color-background));
+    --nuv-background-cell: var(--nuv-grid-background-cell, 2.5rem);
+    --nuv-background-ink: var(--nuv-grid-background-color, var(--color-border));
+  }
+
+  .nuv-grid-background__pattern {
+    position: absolute;
+    inset: 0;
+    background-position: center;
+    background-size: var(--nuv-background-cell) var(--nuv-background-cell);
+  }
+
+  .nuv-grid-background[data-variant="lines"] .nuv-grid-background__pattern {
+    background-image:
+      linear-gradient(to right, var(--nuv-background-ink) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--nuv-background-ink) 1px, transparent 1px);
+  }
+
+  .nuv-grid-background[data-variant="dots"] .nuv-grid-background__pattern {
+    background-image: radial-gradient(
+      circle at center,
+      var(--nuv-background-ink) 1.5px,
+      transparent 2px
+    );
+  }
+
+  // A mask goes by how opaque its colors are, so any opaque color would
+  // do. Seen most in the middle, where what's laid on it usually is, and gone
+  // at the edges, so the box has no hard border of lines.
+  .nuv-grid-background[data-fade] .nuv-grid-background__pattern {
+    mask-image: radial-gradient(
+      ellipse 70% 70% at center,
+      var(--color-black) 20%,
+      transparent 100%
+    );
+  }
+
+  // The same grid in the accent color, shown only in a circle around the
+  // pointer. Its own mask takes the place of the fade's, which it outweighs
+  // by the variant always being set.
+  .nuv-grid-background[data-variant] .nuv-grid-background__pattern--lit {
+    --nuv-background-ink: var(--nuv-grid-background-glow, var(--color-primary));
+
+    opacity: 0;
+    mask-image: radial-gradient(
+      circle var(--nuv-grid-background-glow-size, 10rem) at
+        var(--nuv-background-x, 50%) var(--nuv-background-y, 50%),
+      var(--color-black),
+      transparent
+    );
+
+    @include mixins.motion-safe {
+      transition: opacity var(--nuv-duration-slow) var(--ease-out);
+    }
+  }
+
+  .nuv-grid-background[data-lit] .nuv-grid-background__pattern--lit {
+    opacity: 1;
+  }
+}

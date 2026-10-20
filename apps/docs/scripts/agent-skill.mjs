@@ -49,6 +49,7 @@ const addons = [
   "map",
   "flow",
   "media",
+  "backgrounds",
   "icons",
 ];
 const packageDir = (addon) => path.join(repoDir, "packages", addon ?? core);

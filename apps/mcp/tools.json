@@ -43,6 +43,12 @@
           "description": "The @nuvui/* packages in the project's package.json, with their versions as written there, such as { \"@nuvui/react\": \"^0.6.0\", \"@nuvui/table\": \"0.1.6\" }.",
           "type": "object",
           "properties": {
+            "@nuvui/backgrounds": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40,
+              "pattern": "^(?:\\^|~|>=|=)?v?\\d+(?:\\.(?:\\d+|x|\\*)){0,2}(?:-[0-9A-Za-z.-]+)?$"
+            },
             "@nuvui/barcodes": {
               "type": "string",
               "minLength": 1,
@@ -325,7 +331,7 @@
       "type": "object",
       "properties": {
         "package": {
-          "description": "A package, such as @nuvui/table or table. One of: @nuvui/react, @nuvui/date-picker, @nuvui/table, @nuvui/charts, @nuvui/barcodes, @nuvui/chat, @nuvui/kanban, @nuvui/editor, @nuvui/emoji, @nuvui/map, @nuvui/flow, @nuvui/media, @nuvui/icons.",
+          "description": "A package, such as @nuvui/table or table. One of: @nuvui/react, @nuvui/date-picker, @nuvui/table, @nuvui/charts, @nuvui/barcodes, @nuvui/chat, @nuvui/kanban, @nuvui/editor, @nuvui/emoji, @nuvui/map, @nuvui/flow, @nuvui/media, @nuvui/backgrounds, @nuvui/icons.",
           "type": "string",
           "maxLength": 40
         },

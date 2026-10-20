@@ -3,6 +3,8 @@
 // render on the server, this page fails to build. It isn't linked from
 // anywhere, and the e2e tests open it directly.
 
+import { GradientBackground } from "@nuvui/backgrounds/gradient-background";
+import { StarsBackground } from "@nuvui/backgrounds/stars-background";
 import { Barcode } from "@nuvui/barcodes/barcode";
 import { QRCode, QRCodeSwissCross } from "@nuvui/barcodes/qrcode";
 import {
@@ -653,6 +655,14 @@ export default function RscSmokePage() {
           defaultMuted
         />
       </div>
+      {/* One background drawn in CSS, which needs no script, and one on a
+          canvas, a client component, both with their text from here. */}
+      <GradientBackground className="w-full p-4" scrim="soft">
+        <p>Server gradient</p>
+      </GradientBackground>
+      <StarsBackground className="w-full p-4" scrim="soft">
+        <p>Server stars</p>
+      </StarsBackground>
       <DirectionProvider dir="rtl">
         <div dir="rtl">
           <Tabs defaultValue="one">

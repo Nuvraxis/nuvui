@@ -1,0 +1,9 @@
+{
+  "name": "stars-hero",
+  "title": "Hero under the stars",
+  "description": "The top of a product's home page on a night sky in both themes: a line of news, the headline and two actions, over stars that drift and lean away from the pointer.",
+  "category": "marketing",
+  "files": ["stars-hero.tsx", "stars-hero.scss"],
+  "install": ["@nuvui/backgrounds", "@nuvui/react", "lucide-react"],
+  "height": 640
+}

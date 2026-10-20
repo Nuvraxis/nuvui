@@ -1,0 +1,112 @@
+@use "../../styles/background";
+@use "@nuvui/react/scss/mixins";
+
+@layer components {
+  .nuv-gradient-background {
+    --nuv-background-bg: var(
+      --nuv-gradient-background-bg,
+      var(--color-background)
+    );
+
+    // 1 where the page reads left to right, and -1 where it reads right to
+    // left, so the fields drift toward the end of the line either way.
+    --nuv-background-way: 1;
+
+    @include mixins.rtl {
+      --nuv-background-way: -1;
+    }
+  }
+
+  .nuv-gradient-background__field {
+    position: absolute;
+    inline-size: 70%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    opacity: var(--nuv-gradient-background-opacity, 0.35);
+    background-image: radial-gradient(
+      closest-side,
+      var(--nuv-background-field),
+      transparent
+    );
+
+    &:nth-child(1) {
+      --nuv-background-field: var(
+        --nuv-gradient-background-color-1,
+        var(--color-chart-1)
+      );
+
+      inset-block-start: -25%;
+      inset-inline-start: -15%;
+    }
+
+    &:nth-child(2) {
+      --nuv-background-field: var(
+        --nuv-gradient-background-color-2,
+        var(--color-chart-4)
+      );
+
+      inset-block-start: 10%;
+      inset-inline-end: -20%;
+    }
+
+    &:nth-child(3) {
+      --nuv-background-field: var(
+        --nuv-gradient-background-color-3,
+        var(--color-chart-3)
+      );
+
+      inset-block-end: -35%;
+      inset-inline-start: 20%;
+    }
+  }
+
+  @include mixins.motion-safe {
+    .nuv-gradient-background__field {
+      animation: nuv-gradient-background-drift
+        var(--nuv-gradient-background-duration, 30s) ease-in-out infinite
+        alternate;
+
+      // Each at its own pace and from its own place in the cycle, so the
+      // three never line up into a pattern.
+      &:nth-child(2) {
+        animation-duration: calc(
+          var(--nuv-gradient-background-duration, 30s) * 1.3
+        );
+        animation-delay: calc(var(--nuv-gradient-background-duration, 30s) * -0.4);
+      }
+
+      &:nth-child(3) {
+        animation-duration: calc(
+          var(--nuv-gradient-background-duration, 30s) * 0.8
+        );
+        animation-delay: calc(var(--nuv-gradient-background-duration, 30s) * -0.7);
+      }
+    }
+
+    .nuv-gradient-background[data-paused] .nuv-gradient-background__field {
+      animation-play-state: paused;
+    }
+  }
+
+  @keyframes nuv-gradient-background-drift {
+    0% {
+      transform: translate(0, 0) scale(1);
+    }
+
+    50% {
+      transform: translate(
+          calc(var(--nuv-background-way) * 12%),
+          8%
+        )
+        scale(1.15);
+    }
+
+    100% {
+      transform: translate(
+          calc(var(--nuv-background-way) * 20%),
+          -6%
+        )
+        scale(0.9);
+    }
+  }
+}

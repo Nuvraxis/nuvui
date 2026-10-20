@@ -1,0 +1,166 @@
+{
+  "name": "@nuvui/backgrounds",
+  "version": "0.0.0",
+  "description": "Moving backgrounds for @nuvui/react: a gradient, a grid, stars, contour lines, hexagons, fireworks, a tunnel and a field of characters, in the theme's colors, still for anyone who asked for less motion.",
+  "license": "MIT",
+  "author": "Nuvraxis",
+  "homepage": "https://nuvui.nuvraxis.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nuvraxis/nuvui.git",
+    "directory": "packages/backgrounds"
+  },
+  "bugs": {
+    "url": "https://github.com/Nuvraxis/nuvui/issues"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.cts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./fireworks-background": {
+      "import": {
+        "types": "./dist/components/fireworks-background/index.d.ts",
+        "default": "./dist/components/fireworks-background/index.js"
+      },
+      "require": {
+        "types": "./dist/components/fireworks-background/index.d.cts",
+        "default": "./dist/components/fireworks-background/index.cjs"
+      }
+    },
+    "./glyph-background": {
+      "import": {
+        "types": "./dist/components/glyph-background/index.d.ts",
+        "default": "./dist/components/glyph-background/index.js"
+      },
+      "require": {
+        "types": "./dist/components/glyph-background/index.d.cts",
+        "default": "./dist/components/glyph-background/index.cjs"
+      }
+    },
+    "./gradient-background": {
+      "import": {
+        "types": "./dist/components/gradient-background/index.d.ts",
+        "default": "./dist/components/gradient-background/index.js"
+      },
+      "require": {
+        "types": "./dist/components/gradient-background/index.d.cts",
+        "default": "./dist/components/gradient-background/index.cjs"
+      }
+    },
+    "./grid-background": {
+      "import": {
+        "types": "./dist/components/grid-background/index.d.ts",
+        "default": "./dist/components/grid-background/index.js"
+      },
+      "require": {
+        "types": "./dist/components/grid-background/index.d.cts",
+        "default": "./dist/components/grid-background/index.cjs"
+      }
+    },
+    "./hexagon-background": {
+      "import": {
+        "types": "./dist/components/hexagon-background/index.d.ts",
+        "default": "./dist/components/hexagon-background/index.js"
+      },
+      "require": {
+        "types": "./dist/components/hexagon-background/index.d.cts",
+        "default": "./dist/components/hexagon-background/index.cjs"
+      }
+    },
+    "./hole-background": {
+      "import": {
+        "types": "./dist/components/hole-background/index.d.ts",
+        "default": "./dist/components/hole-background/index.js"
+      },
+      "require": {
+        "types": "./dist/components/hole-background/index.d.cts",
+        "default": "./dist/components/hole-background/index.cjs"
+      }
+    },
+    "./stars-background": {
+      "import": {
+        "types": "./dist/components/stars-background/index.d.ts",
+        "default": "./dist/components/stars-background/index.js"
+      },
+      "require": {
+        "types": "./dist/components/stars-background/index.d.cts",
+        "default": "./dist/components/stars-background/index.cjs"
+      }
+    },
+    "./topography-background": {
+      "import": {
+        "types": "./dist/components/topography-background/index.d.ts",
+        "default": "./dist/components/topography-background/index.js"
+      },
+      "require": {
+        "types": "./dist/components/topography-background/index.d.cts",
+        "default": "./dist/components/topography-background/index.cjs"
+      }
+    },
+    "./styles.css": "./dist/styles.css",
+    "./css/*.css": "./dist/css/*.css",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "tsdown && node scripts/check-dist.mjs",
+    "dev": "tsdown --watch src",
+    "lint": "stylelint \"src/**/*.scss\"",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "check:package": "publint && pnpm pack --out node_modules/.cache/attw/package.tgz && attw node_modules/.cache/attw/package.tgz",
+    "size": "size-limit"
+  },
+  "peerDependencies": {
+    "@nuvui/react": "workspace:^0.7.0",
+    "react": "^18.2.0 || ^19.0.0",
+    "react-dom": "^18.2.0 || ^19.0.0"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/cli": "catalog:",
+    "@nuvui/react": "workspace:*",
+    "@nuvui/tooling": "workspace:*",
+    "@nuvui/typescript-config": "workspace:*",
+    "@size-limit/preset-small-lib": "catalog:",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@vitest/browser-playwright": "catalog:",
+    "axe-core": "catalog:",
+    "playwright": "catalog:",
+    "publint": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "sass-embedded": "catalog:",
+    "size-limit": "catalog:",
+    "stylelint": "catalog:",
+    "tsdown": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:",
+    "vitest-browser-react": "catalog:"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  }
+}

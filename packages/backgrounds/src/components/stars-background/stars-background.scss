@@ -1,0 +1,11 @@
+@use "../../styles/background";
+
+@layer components {
+  .nuv-stars-background {
+    --nuv-background-bg: var(--nuv-stars-background-bg, var(--color-background));
+    --nuv-background-ink: var(
+      --nuv-stars-background-color,
+      var(--color-foreground)
+    );
+  }
+}

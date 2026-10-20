@@ -1,0 +1,71 @@
+@use "@nuvui/react/scss/mixins";
+
+.empty-projects {
+  display: grid;
+  gap: calc(var(--spacing) * 4);
+  padding: calc(var(--spacing) * 4);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+
+  @include mixins.breakpoint("md") {
+    padding: calc(var(--spacing) * 8);
+  }
+}
+
+.empty-projects__title {
+  margin: 0;
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-semibold);
+}
+
+.empty-projects__empty {
+  display: grid;
+  place-items: center;
+  min-block-size: 26rem;
+  padding: calc(var(--spacing) * 14) calc(var(--spacing) * 4);
+  border: var(--nuv-border-width) dashed var(--color-border-strong);
+  border-radius: var(--radius-xl);
+}
+
+.empty-projects__inner {
+  display: grid;
+  gap: calc(var(--spacing) * 3);
+  justify-items: center;
+  max-inline-size: 26rem;
+  text-align: center;
+}
+
+.empty-projects__icon {
+  display: grid;
+  place-items: center;
+  inline-size: calc(var(--spacing) * 12);
+  block-size: calc(var(--spacing) * 12);
+  border-radius: var(--radius-full);
+  background-color: var(--color-muted);
+}
+
+.empty-projects__heading {
+  margin: 0;
+  font-size: var(--text-xl);
+  font-weight: var(--font-weight-semibold);
+}
+
+.empty-projects__text {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  line-height: var(--leading-relaxed);
+}
+
+.empty-projects__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 3);
+  justify-content: center;
+  margin-block-start: calc(var(--spacing) * 2);
+}
+
+.empty-projects__pause {
+  position: absolute;
+  inset-block-start: calc(var(--spacing) * 2);
+  inset-inline-end: calc(var(--spacing) * 2);
+}

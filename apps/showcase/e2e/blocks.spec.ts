@@ -5891,3 +5891,150 @@ test.describe("voice messages", () => {
     );
   });
 });
+
+test.describe("backgrounds", () => {
+  // Whether a background's canvas has anything on it, and what it shows.
+  const drawn = (page: Page) =>
+    page
+      .locator(".nuv-background__canvas")
+      .evaluate((canvas: HTMLCanvasElement) => {
+        const context = canvas.getContext("2d");
+        if (!context || canvas.width === 0) return false;
+        const { data } = context.getImageData(
+          0,
+          0,
+          canvas.width,
+          canvas.height,
+        );
+        return data.some((value, index) => index % 4 === 3 && value > 0);
+      });
+  const picture = (page: Page) =>
+    page
+      .locator(".nuv-background__canvas")
+      .evaluate((canvas: HTMLCanvasElement) => canvas.toDataURL());
+
+  for (const name of [
+    "stars-hero",
+    "maintenance",
+    "empty-projects",
+    "launch-complete",
+    "waitlist",
+    "api-hero",
+  ]) {
+    test(`${name}: the background moves, and its button stops it and starts it again`, async ({
+      page,
+      isMobile,
+    }) => {
+      await open(page, `/blocks/view/${name}`);
+      await expect.poll(() => drawn(page)).toBe(true);
+      const first = await picture(page);
+      await expect.poll(() => picture(page), { timeout: 5000 }).not.toBe(first);
+
+      const pause = page.getByRole("button", { name: "Pause the background" });
+      await expect(pause).toHaveAttribute("aria-pressed", "false");
+      await press(pause, isMobile);
+      await expect(pause).toHaveAttribute("aria-pressed", "true");
+      const held = await picture(page);
+      await page.waitForTimeout(400);
+      expect(await picture(page)).toBe(held);
+
+      await press(pause, isMobile);
+      await expect.poll(() => picture(page), { timeout: 5000 }).not.toBe(held);
+    });
+  }
+
+  test("call to action: the colors drift, and the button stops them", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/blocks/view/call-to-action");
+    const field = page.locator(".nuv-gradient-background__field").first();
+    await expect(field).toHaveCSS("animation-play-state", "running");
+    await press(
+      page.getByRole("button", { name: "Pause the background" }),
+      isMobile,
+    );
+    await expect(field).toHaveCSS("animation-play-state", "paused");
+  });
+
+  test("sign in over a grid: the grid lights under the pointer, and the form is sent with Enter", async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(
+      isMobile,
+      "A phone has no pointer to hover with and no Enter key to send a form with.",
+    );
+    await open(page, "/blocks/view/sign-in-grid");
+    await page.getByRole("heading", { name: "Sign in" }).hover();
+    await expect(page.locator(".nuv-grid-background")).toHaveAttribute(
+      "data-lit",
+      "",
+    );
+    await page.getByRole("textbox", { name: "Email" }).fill("ana@example.com");
+    await page.locator('input[name="password"]').fill("a long password");
+    await page.keyboard.press("Enter");
+    await expect(page).toHaveURL(/\/blocks\/view\/sign-in-grid$/);
+    await expect(page.getByRole("textbox", { name: "Email" })).toHaveValue(
+      "ana@example.com",
+    );
+  });
+
+  test("down for maintenance: the times are the same on the server and in the browser, in UTC", async ({
+    page,
+  }) => {
+    const problems = pageProblems(page);
+    await open(page, "/blocks/view/maintenance");
+    const times = page.locator(".maintenance__text time");
+    await expect(times).toHaveCount(2);
+    await expect(times.first()).toHaveAttribute(
+      "datetime",
+      "2026-10-24T22:00:00.000Z",
+    );
+    await expect(page.locator(".maintenance__text")).toContainText("UTC");
+    expect(problems).toEqual([]);
+  });
+
+  test("store is live: the address is copied, and it says so", async ({
+    page,
+    isMobile,
+    browserName,
+  }) => {
+    test.skip(
+      browserName !== "chromium",
+      "Only Chromium lets a test read the clipboard.",
+    );
+    await page
+      .context()
+      .grantPermissions(["clipboard-read", "clipboard-write"]);
+    await open(page, "/blocks/view/launch-complete");
+    await press(
+      page.getByRole("button", { name: "Copy the address" }),
+      isMobile,
+    );
+    await expect(page.getByRole("status")).toHaveText("Copied");
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(
+      "https://shop.example.com",
+    );
+  });
+
+  test("waiting list: an address joins the list, and it says so", async ({
+    page,
+  }) => {
+    await open(page, "/blocks/view/waitlist");
+    await page.getByLabel("Work email").fill("ana@example.com");
+    await page.getByLabel("Work email").press("Enter");
+    await expect(page.getByRole("status")).toHaveText(
+      "You're on the list. We'll write to ana@example.com when it's ready.",
+    );
+  });
+
+  test("for less motion, the backgrounds hold still", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await open(page, "/blocks/view/stars-hero");
+    await expect.poll(() => drawn(page)).toBe(true);
+    const held = await picture(page);
+    await page.waitForTimeout(400);
+    expect(await picture(page)).toBe(held);
+  });
+});

@@ -1,0 +1,9 @@
+{
+  "name": "launch-complete",
+  "title": "Store is live",
+  "description": "The end of setting up: what's been done, the store's address to copy, and the way to the dashboard, on a card over fireworks.",
+  "category": "accounts",
+  "files": ["launch-complete.tsx", "launch-complete.scss"],
+  "install": ["@nuvui/backgrounds", "@nuvui/react", "lucide-react"],
+  "height": 720
+}

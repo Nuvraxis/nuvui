@@ -55,6 +55,7 @@ const published = {
   "@nuvui/map": "map",
   "@nuvui/flow": "flow",
   "@nuvui/media": "media",
+  "@nuvui/backgrounds": "backgrounds",
   "@nuvui/icons": "icons",
 };
 
@@ -145,6 +146,13 @@ const fixtures = {
         css.includes(".nuv-media-transcript") &&
         script.includes("nuv-audio-player__bar") &&
         script.includes("nuv-media-transcript__line"),
+    );
+    expect(
+      "vite",
+      "it has the background's styles, and the script has the background",
+      css.includes(".nuv-background") &&
+        css.includes(".nuv-stars-background") &&
+        script.includes("nuv-stars-background"),
     );
     expect(
       "vite",
@@ -355,6 +363,15 @@ process.stdout.write(renderToStaticMarkup(createElement(ArrowRightIcon, { title:
     );
     expect(
       "next",
+      "the server sent both backgrounds with their text, and the gradient whole",
+      css.includes(".nuv-gradient-background") &&
+        css.includes(".nuv-stars-background") &&
+        html.includes("<p>On a gradient</p>") &&
+        html.includes("<p>Under the stars</p>") &&
+        (html.match(/nuv-gradient-background__field/g) ?? []).length === 3,
+    );
+    expect(
+      "next",
       "the server drew the diagram whole, with both its steps",
       /<div[^>]*class="nuv-flow__canvas"[^>]*role="listbox"/.test(html) &&
         (html.match(/role="option"/g) ?? []).length >= 2 &&
@@ -478,7 +495,7 @@ process.stdout.write(renderToStaticMarkup(createElement(ArrowRightIcon, { title:
     );
     expect(
       "react18",
-      "the message, the prompt box, the editor, the board, the picker, the map, the diagram, the video, the audio and its transcript rendered",
+      "the message, the prompt box, the editor, the board, the picker, the map, the diagram, the video, the audio, its transcript and the background rendered",
       html.includes("nuv-message__content") &&
         html.includes("nuv-prompt-input__textarea") &&
         html.includes("nuv-rich-text-editor__toolbar") &&
@@ -488,7 +505,8 @@ process.stdout.write(renderToStaticMarkup(createElement(ArrowRightIcon, { title:
         html.includes("nuv-flow__canvas") &&
         html.includes("nuv-video-player__media") &&
         html.includes("nuv-audio-player__media") &&
-        html.includes("nuv-media-transcript"),
+        html.includes("nuv-media-transcript") &&
+        html.includes("nuv-stars-background"),
     );
   },
 };

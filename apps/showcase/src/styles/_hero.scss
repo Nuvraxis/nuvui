@@ -50,6 +50,29 @@
   }
 }
 
+// The home page's hero, over a grid that lights under the pointer, from
+// @nuvui/backgrounds. The wash of the brand color and the faint lines are
+// the backdrop's, so the text over them keeps its contrast.
+.site-hero-grid {
+  --nuv-grid-background-cell: 4rem;
+  --nuv-grid-background-color: color-mix(
+    in oklab,
+    var(--color-border) 55%,
+    transparent
+  );
+
+  background-image: radial-gradient(
+    ellipse 50rem 26rem at 50% -6rem,
+    color-mix(in oklab, var(--color-primary) 14%, transparent),
+    transparent 72%
+  );
+
+  // A forced-colors theme has its own page color and wants nothing over it.
+  @media (forced-colors: active) {
+    background-image: none;
+  }
+}
+
 .site-hero {
   @include layout.container;
 

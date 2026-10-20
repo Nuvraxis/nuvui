@@ -85,13 +85,13 @@ Each add-on is installed next to `@nuvui/react`, with the library it's built on 
 
 ## Components
 
-`@nuvui/react` has seventy-six components.
+`@nuvui/react` has seventy-eight components.
 
 | Group | Components |
 | --- | --- |
 | Actions, overlays and navigation (27) | Accordion, ActionBar, AlertDialog, Breadcrumb, Button, Checkbox, Command, ContextMenu, Dialog, DropdownMenu, HoldToConfirm, HoverCard, Menubar, Navbar, NavigationMenu, Pagination, Popover, Select, Sheet, Sidebar, Stepper, Switch, TableOfContents, Tabs, Toast, Tooltip, Tree |
 | Forms (20) | ButtonGroup, ChoiceCard, ColorPicker, Combobox, Field, Fieldset, FileUpload, Input, InputGroup, Label, NativeSelect, NumberField, OtpField, PasswordInput, RadioGroup, Rating, Slider, Textarea, Toggle, ToggleGroup |
-| Display and layout (29) | Alert, AnimatedNumber, AspectRatio, Avatar, Badge, Card, Carousel, Collapsible, Compare, Confetti, Empty, FormattedNumber, HoloCard, Item, Kbd, ListView, Progress, Resizable, ScrollArea, Separator, Skeleton, Spinner, Stat, TextReveal, TextShimmer, Timeline, Toolbar, Trend, VisuallyHidden |
+| Display and layout (31) | Alert, AnimatedNumber, AspectRatio, Avatar, Badge, Card, Carousel, Collapsible, Compare, Confetti, Empty, FormattedNumber, HoloCard, Item, Kbd, ListView, PinnedList, Progress, Resizable, ScrollArea, ScrollProgress, Separator, Skeleton, Spinner, Stat, TextReveal, TextShimmer, Timeline, Toolbar, Trend, VisuallyHidden |
 
 It also has:
 
@@ -133,7 +133,7 @@ It also has:
 ### `@nuvui/chat`
 
 - `Conversation`, which keeps the latest message in view while a reply arrives, and stops following when the reader scrolls up.
-- `Message` with a row of actions, `MessageLoader`, `Markdown` for a reply a model wrote, and `CodeBlock`.
+- `Message` with a row of actions, `MessageLoader`, `Markdown` for a reply a model wrote, and `CodeBlock`, which can also type its code out.
 - `PromptInput`, a box that grows, sends on Enter, takes files and stops a reply. `PromptSuggestion` and `Attachment` go with it.
 - `Sources`, `ToolCall` with a question to approve before a tool runs, `Reasoning`, and `ThreadList` for past conversations.
 - It takes messages as props and fetches nothing, so it works with whatever talks to your model. react-markdown loads only where the markdown entry is imported, and Shiki is optional, for colored code.
@@ -209,7 +209,7 @@ It also has:
 
 [nuvui.nuvraxis.com](https://nuvui.nuvraxis.com) is built with the library's own tokens, and the docs sit under `/docs` of the same site.
 
-- **[79 blocks](https://nuvui.nuvraxis.com/blocks)** in ten groups. A block is a part of an app, such as a sign-in screen, a dashboard or a pricing table, as a TSX file and an SCSS file to copy. The site also serves them as a registry for shadcn's command line tool, at `/r`.
+- **[82 blocks](https://nuvui.nuvraxis.com/blocks)** in ten groups. A block is a part of an app, such as a sign-in screen, a dashboard or a pricing table, as a TSX file and an SCSS file to copy. The site also serves them as a registry for shadcn's command line tool, at `/r`.
 - **[39 charts](https://nuvui.nuvraxis.com/charts)** in ten families, each one file to copy.
 - **[A theme builder](https://nuvui.nuvraxis.com/themes).**
 - **[Docs](https://nuvui.nuvraxis.com/docs)** with a page for each component, covering its parts, props, examples, CSS variables and classes, and what it leaves to you for accessibility. Search runs in the browser.

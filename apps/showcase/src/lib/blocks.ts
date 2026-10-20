@@ -102,6 +102,9 @@ import notifications from "@/blocks/notifications/block.json" with {
 import onboarding from "@/blocks/onboarding/block.json" with { type: "json" };
 import pageHeader from "@/blocks/page-header/block.json" with { type: "json" };
 import pageStates from "@/blocks/page-states/block.json" with { type: "json" };
+import pinnedReports from "@/blocks/pinned-reports/block.json" with {
+  type: "json",
+};
 import podcastEpisode from "@/blocks/podcast-episode/block.json" with {
   type: "json",
 };
@@ -118,7 +121,11 @@ import profileForm from "@/blocks/profile-form/block.json" with {
 import queryEditor from "@/blocks/query-editor/block.json" with {
   type: "json",
 };
+import quickStart from "@/blocks/quick-start/block.json" with { type: "json" };
 import recordingReview from "@/blocks/recording-review/block.json" with {
+  type: "json",
+};
+import releaseNotes from "@/blocks/release-notes/block.json" with {
   type: "json",
 };
 import reviews from "@/blocks/reviews/block.json" with { type: "json" };
@@ -203,7 +210,7 @@ export const categories: BlockCategory[] = [
     label: "App layout",
     title: "App layout",
     description:
-      "What goes around every screen of an app: the whole of it together, with a panel on the far side that closes, a sidebar that folds down to icons, one with sections that open, a top bar with search, a page header, and a long page with a list of its headings.",
+      "What goes around every screen of an app: the whole of it together, with a panel on the far side that closes, a sidebar that folds down to icons, one with sections that open, a top bar with search, a page header, a long page with a list of its headings, and a product's release notes in a panel, with a bar that fills as they're read.",
   },
   {
     slug: "dashboard",
@@ -224,7 +231,7 @@ export const categories: BlockCategory[] = [
     label: "Data",
     title: "Data",
     description:
-      "Rows to work with: a table with search, a filter, a column chooser and actions for several rows, a list with a bar of actions for the ticked rows, requests to approve with buttons in every row, a retouched photograph to approve with a switch between it and the original, a list filtered from a sentence and a sheet, folders and files in a tree, a panel that opens beside a list, a parcel's label with its barcode, a ticket with a QR code, a board of tasks in columns, a sales pipeline that adds up each column, a list of branches beside a map of them, a van's round as a list of stops and a line on a map, charging points gathered on a map with a list of the same ones, a page in each state it can be in, a list page with nothing in it yet, over hexagons, and the page shown while the app is down for maintenance.",
+      "Rows to work with: a table with search, a filter, a column chooser and actions for several rows, saved reports with the ones in use pinned at the top, a list with a bar of actions for the ticked rows, requests to approve with buttons in every row, a retouched photograph to approve with a switch between it and the original, a list filtered from a sentence and a sheet, folders and files in a tree, a panel that opens beside a list, a parcel's label with its barcode, a ticket with a QR code, a board of tasks in columns, a sales pipeline that adds up each column, a list of branches beside a map of them, a van's round as a list of stops and a line on a map, charging points gathered on a map with a list of the same ones, a page in each state it can be in, a list page with nothing in it yet, over hexagons, and the page shown while the app is down for maintenance.",
   },
   {
     slug: "flows",
@@ -259,7 +266,7 @@ export const categories: BlockCategory[] = [
     label: "Marketing",
     title: "Marketing pages",
     description:
-      "A product's public pages in fifteen parts: a navigation bar, a hero, a hero whose headline rises in, a hero under the stars, a hero for an API over a field of characters, a waiting list over a tunnel of rings, a grid of features, a release's screen before and after, a pricing table, reviews, customer stories, a gallery of products, questions and answers, a call to action over drifting colors, and a footer.",
+      "A product's public pages in sixteen parts: a navigation bar, a hero, a hero whose headline rises in, a hero under the stars, a hero for an API over a field of characters, a quick start in three steps whose code types itself out, a waiting list over a tunnel of rings, a grid of features, a release's screen before and after, a pricing table, reviews, customer stories, a gallery of products, questions and answers, a call to action over drifting colors, and a footer.",
   },
 ];
 
@@ -282,6 +289,7 @@ export const blocks: BlockManifest[] = [
   topBar,
   pageHeader,
   article,
+  releaseNotes,
   dashboard,
   figures,
   liveFigures,
@@ -295,6 +303,7 @@ export const blocks: BlockManifest[] = [
   teamChat,
   messageReactions,
   tableToolbar,
+  pinnedReports,
   inbox,
   approvals,
   imageReview,
@@ -336,6 +345,7 @@ export const blocks: BlockManifest[] = [
   launchHero,
   starsHero,
   apiHero,
+  quickStart,
   waitlist,
   featureGrid,
   beforeAfter,

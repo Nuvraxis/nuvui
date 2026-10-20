@@ -2,7 +2,7 @@
 
 # Blocks
 
-A block is a part of an app, such as a sign-in screen or a table with a toolbar, built from the library's components: one TSX file and one SCSS file, to copy into an app and change. There are 79. Each is shown at https://nuvui.nuvraxis.com/blocks.
+A block is a part of an app, such as a sign-in screen or a table with a toolbar, built from the library's components: one TSX file and one SCSS file, to copy into an app and change. There are 82. Each is shown at https://nuvui.nuvraxis.com/blocks.
 
 Before building a screen from nothing, look here for one that's close. To add one, with the packages it needs:
 
@@ -67,6 +67,7 @@ A block's SCSS uses the library's mixins, `@use "@nuvui/react/scss/mixins"`, so 
 - **List with an action bar** (`inbox`): Messages to tick, and a bar that appears with what can be done to the ticked ones: mark as read, archive, and delete by holding the button down. Needs `@nuvui/react`, `lucide-react`.
 - **Down for maintenance** (`maintenance`): The page shown while the app is down for planned work: when it started and when it ends, with a way to the status page, over contour lines that shift slowly. Needs `@nuvui/backgrounds`, `@nuvui/react`, `lucide-react`.
 - **Empty, loading and error** (`page-states`): One page in each state it can be in: with its rows, waiting for them, with none yet, and after a request that failed. Needs `@nuvui/react`, `lucide-react`.
+- **Pinned reports** (`pinned-reports`): Saved reports with the ones in use pinned at the top: each opens from its name, has a menu of its own, and slides to the other group when its pin is pressed. Needs `@nuvui/react`, `lucide-react`.
 - **Query editor** (`query-editor`): A query above and its rows below, with a handle between them to give either more room. The sizes are remembered for the next visit. Needs `@nuvui/react`, `@nuvui/table`, `@tanstack/react-table`, `lucide-react`.
 - **Shipping label** (`shipping-label`): A parcel's label: who it's from and who it's for, the service and the weight, the tracking number as a barcode with the number under it, a QR code that opens the tracking page, and buttons that save the barcode as a file. Needs `@nuvui/barcodes`, `@nuvui/react`.
 - **Table with a toolbar** (`table-toolbar`): A table to work in: search, a filter by status, a column chooser, a menu on each row, and actions for the rows that are ticked. Needs `@nuvui/react`, `@nuvui/table`, `@tanstack/react-table`, `lucide-react`.
@@ -88,6 +89,7 @@ A block's SCSS uses the library's mixins, `@use "@nuvui/react/scss/mixins"`, so 
 - **App shell** (`app-shell`): The four parts of an app's screen together: a sidebar that folds to its icons, a bar across the top, the page, and a panel on the far side that closes. On a narrow screen the sidebar and the panel open over the page. Needs `@nuvui/react`, `lucide-react`.
 - **Page with its contents** (`article`): A long page with a list of its headings that marks the one being read: beside the text on a wide screen, and behind a button on a narrow one. Needs `@nuvui/react`, `lucide-react`.
 - **Page header** (`page-header`): A breadcrumb, the page's title with its status, and the actions for the page. Needs `@nuvui/react`, `lucide-react`.
+- **Release notes** (`release-notes`): A product's release notes in a panel of their own, newest first, with a bar along the top that fills as they're read. Needs `@nuvui/react`.
 - **Sidebar that folds to icons** (`sidebar-icons`): An app's navigation with a workspace at the top and the person's menu at the bottom. It folds down to a strip of icons, and is a panel on a phone. Needs `@nuvui/react`, `lucide-react`.
 - **Sidebar with sections** (`sidebar-nested`): Navigation in two levels. A section opens to show its pages, and the open page is marked. Needs `@nuvui/react`, `lucide-react`.
 - **Top bar** (`top-bar`): A bar across the top with the product's name, the pages, a search that opens a command palette, and the person's menu. On a narrow screen the pages are in a panel. Needs `@nuvui/react`, `lucide-react`.
@@ -106,6 +108,7 @@ A block's SCSS uses the library's mixins, `@use "@nuvui/react/scss/mixins"`, so 
 - **Navigation bar** (`nav-bar`): A site's top bar, on Navbar: a menu with a panel under one entry, two actions, and on a phone one button that opens every link in a panel. Needs `@nuvui/react`, `lucide-react`.
 - **Pricing table** (`pricing`): Three plans side by side with what each includes, and a switch between paying by the month and by the year. Needs `@nuvui/react`, `lucide-react`.
 - **Product gallery** (`product-gallery`): Photographs of a product to swipe through, with a thumbnail for each and arrows over the picture, beside its name, its price and a button to buy it. Needs `@nuvui/react`, `lucide-react`.
+- **Quick start** (`quick-start`): Three steps to install a package and use it, each with its code, which types itself out the first time it's scrolled to. Needs `@nuvui/chat`, `@nuvui/react`.
 - **Reviews** (`reviews`): An average rating with how the stars are shared out, a few reviews, and a form to leave one that asks for a number of stars. Needs `@nuvui/react`.
 - **Hero under the stars** (`stars-hero`): The top of a product's home page on a night sky in both themes: a line of news, the headline and two actions, over stars that drift and lean away from the pointer. Needs `@nuvui/backgrounds`, `@nuvui/react`, `lucide-react`.
 - **Waiting list** (`waitlist`): A page for something that isn't out yet: what's coming, and a field to join the list, which says so once it's sent, over a tunnel of rings in the dark in both themes. Needs `@nuvui/backgrounds`, `@nuvui/react`, `lucide-react`.

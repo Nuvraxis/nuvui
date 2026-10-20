@@ -6038,3 +6038,97 @@ test.describe("backgrounds", () => {
     expect(await picture(page)).toBe(held);
   });
 });
+
+test.describe("scroll progress, pinned list and typed code", () => {
+  test("release notes: the bar fills as the notes are read", async ({
+    page,
+  }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await open(page, "/blocks/view/release-notes");
+    const bar = page.locator(".nuv-scroll-progress__bar");
+    const filled = () =>
+      bar.evaluate(
+        (element) =>
+          new DOMMatrixReadOnly(getComputedStyle(element).transform).a,
+      );
+    expect(await filled()).toBe(0);
+
+    await page
+      .getByRole("region", { name: "Release notes" })
+      .evaluate((box) => {
+        box.scrollTop = box.scrollHeight;
+      });
+
+    await expect.poll(filled).toBe(1);
+    // The page itself doesn't scroll sideways on a phone.
+    expect(await overflow(page)).toBeLessThanOrEqual(0);
+  });
+
+  test("pinned reports: a pin moves a report to the top, and back", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/blocks/view/pinned-reports");
+    const pinned = page.getByRole("list", { name: "Pinned reports" });
+    await expect(pinned).toContainText("Sales pipeline");
+    await expect(pinned).not.toContainText("Hiring plan");
+
+    const pin = page.getByRole("button", { name: "Pin Hiring plan" });
+    await press(pin, isMobile);
+    await expect(pinned).toContainText("Hiring plan");
+    await expect(pin).toHaveAttribute("aria-pressed", "true");
+    await expect(page.getByRole("status")).toHaveText("Pinned Hiring plan");
+
+    await press(pin, isMobile);
+    await expect(pinned).not.toContainText("Hiring plan");
+    await expect(page.getByRole("list", { name: "All reports" })).toContainText(
+      "Hiring plan",
+    );
+  });
+
+  test("pinned reports: a report's menu opens from its own button", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/blocks/view/pinned-reports");
+    await press(
+      page.getByRole("button", { name: "More for Churn by plan" }),
+      isMobile,
+    );
+    await expect(
+      page.getByRole("menuitem", { name: "Duplicate" }),
+    ).toBeVisible();
+  });
+
+  test("quick start: each step's code types itself out when it's scrolled to", async ({
+    page,
+  }) => {
+    await page.emulateMedia({ reducedMotion: "no-preference" });
+    await open(page, "/blocks/view/quick-start");
+    const blocks = page.locator(".nuv-code-block");
+    await expect(blocks).toHaveCount(3);
+
+    for (const block of await blocks.all()) {
+      await block.scrollIntoViewIfNeeded();
+      await expect(block).toHaveAttribute("data-typing", "done", {
+        timeout: 10_000,
+      });
+    }
+    await expect(blocks.first().locator("code")).toHaveText(
+      "pnpm add @acme/payments",
+    );
+  });
+
+  test("quick start: for less motion the code is there at once", async ({
+    page,
+  }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await open(page, "/blocks/view/quick-start");
+    const blocks = page.locator(".nuv-code-block");
+
+    for (const block of await blocks.all()) {
+      await expect(block).toHaveAttribute("data-typing", "done");
+    }
+    await expect(page.locator(".nuv-code-block__untyped")).toHaveCount(0);
+  });
+});

@@ -156,6 +156,16 @@ The bar is a landmark named "Pagination". Pass `aria-label` to `Pagination` to c
 | `showLabel` | `string` | `"Show password"` | The name of the button while the password is hidden. |
 | `hideLabel` | `string` | `"Hide password"` | The name of the button while the password is shown. |
 
+### PinnedList
+
+| Prop | Type | Default | What it's for |
+| --- | --- | --- | --- |
+| `pinnedLabel` | `string` | `"Pinned"` | The name over the pinned items. |
+| `restLabel` | `string` | `"Everything else"` | The name over the rest. |
+| `pinLabel` | `((label: string) => string)` | `(label) => 'Pin ${label}'` | The name of an item's pin, given the item's label. |
+| `pinnedMessage` | `((label: string) => string)` | `(label) => 'Pinned ${label}'` | What a screen reader is told when an item is pinned, given its label. |
+| `unpinnedMessage` | `((label: string) => string)` | `(label) => 'Unpinned ${label}'` | What a screen reader is told when an item is unpinned, given its label. |
+
 ### Rating
 
 | Prop | Type | Default | What it's for |

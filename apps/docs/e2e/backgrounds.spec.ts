@@ -107,17 +107,15 @@ test.describe("background pages", () => {
     await expect.poll(() => drawn(area)).toBe(true);
   });
 
-  test("the examples pass axe", async ({ page }) => {
-    for (const name of [
-      "gradient-background",
-      "grid-background",
-      ...canvases,
-    ]) {
+  // A test for each page, so a slow runner has the whole time limit for one
+  // page and not for all eight.
+  for (const name of ["gradient-background", "grid-background", ...canvases]) {
+    test(`${name}'s example passes axe`, async ({ page }) => {
       await open(page, `/docs/backgrounds/${name}`);
       const results = await new AxeBuilder({ page })
         .include(`[data-preview="${name}/basic"] > div:first-child`)
         .analyze();
-      expect(results.violations, name).toEqual([]);
-    }
-  });
+      expect(results.violations).toEqual([]);
+    });
+  }
 });

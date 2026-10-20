@@ -1,7 +1,7 @@
 import "@nuvui/react/styles.css";
 import "../styles/index.scss";
 import { emulateMedia } from "@nuvui/tooling/test/media";
-import { afterEach, describe, expect, test, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { listening } from "./loop";
 import { type MountOptions, mountScene, type Scene, type Theme } from "./scene";
 
@@ -24,6 +24,11 @@ function fakeScene() {
 }
 
 const cleanups: (() => void)[] = [];
+beforeEach(async () => {
+  // WebKit on Linux asks for less motion unless it's told otherwise.
+  await emulateMedia({ reducedMotion: "no-preference" });
+});
+
 afterEach(async () => {
   for (const cleanup of cleanups.splice(0)) cleanup();
   document.documentElement.removeAttribute("data-theme");

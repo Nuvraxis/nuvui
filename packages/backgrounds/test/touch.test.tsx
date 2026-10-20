@@ -1,11 +1,17 @@
 import "@nuvui/react/styles.css";
 import "../src/styles/index.scss";
-import { expect, test } from "vitest";
+import { emulateMedia } from "@nuvui/tooling/test/media";
+import { beforeEach, expect, test } from "vitest";
 import { render } from "vitest-browser-react";
 import { GlyphBackground, GridBackground } from "../src";
 
 // This file runs in a browser context of its own, one that reports a touch
 // screen, at the width of a phone.
+
+beforeEach(async () => {
+  // WebKit on Linux asks for less motion unless it's told otherwise.
+  await emulateMedia({ reducedMotion: "no-preference" });
+});
 
 const size = { inlineSize: 390, blockSize: 600 };
 const root = () => document.querySelector(".nuv-background") as HTMLElement;

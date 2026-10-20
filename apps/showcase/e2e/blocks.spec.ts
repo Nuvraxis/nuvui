@@ -5961,18 +5961,23 @@ test.describe("backgrounds", () => {
     page,
     isMobile,
   }) => {
+    test.skip(
+      isMobile,
+      "A phone has no pointer to hover with and no Enter key to send a form with.",
+    );
     await open(page, "/blocks/view/sign-in-grid");
-    if (!isMobile) {
-      await page.getByRole("heading", { name: "Sign in" }).hover();
-      await expect(page.locator(".nuv-grid-background")).toHaveAttribute(
-        "data-lit",
-        "",
-      );
-    }
-    await page.getByLabel("Email").fill("ana@example.com");
-    await page.getByLabel("Password", { exact: true }).fill("a long password");
-    await page.getByLabel("Password", { exact: true }).press("Enter");
+    await page.getByRole("heading", { name: "Sign in" }).hover();
+    await expect(page.locator(".nuv-grid-background")).toHaveAttribute(
+      "data-lit",
+      "",
+    );
+    await page.getByRole("textbox", { name: "Email" }).fill("ana@example.com");
+    await page.locator('input[name="password"]').fill("a long password");
+    await page.keyboard.press("Enter");
     await expect(page).toHaveURL(/\/blocks\/view\/sign-in-grid$/);
+    await expect(page.getByRole("textbox", { name: "Email" })).toHaveValue(
+      "ana@example.com",
+    );
   });
 
   test("down for maintenance: the times are the same on the server and in the browser, in UTC", async ({

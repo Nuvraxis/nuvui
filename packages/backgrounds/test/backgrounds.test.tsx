@@ -6,7 +6,7 @@ import { renderThemed, themes } from "@nuvui/tooling/test/themed";
 import type { ComponentType, CSSProperties, ReactNode, Ref } from "react";
 import { createRef } from "react";
 import { renderToString } from "react-dom/server";
-import { afterEach, describe, expect, test } from "vitest";
+import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { page } from "vitest/browser";
 import { render } from "vitest-browser-react";
 import {
@@ -123,6 +123,11 @@ function anythingDrawn() {
   }
   return false;
 }
+
+beforeEach(async () => {
+  // WebKit on Linux asks for less motion unless it's told otherwise.
+  await emulateMedia({ reducedMotion: "no-preference" });
+});
 
 afterEach(async () => {
   await emulateMedia({ reducedMotion: null, forcedColors: null });

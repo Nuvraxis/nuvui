@@ -368,7 +368,8 @@ process.stdout.write(renderToStaticMarkup(createElement(ArrowRightIcon, { title:
         css.includes(".nuv-stars-background") &&
         html.includes("<p>On a gradient</p>") &&
         html.includes("<p>Under the stars</p>") &&
-        (html.match(/nuv-gradient-background__field/g) ?? []).length === 3,
+        (html.match(/class="nuv-gradient-background__field"/g) ?? []).length ===
+          3,
     );
     expect(
       "next",

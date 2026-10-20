@@ -82,7 +82,8 @@ export function mountScene(
 
   let options = initial;
   let size: Size | null = null;
-  let inView = true;
+  // Until the observer's first answer, which comes once it's watching.
+  let inView = false;
   let settled = false;
   let last = 0;
   let stopFrames: (() => void) | null = null;

@@ -1,0 +1,15 @@
+@use "../../styles/background";
+
+@layer components {
+  .nuv-hole-background {
+    --nuv-background-bg: var(--nuv-hole-background-bg, var(--color-background));
+    --nuv-background-ink: var(
+      --nuv-hole-background-color,
+      var(--color-muted-foreground)
+    );
+    --nuv-background-accent: var(
+      --nuv-hole-background-glow,
+      var(--color-primary)
+    );
+  }
+}

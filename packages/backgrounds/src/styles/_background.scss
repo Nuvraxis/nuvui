@@ -1,0 +1,63 @@
+@use "layers";
+
+// What every background shares. Each one's own block maps its documented
+// variables onto these private ones: --nuv-background-bg for the color
+// under it, and --nuv-background-ink, --nuv-background-accent and the
+// rest for what a canvas draws with, read from script.
+@layer components {
+  .nuv-background {
+    position: relative;
+
+    // What's drawn sits under the content and over the background color,
+    // and doesn't mix with anything outside the box.
+    isolation: isolate;
+    overflow: hidden;
+    background-color: var(--nuv-background-bg, var(--color-background));
+  }
+
+  .nuv-background__layer,
+  .nuv-background__scrim {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    inline-size: 100%;
+    block-size: 100%;
+    pointer-events: none;
+  }
+
+  .nuv-background__canvas {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+  }
+
+  .nuv-background__scrim {
+    background-color: color-mix(
+      in oklab,
+      var(--nuv-background-bg, var(--color-background))
+        var(--nuv-background-scrim-amount, 0%),
+      transparent
+    );
+  }
+
+  .nuv-background[data-scrim="soft"] {
+    --nuv-background-scrim-amount: var(--nuv-background-scrim-soft, 50%);
+  }
+
+  .nuv-background[data-scrim="strong"] {
+    --nuv-background-scrim-amount: var(--nuv-background-scrim-strong, 80%);
+  }
+
+  // The browser's own colors are a few, chosen for reading. Nothing is
+  // drawn over them.
+  @media (forced-colors: active) {
+    .nuv-background {
+      background-color: Canvas;
+    }
+
+    .nuv-background__layer,
+    .nuv-background__scrim {
+      display: none;
+    }
+  }
+}

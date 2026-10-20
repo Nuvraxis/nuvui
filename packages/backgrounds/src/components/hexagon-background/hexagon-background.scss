@@ -1,0 +1,18 @@
+@use "../../styles/background";
+
+@layer components {
+  .nuv-hexagon-background {
+    --nuv-background-bg: var(
+      --nuv-hexagon-background-bg,
+      var(--color-background)
+    );
+    --nuv-background-ink: var(
+      --nuv-hexagon-background-color,
+      var(--color-border)
+    );
+    --nuv-background-accent: var(
+      --nuv-hexagon-background-glow,
+      var(--color-primary)
+    );
+  }
+}

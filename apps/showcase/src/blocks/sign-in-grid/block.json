@@ -1,0 +1,9 @@
+{
+  "name": "sign-in-grid",
+  "title": "Sign in over a grid",
+  "description": "Email and password on a card in the middle of the page, over a grid that fades out toward the edges and lights up under the pointer.",
+  "category": "accounts",
+  "files": ["sign-in-grid.tsx", "sign-in-grid.scss"],
+  "install": ["@nuvui/backgrounds", "@nuvui/react", "lucide-react"],
+  "height": 720
+}

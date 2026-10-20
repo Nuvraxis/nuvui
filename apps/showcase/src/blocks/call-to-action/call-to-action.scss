@@ -1,0 +1,61 @@
+@use "@nuvui/react/scss/mixins";
+
+.call-to-action {
+  padding: calc(var(--spacing) * 6) calc(var(--spacing) * 4);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+
+  @include mixins.breakpoint("md") {
+    padding: calc(var(--spacing) * 12) calc(var(--spacing) * 8);
+  }
+}
+
+.call-to-action__panel {
+  display: grid;
+  gap: calc(var(--spacing) * 5);
+  justify-items: center;
+  max-inline-size: 64rem;
+  margin-inline: auto;
+  padding: calc(var(--spacing) * 16) calc(var(--spacing) * 5)
+    calc(var(--spacing) * 14);
+  border: var(--nuv-border-width) solid var(--color-border);
+  border-radius: var(--radius-xl);
+  text-align: center;
+
+  @include mixins.breakpoint("md") {
+    padding-block: calc(var(--spacing) * 20) calc(var(--spacing) * 16);
+  }
+}
+
+.call-to-action__title {
+  max-inline-size: 36rem;
+  margin: 0;
+  font-size: clamp(1.875rem, 1.4rem + 2vw, 3rem);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+.call-to-action__text {
+  max-inline-size: 32rem;
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-lg);
+  line-height: var(--leading-relaxed);
+  text-wrap: pretty;
+}
+
+.call-to-action__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 3);
+  justify-content: center;
+}
+
+// Out of the way, in a corner, and still there for anyone who needs it.
+.call-to-action__pause {
+  position: absolute;
+  inset-block-start: calc(var(--spacing) * 2);
+  inset-inline-end: calc(var(--spacing) * 2);
+}

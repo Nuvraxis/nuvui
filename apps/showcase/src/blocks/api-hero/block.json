@@ -1,0 +1,9 @@
+{
+  "name": "api-hero",
+  "title": "Hero for an API",
+  "description": "The top of a developer product's page: the headline, two actions and a request to copy, over a field of characters lit by wandering glows, with a trail behind the pointer.",
+  "category": "marketing",
+  "files": ["api-hero.tsx", "api-hero.scss"],
+  "install": ["@nuvui/backgrounds", "@nuvui/react", "lucide-react"],
+  "height": 640
+}

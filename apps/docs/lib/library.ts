@@ -57,6 +57,7 @@ export const addons = {
   map: pkg("map", "@nuvui/map"),
   flow: pkg("flow", "@nuvui/flow"),
   media: pkg("media", "@nuvui/media"),
+  backgrounds: pkg("backgrounds", "@nuvui/backgrounds"),
   icons: pkg("icons", "@nuvui/icons"),
 };
 

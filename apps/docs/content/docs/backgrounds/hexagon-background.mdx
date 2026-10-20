@@ -1,0 +1,86 @@
+---
+title: HexagonBackground
+description: "A grid of hexagons. The ones under the pointer light up in the accent color and fade after it, and now and then one lights on its own."
+added: "2026-10-20"
+---
+
+<Preview name="hexagon-background/basic" wide />
+
+## Install
+
+```sh
+pnpm add @nuvui/backgrounds @nuvui/react
+```
+
+## Import
+
+```tsx
+import { HexagonBackground } from "@nuvui/backgrounds/hexagon-background";
+```
+
+It's a client component. It can be rendered from a server component, which sends what's laid on it, and the background is drawn once the page's script has run.
+
+## What it draws
+
+A grid of hexagon outlines covers it. Now and then one lights up in the accent color on its own and fades again.
+
+The hexagons under the pointer light up and fade after it, so a move leaves a trail. A press lights the ones around where it lands. A press on a button, a link or a field laid on it is the control's alone.
+
+<HexagonBackgroundPlayground />
+
+## Smaller, in another color
+
+<Preview name="hexagon-background/dense" wide />
+
+## Props
+
+<PropsTable package="backgrounds" component="hexagon-background" name="HexagonBackgroundOwnProps" props={{
+  children: "What's laid on the background, such as a headline or a form.",
+  scrim: "Lays the background's own color over it, so what's on it reads. `strong` keeps body text at 4.5:1.",
+  paused: "Stops it on the frame it's at.",
+  interactive: "Whether it answers the pointer: a move, and a press on it.",
+  speed: "How fast it moves: 1 as designed, 0.5 half as fast.",
+  density: "How small the hexagons are: 1 as designed, 2 twice as dense.",
+}} />
+
+It also takes the attributes of a `div`, which is what it's drawn as. Give it a size, such as `min-height`, and lay out what's on it with `className`: it's the box its children are in.
+
+## Accessibility
+
+### What the component handles
+
+- **It's hidden from screen readers,** and never in the Tab order. What's laid on it is read as it would be anywhere else.
+- **For anyone who asked for less motion,** it's one finished frame that holds still, and the pointer moves nothing.
+- **Where the browser forces its colors,** nothing is drawn, and the box is the system's background.
+- **It stops when it can't be seen:** while it's scrolled out of view, and while the tab is in the background.
+
+### What you need to handle
+
+- **A way to stop it.** Anything that moves for more than five seconds beside other content needs one. A button that sets `paused` will do, as in [the example on the start page](/docs/backgrounds#a-way-to-stop-it).
+- **Text that reads.** `scrim="strong"` keeps body text at 4.5:1 or more over any part of it in its own colors. With colors of your own, check them.
+
+## CSS variables
+
+<CssVariables
+  package="backgrounds"
+  component="hexagon-background"
+  descriptions={{
+    "--nuv-hexagon-background-bg": "The color under the hexagons, and the scrim's color.",
+    "--nuv-hexagon-background-color": "Color of their outlines.",
+    "--nuv-hexagon-background-glow": "Color of one that's lit.",
+  }}
+/>
+
+The scrim's strengths are shared by every background, and listed on [the start page](/docs/backgrounds#a-scrim).
+
+## Classes
+
+<BemClasses
+  package="backgrounds"
+  component="hexagon-background"
+  descriptions={{
+    "nuv-hexagon-background": "HexagonBackground",
+  }}
+/>
+
+Every background also has the classes on [the start page](/docs/backgrounds#classes).

@@ -415,6 +415,31 @@ test("components used from a server component hydrate and work", async ({
     )
     .toBeGreaterThan(0.2);
 
+  // The gradient is whole in the page from the server. The stars are drawn
+  // once the page's script has run.
+  const gradient = page.locator(".nuv-gradient-background");
+  await expect(gradient.getByText("Server gradient")).toBeVisible();
+  await expect(gradient.locator(".nuv-gradient-background__field")).toHaveCount(
+    3,
+  );
+  const stars = page.locator(".nuv-stars-background");
+  await expect(stars.getByText("Server stars")).toBeVisible();
+  await expect
+    .poll(() =>
+      stars.locator("canvas").evaluate((canvas: HTMLCanvasElement) => {
+        const context = canvas.getContext("2d");
+        if (!context || canvas.width === 0) return false;
+        const { data } = context.getImageData(
+          0,
+          0,
+          canvas.width,
+          canvas.height,
+        );
+        return data.some((value, index) => index % 4 === 3 && value > 0);
+      }),
+    )
+    .toBe(true);
+
   // The provider was rendered on the server, and the tabs inside it take
   // their direction from it: the left arrow goes forward.
   await page.getByRole("tab", { name: "One" }).focus();

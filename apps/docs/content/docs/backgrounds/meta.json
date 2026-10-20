@@ -1,0 +1,15 @@
+{
+  "title": "Backgrounds",
+  "defaultOpen": true,
+  "pages": [
+    "index",
+    "gradient-background",
+    "grid-background",
+    "stars-background",
+    "topography-background",
+    "hexagon-background",
+    "fireworks-background",
+    "hole-background",
+    "glyph-background"
+  ]
+}

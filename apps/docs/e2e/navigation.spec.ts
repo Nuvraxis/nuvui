@@ -1,6 +1,12 @@
 import { expect, type Locator, type Page, test } from "@playwright/test";
 import { open, press } from "./helpers";
 
+// A router's link changes the address once the new page has rendered. In
+// Firefox on a busy runner, while the router is still fetching every link
+// in the sidebar ahead of time, that has taken longer than the five
+// seconds a check gets by default.
+const routed = { timeout: 15_000 };
+
 // The panel hangs under the menu in the page, so how far down it reaches
 // depends on where the page is scrolled to. What it must never do is run
 // off either side.
@@ -180,7 +186,7 @@ test.describe("navigation menu page", () => {
     });
     await press(link, isMobile);
 
-    await expect(page).toHaveURL(/\/docs$/);
+    await expect(page).toHaveURL(/\/docs$/, routed);
     expect(
       await page.evaluate(() => (window as { stayed?: boolean }).stayed),
     ).toBe(true);
@@ -296,7 +302,7 @@ test.describe("breadcrumb page", () => {
     });
     await press(link, isMobile);
 
-    await expect(page).toHaveURL(/\/docs\/forms$/);
+    await expect(page).toHaveURL(/\/docs\/forms$/, routed);
     expect(
       await page.evaluate(() => (window as { stayed?: boolean }).stayed),
     ).toBe(true);
@@ -415,7 +421,7 @@ test.describe("pagination page", () => {
     });
     await press(next, isMobile);
 
-    await expect(page).toHaveURL(/\/docs\/scss$/);
+    await expect(page).toHaveURL(/\/docs\/scss$/, routed);
     expect(
       await page.evaluate(() => (window as { stayed?: boolean }).stayed),
     ).toBe(true);

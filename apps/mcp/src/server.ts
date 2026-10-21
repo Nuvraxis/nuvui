@@ -259,15 +259,31 @@ export function createServer(data: Data, options: ServerOptions = {}) {
 
   // When an older release hasn't something, says whether the latest has,
   // which is the difference between a typo and a thing that came later.
-  function laterThan(answer: Answer, what: string, latestPackage?: string) {
+  // `released` says whether a release's docs have it: a package with a
+  // change still to come can have this one out already.
+  function laterThan(
+    answer: Answer,
+    what: string,
+    latestPackage: string | undefined,
+    released: (docs: Docs) => boolean,
+  ) {
     if (answer.current) return "";
     if (latestPackage === undefined) {
       return ` It isn't in the docs for @nuvui/react ${answer.docs.version}.`;
     }
-    return unreleased(data.packages[latestPackage]) ||
-      pendingPackages.has(latestPackage)
-      ? ` ${what} is in the latest docs, but in no release yet.`
-      : ` ${what} is in the latest docs, for @nuvui/react ${data.version}: it came after ${answer.docs.version}, so the project doesn't have it until it updates.`;
+    const inRelease =
+      !unreleased(data.packages[latestPackage]) &&
+      (!pendingPackages.has(latestPackage) || isReleased(released));
+    return inRelease
+      ? ` ${what} is in the latest docs, for @nuvui/react ${data.version}: it came after ${answer.docs.version}, so the project doesn't have it until it updates.`
+      : ` ${what} is in the latest docs, but in no release yet.`;
+  }
+
+  // Whether the latest release has it, by that release's own docs. They're
+  // kept once it's out, as the newest line.
+  function isReleased(released: (docs: Docs) => boolean) {
+    const docs = options.snapshots?.load(lineOf(latest));
+    return docs !== undefined && released(docs);
   }
 
   const tool = <P extends z.ZodType>(definition: {
@@ -370,7 +386,7 @@ export function createServer(data: Data, options: ServerOptions = {}) {
       if (full !== undefined && !packages.includes(full)) {
         if (!answer.current && latestPackages.includes(full)) {
           throw new UserError(
-            `No package is called "${wanted}" in the docs for @nuvui/react ${docs.version}.${laterThan(answer, full, full)}`,
+            `No package is called "${wanted}" in the docs for @nuvui/react ${docs.version}.${laterThan(answer, full, full, (kept) => full in kept.packages)}`,
           );
         }
         notFound(
@@ -442,7 +458,7 @@ export function createServer(data: Data, options: ServerOptions = {}) {
         const later = answer.current ? undefined : findPage(data.pages, query);
         if (later) {
           throw new UserError(
-            `No page is called "${query}" in the docs for @nuvui/react ${answer.docs.version}.${laterThan(answer, `\`${later.id}\``, later.package ?? "@nuvui/react")}`,
+            `No page is called "${query}" in the docs for @nuvui/react ${answer.docs.version}.${laterThan(answer, `\`${later.id}\``, later.package ?? "@nuvui/react", (kept) => kept.pages.some((p) => p.id === later.id))}`,
           );
         }
         notFound(
@@ -565,7 +581,7 @@ export function createServer(data: Data, options: ServerOptions = {}) {
           : data.blocks.find((b) => b.name === wanted);
         if (later) {
           throw new UserError(
-            `No block is called "${query}" in the docs for @nuvui/react ${answer.docs.version}.${laterThan(answer, `\`${later.name}\``, later.install.find((p) => p !== "@nuvui/react") ?? "@nuvui/react")}`,
+            `No block is called "${query}" in the docs for @nuvui/react ${answer.docs.version}.${laterThan(answer, `\`${later.name}\``, later.install.find((p) => p !== "@nuvui/react") ?? "@nuvui/react", (kept) => kept.blocks.some((b) => b.name === later.name))}`,
           );
         }
         notFound(

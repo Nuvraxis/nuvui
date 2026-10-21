@@ -1,0 +1,9 @@
+{
+  "name": "pinned-reports",
+  "title": "Pinned reports",
+  "description": "Saved reports with the ones in use pinned at the top: each opens from its name, has a menu of its own, and slides to the other group when its pin is pressed.",
+  "category": "data",
+  "files": ["pinned-reports.tsx", "pinned-reports.scss"],
+  "install": ["@nuvui/react", "lucide-react"],
+  "height": 640
+}

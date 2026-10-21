@@ -1,0 +1,107 @@
+@use "@nuvui/react/scss/mixins";
+
+.release-notes {
+  display: grid;
+  place-items: start center;
+  min-block-size: 100%;
+  padding: calc(var(--spacing) * 4);
+  background-color: var(--color-muted);
+  color: var(--color-foreground);
+
+  @include mixins.breakpoint("md") {
+    padding: calc(var(--spacing) * 8);
+  }
+}
+
+.release-notes__panel {
+  display: grid;
+  inline-size: 100%;
+  max-inline-size: 40rem;
+  overflow: hidden;
+  border: var(--nuv-border-width) solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background-color: var(--color-background);
+}
+
+.release-notes__header {
+  display: grid;
+  gap: calc(var(--spacing) * 1);
+  padding: calc(var(--spacing) * 5);
+  border-block-end: var(--nuv-border-width) solid var(--color-border);
+}
+
+.release-notes__title {
+  margin: 0;
+  font-size: var(--text-xl);
+  font-weight: var(--font-weight-semibold);
+}
+
+.release-notes__lead {
+  margin: 0;
+  color: var(--color-muted-foreground);
+}
+
+// The bar lies on the top edge of the box that scrolls, over it.
+.release-notes__body {
+  position: relative;
+}
+
+.release-notes__progress {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline: 0;
+  z-index: 1;
+}
+
+.release-notes__scroller {
+  display: grid;
+  gap: calc(var(--spacing) * 8);
+  max-block-size: 26rem;
+  padding: calc(var(--spacing) * 5);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+
+  &:focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: -2px;
+  }
+}
+
+.release-notes__release {
+  display: grid;
+  gap: calc(var(--spacing) * 2);
+}
+
+.release-notes__meta {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+}
+
+.release-notes__heading {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-semibold);
+}
+
+.release-notes__changes {
+  display: grid;
+  gap: calc(var(--spacing) * 3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.release-notes__change {
+  display: flex;
+  gap: calc(var(--spacing) * 3);
+  align-items: baseline;
+  line-height: var(--leading-relaxed);
+}
+
+// The same width for each kind, so the changes line up after them.
+.release-notes__kind {
+  flex: none;
+  inline-size: 4.5rem;
+  justify-content: center;
+}

@@ -1,0 +1,95 @@
+@use "@nuvui/react/scss/mixins";
+
+.quick-start {
+  display: grid;
+  gap: calc(var(--spacing) * 10);
+  justify-items: center;
+  padding: calc(var(--spacing) * 12) calc(var(--spacing) * 4);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+
+  @include mixins.breakpoint("md") {
+    padding: calc(var(--spacing) * 16) calc(var(--spacing) * 8);
+  }
+}
+
+.quick-start__header {
+  display: grid;
+  gap: calc(var(--spacing) * 3);
+  max-inline-size: 36rem;
+  text-align: center;
+}
+
+.quick-start__eyebrow {
+  margin: 0;
+  color: var(--color-primary);
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+.quick-start__title {
+  margin: 0;
+  font-size: var(--text-3xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-3xl--line-height);
+  text-wrap: balance;
+}
+
+.quick-start__lead {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-lg);
+}
+
+.quick-start__steps {
+  display: grid;
+  gap: calc(var(--spacing) * 8);
+  inline-size: 100%;
+  max-inline-size: 40rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+// The number in a circle at the start, and the step beside it.
+.quick-start__step {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: calc(var(--spacing) * 4);
+}
+
+.quick-start__number {
+  display: grid;
+  place-items: center;
+  inline-size: calc(var(--spacing) * 8);
+  block-size: calc(var(--spacing) * 8);
+  border: var(--nuv-border-width) solid var(--color-border-strong);
+  border-radius: var(--radius-full);
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+.quick-start__body {
+  display: grid;
+  gap: calc(var(--spacing) * 2);
+  min-inline-size: 0;
+}
+
+.quick-start__heading {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-semibold);
+  line-height: calc(var(--spacing) * 8);
+}
+
+.quick-start__text {
+  margin: 0 0 calc(var(--spacing) * 1);
+  color: var(--color-muted-foreground);
+}
+
+.quick-start__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 3);
+  justify-content: center;
+}

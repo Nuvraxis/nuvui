@@ -1,0 +1,9 @@
+{
+  "name": "empty-projects",
+  "title": "No projects yet",
+  "description": "A list page with nothing in it yet: what a project is, and the two ways to start, over hexagons that light up under the pointer.",
+  "category": "data",
+  "files": ["empty-projects.tsx", "empty-projects.scss"],
+  "install": ["@nuvui/backgrounds", "@nuvui/react", "lucide-react"],
+  "height": 560
+}

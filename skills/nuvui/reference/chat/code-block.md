@@ -131,6 +131,68 @@ const highlighter: CodeHighlighter = (code, language) => {
 
 It returns the lines, each a list of tokens, or a promise of them. The tokens' text, put back together, has to be the code it was given. `null` says the language isn't one it knows.
 
+## Typing
+
+With `typing`, the code types itself out, a character at a time, with a cursor after the last one. It's for code that's being shown off, on a page that introduces a product or a step in a guide, and not for code in a conversation.
+
+```tsx
+"use client";
+
+import { CodeBlock } from "@nuvui/chat";
+import { Button } from "@nuvui/react";
+import { useState } from "react";
+
+const code = `import { Button } from "@nuvui/react";
+
+export function Save() {
+  return <Button>Save changes</Button>;
+}`;
+
+export default function Example() {
+  const [run, setRun] = useState(0);
+
+  return (
+    <div
+      style={{
+        display: "grid",
+        gap: 12,
+        inlineSize: "100%",
+        maxInlineSize: 520,
+      }}
+    >
+      <CodeBlock key={run} code={code} language="tsx" typing />
+      <Button
+        intent="secondary"
+        style={{ justifySelf: "start" }}
+        onClick={() => setRun((now) => now + 1)}
+      >
+        Type again
+      </Button>
+    </div>
+  );
+}
+```
+
+`typingDuration` is how long the whole code takes, in milliseconds. Left out, it's 25 a character, and no more than three seconds, so a long block doesn't keep anyone waiting. `typingDelay` waits before it starts. `onTyped` is called once all the code is there.
+
+With `typingTrigger="view"`, it starts the first time the block is scrolled into view, as soon as any of it is.
+
+```tsx
+<CodeBlock
+  code={install}
+  language="sh"
+  typing
+  typingTrigger="view"
+  typingDuration={1200}
+/>
+```
+
+The box has its full size from the start: what isn't typed yet is in the page and isn't drawn, so nothing under the block moves, a screen reader reads the whole code, and the button copies all of it. Colors from a highlighter are kept as it types. A line longer than the box, or code taller than `--nuv-code-block-max-height`, scrolls the box to keep the cursor in view, and leaves the page where it is.
+
+For a visitor who asked for less motion, and where the browser forces its own colors, the code is all there at once, and `onTyped` is still called. In the page from the server, the code is there and hidden until the script starts the typing. If the script never runs, it's shown after three seconds.
+
+To type it again, give it a new `key`.
+
 ## Props
 
 | Prop | Type | Default | What it's for |
@@ -145,6 +207,11 @@ It returns the lines, each a list of tokens, or a promise of them. The tokens' t
 | `onCopy` | `((code: string) => void)` |  | Called once the code is on the clipboard. |
 | `onCopyError` | `((error: unknown) => void)` |  | Called if the browser wouldn't copy: the page isn't served over HTTPS, or permission was refused. |
 | `label` | `string` | `"Code"` | The name of the box the code scrolls in, for a screen reader. |
+| `typing` | `boolean` | `false` | Whether the code types itself out, a character at a time, with a cursor at the end. The box has its full size from the start, and a screen reader and a copy get the whole code. For less motion it's all there at once. |
+| `typingTrigger` | `"mount" \| "view"` | `"mount"` | When the typing starts: `"mount"` is as soon as it's drawn, and `"view"` the first time it's scrolled into view. |
+| `typingDuration` | `number` |  | How long the typing takes, in milliseconds. Left out, it's 25 a character, and no more than 3,000. |
+| `typingDelay` | `number` | `0` | How long to wait before the typing starts, in milliseconds. |
+| `onTyped` | `(() => void)` |  | Called once the whole code is there, typed or shown at once. |
 
 It also takes the attributes of a `div`, and passes `ref` to it.
 
@@ -175,6 +242,7 @@ It also takes the attributes of a `div`, and passes `ref` to it.
 - The colors are decoration. The code is the same text with them and without.
 - The default colors are the theme's, which are checked as text against the box's background.
 - The button is 44 pixels on a touch screen and 28 with a mouse.
+- While code types itself out, all of it is in the page for a screen reader, and the cursor is hidden from it. For less motion, the code is there at once.
 
 ### What you need to handle
 
@@ -206,12 +274,16 @@ Set any of these on a `CodeBlock`, or on anything around it. The token colors ar
 | `--nuv-code-block-copy-hover-fg` | `var(--color-foreground)` | Color of its icon under the pointer. |
 | `--nuv-code-block-max-height` | `none` | How tall the code gets before it scrolls down. Left out, it's as tall as its lines. |
 | `--nuv-code-block-font-size` | `var(--text-sm)` | Size of the code. |
+| `--nuv-code-block-typing-fallback` | `3s` | How long code that types itself out stays hidden in the page from the server, if the script never runs. |
+| `--nuv-code-block-caret-width` | `2px` | How wide the cursor is. |
+| `--nuv-code-block-caret` | `var(--nuv-code-block-fg, var(--color-surface-foreground))` | Color of the cursor while the code types itself out. |
 
 ## Classes
 
 | Class | What it's on |
 | --- | --- |
 | `.nuv-code-block` | CodeBlock |
+| `.nuv-code-block__caret` | The cursor, while the code types itself out. |
 | `.nuv-code-block__code` | The code. |
 | `.nuv-code-block__copy` | The button that copies. |
 | `.nuv-code-block__head` | The row over the code. |
@@ -219,12 +291,13 @@ Set any of these on a `CodeBlock`, or on anything around it. The token colors ar
 | `.nuv-code-block__scroller` | The box the code scrolls in. |
 | `.nuv-code-block__status` | That the code was copied. Read out and drawn for nobody. |
 | `.nuv-code-block__title` | The language, or the title. |
+| `.nuv-code-block__untyped` | What isn't typed yet: in the page, and not drawn. |
 
-The block has `data-language`, and `data-highlighted` once its code is colored. The button has `data-copied` for the two seconds after it has copied.
+The block has `data-language`, and `data-highlighted` once its code is colored. With `typing`, it has `data-typing`: `pending` in the page from the server, `waiting` before it starts, `typing`, and `done`. The button has `data-copied` for the two seconds after it has copied.
 
 ## Server components
 
-CodeBlock starts with `"use client"`, for the button and for the coloring, which happens in the browser. A server component can render it with `code` and `language`, without the functions: `highlighter`, `onCopy`, `onCopyError`.
+CodeBlock starts with `"use client"`, for the button and for the coloring, which happens in the browser. A server component can render it with `code` and `language`, without the functions: `highlighter`, `onCopy`, `onCopyError`, `onTyped`.
 
 ## Do and don't
 

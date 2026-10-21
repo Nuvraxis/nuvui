@@ -110,7 +110,11 @@ jobs:
     # minutes, so 1,900 is more than sixty, and more again with every
     # runner busy. A fourth docs slice would wait for a runner, and take
     # longer in all than three slices that each take longer.
-    timeout-minutes: 90
+    #
+    # The last docs slice is mostly Firefox, the slowest engine here. In
+    # October 2026 it was some 2,200 tests, and with every slice on the one
+    # laptop it got through 1,900 in ninety minutes.
+    timeout-minutes: 120
     strategy:
       # One slice failing says nothing about the others. Let them finish, so
       # one run shows everything that's wrong.

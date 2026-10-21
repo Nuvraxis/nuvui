@@ -1,0 +1,87 @@
+@use "@nuvui/react/scss/mixins";
+
+.api-hero__stage {
+  padding: calc(var(--spacing) * 20) calc(var(--spacing) * 4)
+    calc(var(--spacing) * 16);
+  color: var(--color-foreground);
+
+  @include mixins.breakpoint("md") {
+    padding-inline: calc(var(--spacing) * 8);
+  }
+}
+
+.api-hero__inner {
+  display: grid;
+  gap: calc(var(--spacing) * 10);
+  align-items: center;
+  max-inline-size: 72rem;
+  margin-inline: auto;
+
+  @include mixins.breakpoint("lg") {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
+
+.api-hero__words {
+  display: grid;
+  gap: calc(var(--spacing) * 6);
+  justify-items: start;
+}
+
+.api-hero__title {
+  margin: 0;
+  font-size: clamp(2.25rem, 1.5rem + 3vw, 3.75rem);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+
+.api-hero__lead {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-lg);
+  line-height: var(--leading-relaxed);
+  text-wrap: pretty;
+}
+
+.api-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 3);
+}
+
+// The code on a surface of its own, so the characters behind never mix
+// with it.
+.api-hero__code {
+  min-inline-size: 0;
+  margin: 0;
+  overflow: hidden;
+  border: var(--nuv-border-width) solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-xl);
+  color: var(--color-surface-foreground);
+}
+
+.api-hero__caption {
+  padding: calc(var(--spacing) * 3) calc(var(--spacing) * 4);
+  border-block-end: var(--nuv-border-width) solid var(--color-border);
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+}
+
+.api-hero__pre {
+  margin: 0;
+  padding: calc(var(--spacing) * 4);
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+}
+
+.api-hero__pause {
+  position: absolute;
+  inset-block-start: calc(var(--spacing) * 3);
+  inset-inline-end: calc(var(--spacing) * 3);
+}

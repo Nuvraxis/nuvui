@@ -1,0 +1,15 @@
+@use "../../styles/background";
+
+@layer components {
+  .nuv-glyph-background {
+    --nuv-background-bg: var(--nuv-glyph-background-bg, var(--color-background));
+    --nuv-background-ink: var(
+      --nuv-glyph-background-color,
+      var(--color-muted-foreground)
+    );
+    --nuv-background-accent: var(
+      --nuv-glyph-background-glow,
+      var(--color-primary)
+    );
+  }
+}

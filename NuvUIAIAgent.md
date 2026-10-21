@@ -21,7 +21,7 @@ Three things are different from the libraries you may expect, and most mistakes 
 
 | Package | What's in it | Also needs |
 | --- | --- | --- |
-| `@nuvui/react` | The core: seventy-six components, the tokens and the themes. | `react`, `react-dom` 18.2 or newer |
+| `@nuvui/react` | The core: seventy-eight components, the tokens and the themes. | `react`, `react-dom` 18.2 or newer |
 | `@nuvui/date-picker` | `Calendar`, `DatePicker`, `DateRangePicker` | |
 | `@nuvui/table` | `Table` and its parts, `DataTable` with sorting, filtering, selection, paging and virtual rows | `@tanstack/react-table`, and `@tanstack/react-virtual` only for virtual rows |
 | `@nuvui/charts` | `ChartContainer`, tooltip and legend, around Recharts | `recharts` |
@@ -33,6 +33,7 @@ Three things are different from the libraries you may expect, and most mistakes 
 | `@nuvui/map` | `MapView`, markers, popups, controls, routes, clusters, on MapLibre | `maplibre-gl` |
 | `@nuvui/flow` | `Flow`, a diagram of shapes joined by arrows that pans, zooms and can be edited | |
 | `@nuvui/media` | `VideoPlayer`, `AudioPlayer`, `MediaTranscript` and their parts: captions, chapters, qualities, a waveform, streams | `hls.js` or `dashjs`, only for streams |
+| `@nuvui/backgrounds` | `GradientBackground`, `GridBackground`, `StarsBackground`, `TopographyBackground`, `HexagonBackground`, `FireworksBackground`, `HoleBackground`, `GlyphBackground` | |
 | `@nuvui/icons` | 317 line icons in three styles, such as `ArrowRightIcon` | |
 
 Every add-on but `@nuvui/icons` needs `@nuvui/react` beside it, and its own stylesheet after the core's:
@@ -105,7 +106,8 @@ Each links to a file with the reasons and the code. Read the file before working
 | Commands by typing | `Command` |
 | A message in the page | `Alert`. One that passes: `toast()`. Nothing to show: `Empty` |
 | Waiting | `Skeleton` for a shape, `Spinner` for a moment, `Progress` for a known amount |
-| Rows | `Table` for plain rows, `DataTable` for sorting, filtering and selection, from [`@nuvui/table`](skills/nuvui/reference/table/index.md). A list of things with actions: `ListView`, `Item` |
+| How far through a long read | `ScrollProgress` |
+| Rows | `Table` for plain rows, `DataTable` for sorting, filtering and selection, from [`@nuvui/table`](skills/nuvui/reference/table/index.md). A list of things with actions: `ListView`, `Item`. A list with a few pinned at the top: `PinnedList` |
 | Figures | `Stat`, `Trend`, `FormattedNumber`. Charts: [`@nuvui/charts`](skills/nuvui/reference/charts/index.md) |
 | A barcode or a QR code | [`@nuvui/barcodes`](skills/nuvui/reference/barcodes/index.md) |
 | An emoji to pick, or a reaction | [`@nuvui/emoji`](skills/nuvui/reference/emoji/index.md) |
@@ -119,6 +121,7 @@ Each links to a file with the reasons and the code. Read the file before working
 | A place | [`@nuvui/map`](skills/nuvui/reference/map/index.md) |
 | Steps joined by arrows, a process or an approval path | [`@nuvui/flow`](skills/nuvui/reference/flow/index.md) |
 | A video, a lesson, a recording, a podcast, a voice message | [`@nuvui/media`](skills/nuvui/reference/media/index.md) |
+| A moving background behind a hero, a sign-in page or an empty state | [`@nuvui/backgrounds`](skills/nuvui/reference/backgrounds/index.md) |
 | An icon | [`@nuvui/icons`](skills/nuvui/reference/icons/index.md) |
 
 A core component's file is `reference/components/<name>.md`, with the name in lower case and hyphens: `reference/components/alert-dialog.md`.

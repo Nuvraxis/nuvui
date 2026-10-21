@@ -1,0 +1,9 @@
+{
+  "name": "waitlist",
+  "title": "Waiting list",
+  "description": "A page for something that isn't out yet: what's coming, and a field to join the list, which says so once it's sent, over a tunnel of rings in the dark in both themes.",
+  "category": "marketing",
+  "files": ["waitlist.tsx", "waitlist.scss"],
+  "install": ["@nuvui/backgrounds", "@nuvui/react", "lucide-react"],
+  "height": 640
+}

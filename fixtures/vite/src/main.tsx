@@ -11,6 +11,9 @@ import "@nuvui/emoji/styles.css";
 import "@nuvui/map/styles.css";
 import "@nuvui/flow/styles.css";
 import "@nuvui/media/styles.css";
+import "@nuvui/backgrounds/styles.css";
+// A background, from the entry of its own.
+import { StarsBackground } from "@nuvui/backgrounds/stars-background";
 // The two codes, each from the entry of its own.
 import { Barcode } from "@nuvui/barcodes/barcode";
 import { QRCode } from "@nuvui/barcodes/qrcode";
@@ -177,6 +180,9 @@ function App() {
         edges={[{ id: "a-b", from: "a", to: "b" }]}
       />
       <VideoPlayer title="Intro" src="/intro.mp4" poster="/intro.jpg" />
+      <StarsBackground scrim="soft">
+        <p>Under the stars</p>
+      </StarsBackground>
       <Episode />
       <Kanban
         aria-label="Work"

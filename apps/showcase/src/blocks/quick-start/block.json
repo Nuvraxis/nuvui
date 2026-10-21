@@ -1,0 +1,9 @@
+{
+  "name": "quick-start",
+  "title": "Quick start",
+  "description": "Three steps to install a package and use it, each with its code, which types itself out the first time it's scrolled to.",
+  "category": "marketing",
+  "files": ["quick-start.tsx", "quick-start.scss"],
+  "install": ["@nuvui/chat", "@nuvui/react"],
+  "height": 760
+}

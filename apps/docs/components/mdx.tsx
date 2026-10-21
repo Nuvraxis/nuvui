@@ -11,6 +11,16 @@ import { AnimatedNumberPlayground } from "@/components/playground/animated-numbe
 import { AspectRatioPlayground } from "@/components/playground/aspect-ratio";
 import { AudioPlayerPlayground } from "@/components/playground/audio-player";
 import { AvatarPlayground } from "@/components/playground/avatar";
+import {
+  FireworksBackgroundPlayground,
+  GlyphBackgroundPlayground,
+  GradientBackgroundPlayground,
+  GridBackgroundPlayground,
+  HexagonBackgroundPlayground,
+  HoleBackgroundPlayground,
+  StarsBackgroundPlayground,
+  TopographyBackgroundPlayground,
+} from "@/components/playground/backgrounds";
 import { BadgePlayground } from "@/components/playground/badge";
 import {
   BarcodePlayground,
@@ -69,12 +79,14 @@ import { NumberFieldPlayground } from "@/components/playground/number-field";
 import { OtpFieldPlayground } from "@/components/playground/otp-field";
 import { PaginationPlayground } from "@/components/playground/pagination";
 import { PasswordInputPlayground } from "@/components/playground/password-input";
+import { PinnedListPlayground } from "@/components/playground/pinned-list";
 import { PopoverPlayground } from "@/components/playground/popover";
 import { ProgressPlayground } from "@/components/playground/progress";
 import { RadioGroupPlayground } from "@/components/playground/radio-group";
 import { RatingPlayground } from "@/components/playground/rating";
 import { ResizablePlayground } from "@/components/playground/resizable";
 import { ScrollAreaPlayground } from "@/components/playground/scroll-area";
+import { ScrollProgressPlayground } from "@/components/playground/scroll-progress";
 import { SelectPlayground } from "@/components/playground/select";
 import { SeparatorPlayground } from "@/components/playground/separator";
 import { SheetPlayground } from "@/components/playground/sheet";
@@ -144,6 +156,14 @@ export function getMDXComponents(components?: MDXComponents) {
     AspectRatioPlayground,
     AudioPlayerPlayground,
     AvatarPlayground,
+    FireworksBackgroundPlayground,
+    GlyphBackgroundPlayground,
+    GradientBackgroundPlayground,
+    GridBackgroundPlayground,
+    HexagonBackgroundPlayground,
+    HoleBackgroundPlayground,
+    StarsBackgroundPlayground,
+    TopographyBackgroundPlayground,
     BadgePlayground,
     BreadcrumbPlayground,
     ButtonPlayground,
@@ -184,6 +204,8 @@ export function getMDXComponents(components?: MDXComponents) {
     HoloCardPlayground,
     TableOfContentsPlayground,
     TextRevealPlayground,
+    PinnedListPlayground,
+    ScrollProgressPlayground,
     TextShimmerPlayground,
     TreePlayground,
     ListViewPlayground,

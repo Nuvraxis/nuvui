@@ -1,0 +1,14 @@
+@use "../../styles/background";
+
+@layer components {
+  .nuv-topography-background {
+    --nuv-background-bg: var(
+      --nuv-topography-background-bg,
+      var(--color-background)
+    );
+    --nuv-background-ink: var(
+      --nuv-topography-background-color,
+      var(--color-muted-foreground)
+    );
+  }
+}

@@ -2,9 +2,10 @@ import "@nuvui/react/styles.css";
 import "../../styles/index.scss";
 import { axe } from "@nuvui/tooling/test/axe";
 import { contrast } from "@nuvui/tooling/test/contrast";
-import { setViewport } from "@nuvui/tooling/test/media";
+import { emulateMedia, setViewport } from "@nuvui/tooling/test/media";
 import { renderThemed, themes } from "@nuvui/tooling/test/themed";
 import { createRef } from "react";
+import { renderToString } from "react-dom/server";
 import { afterEach, describe, expect, test, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
@@ -462,5 +463,222 @@ describe.each(themes)("accessibility in %s", (theme) => {
     expect(
       contrast(style(one(".nuv-code-block__code")).color, ground),
     ).toBeGreaterThanOrEqual(4.5);
+  });
+});
+
+describe("typing", () => {
+  // What's drawn so far, and what's in the page but not drawn yet.
+  const typedText = () => {
+    const clone = one(".nuv-code-block__code").cloneNode(true) as HTMLElement;
+    for (const rest of clone.querySelectorAll(".nuv-code-block__untyped")) {
+      rest.remove();
+    }
+    return clone.textContent;
+  };
+  const untyped = () =>
+    Array.from(document.querySelectorAll(".nuv-code-block__untyped"));
+  const caret = () => document.querySelector(".nuv-code-block__caret");
+  const phase = () => one(".nuv-code-block").dataset.typing;
+
+  test("types the code out, a character at a time, with a cursor after it", async () => {
+    await emulateMedia({ reducedMotion: "no-preference" });
+    const onTyped = vi.fn();
+    await render(
+      <CodeBlock
+        code={code}
+        language="ts"
+        typing
+        typingDuration={600}
+        onTyped={onTyped}
+      />,
+    );
+
+    await expect.poll(() => phase()).toBe("typing");
+    await expect.poll(() => typedText()?.length ?? 0).toBeGreaterThan(0);
+    const part = typedText() ?? "";
+    expect(code.startsWith(part)).toBe(true);
+    expect(part.length).toBeLessThan(code.length);
+    expect(caret()).not.toBeNull();
+    expect(caret()?.getAttribute("aria-hidden")).toBe("true");
+    expect(onTyped).not.toHaveBeenCalled();
+
+    await expect.poll(() => phase(), { timeout: 3000 }).toBe("done");
+    expect(shown()).toBe(code);
+    expect(untyped()).toHaveLength(0);
+    expect(caret()).toBeNull();
+    expect(onTyped).toHaveBeenCalledTimes(1);
+  });
+
+  test("the whole code is in the page while it types, and the box has its full size from the start", async () => {
+    await emulateMedia({ reducedMotion: "no-preference" });
+    await render(
+      <div>
+        <CodeBlock code={code} />
+        <CodeBlock code={code} typing typingDuration={60_000} />
+      </div>,
+    );
+    const [still, typing] = Array.from(
+      document.querySelectorAll(".nuv-code-block"),
+    ) as [HTMLElement, HTMLElement];
+
+    await expect.poll(() => typing.dataset.typing).toBe("typing");
+    // Every character, for a screen reader and for a copy.
+    expect(typing.querySelector(".nuv-code-block__code")?.textContent).toBe(
+      code,
+    );
+    expect(rect(typing).height).toBe(rect(still).height);
+    expect(rect(typing).width).toBe(rect(still).width);
+    for (const rest of untyped()) expect(style(rest).opacity).toBe("0");
+  });
+
+  test("the cursor takes no room, so the characters around it don't move", async () => {
+    await emulateMedia({ reducedMotion: "no-preference" });
+    await render(<CodeBlock code="abc" typing typingDuration={60_000} />);
+    await expect.poll(() => caret()).not.toBeNull();
+    const cursor = caret() as HTMLElement;
+
+    expect(rect(cursor).width).toBe(2);
+    expect(Number.parseFloat(style(cursor).marginInlineEnd)).toBe(-2);
+    expect(style(cursor).animationName).toBe("nuv-code-block-blink");
+  });
+
+  test("copying while it types copies the whole code", async () => {
+    await emulateMedia({ reducedMotion: "no-preference" });
+    const writeText = vi
+      .spyOn(navigator.clipboard, "writeText")
+      .mockResolvedValue();
+    await render(<CodeBlock code={code} typing typingDuration={60_000} />);
+    await expect.poll(() => phase()).toBe("typing");
+
+    await userEvent.click(copy());
+
+    expect(writeText).toHaveBeenCalledWith(code);
+  });
+
+  test("colors from a highlighter are kept as it types", async () => {
+    await emulateMedia({ reducedMotion: "no-preference" });
+    await render(
+      <CodeBlock code={code} highlighter={red} typing typingDuration={600} />,
+    );
+
+    await expect
+      .poll(() => one(".nuv-code-block").hasAttribute("data-highlighted"))
+      .toBe(true);
+    const first = one(".nuv-code-block__code").querySelector(
+      "span[style]",
+    ) as HTMLElement;
+    expect(style(first).color).toBe("rgb(200, 0, 0)");
+    expect(first.textContent).toBe("const");
+
+    await expect.poll(() => phase(), { timeout: 3000 }).toBe("done");
+    expect(shown()).toBe(code);
+  });
+
+  test("typingDelay waits before it starts", async () => {
+    await emulateMedia({ reducedMotion: "no-preference" });
+    await render(
+      <CodeBlock code={code} typing typingDelay={400} typingDuration={300} />,
+    );
+
+    await expect.poll(() => phase()).toBe("waiting");
+    expect(typedText()).toBe("");
+    await expect.poll(() => phase(), { timeout: 3000 }).toBe("done");
+  });
+
+  test('typingTrigger="view": out of view it waits, and types once it\'s scrolled to', async () => {
+    await emulateMedia({ reducedMotion: "no-preference" });
+    await render(
+      <div>
+        <div style={{ blockSize: "300vh" }} />
+        <CodeBlock
+          code={code}
+          typing
+          typingTrigger="view"
+          typingDuration={300}
+        />
+      </div>,
+    );
+
+    await expect.poll(() => phase()).toBe("waiting");
+    await new Promise((resolve) => setTimeout(resolve, 400));
+    expect(phase()).toBe("waiting");
+    expect(typedText()).toBe("");
+
+    one(".nuv-code-block").scrollIntoView({ block: "center" });
+
+    await expect.poll(() => phase(), { timeout: 3000 }).toBe("done");
+  });
+
+  test("a long line scrolls the box to keep the cursor in view, and not the page", async () => {
+    await emulateMedia({ reducedMotion: "no-preference" });
+    await render(
+      <div style={{ inlineSize: 200 }}>
+        <CodeBlock code={"x".repeat(200)} typing typingDuration={600} />
+      </div>,
+    );
+    const scroller = one(".nuv-code-block__scroller");
+    const top = window.scrollY;
+
+    await expect.poll(() => scroller.scrollLeft).toBeGreaterThan(0);
+    expect(window.scrollY).toBe(top);
+  });
+
+  test("for less motion the whole code is there at once, and onTyped is still called", async () => {
+    await emulateMedia({ reducedMotion: "reduce" });
+    const onTyped = vi.fn();
+    await render(<CodeBlock code={code} typing onTyped={onTyped} />);
+
+    await expect.poll(() => phase()).toBe("done");
+    expect(shown()).toBe(code);
+    expect(caret()).toBeNull();
+    expect(onTyped).toHaveBeenCalledTimes(1);
+  });
+
+  test("the page from the server has the whole code, and a fallback that shows it if the script never runs", async () => {
+    await emulateMedia({ reducedMotion: "no-preference" });
+    const html = renderToString(<CodeBlock code={code} typing />);
+
+    expect(html).toContain('data-typing="pending"');
+    expect(html).toContain("const a = 1;");
+    expect(html).toContain("const b = 2;");
+
+    const holder = document.createElement("div");
+    holder.innerHTML = html;
+    document.body.append(holder);
+    const rest = holder.querySelector(".nuv-code-block__untyped") as Element;
+    expect(style(rest).opacity).toBe("0");
+    expect(style(rest).animationName).toBe("nuv-code-block-shown");
+    for (const animation of rest.getAnimations()) animation.finish();
+    expect(style(rest).opacity).toBe("1");
+    holder.remove();
+  });
+
+  test("where the browser forces its own colors the whole code is there at once", async () => {
+    await emulateMedia({
+      forcedColors: "active",
+      reducedMotion: "no-preference",
+    });
+    await render(<CodeBlock code={code} typing />);
+
+    await expect.poll(() => phase()).toBe("done");
+    expect(shown()).toBe(code);
+  });
+
+  test("without typing nothing changes", async () => {
+    await emulateMedia({ reducedMotion: "no-preference" });
+    await render(<CodeBlock code={code} />);
+
+    expect(one(".nuv-code-block").hasAttribute("data-typing")).toBe(false);
+    expect(one(".nuv-code-block__code").children).toHaveLength(0);
+  });
+
+  test("passes axe while it types", async () => {
+    await emulateMedia({ reducedMotion: "no-preference" });
+    const { container } = await render(
+      <CodeBlock code={code} language="ts" typing typingDuration={60_000} />,
+    );
+    await expect.poll(() => phase()).toBe("typing");
+
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

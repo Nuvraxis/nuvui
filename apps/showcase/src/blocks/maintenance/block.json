@@ -1,0 +1,9 @@
+{
+  "name": "maintenance",
+  "title": "Down for maintenance",
+  "description": "The page shown while the app is down for planned work: when it started and when it ends, with a way to the status page, over contour lines that shift slowly.",
+  "category": "data",
+  "files": ["maintenance.tsx", "maintenance.scss"],
+  "install": ["@nuvui/backgrounds", "@nuvui/react", "lucide-react"],
+  "height": 560
+}

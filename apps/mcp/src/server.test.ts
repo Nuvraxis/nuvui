@@ -39,8 +39,9 @@ afterEach(async () => {
 async function connect(
   record?: (tool: string, outcome: Outcome) => void,
   served: Data = data,
+  kept: Snapshots = snapshots,
 ) {
-  const server = createServer(served, { record, snapshots });
+  const server = createServer(served, { record, snapshots: kept });
   const [clientTransport, serverTransport] =
     InMemoryTransport.createLinkedPair();
   const client = new Client({ name: "test", version: "0.0.0" });
@@ -424,7 +425,9 @@ describe("versions", () => {
   });
 
   test("a page or a block that came later says so, and isn't answered from the latest", async () => {
-    const client = await connect();
+    // Nothing waiting, whatever the repository has: what the latest docs
+    // have is in the latest release.
+    const client = await connect(undefined, { ...data, pending: [] });
     const page = await call(client, "get_page", {
       page: "compare",
       version: "0.6.0",
@@ -439,6 +442,52 @@ describe("versions", () => {
     expect(page.text).toContain("came after 0.6.0");
     expect(block.error).toBe(true);
     expect(block.text).toContain("`before-after` is in the latest docs");
+  });
+
+  test("with changes waiting, what the latest release has came after, and what it hasn't is in no release yet", async () => {
+    const [major, minor] = data.version.split(".");
+    const toCome = "components/scroll-progress";
+    const without = (docs: Docs): Docs => ({
+      ...docs,
+      pages: docs.pages.filter((page) => page.id !== toCome),
+    });
+    // The latest release kept as its own line, as it is once it's out,
+    // without the page that's still to come.
+    const released = without({ ...data, version: data.version });
+    const kept: Snapshots = {
+      lines: ["0.6", `${major}.${minor}`],
+      load: (line) =>
+        line === "0.6"
+          ? without(older)
+          : line === `${major}.${minor}`
+            ? released
+            : undefined,
+    };
+    const served: Data = {
+      ...data,
+      pending: [
+        {
+          package: "@nuvui/react",
+          bump: "minor",
+          markdown: "- Something new.",
+        },
+      ],
+    };
+    const client = await connect(undefined, served, kept);
+
+    const compare = await call(client, "get_page", {
+      page: "compare",
+      version: "0.6.0",
+    });
+    const later = await call(client, "get_page", {
+      page: "scroll-progress",
+      version: "0.6.0",
+    });
+
+    expect(compare.text).toContain("came after 0.6.0");
+    expect(later.text).toContain(
+      `\`${toCome}\` is in the latest docs, but in no release yet.`,
+    );
   });
 
   test("an older release's block says to copy its files, since the registry has the latest", async () => {

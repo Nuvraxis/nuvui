@@ -12,6 +12,7 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@nuvui/backgrounds": "workspace:*",
     "@nuvui/barcodes": "workspace:*",
     "@nuvui/charts": "workspace:*",
     "@nuvui/chat": "workspace:*",

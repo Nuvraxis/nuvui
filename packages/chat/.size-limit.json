@@ -2,7 +2,7 @@
   {
     "name": "@nuvui/chat",
     "path": "dist/index.js",
-    "limit": "7 kB"
+    "limit": "7.5 kB"
   },
   {
     "name": "@nuvui/chat/attachment",
@@ -12,7 +12,7 @@
   {
     "name": "@nuvui/chat/code-block",
     "path": "dist/components/code-block/index.js",
-    "limit": "1.25 kB"
+    "limit": "2 kB"
   },
   {
     "name": "@nuvui/chat/conversation",

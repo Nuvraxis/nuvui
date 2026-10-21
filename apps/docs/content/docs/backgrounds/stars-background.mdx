@@ -1,0 +1,85 @@
+---
+title: StarsBackground
+description: "A starfield: dots of several sizes drifting the way the page reads, the nearer ones larger and faster, leaning away from the pointer a little."
+added: "2026-10-20"
+---
+
+<Preview name="stars-background/basic" wide />
+
+## Install
+
+```sh
+pnpm add @nuvui/backgrounds @nuvui/react
+```
+
+## Import
+
+```tsx
+import { StarsBackground } from "@nuvui/backgrounds/stars-background";
+```
+
+It's a client component. It can be rendered from a server component, which sends what's laid on it, and the background is drawn once the page's script has run.
+
+## What it draws
+
+Dots of several sizes drift across it, the nearer ones larger, brighter and faster, and each twinkles a little. They drift toward the end of the line, so to the right on a page that reads left to right and to the left on one that reads right to left.
+
+The nearer stars lean away from the pointer a little, which reads as depth. A press does nothing. A press on a button, a link or a field laid on it is the control's alone.
+
+<StarsBackgroundPlayground />
+
+## A button that stops it
+
+<Preview name="stars-background/pause" wide />
+
+## Props
+
+<PropsTable package="backgrounds" component="stars-background" name="StarsBackgroundOwnProps" props={{
+  children: "What's laid on the background, such as a headline or a form.",
+  scrim: "Lays the background's own color over it, so what's on it reads. `strong` keeps body text at 4.5:1.",
+  paused: "Stops it on the frame it's at.",
+  interactive: "Whether it answers the pointer: a move, and a press on it.",
+  speed: "How fast it moves: 1 as designed, 0.5 half as fast.",
+  density: "How many stars there are: 1 as designed, 2 twice as dense.",
+}} />
+
+It also takes the attributes of a `div`, which is what it's drawn as. Give it a size, such as `min-height`, and lay out what's on it with `className`: it's the box its children are in.
+
+## Accessibility
+
+### What the component handles
+
+- **It's hidden from screen readers,** and never in the Tab order. What's laid on it is read as it would be anywhere else.
+- **For anyone who asked for less motion,** it's one finished frame that holds still, and the pointer moves nothing.
+- **Where the browser forces its colors,** nothing is drawn, and the box is the system's background.
+- **It stops when it can't be seen:** while it's scrolled out of view, and while the tab is in the background.
+
+### What you need to handle
+
+- **A way to stop it.** Anything that moves for more than five seconds beside other content needs one. A button that sets `paused` will do, as in [the example on the start page](/docs/backgrounds#a-way-to-stop-it).
+- **Text that reads.** `scrim="strong"` keeps body text at 4.5:1 or more over any part of it in its own colors. With colors of your own, check them.
+
+## CSS variables
+
+<CssVariables
+  package="backgrounds"
+  component="stars-background"
+  descriptions={{
+    "--nuv-stars-background-bg": "The color under the stars, and the scrim's color.",
+    "--nuv-stars-background-color": "Color of the stars.",
+  }}
+/>
+
+The scrim's strengths are shared by every background, and listed on [the start page](/docs/backgrounds#a-scrim).
+
+## Classes
+
+<BemClasses
+  package="backgrounds"
+  component="stars-background"
+  descriptions={{
+    "nuv-stars-background": "StarsBackground",
+  }}
+/>
+
+Every background also has the classes on [the start page](/docs/backgrounds#classes).

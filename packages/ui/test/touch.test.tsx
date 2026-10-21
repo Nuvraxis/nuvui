@@ -90,6 +90,8 @@ import {
   PaginationList,
   PaginationNext,
   PasswordInput,
+  PinnedList,
+  PinnedListItem,
   RadioGroup,
   RadioGroupItem,
   Rating,
@@ -1715,5 +1717,48 @@ describe("carousel", () => {
 
     await userEvent.click(dots[2] as Element);
     await expect.poll(() => dots[2]?.getAttribute("aria-current")).toBe("true");
+  });
+});
+
+describe("pinned list", () => {
+  test("each pin is 44px square, and the row is as tall", async () => {
+    await render(
+      <PinnedList items={["q3", "churn"]} defaultPinned={["q3"]}>
+        {(value) => (
+          <PinnedListItem value={value} label={value}>
+            {value}
+          </PinnedListItem>
+        )}
+      </PinnedList>,
+    );
+
+    for (const name of ["Pin q3", "Pin churn"]) {
+      const pin = box(page.getByRole("button", { name }).element());
+      expect(pin.width).toBe(44);
+      expect(pin.height).toBe(44);
+    }
+    for (const row of Array.from(
+      document.querySelectorAll(".nuv-pinned-list__item"),
+    )) {
+      expect(box(row).height).toBeGreaterThanOrEqual(44);
+    }
+  });
+
+  test("a tap pins an item", async () => {
+    await render(
+      <PinnedList items={["q3", "churn"]}>
+        {(value) => (
+          <PinnedListItem value={value} label={value}>
+            {value}
+          </PinnedListItem>
+        )}
+      </PinnedList>,
+    );
+
+    await userEvent.click(page.getByRole("button", { name: "Pin churn" }));
+
+    await expect
+      .element(page.getByRole("list", { name: "Pinned" }))
+      .toHaveTextContent("churn");
   });
 });

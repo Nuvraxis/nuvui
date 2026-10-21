@@ -1,0 +1,30 @@
+@use "../../styles/background";
+
+@layer components {
+  .nuv-fireworks-background {
+    --nuv-background-bg: var(
+      --nuv-fireworks-background-bg,
+      var(--color-background)
+    );
+    --nuv-background-color-1: var(
+      --nuv-fireworks-background-color-1,
+      var(--color-chart-1)
+    );
+    --nuv-background-color-2: var(
+      --nuv-fireworks-background-color-2,
+      var(--color-chart-2)
+    );
+    --nuv-background-color-3: var(
+      --nuv-fireworks-background-color-3,
+      var(--color-chart-3)
+    );
+    --nuv-background-color-4: var(
+      --nuv-fireworks-background-color-4,
+      var(--color-chart-5)
+    );
+    --nuv-background-color-5: var(
+      --nuv-fireworks-background-color-5,
+      var(--color-chart-6)
+    );
+  }
+}

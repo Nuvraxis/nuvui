@@ -1,3 +1,4 @@
+import { GridBackground } from "@nuvui/backgrounds/grid-background";
 import { Button } from "@nuvui/react/button";
 import {
   ArrowRight,
@@ -30,8 +31,8 @@ export const metadata: Metadata = share({
 
 // Counted from the packages: the README lists the components by name.
 const facts = [
-  { value: "76", label: "Components in the core" },
-  { value: "12", label: "Add-on packages" },
+  { value: "78", label: "Components in the core" },
+  { value: "13", label: "Add-on packages" },
   { value: String(chartCount), label: "Charts to copy" },
   { value: "5", label: "Presets, each in light and dark" },
 ];
@@ -107,7 +108,7 @@ export default function HomePage() {
           url: site.url,
         }}
       />
-      <div className="site-backdrop">
+      <GridBackground className="site-hero-grid">
         <section className="site-hero">
           <p className="site-hero__eyebrow">
             <span className="site-hero__dot" aria-hidden="true" />
@@ -145,7 +146,7 @@ export default function HomePage() {
             ))}
           </dl>
         </section>
-      </div>
+      </GridBackground>
 
       <section className="site-section" aria-labelledby="dashboard-heading">
         <div className="site-section__intro site-section__intro--center">

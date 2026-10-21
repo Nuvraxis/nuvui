@@ -2,7 +2,7 @@
 
 # Blocks
 
-A block is a part of an app, such as a sign-in screen or a table with a toolbar, built from the library's components: one TSX file and one SCSS file, to copy into an app and change. There are 71. Each is shown at https://nuvui.nuvraxis.com/blocks.
+A block is a part of an app, such as a sign-in screen or a table with a toolbar, built from the library's components: one TSX file and one SCSS file, to copy into an app and change. There are 82. Each is shown at https://nuvui.nuvraxis.com/blocks.
 
 Before building a screen from nothing, look here for one that's close. To add one, with the packages it needs:
 
@@ -24,9 +24,11 @@ A block's SCSS uses the library's mixins, `@use "@nuvui/react/scss/mixins"`, so 
 ## Accounts
 
 - **Forgotten password** (`forgot-password`): One field, and a message that says what happens next. Needs `@nuvui/react`, `lucide-react`.
+- **Store is live** (`launch-complete`): The end of setting up: what's been done, the store's address to copy, and the way to the dashboard, on a card over fireworks. Needs `@nuvui/backgrounds`, `@nuvui/react`, `lucide-react`.
 - **Set up in steps** (`onboarding`): Three steps to a new workspace: a plan chosen from cards, seats and extras, and a summary to check, with a stepper that says where you are. Needs `@nuvui/react`.
 - **Getting started checklist** (`setup-checklist`): Five steps to a new workspace with a bar that fills as they're done. The last one throws confetti up from the bar, and says in words, for everyone, that the setup is finished. Needs `@nuvui/react`.
 - **Sign in** (`sign-in`): Email and password, with the product's name beside the form on a wide screen. Needs `@nuvui/react`, `lucide-react`.
+- **Sign in over a grid** (`sign-in-grid`): Email and password on a card in the middle of the page, over a grid that fades out toward the edges and lights up under the pointer. Needs `@nuvui/backgrounds`, `@nuvui/react`, `lucide-react`.
 - **Sign in with a company account** (`sign-in-sso`): A work email that leads to the company's own sign-in, with a password as the other way in. Needs `@nuvui/react`, `lucide-react`.
 - **Sign up** (`sign-up`): Name, work email and a new password, with the terms to agree to. Needs `@nuvui/react`, `lucide-react`.
 - **Enter a code** (`verify-code`): Six digits sent by email, sent off when the last one is typed. Needs `@nuvui/react`, `lucide-react`.
@@ -57,12 +59,15 @@ A block's SCSS uses the library's mixins, `@use "@nuvui/react/scss/mixins"`, so 
 - **Deal pipeline** (`deal-pipeline`): A sales pipeline as a board. Each column adds up the worth of its deals and the heading adds up what's still open, both following a deal as it's moved. A button adds a deal to the first column, and a deal that's won is locked where it is. Needs `@nuvui/kanban`, `@nuvui/react`.
 - **Delivery route** (`delivery-route`): A van's round: the stops in order as a list, each done, next or planned, beside a map with the way drawn on it, solid for what's behind the van and in dashes for what's ahead. Choosing a stop in the list opens it on the map, as pressing its number does in the list. The map's tiles come from a provider you choose. Needs `@nuvui/map`, `maplibre-gl`, `@nuvui/react`.
 - **Detail panel beside a list** (`detail-panel`): A list where a row opens a panel at the side, with tabs for what there is to know about it. Needs `@nuvui/react`, `lucide-react`.
+- **No projects yet** (`empty-projects`): A list page with nothing in it yet: what a project is, and the two ways to start, over hexagons that light up under the pointer. Needs `@nuvui/backgrounds`, `@nuvui/react`, `lucide-react`.
 - **Event ticket** (`event-ticket`): A ticket to show at the door: the event, when and where it is, the seat and who holds it, and a QR code to scan with the same code written under it and a link beside it. Needs `@nuvui/barcodes`, `@nuvui/react`.
 - **File browser** (`file-browser`): Folders and files in a tree, with the chosen one's details in a panel beside it. A folder's panel lists what's inside, and choosing from there opens the tree to it. Files and folders can be moved by dragging, with the keyboard, or from a list in the panel. Needs `@nuvui/react`, `lucide-react`.
 - **Filters in a sentence and a sheet** (`filter-sheet`): A list whose two main filters are selects in the sentence that describes it, with the rest in a sheet that opens half way up and can be pulled taller or swiped away. Needs `@nuvui/react`, `lucide-react`.
 - **Photograph to review** (`image-review`): A retouched photograph to approve or send back, with a switch between the original and the retouched one, a list of what the retoucher changed, and a status that says what was decided. Needs `@nuvui/react`, `lucide-react`.
 - **List with an action bar** (`inbox`): Messages to tick, and a bar that appears with what can be done to the ticked ones: mark as read, archive, and delete by holding the button down. Needs `@nuvui/react`, `lucide-react`.
+- **Down for maintenance** (`maintenance`): The page shown while the app is down for planned work: when it started and when it ends, with a way to the status page, over contour lines that shift slowly. Needs `@nuvui/backgrounds`, `@nuvui/react`, `lucide-react`.
 - **Empty, loading and error** (`page-states`): One page in each state it can be in: with its rows, waiting for them, with none yet, and after a request that failed. Needs `@nuvui/react`, `lucide-react`.
+- **Pinned reports** (`pinned-reports`): Saved reports with the ones in use pinned at the top: each opens from its name, has a menu of its own, and slides to the other group when its pin is pressed. Needs `@nuvui/react`, `lucide-react`.
 - **Query editor** (`query-editor`): A query above and its rows below, with a handle between them to give either more room. The sizes are remembered for the next visit. Needs `@nuvui/react`, `@nuvui/table`, `@tanstack/react-table`, `lucide-react`.
 - **Shipping label** (`shipping-label`): A parcel's label: who it's from and who it's for, the service and the weight, the tracking number as a barcode with the number under it, a QR code that opens the tracking page, and buttons that save the barcode as a file. Needs `@nuvui/barcodes`, `@nuvui/react`.
 - **Table with a toolbar** (`table-toolbar`): A table to work in: search, a filter by status, a column chooser, a menu on each row, and actions for the rows that are ticked. Needs `@nuvui/react`, `@nuvui/table`, `@tanstack/react-table`, `lucide-react`.
@@ -84,13 +89,16 @@ A block's SCSS uses the library's mixins, `@use "@nuvui/react/scss/mixins"`, so 
 - **App shell** (`app-shell`): The four parts of an app's screen together: a sidebar that folds to its icons, a bar across the top, the page, and a panel on the far side that closes. On a narrow screen the sidebar and the panel open over the page. Needs `@nuvui/react`, `lucide-react`.
 - **Page with its contents** (`article`): A long page with a list of its headings that marks the one being read: beside the text on a wide screen, and behind a button on a narrow one. Needs `@nuvui/react`, `lucide-react`.
 - **Page header** (`page-header`): A breadcrumb, the page's title with its status, and the actions for the page. Needs `@nuvui/react`, `lucide-react`.
+- **Release notes** (`release-notes`): A product's release notes in a panel of their own, newest first, with a bar along the top that fills as they're read. Needs `@nuvui/react`.
 - **Sidebar that folds to icons** (`sidebar-icons`): An app's navigation with a workspace at the top and the person's menu at the bottom. It folds down to a strip of icons, and is a panel on a phone. Needs `@nuvui/react`, `lucide-react`.
 - **Sidebar with sections** (`sidebar-nested`): Navigation in two levels. A section opens to show its pages, and the open page is marked. Needs `@nuvui/react`, `lucide-react`.
 - **Top bar** (`top-bar`): A bar across the top with the product's name, the pages, a search that opens a command palette, and the person's menu. On a narrow screen the pages are in a panel. Needs `@nuvui/react`, `lucide-react`.
 
 ## Marketing
 
+- **Hero for an API** (`api-hero`): The top of a developer product's page: the headline, two actions and a request to copy, over a field of characters lit by wandering glows, with a trail behind the pointer. Needs `@nuvui/backgrounds`, `@nuvui/react`, `lucide-react`.
 - **Before and after** (`before-after`): A section of a release page: an app's screen before the release and after it in one box, split by a line that's dragged across, beside a list of what changed in words. Needs `@nuvui/react`, `lucide-react`.
+- **Call to action** (`call-to-action`): The last word on a product's page: a headline, a line under it and two actions, over soft fields of the theme's colors that drift slowly. Needs `@nuvui/backgrounds`, `@nuvui/react`, `lucide-react`.
 - **Customer stories** (`case-studies`): Cards with a figure, what it measures and a quote, in a row that's swiped or moved with arrows. One shows on a phone, two on a tablet and three on a desktop. Needs `@nuvui/react`.
 - **Questions and answers** (`faq`): A heading beside a list of questions, each one opening to its answer, one at a time. Needs `@nuvui/react`.
 - **Feature grid** (`feature-grid`): A heading and six cards, each with an icon, a title and a sentence, laid out as many to a row as fit. Needs `@nuvui/react`, `lucide-react`.
@@ -100,7 +108,10 @@ A block's SCSS uses the library's mixins, `@use "@nuvui/react/scss/mixins"`, so 
 - **Navigation bar** (`nav-bar`): A site's top bar, on Navbar: a menu with a panel under one entry, two actions, and on a phone one button that opens every link in a panel. Needs `@nuvui/react`, `lucide-react`.
 - **Pricing table** (`pricing`): Three plans side by side with what each includes, and a switch between paying by the month and by the year. Needs `@nuvui/react`, `lucide-react`.
 - **Product gallery** (`product-gallery`): Photographs of a product to swipe through, with a thumbnail for each and arrows over the picture, beside its name, its price and a button to buy it. Needs `@nuvui/react`, `lucide-react`.
+- **Quick start** (`quick-start`): Three steps to install a package and use it, each with its code, which types itself out the first time it's scrolled to. Needs `@nuvui/chat`, `@nuvui/react`.
 - **Reviews** (`reviews`): An average rating with how the stars are shared out, a few reviews, and a form to leave one that asks for a number of stars. Needs `@nuvui/react`.
+- **Hero under the stars** (`stars-hero`): The top of a product's home page on a night sky in both themes: a line of news, the headline and two actions, over stars that drift and lean away from the pointer. Needs `@nuvui/backgrounds`, `@nuvui/react`, `lucide-react`.
+- **Waiting list** (`waitlist`): A page for something that isn't out yet: what's coming, and a field to join the list, which says so once it's sent, over a tunnel of rings in the dark in both themes. Needs `@nuvui/backgrounds`, `@nuvui/react`, `lucide-react`.
 
 ## Media
 

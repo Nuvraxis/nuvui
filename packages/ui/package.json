@@ -498,6 +498,16 @@
         "default": "./dist/components/password-input/index.cjs"
       }
     },
+    "./pinned-list": {
+      "import": {
+        "types": "./dist/components/pinned-list/index.d.ts",
+        "default": "./dist/components/pinned-list/index.js"
+      },
+      "require": {
+        "types": "./dist/components/pinned-list/index.d.cts",
+        "default": "./dist/components/pinned-list/index.cjs"
+      }
+    },
     "./popover": {
       "import": {
         "types": "./dist/components/popover/index.d.ts",
@@ -556,6 +566,16 @@
       "require": {
         "types": "./dist/components/scroll-area/index.d.cts",
         "default": "./dist/components/scroll-area/index.cjs"
+      }
+    },
+    "./scroll-progress": {
+      "import": {
+        "types": "./dist/components/scroll-progress/index.d.ts",
+        "default": "./dist/components/scroll-progress/index.js"
+      },
+      "require": {
+        "types": "./dist/components/scroll-progress/index.d.cts",
+        "default": "./dist/components/scroll-progress/index.cjs"
       }
     },
     "./select": {

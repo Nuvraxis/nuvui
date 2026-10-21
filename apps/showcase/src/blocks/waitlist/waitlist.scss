@@ -1,0 +1,65 @@
+@use "@nuvui/react/scss/mixins";
+
+.waitlist__stage {
+  display: grid;
+  place-items: center;
+  min-block-size: 100dvh;
+  padding: calc(var(--spacing) * 16) calc(var(--spacing) * 4);
+  color: var(--color-foreground);
+}
+
+.waitlist__inner {
+  display: grid;
+  gap: calc(var(--spacing) * 5);
+  justify-items: center;
+  max-inline-size: 36rem;
+  text-align: center;
+}
+
+.waitlist__eyebrow {
+  margin: 0;
+  color: var(--color-primary);
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+.waitlist__title {
+  margin: 0;
+  font-size: clamp(2rem, 1.4rem + 2.8vw, 3.5rem);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+.waitlist__text {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-lg);
+  line-height: var(--leading-relaxed);
+  text-wrap: pretty;
+}
+
+.waitlist__form {
+  display: grid;
+  gap: calc(var(--spacing) * 3);
+  inline-size: 100%;
+  max-inline-size: 26rem;
+  text-align: start;
+
+  @include mixins.breakpoint("sm") {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+  }
+}
+
+.waitlist__done {
+  margin: 0;
+  font-weight: var(--font-weight-medium);
+}
+
+.waitlist__pause {
+  position: absolute;
+  inset-block-start: calc(var(--spacing) * 3);
+  inset-inline-end: calc(var(--spacing) * 3);
+}

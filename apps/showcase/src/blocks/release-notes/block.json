@@ -1,0 +1,9 @@
+{
+  "name": "release-notes",
+  "title": "Release notes",
+  "description": "A product's release notes in a panel of their own, newest first, with a bar along the top that fills as they're read.",
+  "category": "layout",
+  "files": ["release-notes.tsx", "release-notes.scss"],
+  "install": ["@nuvui/react"],
+  "height": 640
+}

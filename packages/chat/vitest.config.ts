@@ -15,5 +15,7 @@ export default browserTests({
     "shiki/core",
     "shiki/engine/javascript",
     "shiki/langs",
+    // For the page from the server, in the typing tests.
+    "react-dom/server",
   ],
 });

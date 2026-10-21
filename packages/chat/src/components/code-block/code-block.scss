@@ -122,4 +122,53 @@
   .nuv-code-block__code {
     font: inherit;
   }
+
+  // What isn't typed yet is in the page, at its size, and isn't drawn.
+  // Only where motion is fine and colors aren't forced: anywhere else the
+  // script shows it all at once, and this keeps the page from the server
+  // the same.
+  @include mixins.motion-safe {
+    @media not (forced-colors: active) {
+      .nuv-code-block__untyped {
+        opacity: 0;
+      }
+
+      // The page from the server, before the script runs. If it never
+      // does, the code is shown after a moment all the same.
+      .nuv-code-block[data-typing="pending"] .nuv-code-block__untyped {
+        animation: nuv-code-block-shown 1ms
+          var(--nuv-code-block-typing-fallback, 3s) forwards;
+      }
+    }
+  }
+
+  // A bar after the last character typed, as tall as a line, that takes
+  // no room: the characters around it don't move.
+  .nuv-code-block__caret {
+    display: inline-block;
+    inline-size: var(--nuv-code-block-caret-width, 2px);
+    block-size: 1.2em;
+    margin-inline-end: calc(var(--nuv-code-block-caret-width, 2px) * -1);
+    vertical-align: text-bottom;
+    background-color: var(
+      --nuv-code-block-caret,
+      var(--nuv-code-block-fg, var(--color-surface-foreground))
+    );
+
+    @include mixins.motion-safe {
+      animation: nuv-code-block-blink 1s steps(1) infinite;
+    }
+  }
+
+  @keyframes nuv-code-block-shown {
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes nuv-code-block-blink {
+    50% {
+      opacity: 0;
+    }
+  }
 }

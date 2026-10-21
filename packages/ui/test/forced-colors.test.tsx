@@ -2094,8 +2094,9 @@ describe("pinned list and scroll progress", () => {
     const color = (name: string) =>
       style(page.getByRole("button", { name }).element()).color;
 
-    expect(contrast(color("Pin churn"), canvas())).toBeGreaterThan(3);
-    expect(contrast(color("Pin q3"), canvas())).toBeGreaterThan(3);
+    // The theme's own colors, which it chose to stand out from its page.
+    expect(color("Pin churn")).toBe(system("buttontext"));
+    expect(color("Pin q3")).toBe(system("highlight"));
     expect(color("Pin q3")).not.toBe(color("Pin churn"));
   });
 
@@ -2105,9 +2106,10 @@ describe("pinned list and scroll progress", () => {
         <ScrollProgress />
       </div>,
     );
+    const track = document.querySelector(".nuv-scroll-progress") as Element;
     const bar = document.querySelector(".nuv-scroll-progress__bar") as Element;
 
     expect(style(bar).backgroundColor).toBe(system("highlight"));
-    expect(contrast(style(bar).backgroundColor, canvas())).toBeGreaterThan(3);
+    expect(style(track).backgroundColor).toBe(system("canvas"));
   });
 });

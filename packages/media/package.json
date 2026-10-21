@@ -1,6 +1,6 @@
 {
   "name": "@nuvui/media",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Video and audio players for @nuvui/react: captions, chapters, a transcript, streaming with hls.js or dashjs, and controls that work with a pointer, a finger or the keyboard.",
   "license": "MIT",
   "author": "Nuvraxis",
@@ -82,7 +82,7 @@
     "size": "size-limit"
   },
   "peerDependencies": {
-    "@nuvui/react": "workspace:^0.7.0",
+    "@nuvui/react": "workspace:^0.8.0",
     "react": "^18.2.0 || ^19.0.0",
     "react-dom": "^18.2.0 || ^19.0.0"
   },

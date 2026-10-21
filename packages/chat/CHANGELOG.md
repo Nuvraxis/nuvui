@@ -1,5 +1,16 @@
 # @nuvui/chat
 
+## 0.2.0
+
+### Minor Changes
+
+- [#89](https://github.com/Nuvraxis/nuvui/pull/89) [`23249f5`](https://github.com/Nuvraxis/nuvui/commit/23249f5adb5edd7f2e83429ae7b6de50e4397944) Thanks [@sajanv88](https://github.com/sajanv88)! - `CodeBlock` can type its code out, with `typing`: a character at a time, with a cursor after the last one, over `typingDuration`, after `typingDelay`, and with `typingTrigger="view"` the first time it's scrolled into view. `onTyped` is called once all the code is there. The box has its full size from the start, and a screen reader and the copy button get the whole code. For less motion, and where the browser forces its own colors, the code is all there at once.
+
+### Patch Changes
+
+- Updated dependencies [[`23249f5`](https://github.com/Nuvraxis/nuvui/commit/23249f5adb5edd7f2e83429ae7b6de50e4397944)]:
+  - @nuvui/react@0.8.0
+
 ## 0.1.3
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@nuvui/backgrounds",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Moving backgrounds for @nuvui/react: a gradient, a grid, stars, contour lines, hexagons, fireworks, a tunnel and a field of characters, in the theme's colors, still for anyone who asked for less motion.",
   "license": "MIT",
   "author": "Nuvraxis",
@@ -132,7 +132,7 @@
     "size": "size-limit"
   },
   "peerDependencies": {
-    "@nuvui/react": "workspace:^0.7.0",
+    "@nuvui/react": "workspace:^0.8.0",
     "react": "^18.2.0 || ^19.0.0",
     "react-dom": "^18.2.0 || ^19.0.0"
   },

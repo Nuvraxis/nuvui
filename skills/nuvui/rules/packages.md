@@ -37,6 +37,7 @@ import "@nuvui/<package>/styles.css";
 - The components draw a conversation. They don't talk to a model or a server: messages come in as props, and a callback says when something is sent.
 - `Markdown` and `CodeBlock` color code with a highlighter you pass in. The ready one is `createShikiHighlighter` from `@nuvui/chat/shiki`, which needs `shiki` installed. Make one for the whole app, outside any component.
 - Without a highlighter, code is shown plain. That's allowed.
+- `CodeBlock` with `typing` types its code out, for a page that shows code off. Not for code in a conversation. It's all there at once for less motion.
 
 ## @nuvui/kanban
 

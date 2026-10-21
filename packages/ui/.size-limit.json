@@ -2,7 +2,7 @@
   {
     "name": "@nuvui/react",
     "path": "dist/index.js",
-    "limit": "106 kB"
+    "limit": "108 kB"
   },
   {
     "name": "@nuvui/react/accordion",
@@ -235,6 +235,11 @@
     "limit": "4.9 kB"
   },
   {
+    "name": "@nuvui/react/pinned-list",
+    "path": "dist/components/pinned-list/index.js",
+    "limit": "2 kB"
+  },
+  {
     "name": "@nuvui/react/popover",
     "path": "dist/components/popover/index.js",
     "limit": "23 kB"
@@ -263,6 +268,11 @@
     "name": "@nuvui/react/scroll-area",
     "path": "dist/components/scroll-area/index.js",
     "limit": "7.9 kB"
+  },
+  {
+    "name": "@nuvui/react/scroll-progress",
+    "path": "dist/components/scroll-progress/index.js",
+    "limit": "1 kB"
   },
   {
     "name": "@nuvui/react/select",
@@ -393,7 +403,7 @@
     "name": "styles.css",
     "path": "dist/styles.css",
     "rolldown": false,
-    "limit": "21.5 kB"
+    "limit": "22 kB"
   },
   {
     "name": "tokens.css",
@@ -405,7 +415,7 @@
     "name": "every stylesheet in css/",
     "path": "dist/css/*.css",
     "rolldown": false,
-    "limit": "50 kB"
+    "limit": "52 kB"
   },
   {
     "name": "every preset in themes/",

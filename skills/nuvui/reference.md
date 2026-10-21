@@ -64,12 +64,14 @@ A file for each page of the docs. Read the one for a component before using it: 
 - [OtpField](reference/components/otp-field.md): A row of boxes for a one-time code, one character each. Typing moves along them, and a pasted code fills them all.
 - [Pagination](reference/components/pagination.md): Links to the pages of a long list, with Previous and Next and a helper that works out which page numbers to show.
 - [PasswordInput](reference/components/password-input.md): A password field with a button that shows what was typed and hides it again.
+- [PinnedList](reference/components/pinned-list.md): A list in two groups, what's pinned at the top and the rest under it. Each item has a pin, and pressing it slides the item to the other group while the others make room.
 - [Popover](reference/components/popover.md): A small panel that opens next to a button and stays until it's dismissed.
 - [Progress](reference/components/progress.md): A bar that fills as a task gets done.
 - [RadioGroup](reference/components/radio-group.md): A set of options where exactly one can be picked. It works with labels, the arrow keys and forms.
 - [Rating](reference/components/rating.md): Stars to rate something with, or to show how it was rated, down to part of a star.
 - [Resizable](reference/components/resizable.md): Panels with a handle between them to drag, side by side or one above another.
 - [ScrollArea](reference/components/scroll-area.md): A box that scrolls, with a scrollbar that looks the same in every browser and on every system.
+- [ScrollProgress](reference/components/scroll-progress.md): A bar that fills as the page, or a box, is scrolled, to show how far through it the reader is. It's drawn for the eye only, and still for anyone who asked for less motion.
 - [Select](reference/components/select.md): A control for picking one option from a list. It works with a label, the keyboard and forms.
 - [Separator](reference/components/separator.md): A thin line between two pieces of content, across or upright.
 - [Sheet](reference/components/sheet.md): A panel that slides in from an edge of the screen and takes over the page until it's closed.

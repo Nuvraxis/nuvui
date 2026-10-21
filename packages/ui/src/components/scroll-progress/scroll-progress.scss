@@ -1,0 +1,62 @@
+@use "../../styles/layers";
+@use "../../styles/mixins";
+
+@layer components {
+  // Where it sits is yours: at the top of a box, or fixed to the top of
+  // the window. It takes no room beyond its own thickness.
+  .nuv-scroll-progress {
+    display: block;
+    inline-size: 100%;
+    block-size: var(--nuv-scroll-progress-size, 0.25rem);
+    overflow: hidden;
+    border-radius: var(--nuv-scroll-progress-radius, 0);
+    background-color: var(--nuv-scroll-progress-track, transparent);
+    pointer-events: none;
+
+    &[data-orientation="vertical"] {
+      inline-size: var(--nuv-scroll-progress-size, 0.25rem);
+      block-size: 100%;
+    }
+
+    // Backgrounds aren't drawn where the browser forces its own colors, and
+    // the bar is made of nothing else.
+    @media (forced-colors: active) {
+      background-color: canvas;
+      forced-color-adjust: none;
+    }
+  }
+
+  // Full length, and scaled down to the amount: a transform moves nothing
+  // else on the page, and a scroll lays nothing out again.
+  .nuv-scroll-progress__bar {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+    border-radius: inherit;
+    background-color: var(--nuv-scroll-progress-color, var(--color-primary));
+    transform: scaleX(var(--nuv-scroll-progress-value, 0));
+    transform-origin: left center;
+
+    @include mixins.rtl {
+      transform-origin: right center;
+    }
+
+    // Glides to where the scroll is, which smooths the steps of a mouse
+    // wheel. For less motion it follows the scroll exactly.
+    @include mixins.motion-safe {
+      transition: transform
+        var(--nuv-scroll-progress-duration, var(--nuv-duration-base))
+        var(--ease-out);
+    }
+
+    @media (forced-colors: active) {
+      background-color: highlight;
+    }
+  }
+
+  .nuv-scroll-progress[data-orientation="vertical"]
+    .nuv-scroll-progress__bar {
+    transform: scaleY(var(--nuv-scroll-progress-value, 0));
+    transform-origin: center top;
+  }
+}

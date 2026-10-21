@@ -120,6 +120,8 @@ import {
   PaginationList,
   PaginationNext,
   PasswordInput,
+  PinnedList,
+  PinnedListItem,
   Popover,
   PopoverContent,
   PopoverTrigger,
@@ -131,6 +133,7 @@ import {
   ResizableHandle,
   ResizablePanel,
   ScrollArea,
+  ScrollProgress,
   Select,
   SelectContent,
   SelectItem,
@@ -2074,5 +2077,39 @@ describe("compare", () => {
       contrast(style(label).color, style(label).backgroundColor),
     ).toBeGreaterThan(4.5);
     expect(style(label).borderTopStyle).toBe("solid");
+  });
+});
+
+describe("pinned list and scroll progress", () => {
+  test("a pin is drawn in the button color, and a pressed one stands out from it", async () => {
+    await render(
+      <PinnedList items={["q3", "churn"]} defaultPinned={["q3"]}>
+        {(value) => (
+          <PinnedListItem value={value} label={value}>
+            {value}
+          </PinnedListItem>
+        )}
+      </PinnedList>,
+    );
+    const color = (name: string) =>
+      style(page.getByRole("button", { name }).element()).color;
+
+    // The theme's own colors, which it chose to stand out from its page.
+    expect(color("Pin churn")).toBe(system("buttontext"));
+    expect(color("Pin q3")).toBe(system("highlight"));
+    expect(color("Pin q3")).not.toBe(color("Pin churn"));
+  });
+
+  test("the scroll bar is drawn in the highlight color", async () => {
+    await render(
+      <div style={{ inlineSize: 200 }}>
+        <ScrollProgress />
+      </div>,
+    );
+    const track = document.querySelector(".nuv-scroll-progress") as Element;
+    const bar = document.querySelector(".nuv-scroll-progress__bar") as Element;
+
+    expect(style(bar).backgroundColor).toBe(system("highlight"));
+    expect(style(track).backgroundColor).toBe(system("canvas"));
   });
 });

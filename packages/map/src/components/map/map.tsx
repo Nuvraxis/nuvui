@@ -309,6 +309,10 @@ export const MapView = forwardRef<HTMLDivElement, MapViewProps>(
     // somewhere to go: by then the map may be further along, and going back
     // to it would stop a move halfway.
     const told = useRef<{ view: MapViewState; at: number }[]>([]);
+    // The view the map was made with, or the one the app asked for last.
+    // The same view again isn't somewhere to go: it comes again when the
+    // map is ready, and by then the map may have been moved.
+    const asked = useRef<{ lng?: number; lat?: number; zoom?: number }>({});
 
     const setRefs = useCallback(
       (node: HTMLDivElement | null) => {
@@ -359,6 +363,11 @@ export const MapView = forwardRef<HTMLDivElement, MapViewProps>(
             },
           });
           map = made;
+          asked.current = {
+            lng: start.center[0],
+            lat: start.center[1],
+            zoom: start.zoom,
+          };
           made.addControl(
             new lib.AttributionControl({ compact: false }),
             "bottom-right",
@@ -412,6 +421,11 @@ export const MapView = forwardRef<HTMLDivElement, MapViewProps>(
     const lat = center?.[1];
     useEffect(() => {
       if (!map) return;
+      // Run because the map is new, with nothing new from the app. It was
+      // made where the app said, and isn't moved back there.
+      const was = asked.current;
+      if (lng === was.lng && lat === was.lat && zoom === was.zoom) return;
+      asked.current = { lng, lat, zoom };
       const since = performance.now() - toldFor;
       const echo = told.current.findIndex(
         ({ view, at }) =>

@@ -870,6 +870,26 @@ test("the home page says which version there is, or that there's none yet", asyn
   );
 });
 
+test("the home page's hero is over a grid that lights under the pointer", async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(isMobile, "a phone has no pointer to hover with");
+  await open(page, "/");
+  const grid = page.locator(".site-hero-grid");
+  await expect(grid).toHaveClass(/nuv-grid-background/);
+  await expect(grid.locator(".site-hero")).toBeVisible();
+  // Drawn for the eye only.
+  await expect(grid.locator(".nuv-background__layer")).toHaveAttribute(
+    "aria-hidden",
+    "true",
+  );
+
+  await page.getByRole("heading", { level: 1 }).hover();
+
+  await expect(grid).toHaveAttribute("data-lit", "");
+});
+
 test.describe("telemetry", () => {
   // The site is built with a collector to send to only when it's asked
   // for, with NEXT_PUBLIC_OTLP_ENDPOINT. These tests are for the build

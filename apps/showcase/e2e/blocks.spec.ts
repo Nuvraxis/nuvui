@@ -6115,7 +6115,7 @@ test.describe("scroll progress, pinned list and typed code", () => {
       });
     }
     await expect(blocks.first().locator("code")).toHaveText(
-      "pnpm add @acme/payments",
+      "pnpm add @nuvui/react",
     );
   });
 

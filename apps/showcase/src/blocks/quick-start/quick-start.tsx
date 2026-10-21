@@ -7,24 +7,24 @@ import "./quick-start.scss";
 const steps = [
   {
     title: "Install the package",
-    text: "One package for the components, and nothing else to set up.",
+    text: "One package for the components, next to React 18 or 19.",
     language: "sh",
-    code: "pnpm add @acme/payments",
+    code: "pnpm add @nuvui/react",
   },
   {
-    title: "Add your key",
-    text: "Your key is on the settings page of your dashboard. Keep it on the server.",
-    language: "sh",
-    code: "ACME_SECRET_KEY=sk_test_your_key",
-  },
-  {
-    title: "Take a payment",
-    text: "A checkout in a few lines, with cards, wallets and bank transfers.",
+    title: "Load the stylesheet",
+    text: "One plain CSS file, loaded once for the whole app. There's no build plugin to set up.",
     language: "tsx",
-    code: `import { Checkout } from "@acme/payments";
+    code: `import "@nuvui/react/styles.css";`,
+  },
+  {
+    title: "Use a component",
+    text: "Import what you need and render it. Its look comes from the theme's variables.",
+    language: "tsx",
+    code: `import { Button } from "@nuvui/react";
 
-export function Pay() {
-  return <Checkout amount={4900} currency="EUR" />;
+export function Save() {
+  return <Button>Save changes</Button>;
 }`,
   },
 ];
@@ -34,9 +34,11 @@ export default function QuickStart() {
     <main className="quick-start">
       <header className="quick-start__header">
         <p className="quick-start__eyebrow">Quick start</p>
-        <h1 className="quick-start__title">Take your first payment today</h1>
+        <h1 className="quick-start__title">
+          From an empty project to your first component
+        </h1>
         <p className="quick-start__lead">
-          Three steps from an empty project to a working checkout.
+          Three steps, each with the code to copy.
         </p>
       </header>
       <ol className="quick-start__steps">
@@ -62,7 +64,7 @@ export default function QuickStart() {
       </ol>
       <div className="quick-start__actions">
         <Button>Read the guide</Button>
-        <Button intent="secondary">See an example app</Button>
+        <Button intent="secondary">Browse the components</Button>
       </div>
     </main>
   );

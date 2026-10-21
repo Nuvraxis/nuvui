@@ -1,5 +1,13 @@
 # @nuvui/map
 
+## 0.1.3
+
+### Patch Changes
+
+- [#89](https://github.com/Nuvraxis/nuvui/pull/89) [`23249f5`](https://github.com/Nuvraxis/nuvui/commit/23249f5adb5edd7f2e83429ae7b6de50e4397944) Thanks [@sajanv88](https://github.com/sajanv88)! - A map that was moved before React had drawn it with its `center` and `zoom` is no longer moved back to them. An app that keeps the view from `onMove` could see the map jump back to where it started, when it was moved as soon as it loaded.
+- Updated dependencies [[`23249f5`](https://github.com/Nuvraxis/nuvui/commit/23249f5adb5edd7f2e83429ae7b6de50e4397944)]:
+  - @nuvui/react@0.8.0
+
 ## 0.1.2
 
 ### Patch Changes

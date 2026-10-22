@@ -105,7 +105,13 @@ function Lights({ ground }: { ground: Rgb }) {
   useEffect(() => {
     const generator = new PMREMGenerator(gl);
     const room = new RoomEnvironment();
-    const environment = generator.fromScene(room, 0.04).texture;
+    // A cube of 128 pixels a side and not three's 256: it looks the same
+    // in a viewer, and where the browser draws on the processor, with no
+    // graphics card, it's ready in under half the time. three before 0.174
+    // has no size, and makes 256.
+    const environment = generator.fromScene(room, 0.04, 0.1, 100, {
+      size: 128,
+    }).texture;
     scene.environment = environment;
     invalidate();
     return () => {

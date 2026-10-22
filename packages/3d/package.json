@@ -1,0 +1,90 @@
+{
+  "name": "@nuvui/3d",
+  "version": "0.0.0",
+  "description": "A 3D model viewer for @nuvui/react, on react-three-fiber and three.js: glTF, GLB and STL files, from an address or picked by the person, turned with a pointer, a finger or the keyboard. Needs React 19.",
+  "license": "MIT",
+  "author": "Nuvraxis",
+  "homepage": "https://nuvui.nuvraxis.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nuvraxis/nuvui.git",
+    "directory": "packages/3d"
+  },
+  "bugs": {
+    "url": "https://github.com/Nuvraxis/nuvui/issues"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "files": [
+    "dist"
+  ],
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./model-viewer": {
+      "types": "./dist/components/model-viewer/index.d.ts",
+      "default": "./dist/components/model-viewer/index.js"
+    },
+    "./styles.css": "./dist/styles.css",
+    "./css/*.css": "./dist/css/*.css",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "tsdown && node scripts/check-dist.mjs",
+    "dev": "tsdown --watch src",
+    "lint": "stylelint \"src/**/*.scss\"",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "check:package": "publint && pnpm pack --out node_modules/.cache/attw/package.tgz && attw node_modules/.cache/attw/package.tgz",
+    "size": "size-limit"
+  },
+  "peerDependencies": {
+    "@nuvui/react": "workspace:^0.8.0",
+    "@react-three/fiber": "^9.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "three": ">=0.156.0"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/cli": "catalog:",
+    "@nuvui/react": "workspace:*",
+    "@nuvui/tooling": "workspace:*",
+    "@nuvui/typescript-config": "workspace:*",
+    "@react-three/fiber": "^9.8.2",
+    "@size-limit/preset-small-lib": "catalog:",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@types/three": "^0.186.0",
+    "@vitest/browser-playwright": "catalog:",
+    "axe-core": "catalog:",
+    "ktx2-encoder": "^0.6.0",
+    "meshoptimizer": "^1.3.0",
+    "playwright": "catalog:",
+    "publint": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "sass-embedded": "catalog:",
+    "size-limit": "catalog:",
+    "stylelint": "catalog:",
+    "three": "^0.186.1",
+    "tsdown": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:",
+    "vitest-browser-react": "catalog:"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  }
+}

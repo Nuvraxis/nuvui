@@ -3,6 +3,7 @@
 // render on the server, this page fails to build. It isn't linked from
 // anywhere, and the e2e tests open it directly.
 
+import { ModelViewer } from "@nuvui/3d/model-viewer";
 import { GradientBackground } from "@nuvui/backgrounds/gradient-background";
 import { StarsBackground } from "@nuvui/backgrounds/stars-background";
 import { Barcode } from "@nuvui/barcodes/barcode";
@@ -663,6 +664,9 @@ export default function RscSmokePage() {
       <StarsBackground className="w-full p-4" scrim="soft">
         <p>Server stars</p>
       </StarsBackground>
+      {/* The viewer's name, words and buttons come from the server, and
+          three comes once the page's script has run. */}
+      <ModelViewer label="Server model" src="/docs/models/chair.glb" />
       <DirectionProvider dir="rtl">
         <div dir="rtl">
           <Tabs defaultValue="one">

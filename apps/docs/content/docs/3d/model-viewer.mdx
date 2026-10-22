@@ -1,0 +1,224 @@
+---
+title: ModelViewer
+description: A 3D model to turn and zoom with a pointer, a finger or the keys, for glTF, GLB and STL files from your site or picked by the person. It has a poster, says what it can't show in words, and is read by its name.
+added: "2026-10-22"
+---
+
+Use a model where its shape is the point: a product to look at from every side, a part to check before it's printed, where on a machine a fault is. For something one picture says as well, use the picture. A model is large to load and needs WebGL to draw.
+
+<Preview name="model-viewer/basic" />
+
+## Install
+
+```sh
+pnpm add @nuvui/3d three @react-three/fiber @nuvui/react
+```
+
+It needs React 19. [3D](/docs/3d) covers that, the styles, and how the package keeps three out of the page until a model is shown.
+
+## Import
+
+```tsx
+import { ModelViewer } from "@nuvui/3d";
+```
+
+```tsx
+<ModelViewer label="Oak chair" src="/models/chair.glb" />
+```
+
+`label` is the viewer's name, read in place of the drawing, so say what the model is.
+
+## Playground
+
+<ModelViewerPlayground />
+
+## Formats
+
+A GLB, a glTF and an STL. The format is read from the file's name, or from its first bytes. [3D](/docs/3d#formats) says more about each.
+
+<Preview name="model-viewer/formats" />
+
+## Files the person picks
+
+`src` takes a `File`, or a list of them, as well as an address. Pick them with the core's [FileUpload](/docs/components/file-upload). A glTF whose buffer and textures are files of their own is picked together with them, and the viewer finds each one the glTF names among the picked files by its name. When one is missing, it says which.
+
+<Preview name="model-viewer/picked" />
+
+The files are read in the browser. The viewer sends them nowhere and keeps nothing once it's let them go. Set `maxSize` on `FileUpload` for the largest file you'll take: a very large model can run a phone out of memory, and the viewer then says it can't draw it.
+
+## What's in a model
+
+`onLoad` is called with what the model is made of: its format, its size in its own units, its triangles, meshes, materials and textures, the space inside it, the compressions it used, and the size of its files. The example above shows some of them.
+
+```tsx
+<ModelViewer
+  label="Bracket"
+  src={file}
+  onLoad={(info) => setPrice(estimate(info.volume))}
+/>
+```
+
+The space inside, `volume`, is only right for a model whose surfaces are closed, as one made to be printed is. An STL's units are usually millimeters, so its volume is in cubic millimeters.
+
+## Compressed models
+
+`decoders` turns on Meshopt for shapes and KTX2 for textures. [3D](/docs/3d#compressed-gltf) says what each needs, and how to serve the KTX2 transcoder.
+
+<Preview name="model-viewer/decoders" />
+
+## Where the camera starts
+
+`camera` says where the view starts: `azimuth` in degrees round from the front, to the model's right, `elevation` in degrees above its middle, and `distance` as a share of the distance the whole model fits at. A new `camera` moves the view there, and Home and the reset button go back to it.
+
+<Preview name="model-viewer/camera" />
+
+By default the camera is 30 degrees round and 15 above, at the distance the model fits at. A model is framed by its bounds, so a part in millimeters and a building in meters both fill the view.
+
+## A poster
+
+`poster` is a picture of the model, shown while it loads, and in its place when it can't be drawn. Make it the same size as the viewer, with a clear background.
+
+## Turning by itself
+
+`autoRotate` turns the model slowly, a turn in 30 seconds, until someone turns it, presses it or a button, or it's given the focus. It doesn't turn for anyone who asked for less motion, while it's scrolled out of view, or while the tab is in the background.
+
+<Preview name="model-viewer/auto-rotate" />
+
+## Your own things in the scene
+
+Children are react-three-fiber elements, drawn with the model and in its units, such as a marker on one of its parts. They can take react-three-fiber's pointer events.
+
+<Preview name="model-viewer/markers" />
+
+A marker is drawn, and not read. Write what each one marks beside the viewer as well, as the list here does, and in `description`.
+
+Elements such as `<mesh>` are typed by react-three-fiber's own types, which come with an import from `@react-three/fiber`. In a file that only renders them, `/// <reference types="@react-three/fiber" />` at its top types them, without loading react-three-fiber in that file.
+
+## Colors
+
+An STL has no colors of its own, and is drawn in `--nuv-model-viewer-model`, the theme's primary color unless it's set. The light from below is `--nuv-model-viewer-ground`, the theme's muted color. Both are read again when the theme changes. A glTF keeps its own materials.
+
+<Preview name="model-viewer/colors" />
+
+## Loading, and what it can't show
+
+While a model loads, the viewer says so over it, with a bar that fills while the size is known. When it can't show one, it says why in words, in its place, and `onError` is called with a `ModelViewerError` whose `code` says which:
+
+| `code` | Why |
+| --- | --- |
+| `webgl` | The browser can't draw WebGL. |
+| `network` | The file couldn't be fetched. |
+| `format` | It isn't a GLB, glTF or STL file. |
+| `parse` | It is, and couldn't be read. |
+| `missing-files` | A picked glTF names files that weren't picked with it. `files` has their names. |
+| `draco` | It's compressed with Draco, which the viewer doesn't read. |
+| `meshopt`, `ktx2` | It needs a decoder that `decoders` hasn't turned on. |
+| `context-lost` | The browser took the drawing away, such as when the graphics driver restarted, and didn't give it back within five seconds. |
+
+A new `src` starts again.
+
+## Props
+
+<PropsTable package="3d" component="model-viewer" name="ModelViewerOwnProps" />
+
+It's a `div`, and takes what a `div` takes, including `ref`, `className` and `style`.
+
+### camera
+
+<PropsTable package="3d" component="model-viewer" file="src/core/frame.ts" name="ModelViewerCamera" />
+
+### decoders
+
+<PropsTable package="3d" component="model-viewer" file="src/core/types.ts" name="ModelDecoders" />
+
+### What onLoad is called with
+
+<PropsTable package="3d" component="model-viewer" file="src/core/types.ts" name="ModelInfo" />
+
+## Translation
+
+`labels` takes the viewer's own words: the buttons' names, how to use the keys, what's said while it loads, and each error. The viewer's name is its `label`.
+
+<PropsTable package="3d" component="model-viewer" file="src/core/labels.ts" name="ModelViewerLabels" />
+
+## Accessibility
+
+| Key | What it does |
+| --- | --- |
+| <kbd>Tab</kbd> | Goes to the model, then to the buttons. |
+| <kbd>←</kbd> <kbd>→</kbd> | Turns the model the way the arrow points, 15 degrees a press. |
+| <kbd>↑</kbd> <kbd>↓</kbd> | Looks from higher or lower. |
+| <kbd>Shift</kbd> with an arrow | Turns it 45 degrees. |
+| <kbd>+</kbd> <kbd>−</kbd> | Zooms in and out. |
+| <kbd>Home</kbd> | Goes back to the first view. |
+
+The arrows turn the model the same way on a page that reads right to left: a model isn't text, and its left is the screen's left.
+
+### What the component handles
+
+- The model is an image with a name, `label`, and "3D model" said with it. The canvas is hidden from screen readers, since nothing in it can be read.
+- `description` is read after the name, and so is how to use the keys.
+- It takes the focus, with a ring inside its edge, and the keys turn it while it has it. A press gives it the focus.
+- The wheel zooms only while it has the focus, so the page scrolls past a viewer it isn't on. One finger turns it and two zoom.
+- The buttons have names, are disabled while there's no model, and a zoom button that can go no further is disabled too. They take a tap over 44 pixels on a touch screen.
+- While a model loads, that's said, and what it can't show is said as an alert.
+- It doesn't turn by itself for anyone who asked for less motion.
+- Where the browser forces its own colors, the buttons, the focus ring and the words are drawn in them. The model is drawn in its own colors, as a picture is.
+
+### What you need to handle
+
+- Give it a `label` that says what the model is: "Oak chair", and not "3D model".
+- A model says little to someone who can't see it. Put what matters about it in words as well, in `description` or beside it: its size, its colors, what each part is.
+- Keep it smaller than the screen on a phone, so a finger can scroll the page past it.
+- A model that turns by itself for more than five seconds beside other content needs a way to stop it. A press on it stops it, and so does the focus, but say so if it isn't obvious.
+
+## On small screens
+
+The viewer is as wide as the room it's given, and `--nuv-model-viewer-height` is how tall. A finger on it turns the model and doesn't scroll the page, so leave room around it.
+
+## CSS variables
+
+Set any of these on a `ModelViewer`, or on anything around it. The two colors under [Colors](#colors) are read by the scene and set the same way.
+
+```css
+.product-model {
+  --nuv-model-viewer-height: 32rem;
+  --nuv-model-viewer-model: var(--color-success);
+}
+```
+
+<CssVariables
+  package="3d"
+  component="model-viewer"
+  descriptions={{
+    "--nuv-model-viewer-height": "Height of the viewer.",
+    "--nuv-model-viewer-border": "Color of the viewer's border.",
+    "--nuv-model-viewer-radius": "Corner radius of the viewer.",
+    "--nuv-model-viewer-bg": "What's behind the model. Clear, so the viewer takes the color of what it's on.",
+    "--nuv-model-viewer-note-bg": "Background of the words and the bar shown while a model loads.",
+    "--nuv-model-viewer-note-fg": "Color of the words shown while a model loads.",
+    "--nuv-model-viewer-error-bg": "Background of what's said when a model can't be shown.",
+    "--nuv-model-viewer-error-fg": "Color of what's said when a model can't be shown.",
+    "--nuv-model-viewer-controls-offset": "Room between the buttons and the viewer's corner.",
+  }}
+/>
+
+## Classes
+
+<BemClasses
+  package="3d"
+  component="model-viewer"
+  descriptions={{
+    "nuv-model-viewer": "ModelViewer",
+    "nuv-model-viewer__stage": "What has the name and takes the keys, with the canvas in it",
+    "nuv-model-viewer__canvas": "The canvas the model is drawn on",
+    "nuv-model-viewer__poster": "The poster",
+    "nuv-model-viewer__loading": "The words and the bar while a model loads",
+    "nuv-model-viewer__note": "The words while a model loads",
+    "nuv-model-viewer__error": "What's said when a model can't be shown",
+    "nuv-model-viewer__error--over": "The same, as a band at the foot of a poster",
+    "nuv-model-viewer__controls": "The group of buttons",
+    "nuv-model-viewer__control": "Each button",
+    "nuv-model-viewer__hidden": "Words that are read and not shown",
+  }}
+/>

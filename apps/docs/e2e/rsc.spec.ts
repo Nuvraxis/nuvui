@@ -440,6 +440,20 @@ test("components used from a server component hydrate and work", async ({
     )
     .toBe(true);
 
+  // The model viewer's name came from the server. Once the page's script
+  // has run, three draws the model where the browser has WebGL, and the
+  // viewer says it can't where it hasn't, as in headless Firefox on Linux.
+  await expect(page.getByRole("img", { name: "Server model" })).toBeVisible();
+  const webgl = await page.evaluate(() => {
+    const canvas = document.createElement("canvas");
+    return Boolean(canvas.getContext("webgl2") ?? canvas.getContext("webgl"));
+  });
+  await expect(page.locator(".nuv-model-viewer")).toHaveAttribute(
+    "data-state",
+    webgl ? "ready" : "error",
+    { timeout: 20_000 },
+  );
+
   // The provider was rendered on the server, and the tabs inside it take
   // their direction from it: the left arrow goes forward.
   await page.getByRole("tab", { name: "One" }).focus();

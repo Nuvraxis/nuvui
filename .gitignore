@@ -21,5 +21,10 @@ apps/docs/public/llms.txt
 apps/docs/public/llms-full.txt
 apps/docs/public/llms/
 
+# three's KTX2 transcoder, copied from the installed three on every dev
+# and build run by scripts/copy-basis.mjs
+apps/docs/public/basis/
+apps/showcase/public/basis/
+
 # Fumadocs content index, regenerated on every dev and build run
 .source/

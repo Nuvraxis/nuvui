@@ -1,5 +1,5 @@
 import { expect, type Page, test } from "@playwright/test";
-import { open } from "./helpers";
+import { drawsMaps, open } from "./helpers";
 
 // The policy on the Content Security Policy page, served with the docs'
 // pages in place of none. The scripts are let through: the docs are static
@@ -238,5 +238,52 @@ test.describe("under the Content Security Policy the docs give", () => {
     await open(page, "/docs/components/progress");
     const bar = page.locator(".nuv-progress__indicator").first();
     expect((await bar.boundingBox())?.width ?? 0).toBeLessThan(1);
+  });
+});
+
+test.describe("the 3D viewer under the policy", () => {
+  const sitesOwn = (violation: string) =>
+    !/^style-src-elem inline (\*,\*::before|\[data-radix-scroll-area-viewport\])/.test(
+      violation,
+    );
+
+  test("a plain model is drawn, and nothing is blocked", async ({ page }) => {
+    await servePolicy(page, policy);
+    await recordViolations(page);
+    // The start page has one viewer, with a plain GLB.
+    await open(page, "/docs/3d");
+    test.skip(!(await drawsMaps(page)), "this browser has no WebGL here");
+    await expect(page.locator(".nuv-model-viewer").first()).toHaveAttribute(
+      "data-state",
+      "ready",
+      { timeout: 20_000 },
+    );
+    expect((await violations(page)).filter(sitesOwn)).toEqual([]);
+  });
+
+  test("compressed models are drawn once the page allows WebAssembly", async ({
+    page,
+  }) => {
+    // What the guide says a page with compressed models adds.
+    await servePolicy(
+      page,
+      policy.replace(
+        "script-src 'self' 'unsafe-inline'",
+        "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'",
+      ),
+    );
+    await recordViolations(page);
+    await open(page, "/docs/3d/model-viewer");
+    test.skip(!(await drawsMaps(page)), "this browser has no WebGL here");
+    const viewers = page
+      .locator('[data-preview="model-viewer/decoders"]')
+      .locator(".nuv-model-viewer");
+    await viewers.first().scrollIntoViewIfNeeded();
+    for (const index of [0, 1]) {
+      await expect(viewers.nth(index)).toHaveAttribute("data-state", "ready", {
+        timeout: 20_000,
+      });
+    }
+    expect((await violations(page)).filter(sitesOwn)).toEqual([]);
   });
 });

@@ -279,7 +279,7 @@ describe.skipIf(!webgl)("loading", () => {
       });
       expect(info.size.map(Math.round)).toEqual([40, 10, 20]);
       expect(info.volume).toBeCloseTo(8000);
-      screen.unmount();
+      await screen.unmount();
     }
   });
 
@@ -291,7 +291,7 @@ describe.skipIf(!webgl)("loading", () => {
         triangles: 12,
         textures: 1,
       });
-      screen.unmount();
+      await screen.unmount();
     }
   });
 
@@ -299,7 +299,7 @@ describe.skipIf(!webgl)("loading", () => {
     const url = URL.createObjectURL(new Blob([await bytesOf("block.stl")]));
     const { onLoad, screen } = await show({ src: url });
     expect((await loaded(onLoad)).format).toBe("stl");
-    screen.unmount();
+    await screen.unmount();
 
     // A name that says otherwise loses to format.
     const [wrong] = await pick("block.stl");
@@ -337,6 +337,9 @@ describe.skipIf(!webgl)("loading", () => {
   test("a new model lets go of the one before", async () => {
     const { onLoad, screen } = await show();
     await loaded(onLoad);
+    // Drawn here, as below: the scene draws on demand, and what's counted
+    // is what has been drawn.
+    three().gl.render(three().scene, three().camera);
     const geometries = three().gl.info.memory.geometries;
     await screen.rerender(
       <ModelViewer label="Box" src={fixture("block.stl")} onLoad={onLoad}>
@@ -352,7 +355,7 @@ describe.skipIf(!webgl)("loading", () => {
     const { onLoad, screen } = await show();
     await loaded(onLoad);
     const context = three().gl.getContext();
-    screen.unmount();
+    await screen.unmount();
     await expect.poll(() => context.isContextLost()).toBe(true);
   });
 
@@ -380,7 +383,9 @@ describe.skipIf(!webgl)("what it can't show, said in words", () => {
     expect(error.files).toEqual(["crate.png"]);
     await expect
       .element(page.getByRole("alert"))
-      .toHaveTextContent("Some of the model's files are missing: crate.png.");
+      .toHaveTextContent(
+        "Some of the model's files are missing: crate.png. Pick them together with the glTF.",
+      );
     expect(root().querySelector("canvas")).toBeNull();
   });
 
@@ -409,35 +414,37 @@ describe.skipIf(!webgl)("what it can't show, said in words", () => {
   test("Draco, which the viewer doesn't read", async () => {
     const { onError } = await show({ src: fixture("box-draco.gltf") });
     expect((await failed(onError)).code).toBe("draco");
-    expect(said()).toContain("Export it again with Meshopt.");
+    await expect.poll(said).toContain("Export it again with Meshopt.");
   });
 
   test("Meshopt and KTX2 while they're off", async () => {
     const meshopt = await show({ src: fixture("box-meshopt.glb") });
     expect((await failed(meshopt.onError)).code).toBe("meshopt");
-    expect(said()).toBe(
-      "This model is compressed with Meshopt, which isn't turned on here.",
-    );
-    meshopt.screen.unmount();
+    await expect
+      .poll(said)
+      .toBe(
+        "This model is compressed with Meshopt, which isn't turned on here.",
+      );
+    await meshopt.screen.unmount();
 
     const ktx2 = await show({ src: fixture("crate-ktx2.glb") });
     expect((await failed(ktx2.onError)).code).toBe("ktx2");
-    expect(said()).toBe(
-      "This model's textures are KTX2, which isn't turned on here.",
-    );
+    await expect
+      .poll(said)
+      .toBe("This model's textures are KTX2, which isn't turned on here.");
   });
 
   test("a file that isn't a model", async () => {
     const notes = new File(["Remember to order more screws."], "notes.txt");
     const { onError } = await show({ src: notes });
     expect((await failed(onError)).code).toBe("format");
-    expect(said()).toContain("It shows GLB, glTF and STL files.");
+    await expect.poll(said).toContain("It shows GLB, glTF and STL files.");
   });
 
   test("an address that isn't there", async () => {
     const { onError } = await show({ src: fixture("not-here.glb") });
     expect((await failed(onError)).code).toBe("network");
-    expect(said()).toBe("The model couldn't be loaded.");
+    await expect.poll(said).toBe("The model couldn't be loaded.");
   });
 
   test("an error over a poster is a band at its foot", async () => {
@@ -446,8 +453,9 @@ describe.skipIf(!webgl)("what it can't show, said in words", () => {
       poster: fixture("crate.png"),
     });
     await failed(onError);
-    const band = page.getByRole("alert").element();
-    expect(band.classList).toContain("nuv-model-viewer__error--over");
+    await expect
+      .element(page.getByRole("alert"))
+      .toHaveClass("nuv-model-viewer__error--over");
     expect(root().querySelector(".nuv-model-viewer__poster")).not.toBeNull();
   });
 
@@ -494,7 +502,7 @@ describe.skipIf(!webgl)("turning and zooming", () => {
     await loaded(first.onLoad);
     expect(orbit().azimuth).toBeCloseTo(30);
     expect(orbit().elevation).toBeCloseTo(15);
-    first.screen.unmount();
+    await first.screen.unmount();
 
     const { onLoad, screen } = await show({
       camera: { azimuth: 90, elevation: 0 },
@@ -605,6 +613,9 @@ describe.skipIf(!webgl)("turning and zooming", () => {
 
 describe.skipIf(!webgl)("turning by itself", () => {
   test("turns slowly, and stops for good once it's pressed", async () => {
+    // Asked for, since with nothing emulated WebKit on Linux reports that
+    // less motion was asked for.
+    await emulateMedia({ reducedMotion: "no-preference" });
     const { onLoad } = await show({ autoRotate: true });
     await loaded(onLoad);
     const start = orbit().azimuth;
@@ -661,7 +672,7 @@ describe.skipIf(!webgl)("the theme", () => {
 
     holder.style.setProperty("--nuv-model-viewer-model", "rgb(0, 0, 255)");
     await expect.poll(plainColor).toBe("0000ff");
-    screen.unmount();
+    await screen.unmount();
     holder.remove();
   });
 });

@@ -27,11 +27,22 @@ const decoded = (uri: string) => {
 };
 
 /**
+ * Whether a glTF names a file by a full address, such as one on the web,
+ * and not by a path beside it. Beside picked files, such a file is never
+ * fetched: opening a model of one's own would otherwise tell whoever made
+ * it, and nothing a person picks is to leave the browser.
+ */
+export const isAddress = (uri: string) =>
+  /^(?:[a-z][a-z0-9+.-]*:|\/\/)/i.test(uri.trim());
+
+/**
  * The picked file a glTF means by `uri`, such as "textures/wood.png". A
  * file picked from a folder is matched by its path in it, and any other
- * by its name alone, since a picker gives no folders.
+ * by its name alone, since a picker gives no folders. A full address is
+ * no picked file.
  */
 export function fileFor(files: readonly File[], uri: string): File | undefined {
+  if (isAddress(uri)) return undefined;
   const wanted = decoded(uri)
     .replace(/\\/g, "/")
     .replace(/^(\.\/)+/, "");
@@ -42,14 +53,18 @@ export function fileFor(files: readonly File[], uri: string): File | undefined {
   );
 }
 
-/** The files a glTF names that weren't picked with it, by their names. */
+/**
+ * The files a glTF names that weren't picked with it, by their names. One
+ * named by a full address is always missing, and is named by the address,
+ * so it's plain why.
+ */
 export function missingFiles(
   files: readonly File[],
   references: readonly string[],
 ): string[] {
   return references
     .filter((uri) => !fileFor(files, uri))
-    .map((uri) => baseName(decoded(uri)));
+    .map((uri) => (isAddress(uri) ? uri : baseName(decoded(uri))));
 }
 
 /** A key that's the same for the same files picked again. */

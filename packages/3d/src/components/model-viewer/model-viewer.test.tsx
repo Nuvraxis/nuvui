@@ -384,6 +384,28 @@ describe.skipIf(!webgl)("what it can't show, said in words", () => {
     expect(root().querySelector("canvas")).toBeNull();
   });
 
+  test("a picked glTF that names a file on the web is refused, and nothing is fetched", async () => {
+    const fetched = vi.spyOn(window, "fetch");
+    const gltf = JSON.parse(
+      new TextDecoder().decode(await bytesOf("crate.gltf")),
+    );
+    gltf.images[0].uri = "https://tracker.example/opened.png";
+    const files = [
+      new File([JSON.stringify(gltf)], "crate.gltf"),
+      ...(await pick("crate.bin", "crate.png")),
+    ];
+    const { onError } = await show({ src: files });
+
+    const error = await failed(onError);
+    expect(error.code).toBe("missing-files");
+    expect(error.files).toEqual(["https://tracker.example/opened.png"]);
+    expect(
+      fetched.mock.calls.some(([input]) =>
+        String(input).includes("tracker.example"),
+      ),
+    ).toBe(false);
+  });
+
   test("Draco, which the viewer doesn't read", async () => {
     const { onError } = await show({ src: fixture("box-draco.gltf") });
     expect((await failed(onError)).code).toBe("draco");

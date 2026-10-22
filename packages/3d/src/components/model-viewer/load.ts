@@ -253,10 +253,15 @@ export async function loadModel({
     bytes = await main.arrayBuffer();
     total = source.files.reduce((sum, file) => sum + file.size, 0);
     const files = source.files;
+    // Only the picked files, and what's written into the glTF itself, are
+    // let through. Anything else is sent nowhere: the missing files are
+    // said before loading, and this is what holds if one gets past.
     manager.setURLModifier((url) => {
-      if (!url.startsWith(picked)) return url;
-      const file = fileFor(files, url.slice(picked.length));
-      if (!file) return url;
+      if (/^(data|blob):/i.test(url)) return url;
+      const file = url.startsWith(picked)
+        ? fileFor(files, url.slice(picked.length))
+        : undefined;
+      if (!file) return "about:blank";
       const address = URL.createObjectURL(file);
       urls.push(address);
       return address;

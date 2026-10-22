@@ -163,6 +163,21 @@ describe("picked files", () => {
     ).toEqual(["oak top.png"]);
   });
 
+  test("a file named by a full address is never a picked one, and is named missing by its address", () => {
+    const files = [file("scene.bin"), file("wood.png")];
+    for (const uri of [
+      "https://tracker.example/scene.bin",
+      "//tracker.example/wood.png",
+      "HTTP://tracker.example/wood.png",
+      "file:///home/someone/wood.png",
+    ]) {
+      expect(fileFor(files, uri), uri).toBeUndefined();
+    }
+    expect(
+      missingFiles(files, ["scene.bin", "https://tracker.example/wood.png"]),
+    ).toEqual(["https://tracker.example/wood.png"]);
+  });
+
   test("the same files picked again have the same key", () => {
     expect(filesKey([file("a.glb", 3)])).toBe(filesKey([file("a.glb", 3)]));
     expect(filesKey([file("a.glb", 3)])).not.toBe(filesKey([file("a.glb", 4)]));

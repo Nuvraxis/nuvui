@@ -191,8 +191,8 @@ const fixtures = {
     );
     expect("vite", "it has the map's styles", css.includes(".nuv-map"));
     // three and react-three-fiber come with the scene, which is asked for
-    // when a model is first shown. So they're in the build, in a file of
-    // their own, and not in the one with the viewer.
+    // when a viewer first comes near the screen. So they're in the build,
+    // in a file of their own, and not in the one with the viewer.
     const scripts = files(join(dir, "dist"), ".js").map((path) =>
       readFileSync(path, "utf8"),
     );

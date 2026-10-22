@@ -7,7 +7,11 @@ const expected = ["glb", "gltf", "stl", "meshopt"];
 const server = await preview({ logLevel: "silent", preview: { port: 4317 } });
 const browser = await chromium.launch();
 try {
-  const page = await browser.newPage();
+  // Tall enough for every viewer: one starts only once it's near the
+  // screen, and the four are one under another.
+  const page = await browser.newPage({
+    viewport: { width: 1280, height: 2000 },
+  });
   const errors = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto(server.resolvedUrls?.local[0] ?? "http://localhost:4317/");

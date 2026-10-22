@@ -53,7 +53,7 @@ RUN pnpm build
 
 # Runs as a user that isn't root, and listens on 8080. It writes only to
 # /tmp, so the root filesystem can be read-only with a volume there.
-FROM nginxinc/nginx-unprivileged:1.31-alpine@sha256:b9241c6e7b8e9a862f129d8d4199ab64b10390949a78bdd5603379b32c844083
+FROM nginxinc/nginx-unprivileged:1.31-alpine@sha256:b5047b9b76845eac124358373c6852377c52e4b05834a47647e955dd91cb8f1e
 
 COPY apps/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /repo/apps/showcase/out /usr/share/nginx/html

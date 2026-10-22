@@ -146,7 +146,7 @@ export default function Example() {
 }
 ```
 
-The files are read in the browser. The viewer sends them nowhere and keeps nothing once it's let them go. Set `maxSize` on `FileUpload` for the largest file you'll take: a very large model can run a phone out of memory, and the viewer then says it can't draw it.
+The files are read in the browser. The viewer sends them nowhere and keeps nothing once it's let them go. A picked glTF that names a file by a full address, such as one on the web, isn't loaded: fetching it would tell whoever made the model that it was opened. The viewer says that file is missing, by its address. Set `maxSize` on `FileUpload` for the largest file you'll take: a very large model can run a phone out of memory, and the viewer then says it can't draw it.
 
 ## What's in a model
 

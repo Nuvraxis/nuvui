@@ -351,6 +351,23 @@ describe.skipIf(!webgl)("loading", () => {
     expect(three().gl.info.memory.geometries).toBe(geometries);
   });
 
+  test("far down the page, it makes no drawing until it's scrolled near", async () => {
+    const onLoad = vi.fn<(info: ModelInfo) => void>();
+    await render(
+      <div>
+        <div style={{ blockSize: "4000px" }} />
+        <ModelViewer label="Box" src={fixture("box.glb")} onLoad={onLoad} />
+      </div>,
+    );
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    expect(root().querySelector("canvas")).toBeNull();
+    expect(root().dataset.state).toBe("loading");
+
+    root().scrollIntoView();
+    await loaded(onLoad);
+    expect(root().querySelector("canvas")).not.toBeNull();
+  });
+
   test("gives back the drawing when it's taken off the page", async () => {
     const { onLoad, screen } = await show();
     await loaded(onLoad);

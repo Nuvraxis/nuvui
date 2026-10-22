@@ -200,9 +200,32 @@ export const ModelViewer = forwardRef<HTMLDivElement, ModelViewerProps>(
       handlers.current.onError?.(failure);
     }, []);
 
-    // Nothing touches WebGL until the browser has the page. three and
-    // react-three-fiber come with the scene, here.
+    // Nothing touches WebGL until the viewer is near the screen. A page of
+    // many models then only pays for the ones being looked at, and stays
+    // under the browser's limit on WebGL contexts. Once near, it stays.
+    const [near, setNear] = useState(false);
     useEffect(() => {
+      const element = root.current;
+      if (!element) return;
+      if (typeof IntersectionObserver === "undefined") {
+        setNear(true);
+        return;
+      }
+      const views = new IntersectionObserver(
+        (entries) => {
+          if (!entries.some((entry) => entry.isIntersecting)) return;
+          setNear(true);
+          views.disconnect();
+        },
+        { rootMargin: "200px" },
+      );
+      views.observe(element);
+      return () => views.disconnect();
+    }, []);
+
+    // three and react-three-fiber come with the scene, here.
+    useEffect(() => {
+      if (!near) return;
       if (!canDrawWebgl()) {
         broken.current = true;
         fail(new ModelViewerError("webgl", "This browser can't draw WebGL."));
@@ -225,7 +248,7 @@ export const ModelViewer = forwardRef<HTMLDivElement, ModelViewerProps>(
       return () => {
         gone = true;
       };
-    }, [fail]);
+    }, [fail, near]);
 
     // A new model starts again from loading.
     // biome-ignore lint/correctness/useExhaustiveDependencies: the keys are what's new.

@@ -77,9 +77,11 @@ const lostFor = 5000;
 
 const colorOf = (rgb: Rgb) => new Color().setRGB(...rgb, SRGBColorSpace);
 
+// Kept up to date in a layout effect, so the framing, which is one too,
+// reads this render's props and not the last one's.
 function useLatest<T>(value: T) {
   const ref = useRef(value);
-  useEffect(() => {
+  useLayoutEffect(() => {
     ref.current = value;
   });
   return ref;

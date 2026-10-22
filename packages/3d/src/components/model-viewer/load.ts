@@ -236,7 +236,11 @@ export async function loadModel({
 
   if (source.kind === "url") {
     name = nameOfUrl(source.url);
-    path = new URL(".", new URL(source.url, document.baseURI)).href;
+    const address = new URL(source.url, document.baseURI);
+    // A blob: or data: address has no folder for other files to be in.
+    path = /^(blob|data):$/.test(address.protocol)
+      ? ""
+      : new URL(".", address).href;
     bytes = await fetchBytes(source.url, signal, onProgress);
     total = bytes.byteLength;
   } else {

@@ -4,14 +4,15 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "next dev --port 3001",
-    "build": "next build && node ../../scripts/fix-next-export.mjs out && node scripts/add-docs.mjs && node scripts/add-registry.mjs",
+    "dev": "node ../../scripts/copy-basis.mjs public/basis && next dev --port 3001",
+    "build": "node ../../scripts/copy-basis.mjs public/basis && next build && node ../../scripts/fix-next-export.mjs out && node scripts/add-docs.mjs && node scripts/add-registry.mjs",
     "start": "node ../../scripts/serve-static.mjs 3001 out",
     "lint": "stylelint \"src/**/*.scss\"",
     "typecheck": "next typegen && tsc --noEmit",
     "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@nuvui/3d": "workspace:*",
     "@nuvui/backgrounds": "workspace:*",
     "@nuvui/barcodes": "workspace:*",
     "@nuvui/charts": "workspace:*",
@@ -20,14 +21,15 @@
     "@nuvui/editor": "workspace:*",
     "@nuvui/emoji": "workspace:*",
     "@nuvui/flow": "workspace:*",
-    "@nuvui/media": "workspace:*",
     "@nuvui/icons": "workspace:*",
     "@nuvui/kanban": "workspace:*",
     "@nuvui/map": "workspace:*",
+    "@nuvui/media": "workspace:*",
     "@nuvui/react": "workspace:*",
     "@nuvui/table": "workspace:*",
     "@nuvui/telemetry": "workspace:*",
     "@nuvui/theme": "workspace:*",
+    "@react-three/fiber": "^9.8.2",
     "@tanstack/react-table": "^9.2.6",
     "fumadocs-core": "16.16.0",
     "lucide-react": "^1.52.0",
@@ -37,7 +39,8 @@
     "react-dom": "catalog:",
     "react-is": "catalog:",
     "recharts": "^3.10.1",
-    "shiki": "^4.5.0"
+    "shiki": "^4.5.0",
+    "three": "^0.186.1"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",

@@ -95,6 +95,10 @@ import memberCard from "@/blocks/member-card/block.json" with { type: "json" };
 import messageReactions from "@/blocks/message-reactions/block.json" with {
   type: "json",
 };
+import modelCheck from "@/blocks/model-check/block.json" with { type: "json" };
+import modelLibrary from "@/blocks/model-library/block.json" with {
+  type: "json",
+};
 import navBar from "@/blocks/nav-bar/block.json" with { type: "json" };
 import notifications from "@/blocks/notifications/block.json" with {
   type: "json",
@@ -102,6 +106,7 @@ import notifications from "@/blocks/notifications/block.json" with {
 import onboarding from "@/blocks/onboarding/block.json" with { type: "json" };
 import pageHeader from "@/blocks/page-header/block.json" with { type: "json" };
 import pageStates from "@/blocks/page-states/block.json" with { type: "json" };
+import partNotes from "@/blocks/part-notes/block.json" with { type: "json" };
 import pinnedReports from "@/blocks/pinned-reports/block.json" with {
   type: "json",
 };
@@ -109,10 +114,14 @@ import podcastEpisode from "@/blocks/podcast-episode/block.json" with {
   type: "json",
 };
 import pricing from "@/blocks/pricing/block.json" with { type: "json" };
+import printOrder from "@/blocks/print-order/block.json" with { type: "json" };
 import productDemo from "@/blocks/product-demo/block.json" with {
   type: "json",
 };
 import productGallery from "@/blocks/product-gallery/block.json" with {
+  type: "json",
+};
+import productModel from "@/blocks/product-model/block.json" with {
   type: "json",
 };
 import profileForm from "@/blocks/profile-form/block.json" with {
@@ -248,6 +257,13 @@ export const categories: BlockCategory[] = [
       "Video and sound in an app: a course's lesson with its chapters and transcript and the lessons beside it, a product's demo that loads only when it's played, a recorded meeting with comments pinned to its moments, a podcast's episode with its waveform and chapters, and a team's chat with voice messages among the text.",
   },
   {
+    slug: "3d",
+    label: "3D",
+    title: "3D models",
+    description:
+      "Models to turn and zoom: a page to check a model of your own, read in the browser and sent nowhere, a shop's product with colors that repaint it, an STL to order printed with an estimate from its volume, a machine part with notes pinned to it, and a library of models as pictures that opens one in 3D.",
+  },
+  {
     slug: "editor",
     label: "Editor",
     title: "Writing and editors",
@@ -328,6 +344,11 @@ export const blocks: BlockManifest[] = [
   recordingReview,
   podcastEpisode,
   voiceMessages,
+  modelCheck,
+  productModel,
+  printOrder,
+  partNotes,
+  modelLibrary,
   documentEditor,
   announcementEditor,
   commentThread,

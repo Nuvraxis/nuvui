@@ -14,6 +14,7 @@ import "@nuvui/map/styles.css";
 import "@nuvui/flow/styles.css";
 import "@nuvui/media/styles.css";
 import "@nuvui/backgrounds/styles.css";
+import "@nuvui/3d/styles.css";
 import "@/styles/index.scss";
 import { Toaster } from "@nuvui/react/toast";
 import type { Metadata } from "next";

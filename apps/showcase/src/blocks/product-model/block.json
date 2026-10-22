@@ -1,0 +1,9 @@
+{
+  "name": "product-model",
+  "title": "Product in 3D",
+  "description": "A shop's page for one product with a 3D model to turn in place of a photo, its poster while the model loads, and colors to choose from that repaint the model, beside the price, a button to buy and the product's measurements.",
+  "category": "3d",
+  "files": ["product-model.tsx", "product-model.scss"],
+  "install": ["@nuvui/3d", "three", "@react-three/fiber", "@nuvui/react"],
+  "height": 860
+}

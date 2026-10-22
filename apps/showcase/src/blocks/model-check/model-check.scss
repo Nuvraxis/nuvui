@@ -1,0 +1,121 @@
+@use "@nuvui/react/scss/mixins";
+
+.model-check {
+  display: grid;
+  gap: calc(var(--spacing) * 6);
+  align-content: start;
+  inline-size: 100%;
+  min-block-size: 100svh;
+  padding: calc(var(--spacing) * 6) calc(var(--spacing) * 4);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+
+  @include mixins.breakpoint("md") {
+    padding: calc(var(--spacing) * 8);
+  }
+}
+
+.model-check__head {
+  display: grid;
+  gap: calc(var(--spacing) * 2);
+  max-inline-size: 44rem;
+}
+
+.model-check__title {
+  margin: 0;
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-2xl--line-height);
+  letter-spacing: var(--tracking-tight);
+}
+
+.model-check__lead {
+  margin: 0;
+  color: var(--color-muted-foreground);
+}
+
+// The picker, the model and what's in it in a column, and side by side
+// once there's room: the picker and the facts on either side of the model.
+.model-check__body {
+  display: grid;
+  gap: calc(var(--spacing) * 6);
+  align-items: start;
+
+  @include mixins.breakpoint("lg") {
+    grid-template-columns: minmax(16rem, 20rem) minmax(0, 1fr) minmax(14rem, 18rem);
+  }
+}
+
+.model-check__pick {
+  display: grid;
+  gap: calc(var(--spacing) * 2);
+}
+
+.model-check__samples {
+  display: grid;
+  gap: calc(var(--spacing) * 2);
+  margin-block-start: calc(var(--spacing) * 2);
+}
+
+.model-check__samples-label {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+}
+
+.model-check__sample-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 2);
+}
+
+// Smaller than a phone's screen, so a finger can still scroll past it.
+.model-check__viewer {
+  --nuv-model-viewer-height: min(28rem, 60svh);
+
+  @include mixins.breakpoint("lg") {
+    --nuv-model-viewer-height: 32rem;
+  }
+}
+
+.model-check__facts {
+  display: grid;
+  gap: calc(var(--spacing) * 2);
+}
+
+.model-check__heading {
+  margin: 0;
+  font-size: var(--text-base);
+  font-weight: var(--font-weight-semibold);
+}
+
+.model-check__list {
+  display: grid;
+  margin: 0;
+  border-block-start: var(--nuv-border-width, 1px) solid var(--color-border);
+}
+
+.model-check__row {
+  display: flex;
+  gap: calc(var(--spacing) * 3);
+  justify-content: space-between;
+  padding-block: calc(var(--spacing) * 2);
+  border-block-end: var(--nuv-border-width, 1px) solid var(--color-border);
+  font-size: var(--text-sm);
+
+  dt {
+    color: var(--color-muted-foreground);
+  }
+
+  dd {
+    margin: 0;
+    font-variant-numeric: tabular-nums;
+    text-align: end;
+  }
+}
+
+.model-check__empty {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+}

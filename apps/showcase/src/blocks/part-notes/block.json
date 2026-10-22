@@ -1,0 +1,9 @@
+{
+  "name": "part-notes",
+  "title": "Part with notes",
+  "description": "A machine part in 3D with numbered markers on it and a list of the same notes beside it, each with its status. Choosing a note turns the model to face it, and pressing a marker chooses its note. For a maintenance or inspection app.",
+  "category": "3d",
+  "files": ["part-notes.tsx", "part-notes.scss"],
+  "install": ["@nuvui/3d", "three", "@react-three/fiber", "@nuvui/react"],
+  "height": 820
+}

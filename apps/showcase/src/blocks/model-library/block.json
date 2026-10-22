@@ -1,0 +1,9 @@
+{
+  "name": "model-library",
+  "title": "Model library",
+  "description": "A library of 3D models as a grid of pictures, each with its name, what it is, its size and when it was changed, and a button that opens it in a dialog to turn. Only the one that's opened loads the 3D viewer, so the grid stays light.",
+  "category": "3d",
+  "files": ["model-library.tsx", "model-library.scss"],
+  "install": ["@nuvui/3d", "three", "@react-three/fiber", "@nuvui/react"],
+  "height": 900
+}

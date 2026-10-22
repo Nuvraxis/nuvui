@@ -1,0 +1,129 @@
+@use "@nuvui/react/scss/mixins";
+
+.part-notes {
+  display: grid;
+  gap: calc(var(--spacing) * 6);
+  align-content: start;
+  inline-size: 100%;
+  min-block-size: 100svh;
+  padding: calc(var(--spacing) * 6) calc(var(--spacing) * 4);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+
+  @include mixins.breakpoint("md") {
+    padding: calc(var(--spacing) * 8);
+  }
+}
+
+.part-notes__head {
+  display: grid;
+  gap: calc(var(--spacing) * 1);
+}
+
+.part-notes__eyebrow {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+}
+
+.part-notes__title {
+  margin: 0;
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-2xl--line-height);
+  letter-spacing: var(--tracking-tight);
+}
+
+// The pump and its notes, side by side once there's room.
+.part-notes__body {
+  display: grid;
+  gap: calc(var(--spacing) * 6);
+  align-items: start;
+
+  @include mixins.breakpoint("lg") {
+    grid-template-columns: minmax(0, 3fr) minmax(18rem, 2fr);
+  }
+}
+
+// Smaller than a phone's screen, so a finger can still scroll past it.
+.part-notes__viewer {
+  --nuv-model-viewer-height: min(26rem, 60svh);
+
+  @include mixins.breakpoint("lg") {
+    --nuv-model-viewer-height: 32rem;
+  }
+}
+
+.part-notes__notes {
+  display: grid;
+  gap: calc(var(--spacing) * 2);
+}
+
+.part-notes__heading {
+  margin: 0;
+  font-size: var(--text-base);
+  font-weight: var(--font-weight-semibold);
+}
+
+.part-notes__list {
+  display: grid;
+  gap: calc(var(--spacing) * 2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.part-notes__note {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: calc(var(--spacing) * 3);
+  align-items: start;
+  inline-size: 100%;
+  min-block-size: var(--nuv-touch-size, 2.75rem);
+  padding: calc(var(--spacing) * 3);
+  border: var(--nuv-border-width, 1px) solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-card);
+  color: var(--color-card-foreground);
+  font: inherit;
+  font-size: var(--text-sm);
+  text-align: start;
+  cursor: pointer;
+
+  @include mixins.focus-ring;
+
+  @include mixins.hover {
+    background-color: var(--color-muted);
+  }
+
+  // The one shown on the pump has an edge in the primary color, which is
+  // there in forced colors too.
+  &[aria-pressed="true"] {
+    border-color: var(--color-primary);
+    box-shadow: inset 0 0 0 1px var(--color-primary);
+
+    @media (forced-colors: active) {
+      border-color: highlight;
+    }
+  }
+}
+
+.part-notes__number {
+  display: grid;
+  place-items: center;
+  inline-size: 1.5rem;
+  block-size: 1.5rem;
+  border-radius: var(--radius-full);
+  background-color: var(--color-muted);
+  font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+.part-notes__text {
+  display: grid;
+  gap: calc(var(--spacing) * 0.5);
+}
+
+.part-notes__part {
+  font-weight: var(--font-weight-semibold);
+}

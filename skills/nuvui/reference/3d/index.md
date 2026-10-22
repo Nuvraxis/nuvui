@@ -53,7 +53,7 @@ Both files open with the same line naming the cascade layers, so the order you i
 
 ## It's large, so it's loaded when it's needed
 
-three, react-three-fiber and the viewer's scene, with every loader and decoder, come to about 250 kB compressed with Brotli, and three is 155 kB of that. The viewer asks for them when a model is first shown, and not before. The loaders and decoders are loaded only for a model that needs them. The server sends the viewer's name, its poster, the words while it loads and its buttons, and never loads three. The rest of the package is about 8 kB.
+three, react-three-fiber and the viewer's scene, with every loader and decoder, come to about 250 kB compressed with Brotli, and three is 155 kB of that. The viewer asks for them when it first comes near the screen, and not before. Until then it makes no WebGL context, so a page of many models only draws the ones being looked at, and stays under the browser's limit on contexts. The loaders and decoders are loaded only for a model that needs them. The server sends the viewer's name, its poster, the words while it loads and its buttons, and never loads three. The rest of the package is about 8 kB.
 
 A page with many models, such as a gallery, can show posters and put a viewer only where one is opened. The [Model library block](https://nuvui.nuvraxis.com/blocks/3d) does that.
 
@@ -99,7 +99,7 @@ cp node_modules/three/examples/jsm/libs/basis/basis_transcoder.* public/basis/
 ## What a browser needs
 
 - **WebGL.** Where a browser has none, or it's turned off, the viewer keeps its poster, says it can't draw 3D models, and calls `onError`.
-- **A content security policy,** if you have one. A plain model needs nothing beyond what [the policy in the guide](../content-security-policy.md) allows. A page that shows compressed models needs `'wasm-unsafe-eval'` in `script-src`, since the decoders are WebAssembly, and KTX2 also needs `blob:` in `worker-src`, since it runs in workers. A policy is the page's and not the viewer's, so send the looser one only for the pages that show compressed models. `'wasm-unsafe-eval'` lets a page compile WebAssembly, and doesn't let it run a string as script.
+- **A content security policy,** if you have one. A plain model needs nothing beyond what [the policy in the guide](../content-security-policy.md) allows. A model with its textures packed inside it, or picked by the person, needs `blob:` in `connect-src`, since three reads them from `blob:` addresses with `fetch`, and a glTF with its files written in as `data:` addresses needs `data:` there. A page that shows Meshopt models needs `'wasm-unsafe-eval'` in `script-src`, since the decoder is WebAssembly. `'wasm-unsafe-eval'` lets a page compile WebAssembly, and doesn't let it run a string as script. KTX2 needs more: `blob:` in `worker-src`, since the transcoder runs in workers, and `'unsafe-eval'` in `script-src`, since the transcoder three ships makes functions from strings as it starts. Without `'unsafe-eval'` a KTX2 model doesn't load, and the viewer goes on saying it's loading. A policy is the page's and not the viewer's, so send the looser one only for the pages that show compressed models.
 
 ## People's own models
 

@@ -264,13 +264,16 @@ test.describe("the 3D viewer under the policy", () => {
   test("compressed models are drawn once the page allows WebAssembly", async ({
     page,
   }) => {
-    // What the guide says a page with compressed models adds.
+    // What the guide says a page with Meshopt and KTX2 models adds, with
+    // blob: for the KTX2 texture packed inside the GLB.
     await servePolicy(
       page,
-      policy.replace(
-        "script-src 'self' 'unsafe-inline'",
-        "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'",
-      ),
+      policy
+        .replace(
+          "script-src 'self' 'unsafe-inline'",
+          "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' 'unsafe-eval'",
+        )
+        .replace("connect-src 'self'", "connect-src 'self' blob:"),
     );
     await recordViolations(page);
     await open(page, "/docs/3d/model-viewer");

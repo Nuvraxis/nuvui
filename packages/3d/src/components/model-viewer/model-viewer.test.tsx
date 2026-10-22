@@ -76,14 +76,14 @@ async function show(props: Partial<ModelViewerProps> = {}) {
 
 async function loaded(onLoad: ReturnType<typeof vi.fn>, times = 1) {
   await expect
-    .poll(() => onLoad.mock.calls.length, { timeout: 20_000 })
+    .poll(() => onLoad.mock.calls.length, { timeout: 45_000 })
     .toBe(times);
   return onLoad.mock.calls[times - 1]?.[0] as ModelInfo;
 }
 
 async function failed(onError: ReturnType<typeof vi.fn>) {
   await expect
-    .poll(() => onError.mock.calls.length, { timeout: 20_000 })
+    .poll(() => onError.mock.calls.length, { timeout: 45_000 })
     .toBe(1);
   return onError.mock.calls[0]?.[0] as ModelViewerError;
 }

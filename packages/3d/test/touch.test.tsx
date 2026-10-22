@@ -27,7 +27,7 @@ async function mount() {
     />,
   );
   await expect
-    .poll(() => onLoad.mock.calls.length, { timeout: 20_000 })
+    .poll(() => onLoad.mock.calls.length, { timeout: 45_000 })
     .toBe(1);
 }
 

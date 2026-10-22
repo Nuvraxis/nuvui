@@ -30,6 +30,21 @@ async function ready(within: Locator) {
 const picture = (within: Locator) =>
   viewer(within).locator(".nuv-model-viewer__stage").screenshot();
 
+// The picture once two in a row are the same. A viewer is ready once its
+// model is, which can be a frame before the light from the room is drawn.
+async function settled(within: Locator) {
+  let last = await picture(within);
+  await expect
+    .poll(async () => {
+      const now = await picture(within);
+      const same = now.equals(last);
+      last = now;
+      return same;
+    })
+    .toBe(true);
+  return last;
+}
+
 test.describe("3D start page", () => {
   test("says what to install, that it needs React 19, and leads to the component", async ({
     page,
@@ -107,7 +122,7 @@ test.describe("model viewer page", () => {
       await ready(area);
       const stage = area.getByRole("img", { name: "Oak chair" });
       await stage.focus();
-      const before = await picture(area);
+      const before = await settled(area);
       await page.keyboard.press("ArrowRight");
       await expect.poll(() => picture(area)).not.toEqual(before);
       await page.keyboard.press("Home");

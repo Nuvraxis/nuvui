@@ -6190,8 +6190,11 @@ test.describe("3D models", () => {
     await expect(facts.getByRole("definition").nth(5)).toHaveText("1");
 
     // Taken out of the list, the texture is missing, and the viewer says so.
+    // In the viewer: Next's route announcer is an alert too.
     await page.getByRole("button", { name: "Remove crate.png" }).click();
-    await expect(page.getByRole("alert")).toContainText("crate.png");
+    await expect(
+      page.locator(".nuv-model-viewer").getByRole("alert"),
+    ).toContainText("crate.png");
   });
 
   test("product in 3D: a color repaints the model, and the poster is shown first", async ({

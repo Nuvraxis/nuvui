@@ -368,6 +368,30 @@ A player's name is its `title`, or the `aria-label` you give it. Every button's 
 | `shortcutFrame` (required) | `string` |  |  |
 | `shortcutShortcuts` (required) | `string` |  |  |
 
+## 3D models
+
+A model viewer's name is its `label`. The buttons' names, how to use the keys, what's said while a model loads, and each reason a model can't be shown, are in one prop, `labels`:
+
+| Prop | Type | Default | What it's for |
+| --- | --- | --- | --- |
+| `roleDescription` (required) | `string` |  | Said with the viewer's name, in place of "image". |
+| `keys` (required) | `string` |  | How to turn it from the keyboard, said when it has the focus. |
+| `controls` (required) | `string` |  | The name of the group of buttons. |
+| `zoomIn` (required) | `string` |  |  |
+| `zoomOut` (required) | `string` |  |  |
+| `reset` (required) | `string` |  | The name of the button that goes back to the first view. |
+| `loading` (required) | `string` |  | Shown and said while the model is on its way. |
+| `progress` (required) | `(percent: number) => string` |  | The loading bar's value, from 0 to 100. |
+| `errorWebgl` (required) | `string` |  |  |
+| `errorNetwork` (required) | `string` |  |  |
+| `errorFormat` (required) | `string` |  |  |
+| `errorParse` (required) | `string` |  |  |
+| `errorMissingFiles` (required) | `(names: string[]) => string` |  | The names of the files a picked glTF names that weren't picked with it. |
+| `errorDraco` (required) | `string` |  |  |
+| `errorMeshopt` (required) | `string` |  |  |
+| `errorKtx2` (required) | `string` |  |  |
+| `errorContextLost` (required) | `string` |  | The browser took the drawing away and hasn't given it back. |
+
 ## What isn't text
 
 - A [field](components/field.md) marks a required label with `*`, which `FieldLabel` changes with `requiredIndicator`. Screen readers don't hear it. They hear "required" from the control, in the browser's own language.

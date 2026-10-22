@@ -2,7 +2,7 @@
 
 # Blocks
 
-A block is a part of an app, such as a sign-in screen or a table with a toolbar, built from the library's components: one TSX file and one SCSS file, to copy into an app and change. There are 82. Each is shown at https://nuvui.nuvraxis.com/blocks.
+A block is a part of an app, such as a sign-in screen or a table with a toolbar, built from the library's components: one TSX file and one SCSS file, to copy into an app and change. There are 87. Each is shown at https://nuvui.nuvraxis.com/blocks.
 
 Before building a screen from nothing, look here for one that's close. To add one, with the packages it needs:
 
@@ -20,6 +20,14 @@ A block's files aren't in this skill. To read one without adding it, fetch them:
 A block is a starting point and does more than most requests ask for. Take its structure, and leave out what wasn't asked for. Where it can't be fetched, build from the reference files: they have everything a block uses.
 
 A block's SCSS uses the library's mixins, `@use "@nuvui/react/scss/mixins"`, so the app needs Sass. In an app without it, write the same rules as plain CSS: rules/styling.md says what each mixin stands for. Its classes begin with the block's own name, and its colors are the theme's tokens.
+
+## 3D
+
+- **Check a model** (`model-check`): A page to check a 3D model of your own: drop a GLB, an STL, or a glTF with its files, and turn it, zoom in and see what it's made of, from its size and triangles to the compressions it uses. The file is read in the browser and sent nowhere, and one it can't show says why. Needs `@nuvui/3d`, `three`, `@react-three/fiber`, `@nuvui/react`.
+- **Model library** (`model-library`): A library of 3D models as a grid of pictures, each with its name, what it is, its size and when it was changed, and a button that opens it in a dialog to turn. Only the one that's opened loads the 3D viewer, so the grid stays light. Needs `@nuvui/3d`, `three`, `@react-three/fiber`, `@nuvui/react`.
+- **Part with notes** (`part-notes`): A machine part in 3D with numbered markers on it and a list of the same notes beside it, each with its status. Choosing a note turns the model to face it, and pressing a marker chooses its note. For a maintenance or inspection app. Needs `@nuvui/3d`, `three`, `@react-three/fiber`, `@nuvui/react`.
+- **3D print order** (`print-order`): An order for a 3D print: an STL uploaded and shown before it's ordered, with its size in millimeters, a material, a scale and a quantity, and an estimate worked out from how much material the part takes. The prices are example data. Needs `@nuvui/3d`, `three`, `@react-three/fiber`, `@nuvui/react`.
+- **Product in 3D** (`product-model`): A shop's page for one product with a 3D model to turn in place of a photo, its poster while the model loads, and colors to choose from that repaint the model, beside the price, a button to buy and the product's measurements. Needs `@nuvui/3d`, `three`, `@react-three/fiber`, `@nuvui/react`.
 
 ## Accounts
 

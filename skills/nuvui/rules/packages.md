@@ -122,6 +122,19 @@ import "@nuvui/<package>/styles.css";
 - Less motion, forced colors, a hidden tab and being out of view are handled by the component. Don't add a media query for them.
 - `GradientBackground` works in a server component. The others are client components, and can still be rendered from one.
 
+## @nuvui/3d
+
+- It needs React 19: react-three-fiber 9, which it draws with, does. Install `three` and `@react-three/fiber` with it. In a React 18 app, don't use it.
+- `label` is required and is the viewer's name: say what the model is, "Oak chair", and not "3D model". Put what matters about it in words too, in `description` or beside it.
+- `src` takes an address, a `File`, or a list of files. Pick files with the core's `FileUpload`, and pass a glTF together with its `.bin` and textures. The file stays in the browser.
+- Compressed glTF needs `decoders`: `{ meshopt: true }` needs nothing served, and `{ ktx2: "/basis/" }` needs `basis_transcoder.js` and `.wasm`, copied from `three/examples/jsm/libs/basis/` of the installed three, served from that folder. Draco isn't read: export the model with Meshopt.
+- A page that shows compressed models needs `'wasm-unsafe-eval'` in `script-src`, and KTX2 also `worker-src blob:`. A plain model needs neither.
+- Its size is `--nuv-model-viewer-height`. Keep it smaller than a phone's screen: a finger on it turns the model and doesn't scroll the page.
+- three loads when a model is first shown. For a gallery, show `poster` pictures and put a viewer only where one is opened.
+- Children are react-three-fiber elements, drawn in the model's units. A marker is drawn and not read, so list what it marks beside the viewer.
+- An STL is drawn in `--nuv-model-viewer-model`. Don't pass colors as props.
+- It's ESM only.
+
 ## @nuvui/barcodes
 
 - A code is black on white in every theme, on purpose: a scanner needs the contrast. Don't theme it.

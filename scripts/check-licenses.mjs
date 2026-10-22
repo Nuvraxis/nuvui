@@ -68,6 +68,7 @@ const published = [
   "flow",
   "media",
   "backgrounds",
+  "3d",
   "icons",
 ];
 

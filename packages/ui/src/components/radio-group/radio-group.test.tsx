@@ -219,8 +219,14 @@ describe("styles", () => {
     expect(box("Free").height).toBe(20);
     expect(style("Free").borderRadius).not.toBe("0px");
     expect(box("Team").left).toBe(box("Free").left);
-    // 12px apart with a mouse. A touch screen gets more.
-    expect(box("Team").top - box("Free").bottom).toBe(12);
+    // 12px apart with a mouse. A touch screen gets more. Measured between
+    // the rows, not the circles: a row is as tall as its label's line,
+    // which depends on the font the browser falls back to.
+    const rowOf = (name: string) =>
+      (
+        radio(name).element().parentElement as HTMLElement
+      ).getBoundingClientRect();
+    expect(rowOf("Team").top - rowOf("Free").bottom).toBe(12);
   });
 
   test("a horizontal group puts them side by side", async () => {

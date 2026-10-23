@@ -1,0 +1,13 @@
+{
+  "extends": "@nuvui/typescript-config/base.json",
+  "compilerOptions": {
+    "lib": ["ES2023", "DOM"],
+    "types": ["node"],
+    // The tests run the sources as they are, with node --test, which takes
+    // a file's types out and runs the rest. So an import names the file it
+    // means, and nothing is written that Node can't take out.
+    "allowImportingTsExtensions": true,
+    "erasableSyntaxOnly": true
+  },
+  "include": ["src", "*.config.ts"]
+}

@@ -1,0 +1,151 @@
+/* The panel's own layout. Everything in it is the library's components,
+   which bring their own styles: this places the card and the question box
+   at the bottom of the screen, lets the conversation grow with what's in
+   it, and sets the source links and the small print.
+
+   The dialog is the frame around the two and has no surface of its own.
+   Two classes, so these win over the dialog's centered placement. */
+@layer components {
+  .nuv-dialog.nuv-ask-panel {
+    gap: calc(var(--spacing) * 2);
+    inset: auto calc(var(--spacing) * 2)
+      max(calc(var(--spacing) * 2), env(safe-area-inset-bottom));
+    max-block-size: calc(100dvh - var(--spacing) * 4);
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+  }
+
+  @media (width >= 40rem) {
+    .nuv-dialog.nuv-ask-panel {
+      inset: auto 0 calc(var(--spacing) * 6);
+      block-size: auto;
+      inline-size: min(100% - var(--spacing) * 8, 40rem);
+      max-block-size: calc(100dvh - var(--spacing) * 12);
+      margin-inline: auto;
+    }
+
+    .nuv-dialog.nuv-ask-panel--expanded {
+      block-size: calc(100dvh - var(--spacing) * 12);
+      inline-size: min(100% - var(--spacing) * 8, 56rem);
+    }
+  }
+
+  /* On a phone, bigger is the whole height of the screen. */
+  @media (width < 40rem) {
+    .nuv-dialog.nuv-ask-panel--expanded {
+      block-size: calc(100dvh - var(--spacing) * 4);
+    }
+  }
+
+  .nuv-ask-panel__card {
+    display: flex;
+    flex: 0 1 auto;
+    flex-direction: column;
+    min-block-size: 0;
+    max-block-size: 36rem;
+    overflow: hidden;
+    border: var(--nuv-border-width) solid var(--color-border);
+    border-radius: var(--radius-xl);
+    background-color: var(--color-surface);
+    box-shadow: var(--shadow-xl);
+    color: var(--color-surface-foreground);
+  }
+
+  .nuv-ask-panel--expanded .nuv-ask-panel__card {
+    flex-grow: 1;
+    max-block-size: none;
+  }
+
+  .nuv-ask-panel__head {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: calc(var(--spacing) * 1);
+    padding: calc(var(--spacing) * 2) calc(var(--spacing) * 2) 0
+      calc(var(--spacing) * 4);
+  }
+
+  .nuv-ask-panel__title {
+    flex: 1;
+    margin: 0;
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-semibold);
+  }
+
+  /* Grows with the messages until the card is as tall as it gets, and
+     then scrolls. Left to itself the box that scrolls takes no height. */
+  .nuv-ask-panel__conversation {
+    flex: 1 1 auto;
+  }
+
+  .nuv-ask-panel__conversation .nuv-conversation__viewport {
+    flex-basis: auto;
+  }
+
+  .nuv-ask-panel__sources {
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(var(--spacing) * 1.5);
+    margin: 0 0 calc(var(--spacing) * 2);
+    padding: 0;
+    list-style: none;
+  }
+
+  .nuv-ask-panel__source {
+    display: inline-flex;
+    align-items: center;
+    padding: calc(var(--spacing) * 0.5) calc(var(--spacing) * 2.5);
+    border-radius: var(--radius-full);
+    background-color: var(--color-muted);
+    color: var(--color-muted-foreground);
+    font-size: var(--text-xs);
+    line-height: var(--text-xs--line-height);
+    text-decoration: none;
+  }
+
+  .nuv-ask-panel__source:hover {
+    color: var(--color-foreground);
+  }
+
+  .nuv-ask-panel__source:focus-visible {
+    outline: var(--nuv-focus-ring-width, 2px) solid
+      var(--nuv-focus-ring-color, var(--color-ring));
+    outline-offset: 2px;
+  }
+
+  .nuv-ask-panel__foot {
+    display: flex;
+    flex: none;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 2);
+    padding: calc(var(--spacing) * 2) calc(var(--spacing) * 4)
+      calc(var(--spacing) * 3);
+  }
+
+  .nuv-ask-panel__error {
+    margin: 0;
+    color: var(--color-destructive);
+    font-size: var(--text-sm);
+  }
+
+  /* Empty unless Turnstile needs the person to do something. */
+  .nuv-ask-panel__check:empty {
+    display: none;
+  }
+
+  .nuv-ask-panel__note {
+    margin: 0;
+    color: var(--color-muted-foreground);
+    font-size: var(--text-xs);
+  }
+
+  .nuv-ask-panel__bar {
+    flex: none;
+    box-shadow: var(--shadow-xl);
+  }
+}

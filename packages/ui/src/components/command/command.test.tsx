@@ -191,7 +191,9 @@ describe("rendering", () => {
     const keys = row.querySelector(".nuv-command__shortcut") as Element;
 
     expect(keys.getAttribute("aria-hidden")).toBe("true");
-    expect(rect(row).right - rect(keys).right).toBe(12);
+    // Close to, not exactly: Firefox places boxes in fractions of a pixel,
+    // and with some fonts the row's edge lands a hair off a whole one.
+    expect(rect(row).right - rect(keys).right).toBeCloseTo(12, 1);
     // So the row is named by its text alone.
     await expect
       .element(page.getByRole("option", { name: "New file", exact: true }))

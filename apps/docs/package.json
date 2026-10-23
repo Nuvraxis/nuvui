@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@nuvui/3d": "workspace:*",
+    "@nuvui/ask-panel": "workspace:*",
     "@nuvui/backgrounds": "workspace:*",
     "@nuvui/barcodes": "workspace:*",
     "@nuvui/charts": "workspace:*",

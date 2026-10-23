@@ -1,0 +1,39 @@
+/* The panel's own layout. Everything in it is the library's components,
+   which bring their own styles: this only lets the conversation take the
+   height the footer leaves, and sets the small print. */
+@layer components {
+  .nuv-ask-panel__body {
+    display: flex;
+    flex-direction: column;
+    min-block-size: 0;
+    padding: 0;
+  }
+
+  .nuv-ask-panel__conversation {
+    flex: 1;
+    min-block-size: 0;
+  }
+
+  .nuv-ask-panel__foot {
+    flex-direction: column;
+    align-items: stretch;
+    gap: calc(var(--spacing) * 2);
+  }
+
+  .nuv-ask-panel__error {
+    margin: 0;
+    color: var(--color-destructive);
+    font-size: var(--text-sm);
+  }
+
+  /* Empty unless Turnstile needs the person to do something. */
+  .nuv-ask-panel__check:empty {
+    display: none;
+  }
+
+  .nuv-ask-panel__note {
+    margin: 0;
+    color: var(--color-muted-foreground);
+    font-size: var(--text-xs);
+  }
+}

@@ -3,8 +3,10 @@
 # releases, which is what this does: once a week it opens a pull request
 # that moves an action to its latest release, commit and comment both.
 #
-# The site's image names its two base images by digest for the same reason,
-# and they're followed the same way.
+# The images of the site and of the MCP server name their base images by
+# digest for the same reason, and they're followed the same way. Dependabot
+# reads only the Dockerfile in each folder it's given, not in the folders
+# under it, so each image's folder is named.
 #
 # npm dependencies aren't here. They're updated by hand, a group at a time,
 # because several of them have to move together.
@@ -19,16 +21,17 @@ updates:
         patterns:
           - "*"
   - package-ecosystem: docker
-    directory: /apps
+    directories:
+      - /apps
+      - /apps/mcp
     schedule:
       interval: weekly
     groups:
       images:
         patterns:
           - "*"
-    # The image builds with the Node in .nvmrc, and that's moved by hand.
-    # Node 25 has no Corepack in it, and the build with it failed at its
-    # first step.
+    # A new major of Node is moved to by hand, after the site and the MCP
+    # server are built and run on it. Minors and patches come from here.
     ignore:
       - dependency-name: node
         update-types: ["version-update:semver-major"]

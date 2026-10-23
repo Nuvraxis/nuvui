@@ -12,22 +12,34 @@
 # Each base image is named by its digest, so that a tag moved to other
 # contents can't change what's built. Dependabot proposes the next one.
 
+# pnpm, the version packageManager in package.json names, from its release
+# on GitHub. Node 25 and later come without Corepack. ADD checks each file
+# against the sha256 the release lists, so a bump changes the version and
+# both sums together. There's one for each architecture a build runs on.
+FROM scratch AS pnpm-amd64
+ADD --checksum=sha256:9705e5704b4679fb503c963a18d1ac4f105e39aafafca8a2ed346facdf820cd0 \
+    https://github.com/pnpm/pnpm/releases/download/v12.3.4/pnpm-linux-x64.tar.gz /pnpm.tar.gz
+
+FROM scratch AS pnpm-arm64
+ADD --checksum=sha256:95e71a2a30bbc0b77511f95cf096779068dcad6ffcbbfdf0cd4dde9de2b2b97c \
+    https://github.com/pnpm/pnpm/releases/download/v12.3.4/pnpm-linux-arm64.tar.gz /pnpm.tar.gz
+
+FROM pnpm-$BUILDARCH AS pnpm
+
 # The build runs on the machine's own architecture whatever the image is
 # for. What it makes is HTML, CSS and JavaScript, the same for every one.
-#
-# The Node here is the one in .nvmrc. It has to be one that comes with
-# Corepack, which Node 25 and later don't.
-FROM --platform=$BUILDPLATFORM node:24-bookworm-slim@sha256:d6aa754f16b3197301076f047b5def2f02ea1dbbc2ca920407d46d7ec7f87b20 AS build
+FROM --platform=$BUILDPLATFORM node:26.12.1-bookworm-slim@sha256:28147155d47dc31abe0a46e0d12b59b2fb3d0a2dcc5dc65fce76a074180b16fe AS build
 
 ENV CI=true \
     NEXT_TELEMETRY_DISABLED=1 \
     TURBO_TELEMETRY_DISABLED=1 \
-    COREPACK_ENABLE_DOWNLOAD_PROMPT=0
+    PATH=/opt/pnpm:$PATH
 
 WORKDIR /repo
 
-# Corepack reads the pnpm version from packageManager in package.json.
-RUN corepack enable
+# The binary needs the dist folder beside it, so both stay in /opt/pnpm.
+RUN --mount=from=pnpm,source=/pnpm.tar.gz,target=/tmp/pnpm.tar.gz \
+    mkdir /opt/pnpm && tar -xzf /tmp/pnpm.tar.gz -C /opt/pnpm
 
 # The lockfile alone decides what's downloaded. With only these copied, the
 # layer below is reused until a dependency changes.

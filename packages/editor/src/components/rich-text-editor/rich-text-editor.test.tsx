@@ -435,8 +435,12 @@ describe("formatting", () => {
     await mount({ defaultValue: "<p>Hello</p>" });
     (button("Bold").element() as HTMLElement).focus();
 
+    // Radix moves focus a moment after the arrow key goes down, which a
+    // slow WebKit can take longer over than the key's own event.
     await userEvent.keyboard("{ArrowRight}");
-    expect(document.activeElement).toBe(button("Italic").element());
+    await expect
+      .poll(() => document.activeElement)
+      .toBe(button("Italic").element());
 
     await userEvent.keyboard("{Tab}");
     expect(document.activeElement).toBe(text());

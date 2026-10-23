@@ -6,6 +6,7 @@ import {
   ConversationEmpty,
   ConversationScrollButton,
   Message,
+  MessageAction,
   MessageActions,
   MessageContent,
   MessageCopyAction,
@@ -16,23 +17,23 @@ import {
   PromptInputToolbar,
   PromptSuggestion,
   PromptSuggestions,
-  Source,
-  Sources,
-  SourcesContent,
-  SourcesTrigger,
 } from "@nuvui/chat";
 import { Markdown } from "@nuvui/chat/markdown";
 import {
-  Sheet,
-  SheetBody,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+  DialogTrigger,
 } from "@nuvui/react";
-import { type ReactNode, useEffect, useRef, useState } from "react";
+import {
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { AskError, type AskSource, askQuestion } from "./client";
 import { createTurnstile } from "./turnstile";
 
@@ -59,6 +60,8 @@ interface Turn {
   from: "user" | "assistant";
   text: string;
   sources?: AskSource[];
+  /** For an answer, the question it answers, to ask again. */
+  question?: string;
 }
 
 const defaultSuggestions = [
@@ -90,9 +93,10 @@ function messageFor(error: unknown) {
 }
 
 /**
- * A button that opens a panel at the side of the page, where a visitor
- * asks about nuvui and gets an answer written from the docs, with links to
- * the pages it came from.
+ * A button that opens a card floating at the bottom of the page, where a
+ * visitor asks about nuvui and gets an answer written from the docs, with
+ * links to the pages it came from. The page stays usable behind it, so an
+ * answer can be read next to the page it's about.
  */
 export function AskPanel({
   endpoint,
@@ -102,6 +106,7 @@ export function AskPanel({
   triggerClassName,
   trigger = "Ask AI",
 }: AskPanelProps) {
+  const [expanded, setExpanded] = useState(false);
   const [turns, setTurns] = useState<Turn[]>([]);
   const [reply, setReply] = useState<{
     text: string;
@@ -110,16 +115,26 @@ export function AskPanel({
   const [error, setError] = useState<string | null>(null);
   const controller = useRef<AbortController | null>(null);
   const check = useRef<ReturnType<typeof createTurnstile> | null>(null);
-  const widget = useRef<HTMLDivElement>(null);
+  const widget = useRef<HTMLDivElement | null>(null);
+  const textarea = useRef<HTMLTextAreaElement>(null);
   const next = useRef(1);
 
   useEffect(
     () => () => {
       controller.current?.abort();
-      check.current?.remove();
     },
     [],
   );
+
+  // The card leaves the page when it's closed, and Turnstile's widget with
+  // it. The next question makes a new one in the new card.
+  const attachWidget = useCallback((node: HTMLDivElement | null) => {
+    widget.current = node;
+    if (!node) {
+      check.current?.remove();
+      check.current = null;
+    }
+  }, []);
 
   function add(turn: Omit<Turn, "id">) {
     const id = next.current;
@@ -156,13 +171,11 @@ export function AskPanel({
           setReply({ text, sources });
         },
       });
-      add({ from: "assistant", text, sources });
+      add({ from: "assistant", text, sources, question });
     } catch (failure) {
-      if (current.signal.aborted) {
-        // What arrived before it was stopped stays, as the answer.
-        if (text) add({ from: "assistant", text, sources });
-      } else {
-        if (text) add({ from: "assistant", text, sources });
+      // What arrived before it was stopped or failed stays, as the answer.
+      if (text) add({ from: "assistant", text, sources, question });
+      if (!current.signal.aborted) {
         setError(
           failure instanceof Error && failure.message === "Turnstile failed"
             ? messageFor(new AskError("denied"))
@@ -176,21 +189,42 @@ export function AskPanel({
   }
 
   return (
-    <Sheet>
-      <SheetTrigger asChild>
+    // Not modal: there's no overlay, the page scrolls, and a click on it
+    // leaves the card open. Escape and the close button close it.
+    <Dialog modal={false}>
+      <DialogTrigger asChild>
         <button type="button" className={triggerClassName}>
           {trigger}
         </button>
-      </SheetTrigger>
-      <SheetContent side="end" size="md" className="nuv-ask-panel">
-        <SheetHeader>
-          <SheetTitle>Ask AI</SheetTitle>
-          <SheetDescription>
-            Answers are written from the nuvui docs, by a model, and can be
-            wrong. Each links to the pages it came from.
-          </SheetDescription>
-        </SheetHeader>
-        <SheetBody className="nuv-ask-panel__body">
+      </DialogTrigger>
+      <DialogContent
+        showCloseButton={false}
+        className={
+          expanded ? "nuv-ask-panel nuv-ask-panel--expanded" : "nuv-ask-panel"
+        }
+        onOpenAutoFocus={(event) => {
+          event.preventDefault();
+          textarea.current?.focus();
+        }}
+        onInteractOutside={(event) => event.preventDefault()}
+      >
+        <div className="nuv-ask-panel__card">
+          <div className="nuv-ask-panel__head">
+            <DialogTitle className="nuv-ask-panel__title">Ask AI</DialogTitle>
+            <MessageAction
+              label={expanded ? "Make smaller" : "Make bigger"}
+              aria-pressed={expanded}
+              onClick={() => setExpanded((now) => !now)}
+            >
+              {expanded ? <ShrinkIcon /> : <ExpandIcon />}
+            </MessageAction>
+            <DialogClose asChild>
+              <MessageAction label="Close">
+                <CloseIcon />
+              </MessageAction>
+            </DialogClose>
+          </div>
+
           <Conversation className="nuv-ask-panel__conversation">
             <ConversationContent aria-label="Questions and answers">
               {turns.length === 0 && !reply ? (
@@ -208,28 +242,38 @@ export function AskPanel({
                 </ConversationEmpty>
               ) : null}
 
-              {turns.map((turn) => (
-                <Message key={turn.id} from={turn.from}>
-                  <MessageContent>
-                    {turn.from === "assistant" ? (
+              {turns.map((turn) =>
+                turn.from === "user" ? (
+                  <Message key={turn.id} from="user">
+                    <MessageContent>{turn.text}</MessageContent>
+                  </Message>
+                ) : (
+                  <Message key={turn.id} from="assistant">
+                    <SourcesFor sources={turn.sources} />
+                    <MessageContent>
                       <Markdown headingOffset={2}>{turn.text}</Markdown>
-                    ) : (
-                      turn.text
-                    )}
-                  </MessageContent>
-                  {turn.from === "assistant" ? (
-                    <>
-                      <SourcesFor sources={turn.sources} />
-                      <MessageActions>
-                        <MessageCopyAction text={turn.text} />
-                      </MessageActions>
-                    </>
-                  ) : null}
-                </Message>
-              ))}
+                    </MessageContent>
+                    <MessageActions>
+                      <MessageCopyAction text={turn.text} />
+                      {turn.question ? (
+                        <MessageAction
+                          label="Ask again"
+                          disabled={reply !== null}
+                          onClick={() => {
+                            if (turn.question) void ask(turn.question);
+                          }}
+                        >
+                          <AgainIcon />
+                        </MessageAction>
+                      ) : null}
+                    </MessageActions>
+                  </Message>
+                ),
+              )}
 
               {reply ? (
                 <Message from="assistant" streaming>
+                  <SourcesFor sources={reply.sources} />
                   {reply.text ? (
                     <MessageContent>
                       <Markdown streaming headingOffset={2}>
@@ -244,53 +288,106 @@ export function AskPanel({
             </ConversationContent>
             <ConversationScrollButton />
           </Conversation>
-        </SheetBody>
-        <SheetFooter className="nuv-ask-panel__foot">
-          {error ? (
-            <p role="alert" className="nuv-ask-panel__error">
-              {error}
-            </p>
-          ) : null}
-          <PromptInput
-            busy={reply !== null}
-            onStop={() => controller.current?.abort()}
-            onSubmit={(text) => void ask(text)}
-          >
-            <PromptInputTextarea
-              aria-label="Your question about nuvui"
-              placeholder="Ask about nuvui"
-              maxLength={1000}
-            />
-            <PromptInputToolbar>
-              <PromptInputSubmit />
-            </PromptInputToolbar>
-          </PromptInput>
-          <div ref={widget} className="nuv-ask-panel__check" />
-          <p className="nuv-ask-panel__note">
-            Your question is sent to Azure OpenAI
-            {region ? ` in ${region}` : ""} to be answered. nuvui doesn't keep
-            it. Microsoft may keep it for a while to check for abuse.
-          </p>
-        </SheetFooter>
-      </SheetContent>
-    </Sheet>
+
+          <div className="nuv-ask-panel__foot">
+            {error ? (
+              <p role="alert" className="nuv-ask-panel__error">
+                {error}
+              </p>
+            ) : null}
+            <div ref={attachWidget} className="nuv-ask-panel__check" />
+            <DialogDescription className="nuv-ask-panel__note">
+              Answers are written from the nuvui docs by a model, and can be
+              wrong. Your question is sent to Azure OpenAI
+              {region ? ` in ${region}` : ""} to be answered. nuvui doesn't keep
+              it. Microsoft may keep it for a while to check for abuse.
+            </DialogDescription>
+          </div>
+        </div>
+
+        <PromptInput
+          className="nuv-ask-panel__bar"
+          busy={reply !== null}
+          onStop={() => controller.current?.abort()}
+          onSubmit={(text) => void ask(text)}
+        >
+          <PromptInputTextarea
+            ref={textarea}
+            aria-label="Your question about nuvui"
+            placeholder="Ask about nuvui"
+            maxLength={1000}
+          />
+          <PromptInputToolbar>
+            <PromptInputSubmit />
+          </PromptInputToolbar>
+        </PromptInput>
+      </DialogContent>
+    </Dialog>
   );
 }
 
+// The pages an answer was written from, as links above it.
 function SourcesFor({ sources }: { sources?: AskSource[] }) {
   if (!sources || sources.length === 0) return null;
   return (
-    <Sources>
-      <SourcesTrigger>
-        {sources.length === 1 ? "1 page" : `${sources.length} pages`}
-      </SourcesTrigger>
-      <SourcesContent>
-        {sources.map((source) => (
-          <li key={source.url}>
-            <Source href={source.url} title={source.title} site="nuvui docs" />
-          </li>
-        ))}
-      </SourcesContent>
-    </Sources>
+    <ul className="nuv-ask-panel__sources" aria-label="From these pages">
+      {sources.map((source) => (
+        <li key={source.url}>
+          <a className="nuv-ask-panel__source" href={source.url}>
+            {source.title}
+          </a>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function Icon({ children }: { children: ReactNode }) {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 16 16"
+      width="16"
+      height="16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      {children}
+    </svg>
+  );
+}
+
+function ExpandIcon() {
+  return (
+    <Icon>
+      <path d="M9.5 2.5h4v4M6.5 13.5h-4v-4M13.5 2.5 9 7M2.5 13.5 7 9" />
+    </Icon>
+  );
+}
+
+function ShrinkIcon() {
+  return (
+    <Icon>
+      <path d="M13.5 6.5h-4v-4M2.5 9.5h4v4M9.5 6.5 14 2M6.5 9.5 2 14" />
+    </Icon>
+  );
+}
+
+function CloseIcon() {
+  return (
+    <Icon>
+      <path d="M3.5 3.5l9 9m0-9l-9 9" />
+    </Icon>
+  );
+}
+
+function AgainIcon() {
+  return (
+    <Icon>
+      <path d="M13 8a5 5 0 1 1-1.5-3.6M13 2.5v2.5h-2.5" />
+    </Icon>
   );
 }

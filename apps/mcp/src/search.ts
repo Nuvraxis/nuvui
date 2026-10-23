@@ -52,9 +52,17 @@ const escapeRegExp = (text: string) =>
   text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 // A word that starts with the term, and not the term inside another word:
-// "table" isn't in "sortable".
-const matcher = (term: string) =>
-  new RegExp(`(?<![a-z0-9])${escapeRegExp(stemOf(term))}`, "g");
+// "table" isn't in "sortable". A word that ends in "e" loses it before an
+// ending, so "theme" finds "theming" and "change" finds "changed", and
+// "theme" still doesn't find "them".
+function matcher(term: string) {
+  const stem = stemOf(term);
+  const start =
+    stem.length >= 4 && stem.endsWith("e")
+      ? `${escapeRegExp(stem.slice(0, -1))}(?:e|ing|ed|able|ible)`
+      : escapeRegExp(stem);
+  return new RegExp(`(?<![a-z0-9])${start}`, "g");
+}
 
 const count = (text: string, pattern: RegExp) =>
   text.match(pattern)?.length ?? 0;
@@ -81,9 +89,10 @@ function snippetOf(markdown: string, terms: string[]) {
 }
 
 /**
- * The sections that best answer `query`. A section that has more of the
- * words comes first, and then one where they're in the page's title or the
- * section's heading, which say what it's about better than its text does.
+ * The sections that best answer `query`. Each word counts by how few
+ * sections have it, and for more in the page's title or the section's
+ * heading, which say what it's about better than its text does. A section
+ * is ranked by that, times how much of the question it has.
  */
 export function search(
   pages: readonly Page[],
@@ -94,38 +103,60 @@ export function search(
   if (terms.length === 0) return [];
   const patterns = terms.map(matcher);
 
-  const scored: { hit: Hit; matched: number; score: number }[] = [];
-  for (const page of pages) {
+  const sections = pages.flatMap((page) => {
     const title = `${page.title} ${page.id}`.toLowerCase();
-    for (const section of page.sections) {
-      const heading = section.heading.toLowerCase();
-      const text = section.markdown.toLowerCase();
-      let matched = 0;
-      let score = 0;
-      for (const pattern of patterns) {
-        const inText = count(text, pattern);
-        const inTitle = count(title, pattern) > 0;
-        const inHeading = count(heading, pattern) > 0;
-        if (inText === 0 && !inTitle && !inHeading) continue;
-        matched += 1;
-        score += Math.min(inText, 5) + (inTitle ? 6 : 0) + (inHeading ? 4 : 0);
-      }
-      if (matched === 0) continue;
-      scored.push({
-        hit: {
-          page: page.id,
-          title: page.title,
-          section: section.heading,
-          snippet: snippetOf(section.markdown, terms),
-        },
-        matched,
-        score,
-      });
-    }
+    return page.sections.map((section) => ({
+      page,
+      section,
+      title,
+      heading: section.heading.toLowerCase(),
+      text: section.markdown.toLowerCase(),
+    }));
+  });
+  // A word in few sections says more about which one is meant than a word
+  // in many: "sort" more than "table", and "table" more than "make". Without
+  // this, a section with three common words beat the one about the question.
+  // Squared, so a rare word stands out further. A word in every section
+  // still counts for something, so it's found.
+  const weights = patterns.map((pattern) => {
+    const having = sections.filter(
+      ({ title, heading, text }) =>
+        count(title, pattern) + count(heading, pattern) + count(text, pattern) >
+        0,
+    ).length;
+    return Math.log(1 + sections.length / Math.max(having, 1)) ** 2;
+  });
+
+  const scored: { hit: Hit; matched: number; score: number }[] = [];
+  for (const { page, section, title, heading, text } of sections) {
+    let matched = 0;
+    let score = 0;
+    patterns.forEach((pattern, index) => {
+      const inText = count(text, pattern);
+      const inTitle = count(title, pattern) > 0;
+      const inHeading = count(heading, pattern) > 0;
+      if (inText === 0 && !inTitle && !inHeading) return;
+      const weight = weights[index] ?? 0;
+      matched += weight;
+      score +=
+        weight *
+        (Math.min(inText, 5) + (inTitle ? 6 : 0) + (inHeading ? 4 : 0));
+    });
+    if (matched === 0) continue;
+    scored.push({
+      hit: {
+        page: page.id,
+        title: page.title,
+        section: section.heading,
+        snippet: snippetOf(section.markdown, terms),
+      },
+      matched,
+      score,
+    });
   }
 
   return scored
-    .sort((a, b) => b.matched - a.matched || b.score - a.score)
+    .sort((a, b) => b.matched * b.score - a.matched * a.score)
     .slice(0, limit)
     .map(({ hit }) => hit);
 }

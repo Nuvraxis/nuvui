@@ -12,6 +12,11 @@ const config: NextConfig = {
         // files are copied into this app's export, so both are one site. In
         // development this sends /docs to the docs app's own server, which
         // `pnpm dev` at the root starts on port 3000.
+        //
+        // The ask service has no CORS: in the cluster it's on the site's own
+        // address. Here it's `pnpm --filter @nuvui/ask start` on port 8080,
+        // and the panel reaches it through this server. apps/ask/README.md
+        // has the rest.
         async rewrites() {
           return [
             {
@@ -19,6 +24,10 @@ const config: NextConfig = {
               destination: "http://localhost:3000/docs/:path*",
             },
             { source: "/docs", destination: "http://localhost:3000/docs" },
+            {
+              source: "/api/ask",
+              destination: "http://localhost:8080/api/ask",
+            },
           ];
         },
       }

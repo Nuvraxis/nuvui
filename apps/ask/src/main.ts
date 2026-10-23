@@ -6,13 +6,15 @@ import { readConfig } from "./config.ts";
 import { createGate, createLimiter } from "./limit.ts";
 import { createLogger } from "./log.ts";
 import { createMetrics } from "./metrics.ts";
-import { loadPages } from "./pages.ts";
+import { loadData } from "./pages.ts";
+import { createToolbox } from "./tools.ts";
 import { createTracer } from "./trace.ts";
 import { verifyTurnstile } from "./turnstile.ts";
 
 const log = createLogger();
 const config = readConfig();
-const { version, pages } = loadPages();
+const data = loadData();
+const { version, pages } = data;
 
 // With workload identity, the pod's service account is traded for a token
 // for Azure OpenAI. Nothing here holds a key.
@@ -31,9 +33,11 @@ const secret = config.turnstileSecret;
 
 const app = createApp({
   pages,
+  toolbox: createToolbox(data),
   trustedProxies: config.trustedProxies,
   maxQuestionChars: config.maxQuestionChars,
   maxAnswerTokens: config.maxAnswerTokens,
+  maxToolRounds: config.maxToolRounds,
   timeoutMs: config.timeoutMs,
   keepAliveMs: config.keepAliveMs,
   model: config.azure.deployment,

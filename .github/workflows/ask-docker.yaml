@@ -7,8 +7,8 @@ name: Ask Docker
 # what it needs to run there.
 #
 # A push to main that changes what the service is built from pushes an
-# image: its own code, the MCP server's code it reads the docs with, or the
-# skill, which is the docs it answers from. A pull request that changes how
+# image: its own code, the MCP server's code its tools and data come from,
+# or the docs it answers from. A pull request that changes how
 # the image is made builds and checks one, and pushes nothing.
 #
 # Every image pushed has the tag sha-<commit>, which never moves, and
@@ -21,6 +21,10 @@ on:
       - "apps/ask/**"
       - "apps/mcp/src/**"
       - "skills/nuvui/**"
+      - "apps/docs/content/docs/agents.mdx"
+      - "apps/docs/content/docs/mcp.mdx"
+      - "apps/showcase/src/blocks/**"
+      - "apps/showcase/src/charts/**"
       - "apps/showcase/src/lib/charts.ts"
       - "packages/ui/package.json"
       - "package.json"
@@ -85,9 +89,7 @@ jobs:
           cache-from: type=gha,scope=ask
           cache-to: type=gha,mode=max,scope=ask
 
-      # Started the way a locked-down pod would be. Azure isn't reachable
-      # from here, so the check keeps to what needs no model: the probes, a
-      # question turned away, one the docs have nothing on, and the counts.
+      # Started the way a locked-down pod would be.
       - name: Start it
         id: start
         run: >-
@@ -98,8 +100,13 @@ jobs:
           --env AZURE_OPENAI_ENDPOINT=https://example.invalid
           --env AZURE_OPENAI_DEPLOYMENT=check
           --env AZURE_OPENAI_API_VERSION=check
+          --env ANSWER_TIMEOUT_MS=20000
           nuvui-ask:check
 
+      # The runner has no Azure credential and the endpoint doesn't exist,
+      # so the model is never reached: the stream ends with an error, and
+      # the count has it. Signing in can fail outright, or wait on the
+      # metadata endpoint until the answer's time is up, so either is a pass.
       - name: Check that it answers
         run: |
           for _ in $(seq 1 20); do
@@ -112,13 +119,12 @@ jobs:
             http://localhost:8080/api/ask)
           test "$status" = 400
           stream=$(curl -fsS -D - -X POST -H 'Content-Type: application/json' \
-            -d '{"question":"zzzz qqqq"}' http://localhost:8080/api/ask)
+            -d '{"question":"How do I sort a table?"}' http://localhost:8080/api/ask)
           echo "$stream"
           grep -qi '^content-type: text/event-stream' <<<"$stream"
           grep -qi '^x-accel-buffering: no' <<<"$stream"
-          grep -q '^event: sources' <<<"$stream"
-          grep -q '^event: done' <<<"$stream"
-          curl -fsS http://localhost:9464/metrics | grep -q '^nuvui_ask_questions_total{outcome="no_match"} 1$'
+          grep -Eq '^data: \{"error":"(failed|timeout)"\}' <<<"$stream"
+          curl -fsS http://localhost:9464/metrics | grep -Eq '^nuvui_ask_questions_total\{outcome="(failed|timeout)"\} 1$'
 
       - name: Show the container's log
         if: failure() && steps.start.outcome == 'success'

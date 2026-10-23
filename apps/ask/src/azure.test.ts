@@ -87,6 +87,92 @@ describe("streamChat", () => {
     ]);
   });
 
+  test("offers the tools, and puts together the calls the model sends in pieces", async () => {
+    const seen: { url?: string; init?: RequestInit } = {};
+    const body = streamed(
+      [
+        chunk({
+          choices: [
+            {
+              delta: {
+                tool_calls: [
+                  {
+                    index: 0,
+                    id: "call-1",
+                    function: { name: "search_docs", arguments: '{"que' },
+                  },
+                ],
+              },
+            },
+          ],
+        }),
+        chunk({
+          choices: [
+            {
+              delta: {
+                tool_calls: [
+                  { index: 0, function: { arguments: 'ry":"dark mode"}' } },
+                  {
+                    index: 1,
+                    id: "call-2",
+                    function: {
+                      name: "get_page",
+                      arguments: '{"page":"index"}',
+                    },
+                  },
+                ],
+              },
+              finish_reason: "tool_calls",
+            },
+          ],
+        }),
+        "data: [DONE]",
+      ],
+      5,
+    );
+    const tools = [
+      {
+        type: "function" as const,
+        function: {
+          name: "search_docs",
+          description: "Searches.",
+          parameters: { type: "object" },
+        },
+      },
+    ];
+    const events = await collect(
+      streamChat(
+        options(async () => new Response(body), seen),
+        [{ role: "user", content: "q" }],
+        { maxTokens: 800, tools, toolChoice: "none" },
+      ),
+    );
+    const sent = JSON.parse(String(seen.init?.body));
+    assert.deepEqual(sent.tools, tools);
+    assert.equal(sent.tool_choice, "none");
+    assert.deepEqual(events, [
+      {
+        type: "tools",
+        calls: [
+          {
+            id: "call-1",
+            type: "function",
+            function: {
+              name: "search_docs",
+              arguments: '{"query":"dark mode"}',
+            },
+          },
+          {
+            id: "call-2",
+            type: "function",
+            function: { name: "get_page", arguments: '{"page":"index"}' },
+          },
+        ],
+      },
+      { type: "end", finishReason: "tool_calls" },
+    ]);
+  });
+
   test("says so when the filter stops the answer partway", async () => {
     const body = streamed([
       chunk({

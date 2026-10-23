@@ -34,7 +34,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { AskError, type AskSource, askQuestion } from "./client";
+import { AskError, type AskSource, type AskTurn, askQuestion } from "./client";
 import { createTurnstile } from "./turnstile";
 
 export interface AskPanelProps {
@@ -64,8 +64,13 @@ interface Turn {
   question?: string;
 }
 
+// The most of the conversation the service takes with a question.
+const maxTurns = 8;
+const maxTurnChars = 4000;
+const maxHistoryChars = 12_000;
+
 const defaultSuggestions = [
-  "How do I start using nuvui in a Next.js app?",
+  "How do I get started with nuvui?",
   "How do I make a data table sortable?",
   "How do I change the theme's colors?",
 ];
@@ -111,6 +116,8 @@ export function AskPanel({
   const [reply, setReply] = useState<{
     text: string;
     sources: AskSource[];
+    /** What the model is looking up, before it writes. */
+    status?: string;
   } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const controller = useRef<AbortController | null>(null);
@@ -145,11 +152,22 @@ export function AskPanel({
   async function ask(question: string) {
     if (controller.current) return;
     setError(null);
+    // The turns before this question, so a follow-up makes sense: the
+    // newest, each cut to its length, as many as the service takes.
+    const history: AskTurn[] = [];
+    let total = 0;
+    for (const turn of turns.slice(-maxTurns).reverse()) {
+      const text = turn.text.slice(0, maxTurnChars);
+      if (total + text.length > maxHistoryChars) break;
+      total += text.length;
+      history.unshift({ role: turn.from, text });
+    }
     add({ from: "user", text: question });
     const current = new AbortController();
     controller.current = current;
     let text = "";
     let sources: AskSource[] = [];
+    let status: string | undefined;
     setReply({ text, sources });
     try {
       let turnstile: string | undefined;
@@ -160,15 +178,20 @@ export function AskPanel({
       await askQuestion({
         endpoint,
         question,
+        history,
         turnstile,
         signal: current.signal,
         onSources: (found) => {
           sources = found;
-          setReply({ text, sources });
+          setReply({ text, sources, status });
+        },
+        onStatus: (said) => {
+          status = said;
+          setReply({ text, sources, status });
         },
         onText: (piece) => {
           text += piece;
-          setReply({ text, sources });
+          setReply({ text, sources, status });
         },
       });
       add({ from: "assistant", text, sources, question });
@@ -281,7 +304,7 @@ export function AskPanel({
                       </Markdown>
                     </MessageContent>
                   ) : (
-                    <MessageLoader />
+                    <MessageLoader>{reply.status}</MessageLoader>
                   )}
                 </Message>
               ) : null}
@@ -298,9 +321,10 @@ export function AskPanel({
             <div ref={attachWidget} className="nuv-ask-panel__check" />
             <DialogDescription className="nuv-ask-panel__note">
               Answers are written from the nuvui docs by a model, and can be
-              wrong. Your question is sent to Azure OpenAI
-              {region ? ` in ${region}` : ""} to be answered. nuvui doesn't keep
-              it. Microsoft may keep it for a while to check for abuse.
+              wrong. Your question, with the conversation before it, is sent to
+              Azure OpenAI{region ? ` in ${region}` : ""} to be answered. nuvui
+              doesn't keep it. Microsoft may keep it for a while to check for
+              abuse.
             </DialogDescription>
           </div>
         </div>

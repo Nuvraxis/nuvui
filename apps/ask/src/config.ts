@@ -14,7 +14,13 @@ export interface Config {
   /** Questions answered at once, on one pod. One more gets a 503. */
   maxConcurrent: number;
   maxQuestionChars: number;
+  /** The most tokens the model writes in one call. */
   maxAnswerTokens: number;
+  /**
+   * How many times the model may ask for tools before it has to answer.
+   * Each is another call to Azure OpenAI.
+   */
+  maxToolRounds: number;
   /** How long an answer may take from start to end. */
   timeoutMs: number;
   /** How often a comment is sent while nothing else is. */
@@ -65,6 +71,7 @@ export function readConfig(env: Env = process.env): Config {
     maxConcurrent: whole(env, "MAX_CONCURRENT", 8, 1),
     maxQuestionChars: whole(env, "MAX_QUESTION_CHARS", 1000, 1),
     maxAnswerTokens: whole(env, "MAX_ANSWER_TOKENS", 800, 1),
+    maxToolRounds: whole(env, "MAX_TOOL_ROUNDS", 4, 0),
     timeoutMs: whole(env, "ANSWER_TIMEOUT_MS", 60_000, 1000),
     keepAliveMs: whole(env, "KEEP_ALIVE_MS", 15_000, 1000),
     azure: {

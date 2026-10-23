@@ -2,7 +2,10 @@
   "extends": "@nuvui/typescript-config/base.json",
   "compilerOptions": {
     "lib": ["ES2023", "DOM"],
-    "types": ["node"]
+    "types": ["node"],
+    // tools.ts names the files it imports, because the ask service's tests
+    // run it as it is with node --test, which finds nothing by a bare name.
+    "allowImportingTsExtensions": true
   },
   "include": ["src", "*.config.ts", "../showcase/src/lib/charts.ts"]
 }

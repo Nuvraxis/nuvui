@@ -58,6 +58,7 @@ export const addons = {
   flow: pkg("flow", "@nuvui/flow"),
   media: pkg("media", "@nuvui/media"),
   backgrounds: pkg("backgrounds", "@nuvui/backgrounds"),
+  "3d": pkg("3d", "@nuvui/3d"),
   icons: pkg("icons", "@nuvui/icons"),
 };
 

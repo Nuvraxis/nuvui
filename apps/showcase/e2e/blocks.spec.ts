@@ -85,6 +85,12 @@ test.describe("the list of blocks", () => {
       if (imported.has("@nuvui/table")) imported.add("@tanstack/react-table");
       // The map package draws with MapLibre, a peer the block never imports.
       if (imported.has("@nuvui/map")) imported.add("maplibre-gl");
+      // The 3D package draws with three through react-three-fiber, peers
+      // a block may never import.
+      if (imported.has("@nuvui/3d")) {
+        imported.add("three");
+        imported.add("@react-three/fiber");
+      }
       expect([...block.install].sort()).toEqual([...imported].sort());
 
       // Its classes are its own: none has the library's prefix or the
@@ -6130,5 +6136,152 @@ test.describe("scroll progress, pinned list and typed code", () => {
       await expect(block).toHaveAttribute("data-typing", "done");
     }
     await expect(page.locator(".nuv-code-block__untyped")).toHaveCount(0);
+  });
+});
+
+test.describe("3D models", () => {
+  // The 3D package's own test models, made by
+  // packages/3d/scripts/make-models.mjs.
+  const model = (name: string) =>
+    path.join(
+      import.meta.dirname,
+      "..",
+      "..",
+      "..",
+      "packages/3d/test/fixtures",
+      name,
+    );
+  const ready = (within: Locator | Page, index = 0) =>
+    expect(within.locator(".nuv-model-viewer").nth(index)).toHaveAttribute(
+      "data-state",
+      "ready",
+      { timeout: 20_000 },
+    );
+  // What's on the screen where the model is. The canvas keeps nothing
+  // once it's drawn, so it's read from the page's own picture.
+  const picture = (page: Page) =>
+    page.locator(".nuv-model-viewer__stage").first().screenshot();
+
+  test("model check: a sample is shown with what it's made of, and picked files take its place", async ({
+    page,
+  }) => {
+    await open(page, "/blocks/view/model-check");
+    await expect(page.getByRole("img", { name: "Oak chair" })).toBeVisible();
+    test.skip(!(await drawsMaps(page)), "this browser has no WebGL here");
+    await ready(page);
+    const facts = page.getByRole("region", { name: "What's in it" });
+    await expect(facts).toContainText("GLB");
+    await expect(facts).toContainText("Meshes");
+
+    await page.getByRole("button", { name: "Gear" }).click();
+    await expect(page.getByRole("img", { name: "Gear" })).toBeVisible();
+    await ready(page);
+    await expect(facts).toContainText("STL");
+
+    await page
+      .getByLabel("Your model")
+      .setInputFiles([
+        model("crate.gltf"),
+        model("crate.bin"),
+        model("crate.png"),
+      ]);
+    await expect(page.getByRole("img", { name: "crate.gltf" })).toBeVisible();
+    await ready(page);
+    await expect(facts.getByRole("definition").nth(5)).toHaveText("1");
+
+    // Taken out of the list, the texture is missing, and the viewer says so.
+    // In the viewer: Next's route announcer is an alert too.
+    await page.getByRole("button", { name: "Remove crate.png" }).click();
+    await expect(
+      page.locator(".nuv-model-viewer").getByRole("alert"),
+    ).toContainText("crate.png");
+  });
+
+  test("product in 3D: a color repaints the model, and the poster is shown first", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/blocks/view/product-model");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+      "Arc desk lamp",
+    );
+    await press(page.getByRole("radio", { name: "Sage" }), isMobile);
+    await expect(page.getByRole("radio", { name: "Sage" })).toBeChecked();
+    await expect(
+      page.getByRole("img", { name: "Arc desk lamp, Sage shade" }),
+    ).toBeVisible();
+    test.skip(!(await drawsMaps(page)), "this browser has no WebGL here");
+    await ready(page);
+    const sage = await picture(page);
+    await press(page.getByRole("radio", { name: "Slate" }), isMobile);
+    await expect.poll(() => picture(page)).not.toEqual(sage);
+  });
+
+  test("3D print order: the estimate comes from the part's volume, and follows the quantity", async ({
+    page,
+  }) => {
+    await open(page, "/blocks/view/print-order");
+    await expect(
+      page.getByRole("img", { name: "L-shaped bracket" }),
+    ).toBeVisible();
+    test.skip(!(await drawsMaps(page)), "this browser has no WebGL here");
+    await ready(page);
+    // The bracket is 7.68 cm³ of PLA at $0.12 a cm³, and $4 to set up.
+    const total = page.locator(".print-order__line--total dd");
+    await expect(total).toHaveText("$4.92");
+    await expect(page.getByText("40 × 30 × 20 mm at 100%")).toBeVisible();
+
+    const quantity = page.getByRole("spinbutton", { name: "Quantity" });
+    await quantity.fill("10");
+    await quantity.blur();
+    await expect(total).toHaveText("$13.22");
+    await expect(
+      page.getByRole("button", { name: "Order 10 prints" }),
+    ).toBeEnabled();
+
+    await page.getByLabel("Your part").setInputFiles([model("block.stl")]);
+    await ready(page);
+    // A block of 8 cm³, ten of them.
+    await expect(total).toHaveText("$13.60");
+  });
+
+  test("part with notes: a note turns the model to it", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/blocks/view/part-notes");
+    const note = page.getByRole("button", { name: /Pump body/ });
+    await expect(page.getByRole("button", { name: /Outlet/ })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    test.skip(!(await drawsMaps(page)), "this browser has no WebGL here");
+    await ready(page);
+    const outlet = await picture(page);
+    await press(note, isMobile);
+    await expect(note).toHaveAttribute("aria-pressed", "true");
+    await expect.poll(() => picture(page)).not.toEqual(outlet);
+  });
+
+  test("model library: the grid is pictures alone, and a model opens in 3D in a dialog", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/blocks/view/model-library");
+    await expect(page.locator(".model-library__picture")).toHaveCount(5);
+    await expect(page.locator("canvas")).toHaveCount(0);
+
+    await press(
+      page.getByRole("button", { name: "View Oak chair in 3D" }),
+      isMobile,
+    );
+    const dialog = page.getByRole("dialog", { name: "Oak chair" });
+    await expect(dialog).toBeVisible();
+    await expect(dialog.getByRole("img", { name: "Oak chair" })).toBeVisible();
+    if (await drawsMaps(page)) await ready(dialog);
+    else await expect(dialog.getByRole("alert")).toBeVisible();
+
+    await page.keyboard.press("Escape");
+    await expect(dialog).toBeHidden();
   });
 });

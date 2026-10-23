@@ -39,7 +39,7 @@ React components for enterprise applications: the data tables, forms, charts, ma
 pnpm add @nuvui/react
 ```
 
-It needs React 18.2 or 19.
+It needs React 18.2 or 19. `@nuvui/3d` needs React 19.
 
 ```tsx
 import "@nuvui/react/styles.css";
@@ -81,6 +81,7 @@ Each add-on is installed next to `@nuvui/react`, with the library it's built on 
 | [`@nuvui/flow`](https://www.npmjs.com/package/@nuvui/flow) | Flow diagrams that pan, zoom and can be edited | `pnpm add @nuvui/flow` |
 | [`@nuvui/media`](https://www.npmjs.com/package/@nuvui/media) | Video and audio players, with HLS and DASH streams | `pnpm add @nuvui/media` |
 | [`@nuvui/backgrounds`](https://www.npmjs.com/package/@nuvui/backgrounds) | Moving backgrounds for a hero, a sign-in page or an empty state | `pnpm add @nuvui/backgrounds` |
+| [`@nuvui/3d`](https://www.npmjs.com/package/@nuvui/3d) | A 3D model viewer for glTF, GLB and STL files, on react-three-fiber. It needs React 19 | `pnpm add @nuvui/3d three @react-three/fiber` |
 | [`@nuvui/icons`](https://www.npmjs.com/package/@nuvui/icons) | 317 line icons in three styles. It needs only React | `pnpm add @nuvui/icons` |
 
 ## Components
@@ -191,6 +192,15 @@ It also has:
 - They hold still for anyone who asked for less motion, stop while out of view, and draw nothing where the browser forces its colors.
 - No dependencies.
 
+### `@nuvui/3d`
+
+- `ModelViewer`, a GLB, glTF or STL model to turn and zoom with a pointer, a finger or the keys, framed to fit whatever its units.
+- From an address, or from files the person picks, which are read in the browser and sent nowhere. A glTF is picked together with its files.
+- `onLoad` says what the model is made of: its size, triangles, materials, textures and volume.
+- glTF compressed with Meshopt, and KTX2 textures, once `decoders` turns them on. What it can't show, it says why in words.
+- three and react-three-fiber load when a model is first shown. The server sends the name, the poster and the buttons.
+- It needs React 19, as react-three-fiber does.
+
 ### `@nuvui/icons`
 
 - 317 line icons drawn for nuvui on a 24 pixel grid, in Standard, Rounded and Sharp, with the same names in each.
@@ -209,7 +219,7 @@ It also has:
 
 [nuvui.nuvraxis.com](https://nuvui.nuvraxis.com) is built with the library's own tokens, and the docs sit under `/docs` of the same site.
 
-- **[82 blocks](https://nuvui.nuvraxis.com/blocks)** in ten groups. A block is a part of an app, such as a sign-in screen, a dashboard or a pricing table, as a TSX file and an SCSS file to copy. The site also serves them as a registry for shadcn's command line tool, at `/r`.
+- **[87 blocks](https://nuvui.nuvraxis.com/blocks)** in eleven groups. A block is a part of an app, such as a sign-in screen, a dashboard or a pricing table, as a TSX file and an SCSS file to copy. The site also serves them as a registry for shadcn's command line tool, at `/r`.
 - **[39 charts](https://nuvui.nuvraxis.com/charts)** in ten families, each one file to copy.
 - **[A theme builder](https://nuvui.nuvraxis.com/themes).**
 - **[Docs](https://nuvui.nuvraxis.com/docs)** with a page for each component, covering its parts, props, examples, CSS variables and classes, and what it leaves to you for accessibility. Search runs in the browser.
@@ -250,7 +260,7 @@ None of these check what the agent wrote. Run your lint and typecheck, and look 
 - **Component tests** run in Chromium, Firefox and WebKit through Vitest's browser mode, with Playwright driving the browsers. They cover rendering, keyboard behavior, touch target sizes, and accessibility in light, dark and forced colors. jsdom isn't used, because it has no layout engine and can't check focus rings, touch sizes or contrast.
 - **Axe runs once for every theme** the package ships: the default and each preset, in light and in dark.
 - **End-to-end tests** run the built website and docs in Playwright, in Chromium as a desktop and as a phone, and in Firefox. The WebKit setups are in the Playwright configs to run by hand; on our CI runners they were too slow to finish.
-- **Consumer tests** pack the packages and install them into three small apps the way a stranger would: one with Vite, one with Next.js, and one on React 18.2.
+- **Consumer tests** pack the packages and install them into four small apps the way a stranger would: one with Vite, one with Next.js, one on React 18.2, and one with `@nuvui/3d` on the oldest three it accepts, opened in a browser.
 - **Not yet done:** a check of every component with a screen reader by a person, and testing in Safari itself. WebKit as Playwright ships it is close to Safari, and isn't Safari.
 
 ## Support
@@ -307,7 +317,7 @@ pnpm playwright:install   # the browsers the tests run in
 | Path | What it is |
 | --- | --- |
 | `packages/ui` | The core library, published as `@nuvui/react` |
-| `packages/date-picker`, `table`, `charts`, `barcodes`, `chat`, `kanban`, `editor`, `emoji`, `map`, `flow`, `media`, `backgrounds`, `icons` | The add-ons, each published under its folder's name |
+| `packages/date-picker`, `table`, `charts`, `barcodes`, `chat`, `kanban`, `editor`, `emoji`, `map`, `flow`, `media`, `backgrounds`, `3d`, `icons` | The add-ons, each published under its folder's name |
 | `packages/theme` | The theme generator: turns a brand color, base color, radius and density into token values and checks their contrast. It writes the presets. Not published |
 | `packages/tooling` | What the published packages are built, checked and tested with. Not published |
 | `packages/telemetry` | Sends the site's web vitals to an OpenTelemetry collector. Not published |
@@ -316,7 +326,7 @@ pnpm playwright:install   # the browsers the tests run in
 | `apps/docs` | The docs, served under `/docs`. Its build is copied into the website's, so the two are one folder of static files |
 | `apps/mcp` | The MCP server, which answers from the skill and the blocks. Not published to npm |
 | `apps/Dockerfile` | Builds both apps into one image, served by nginx |
-| `fixtures` | Three small apps that install the packed library, one of them on React 18.2 |
+| `fixtures` | Four small apps that install the packed library, one of them on React 18.2 |
 | `skills/nuvui` | The skill for coding agents, with `NuvUIAIAgent.md` as its first page |
 
 ## Contributing

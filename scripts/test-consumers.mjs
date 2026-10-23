@@ -56,7 +56,31 @@ const published = {
   "@nuvui/flow": "flow",
   "@nuvui/media": "media",
   "@nuvui/backgrounds": "backgrounds",
+  "@nuvui/3d": "3d",
   "@nuvui/icons": "icons",
+};
+
+// Which published packages each app leaves out, and why. Every other one
+// is in each app's package.json, and the script fails if it isn't.
+const leftOut = {
+  // It needs React 19, as react-three-fiber does.
+  react18: ["@nuvui/3d"],
+  // It's there for three, and has the two packages it needs.
+  "three-floor": Object.keys(published).filter(
+    (name) => name !== "@nuvui/react" && name !== "@nuvui/3d",
+  ),
+};
+
+// What an app needs before it's installed.
+const prepare = {
+  // The 3D package's own test models, to load.
+  "three-floor"(dir) {
+    cpSync(
+      join(root, "packages", "3d", "test", "fixtures"),
+      join(dir, "public", "models"),
+      { recursive: true },
+    );
+  },
 };
 
 function expect(app, what, passed) {
@@ -166,6 +190,31 @@ const fixtures = {
         script.includes("nuv-emoji-reaction__count"),
     );
     expect("vite", "it has the map's styles", css.includes(".nuv-map"));
+    // three and react-three-fiber come with the scene, which is asked for
+    // when a viewer first comes near the screen. So they're in the build,
+    // in a file of their own, and not in the one with the viewer.
+    const scripts = files(join(dir, "dist"), ".js").map((path) =>
+      readFileSync(path, "utf8"),
+    );
+    const viewer = scripts.filter((source) =>
+      source.includes("nuv-model-viewer__stage"),
+    );
+    expect(
+      "vite",
+      "it has the model viewer's styles, and the script has the viewer without three",
+      css.includes(".nuv-model-viewer") &&
+        viewer.length > 0 &&
+        viewer.every((source) => !source.includes("THREE.WebGLRenderer")),
+    );
+    expect(
+      "vite",
+      "the build has the scene, with three, in a file of its own",
+      scripts.some(
+        (source) =>
+          source.includes("nuv-model-viewer__canvas") &&
+          !source.includes("nuv-model-viewer__stage"),
+      ) && scripts.some((source) => source.includes("THREE.WebGLRenderer")),
+    );
     // MapLibre is asked for when a map is first drawn, so it's in the
     // build, in a file of its own. Its worker is another, which the app
     // asked Vite for the address of.
@@ -380,6 +429,17 @@ process.stdout.write(renderToStaticMarkup(createElement(ArrowRightIcon, { title:
     );
     expect(
       "next",
+      "the server sent the model viewer's name, poster and words, and no canvas",
+      css.includes(".nuv-model-viewer") &&
+        /<div\s(?=[^>]*role="img")(?=[^>]*aria-label="Chair")(?=[^>]*aria-roledescription="3D model")/.test(
+          html,
+        ) &&
+        html.includes('src="/chair.png"') &&
+        html.includes("Loading the model") &&
+        !html.includes("nuv-model-viewer__canvas"),
+    );
+    expect(
+      "next",
       "the server rendered the map's box, saying the map is on its way",
       html.includes("nuv-map__canvas") && html.includes("Loading map"),
     );
@@ -510,6 +570,36 @@ process.stdout.write(renderToStaticMarkup(createElement(ArrowRightIcon, { title:
         html.includes("nuv-stars-background"),
     );
   },
+
+  // @nuvui/3d on three 0.156, the oldest three it accepts, opened in
+  // Chromium: a model of each format, and one compressed with Meshopt.
+  "three-floor"(dir) {
+    const output = execFileSync("pnpm", ["run", "--silent", "check"], {
+      cwd: dir,
+      encoding: "utf8",
+      shell: process.platform === "win32",
+    });
+    const results = JSON.parse(output.trim().split("\n").at(-1) ?? "{}");
+    console.log(`test-consumers: three-floor: ${JSON.stringify(results)}`);
+    expect(
+      "three-floor",
+      "the app has three 0.156 in it",
+      results.revision === "156",
+    );
+    expect(
+      "three-floor",
+      "a GLB, a glTF with its files, an STL and a Meshopt GLB load",
+      results.glb?.triangles === 12 &&
+        results.gltf?.textures === 1 &&
+        results.stl?.format === "stl" &&
+        results.meshopt?.compressions?.[0] === "meshopt",
+    );
+    expect(
+      "three-floor",
+      "nothing threw on the page",
+      results.errors?.length === 0,
+    );
+  },
 };
 
 let failed = false;
@@ -534,9 +624,14 @@ try {
     const manifest = join(dir, "package.json");
     const pkg = JSON.parse(readFileSync(manifest, "utf8"));
     for (const [dependency, tarball] of Object.entries(tarballs)) {
+      if (leftOut[name]?.includes(dependency)) continue;
+      if (!pkg.dependencies[dependency]) {
+        throw new Error(`${name} doesn't depend on ${dependency}`);
+      }
       pkg.dependencies[dependency] = tarball;
     }
     writeFileSync(manifest, `${JSON.stringify(pkg, null, 2)}\n`);
+    prepare[name]?.(dir);
 
     console.log(`test-consumers: ${name}: installing`);
     // Outside the repository there is no workspace to find, but say so
@@ -548,7 +643,7 @@ try {
     pnpm(["run", "build"], dir);
     check(dir);
   }
-  console.log("test-consumers: the three apps install, type-check and build");
+  console.log("test-consumers: the four apps install, type-check and build");
 } catch (error) {
   failed = true;
   console.error(`test-consumers failed: ${error.message}`);

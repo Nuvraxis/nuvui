@@ -50,6 +50,7 @@ const addons = [
   "flow",
   "media",
   "backgrounds",
+  "3d",
   "icons",
 ];
 const packageDir = (addon) => path.join(repoDir, "packages", addon ?? core);
@@ -672,7 +673,11 @@ async function blocksPage() {
     "A block's SCSS uses the library's mixins, `@use \"@nuvui/react/scss/mixins\"`, so the app needs Sass. In an app without it, write the same rules as plain CSS: rules/styling.md says what each mixin stands for. Its classes begin with the block's own name, and its colors are the theme's tokens.",
   ];
   for (const category of categories) {
-    out.push("", `## ${category[0].toUpperCase()}${category.slice(1)}`, "");
+    // "3d" is written "3D".
+    const heading = /^\d/.test(category)
+      ? category.toUpperCase()
+      : `${category[0].toUpperCase()}${category.slice(1)}`;
+    out.push("", `## ${heading}`, "");
     for (const block of blocks.filter((one) => one.category === category)) {
       out.push(
         `- **${block.title}** (\`${block.name}\`): ${block.description} Needs ${block.install.map((one) => `\`${one}\``).join(", ")}.`,
@@ -809,7 +814,7 @@ async function build() {
   const index = [
     "# nuvui",
     "",
-    "> An open source React library for business software: data tables, forms, charts and dashboards, tested for accessibility and themed with CSS variables. Ten packages, MIT licensed. Styling is SCSS with BEM classes and CSS variables, in cascade layers, and needs no Tailwind.",
+    "> An open source React library for business software: data tables, forms, charts and dashboards, tested for accessibility and themed with CSS variables. Fifteen packages, MIT licensed. Styling is SCSS with BEM classes and CSS variables, in cascade layers, and needs no Tailwind.",
     "",
     `Each page below is plain Markdown. All of them in one file: ${siteUrl}/docs/llms-full.txt. A skill for coding agents, with the rules that are easy to get wrong: ${repoUrl}/tree/main/skills/nuvui, installed with \`pnpm dlx skills add Nuvraxis/nuvui\`.`,
     "",

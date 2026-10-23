@@ -1,0 +1,9 @@
+{
+  "name": "model-check",
+  "title": "Check a model",
+  "description": "A page to check a 3D model of your own: drop a GLB, an STL, or a glTF with its files, and turn it, zoom in and see what it's made of, from its size and triangles to the compressions it uses. The file is read in the browser and sent nowhere, and one it can't show says why.",
+  "category": "3d",
+  "files": ["model-check.tsx", "model-check.scss"],
+  "install": ["@nuvui/3d", "three", "@react-three/fiber", "@nuvui/react"],
+  "height": 900
+}

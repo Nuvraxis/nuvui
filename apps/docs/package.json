@@ -4,14 +4,15 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "next dev",
-    "build": "node scripts/agent-skill.mjs --site && next build && node ../../scripts/fix-next-export.mjs out",
+    "dev": "node ../../scripts/copy-basis.mjs public/basis && next dev",
+    "build": "node scripts/agent-skill.mjs --site && node ../../scripts/copy-basis.mjs public/basis && next build && node ../../scripts/fix-next-export.mjs out",
     "skill": "node scripts/agent-skill.mjs",
     "start": "node ../../scripts/serve-static.mjs 3000 out --under /docs",
     "typecheck": "next typegen && tsc --noEmit",
     "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@nuvui/3d": "workspace:*",
     "@nuvui/backgrounds": "workspace:*",
     "@nuvui/barcodes": "workspace:*",
     "@nuvui/charts": "workspace:*",
@@ -28,6 +29,7 @@
     "@nuvui/table": "workspace:*",
     "@nuvui/telemetry": "workspace:*",
     "@nuvui/theme": "workspace:*",
+    "@react-three/fiber": "^9.8.2",
     "@tanstack/react-table": "^9.2.6",
     "@tanstack/react-virtual": "^3.14.13",
     "dashjs": "^5.2.1",
@@ -42,7 +44,8 @@
     "react-dom": "catalog:",
     "react-hook-form": "^7.89.0",
     "react-is": "catalog:",
-    "recharts": "^3.10.1"
+    "recharts": "^3.10.1",
+    "three": "^0.186.1"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",

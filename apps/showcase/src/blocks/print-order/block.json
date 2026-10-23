@@ -1,0 +1,9 @@
+{
+  "name": "print-order",
+  "title": "3D print order",
+  "description": "An order for a 3D print: an STL uploaded and shown before it's ordered, with its size in millimeters, a material, a scale and a quantity, and an estimate worked out from how much material the part takes. The prices are example data.",
+  "category": "3d",
+  "files": ["print-order.tsx", "print-order.scss"],
+  "install": ["@nuvui/3d", "three", "@react-three/fiber", "@nuvui/react"],
+  "height": 900
+}

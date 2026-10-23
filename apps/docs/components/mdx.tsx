@@ -72,6 +72,7 @@ import { LabelPlayground } from "@/components/playground/label";
 import { ListViewPlayground } from "@/components/playground/list-view";
 import { MapViewPlayground } from "@/components/playground/map";
 import { MenubarPlayground } from "@/components/playground/menubar";
+import { ModelViewerPlayground } from "@/components/playground/model-viewer";
 import { NativeSelectPlayground } from "@/components/playground/native-select";
 import { NavbarPlayground } from "@/components/playground/navbar";
 import { NavigationMenuPlayground } from "@/components/playground/navigation-menu";
@@ -191,6 +192,7 @@ export function getMDXComponents(components?: MDXComponents) {
     EmojiPickerPlayground,
     EmojiReactionPlayground,
     MapViewPlayground,
+    ModelViewerPlayground,
     EmptyPlayground,
     FormattedNumberPlayground,
     ItemPlayground,

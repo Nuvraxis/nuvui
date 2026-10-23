@@ -377,6 +377,12 @@ A player's name is its `title`, or the `aria-label` you give it. Every button's 
 
 <PropsTable package="media" component="video-player" file="src/core/labels.ts" name="MediaLabels" />
 
+## 3D models
+
+A model viewer's name is its `label`. The buttons' names, how to use the keys, what's said while a model loads, and each reason a model can't be shown, are in one prop, `labels`:
+
+<PropsTable package="3d" component="model-viewer" file="src/core/labels.ts" name="ModelViewerLabels" />
+
 ## What isn't text
 
 - A [field](/docs/components/field) marks a required label with `*`, which `FieldLabel` changes with `requiredIndicator`. Screen readers don't hear it. They hear "required" from the control, in the browser's own language.

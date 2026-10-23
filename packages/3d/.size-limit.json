@@ -1,0 +1,26 @@
+[
+  {
+    "name": "@nuvui/3d, without the scene, which is loaded when a model is first shown",
+    "path": "dist/index.js",
+    "ignore": ["three", "three/*", "@react-three/fiber"],
+    "limit": "8.5 kB"
+  },
+  {
+    "name": "@nuvui/3d/model-viewer, without the scene",
+    "path": "dist/components/model-viewer/index.js",
+    "ignore": ["three", "three/*", "@react-three/fiber"],
+    "limit": "8.5 kB"
+  },
+  {
+    "name": "The scene and the loaders, without three and react-three-fiber",
+    "path": "dist/components/model-viewer/scene.js",
+    "ignore": ["three", "three/*", "@react-three/fiber"],
+    "limit": "5 kB"
+  },
+  {
+    "name": "styles.css",
+    "path": "dist/styles.css",
+    "rolldown": false,
+    "limit": "1 kB"
+  }
+]

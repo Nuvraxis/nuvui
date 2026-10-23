@@ -12,6 +12,9 @@ import "@nuvui/map/styles.css";
 import "@nuvui/flow/styles.css";
 import "@nuvui/media/styles.css";
 import "@nuvui/backgrounds/styles.css";
+import "@nuvui/3d/styles.css";
+// The model viewer, from the entry of its one component.
+import { ModelViewer } from "@nuvui/3d/model-viewer";
 // A background, from the entry of its own.
 import { StarsBackground } from "@nuvui/backgrounds/stars-background";
 // The two codes, each from the entry of its own.
@@ -183,6 +186,11 @@ function App() {
       <StarsBackground scrim="soft">
         <p>Under the stars</p>
       </StarsBackground>
+      <ModelViewer
+        label="Chair"
+        src="/chair.glb"
+        decoders={{ meshopt: true }}
+      />
       <Episode />
       <Kanban
         aria-label="Work"

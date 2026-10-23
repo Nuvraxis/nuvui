@@ -1,0 +1,5 @@
+{
+  "title": "3D",
+  "defaultOpen": true,
+  "pages": ["index", "model-viewer"]
+}

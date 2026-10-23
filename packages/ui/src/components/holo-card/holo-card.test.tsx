@@ -282,6 +282,10 @@ describe("the content", () => {
     await emulateMedia({ reducedMotion: "no-preference" });
     await screen.rerender(<Member disabled />);
     point("pointermove", "mouse", 0.25, 0.25);
+    // Turning less motion off while the card is lit starts the content
+    // rising, and disabling it sends it back. Where it comes to rest is
+    // what's checked, not where the way back has got to.
+    ended();
     expect(raised(content())).toBe(0);
   });
 

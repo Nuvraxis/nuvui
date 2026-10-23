@@ -5,6 +5,7 @@
 // plain props. The dates are made in UTC and read in UTC, so they're the
 // same day on this server and in whichever browser opens the page.
 
+import { ModelViewer } from "@nuvui/3d";
 import { GradientBackground, StarsBackground } from "@nuvui/backgrounds";
 import { Barcode, QRCode } from "@nuvui/barcodes";
 import {
@@ -139,6 +140,9 @@ export default function Page() {
       <StarsBackground>
         <p>Under the stars</p>
       </StarsBackground>
+      {/* The server sends the name, the poster and the buttons. three and
+          react-three-fiber come once the page is in a browser. */}
+      <ModelViewer label="Chair" src="/chair.glb" poster="/chair.png" />
       <Visitors months={months} />
       {/* Client components from another package, used from this server
           component with nothing but plain props. */}

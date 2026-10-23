@@ -1,0 +1,110 @@
+@use "@nuvui/react/scss/mixins";
+
+.model-library {
+  display: grid;
+  gap: calc(var(--spacing) * 6);
+  align-content: start;
+  inline-size: 100%;
+  min-block-size: 100svh;
+  padding: calc(var(--spacing) * 6) calc(var(--spacing) * 4);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+
+  @include mixins.breakpoint("md") {
+    padding: calc(var(--spacing) * 8);
+  }
+}
+
+.model-library__head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 4);
+  align-items: end;
+  justify-content: space-between;
+}
+
+.model-library__title {
+  margin: 0;
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-2xl--line-height);
+  letter-spacing: var(--tracking-tight);
+}
+
+.model-library__lead {
+  margin: calc(var(--spacing) * 1) 0 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+}
+
+.model-library__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: calc(var(--spacing) * 4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.model-library__card {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  overflow: hidden;
+  border: var(--nuv-border-width, 1px) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-card);
+  color: var(--color-card-foreground);
+}
+
+// The picture on the muted color, as the model is shown on a backdrop.
+.model-library__picture {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
+  aspect-ratio: 4 / 3;
+  background-color: var(--color-muted);
+  object-fit: contain;
+}
+
+.model-library__info {
+  display: grid;
+  gap: calc(var(--spacing) * 1.5);
+  align-content: start;
+  padding: calc(var(--spacing) * 4) calc(var(--spacing) * 4) calc(var(--spacing) * 3);
+}
+
+.model-library__name {
+  margin: 0;
+  font-size: var(--text-base);
+  font-weight: var(--font-weight-semibold);
+}
+
+.model-library__detail,
+.model-library__updated {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+}
+
+.model-library__meta {
+  display: flex;
+  gap: calc(var(--spacing) * 2);
+  align-items: center;
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.model-library__open {
+  margin: 0 calc(var(--spacing) * 4) calc(var(--spacing) * 4);
+  justify-self: start;
+}
+
+// Wide enough for the model to be worth turning.
+.model-library__dialog {
+  --nuv-dialog-width: 48rem;
+}
+
+.model-library__viewer {
+  --nuv-model-viewer-height: min(28rem, 55svh);
+  --nuv-model-viewer-bg: var(--color-muted);
+}

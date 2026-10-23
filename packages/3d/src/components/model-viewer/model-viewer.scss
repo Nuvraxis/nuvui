@@ -1,0 +1,148 @@
+@use "../../styles/layers";
+@use "@nuvui/react/scss/mixins";
+
+@layer components {
+  // A box of a set height with the model in it. What's over the model,
+  // the buttons and the words, is over it in here too. The background is
+  // clear, so the viewer sits on a card or a page of any color. The
+  // scene reads two more variables from here: --nuv-model-viewer-model,
+  // an STL's color, which is --color-primary unless it's set, and
+  // --nuv-model-viewer-ground, the light from below, --color-muted.
+  .nuv-model-viewer {
+    position: relative;
+    inline-size: 100%;
+    block-size: var(--nuv-model-viewer-height, 24rem);
+    overflow: hidden;
+    border: var(--nuv-border-width, 1px) solid
+      var(--nuv-model-viewer-border, var(--color-border));
+    border-radius: var(--nuv-model-viewer-radius, var(--radius-lg));
+    background-color: var(--nuv-model-viewer-bg, transparent);
+    color: var(--color-foreground);
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+    isolation: isolate;
+  }
+
+  // What has the name and takes the keys. The canvas fills it.
+  .nuv-model-viewer__stage {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    outline: none;
+    cursor: grab;
+
+    &:active {
+      cursor: grabbing;
+    }
+
+    &:not([tabindex]) {
+      cursor: default;
+    }
+
+    // Inside the edge, which the box's overflow would clip outside it.
+    @include mixins.focus-ring(-2px);
+  }
+
+  .nuv-model-viewer__canvas {
+    position: absolute;
+    inset: 0;
+  }
+
+  .nuv-model-viewer__poster {
+    position: absolute;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: contain;
+    pointer-events: none;
+  }
+
+  // While the model is on its way: the words, and a bar under them.
+  .nuv-model-viewer__loading {
+    position: absolute;
+    inset-block-end: calc(var(--spacing) * 3);
+    inset-inline: calc(var(--spacing) * 3);
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 1.5);
+    max-inline-size: 16rem;
+    margin-inline: auto;
+    padding: calc(var(--spacing) * 2) calc(var(--spacing) * 3);
+    border-radius: var(--radius-md);
+    background-color: var(--nuv-model-viewer-note-bg, var(--color-popover));
+    box-shadow: var(--shadow-sm);
+    color: var(--nuv-model-viewer-note-fg, var(--color-popover-foreground));
+    pointer-events: none;
+
+    @media (forced-colors: active) {
+      border: 1px solid canvastext;
+    }
+  }
+
+  .nuv-model-viewer__note {
+    margin: 0;
+    text-align: center;
+  }
+
+  // In place of the model when it can't be shown.
+  .nuv-model-viewer__error {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: calc(var(--spacing) * 4);
+    background-color: var(--nuv-model-viewer-error-bg, var(--color-muted));
+    color: var(--nuv-model-viewer-error-fg, var(--color-foreground));
+    text-align: center;
+    text-wrap: balance;
+  }
+
+  // Over a poster, the words keep a band of their own at the foot.
+  .nuv-model-viewer__error--over {
+    inset-block: auto 0;
+    background-color: color-mix(
+      in oklab,
+      var(--nuv-model-viewer-error-bg, var(--color-muted)) 92%,
+      transparent
+    );
+  }
+
+  // A fieldset, for its group role, with none of a fieldset's own look.
+  .nuv-model-viewer__controls {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-end: 0;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 1);
+    min-inline-size: 0;
+    margin: var(--nuv-model-viewer-controls-offset, calc(var(--spacing) * 2));
+    padding: 0;
+    border: 0;
+  }
+
+  // Square, with a shadow to stand off the model.
+  // The core's variable and not a padding of its own, so it holds
+  // whichever stylesheet is loaded last.
+  .nuv-model-viewer__control {
+    --nuv-button-padding-inline: 0;
+
+    box-shadow: var(--shadow-sm);
+  }
+
+  // Read out and not drawn.
+  .nuv-model-viewer__hidden {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}

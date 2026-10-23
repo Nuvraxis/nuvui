@@ -204,6 +204,11 @@ A file for each page of the docs. Read the one for a component before using it: 
 - [HoleBackground](reference/backgrounds/hole-background.md): A tunnel of rings receding into the distance, with motes rising through it toward the viewer. The far end leans toward the pointer, and a press speeds it up for a moment.
 - [GlyphBackground](reference/backgrounds/glyph-background.md): A field of characters lit by glows that wander over it. The pointer leaves a trail of light, a press sends a ring of it outward, and now and then a character changes.
 
+## @nuvui/3d
+
+- [3D](reference/3d/index.md): The @nuvui/3d package. A viewer for 3D models on react-three-fiber and three.js, for glTF, GLB and STL files, from your site or picked by the person. It needs React 19.
+- [ModelViewer](reference/3d/model-viewer.md): A 3D model to turn and zoom with a pointer, a finger or the keys, for glTF, GLB and STL files from your site or picked by the person. It has a poster, says what it can't show in words, and is read by its name.
+
 ## @nuvui/icons
 
 - [Icons](reference/icons/index.md): The @nuvui/icons package. 317 line icons drawn for nuvui, in three styles, each a React component in the color of the text around it and an SVG file.

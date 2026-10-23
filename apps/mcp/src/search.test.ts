@@ -1,5 +1,6 @@
 import { fileURLToPath } from "node:url";
 import { describe, expect, test } from "vitest";
+import type { Page } from "./data";
 import { search, stemOf, termsOf } from "./search";
 import { readSources } from "./sources";
 
@@ -35,6 +36,39 @@ describe("search", () => {
     expect(search(pages, "before and after image", 3)[0]?.page).toBe(
       "components/compare",
     );
+  });
+
+  // Each of these once came after sections with more of the question's
+  // common words in them.
+  test("counts a rare word for more than a common one", () => {
+    expect(
+      search(pages, "How do I change the theme's colors?", 3)[0]?.page,
+    ).toBe("theming");
+    expect(
+      search(pages, "How do I make a data table sortable?", 3)[0]?.page,
+    ).toBe("table/sorting");
+    expect(search(pages, "How do I get started with nuvui?", 3)[0]?.page).toBe(
+      "index",
+    );
+  });
+
+  test("finds a word that ends in e with another ending, and not a shorter word", () => {
+    const page = (id: string, text: string): Page => ({
+      id,
+      title: id,
+      description: "",
+      group: "Guides",
+      package: null,
+      markdown: `## About\n\n${text}`,
+      sections: [{ heading: "About", markdown: `## About\n\n${text}` }],
+    });
+    const few = [
+      page("a", "Theming a page."),
+      page("b", "Give them a name."),
+      page("c", "A themed app."),
+    ];
+
+    expect(search(few, "theme", 5).map((hit) => hit.page)).toEqual(["a", "c"]);
   });
 
   test("matches whole words from their start, so table isn't found in sortable", () => {

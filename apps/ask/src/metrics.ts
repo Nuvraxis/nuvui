@@ -1,12 +1,14 @@
 // The counts Prometheus reads from /metrics, in its text format, on a port
-// of their own. Written by hand for the same reason as trace.ts: four
+// of their own. Written by hand for the same reason as trace.ts: five
 // metrics don't need a client library, and prom-client brings
 // @opentelemetry/api with it.
+
+/** How a tool call the model asked for ended. */
+export type ToolOutcome = "ok" | "not_found" | "invalid" | "error";
 
 /** How a question ended. */
 export type Outcome =
   | "answered"
-  | "no_match"
   | "filtered"
   | "invalid"
   | "denied"
@@ -24,6 +26,7 @@ const escapeLabel = (value: string) =>
 
 export function createMetrics() {
   const questions = new Map<Outcome, number>();
+  const toolCalls = new Map<string, number>();
   const tokens = { prompt: 0, completion: 0 };
   const durations = { counts: buckets.map(() => 0), sum: 0, count: 0 };
   let inFlight = 0;
@@ -37,6 +40,10 @@ export function createMetrics() {
         if (seconds <= bound)
           durations.counts[index] = (durations.counts[index] ?? 0) + 1;
       });
+    },
+    tool(name: string, outcome: ToolOutcome) {
+      const key = `tool="${escapeLabel(name)}",outcome="${outcome}"`;
+      toolCalls.set(key, (toolCalls.get(key) ?? 0) + 1);
     },
     tokens(prompt: number, completion: number) {
       tokens.prompt += prompt;
@@ -57,7 +64,12 @@ export function createMetrics() {
           ([outcome, count]) =>
             `nuvui_ask_questions_total{outcome="${escapeLabel(outcome)}"} ${count}`,
         ),
-        "# HELP nuvui_ask_tokens_total Tokens Azure OpenAI counted, for the question with its pages and for the answer.",
+        "# HELP nuvui_ask_tool_calls_total The model's calls to the docs tools, by tool and how they ended.",
+        "# TYPE nuvui_ask_tool_calls_total counter",
+        ...[...toolCalls].map(
+          ([labels, count]) => `nuvui_ask_tool_calls_total{${labels}} ${count}`,
+        ),
+        "# HELP nuvui_ask_tokens_total Tokens Azure OpenAI counted, over every call for a question: what it was sent, with the tools' results, and what it wrote.",
         "# TYPE nuvui_ask_tokens_total counter",
         `nuvui_ask_tokens_total{kind="prompt"} ${tokens.prompt}`,
         `nuvui_ask_tokens_total{kind="completion"} ${tokens.completion}`,

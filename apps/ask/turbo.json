@@ -9,8 +9,14 @@
         "$TURBO_DEFAULT$",
         "$TURBO_ROOT$/apps/mcp/src/**",
         "$TURBO_ROOT$/skills/nuvui/**",
+        "$TURBO_ROOT$/apps/docs/content/docs/agents.mdx",
+        "$TURBO_ROOT$/apps/docs/content/docs/mcp.mdx",
+        "$TURBO_ROOT$/apps/showcase/src/blocks/**",
+        "$TURBO_ROOT$/apps/showcase/src/charts/**",
         "$TURBO_ROOT$/apps/showcase/src/lib/charts.ts",
-        "$TURBO_ROOT$/packages/*/package.json"
+        "$TURBO_ROOT$/packages/*/package.json",
+        "$TURBO_ROOT$/packages/*/CHANGELOG.md",
+        "$TURBO_ROOT$/.changeset/*.md"
       ]
     },
     "test": {

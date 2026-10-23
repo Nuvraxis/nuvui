@@ -15,11 +15,13 @@
     },
     "test": {
       "dependsOn": ["^build"],
-      "env": ["NUVUI_BROWSERS"]
+      "env": ["NUVUI_BROWSERS"],
+      "passThroughEnv": ["PLAYWRIGHT_BROWSERS_PATH"]
     },
     "test:e2e": {
       "dependsOn": ["build"],
       "env": ["NUVUI_BROWSERS"],
+      "passThroughEnv": ["PLAYWRIGHT_BROWSERS_PATH"],
       "cache": false
     },
     "size": {

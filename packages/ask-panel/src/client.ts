@@ -4,6 +4,12 @@ export interface AskSource {
   url: string;
 }
 
+/** A turn of the conversation before a question. */
+export interface AskTurn {
+  role: "user" | "assistant";
+  text: string;
+}
+
 /** Why a question got no answer, as the service says it. */
 export type AskErrorCode =
   | "invalid"
@@ -45,11 +51,22 @@ export interface AskOptions {
   /** The service, such as `/api/ask`. */
   endpoint: string;
   question: string;
+  /**
+   * The conversation so far, oldest first, so a follow-up such as "I meant
+   * agents" makes sense. The service takes at most 8 turns of 4,000
+   * characters.
+   */
+  history?: AskTurn[];
   /** Turnstile's token for this question, when the site checks. */
   turnstile?: string;
   signal?: AbortSignal;
-  /** The pages the answer is written from, before any of it. */
+  /**
+   * The pages the answer is written from, all of them so far, each time
+   * the model reads another.
+   */
   onSources?: (sources: AskSource[]) => void;
+  /** What the model is looking up, such as "Reading Theming and tokens". */
+  onStatus?: (text: string) => void;
   /** Each piece of the answer as it arrives. */
   onText?: (text: string) => void;
   fetch?: typeof globalThis.fetch;
@@ -91,9 +108,11 @@ async function* eventsOf(body: ReadableStream<Uint8Array>) {
 export async function askQuestion({
   endpoint,
   question,
+  history,
   turnstile,
   signal,
   onSources,
+  onStatus,
   onText,
   fetch = globalThis.fetch,
 }: AskOptions): Promise<void> {
@@ -105,7 +124,7 @@ export async function askQuestion({
         "Content-Type": "application/json",
         Accept: "text/event-stream",
       },
-      body: JSON.stringify({ question, turnstile }),
+      body: JSON.stringify({ question, history, turnstile }),
       signal,
     });
   } catch (error) {
@@ -127,6 +146,8 @@ export async function askQuestion({
 
   for await (const { event, data } of eventsOf(response.body)) {
     if (event === "sources") onSources?.(JSON.parse(data) as AskSource[]);
+    else if (event === "status")
+      onStatus?.((JSON.parse(data) as { text: string }).text);
     else if (event === "text")
       onText?.((JSON.parse(data) as { text: string }).text);
     else if (event === "error") {

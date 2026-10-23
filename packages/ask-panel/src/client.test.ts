@@ -29,15 +29,22 @@ const answering = (response: Response, sent: { body?: unknown } = {}) =>
   }) as typeof globalThis.fetch;
 
 describe("askQuestion", () => {
-  test("sends the question and the token, and hands over the pages, then the answer as it comes", async () => {
+  test("sends the question, the conversation and the token, and hands over what's looked up, the pages, then the answer as it comes", async () => {
     const sent: { body?: unknown } = {};
     const sources: unknown[] = [];
+    const statuses: string[] = [];
     let text = "";
+    const history = [
+      { role: "user" as const, text: "Tables?" },
+      { role: "assistant" as const, text: "Which part of them?" },
+    ];
     await askQuestion({
       endpoint: "/api/ask",
       question: "Sortable tables?",
+      history,
       turnstile: "t",
       onSources: (found) => sources.push(found),
+      onStatus: (said) => statuses.push(said),
       onText: (piece) => {
         text += piece;
       },
@@ -45,6 +52,7 @@ describe("askQuestion", () => {
         new Response(
           streamOf(
             `: keep-alive\n\n${sse(
+              ["status", { text: 'Searching the docs for "sorting"' }],
               [
                 "sources",
                 [{ title: "Sorting", url: "https://x/docs/table/sorting" }],
@@ -58,7 +66,12 @@ describe("askQuestion", () => {
         sent,
       ),
     });
-    expect(sent.body).toEqual({ question: "Sortable tables?", turnstile: "t" });
+    expect(sent.body).toEqual({
+      question: "Sortable tables?",
+      history,
+      turnstile: "t",
+    });
+    expect(statuses).toEqual(['Searching the docs for "sorting"']);
     expect(sources).toEqual([
       [{ title: "Sorting", url: "https://x/docs/table/sorting" }],
     ]);

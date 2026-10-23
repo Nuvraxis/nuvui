@@ -1,19 +1,29 @@
 import type { HttpBindings } from "@hono/node-server";
 import { Hono } from "hono";
 import { type SSEStreamingApi, streamSSE } from "hono/streaming";
-import { type ChatEvent, type ChatMessage, ModelError } from "./azure.ts";
+import {
+  type ChatEvent,
+  type ChatMessage,
+  type ChatOptions,
+  ModelError,
+  type ToolCall,
+} from "./azure.ts";
 import { callerOf, type createGate, type Verdict } from "./limit.ts";
 import type { Logger } from "./log.ts";
 import type { Metrics, Outcome } from "./metrics.ts";
-import { contextFor, type Page } from "./pages.ts";
-import { messagesFor, noMatch } from "./prompt.ts";
-import { parseTraceparent, type Tracer } from "./trace.ts";
+import type { Page, Source } from "./pages.ts";
+import { messagesFor, type Turn } from "./prompt.ts";
+import type { Toolbox } from "./tools.ts";
+import { parseTraceparent, type Span, type Tracer } from "./trace.ts";
 
 export interface AppOptions {
   pages: readonly Page[];
+  toolbox: Toolbox;
   trustedProxies: number;
   maxQuestionChars: number;
   maxAnswerTokens: number;
+  /** How many times the model may ask for tools before it has to answer. */
+  maxToolRounds: number;
   timeoutMs: number;
   keepAliveMs: number;
   /** The deployment's name, for the spans. */
@@ -28,7 +38,7 @@ export interface AppOptions {
   ) => Promise<boolean>;
   chat: (
     messages: ChatMessage[],
-    options: { maxTokens: number; signal: AbortSignal },
+    options: ChatOptions & { signal: AbortSignal },
   ) => AsyncIterable<ChatEvent>;
   tracer: Tracer;
   metrics: Metrics;
@@ -39,7 +49,28 @@ export interface AppOptions {
 /** What the panel sends. */
 interface Question {
   question?: unknown;
+  history?: unknown;
   turnstile?: unknown;
+}
+
+// The conversation the panel sends with a question: enough for a
+// follow-up to make sense, and a bound on what one question can cost.
+const maxTurns = 8;
+const maxTurnChars = 4000;
+
+function historyOf(value: unknown): Turn[] | undefined {
+  if (value === undefined) return [];
+  if (!Array.isArray(value) || value.length > maxTurns) return undefined;
+  const turns: Turn[] = [];
+  for (const item of value) {
+    if (typeof item !== "object" || item === null) return undefined;
+    const { role, text } = item as { role?: unknown; text?: unknown };
+    if (role !== "user" && role !== "assistant") return undefined;
+    if (typeof text !== "string" || text.length > maxTurnChars)
+      return undefined;
+    turns.push({ role, text });
+  }
+  return turns;
 }
 
 const json = (status: number, code: string, message: string) =>
@@ -108,6 +139,16 @@ export function createApp(options: AppOptions) {
         `A question is 1 to ${options.maxQuestionChars} characters.`,
       );
     }
+    const history = historyOf(body.history);
+    if (!history) {
+      finish("invalid", 400);
+      return json(
+        400,
+        "invalid",
+        `The conversation is at most ${maxTurns} turns of ${maxTurnChars} characters.`,
+      );
+    }
+    facts.history_turns = history.length;
 
     const incoming = c.env?.incoming;
     const caller = incoming
@@ -151,14 +192,6 @@ export function createApp(options: AppOptions) {
     }
     options.metrics.started();
 
-    const searchSpan = options.tracer.startSpan("docs.search", {
-      parent: span,
-    });
-    const { sources, text } = contextFor(options.pages, question);
-    searchSpan.setAttribute("docs.pages", sources.length);
-    searchSpan.end();
-    facts.pages = sources.length;
-
     // Through the Gateway's nginx, which would otherwise keep the words
     // back until it had a buffer's worth.
     c.header("X-Accel-Buffering", "no");
@@ -178,20 +211,12 @@ export function createApp(options: AppOptions) {
 
       let outcome: Outcome = "answered";
       try {
-        await stream.writeSSE({
-          event: "sources",
-          data: JSON.stringify(sources),
-        });
-        if (sources.length === 0) {
-          outcome = "no_match";
-          await stream.writeSSE({
-            event: "text",
-            data: JSON.stringify({ text: noMatch }),
-          });
-        } else {
-          outcome = await answer(stream, question, text, controller.signal);
-        }
-        if (outcome === "answered" || outcome === "no_match") {
+        outcome = await answer(
+          stream,
+          messagesFor(history, question),
+          controller.signal,
+        );
+        if (outcome === "answered") {
           await stream.writeSSE({ event: "done", data: "{}" });
         }
       } catch (error) {
@@ -230,13 +255,79 @@ export function createApp(options: AppOptions) {
       }
     });
 
+    // The model looks things up with the tools as often as it needs to, up
+    // to the rounds it's given, and then answers. Whatever it writes is
+    // sent on as it comes, and so is what it's looking up.
     async function answer(
       stream: SSEStreamingApi,
-      question: string,
-      docs: string,
+      messages: ChatMessage[],
       signal: AbortSignal,
     ): Promise<Outcome> {
-      const call = options.tracer.startSpan("chat", {
+      const sources: Source[] = [];
+      let toolCalls = 0;
+      facts.prompt_tokens = 0;
+      facts.completion_tokens = 0;
+      for (let round = 0; ; round += 1) {
+        facts.rounds = round + 1;
+        const last = round >= options.maxToolRounds;
+        const reply = await chat(stream, messages, last, signal);
+        if (reply.filtered) return "filtered";
+        if (reply.calls.length === 0 || last) return "answered";
+
+        messages.push({
+          role: "assistant",
+          content: reply.text || null,
+          tool_calls: reply.calls,
+        });
+        for (const call of reply.calls) {
+          const { name, arguments: args } = call.function;
+          await stream.writeSSE({
+            event: "status",
+            data: JSON.stringify({
+              text: options.toolbox.describe(name, args),
+            }),
+          });
+          const used = options.tracer.startSpan(`execute_tool ${name}`, {
+            parent: span,
+            attributes: {
+              "gen_ai.operation.name": "execute_tool",
+              "gen_ai.tool.name": name,
+            },
+          });
+          const result = options.toolbox.run(name, args);
+          used.setAttribute("ask.tool.outcome", result.outcome);
+          if (result.outcome === "error") used.fail("error");
+          used.end();
+          options.metrics.tool(name, result.outcome);
+          toolCalls += 1;
+          facts.tool_calls = toolCalls;
+          messages.push({
+            role: "tool",
+            tool_call_id: call.id,
+            content: result.text,
+          });
+          const found = result.source;
+          if (found && !sources.some((s) => s.url === found.url)) {
+            sources.push(found);
+            facts.pages = sources.length;
+            await stream.writeSSE({
+              event: "sources",
+              data: JSON.stringify(sources),
+            });
+          }
+        }
+      }
+    }
+
+    // One call to the model. On the last round it isn't offered the tools,
+    // so it answers with what it has.
+    async function chat(
+      stream: SSEStreamingApi,
+      messages: ChatMessage[],
+      last: boolean,
+      signal: AbortSignal,
+    ) {
+      const call: Span = options.tracer.startSpan("chat", {
         kind: "client",
         parent: span,
         attributes: {
@@ -246,20 +337,29 @@ export function createApp(options: AppOptions) {
           "gen_ai.request.max_tokens": options.maxAnswerTokens,
         },
       });
+      let text = "";
+      let calls: ToolCall[] = [];
+      let filtered = false;
       try {
-        let outcome: Outcome = "answered";
-        for await (const event of options.chat(messagesFor(question, docs), {
+        for await (const event of options.chat(messages, {
           maxTokens: options.maxAnswerTokens,
           signal,
+          tools: options.toolbox.specs,
+          toolChoice: last ? "none" : "auto",
         })) {
           if (event.type === "text") {
+            text += event.text;
             await stream.writeSSE({
               event: "text",
               data: JSON.stringify({ text: event.text }),
             });
+          } else if (event.type === "tools") {
+            calls = event.calls;
           } else if (event.type === "usage") {
-            facts.prompt_tokens = event.promptTokens;
-            facts.completion_tokens = event.completionTokens;
+            facts.prompt_tokens =
+              Number(facts.prompt_tokens ?? 0) + event.promptTokens;
+            facts.completion_tokens =
+              Number(facts.completion_tokens ?? 0) + event.completionTokens;
             call.setAttribute("gen_ai.usage.input_tokens", event.promptTokens);
             call.setAttribute(
               "gen_ai.usage.output_tokens",
@@ -267,7 +367,7 @@ export function createApp(options: AppOptions) {
             );
             options.metrics.tokens(event.promptTokens, event.completionTokens);
           } else if (event.type === "filtered") {
-            outcome = "filtered";
+            filtered = true;
             await stream.writeSSE({
               event: "error",
               data: JSON.stringify({ error: "filtered" }),
@@ -279,7 +379,7 @@ export function createApp(options: AppOptions) {
             );
           }
         }
-        return outcome;
+        return { text, calls, filtered };
       } catch (error) {
         call.fail(error instanceof Error ? error.name : "error");
         throw error;

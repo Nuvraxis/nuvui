@@ -51,7 +51,8 @@ describe("urlOf", () => {
 
 describe("contextFor", () => {
   test("sends the sections that match, with each page's address, and lists the pages", () => {
-    const { sources, text } = contextFor(pages, "button variants");
+    // Not "button": a word in a page's title matches every section of it.
+    const { sources, text } = contextFor(pages, "ghost variants");
     assert.deepEqual(sources[0], {
       title: "Button",
       url: "https://nuvui.nuvraxis.com/docs/components/button",

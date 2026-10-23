@@ -54,7 +54,7 @@ export interface AskOptions {
   /**
    * The conversation so far, oldest first, so a follow-up such as "I meant
    * agents" makes sense. The service takes at most 8 turns of 4,000
-   * characters.
+   * characters, and 12,000 in all.
    */
   history?: AskTurn[];
   /** Turnstile's token for this question, when the site checks. */

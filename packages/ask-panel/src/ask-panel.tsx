@@ -67,6 +67,7 @@ interface Turn {
 // The most of the conversation the service takes with a question.
 const maxTurns = 8;
 const maxTurnChars = 4000;
+const maxHistoryChars = 12_000;
 
 const defaultSuggestions = [
   "How do I get started with nuvui?",
@@ -151,12 +152,16 @@ export function AskPanel({
   async function ask(question: string) {
     if (controller.current) return;
     setError(null);
-    // The turns before this question, so a follow-up makes sense. As many
-    // as the service takes, the newest, each cut to its length.
-    const history: AskTurn[] = turns.slice(-maxTurns).map((turn) => ({
-      role: turn.from,
-      text: turn.text.slice(0, maxTurnChars),
-    }));
+    // The turns before this question, so a follow-up makes sense: the
+    // newest, each cut to its length, as many as the service takes.
+    const history: AskTurn[] = [];
+    let total = 0;
+    for (const turn of turns.slice(-maxTurns).reverse()) {
+      const text = turn.text.slice(0, maxTurnChars);
+      if (total + text.length > maxHistoryChars) break;
+      total += text.length;
+      history.unshift({ role: turn.from, text });
+    }
     add({ from: "user", text: question });
     const current = new AbortController();
     controller.current = current;

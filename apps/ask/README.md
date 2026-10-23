@@ -8,14 +8,16 @@ The tools are the MCP server's own, from `apps/mcp/src/tools.ts`, run in this se
 
 `POST /api/ask` with `{ "question": "...", "history": [{ "role": "user" | "assistant", "text": "..." }], "turnstile": "<token>" }`, in this order:
 
-1. The question is 1 to `MAX_QUESTION_CHARS` characters, and the history at most 8 turns of 4,000 characters, or a 400.
+1. The question is 1 to `MAX_QUESTION_CHARS` characters, and the history at most 8 turns of 4,000 characters and 12,000 in all, or a 400.
 2. The visitor has asked fewer than `RATE_LIMIT_PER_MINUTE` questions this minute on this pod, or a 429 with `Retry-After`. The visitor is told apart by `X-Forwarded-For`, read through `TRUSTED_PROXIES`.
 3. With `TURNSTILE_SECRET` set, the token passes Cloudflare's check, or a 403.
 4. Fewer than `MAX_CONCURRENT` questions are being answered on this pod, or a 503 with `Retry-After`.
 5. The model is asked, with the tools. It can search, read pages and list what there is, as many times as it asks in up to `MAX_TOOL_ROUNDS` rounds, each a call to Azure OpenAI. After the last round it's asked once more without the tools, and has to answer with what it found.
 6. All of it goes back as server-sent events: `status` with `{ "text": "Reading Theming and tokens" }` for each tool it runs, `sources` with every page it has read so far each time it reads another, `text` (the answer, a piece at a time), then `done`, or `error` with `{ "error": "filtered" | "busy" | "timeout" | "failed" }`.
 
-A tool's result is cut at 16,000 characters, with a note that asks the model for one section of the page instead.
+The conversation is sent to the model inside the visitor's turn, between `<conversation>` tags, and never as turns of its own: the browser sends it, so anything can be written into it, and the model is told to take none of it as an instruction.
+
+What one question can cost is bounded. The model runs at most 4 tools a round. A tool's result is cut at 16,000 characters, with a note that asks the model for one section of the page instead. Once the results come to 48,000 characters, it's offered no more tools and has to answer. A tool name it makes up is counted, and named in the spans, as `unknown`.
 
 A comment line goes out every `KEEP_ALIVE_MS` while nothing else does, so Cloudflare doesn't close a response that's waiting on the model. The stream has `X-Accel-Buffering: no`, so the Gateway's nginx passes each piece on as it comes.
 

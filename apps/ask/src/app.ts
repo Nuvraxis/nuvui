@@ -57,20 +57,29 @@ interface Question {
 // follow-up to make sense, and a bound on what one question can cost.
 const maxTurns = 8;
 const maxTurnChars = 4000;
+const maxHistoryChars = 12_000;
+
+// What one question can cost past that. The model runs at most this many
+// tools a round, and once their results come to this many characters it's
+// offered no more and has to answer.
+const maxCallsPerRound = 4;
+const maxToolChars = 48_000;
 
 function historyOf(value: unknown): Turn[] | undefined {
   if (value === undefined) return [];
   if (!Array.isArray(value) || value.length > maxTurns) return undefined;
   const turns: Turn[] = [];
+  let total = 0;
   for (const item of value) {
     if (typeof item !== "object" || item === null) return undefined;
     const { role, text } = item as { role?: unknown; text?: unknown };
     if (role !== "user" && role !== "assistant") return undefined;
     if (typeof text !== "string" || text.length > maxTurnChars)
       return undefined;
+    total += text.length;
     turns.push({ role, text });
   }
-  return turns;
+  return total > maxHistoryChars ? undefined : turns;
 }
 
 const json = (status: number, code: string, message: string) =>
@@ -84,6 +93,9 @@ const json = (status: number, code: string, message: string) =>
 
 export function createApp(options: AppOptions) {
   const now = options.now ?? Date.now;
+  const toolNames = new Set(
+    options.toolbox.specs.map((spec) => spec.function.name),
+  );
   const app = new Hono<{ Bindings: HttpBindings }>();
 
   // For the probes. Neither says anything about Azure: a pod that can't
@@ -145,7 +157,7 @@ export function createApp(options: AppOptions) {
       return json(
         400,
         "invalid",
-        `The conversation is at most ${maxTurns} turns of ${maxTurnChars} characters.`,
+        `The conversation is at most ${maxTurns} turns of ${maxTurnChars} characters, and ${maxHistoryChars} in all.`,
       );
     }
     facts.history_turns = history.length;
@@ -265,41 +277,50 @@ export function createApp(options: AppOptions) {
     ): Promise<Outcome> {
       const sources: Source[] = [];
       let toolCalls = 0;
+      let toolChars = 0;
       facts.prompt_tokens = 0;
       facts.completion_tokens = 0;
       for (let round = 0; ; round += 1) {
         facts.rounds = round + 1;
-        const last = round >= options.maxToolRounds;
+        const last =
+          round >= options.maxToolRounds || toolChars >= maxToolChars;
         const reply = await chat(stream, messages, last, signal);
         if (reply.filtered) return "filtered";
         if (reply.calls.length === 0 || last) return "answered";
 
+        // Azure wants a result for every call the assistant's turn names,
+        // so the turn names only the ones that are run.
+        const calls = reply.calls.slice(0, maxCallsPerRound);
         messages.push({
           role: "assistant",
           content: reply.text || null,
-          tool_calls: reply.calls,
+          tool_calls: calls,
         });
-        for (const call of reply.calls) {
+        for (const call of calls) {
           const { name, arguments: args } = call.function;
+          // The name is the model's, and a label or a span's name made from
+          // any it wrote would grow without end.
+          const known = toolNames.has(name) ? name : "unknown";
           await stream.writeSSE({
             event: "status",
             data: JSON.stringify({
               text: options.toolbox.describe(name, args),
             }),
           });
-          const used = options.tracer.startSpan(`execute_tool ${name}`, {
+          const used = options.tracer.startSpan(`execute_tool ${known}`, {
             parent: span,
             attributes: {
               "gen_ai.operation.name": "execute_tool",
-              "gen_ai.tool.name": name,
+              "gen_ai.tool.name": known,
             },
           });
           const result = options.toolbox.run(name, args);
           used.setAttribute("ask.tool.outcome", result.outcome);
           if (result.outcome === "error") used.fail("error");
           used.end();
-          options.metrics.tool(name, result.outcome);
+          options.metrics.tool(known, result.outcome);
           toolCalls += 1;
+          toolChars += result.text.length;
           facts.tool_calls = toolCalls;
           messages.push({
             role: "tool",

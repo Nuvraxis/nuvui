@@ -1,7 +1,9 @@
 "use client";
 
+import { AskPanel } from "@nuvui/ask-panel";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { ask, askTrigger } from "@/lib/ask";
 import { navigation, site } from "@/lib/site";
 
 const link =
@@ -71,6 +73,14 @@ export function SiteHeader() {
             ))}
           </ul>
         </nav>
+        {ask.endpoint ? (
+          <AskPanel
+            endpoint={ask.endpoint}
+            turnstileSiteKey={ask.turnstileSiteKey}
+            region={ask.region}
+            triggerClassName={`${askTrigger} shrink-0`}
+          />
+        ) : null}
         <a
           href={site.repo}
           className="text-fd-muted-foreground hover:text-fd-foreground focus-visible:outline-fd-ring hidden size-9 shrink-0 items-center justify-center rounded-md transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 md:inline-flex"

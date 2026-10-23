@@ -61,6 +61,19 @@ ARG OTLP_ENDPOINT="/otlp"
 ARG SITE_VERSION=""
 ENV NEXT_PUBLIC_OTLP_ENDPOINT=$OTLP_ENDPOINT     NEXT_PUBLIC_SITE_VERSION=$SITE_VERSION
 
+# The Ask AI panel, written into the pages the same way. With no endpoint,
+# which is the default, there's no panel. apps/ask/README.md has the
+# service it talks to.
+#
+#   docker build --build-arg ASK_ENDPOINT=/api/ask \
+#     --build-arg TURNSTILE_SITE_KEY=... --build-arg ASK_REGION="Sweden Central" ...
+ARG ASK_ENDPOINT=""
+ARG TURNSTILE_SITE_KEY=""
+ARG ASK_REGION=""
+ENV NEXT_PUBLIC_ASK_ENDPOINT=$ASK_ENDPOINT \
+    NEXT_PUBLIC_TURNSTILE_SITE_KEY=$TURNSTILE_SITE_KEY \
+    NEXT_PUBLIC_ASK_REGION=$ASK_REGION
+
 RUN pnpm build
 
 # Runs as a user that isn't root, and listens on 8080. It writes only to

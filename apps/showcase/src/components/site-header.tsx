@@ -1,3 +1,4 @@
+import { AskPanel } from "@nuvui/ask-panel";
 import {
   Navbar,
   NavbarActions,
@@ -12,6 +13,7 @@ import { Logo } from "@/components/logo";
 import { NavLink } from "@/components/nav-link";
 import { SiteSearch } from "@/components/site-search";
 import { ThemeControl } from "@/components/theme-control";
+import { ask, askTrigger } from "@/lib/ask";
 import { navigation, site } from "@/lib/site";
 
 export function GitHubLink() {
@@ -60,6 +62,14 @@ export function SiteHeader() {
       </NavbarNav>
       <NavbarActions className="site-header__tools">
         <SiteSearch />
+        {ask.endpoint ? (
+          <AskPanel
+            endpoint={ask.endpoint}
+            turnstileSiteKey={ask.turnstileSiteKey}
+            region={ask.region}
+            triggerClassName={askTrigger}
+          />
+        ) : null}
         <GitHubLink />
         <ThemeControl />
       </NavbarActions>

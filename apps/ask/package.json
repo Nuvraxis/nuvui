@@ -1,0 +1,28 @@
+{
+  "name": "@nuvui/ask",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Answers a visitor's question about nuvui from the docs, with Azure OpenAI, for the Ask AI panel on the website and the docs.",
+  "license": "MIT",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown && node dist/build-pages.mjs",
+    "start": "node dist/main.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test \"src/**/*.test.ts\""
+  },
+  "dependencies": {
+    "@azure/identity": "^4.14.0",
+    "@hono/node-server": "^2.1.5",
+    "hono": "^4.13.13"
+  },
+  "devDependencies": {
+    "@nuvui/typescript-config": "workspace:*",
+    "@types/node": "catalog:",
+    "tsdown": "catalog:",
+    "typescript": "catalog:"
+  }
+}

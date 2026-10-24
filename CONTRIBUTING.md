@@ -1,6 +1,6 @@
 # Contributing to nuvui
 
-Thanks for taking the time. This page covers how to get the repository running, how the code is laid out, the conventions a change has to follow, and what a pull request needs before it can be merged.
+Thanks for taking the time. This page covers how to get the repository running, how the code is laid out, the conventions a change has to follow, and what a pull request needs before it can be merged. [CLAUDE.md](CLAUDE.md) is the short version, for you and for a coding agent you work with.
 
 Bug reports and ideas go in the [issue tracker](https://github.com/Nuvraxis/nuvui/issues). Security problems go through [SECURITY.md](SECURITY.md), not the tracker. Everyone taking part is expected to follow the [code of conduct](CODE_OF_CONDUCT.md).
 
@@ -152,8 +152,12 @@ apps/showcase                 the website (Next.js, SCSS and the library's token
   e2e/                        Playwright tests, of its pages and of where the two apps meet
 apps/mcp                      the MCP server (FastMCP), answering from the skill and the blocks (private)
   src/sources.ts              reads its data from the repository when it's built
-  src/server.ts               its tools
+  src/tools.ts                its tools, which the ask service gives its model too
+  src/server.ts               the server they're offered from
   Dockerfile                  builds its image
+apps/ask                      the service behind the Ask AI panel (Hono, private): a model on Azure OpenAI
+                              that looks the answer up with the MCP server's tools. Its README has the rest.
+packages/ask-panel            the Ask AI panel on the website and the docs (private)
 apps/Dockerfile               builds the site's image: both apps as static files, behind nginx
 apps/nginx.conf               how that image serves them
 apps/otel-collector.example.yaml  an example collector for what the pages send
@@ -384,7 +388,9 @@ A pull request needs:
   - `e2e.yml` runs only for a pull request with the `invoke-e2e` label: the end-to-end tests, and a check that the packed library installs and builds in a Vite app and a Next.js app. A maintainer adds the label when a change is ready for it. Without the label nothing runs these for you, so run `pnpm test:e2e` yourself. The workflow builds the site once and cuts the tests into 17 slices, each on a runner of its own, because one runner would need hours for all of them. A last job named E2E passes when every slice has.
   - `apps-docker.yaml` runs for a pull request that changes `apps/Dockerfile`, `apps/nginx.conf`, `scripts/check-site-image.mjs` or `.dockerignore`. It builds the site's image, starts it and runs `scripts/check-site-image.mjs` against it. On `main` the same workflow also pushes the image to `ghcr.io/nuvraxis/nuvui-site`.
   - `mcp-docker.yaml` does the same for the MCP server, for a pull request that changes `apps/mcp/Dockerfile`, `scripts/check-mcp-image.mjs` or `.dockerignore`, and pushes `ghcr.io/nuvraxis/nuvui-mcp` from `main`.
+  - `ask-docker.yaml` does the same for the Ask AI service, for a pull request that changes `apps/ask` or `.dockerignore`, and pushes `ghcr.io/nuvraxis/nuvui-ask` from `main`.
   - `mcp-publish.yaml` publishes the MCP server's listing to the MCP Registry, when a push to `main` changes `apps/mcp` and the listing has a version the registry doesn't. See [its listing](#its-listing-in-the-mcp-registry).
+  - `pr-conventions.yml` reads every pull request and writes one comment on it, kept up to date, with what it may have missed from this page and what to do about each: a changeset, tests, the docs, the agent skill, pnpm, how actions are named, how things are written. It only advises, and never fails. `scripts/pr-conventions.mjs` has what it looks for. It reads the pull request through GitHub's API and never runs its code, which is what lets it write on a pull request from a fork.
 - Tests for what changed.
 - The docs page updated, if behavior, props, CSS variables or class names changed.
 - A changeset, if the change reaches the published package.

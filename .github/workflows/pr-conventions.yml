@@ -1,0 +1,56 @@
+name: Conventions
+
+# Looks at what a pull request changes and says, in one comment on it kept
+# up to date from push to push, which of the conventions in CONTRIBUTING.md
+# it may have missed and what to do about each: a changeset, tests, the
+# docs, the agent skill, pnpm, how actions are named, how things are
+# written. scripts/pr-conventions.mjs has the list. It only advises, and
+# never fails: ci.yml is what has to pass.
+#
+# It runs on pull_request_target, so that it can write on a pull request
+# from a fork. That runs with a token that can write, so it never checks out
+# or runs a pull request's code: the checkout is the default branch, and the
+# pull request is read through GitHub's API as text. Keep it that way. Like
+# every workflow started this way, it's the copy on the default branch that
+# runs, so a change to it does nothing until it's merged.
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+# Only the newest push to a pull request matters.
+concurrency:
+  group: pr-conventions-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  comment:
+    name: Say what the pull request may have missed
+    if: github.repository == 'Nuvraxis/nuvui'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      # To read the default branch and the pull request's files.
+      contents: read
+      pull-requests: write
+    steps:
+      # The default branch, never the pull request's.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+
+      # Everything about the pull request goes in through the environment,
+      # so none of it is read as part of a command.
+      - name: Write the comment
+        run: node scripts/pr-conventions.mjs
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}

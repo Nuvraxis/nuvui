@@ -19,9 +19,18 @@ allowBuilds:
 # with braces nested very deep. It comes in through Stylelint, which only
 # gets the patterns written in this repository's own scripts, and no
 # version has the fix yet. Take this out when one does.
+#
+# GHSA-xcx6-jx8p-x3h5: MSAL Node's authorization code flow can send its
+# parameters to an endpoint an attacker controls. It comes in through
+# @azure/identity in apps/ask, which signs in with DefaultAzureCredential,
+# by workload identity in the cluster and the Azure CLI on a machine. That
+# never takes the authorization code flow. The fix is in @azure/msal-node 7,
+# and @azure/identity, 4.14.0 and its beta alike, still asks for 6. Take
+# this out when it asks for 7.
 auditConfig:
   ignoreGhsas:
     - GHSA-vfj7-8cjw-p6xm
+    - GHSA-xcx6-jx8p-x3h5
 
 catalog:
   "@arethetypeswrong/cli": ^0.18.5

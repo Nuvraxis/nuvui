@@ -89,6 +89,7 @@ import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
+  ImageZoom,
   Input,
   InputGroup,
   Item,
@@ -2111,5 +2112,20 @@ describe("pinned list and scroll progress", () => {
 
     expect(style(bar).backgroundColor).toBe(system("highlight"));
     expect(style(track).backgroundColor).toBe(system("canvas"));
+  });
+});
+
+describe("image zoom", () => {
+  test("the button keeps its edge, and its magnifier stands out from the page", async () => {
+    await render(
+      <ImageZoom>
+        <div style={{ blockSize: 120 }} />
+      </ImageZoom>,
+    );
+    const button = page.getByRole("button", { name: "Zoom" }).element();
+
+    expect(style(button).borderTopStyle).toBe("solid");
+    expect(contrast(style(button).borderTopColor, canvas())).toBeGreaterThan(3);
+    expect(contrast(style(button).color, canvas())).toBeGreaterThan(3);
   });
 });

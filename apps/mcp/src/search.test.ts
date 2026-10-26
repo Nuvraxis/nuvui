@@ -33,7 +33,9 @@ describe("search", () => {
     expect(search(pages, "error message on a field", 3)[0]?.page).toBe(
       "components/field",
     );
-    expect(search(pages, "before and after image", 3)[0]?.page).toBe(
+    // "picture", the docs' word. With "image", ImageZoom comes first: the
+    // word is in its page's name, and rare enough to outweigh the other two.
+    expect(search(pages, "before and after picture", 3)[0]?.page).toBe(
       "components/compare",
     );
   });

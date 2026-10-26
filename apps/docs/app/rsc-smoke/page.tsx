@@ -117,6 +117,7 @@ import {
   FieldsetLegend,
   FormattedNumber,
   HoloCard,
+  ImageZoom,
   Input,
   Item,
   ItemContent,
@@ -376,7 +377,7 @@ export default function RscSmokePage() {
       <TextShimmer data-testid="server-shimmer">
         Shimmer from the server
       </TextShimmer>
-      {/* Three client components given plain values from the server. */}
+      {/* Four client components given plain values from the server. */}
       <AnimatedNumber data-testid="server-animated-number" value={1234.5} />
       <TextReveal
         data-testid="server-reveal"
@@ -388,6 +389,9 @@ export default function RscSmokePage() {
         before={<p>Before from the server</p>}
         after={<p>After from the server</p>}
       />
+      <ImageZoom data-testid="server-image-zoom" scale={3}>
+        <p>Picture from the server</p>
+      </ImageZoom>
       <TableOfContents
         aria-label="Contents from the server"
         items={[

@@ -86,13 +86,13 @@ Each add-on is installed next to `@nuvui/react`, with the library it's built on 
 
 ## Components
 
-`@nuvui/react` has seventy-eight components.
+`@nuvui/react` has seventy-nine components.
 
 | Group | Components |
 | --- | --- |
 | Actions, overlays and navigation (27) | Accordion, ActionBar, AlertDialog, Breadcrumb, Button, Checkbox, Command, ContextMenu, Dialog, DropdownMenu, HoldToConfirm, HoverCard, Menubar, Navbar, NavigationMenu, Pagination, Popover, Select, Sheet, Sidebar, Stepper, Switch, TableOfContents, Tabs, Toast, Tooltip, Tree |
 | Forms (20) | ButtonGroup, ChoiceCard, ColorPicker, Combobox, Field, Fieldset, FileUpload, Input, InputGroup, Label, NativeSelect, NumberField, OtpField, PasswordInput, RadioGroup, Rating, Slider, Textarea, Toggle, ToggleGroup |
-| Display and layout (31) | Alert, AnimatedNumber, AspectRatio, Avatar, Badge, Card, Carousel, Collapsible, Compare, Confetti, Empty, FormattedNumber, HoloCard, Item, Kbd, ListView, PinnedList, Progress, Resizable, ScrollArea, ScrollProgress, Separator, Skeleton, Spinner, Stat, TextReveal, TextShimmer, Timeline, Toolbar, Trend, VisuallyHidden |
+| Display and layout (32) | Alert, AnimatedNumber, AspectRatio, Avatar, Badge, Card, Carousel, Collapsible, Compare, Confetti, Empty, FormattedNumber, HoloCard, ImageZoom, Item, Kbd, ListView, PinnedList, Progress, Resizable, ScrollArea, ScrollProgress, Separator, Skeleton, Spinner, Stat, TextReveal, TextShimmer, Timeline, Toolbar, Trend, VisuallyHidden |
 
 It also has:
 

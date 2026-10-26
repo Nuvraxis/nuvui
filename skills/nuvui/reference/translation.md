@@ -117,6 +117,12 @@ Why a file was refused is yours to say. `onReject` gives you the reason as `"typ
 
 What the button says is its children, which you write. Start it with the words for "Hold to".
 
+### ImageZoom
+
+| Prop | Type | Default | What it's for |
+| --- | --- | --- | --- |
+| `zoomLabel` | `string` | `"Zoom"` | The name of the button in the corner, which zooms in and out. |
+
 ### Navbar
 
 On `NavbarMenu`:

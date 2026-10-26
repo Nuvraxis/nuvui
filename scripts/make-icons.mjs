@@ -30,23 +30,44 @@ const sharp = createRequire(fromWebsite.resolve("next/package.json"))("sharp");
 
 const source = await readFile(join(website, "src", "app", "icon.svg"), "utf8");
 
-// The colors a light tab gets. An image file has one set of colors, and
-// can't swap them the way the SVG does.
+// The colors a light tab gets, where icon.svg changes them for a dark one.
+// An image file has one set of colors, and can't swap them the way an SVG
+// can.
 const fixed = source.replace(/@media[^{]+\{(?:[^{}]*\{[^{}]*\})*[^{}]*\}/, "");
-if (fixed === source) {
-  throw new Error("make-icons: icon.svg has no dark colors to take out.");
-}
 
 // For a home screen: the square fills the whole picture, with no rounded
-// corners. The phone cuts its own shape out of it, and the arch is far
-// enough from the edges to survive any of them.
-const fullBleed = fixed.replace(/\srx="[^"]*"/, "");
-if (fullBleed === fixed) {
-  throw new Error("make-icons: icon.svg has no rounded corners to take off.");
+// corners and no edge. The phone cuts its own shape out of it.
+const fullBleed = fixed
+  .replace(/(<rect class="tile"[^>]*?)\srx="[^"]*"/, "$1")
+  .replace(/\s*<rect class="edge"[^>]*\/>/, "");
+if (!/<rect class="tile"/.test(fixed) || /<rect class="edge"/.test(fullBleed)) {
+  throw new Error(
+    'make-icons: icon.svg needs its square as class="tile" and the square\'s edge as class="edge".',
+  );
 }
 
+const viewBox = (svg) => {
+  const box = svg
+    .match(/viewBox="([^"]+)"/)?.[1]
+    .split(/\s+/)
+    .map(Number);
+  if (box?.length !== 4) throw new Error("make-icons: an SVG has no viewBox.");
+  return box;
+};
+
+// Android may cut a maskable icon to a circle, which keeps only the middle
+// four fifths of it. The mark is drawn smaller in the middle of its square,
+// so what's near its corners survives the cut.
+const [x, y, width, height] = viewBox(fullBleed);
+const tile = fullBleed.match(/<rect class="tile"[^>]*fill="([^"]+)"/)?.[1];
+const inside = fullBleed
+  .replace(/^[\s\S]*?<svg[^>]*>/, "")
+  .replace(/<\/svg>\s*$/, "");
+const maskable = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width * 1.25} ${height * 1.25}"><rect width="100%" height="100%" fill="${tile}"/><svg x="${width / 8}" y="${height / 8}" width="${width}" height="${height}" viewBox="${x} ${y} ${width} ${height}">${inside}</svg></svg>`;
+
+// Drawn at the size it's wanted, from however wide the SVG says it is.
 const png = (svg, size) =>
-  sharp(Buffer.from(svg), { density: (72 * size) / 24 })
+  sharp(Buffer.from(svg), { density: (72 * size) / viewBox(svg)[2] })
     .resize(size, size)
     .png({ compressionLevel: 9 })
     .toBuffer();
@@ -102,7 +123,7 @@ for (const size of [192, 512]) {
 }
 await write(
   join(website, "public", "icons", "icon-maskable-512.png"),
-  await png(fullBleed, 512),
+  await png(maskable, 512),
 );
 
 await copyFile(

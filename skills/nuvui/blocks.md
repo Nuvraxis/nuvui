@@ -2,7 +2,7 @@
 
 # Blocks
 
-A block is a part of an app, such as a sign-in screen or a table with a toolbar, built from the library's components: one TSX file and one SCSS file, to copy into an app and change. There are 87. Each is shown at https://nuvui.nuvraxis.com/blocks.
+A block is a part of an app, such as a sign-in screen or a table with a toolbar, built from the library's components: one TSX file and one SCSS file, to copy into an app and change. There are 88. Each is shown at https://nuvui.nuvraxis.com/blocks.
 
 Before building a screen from nothing, look here for one that's close. To add one, with the packages it needs:
 
@@ -77,6 +77,7 @@ A block's SCSS uses the library's mixins, `@use "@nuvui/react/scss/mixins"`, so 
 - **Empty, loading and error** (`page-states`): One page in each state it can be in: with its rows, waiting for them, with none yet, and after a request that failed. Needs `@nuvui/react`, `lucide-react`.
 - **Pinned reports** (`pinned-reports`): Saved reports with the ones in use pinned at the top: each opens from its name, has a menu of its own, and slides to the other group when its pin is pressed. Needs `@nuvui/react`, `lucide-react`.
 - **Query editor** (`query-editor`): A query above and its rows below, with a handle between them to give either more room. The sizes are remembered for the next visit. Needs `@nuvui/react`, `@nuvui/table`, `@tanstack/react-table`, `lucide-react`.
+- **Receipt to check** (`receipt-check`): An expense claim to approve or send back: the photographed receipt, which zooms in to read its small print, beside what was claimed and the receipt's lines in words, with a status that says what was decided. Needs `@nuvui/react`.
 - **Shipping label** (`shipping-label`): A parcel's label: who it's from and who it's for, the service and the weight, the tracking number as a barcode with the number under it, a QR code that opens the tracking page, and buttons that save the barcode as a file. Needs `@nuvui/barcodes`, `@nuvui/react`.
 - **Table with a toolbar** (`table-toolbar`): A table to work in: search, a filter by status, a column chooser, a menu on each row, and actions for the rows that are ticked. Needs `@nuvui/react`, `@nuvui/table`, `@tanstack/react-table`, `lucide-react`.
 - **Task board** (`task-board`): A plan's tasks in four columns. A card is dragged to another column or moved there with the keyboard, each card has a menu that moves it for anyone who'd sooner not drag, the review column takes only so many, and a line under the heading says what was moved. Needs `@nuvui/kanban`, `@nuvui/react`.

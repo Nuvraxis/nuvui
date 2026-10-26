@@ -219,7 +219,7 @@ It also has:
 
 [nuvui.nuvraxis.com](https://nuvui.nuvraxis.com) is built with the library's own tokens, and the docs sit under `/docs` of the same site.
 
-- **[87 blocks](https://nuvui.nuvraxis.com/blocks)** in eleven groups. A block is a part of an app, such as a sign-in screen, a dashboard or a pricing table, as a TSX file and an SCSS file to copy. The site also serves them as a registry for shadcn's command line tool, at `/r`.
+- **[88 blocks](https://nuvui.nuvraxis.com/blocks)** in eleven groups. A block is a part of an app, such as a sign-in screen, a dashboard or a pricing table, as a TSX file and an SCSS file to copy. The site also serves them as a registry for shadcn's command line tool, at `/r`.
 - **[39 charts](https://nuvui.nuvraxis.com/charts)** in ten families, each one file to copy.
 - **[A theme builder](https://nuvui.nuvraxis.com/themes).**
 - **[Docs](https://nuvui.nuvraxis.com/docs)** with a page for each component, covering its parts, props, examples, CSS variables and classes, and what it leaves to you for accessibility. Search runs in the browser.

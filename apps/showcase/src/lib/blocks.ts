@@ -131,6 +131,9 @@ import queryEditor from "@/blocks/query-editor/block.json" with {
   type: "json",
 };
 import quickStart from "@/blocks/quick-start/block.json" with { type: "json" };
+import receiptCheck from "@/blocks/receipt-check/block.json" with {
+  type: "json",
+};
 import recordingReview from "@/blocks/recording-review/block.json" with {
   type: "json",
 };
@@ -240,7 +243,7 @@ export const categories: BlockCategory[] = [
     label: "Data",
     title: "Data",
     description:
-      "Rows to work with: a table with search, a filter, a column chooser and actions for several rows, saved reports with the ones in use pinned at the top, a list with a bar of actions for the ticked rows, requests to approve with buttons in every row, a retouched photograph to approve with a switch between it and the original, a list filtered from a sentence and a sheet, folders and files in a tree, a panel that opens beside a list, a parcel's label with its barcode, a ticket with a QR code, a board of tasks in columns, a sales pipeline that adds up each column, a list of branches beside a map of them, a van's round as a list of stops and a line on a map, charging points gathered on a map with a list of the same ones, a page in each state it can be in, a list page with nothing in it yet, over hexagons, and the page shown while the app is down for maintenance.",
+      "Rows to work with: a table with search, a filter, a column chooser and actions for several rows, saved reports with the ones in use pinned at the top, a list with a bar of actions for the ticked rows, requests to approve with buttons in every row, a retouched photograph to approve with a switch between it and the original, an expense claim to check against a receipt that zooms in,a list filtered from a sentence and a sheet, folders and files in a tree, a panel that opens beside a list, a parcel's label with its barcode, a ticket with a QR code, a board of tasks in columns, a sales pipeline that adds up each column, a list of branches beside a map of them, a van's round as a list of stops and a line on a map, charging points gathered on a map with a list of the same ones, a page in each state it can be in, a list page with nothing in it yet, over hexagons, and the page shown while the app is down for maintenance.",
   },
   {
     slug: "flows",
@@ -323,6 +326,7 @@ export const blocks: BlockManifest[] = [
   inbox,
   approvals,
   imageReview,
+  receiptCheck,
   filterSheet,
   fileBrowser,
   queryEditor,

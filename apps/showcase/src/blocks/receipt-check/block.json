@@ -1,0 +1,9 @@
+{
+  "name": "receipt-check",
+  "title": "Receipt to check",
+  "description": "An expense claim to approve or send back: the photographed receipt, which zooms in to read its small print, beside what was claimed and the receipt's lines in words, with a status that says what was decided.",
+  "category": "data",
+  "files": ["receipt-check.tsx", "receipt-check.scss"],
+  "install": ["@nuvui/react"],
+  "height": 720
+}

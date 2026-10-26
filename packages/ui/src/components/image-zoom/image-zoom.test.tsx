@@ -127,11 +127,11 @@ describe("rendering", () => {
     expect(style(image).display).toBe("block");
   });
 
-  test("the button is 36px with a mouse", async () => {
+  test("the button is 32px with a mouse, as a small button is", async () => {
     await render(<Picture />);
 
-    expect(rect(buttonEl()).width).toBe(36);
-    expect(rect(buttonEl()).height).toBe(36);
+    expect(rect(buttonEl()).width).toBe(32);
+    expect(rect(buttonEl()).height).toBe(32);
   });
 });
 

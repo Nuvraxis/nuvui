@@ -26,6 +26,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  ImageZoom,
   Input,
   InputGroup,
   InputGroupButton,
@@ -241,6 +242,21 @@ describe.each(densities)("density %s", (density, small, medium, large) => {
     expect(part("toggle-item")).toBe(small);
     expect(part("link")).toBe(small);
     expect(part("button")).toBe(small);
+  });
+
+  test("sets the size of an image zoom's button", async () => {
+    await render(
+      <div data-density={density}>
+        <ImageZoom>
+          <div style={{ blockSize: 200 }} />
+        </ImageZoom>
+      </div>,
+    );
+    const button = page.getByRole("button", { name: "Zoom" }).element();
+
+    // A button on a picture, so it takes the small height each way.
+    expect(height(button)).toBe(small);
+    expect(button.getBoundingClientRect().width).toBe(small);
   });
 
   test("sets the height of a command's field and rows", async () => {

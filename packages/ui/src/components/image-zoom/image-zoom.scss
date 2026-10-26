@@ -76,9 +76,10 @@
     font: inherit;
     cursor: pointer;
 
+    // With a mouse, as large as a small button at the page density.
     @include mixins.fine-pointer {
-      inline-size: calc(var(--spacing) * 9);
-      block-size: calc(var(--spacing) * 9);
+      inline-size: var(--nuv-control-height-sm);
+      block-size: var(--nuv-control-height-sm);
     }
 
     @include mixins.hover {

@@ -263,10 +263,11 @@ test.describe("how the site is built", () => {
         name,
       ).toBe(true);
     }
-    // The icon swaps its colors in a dark tab.
-    expect(readFileSync(path.join(website, "icon.svg"), "utf8")).toContain(
-      "prefers-color-scheme: dark",
-    );
+    // The square and its edge are marked for scripts/make-icons.mjs, which
+    // takes them off for a home screen.
+    const icon = readFileSync(path.join(website, "icon.svg"), "utf8");
+    expect(icon).toContain('<rect class="tile"');
+    expect(icon).toContain('<rect class="edge"');
   });
 
   test("the manifest names the site and icons that load", async ({

@@ -18,7 +18,7 @@ import { ImageZoom, type ImageZoomProps } from "./image-zoom";
 function Picture(props: Partial<ImageZoomProps>) {
   return (
     <div style={{ inlineSize: 400 }}>
-      <ImageZoom {...props}>
+      <ImageZoom data-testid="zoom" {...props}>
         <div
           data-testid="picture"
           style={{ blockSize: 200, backgroundColor: "rgb(40, 40, 200)" }}
@@ -33,6 +33,10 @@ const root = () => document.querySelector(".nuv-image-zoom") as HTMLElement;
 const content = () =>
   document.querySelector(".nuv-image-zoom__content") as HTMLElement;
 const picture = () => page.getByTestId("picture");
+// Where the mouse is aimed: the box, which stays the size it is. The picture
+// in it grows past its edges, so a point on the picture can be one the box
+// has cut off, and nothing there takes the mouse.
+const zone = () => page.getByTestId("zoom");
 const button = () => page.getByRole("button", { name: "Zoom" });
 const buttonEl = () => button().element() as HTMLElement;
 const style = (element: Element) => getComputedStyle(element);
@@ -140,7 +144,7 @@ describe("a mouse", () => {
     const onZoomedChange = vi.fn();
     await render(<Picture onZoomedChange={onZoomedChange} />);
 
-    await userEvent.hover(picture(), { position: { x: 300, y: 50 } });
+    await userEvent.hover(zone(), { position: { x: 300, y: 50 } });
     expect(onZoomedChange).toHaveBeenLastCalledWith(true);
     expect(pressed()).toBe("true");
     expect(root().getAttribute("data-state")).toBe("zoomed");
@@ -158,11 +162,11 @@ describe("a mouse", () => {
   test("what's in view follows it as it moves", async () => {
     await render(<Picture />);
 
-    await userEvent.hover(picture(), { position: { x: 40, y: 180 } });
+    await userEvent.hover(zone(), { position: { x: 40, y: 180 } });
     expect(centre("x")).toBeCloseTo(10, 0);
     expect(centre("y")).toBeCloseTo(90, 0);
 
-    await userEvent.hover(picture(), { position: { x: 200, y: 100 } });
+    await userEvent.hover(zone(), { position: { x: 200, y: 100 } });
     expect(centre("x")).toBeCloseTo(50, 0);
     expect(centre("y")).toBeCloseTo(50, 0);
   });
@@ -170,7 +174,7 @@ describe("a mouse", () => {
   test("the point under it stays under it", async () => {
     await render(<Picture />);
 
-    await userEvent.hover(picture(), { position: { x: 300, y: 50 } });
+    await userEvent.hover(zone(), { position: { x: 300, y: 50 } });
     ended();
     const box = rect(root());
     // A quarter of the way down and three across is still where the mouse
@@ -184,25 +188,25 @@ describe("a mouse", () => {
   test("a click zooms out while it rests there, and in again", async () => {
     await render(<Picture />);
 
-    await userEvent.hover(picture(), { position: { x: 100, y: 100 } });
+    await userEvent.hover(zone(), { position: { x: 100, y: 100 } });
     expect(pressed()).toBe("true");
-    await userEvent.click(picture(), { position: { x: 100, y: 100 } });
+    await userEvent.click(zone(), { position: { x: 100, y: 100 } });
     expect(pressed()).toBe("false");
-    await userEvent.click(picture(), { position: { x: 100, y: 100 } });
+    await userEvent.click(zone(), { position: { x: 100, y: 100 } });
     expect(pressed()).toBe("true");
   });
 
   test("zoomed out by a click, moving about doesn't zoom it in again until the mouse has left", async () => {
     await render(<Picture />);
 
-    await userEvent.hover(picture(), { position: { x: 100, y: 100 } });
-    await userEvent.click(picture(), { position: { x: 100, y: 100 } });
+    await userEvent.hover(zone(), { position: { x: 100, y: 100 } });
+    await userEvent.click(zone(), { position: { x: 100, y: 100 } });
     expect(pressed()).toBe("false");
-    await userEvent.hover(picture(), { position: { x: 300, y: 150 } });
+    await userEvent.hover(zone(), { position: { x: 300, y: 150 } });
     expect(pressed()).toBe("false");
 
     await leave();
-    await userEvent.hover(picture(), { position: { x: 300, y: 150 } });
+    await userEvent.hover(zone(), { position: { x: 300, y: 150 } });
     expect(pressed()).toBe("true");
   });
 
@@ -216,7 +220,7 @@ describe("a mouse", () => {
     await userEvent.click(button());
     expect(pressed()).toBe("false");
     // Off the button and onto the picture, it stays as it was asked to.
-    await userEvent.hover(picture(), { position: { x: 100, y: 100 } });
+    await userEvent.hover(zone(), { position: { x: 100, y: 100 } });
     expect(pressed()).toBe("false");
   });
 
@@ -224,17 +228,17 @@ describe("a mouse", () => {
     await render(<Picture hover={false} />);
 
     expect(style(root()).cursor).toBe("zoom-in");
-    await userEvent.click(picture());
+    await userEvent.click(zone());
     expect(style(root()).cursor).toBe("zoom-out");
   });
 
   test("hover={false}: resting doesn't zoom, and a click zooms in where it is", async () => {
     await render(<Picture hover={false} />);
 
-    await userEvent.hover(picture(), { position: { x: 100, y: 150 } });
+    await userEvent.hover(zone(), { position: { x: 100, y: 150 } });
     expect(pressed()).toBe("false");
 
-    await userEvent.click(picture(), { position: { x: 100, y: 150 } });
+    await userEvent.click(zone(), { position: { x: 100, y: 150 } });
     expect(pressed()).toBe("true");
     expect(centre("x")).toBeCloseTo(25, 0);
     expect(centre("y")).toBeCloseTo(75, 0);
@@ -243,10 +247,10 @@ describe("a mouse", () => {
   test("hover={false}: zoomed in, it stays zoomed when the mouse leaves", async () => {
     await render(<Picture hover={false} />);
 
-    await userEvent.click(picture());
+    await userEvent.click(zone());
     await leave();
     expect(pressed()).toBe("true");
-    await userEvent.click(picture());
+    await userEvent.click(zone());
     expect(pressed()).toBe("false");
   });
 
@@ -489,8 +493,8 @@ describe("options", () => {
     expect(page.getByRole("button").elements()).toHaveLength(0);
     expect(root().getAttribute("data-disabled")).toBe("");
     expect(style(root()).cursor).toBe("auto");
-    await userEvent.hover(picture());
-    await userEvent.click(picture());
+    await userEvent.hover(zone());
+    await userEvent.click(zone());
     tap({ x: 100, y: 100 });
     expect(onZoomedChange).not.toHaveBeenCalled();
     expect(scaled()).toBe("none");
@@ -542,7 +546,7 @@ describe("the element", () => {
     const onClick = vi.fn((event: React.MouseEvent) => event.preventDefault());
     await render(<Picture hover={false} onClick={onClick} />);
 
-    await userEvent.click(picture());
+    await userEvent.click(zone());
     expect(onClick).toHaveBeenCalled();
     expect(pressed()).toBe("false");
   });

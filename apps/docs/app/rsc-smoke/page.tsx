@@ -389,8 +389,12 @@ export default function RscSmokePage() {
         before={<p>Before from the server</p>}
         after={<p>After from the server</p>}
       />
+      {/* As large as a picture: a line of text alone is shorter than the
+          button in the corner, which the box would cut off. */}
       <ImageZoom data-testid="server-image-zoom" scale={3}>
-        <p>Picture from the server</p>
+        <div style={{ inlineSize: 240, blockSize: 120 }}>
+          <p>Picture from the server</p>
+        </div>
       </ImageZoom>
       <TableOfContents
         aria-label="Contents from the server"

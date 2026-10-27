@@ -1,6 +1,6 @@
 {
   "name": "@nuvui/3d",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A 3D model viewer for @nuvui/react, on react-three-fiber and three.js: glTF, GLB and STL files, from an address or picked by the person, turned with a pointer, a finger or the keyboard. Needs React 19.",
   "license": "MIT",
   "author": "Nuvraxis",
@@ -49,7 +49,7 @@
     "size": "size-limit"
   },
   "peerDependencies": {
-    "@nuvui/react": "workspace:^0.8.0",
+    "@nuvui/react": "workspace:^0.9.0",
     "@react-three/fiber": "^9.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

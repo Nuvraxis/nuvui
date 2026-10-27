@@ -1,6 +1,6 @@
 {
   "name": "@nuvui/editor",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "A rich text editor for @nuvui/react, on Tiptap: a toolbar, a menu on the selection, links and a character count, with HTML as its value.",
   "license": "MIT",
   "author": "Nuvraxis",
@@ -62,7 +62,7 @@
     "size": "size-limit"
   },
   "peerDependencies": {
-    "@nuvui/react": "workspace:^0.8.0",
+    "@nuvui/react": "workspace:^0.9.0",
     "react": "^18.2.0 || ^19.0.0",
     "react-dom": "^18.2.0 || ^19.0.0"
   },

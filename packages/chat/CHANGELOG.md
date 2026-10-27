@@ -1,5 +1,12 @@
 # @nuvui/chat
 
+## 0.2.1
+
+### Patch Changes
+
+- Updated dependencies [[`cd1b218`](https://github.com/Nuvraxis/nuvui/commit/cd1b218dc5bc36f69e00b2deed7c6a7bb05abfe6)]:
+  - @nuvui/react@0.9.0
+
 ## 0.2.0
 
 ### Minor Changes

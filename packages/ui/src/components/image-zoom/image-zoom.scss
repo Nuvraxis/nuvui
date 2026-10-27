@@ -1,0 +1,103 @@
+@use "../../styles/layers";
+@use "../../styles/mixins";
+
+@layer components {
+  // manipulation lets a finger scroll the page across the picture, and
+  // takes away the wait for a second tap that would zoom the page.
+  .nuv-image-zoom {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    border-radius: var(--nuv-image-zoom-radius, var(--radius-lg));
+    background-color: var(--color-muted);
+    aspect-ratio: var(--nuv-image-zoom-ratio, auto);
+    cursor: zoom-in;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  // Zoomed in, a drag moves around the picture rather than the page.
+  .nuv-image-zoom--zoomed {
+    cursor: zoom-out;
+    touch-action: none;
+  }
+
+  .nuv-image-zoom--disabled {
+    cursor: auto;
+    touch-action: auto;
+  }
+
+  // The picture is in the flow and gives the box its height, unless a
+  // ratio does.
+  .nuv-image-zoom__content {
+    block-size: 100%;
+    transform-origin: var(--nuv-image-zoom-x, 50%) var(--nuv-image-zoom-y, 50%);
+
+    // Only the size eases. Where it's centred follows the pointer as it
+    // moves, with nothing in between.
+    @include mixins.motion-safe {
+      transition: scale var(--nuv-duration-slow) var(--ease-out);
+    }
+
+    .nuv-image-zoom--zoomed & {
+      scale: var(--nuv-image-zoom-scale, 2);
+    }
+  }
+
+  // A picture can't be picked up and dragged out of the box.
+  .nuv-image-zoom__content img {
+    -webkit-user-drag: none;
+  }
+
+  .nuv-image-zoom__content > img {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: var(--nuv-image-zoom-fit, cover);
+  }
+
+  .nuv-image-zoom__button {
+    position: absolute;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    box-sizing: border-box;
+    inset-block-end: var(--nuv-image-zoom-button-inset, 0.5rem);
+    inset-inline-end: var(--nuv-image-zoom-button-inset, 0.5rem);
+    inline-size: var(--nuv-touch-size, 2.75rem);
+    block-size: var(--nuv-touch-size, 2.75rem);
+    padding: 0;
+    border: var(--nuv-border-width) solid var(--color-border);
+    border-radius: var(--nuv-image-zoom-button-radius, var(--radius-md));
+    background-color: var(--nuv-image-zoom-button-bg, var(--color-surface));
+    color: var(--nuv-image-zoom-button-fg, var(--color-surface-foreground));
+    box-shadow: var(--shadow-md);
+    font: inherit;
+    cursor: pointer;
+
+    // With a mouse, as large as a small button at the page density.
+    @include mixins.fine-pointer {
+      inline-size: var(--nuv-control-height-sm);
+      block-size: var(--nuv-control-height-sm);
+    }
+
+    @include mixins.hover {
+      background-color: var(--nuv-image-zoom-button-hover-bg, var(--color-muted));
+    }
+
+    @include mixins.focus-ring;
+
+    @media (forced-colors: active) {
+      border-color: buttontext;
+      background-color: canvas;
+      color: buttontext;
+      forced-color-adjust: none;
+    }
+  }
+
+  .nuv-image-zoom__icon {
+    inline-size: 1rem;
+    block-size: 1rem;
+  }
+}

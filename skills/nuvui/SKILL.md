@@ -24,7 +24,7 @@ Three things are different from the libraries you may expect, and most mistakes 
 
 | Package | What's in it | Also needs |
 | --- | --- | --- |
-| `@nuvui/react` | The core: seventy-eight components, the tokens and the themes. | `react`, `react-dom` 18.2 or newer |
+| `@nuvui/react` | The core: seventy-nine components, the tokens and the themes. | `react`, `react-dom` 18.2 or newer |
 | `@nuvui/date-picker` | `Calendar`, `DatePicker`, `DateRangePicker` | |
 | `@nuvui/table` | `Table` and its parts, `DataTable` with sorting, filtering, selection, paging and virtual rows | `@tanstack/react-table`, and `@tanstack/react-virtual` only for virtual rows |
 | `@nuvui/charts` | `ChartContainer`, tooltip and legend, around Recharts | `recharts` |

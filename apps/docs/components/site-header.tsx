@@ -29,19 +29,44 @@ export function SiteHeader() {
           href="/"
           className="focus-visible:outline-fd-ring inline-flex min-h-11 shrink-0 items-center gap-2 rounded-md font-semibold tracking-tight focus-visible:outline-2 focus-visible:outline-offset-2"
         >
+          {/* The website's mark, as in its components/logo.tsx. */}
           <svg
             aria-hidden="true"
-            viewBox="0 0 24 24"
+            viewBox="28 28 160 160"
             width="22"
             height="22"
             fill="none"
           >
-            <rect width="24" height="24" rx="6" fill="currentColor" />
+            <rect
+              x="28"
+              y="28"
+              width="160"
+              height="160"
+              rx="24"
+              fill="#1F2122"
+            />
+            <rect
+              x="28.75"
+              y="28.75"
+              width="158.5"
+              height="158.5"
+              rx="23.25"
+              stroke="#F2A33C"
+              strokeOpacity="0.3"
+              strokeWidth="1.5"
+            />
             <path
-              d="M8 16.5v-5a4 4 0 0 1 8 0v5"
-              className="stroke-fd-background"
-              strokeWidth="2.25"
-              strokeLinecap="round"
+              d="M78.3874 142V73.84H95.9554L120.915 116.56V73.84H137.619V142H119.955L95.0914 101.104V142H78.3874Z"
+              fill="#F2A33C"
+            />
+            <rect
+              x="144"
+              y="50"
+              width="18"
+              height="18"
+              rx="4"
+              transform="rotate(-45 144 50)"
+              fill="#F2A33C"
             />
           </svg>
           {site.name}

@@ -58,6 +58,7 @@ import {
   DropdownMenuTrigger,
   FileUpload,
   HoldToConfirm,
+  ImageZoom,
   Input,
   InputGroup,
   InputGroupButton,
@@ -1760,5 +1761,22 @@ describe("pinned list", () => {
     await expect
       .element(page.getByRole("list", { name: "Pinned" }))
       .toHaveTextContent("churn");
+  });
+});
+
+describe("image zoom", () => {
+  test("the button is 44px square, and a tap on it zooms in", async () => {
+    await render(
+      <ImageZoom>
+        <div style={{ blockSize: 200 }} />
+      </ImageZoom>,
+    );
+    const button = page.getByRole("button", { name: "Zoom" });
+
+    expect(box(button.element()).width).toBe(44);
+    expect(box(button.element()).height).toBe(44);
+
+    await userEvent.click(button);
+    await expect.element(button).toHaveAttribute("aria-pressed", "true");
   });
 });

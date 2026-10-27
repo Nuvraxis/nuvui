@@ -5067,6 +5067,66 @@ test.describe("photograph to review", () => {
   }
 });
 
+test.describe("receipt to check", () => {
+  test("receipt to check: the receipt zooms in from its button, and a decision is said and shown", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/blocks/view/receipt-check");
+    await expect(page.getByText("Waiting for you")).toBeVisible();
+    await expect(
+      page.getByRole("img", { name: /Receipt from Halden Street Café/ }),
+    ).toBeVisible();
+    // What the receipt says is beside it in words too.
+    await expect(
+      page.getByRole("list", { name: "On the receipt" }),
+    ).toContainText("Total€48.60");
+
+    const zoom = page.getByRole("button", { name: "Zoom" });
+    await press(zoom, isMobile);
+    await expect(zoom).toHaveAttribute("aria-pressed", "true");
+    await expect(page.locator(".nuv-image-zoom")).toHaveAttribute(
+      "data-state",
+      "zoomed",
+    );
+    await press(zoom, isMobile);
+    await expect(zoom).toHaveAttribute("aria-pressed", "false");
+
+    await press(page.getByRole("button", { name: "Approve" }), isMobile);
+    await expect(page.getByRole("status")).toHaveText(
+      "Approved. Ines Porter has been told.",
+    );
+    await expect(page.getByText("Approved", { exact: true })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Approve" })).toBeDisabled();
+
+    await press(page.getByRole("button", { name: "Send back" }), isMobile);
+    await expect(page.getByText("Sent back", { exact: true })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Approve" })).toBeEnabled();
+  });
+
+  for (const theme of ["light", "dark"] as const) {
+    test(`receipt to check: it passes axe in ${theme}, zoomed in as well`, async ({
+      page,
+      isMobile,
+    }) => {
+      await page.emulateMedia({ reducedMotion: "reduce" });
+      await setTheme(page, theme);
+      await open(page, "/blocks/view/receipt-check");
+      await settleStyles(page);
+      expect(
+        (await new AxeBuilder({ page }).withTags(wcag).analyze()).violations,
+      ).toEqual([]);
+
+      await press(page.getByRole("button", { name: "Zoom" }), isMobile);
+      await press(page.getByRole("button", { name: "Approve" }), isMobile);
+      await expect(page.getByRole("status")).not.toBeEmpty();
+      expect(
+        (await new AxeBuilder({ page }).withTags(wcag).analyze()).violations,
+      ).toEqual([]);
+    });
+  }
+});
+
 test.describe("the blocks page", () => {
   test("lists every category, and each leads to its page", async ({
     page,

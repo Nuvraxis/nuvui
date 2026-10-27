@@ -50,6 +50,7 @@ A file for each page of the docs. Read the one for a component before using it: 
 - [HoldToConfirm](reference/components/hold-to-confirm.md): A button that acts only after it's been held down, with the wait drawn along its edge, for things that can't be undone.
 - [HoloCard](reference/components/holo-card.md): A 3D tilting card with a pointer-tracked holographic glare and texture overlay, built for membership cards, passes, and collectibles.
 - [Hover card](reference/components/hover-card.md): A card with a preview of where a link leads, shown when the pointer rests on the link. It doesn't appear on touch screens.
+- [ImageZoom](reference/components/image-zoom.md): A picture that's drawn larger where it's pointed at. A mouse zooms in by resting on it or with a click, a tap zooms in where the finger is, and a button in its corner does the same from the keyboard.
 - [Input](reference/components/input.md): A one-line text field. It's the browser's own input with the library's styles, so every type and attribute works.
 - [InputGroup](reference/components/input-group.md): An input with text, an icon or a small button inside the same box, before or after what's typed.
 - [Item](reference/components/item.md): A row with a picture, a title, a description and something to do at its end, and a list that groups rows into a panel.

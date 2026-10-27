@@ -63,6 +63,7 @@ import { FormattedNumberPlayground } from "@/components/playground/formatted-num
 import { HoldToConfirmPlayground } from "@/components/playground/hold-to-confirm";
 import { HoloCardPlayground } from "@/components/playground/holo-card";
 import { HoverCardPlayground } from "@/components/playground/hover-card";
+import { ImageZoomPlayground } from "@/components/playground/image-zoom";
 import { InputPlayground } from "@/components/playground/input";
 import { InputGroupPlayground } from "@/components/playground/input-group";
 import { ItemPlayground } from "@/components/playground/item";
@@ -219,6 +220,7 @@ export function getMDXComponents(components?: MDXComponents) {
     FieldsetPlayground,
     FileUploadPlayground,
     HoverCardPlayground,
+    ImageZoomPlayground,
     InputPlayground,
     InputGroupPlayground,
     KanbanPlayground,

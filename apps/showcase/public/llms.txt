@@ -52,6 +52,7 @@ Each page below is plain Markdown. All of them in one file: https://nuvui.nuvrax
 - [HoldToConfirm](https://nuvui.nuvraxis.com/docs/llms/components/hold-to-confirm.md): A button that acts only after it's been held down, with the wait drawn along its edge, for things that can't be undone.
 - [HoloCard](https://nuvui.nuvraxis.com/docs/llms/components/holo-card.md): A 3D tilting card with a pointer-tracked holographic glare and texture overlay, built for membership cards, passes, and collectibles.
 - [Hover card](https://nuvui.nuvraxis.com/docs/llms/components/hover-card.md): A card with a preview of where a link leads, shown when the pointer rests on the link. It doesn't appear on touch screens.
+- [ImageZoom](https://nuvui.nuvraxis.com/docs/llms/components/image-zoom.md): A picture that's drawn larger where it's pointed at. A mouse zooms in by resting on it or with a click, a tap zooms in where the finger is, and a button in its corner does the same from the keyboard.
 - [Input](https://nuvui.nuvraxis.com/docs/llms/components/input.md): A one-line text field. It's the browser's own input with the library's styles, so every type and attribute works.
 - [InputGroup](https://nuvui.nuvraxis.com/docs/llms/components/input-group.md): An input with text, an icon or a small button inside the same box, before or after what's typed.
 - [Item](https://nuvui.nuvraxis.com/docs/llms/components/item.md): A row with a picture, a title, a description and something to do at its end, and a list that groups rows into a panel.

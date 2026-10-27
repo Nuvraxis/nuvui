@@ -1,17 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="28 28 160 160">
   <title>Nuvui</title>
-  <!-- The site's mark, as in components/logo.tsx: a square with an arch in
-       it, for the n of the name. A tab can be light or dark, so the two
-       colors swap with it. scripts/make-icons.mjs draws every other icon
-       from this file. -->
-  <style>
-    rect { fill: #030712; }
-    path { stroke: #ffffff; }
-    @media (prefers-color-scheme: dark) {
-      rect { fill: #f9fafb; }
-      path { stroke: #030712; }
-    }
-  </style>
-  <rect width="24" height="24" rx="6" />
-  <path d="M8 16.5v-5a4 4 0 0 1 8 0v5" fill="none" stroke-width="2.25" stroke-linecap="round" />
+  <!-- The site's mark, as in components/logo.tsx: an N and a diamond on a
+       dark square. Its colors are the same in a light tab and a dark one,
+       and the square's edge keeps it apart from a dark tab.
+       scripts/make-icons.mjs draws every other icon from this file, and
+       finds the square and its edge by their classes. -->
+  <rect class="tile" x="28" y="28" width="160" height="160" rx="24" fill="#1F2122" />
+  <rect class="edge" x="28.75" y="28.75" width="158.5" height="158.5" rx="23.25" fill="none" stroke="#F2A33C" stroke-opacity="0.3" stroke-width="1.5" />
+  <path d="M78.3874 142V73.84H95.9554L120.915 116.56V73.84H137.619V142H119.955L95.0914 101.104V142H78.3874Z" fill="#F2A33C" />
+  <rect x="144" y="50" width="18" height="18" rx="4" transform="rotate(-45 144 50)" fill="#F2A33C" />
 </svg>

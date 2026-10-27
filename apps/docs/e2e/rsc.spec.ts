@@ -138,6 +138,14 @@ test("components used from a server component hydrate and work", async ({
   await expect(
     compare.getByRole("slider", { name: "Before and after" }),
   ).toHaveAttribute("aria-valuenow", "30");
+  const zoom = page.getByTestId("server-image-zoom");
+  await expect(zoom).toContainText("Picture from the server");
+  await zoom.getByRole("button", { name: "Zoom" }).click();
+  await expect(zoom).toHaveAttribute("data-state", "zoomed");
+  await expect(zoom.locator(".nuv-image-zoom__content")).toHaveCSS(
+    "scale",
+    "3",
+  );
   const contents = page.getByRole("navigation", {
     name: "Contents from the server",
   });

@@ -73,6 +73,36 @@ describe("search", () => {
     expect(search(few, "theme", 5).map((hit) => hit.page)).toEqual(["a", "c"]);
   });
 
+  test("finds a word that lost its ending with another ending, and not a longer word", () => {
+    const page = (id: string, text: string): Page => ({
+      id,
+      title: id,
+      description: "",
+      group: "Guides",
+      package: null,
+      markdown: `## About\n\n${text}`,
+      sections: [{ heading: "About", markdown: `## About\n\n${text}` }],
+    });
+    const few = [
+      page("a", "Two tabs."),
+      page("b", "A table."),
+      page("c", "One tab."),
+      page("d", "Columns sorted by date."),
+      page("e", "A sortable list."),
+      page("f", "A sortie."),
+    ];
+
+    expect(search(few, "tabs", 5).map((hit) => hit.page)).toEqual(["a", "c"]);
+    expect(search(few, "sorting", 5).map((hit) => hit.page)).toEqual([
+      "d",
+      "e",
+    ]);
+  });
+
+  test("finds the Tabs page for tabs, not the pages about tables", () => {
+    expect(search(pages, "tabs", 3)[0]?.page).toBe("components/tabs");
+  });
+
   test("matches whole words from their start, so table isn't found in sortable", () => {
     const hits = search(pages, "table", 20);
 

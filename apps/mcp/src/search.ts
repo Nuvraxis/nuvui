@@ -55,13 +55,19 @@ const escapeRegExp = (text: string) =>
 // "table" isn't in "sortable". A word that ends in "e" loses it before an
 // ending, so "theme" finds "theming" and "change" finds "changed", and
 // "theme" still doesn't find "them".
+//
+// A term that lost its ending finds the same word with another ending, and
+// not every word that starts the same way: "tabs" is cut to "tab", which
+// would otherwise find "table" on every page about tables.
 function matcher(term: string) {
   const stem = stemOf(term);
-  const start =
-    stem.length >= 4 && stem.endsWith("e")
-      ? `${escapeRegExp(stem.slice(0, -1))}(?:e|ing|ed|able|ible)`
-      : escapeRegExp(stem);
-  return new RegExp(`(?<![a-z0-9])${start}`, "g");
+  if (stem.length >= 4 && stem.endsWith("e")) {
+    const start = `${escapeRegExp(stem.slice(0, -1))}(?:e|ing|ed|able|ible)`;
+    return new RegExp(`(?<![a-z0-9])${start}`, "g");
+  }
+  const end =
+    stem === term ? "" : "(?:s|es|ed|ing|ings|able|ible|er|ers)?(?![a-z0-9])";
+  return new RegExp(`(?<![a-z0-9])${escapeRegExp(stem)}${end}`, "g");
 }
 
 const count = (text: string, pattern: RegExp) =>

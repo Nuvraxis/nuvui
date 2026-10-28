@@ -1,5 +1,11 @@
 # @nuvui/react
 
+## 0.10.0
+
+### Minor Changes
+
+- [#105](https://github.com/Nuvraxis/nuvui/pull/105) [`20f9c69`](https://github.com/Nuvraxis/nuvui/commit/20f9c696f944c91c1fd84fef58f5357f18bf46c0) Thanks [@sajanv88](https://github.com/sajanv88)! - A toast with an intent has its whole border in the intent's color, instead of a thicker edge on its starting side. `--nuv-toast-accent` still sets the color. `--nuv-toast-accent-width` is gone: remove it where you set it, since nothing reads it now.
+
 ## 0.9.0
 
 ### Minor Changes

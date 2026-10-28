@@ -5127,6 +5127,93 @@ test.describe("receipt to check", () => {
   }
 });
 
+test.describe("team calendar", () => {
+  test("team calendar: the week has the team's events, and the views and days can be changed", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/blocks/view/team-calendar");
+    const calendar = page.getByRole("region", {
+      name: "Product team calendar",
+    });
+    await expect(
+      page.getByRole("list", { name: "Calendars" }).getByRole("listitem"),
+    ).toHaveCount(4);
+    await expect(
+      calendar.getByRole("button", { name: /^Stand-up/ }).first(),
+    ).toBeVisible();
+
+    const heading = calendar.getByRole("heading", { level: 2 });
+    const before = await heading.textContent();
+    await press(calendar.getByRole("button", { name: "Next" }), isMobile);
+    await expect(heading).not.toHaveText(before ?? "");
+    await press(calendar.getByRole("button", { name: "Today" }), isMobile);
+    await expect(heading).toHaveText(before ?? "");
+
+    if (isMobile) {
+      // Three days at a time, and the views in a menu.
+      await expect(calendar.getByRole("columnheader")).toHaveCount(3);
+      await expect(
+        calendar.getByRole("combobox", { name: "View" }),
+      ).toBeVisible();
+    } else {
+      await press(calendar.getByRole("radio", { name: "Month" }), isMobile);
+      await expect(
+        calendar.locator(".nuv-event-calendar__week"),
+      ).not.toHaveCount(0);
+      await press(calendar.getByRole("radio", { name: "Agenda" }), isMobile);
+      await expect(
+        calendar.getByRole("heading", { level: 3 }).first(),
+      ).toBeVisible();
+    }
+  });
+
+  for (const theme of ["light", "dark"] as const) {
+    test(`team calendar: it passes axe in ${theme}`, async ({ page }) => {
+      await page.emulateMedia({ reducedMotion: "reduce" });
+      await setTheme(page, theme);
+      await open(page, "/blocks/view/team-calendar");
+      await settleStyles(page);
+      expect(
+        (await new AxeBuilder({ page }).withTags(wcag).analyze()).violations,
+      ).toEqual([]);
+    });
+  }
+});
+
+test.describe("clinic's day", () => {
+  test("clinic's day: pressing an appointment shows it beside the day", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/blocks/view/clinic-day");
+    const calendar = page.getByRole("region", { name: "Today's appointments" });
+    await expect(calendar.getByRole("columnheader")).toHaveCount(1);
+    const side = page.getByRole("complementary", { name: "Appointment" });
+    await expect(side).toContainText("Hester Lowe");
+
+    await press(
+      calendar.getByRole("button", { name: /^Rosa Ibarra/ }),
+      isMobile,
+    );
+    await expect(side).toContainText("Rosa Ibarra");
+    await expect(side).toContainText("Hip, follow-up");
+    await expect(side).toContainText("Dr Leni Haverkamp");
+  });
+
+  for (const theme of ["light", "dark"] as const) {
+    test(`clinic's day: it passes axe in ${theme}`, async ({ page }) => {
+      await page.emulateMedia({ reducedMotion: "reduce" });
+      await setTheme(page, theme);
+      await open(page, "/blocks/view/clinic-day");
+      await settleStyles(page);
+      expect(
+        (await new AxeBuilder({ page }).withTags(wcag).analyze()).violations,
+      ).toEqual([]);
+    });
+  }
+});
+
 test.describe("the blocks page", () => {
   test("lists every category, and each leads to its page", async ({
     page,

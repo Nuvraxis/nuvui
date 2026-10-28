@@ -57,6 +57,7 @@ const published = {
   "@nuvui/media": "media",
   "@nuvui/backgrounds": "backgrounds",
   "@nuvui/3d": "3d",
+  "@nuvui/scheduler": "scheduler",
   "@nuvui/icons": "icons",
 };
 

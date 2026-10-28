@@ -1,0 +1,158 @@
+@use "@nuvui/react/scss/mixins";
+
+.clinic-day {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing) * 4);
+  box-sizing: border-box;
+  inline-size: 100%;
+  min-block-size: 100svh;
+  padding: calc(var(--spacing) * 4);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+
+  @include mixins.breakpoint("md") {
+    padding: calc(var(--spacing) * 6);
+  }
+}
+
+.clinic-day__head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 4);
+  align-items: end;
+  justify-content: space-between;
+}
+
+.clinic-day__heading {
+  display: grid;
+  gap: calc(var(--spacing) * 1);
+}
+
+.clinic-day__title {
+  margin: 0;
+  font-size: var(--text-xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-xl--line-height);
+}
+
+.clinic-day__meta,
+.clinic-day__hint {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+.clinic-day__figures {
+  display: flex;
+  gap: calc(var(--spacing) * 6);
+  margin: 0;
+}
+
+.clinic-day__figure {
+  display: grid;
+  gap: calc(var(--spacing) * 0.5);
+}
+
+.clinic-day__figure-label {
+  color: var(--color-muted-foreground);
+  font-size: var(--text-xs);
+  line-height: var(--text-xs--line-height);
+}
+
+.clinic-day__figure-value {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-lg--line-height);
+  font-variant-numeric: tabular-nums;
+}
+
+.clinic-day__layout {
+  display: grid;
+  flex: 1 1 auto;
+  gap: calc(var(--spacing) * 4);
+
+  @include mixins.breakpoint("lg") {
+    grid-template-columns: minmax(0, 1fr) 18rem;
+  }
+}
+
+.clinic-day__calendar {
+  --nuv-event-calendar-height: 40rem;
+}
+
+.clinic-day__side {
+  display: grid;
+  gap: calc(var(--spacing) * 3);
+  align-content: start;
+  padding: calc(var(--spacing) * 4);
+  border: var(--nuv-border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-surface);
+}
+
+.clinic-day__subtitle {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-sm--line-height);
+}
+
+.clinic-day__details {
+  display: grid;
+  gap: calc(var(--spacing) * 2);
+  margin: 0;
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+.clinic-day__detail {
+  display: grid;
+  grid-template-columns: 5rem minmax(0, 1fr);
+  gap: calc(var(--spacing) * 2);
+}
+
+.clinic-day__term {
+  color: var(--color-muted-foreground);
+}
+
+.clinic-day__value {
+  margin: 0;
+}
+
+.clinic-day__people {
+  display: grid;
+  gap: calc(var(--spacing) * 2);
+  margin: 0;
+  padding: 0;
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+  list-style: none;
+}
+
+.clinic-day__person {
+  display: flex;
+  gap: calc(var(--spacing) * 2);
+  align-items: center;
+}
+
+.clinic-day__swatch {
+  inline-size: 0.75rem;
+  block-size: 0.75rem;
+  border-radius: var(--radius-full);
+  background-color: var(--color-chart-2);
+
+  &[data-color="4"] {
+    background-color: var(--color-chart-4);
+  }
+
+  &[data-color="8"] {
+    background-color: var(--color-chart-8);
+  }
+
+  @media (forced-colors: active) {
+    background-color: canvastext;
+  }
+}

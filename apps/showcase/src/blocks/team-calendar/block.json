@@ -1,0 +1,9 @@
+{
+  "name": "team-calendar",
+  "title": "Team calendar",
+  "description": "A team's week: meetings that overlap set side by side, leave and an offsite as bars across their days, and a key to the colors that says which calendar each is from, with day, month and agenda views a click away.",
+  "category": "calendar",
+  "files": ["team-calendar.tsx", "team-calendar.scss"],
+  "install": ["@nuvui/react", "@nuvui/date-picker", "@nuvui/scheduler"],
+  "height": 820
+}

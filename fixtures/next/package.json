@@ -22,6 +22,7 @@
     "maplibre-gl": "^6.4.1",
     "@nuvui/kanban": "file:../../packages/kanban",
     "@nuvui/react": "file:../../packages/ui",
+    "@nuvui/scheduler": "file:../../packages/scheduler",
     "@nuvui/table": "file:../../packages/table",
     "@tanstack/react-table": "^9.2.6",
     "next": "^16.4.2",

@@ -12,6 +12,7 @@ import "@nuvui/map/styles.css";
 import "@nuvui/flow/styles.css";
 import "@nuvui/media/styles.css";
 import "@nuvui/backgrounds/styles.css";
+import "@nuvui/scheduler/styles.css";
 import "@nuvui/3d/styles.css";
 // The model viewer, from the entry of its one component.
 import { ModelViewer } from "@nuvui/3d/model-viewer";
@@ -74,6 +75,8 @@ import {
 import { DirectionProvider } from "@nuvui/react/direction";
 // One import from a component's own entry, to check that those resolve too.
 import { Switch } from "@nuvui/react/switch";
+// The calendar, from the entry of its one component.
+import { EventCalendar } from "@nuvui/scheduler/event-calendar";
 // The table package, with a hook made for one feature. The others, and the
 // virtual table's dependency, mustn't end up in the build: the second isn't
 // even installed here.
@@ -228,6 +231,19 @@ function App() {
       <Calendar mode="range" selected={range} locale={de} />
       <People />
       <Seats />
+      <EventCalendar
+        aria-label="Team"
+        events={[
+          {
+            id: "a",
+            title: "Planning",
+            start: "2026-10-14T10:00",
+            end: "2026-10-14T11:00",
+          },
+        ]}
+        timeZone="UTC"
+        defaultDate={new Date("2026-10-14T12:00:00Z")}
+      />
       <Toaster />
     </main>
   );

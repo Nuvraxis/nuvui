@@ -36,6 +36,7 @@ import {
 } from "@nuvui/react";
 // One import from a component's own entry, to check that those resolve too.
 import { Switch } from "@nuvui/react/switch";
+import { EventCalendar } from "@nuvui/scheduler";
 // The table's elements are client components too, and used here as they
 // are. The data table is in a client component of this app's own.
 import {
@@ -161,6 +162,21 @@ export default function Page() {
           works the codes out, and they arrive as markup. */}
       <Barcode value="590123412345" type="ean13" aria-label="Item 5901234" />
       <QRCode value="https://example.com" aria-label="Open the example" />
+      {/* A client component handed its events by this server component,
+          with their dates as strings. */}
+      <EventCalendar
+        aria-label="Team"
+        events={[
+          {
+            id: "a",
+            title: "Planning",
+            start: "2026-10-14T10:00",
+            end: "2026-10-14T11:00",
+          },
+        ]}
+        timeZone="UTC"
+        defaultDate={new Date("2026-10-14T12:00:00Z")}
+      />
     </main>
   );
 }

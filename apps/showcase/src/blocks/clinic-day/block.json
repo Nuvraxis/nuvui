@@ -1,0 +1,9 @@
+{
+  "name": "clinic-day",
+  "title": "Clinic's day",
+  "description": "A physiotherapy clinic's appointments for the day, in its opening hours, with each therapist's in their own color. Pressing one shows who it's with and what for, and the day's figures sit above.",
+  "category": "calendar",
+  "files": ["clinic-day.tsx", "clinic-day.scss"],
+  "install": ["@nuvui/react", "@nuvui/date-picker", "@nuvui/scheduler"],
+  "height": 820
+}

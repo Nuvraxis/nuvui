@@ -37,6 +37,7 @@ import caseStudies from "@/blocks/case-studies/block.json" with {
 import chargingMap from "@/blocks/charging-map/block.json" with {
   type: "json",
 };
+import clinicDay from "@/blocks/clinic-day/block.json" with { type: "json" };
 import commentThread from "@/blocks/comment-thread/block.json" with {
   type: "json",
 };
@@ -166,6 +167,9 @@ import tableToolbar from "@/blocks/table-toolbar/block.json" with {
   type: "json",
 };
 import taskBoard from "@/blocks/task-board/block.json" with { type: "json" };
+import teamCalendar from "@/blocks/team-calendar/block.json" with {
+  type: "json",
+};
 import teamChat from "@/blocks/team-chat/block.json" with { type: "json" };
 import teamMembers from "@/blocks/team-members/block.json" with {
   type: "json",
@@ -251,6 +255,13 @@ export const categories: BlockCategory[] = [
     title: "Flows and diagrams",
     description:
       "Steps joined by arrows: a purchase request's way through its approvals, with the step it waits at and a panel for the one that's selected, and an automation built in place, with steps that are added, dragged, joined, renamed and removed.",
+  },
+  {
+    slug: "calendar",
+    label: "Calendars",
+    title: "Calendars",
+    description:
+      "Events in time: a team's week with its meetings side by side, leave and releases across their days and a key to the colors, and a clinic's day of appointments in its opening hours, with the one pressed shown beside it.",
   },
   {
     slug: "media",
@@ -343,6 +354,8 @@ export const blocks: BlockManifest[] = [
   maintenance,
   approvalFlow,
   workflowBuilder,
+  teamCalendar,
+  clinicDay,
   courseLesson,
   productDemo,
   recordingReview,

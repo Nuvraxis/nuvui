@@ -56,6 +56,7 @@ import {
   Toaster,
   toast,
 } from "@nuvui/react";
+import { EventCalendar } from "@nuvui/scheduler/event-calendar";
 import { createDataTableHook, DataTable } from "@nuvui/table";
 import {
   createSortedRowModel,
@@ -215,6 +216,19 @@ export function App() {
           <Bar dataKey="seats" fill={chartFill("seats")} />
         </BarChart>
       </ChartContainer>
+      <EventCalendar
+        aria-label="Team"
+        events={[
+          {
+            id: "a",
+            title: "Planning",
+            start: "2026-10-14T10:00",
+            end: "2026-10-14T11:00",
+          },
+        ]}
+        timeZone="UTC"
+        defaultDate={new Date("2026-10-14T12:00:00Z")}
+      />
       <Toaster />
     </main>
   );

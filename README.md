@@ -82,6 +82,7 @@ Each add-on is installed next to `@nuvui/react`, with the library it's built on 
 | [`@nuvui/media`](https://www.npmjs.com/package/@nuvui/media) | Video and audio players, with HLS and DASH streams | `pnpm add @nuvui/media` |
 | [`@nuvui/backgrounds`](https://www.npmjs.com/package/@nuvui/backgrounds) | Moving backgrounds for a hero, a sign-in page or an empty state | `pnpm add @nuvui/backgrounds` |
 | [`@nuvui/3d`](https://www.npmjs.com/package/@nuvui/3d) | A 3D model viewer for glTF, GLB and STL files, on react-three-fiber. It needs React 19 | `pnpm add @nuvui/3d three @react-three/fiber` |
+| [`@nuvui/scheduler`](https://www.npmjs.com/package/@nuvui/scheduler) | An event calendar with day, week, month and agenda views | `pnpm add @nuvui/scheduler @nuvui/date-picker` |
 | [`@nuvui/icons`](https://www.npmjs.com/package/@nuvui/icons) | 317 line icons in three styles. It needs only React | `pnpm add @nuvui/icons` |
 
 ## Components
@@ -201,6 +202,15 @@ It also has:
 - three and react-three-fiber load when a model is first shown. The server sends the name, the poster and the buttons.
 - It needs React 19, as react-three-fiber does.
 
+### `@nuvui/scheduler`
+
+- `EventCalendar`, events in a day, a week, a month or an agenda, with a header to move through them and a side panel with a month to pick a day from.
+- Events that overlap are set side by side, events over several days are bars across them, and a full day in a month keeps the rest behind "3 more".
+- Shown in one time zone, the browser's or yours. An event at nine on the clock stays at nine across a change to summer time.
+- Preferences the person looking can change: 12 or 24 hours, weekends, week numbers, the first day of the week, and empty days in the agenda.
+- Arrow keys move around each grid, and every event says its title, time and day to a screen reader.
+- `date-fns` and `@date-fns/tz` are dependencies. `@nuvui/date-picker` is a peer dependency, for the month in the side panel.
+
 ### `@nuvui/icons`
 
 - 317 line icons drawn for nuvui on a 24 pixel grid, in Standard, Rounded and Sharp, with the same names in each.
@@ -219,7 +229,7 @@ It also has:
 
 [nuvui.nuvraxis.com](https://nuvui.nuvraxis.com) is built with the library's own tokens, and the docs sit under `/docs` of the same site.
 
-- **[88 blocks](https://nuvui.nuvraxis.com/blocks)** in eleven groups. A block is a part of an app, such as a sign-in screen, a dashboard or a pricing table, as a TSX file and an SCSS file to copy. The site also serves them as a registry for shadcn's command line tool, at `/r`.
+- **[90 blocks](https://nuvui.nuvraxis.com/blocks)** in twelve groups. A block is a part of an app, such as a sign-in screen, a dashboard or a pricing table, as a TSX file and an SCSS file to copy. The site also serves them as a registry for shadcn's command line tool, at `/r`.
 - **[39 charts](https://nuvui.nuvraxis.com/charts)** in ten families, each one file to copy.
 - **[A theme builder](https://nuvui.nuvraxis.com/themes).**
 - **[Docs](https://nuvui.nuvraxis.com/docs)** with a page for each component, covering its parts, props, examples, CSS variables and classes, and what it leaves to you for accessibility. Search runs in the browser.
@@ -317,7 +327,7 @@ pnpm playwright:install   # the browsers the tests run in
 | Path | What it is |
 | --- | --- |
 | `packages/ui` | The core library, published as `@nuvui/react` |
-| `packages/date-picker`, `table`, `charts`, `barcodes`, `chat`, `kanban`, `editor`, `emoji`, `map`, `flow`, `media`, `backgrounds`, `3d`, `icons` | The add-ons, each published under its folder's name |
+| `packages/date-picker`, `table`, `charts`, `barcodes`, `chat`, `kanban`, `editor`, `emoji`, `map`, `flow`, `media`, `backgrounds`, `3d`, `scheduler`, `icons` | The add-ons, each published under its folder's name |
 | `packages/theme` | The theme generator: turns a brand color, base color, radius and density into token values and checks their contrast. It writes the presets. Not published |
 | `packages/tooling` | What the published packages are built, checked and tested with. Not published |
 | `packages/telemetry` | Sends the site's web vitals to an OpenTelemetry collector. Not published |

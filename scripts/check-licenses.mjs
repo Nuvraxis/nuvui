@@ -69,6 +69,7 @@ const published = [
   "media",
   "backgrounds",
   "3d",
+  "scheduler",
   "icons",
 ];
 

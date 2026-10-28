@@ -355,7 +355,8 @@ export const EventCalendar = forwardRef<HTMLElement, EventCalendarProps>(
     );
 
     // The clock moves the line at the time now, once the browser has the
-    // page. The server draws no line, since it can't know where.
+    // page. The server draws no line and marks no day as today, since it
+    // can't know which: a page built ahead would keep the day it was built.
     const [clock, setClock] = useState<Date | null>(null);
     useEffect(() => {
       if (todayProp) return;
@@ -364,7 +365,7 @@ export const EventCalendar = forwardRef<HTMLElement, EventCalendarProps>(
       return () => clearInterval(timer);
     }, [todayProp]);
     const now = todayProp ?? clock;
-    const today = dayOf(now ?? new Date(), timeZone);
+    const today = now ? dayOf(now, timeZone) : null;
 
     const [view, setView] = useControlled(
       viewProp !== undefined,
@@ -433,11 +434,14 @@ export const EventCalendar = forwardRef<HTMLElement, EventCalendarProps>(
             step: (by: number) => addMonths(day, by),
           };
         }
-        case "agenda":
+        case "agenda": {
+          // A day at least, so the agenda always has one to start from.
+          const span = Math.max(1, Math.floor(agendaDays));
           return {
-            days: daysFrom(day, addDays(day, agendaDays - 1)),
-            step: (by: number) => addDays(day, by * agendaDays),
+            days: daysFrom(day, addDays(day, span - 1)),
+            step: (by: number) => addDays(day, by * span),
           };
+        }
         default: {
           if (narrow) {
             return {
@@ -527,7 +531,11 @@ export const EventCalendar = forwardRef<HTMLElement, EventCalendarProps>(
             >
               <PanelIcon />
             </Button>
-            <Button intent="secondary" size="sm" onClick={() => setDate(today)}>
+            <Button
+              intent="secondary"
+              size="sm"
+              onClick={() => setDate(dayOf(now ?? new Date(), timeZone))}
+            >
               {labels.today}
             </Button>
             <div className="nuv-event-calendar__steps">
@@ -669,7 +677,7 @@ export const EventCalendar = forwardRef<HTMLElement, EventCalendarProps>(
                 required
                 selected={zonedDay(day)}
                 defaultMonth={zonedDay(day)}
-                today={zonedDay(today)}
+                {...(today ? { today: zonedDay(today) } : null)}
                 timeZone={timeZone}
                 locale={locale}
                 weekStartsOn={preferences.weekStartsOn as 0}

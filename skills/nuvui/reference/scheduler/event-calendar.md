@@ -245,7 +245,7 @@ export default function Example() {
 
 A server can't know the zone of the person reading, so without `timeZone` the calendar's days are hidden until the browser has the page. They keep their place, so nothing moves when they appear. With `timeZone` set, the server draws them.
 
-`today` sets the moment taken as now, for a screenshot or a test. The browser's clock is used by default, and moves the line across today every half minute.
+`today` sets the moment taken as now, for a screenshot or a test. The browser's clock is used by default, and moves the line across today every half minute. A server marks no day as today, since a page built ahead of time would keep the day it was built, and the browser marks it once it has the page.
 
 ## Preferences
 
@@ -381,7 +381,7 @@ Set any of these on an `EventCalendar`, or on anything around it.
 | `--nuv-event-calendar-bg` | `var(--color-surface)` | Background of the calendar, and what events' colors are mixed with. |
 | `--nuv-event-calendar-fg` | `var(--color-surface-foreground)` | Color of the text. |
 | `--nuv-event-calendar-axis-width` | `3.75rem` | Width of the times down the side of the day and week views. |
-| `--nuv-event-calendar-today` | `var(--color-primary)` | Color of today's date. Keep it at 4.5:1 against the calendar. |
+| `--nuv-event-calendar-today` | `var(--color-primary)` | Background of today's date, behind --color-primary-foreground. |
 | `--nuv-event-calendar-bar-pitch` | `1.75rem`, `1.375rem` | Height of a lane of bars across days, with the gap below it. |
 | `--nuv-event-calendar-hour-height` | `3rem` | Height of an hour in the day and week views. |
 | `--nuv-event-calendar-today-bg` | `color-mix(in oklab, var(--color-primary) 4%, transparent)` | Background of today's column. |

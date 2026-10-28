@@ -103,7 +103,7 @@ An event's own `timeZone` says which zone its clock times are in. A call written
 
 A server can't know the zone of the person reading, so without `timeZone` the calendar's days are hidden until the browser has the page. They keep their place, so nothing moves when they appear. With `timeZone` set, the server draws them.
 
-`today` sets the moment taken as now, for a screenshot or a test. The browser's clock is used by default, and moves the line across today every half minute.
+`today` sets the moment taken as now, for a screenshot or a test. The browser's clock is used by default, and moves the line across today every half minute. A server marks no day as today, since a page built ahead of time would keep the day it was built, and the browser marks it once it has the page.
 
 ## Preferences
 
@@ -226,7 +226,7 @@ Set any of these on an `EventCalendar`, or on anything around it.
     "--nuv-event-calendar-bar-pitch":
       "Height of a lane of bars across days, with the gap below it.",
     "--nuv-event-calendar-today":
-      "Color of today's date. Keep it at 4.5:1 against the calendar.",
+      "Background of today's date, behind --color-primary-foreground.",
     "--nuv-event-calendar-today-bg": "Background of today's column.",
     "--nuv-event-calendar-now": "Color of the line at the time now.",
     "--nuv-event-calendar-event-radius": "Corner radius of an event.",

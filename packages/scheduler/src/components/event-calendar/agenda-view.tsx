@@ -1,6 +1,6 @@
 import { Button } from "@nuvui/react/button";
 import { useMemo } from "react";
-import { addDays } from "../../core/dates";
+import { addDays, type DayKey } from "../../core/dates";
 import { type CalendarEvent, eventsOn, placeEvents } from "../../core/events";
 import { cx } from "../../utils/cx";
 import { useCalendar, type ViewProps } from "./context";
@@ -26,8 +26,9 @@ export function AgendaView({ days, placed, label, events }: AgendaViewProps) {
     setDate,
   } = useCalendar();
   const Heading = `h${headingLevel + 1}` as "h3";
-  const first = days[0] ?? today;
-  const last = days[days.length - 1] ?? first;
+  // The calendar always gives the agenda a day at least.
+  const first = days[0] as DayKey;
+  const last = days[days.length - 1] as DayKey;
 
   const groups = days
     .map((day) => ({ day, items: eventsOn(placed, day) }))

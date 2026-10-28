@@ -214,13 +214,24 @@ $edge: calc(var(--nuv-border-width) + #{$gap * 2});
   }
 
   .nuv-event-calendar__date {
+    box-sizing: border-box;
+    min-inline-size: calc(var(--text-base) * var(--text-base--line-height));
+    padding-inline: calc(var(--spacing) * 1);
+    border-radius: var(--radius-full);
     font-size: var(--text-base);
     font-weight: var(--font-weight-semibold);
     line-height: var(--text-base--line-height);
   }
 
+  // The primary color is only sure to be readable behind its own
+  // foreground, not as text on the page, so today is a filled pill.
   .nuv-event-calendar__column-head--today .nuv-event-calendar__date {
-    color: var(--nuv-event-calendar-today, var(--color-primary));
+    background-color: var(--nuv-event-calendar-today, var(--color-primary));
+    color: var(--color-primary-foreground);
+
+    @media (forced-colors: active) {
+      outline: 2px solid canvastext;
+    }
   }
 
   .nuv-event-calendar__cell {
@@ -654,7 +665,15 @@ $edge: calc(var(--nuv-border-width) + #{$gap * 2});
   }
 
   .nuv-event-calendar__agenda-day--today .nuv-event-calendar__agenda-heading {
-    color: var(--nuv-event-calendar-today, var(--color-primary));
+    inline-size: fit-content;
+    padding-inline: calc(var(--spacing) * 2);
+    border-radius: var(--radius-full);
+    background-color: var(--nuv-event-calendar-today, var(--color-primary));
+    color: var(--color-primary-foreground);
+
+    @media (forced-colors: active) {
+      outline: 2px solid canvastext;
+    }
   }
 
   .nuv-event-calendar__empty {

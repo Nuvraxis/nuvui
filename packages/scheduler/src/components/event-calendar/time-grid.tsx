@@ -94,7 +94,7 @@ export function TimeGrid({ days, placed, label }: ViewProps) {
 
   const keys = useGridKeys(grid, 2 + hourList.length, days.length, () => [
     2 + firstHour - from,
-    Math.max(0, days.indexOf(today)),
+    today ? Math.max(0, days.indexOf(today)) : 0,
   ]);
 
   // Opened at the hour asked for, and only when it's first drawn. Moving to
@@ -111,7 +111,7 @@ export function TimeGrid({ days, placed, label }: ViewProps) {
   }, []);
 
   const nowMinute = now ? minutesOf(now, timeZone) : -1;
-  const todayColumn = now ? days.indexOf(today) : -1;
+  const todayColumn = now && today ? days.indexOf(today) : -1;
 
   return (
     // biome-ignore lint/a11y/useSemanticElements: a table can't scroll its body under a fixed head, and isn't what a calendar is to a screen reader.

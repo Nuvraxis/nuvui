@@ -41,8 +41,8 @@ export interface ResolvedPreferences {
 
 export interface CalendarContextValue {
   timeZone: string;
-  /** Today, in the time zone shown. */
-  today: DayKey;
+  /** Today, in the time zone shown, or `null` until the browser has the page. */
+  today: DayKey | null;
   /** Now, or `null` until the browser has the page. */
   now: Date | null;
   format: Formatters;

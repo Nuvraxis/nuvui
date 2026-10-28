@@ -140,7 +140,8 @@ describe("the week", () => {
   });
 
   test("opens scrolled to seven", async () => {
-    await render(<Calendar />);
+    // Closed, as the panel's month is a grid too.
+    await render(<Calendar defaultPanelOpen={false} />);
     const grid = page.getByRole("grid").element();
     const seven = page
       .getByRole("gridcell", { name: "Sunday, October 11, 7 AM" })
@@ -243,8 +244,8 @@ describe("moving through time", () => {
     await page.getByRole("button", { name: "Next" }).click();
     await expect.element(heading()).toHaveTextContent("January 2027");
     await expect
-      .element(page.getByRole("status"))
-      .toHaveTextContent("2027-01-02T00:00:00.000Z");
+      .element(page.getByText("2027-01-02T00:00:00.000Z"))
+      .toBeVisible();
   });
 
   test("a day picked in the side panel is shown", async () => {
@@ -272,8 +273,10 @@ describe("views", () => {
     await render(
       <Calendar views={["week", "month"]} onViewChange={onViewChange} />,
     );
-    const views = page.getByRole("group", { name: "View" });
-    expect(views.getByRole("radio").elements()).toHaveLength(2);
+    const views = page.getByRole("radiogroup", { name: "View" });
+    await expect
+      .poll(() => views.getByRole("radio").elements())
+      .toHaveLength(2);
     await views.getByRole("radio", { name: "Month" }).click();
     expect(onViewChange).toHaveBeenLastCalledWith("month");
     await expect.element(heading()).toHaveTextContent("October 2026");
@@ -282,7 +285,7 @@ describe("views", () => {
   test("a single view has no switch", async () => {
     await render(<Calendar views={["month"]} defaultView="month" />);
     await expect
-      .element(page.getByRole("group", { name: "View" }))
+      .element(page.getByRole("radiogroup", { name: "View" }))
       .not.toBeInTheDocument();
   });
 });
@@ -449,7 +452,9 @@ describe("preferences", () => {
       showWeekends: false,
     });
     await userEvent.keyboard("{Escape}");
-    expect(page.getByRole("columnheader").elements()).toHaveLength(5);
+    await expect
+      .poll(() => page.getByRole("columnheader").elements())
+      .toHaveLength(5);
   });
 
   test("24-hour time writes times without AM and PM", async () => {
@@ -461,9 +466,11 @@ describe("preferences", () => {
 
   test("week numbers show in the month", async () => {
     await render(
+      // Closed, as the panel's month shows week numbers too.
       <Calendar
         defaultView="month"
         defaultPreferences={{ showWeekNumbers: true }}
+        defaultPanelOpen={false}
       />,
     );
     await expect
@@ -581,7 +588,7 @@ describe("keyboard", () => {
   });
 
   test("only one cell of a grid is in the tab order", async () => {
-    await render(<Calendar />);
+    await render(<Calendar defaultPanelOpen={false} />);
     const grid = page.getByRole("grid").element();
     expect(
       grid.querySelectorAll('[role="gridcell"][tabindex="0"]').length,
@@ -741,6 +748,28 @@ describe("on the server", () => {
     expect(html).toContain(
       "Design review, 11:00 AM to 12:00 PM, Wednesday, October 14",
     );
+  });
+
+  test("without today the server marks no day as today, and the browser does", async () => {
+    // A page built ahead of time would otherwise keep the day it was built.
+    const node = (
+      <EventCalendar
+        aria-label="Team calendar"
+        events={events}
+        timeZone="UTC"
+      />
+    );
+    const html = renderToString(node);
+    expect(html).not.toContain('aria-current="date"');
+    expect(html).not.toContain("--today");
+    const host = document.createElement("div");
+    host.innerHTML = html;
+    document.body.append(host);
+    hydrateRoot(host, node);
+    await expect
+      .poll(() => host.querySelectorAll('[aria-current="date"]').length)
+      .toBeGreaterThan(0);
+    host.remove();
   });
 });
 

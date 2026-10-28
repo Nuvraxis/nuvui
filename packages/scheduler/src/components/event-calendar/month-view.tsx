@@ -148,7 +148,7 @@ export function MonthView({
 
   const columns = perWeek + (preferences.showWeekNumbers ? 1 : 0);
   const keys = useGridKeys(grid, weeks.length, perWeek, () => {
-    const index = days.indexOf(today);
+    const index = today ? days.indexOf(today) : -1;
     return index === -1
       ? [0, 0]
       : [Math.floor(index / perWeek), index % perWeek];

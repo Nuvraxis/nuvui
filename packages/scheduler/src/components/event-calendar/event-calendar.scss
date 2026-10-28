@@ -2,7 +2,8 @@
 @use "@nuvui/react/scss/mixins";
 
 // An hour of the day and week views, and the width of the times beside it.
-$hour: var(--nuv-event-calendar-hour-height, 3rem);
+// Half an hour, less the gap below it, is the 24 pixels a target needs.
+$hour: var(--nuv-event-calendar-hour-height, 3.25rem);
 $axis: var(--nuv-event-calendar-axis-width, 3.75rem);
 
 // A lane of bars across days. Taller for a finger. Events are drawn as long
@@ -387,9 +388,12 @@ $edge: calc(var(--nuv-border-width) + #{$gap * 2});
     inline-size: calc(
       var(--nuv-event-span, 1) / var(--nuv-event-columns, 1) * 100% - 3px
     );
+
+    // Never shorter than a target can be. The layout gives a short event
+    // the half hour this takes, so it covers nothing after it.
     block-size: max(
       calc(var(--nuv-event-length, 1) * 100% - #{$gap}),
-      1.25rem
+      1.5rem
     );
     padding-block: calc(var(--spacing) * 0.5);
     white-space: normal;

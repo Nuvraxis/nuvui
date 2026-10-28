@@ -383,7 +383,7 @@ Set any of these on an `EventCalendar`, or on anything around it.
 | `--nuv-event-calendar-axis-width` | `3.75rem` | Width of the times down the side of the day and week views. |
 | `--nuv-event-calendar-today` | `var(--color-primary)` | Background of today's date, behind --color-primary-foreground. |
 | `--nuv-event-calendar-bar-pitch` | `1.75rem`, `1.375rem` | Height of a lane of bars across days, with the gap below it. |
-| `--nuv-event-calendar-hour-height` | `3rem` | Height of an hour in the day and week views. |
+| `--nuv-event-calendar-hour-height` | `3.25rem` | Height of an hour in the day and week views. |
 | `--nuv-event-calendar-today-bg` | `color-mix(in oklab, var(--color-primary) 4%, transparent)` | Background of today's column. |
 | `--nuv-event-calendar-now` | `var(--color-danger)` | Color of the line at the time now. |
 | `--nuv-event-calendar-event-radius` | `var(--radius-sm)` | Corner radius of an event. |

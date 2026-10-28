@@ -26,7 +26,7 @@ interface Timed {
  */
 export function arrangeDay<T extends Timed>(
   items: readonly T[],
-  minimum = 20,
+  minimum = 30,
 ): Arranged<T>[] {
   const end = (item: T) => Math.max(item.endMinute, item.startMinute + minimum);
   const sorted = [...items].sort(

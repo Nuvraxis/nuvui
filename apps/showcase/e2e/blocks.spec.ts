@@ -83,6 +83,12 @@ test.describe("the list of blocks", () => {
       // The table's column helpers come from TanStack Table, which the
       // table package asks for as a peer.
       if (imported.has("@nuvui/table")) imported.add("@tanstack/react-table");
+      // The scheduler is drawn with the components and the date picker's
+      // calendar, peers a block may never import.
+      if (imported.has("@nuvui/scheduler")) {
+        imported.add("@nuvui/react");
+        imported.add("@nuvui/date-picker");
+      }
       // The map package draws with MapLibre, a peer the block never imports.
       if (imported.has("@nuvui/map")) imported.add("maplibre-gl");
       // The 3D package draws with three through react-three-fiber, peers
@@ -5145,9 +5151,15 @@ test.describe("team calendar", () => {
 
     const heading = calendar.getByRole("heading", { level: 2 });
     const before = await heading.textContent();
-    await press(calendar.getByRole("button", { name: "Next" }), isMobile);
+    await press(
+      calendar.getByRole("button", { name: "Next", exact: true }),
+      isMobile,
+    );
     await expect(heading).not.toHaveText(before ?? "");
-    await press(calendar.getByRole("button", { name: "Today" }), isMobile);
+    await press(
+      calendar.getByRole("button", { name: "Today", exact: true }),
+      isMobile,
+    );
     await expect(heading).toHaveText(before ?? "");
 
     if (isMobile) {

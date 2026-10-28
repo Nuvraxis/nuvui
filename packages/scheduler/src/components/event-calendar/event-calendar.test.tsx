@@ -113,6 +113,49 @@ describe("the week", () => {
     expect(planning.height / review.height).toBeCloseTo(2, 0);
   });
 
+  test("a short event is still a 24 pixel target, and covers nothing after it", async () => {
+    await render(
+      <Calendar
+        defaultView="day"
+        events={[
+          {
+            id: "half",
+            title: "Half",
+            start: "2026-10-14T10:00",
+            end: "2026-10-14T10:30",
+          },
+          {
+            id: "after",
+            title: "After",
+            start: "2026-10-14T10:30",
+            end: "2026-10-14T11:00",
+          },
+          {
+            id: "quarter",
+            title: "Quarter",
+            start: "2026-10-14T14:00",
+            end: "2026-10-14T14:15",
+          },
+          {
+            id: "next",
+            title: "Next up",
+            start: "2026-10-14T14:15",
+            end: "2026-10-14T14:45",
+          },
+        ]}
+      />,
+    );
+    const half = box(event(/^Half/).element());
+    const after = box(event(/^After/).element());
+    const quarter = box(event(/^Quarter/).element());
+    const next = box(event(/^Next up/).element());
+    expect(half.height).toBeGreaterThanOrEqual(24);
+    expect(quarter.height).toBeGreaterThanOrEqual(24);
+    // Half an hour leaves its gap, and a quarter is drawn beside the next.
+    expect(after.top - half.bottom).toBeGreaterThan(0);
+    expect(quarter.right).toBeLessThanOrEqual(next.left + 1);
+  });
+
   test("draws an all-day event as a bar across its days", async () => {
     await render(<Calendar />);
     const bar = box(event(/^Offsite/).element());

@@ -23,12 +23,18 @@ test.describe("event calendar page", () => {
 
     const heading = calendar.getByRole("heading", { level: 2 });
     const now = await heading.textContent();
-    await press(calendar.getByRole("button", { name: "Next" }), isMobile);
+    await press(
+      calendar.getByRole("button", { name: "Next", exact: true }),
+      isMobile,
+    );
     await expect(heading).not.toHaveText(now ?? "");
     await expect(
       calendar.getByRole("button", { name: /^Sprint review/ }),
     ).toBeVisible();
-    await press(calendar.getByRole("button", { name: "Today" }), isMobile);
+    await press(
+      calendar.getByRole("button", { name: "Today", exact: true }),
+      isMobile,
+    );
     await expect(heading).toHaveText(now ?? "");
   });
 

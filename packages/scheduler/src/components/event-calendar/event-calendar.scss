@@ -321,12 +321,9 @@ $edge: calc(var(--nuv-border-width) + #{$gap * 2});
 
     @include mixins.focus-ring(1px);
 
+    // A stronger edge, not a stronger fill, so its text keeps its contrast.
     @include mixins.hover {
-      background-color: color-mix(
-        in oklab,
-        var(--nuv-event-color) 28%,
-        var(--nuv-event-calendar-bg, var(--color-surface))
-      );
+      box-shadow: inset 0 0 0 var(--nuv-border-width) var(--nuv-event-color);
     }
 
     // Windows high contrast draws no backgrounds, so each event keeps its
@@ -690,5 +687,235 @@ $edge: calc(var(--nuv-border-width) + #{$gap * 2});
 
   .nuv-event-calendar__empty-text {
     margin: 0;
+  }
+
+  // Editing. An event that can be moved is held, not selected, by a long
+  // press, and shows what it is under a pointer.
+  .nuv-event-calendar__event[data-movable] {
+    -webkit-touch-callout: none;
+    user-select: none;
+  }
+
+  // Where it was, while it's dragged somewhere else.
+  .nuv-event-calendar__event[data-dragging] {
+    opacity: 0.5;
+  }
+
+  // Picked up from the keyboard.
+  .nuv-event-calendar__event[data-picked] {
+    z-index: 3;
+    box-shadow: var(--shadow-md);
+
+    @media (forced-colors: active) {
+      outline: 2px dashed buttontext;
+    }
+  }
+
+  // Where it would go.
+  .nuv-event-calendar__event--preview {
+    z-index: 2;
+    border-style: dashed;
+    box-shadow: var(--shadow-md);
+    pointer-events: none;
+  }
+
+  .nuv-event-calendar[data-dragging] {
+    cursor: grabbing;
+  }
+
+  // A drag across the grids makes or moves events, and doesn't select the
+  // times and days it passes.
+  .nuv-event-calendar__time-grid,
+  .nuv-event-calendar__month {
+    user-select: none;
+  }
+
+  // The ends of an event that can be dragged to make it longer or shorter.
+  .nuv-event-calendar__handle {
+    position: absolute;
+    z-index: 1;
+  }
+
+  .nuv-event-calendar__event--block .nuv-event-calendar__handle {
+    inset-inline: 0;
+    block-size: 6px;
+    cursor: ns-resize;
+  }
+
+  .nuv-event-calendar__event--block .nuv-event-calendar__handle--start {
+    inset-block-start: 0;
+  }
+
+  .nuv-event-calendar__event--block .nuv-event-calendar__handle--end {
+    inset-block-end: 0;
+  }
+
+  .nuv-event-calendar__event--bar .nuv-event-calendar__handle {
+    inset-block: 0;
+    inline-size: 6px;
+    cursor: ew-resize;
+  }
+
+  .nuv-event-calendar__event--bar .nuv-event-calendar__handle--start {
+    inset-inline-start: 0;
+  }
+
+  .nuv-event-calendar__event--bar .nuv-event-calendar__handle--end {
+    inset-inline-end: 0;
+  }
+
+  // The popover an event opens in.
+  .nuv-event-calendar__editor {
+    inline-size: min(22rem, 100vw - 2rem);
+  }
+
+  .nuv-event-calendar__form {
+    display: grid;
+    gap: calc(var(--spacing) * 3);
+  }
+
+  .nuv-event-calendar__editor-head {
+    display: flex;
+    gap: calc(var(--spacing) * 2);
+    align-items: center;
+    margin-block-end: calc(var(--spacing) * 2);
+  }
+
+  .nuv-event-calendar__editor-title {
+    margin: 0;
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--text-base--line-height);
+  }
+
+  .nuv-event-calendar__editor-text {
+    margin: 0 0 calc(var(--spacing) * 2);
+    color: var(--color-muted-foreground);
+  }
+
+  .nuv-event-calendar__field {
+    display: grid;
+    gap: calc(var(--spacing) * 1.5);
+  }
+
+  .nuv-event-calendar__check {
+    display: flex;
+    gap: calc(var(--spacing) * 2);
+    align-items: center;
+  }
+
+  .nuv-event-calendar__when,
+  .nuv-event-calendar__colors {
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(var(--spacing) * 2);
+    min-inline-size: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  .nuv-event-calendar__when > :first-of-type {
+    flex: 1 1 9rem;
+  }
+
+  .nuv-event-calendar__time-input {
+    flex: 0 1 8rem;
+  }
+
+  .nuv-event-calendar__legend {
+    margin-block-end: calc(var(--spacing) * 1.5);
+    padding: 0;
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--text-sm--line-height);
+  }
+
+  .nuv-event-calendar__error {
+    margin: 0;
+    color: var(--color-danger);
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+  }
+
+  // A color to choose: a swatch around a radio that can't be seen, which
+  // draws the focus and the choice.
+  .nuv-event-calendar__color {
+    position: relative;
+    display: inline-flex;
+    cursor: pointer;
+  }
+
+  .nuv-event-calendar__color-input {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  .nuv-event-calendar__swatch {
+    flex: none;
+    box-sizing: border-box;
+    inline-size: 1.5rem;
+    block-size: 1.5rem;
+    border: 2px solid transparent;
+    border-radius: var(--radius-full);
+    background-color: var(--nuv-event-color);
+    background-clip: content-box;
+    padding: 2px;
+
+    @media (forced-colors: active) {
+      background-color: canvastext;
+    }
+  }
+
+  .nuv-event-calendar__editor-head .nuv-event-calendar__swatch {
+    inline-size: 1rem;
+    block-size: 1rem;
+    border: 0;
+    padding: 0;
+  }
+
+  .nuv-event-calendar__color-input:checked + .nuv-event-calendar__swatch {
+    border-color: var(--color-foreground);
+
+    @media (forced-colors: active) {
+      border-color: highlight;
+    }
+  }
+
+  .nuv-event-calendar__color-input:focus-visible + .nuv-event-calendar__swatch {
+    outline: var(--nuv-focus-ring-width, 2px) solid
+      var(--nuv-focus-ring-color, var(--color-ring));
+    outline-offset: 1px;
+  }
+
+  .nuv-event-calendar__editor-footer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(var(--spacing) * 2);
+    justify-content: flex-end;
+  }
+
+  // Delete keeps to the other end from the buttons that close the popover.
+  .nuv-event-calendar__delete {
+    margin-inline-end: auto;
+  }
+
+  // The toolbar a tap on an event opens on a touch screen.
+  .nuv-event-calendar__actions {
+    display: flex;
+    gap: calc(var(--spacing) * 2);
+  }
+
+  // Said, and not seen.
+  .nuv-event-calendar__announcer {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
 }

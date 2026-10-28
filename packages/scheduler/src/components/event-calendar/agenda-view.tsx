@@ -31,7 +31,10 @@ export function AgendaView({ days, placed, label, events }: AgendaViewProps) {
   const last = days[days.length - 1] as DayKey;
 
   const groups = days
-    .map((day) => ({ day, items: eventsOn(placed, day) }))
+    .map((day) => ({
+      day,
+      items: eventsOn(placed, day).filter((item) => !item.preview),
+    }))
     .filter((group) => preferences.showEmptyDays || group.items.length > 0);
 
   // Only worked out when the days shown are empty and left out.

@@ -109,7 +109,7 @@ export function momentOf(day: DayKey, minutes: number, timeZone: string): Date {
 }
 
 // "2026-10-14", "2026-10-14T09:30" or "2026-10-14T09:30:15", with no zone.
-const wallTime =
+export const wallTime =
   /^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2})(?::(\d{2})(?:\.\d+)?)?)?$/;
 
 /**

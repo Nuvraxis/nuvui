@@ -2,7 +2,7 @@
 
 # Blocks
 
-A block is a part of an app, such as a sign-in screen or a table with a toolbar, built from the library's components: one TSX file and one SCSS file, to copy into an app and change. There are 88. Each is shown at https://nuvui.nuvraxis.com/blocks.
+A block is a part of an app, such as a sign-in screen or a table with a toolbar, built from the library's components: one TSX file and one SCSS file, to copy into an app and change. There are 90. Each is shown at https://nuvui.nuvraxis.com/blocks.
 
 Before building a screen from nothing, look here for one that's close. To add one, with the packages it needs:
 
@@ -40,6 +40,11 @@ A block's SCSS uses the library's mixins, `@use "@nuvui/react/scss/mixins"`, so 
 - **Sign in with a company account** (`sign-in-sso`): A work email that leads to the company's own sign-in, with a password as the other way in. Needs `@nuvui/react`, `lucide-react`.
 - **Sign up** (`sign-up`): Name, work email and a new password, with the terms to agree to. Needs `@nuvui/react`, `lucide-react`.
 - **Enter a code** (`verify-code`): Six digits sent by email, sent off when the last one is typed. Needs `@nuvui/react`, `lucide-react`.
+
+## Calendar
+
+- **Clinic's day** (`clinic-day`): A physiotherapy clinic's appointments for the day, in its opening hours, with each therapist's in their own color. Pressing one shows who it's with and what for, and the day's figures sit above. Needs `@nuvui/react`, `@nuvui/date-picker`, `@nuvui/scheduler`.
+- **Team calendar** (`team-calendar`): A team's week: meetings that overlap set side by side, leave and an offsite as bars across their days, and a key to the colors that says which calendar each is from, with day, month and agenda views a click away. Needs `@nuvui/react`, `@nuvui/date-picker`, `@nuvui/scheduler`.
 
 ## Chat
 

@@ -13,6 +13,7 @@ import "@nuvui/flow/styles.css";
 import "@nuvui/media/styles.css";
 import "@nuvui/backgrounds/styles.css";
 import "@nuvui/3d/styles.css";
+import "@nuvui/scheduler/styles.css";
 // A client component from an entry of its own, used from this server
 // component with nothing but plain props.
 import { DirectionProvider } from "@nuvui/react/direction";

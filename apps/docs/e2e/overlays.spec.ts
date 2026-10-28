@@ -401,7 +401,7 @@ test.describe("toast page", () => {
     await expect(toasts(page)).toHaveCount(0);
   });
 
-  test("each intent has its own edge color, and a warning interrupts as a danger does", async ({
+  test("each intent has its own border color, and a warning interrupts as a danger does", async ({
     page,
     isMobile,
   }) => {

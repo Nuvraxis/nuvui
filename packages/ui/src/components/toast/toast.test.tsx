@@ -575,7 +575,7 @@ describe("layout", () => {
     expect(size("Undo")[1]).toBe(32);
   });
 
-  test("titles line up whether or not the toast has a colored edge", async () => {
+  test("titles line up whether or not the toast has a colored border", async () => {
     await renderStill();
     const forever = { duration: Number.POSITIVE_INFINITY };
     toast("Plain", forever);
@@ -589,11 +589,7 @@ describe("layout", () => {
     expect(new Set(lefts).size).toBe(1);
   });
 
-  test("they still line up with a thicker edge and a thicker border", async () => {
-    document.documentElement.style.setProperty(
-      "--nuv-toast-accent-width",
-      "9px",
-    );
+  test("an intent colors the whole border, at the width of any other", async () => {
     document.documentElement.style.setProperty("--nuv-border-width", "2px");
     try {
       await renderStill();
@@ -603,16 +599,20 @@ describe("layout", () => {
       await expect.poll(() => all().length).toBe(2);
 
       const [plain, good] = all();
-      const edge = (item: Element | undefined) =>
-        getComputedStyle(item as Element).borderLeftWidth;
+      const style = (item: Element | undefined) =>
+        getComputedStyle(item as Element);
       const title = (item: Element | undefined) =>
         rect(item?.querySelector(".nuv-toast__title") as Element).left;
 
-      expect(edge(plain)).toBe("2px");
-      expect(edge(good)).toBe("9px");
+      for (const side of ["Top", "Right", "Bottom", "Left"] as const) {
+        expect(style(good)[`border${side}Width`], side).toBe("2px");
+        expect(style(good)[`border${side}Color`], side).toBe(
+          style(good).borderTopColor,
+        );
+      }
+      expect(style(good).borderTopColor).not.toBe(style(plain).borderTopColor);
       expect(title(plain)).toBe(title(good));
     } finally {
-      document.documentElement.style.removeProperty("--nuv-toast-accent-width");
       document.documentElement.style.removeProperty("--nuv-border-width");
     }
   });

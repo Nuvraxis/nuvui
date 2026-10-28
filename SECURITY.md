@@ -2,7 +2,7 @@
 
 ## Supported versions
 
-Fixes go into the latest release of each package: `@nuvui/react`, `@nuvui/date-picker`, `@nuvui/table`, `@nuvui/charts`, `@nuvui/barcodes`, `@nuvui/chat`, `@nuvui/kanban`, `@nuvui/editor`, `@nuvui/emoji`, `@nuvui/map`, `@nuvui/flow`, `@nuvui/media`, `@nuvui/backgrounds`, `@nuvui/3d` and `@nuvui/icons`. Older versions aren't patched.
+Fixes go into the latest release of each package: `@nuvui/react`, `@nuvui/date-picker`, `@nuvui/table`, `@nuvui/charts`, `@nuvui/barcodes`, `@nuvui/chat`, `@nuvui/kanban`, `@nuvui/editor`, `@nuvui/emoji`, `@nuvui/map`, `@nuvui/flow`, `@nuvui/media`, `@nuvui/backgrounds`, `@nuvui/3d`, `@nuvui/scheduler` and `@nuvui/icons`. Older versions aren't patched.
 
 ## Reporting a vulnerability
 

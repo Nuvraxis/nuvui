@@ -1,16 +1,10 @@
 @use "../../styles/layers";
 @use "../../styles/mixins";
 
-// The colored edge of a toast with an intent. It's thicker than the border
-// it replaces, and the padding gives the difference back, so titles line up
-// whatever the intent.
+// A toast with an intent has its whole border in the intent's color, at the
+// same width as any other, so titles line up whatever the intent.
 @mixin accent($color) {
-  $width: var(--nuv-toast-accent-width, 4px);
-
-  padding-inline-start: calc(
-    var(--spacing) * 4 - #{$width} + var(--nuv-border-width)
-  );
-  border-inline-start: $width solid var(--nuv-toast-accent, #{$color});
+  border-color: var(--nuv-toast-accent, #{$color});
 }
 
 @layer components {

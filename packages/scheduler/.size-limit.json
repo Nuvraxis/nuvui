@@ -1,0 +1,18 @@
+[
+  {
+    "name": "@nuvui/scheduler",
+    "path": "dist/index.js",
+    "limit": "10 kB"
+  },
+  {
+    "name": "@nuvui/scheduler/event-calendar",
+    "path": "dist/components/event-calendar/index.js",
+    "limit": "10 kB"
+  },
+  {
+    "name": "styles.css",
+    "path": "dist/styles.css",
+    "rolldown": false,
+    "limit": "2.5 kB"
+  }
+]

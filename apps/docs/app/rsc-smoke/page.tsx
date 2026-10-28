@@ -180,6 +180,7 @@ import {
   VisuallyHidden,
 } from "@nuvui/react";
 import { Button as ButtonEntry } from "@nuvui/react/button";
+import { EventCalendar } from "@nuvui/scheduler/event-calendar";
 // The table's elements, from their own entry. A data table isn't here: it's
 // made with a hook, and so in a client component.
 import {
@@ -675,6 +676,23 @@ export default function RscSmokePage() {
       {/* The viewer's name, words and buttons come from the server, and
           three comes once the page's script has run. */}
       <ModelViewer label="Server model" src="/docs/models/chair.glb" />
+      {/* Events with string dates, which a server component can pass, in
+          a time zone of its own, so the server draws the days. */}
+      <EventCalendar
+        aria-label="Server calendar"
+        events={[
+          {
+            id: "server",
+            title: "Meeting from the server",
+            start: "2026-10-14T10:00",
+            end: "2026-10-14T11:00",
+          },
+        ]}
+        timeZone="UTC"
+        defaultDate={new Date("2026-10-14T12:00:00Z")}
+        defaultView="agenda"
+        defaultPanelOpen={false}
+      />
       <DirectionProvider dir="rtl">
         <div dir="rtl">
           <Tabs defaultValue="one">

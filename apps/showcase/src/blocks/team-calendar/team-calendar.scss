@@ -1,0 +1,89 @@
+@use "@nuvui/react/scss/mixins";
+
+.team-calendar {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing) * 4);
+  box-sizing: border-box;
+  inline-size: 100%;
+  min-block-size: 100svh;
+  padding: calc(var(--spacing) * 4);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+
+  @include mixins.breakpoint("md") {
+    padding: calc(var(--spacing) * 6);
+  }
+}
+
+.team-calendar__head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 3);
+  align-items: end;
+  justify-content: space-between;
+}
+
+.team-calendar__heading {
+  display: grid;
+  gap: calc(var(--spacing) * 1);
+}
+
+.team-calendar__title {
+  margin: 0;
+  font-size: var(--text-xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-xl--line-height);
+}
+
+.team-calendar__meta {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+.team-calendar__key {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 2) calc(var(--spacing) * 4);
+  margin: 0;
+  padding: 0;
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+  list-style: none;
+}
+
+.team-calendar__key-item {
+  display: flex;
+  gap: calc(var(--spacing) * 2);
+  align-items: center;
+}
+
+.team-calendar__swatch {
+  inline-size: 0.75rem;
+  block-size: 0.75rem;
+  border-radius: var(--radius-full);
+  background-color: var(--color-chart-1);
+
+  &[data-color="3"] {
+    background-color: var(--color-chart-3);
+  }
+
+  &[data-color="5"] {
+    background-color: var(--color-chart-5);
+  }
+
+  &[data-color="6"] {
+    background-color: var(--color-chart-6);
+  }
+
+  @media (forced-colors: active) {
+    background-color: canvastext;
+  }
+}
+
+// The calendar takes what's left of the page.
+.team-calendar__calendar {
+  --nuv-event-calendar-height: max(36rem, calc(100svh - 10rem));
+}

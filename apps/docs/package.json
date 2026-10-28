@@ -27,6 +27,7 @@
     "@nuvui/map": "workspace:*",
     "@nuvui/media": "workspace:*",
     "@nuvui/react": "workspace:*",
+    "@nuvui/scheduler": "workspace:*",
     "@nuvui/table": "workspace:*",
     "@nuvui/telemetry": "workspace:*",
     "@nuvui/theme": "workspace:*",

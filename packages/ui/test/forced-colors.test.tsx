@@ -616,13 +616,16 @@ describe("toast", () => {
     ).toBeGreaterThan(3);
   });
 
-  test("an intent still has its thicker edge", async () => {
+  test("a toast with an intent keeps its border all the way round", async () => {
     const element = style(await show({ intent: "danger" }));
 
-    expect(element.borderInlineStartWidth).toBe("4px");
-    expect(contrast(element.borderInlineStartColor, canvas())).toBeGreaterThan(
-      3,
-    );
+    for (const side of ["Top", "Right", "Bottom", "Left"] as const) {
+      expect(element[`border${side}Style`], side).toBe("solid");
+      expect(
+        contrast(element[`border${side}Color`], canvas()),
+        side,
+      ).toBeGreaterThan(3);
+    }
   });
 });
 

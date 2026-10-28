@@ -172,7 +172,7 @@ export default function Example() {
 }
 ```
 
-The colored edge is decoration. Say what happened in the title, so the message works without it.
+The colored border is decoration. Say what happened in the title, so the message works without it.
 
 ## With an action
 
@@ -333,8 +333,7 @@ Set any of these on `Toaster` with a class or `style`, or on anything around it.
 | `--nuv-toast-bg` | `var(--color-surface)` | Background color. |
 | `--nuv-toast-shadow` | `var(--shadow-lg)` | Shadow under each toast. |
 | `--nuv-toast-fg` | `var(--color-surface-foreground)` | Text color. |
-| `--nuv-toast-accent-width` | `4px` | Thickness of that edge. The padding beside it shrinks to match, so titles stay lined up. |
-| `--nuv-toast-accent` | `var(--color-primary)`, `var(--color-success)`, `var(--color-warning)`, `var(--color-danger)` | Color of the thick edge on a toast with an intent. |
+| `--nuv-toast-accent` | `var(--color-primary)`, `var(--color-success)`, `var(--color-warning)`, `var(--color-danger)` | Color of the border on a toast with an intent. |
 
 ## Classes
 

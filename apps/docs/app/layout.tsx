@@ -15,6 +15,7 @@ import "@nuvui/flow/styles.css";
 import "@nuvui/media/styles.css";
 import "@nuvui/backgrounds/styles.css";
 import "@nuvui/3d/styles.css";
+import "@nuvui/scheduler/styles.css";
 import "@nuvui/ask-panel/styles.css";
 // Every preset, for the examples on the Theming page and its editor.
 import "@nuvui/react/themes/ink.css";

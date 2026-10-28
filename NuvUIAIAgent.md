@@ -35,6 +35,7 @@ Three things are different from the libraries you may expect, and most mistakes 
 | `@nuvui/media` | `VideoPlayer`, `AudioPlayer`, `MediaTranscript` and their parts: captions, chapters, qualities, a waveform, streams | `hls.js` or `dashjs`, only for streams |
 | `@nuvui/backgrounds` | `GradientBackground`, `GridBackground`, `StarsBackground`, `TopographyBackground`, `HexagonBackground`, `FireworksBackground`, `HoleBackground`, `GlyphBackground` | |
 | `@nuvui/3d` | `ModelViewer`, a glTF, GLB or STL model to turn and zoom, from an address or picked files. Needs React 19 | `three`, `@react-three/fiber` |
+| `@nuvui/scheduler` | `EventCalendar`, events in day, week, month and agenda views | `@nuvui/date-picker` |
 | `@nuvui/icons` | 317 line icons in three styles, such as `ArrowRightIcon` | |
 
 Every add-on but `@nuvui/icons` needs `@nuvui/react` beside it, and its own stylesheet after the core's:
@@ -124,6 +125,7 @@ Each links to a file with the reasons and the code. Read the file before working
 | A video, a lesson, a recording, a podcast, a voice message | [`@nuvui/media`](skills/nuvui/reference/media/index.md) |
 | A moving background behind a hero, a sign-in page or an empty state | [`@nuvui/backgrounds`](skills/nuvui/reference/backgrounds/index.md) |
 | A 3D model of a product or a part, or one the person uploads to check | [`@nuvui/3d`](skills/nuvui/reference/3d/index.md) |
+| Events on a calendar: a team's week, appointments, bookings | [`@nuvui/scheduler`](skills/nuvui/reference/scheduler/index.md) |
 | An icon | [`@nuvui/icons`](skills/nuvui/reference/icons/index.md) |
 
 A core component's file is `reference/components/<name>.md`, with the name in lower case and hyphens: `reference/components/alert-dialog.md`.

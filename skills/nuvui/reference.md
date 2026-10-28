@@ -212,8 +212,9 @@ A file for each page of the docs. Read the one for a component before using it: 
 
 ## @nuvui/scheduler
 
-- [Scheduler](reference/scheduler/index.md): The @nuvui/scheduler package. An event calendar with day, week, month and agenda views, installed next to @nuvui/react and @nuvui/date-picker.
+- [Scheduler](reference/scheduler/index.md): The @nuvui/scheduler package. An event calendar with day, week, month and agenda views, edited in place, installed next to @nuvui/react and @nuvui/date-picker.
 - [EventCalendar](reference/scheduler/event-calendar.md): Events in a day, a week, a month or a list. Events that overlap are set side by side, those over several days are bars across them, and a full day in a month keeps the rest behind "3 more".
+- [Editing events](reference/scheduler/editing.md): Making, changing, moving and deleting events in an EventCalendar, with a pointer, a finger or the keyboard.
 
 ## @nuvui/icons
 

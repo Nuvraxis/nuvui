@@ -214,8 +214,9 @@ Each page below is plain Markdown. All of them in one file: https://nuvui.nuvrax
 
 ## @nuvui/scheduler
 
-- [Scheduler](https://nuvui.nuvraxis.com/docs/llms/scheduler/index.md): The @nuvui/scheduler package. An event calendar with day, week, month and agenda views, installed next to @nuvui/react and @nuvui/date-picker.
+- [Scheduler](https://nuvui.nuvraxis.com/docs/llms/scheduler/index.md): The @nuvui/scheduler package. An event calendar with day, week, month and agenda views, edited in place, installed next to @nuvui/react and @nuvui/date-picker.
 - [EventCalendar](https://nuvui.nuvraxis.com/docs/llms/scheduler/event-calendar.md): Events in a day, a week, a month or a list. Events that overlap are set side by side, those over several days are bars across them, and a full day in a month keeps the rest behind "3 more".
+- [Editing events](https://nuvui.nuvraxis.com/docs/llms/scheduler/editing.md): Making, changing, moving and deleting events in an EventCalendar, with a pointer, a finger or the keyboard.
 
 ## @nuvui/icons
 

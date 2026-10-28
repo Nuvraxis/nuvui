@@ -2,7 +2,7 @@
 
 # Blocks
 
-A block is a part of an app, such as a sign-in screen or a table with a toolbar, built from the library's components: one TSX file and one SCSS file, to copy into an app and change. There are 90. Each is shown at https://nuvui.nuvraxis.com/blocks.
+A block is a part of an app, such as a sign-in screen or a table with a toolbar, built from the library's components: one TSX file and one SCSS file, to copy into an app and change. There are 92. Each is shown at https://nuvui.nuvraxis.com/blocks.
 
 Before building a screen from nothing, look here for one that's close. To add one, with the packages it needs:
 
@@ -44,6 +44,8 @@ A block's SCSS uses the library's mixins, `@use "@nuvui/react/scss/mixins"`, so 
 ## Calendar
 
 - **Clinic's day** (`clinic-day`): A physiotherapy clinic's appointments for the day, in its opening hours, with each therapist's in their own color. Pressing one shows who it's with and what for, and the day's figures sit above. Needs `@nuvui/react`, `@nuvui/date-picker`, `@nuvui/scheduler`.
+- **Room booking** (`room-booking`): A meeting room's week, where other teams' bookings can be read and not moved, and free time is booked with a click or a drag. Your bookings can be moved, made longer or deleted, and are listed beside the week with what's in the room. Needs `@nuvui/react`, `@nuvui/date-picker`, `@nuvui/scheduler`.
+- **Shift planner** (`shift-planner`): A café's rota for the week, with the staff beside it. Someone is dragged onto a time to give them a shift, or added with a button, and the shifts are moved and stretched on the week while each person's hours keep count. Needs `@nuvui/react`, `@nuvui/date-picker`, `@nuvui/scheduler`.
 - **Team calendar** (`team-calendar`): A team's week: meetings that overlap set side by side, leave and an offsite as bars across their days, and a key to the colors that says which calendar each is from, with day, month and agenda views a click away. Needs `@nuvui/react`, `@nuvui/date-picker`, `@nuvui/scheduler`.
 
 ## Chat

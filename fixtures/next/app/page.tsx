@@ -50,6 +50,7 @@ import {
 } from "@nuvui/table/table";
 import { Board } from "./board";
 import { People } from "./people";
+import { Planner } from "./planner";
 import { Visitors } from "./visitors";
 
 const months = [
@@ -109,6 +110,7 @@ export default function Page() {
       </TableContainer>
       <People people={people} />
       <Board />
+      <Planner />
       <RichTextEditor
         aria-label="Notes"
         name="notes"

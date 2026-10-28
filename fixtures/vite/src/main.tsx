@@ -76,7 +76,11 @@ import { DirectionProvider } from "@nuvui/react/direction";
 // One import from a component's own entry, to check that those resolve too.
 import { Switch } from "@nuvui/react/switch";
 // The calendar, from the entry of its one component.
-import { EventCalendar } from "@nuvui/scheduler/event-calendar";
+import {
+  EventCalendar,
+  type EventChange,
+  eventDragProps,
+} from "@nuvui/scheduler/event-calendar";
 // The table package, with a hook made for one feature. The others, and the
 // virtual table's dependency, mustn't end up in the build: the second isn't
 // even installed here.
@@ -231,9 +235,13 @@ function App() {
       <Calendar mode="range" selected={range} locale={de} />
       <People />
       <Seats />
+      <div {...eventDragProps({ title: "Write notes", duration: 30 })}>
+        Write notes
+      </div>
       <EventCalendar
         aria-label="Team"
-        events={[
+        onEventsChange={(_, change: EventChange) => console.info(change.type)}
+        defaultEvents={[
           {
             id: "a",
             title: "Planning",

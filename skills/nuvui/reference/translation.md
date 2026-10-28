@@ -400,7 +400,7 @@ A model viewer's name is its `label`. The buttons' names, how to use the keys, w
 
 ## Scheduler
 
-A calendar's name is the `aria-label` you give it, and an event's is its `title`, its time and its days. Dates and times are written by the browser in the calendar's `locale`. The words it writes itself, the buttons, the views, the preferences and what the agenda says when nothing is on, are in one prop, `labels`:
+A calendar's name is the `aria-label` you give it, and an event's is its `title`, its time and its days. Dates and times are written by the browser in the calendar's `locale`. The words it writes itself, the buttons, the views, the preferences, what the agenda says when nothing is on, the event's popover, the question before an event is deleted and what's said as events are moved, are in one prop, `labels`:
 
 | Prop | Type | Default | What it's for |
 | --- | --- | --- | --- |
@@ -427,6 +427,31 @@ A calendar's name is the `aria-label` you give it, and an event's is its `title`
 | `nothingBetween` (required) | `(from: string, to: string) => string` |  | The agenda when nothing is on in the days it shows. |
 | `nextEvent` (required) | `(day: string) => string` |  | The button in an empty agenda that goes to the next day with an event. |
 | `nothingAhead` (required) | `string` |  | The agenda when nothing is on for 180 days. |
+| `newEvent` (required) | `string` |  | The heading of the popover for an event being made. |
+| `untitled` (required) | `string` |  | An event saved with no title. |
+| `eventTitle` (required) | `string` |  | The fields of the event's popover. |
+| `starts` (required) | `string` |  |  |
+| `ends` (required) | `string` |  |  |
+| `date` (required) | `string` |  |  |
+| `time` (required) | `string` |  |  |
+| `color` (required) | `string` |  |  |
+| `colorName` (required) | `(color: number) => string` |  | One of the eight colors, in the popover. |
+| `description` (required) | `string` |  |  |
+| `save` (required) | `string` |  |  |
+| `cancel` (required) | `string` |  |  |
+| `close` (required) | `string` |  |  |
+| `edit` (required) | `string` |  |  |
+| `delete` (required) | `string` |  |  |
+| `endsBeforeStart` (required) | `string` |  | Said when the end chosen is before the start. |
+| `deleteQuestion` (required) | `(title: string) => string` |  | The question before an event is deleted. |
+| `deleteWarning` (required) | `string` |  |  |
+| `eventActions` (required) | `(title: string) => string` |  | The toolbar a tap on an event shows on a touch screen. |
+| `pickedUp` (required) | `(title: string, when: string) => string` |  | Said when an event is picked up from the keyboard. |
+| `movedTo` (required) | `(when: string) => string` |  | Said as a picked-up event is moved, with its new time. |
+| `dropped` (required) | `(title: string, when: string) => string` |  |  |
+| `putBack` (required) | `(title: string) => string` |  |  |
+| `added` (required) | `(title: string, when: string) => string` |  | Said when an event is added by dropping something on the calendar. |
+| `deleted` (required) | `(title: string) => string` |  |  |
 
 ## What isn't text
 

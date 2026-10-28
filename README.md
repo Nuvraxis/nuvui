@@ -82,7 +82,7 @@ Each add-on is installed next to `@nuvui/react`, with the library it's built on 
 | [`@nuvui/media`](https://www.npmjs.com/package/@nuvui/media) | Video and audio players, with HLS and DASH streams | `pnpm add @nuvui/media` |
 | [`@nuvui/backgrounds`](https://www.npmjs.com/package/@nuvui/backgrounds) | Moving backgrounds for a hero, a sign-in page or an empty state | `pnpm add @nuvui/backgrounds` |
 | [`@nuvui/3d`](https://www.npmjs.com/package/@nuvui/3d) | A 3D model viewer for glTF, GLB and STL files, on react-three-fiber. It needs React 19 | `pnpm add @nuvui/3d three @react-three/fiber` |
-| [`@nuvui/scheduler`](https://www.npmjs.com/package/@nuvui/scheduler) | An event calendar with day, week, month and agenda views | `pnpm add @nuvui/scheduler @nuvui/date-picker` |
+| [`@nuvui/scheduler`](https://www.npmjs.com/package/@nuvui/scheduler) | An event calendar with day, week, month and agenda views, edited in place | `pnpm add @nuvui/scheduler @nuvui/date-picker` |
 | [`@nuvui/icons`](https://www.npmjs.com/package/@nuvui/icons) | 317 line icons in three styles. It needs only React | `pnpm add @nuvui/icons` |
 
 ## Components
@@ -209,7 +209,8 @@ It also has:
 - Shown in one time zone, the browser's or yours. An event at nine on the clock stays at nine across a change to summer time.
 - Preferences the person looking can change: 12 or 24 hours, weekends, week numbers, the first day of the week, and empty days in the agenda.
 - Arrow keys move around each grid, and every event says its title, time and day to a screen reader.
-- `date-fns` and `@date-fns/tz` are dependencies. `@nuvui/date-picker` is a peer dependency, for the month in the side panel.
+- Editing in place: a click or a drag on empty time makes an event, which opens in a popover to be changed or deleted. Events are dragged to move them and by their ends to resize them, snapped to a step, or picked up and moved from the keyboard. Something elsewhere on the page can be dropped in as an event.
+- `date-fns` and `@date-fns/tz` are dependencies. `@nuvui/date-picker` is a peer dependency, for the month in the side panel and the dates in the popover.
 
 ### `@nuvui/icons`
 
@@ -229,7 +230,7 @@ It also has:
 
 [nuvui.nuvraxis.com](https://nuvui.nuvraxis.com) is built with the library's own tokens, and the docs sit under `/docs` of the same site.
 
-- **[90 blocks](https://nuvui.nuvraxis.com/blocks)** in twelve groups. A block is a part of an app, such as a sign-in screen, a dashboard or a pricing table, as a TSX file and an SCSS file to copy. The site also serves them as a registry for shadcn's command line tool, at `/r`.
+- **[92 blocks](https://nuvui.nuvraxis.com/blocks)** in twelve groups. A block is a part of an app, such as a sign-in screen, a dashboard or a pricing table, as a TSX file and an SCSS file to copy. The site also serves them as a registry for shadcn's command line tool, at `/r`.
 - **[39 charts](https://nuvui.nuvraxis.com/charts)** in ten families, each one file to copy.
 - **[A theme builder](https://nuvui.nuvraxis.com/themes).**
 - **[Docs](https://nuvui.nuvraxis.com/docs)** with a page for each component, covering its parts, props, examples, CSS variables and classes, and what it leaves to you for accessibility. Search runs in the browser.

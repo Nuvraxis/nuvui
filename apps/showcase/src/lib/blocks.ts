@@ -142,8 +142,14 @@ import releaseNotes from "@/blocks/release-notes/block.json" with {
   type: "json",
 };
 import reviews from "@/blocks/reviews/block.json" with { type: "json" };
+import roomBooking from "@/blocks/room-booking/block.json" with {
+  type: "json",
+};
 import setStatus from "@/blocks/set-status/block.json" with { type: "json" };
 import setupChecklist from "@/blocks/setup-checklist/block.json" with {
+  type: "json",
+};
+import shiftPlanner from "@/blocks/shift-planner/block.json" with {
   type: "json",
 };
 import shippingLabel from "@/blocks/shipping-label/block.json" with {
@@ -356,6 +362,8 @@ export const blocks: BlockManifest[] = [
   workflowBuilder,
   teamCalendar,
   clinicDay,
+  roomBooking,
+  shiftPlanner,
   courseLesson,
   productDemo,
   recordingReview,

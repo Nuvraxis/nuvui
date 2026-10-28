@@ -1,0 +1,147 @@
+@use "@nuvui/react/scss/mixins";
+
+.shift-planner {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing) * 4);
+  box-sizing: border-box;
+  inline-size: 100%;
+  min-block-size: 100svh;
+  padding: calc(var(--spacing) * 4);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+
+  @include mixins.breakpoint("md") {
+    padding: calc(var(--spacing) * 6);
+  }
+}
+
+.shift-planner__head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 3);
+  align-items: end;
+  justify-content: space-between;
+}
+
+.shift-planner__heading {
+  display: grid;
+  gap: calc(var(--spacing) * 1);
+}
+
+.shift-planner__title {
+  margin: 0;
+  font-size: var(--text-xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-xl--line-height);
+}
+
+.shift-planner__meta {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+.shift-planner__key {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 2) calc(var(--spacing) * 4);
+  margin: 0;
+  padding: 0;
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+  list-style: none;
+}
+
+.shift-planner__key-item {
+  display: flex;
+  gap: calc(var(--spacing) * 2);
+  align-items: center;
+}
+
+.shift-planner__swatch {
+  inline-size: 0.75rem;
+  block-size: 0.75rem;
+  border-radius: var(--radius-full);
+  background-color: var(--color-chart-2);
+
+  &[data-color="4"] {
+    background-color: var(--color-chart-4);
+  }
+
+  &[data-color="8"] {
+    background-color: var(--color-chart-8);
+  }
+
+  @media (forced-colors: active) {
+    background-color: canvastext;
+  }
+}
+
+.shift-planner__layout {
+  display: grid;
+  flex: 1 1 auto;
+  gap: calc(var(--spacing) * 4);
+
+  @include mixins.breakpoint("lg") {
+    grid-template-columns: 16rem minmax(0, 1fr);
+  }
+}
+
+.shift-planner__calendar {
+  --nuv-event-calendar-height: 40rem;
+}
+
+.shift-planner__side {
+  display: grid;
+  gap: calc(var(--spacing) * 3);
+  align-content: start;
+}
+
+.shift-planner__subtitle {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-sm--line-height);
+}
+
+.shift-planner__staff {
+  display: grid;
+  gap: calc(var(--spacing) * 2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.shift-planner__member {
+  display: flex;
+  gap: calc(var(--spacing) * 2);
+  align-items: center;
+}
+
+// A person, to drag onto the week. The stripe at its start is their role's
+// color.
+.shift-planner__card {
+  display: grid;
+  flex: 1 1 auto;
+  gap: calc(var(--spacing) * 0.5);
+  padding: calc(var(--spacing) * 2) calc(var(--spacing) * 3);
+  border: var(--nuv-border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+  cursor: grab;
+  user-select: none;
+}
+
+.shift-planner__name {
+  font-weight: var(--font-weight-medium);
+}
+
+.shift-planner__role {
+  color: var(--color-muted-foreground);
+  font-size: var(--text-xs);
+  line-height: var(--text-xs--line-height);
+}

@@ -398,6 +398,36 @@ A model viewer's name is its `label`. The buttons' names, how to use the keys, w
 | `errorKtx2` (required) | `string` |  |  |
 | `errorContextLost` (required) | `string` |  | The browser took the drawing away and hasn't given it back. |
 
+## Scheduler
+
+A calendar's name is the `aria-label` you give it, and an event's is its `title`, its time and its days. Dates and times are written by the browser in the calendar's `locale`. The words it writes itself, the buttons, the views, the preferences and what the agenda says when nothing is on, are in one prop, `labels`:
+
+| Prop | Type | Default | What it's for |
+| --- | --- | --- | --- |
+| `calendar` (required) | `string` |  | The calendar's name, when it's given no `aria-label`. |
+| `today` (required) | `string` |  |  |
+| `previous` (required) | `string` |  |  |
+| `next` (required) | `string` |  |  |
+| `view` (required) | `string` |  | The name of the control that switches views. |
+| `day` (required) | `string` |  |  |
+| `week` (required) | `string` |  |  |
+| `month` (required) | `string` |  |  |
+| `agenda` (required) | `string` |  |  |
+| `allDay` (required) | `string` |  | The row of events that take whole days, and an event's time when it's one of them. |
+| `sidePanel` (required) | `string` |  | The button that opens the side panel, and the panel's name. |
+| `preferences` (required) | `string` |  |  |
+| `twentyFourHours` (required) | `string` |  |  |
+| `showWeekends` (required) | `string` |  |  |
+| `showWeekNumbers` (required) | `string` |  |  |
+| `showEmptyDays` (required) | `string` |  |  |
+| `weekStartsOn` (required) | `string` |  |  |
+| `weekNumber` (required) | `(week: number) => string` |  | A week's number, in the month view. |
+| `more` (required) | `(count: number) => string` |  | The button in a full day that shows the rest of its events. |
+| `timeRange` (required) | `(start: string, end: string) => string` |  | An event's time, from start to end. |
+| `nothingBetween` (required) | `(from: string, to: string) => string` |  | The agenda when nothing is on in the days it shows. |
+| `nextEvent` (required) | `(day: string) => string` |  | The button in an empty agenda that goes to the next day with an event. |
+| `nothingAhead` (required) | `string` |  | The agenda when nothing is on for 180 days. |
+
 ## What isn't text
 
 - A [field](components/field.md) marks a required label with `*`, which `FieldLabel` changes with `requiredIndicator`. Screen readers don't hear it. They hear "required" from the control, in the browser's own language.

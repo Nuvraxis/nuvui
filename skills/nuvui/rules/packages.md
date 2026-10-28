@@ -135,6 +135,18 @@ import "@nuvui/<package>/styles.css";
 - An STL is drawn in `--nuv-model-viewer-model`. Don't pass colors as props.
 - It's ESM only.
 
+## @nuvui/scheduler
+
+- Install `@nuvui/date-picker` with it, and load its stylesheet before the scheduler's.
+- `events` are yours: `id`, `title`, `start`, `end`, and `allDay`, `timeZone`, `color` or `description` where needed. Keep them in your state and pass them in.
+- Write a time that's on the clock, such as opening hours, as a string without a zone: `"2026-10-14T09:00"`. Write a moment, such as a call between offices, with `Z` or an offset, or as a `Date`.
+- An all-day event's `end` is its last day, not the day after.
+- Set `timeZone` when the server renders the calendar, or its days stay hidden until the browser has the page.
+- Name it with `aria-label`, after what it shows.
+- `color` is `"1"` to `"8"`, the theme's chart colors, or a CSS color. Say the kind of event in its title too.
+- Its height is `--nuv-event-calendar-height`, 40rem by default.
+- Editing, dragging, resources, recurring events and a timeline aren't in it yet. Open your own form from `onEventClick`.
+
 ## @nuvui/barcodes
 
 - A code is black on white in every theme, on purpose: a scanner needs the contrast. Don't theme it.

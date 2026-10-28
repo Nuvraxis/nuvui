@@ -3,7 +3,7 @@ import "@nuvui/date-picker/styles.css";
 import "../src/styles/index.scss";
 import { emulateMedia } from "@nuvui/tooling/test/media";
 import { beforeEach, describe, expect, test } from "vitest";
-import { page } from "vitest/browser";
+import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
 import { type CalendarEvent, EventCalendar } from "../src";
 
@@ -65,5 +65,43 @@ describe("event calendar", () => {
       .getByRole("button", { name: "Wednesday, October 14, 2026" })
       .element();
     expect(getComputedStyle(today).outlineStyle).toBe("solid");
+  });
+});
+
+describe("editing", () => {
+  test("an event picked up from the keyboard has a dashed outline", async () => {
+    await render(
+      <EventCalendar
+        {...calendar}
+        events={undefined}
+        defaultEvents={events}
+        defaultPanelOpen={false}
+      />,
+    );
+    const review = page.getByRole("button", { name: /^Design review/ });
+    (review.element() as HTMLElement).focus();
+    await userEvent.keyboard(" ");
+    await expect.element(review).toHaveAttribute("data-picked");
+    const style = getComputedStyle(review.element());
+    expect(style.outlineStyle).toBe("dashed");
+  });
+
+  test("a color in the popover shows which is chosen without its fill", async () => {
+    await render(
+      <EventCalendar
+        {...calendar}
+        events={undefined}
+        defaultEvents={events}
+        defaultPanelOpen={false}
+      />,
+    );
+    await page.getByRole("button", { name: /^Design review/ }).click();
+    const chosen = page.getByRole("radio", { name: "Color 1" }).element()
+      .nextElementSibling as Element;
+    const other = page.getByRole("radio", { name: "Color 2" }).element()
+      .nextElementSibling as Element;
+    expect(getComputedStyle(chosen).borderTopColor).not.toBe(
+      getComputedStyle(other).borderTopColor,
+    );
   });
 });

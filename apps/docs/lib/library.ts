@@ -59,6 +59,7 @@ export const addons = {
   media: pkg("media", "@nuvui/media"),
   backgrounds: pkg("backgrounds", "@nuvui/backgrounds"),
   "3d": pkg("3d", "@nuvui/3d"),
+  scheduler: pkg("scheduler", "@nuvui/scheduler"),
   icons: pkg("icons", "@nuvui/icons"),
 };
 

@@ -393,6 +393,17 @@ A model viewer's name is its `label`. The buttons' names, how to use the keys, w
 
 <PropsTable package="3d" component="model-viewer" file="src/core/labels.ts" name="ModelViewerLabels" />
 
+## Scheduler
+
+A calendar's name is the `aria-label` you give it, and an event's is its `title`, its time and its days. Dates and times are written by the browser in the calendar's `locale`. The words it writes itself, the buttons, the views, the preferences and what the agenda says when nothing is on, are in one prop, `labels`:
+
+<PropsTable
+  package="scheduler"
+  component="event-calendar"
+  file="src/core/labels.ts"
+  name="SchedulerLabels"
+/>
+
 ## What isn't text
 
 - A [field](/docs/components/field) marks a required label with `*`, which `FieldLabel` changes with `requiredIndicator`. Screen readers don't hear it. They hear "required" from the control, in the browser's own language.

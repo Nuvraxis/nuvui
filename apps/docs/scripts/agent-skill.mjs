@@ -51,6 +51,7 @@ const addons = [
   "media",
   "backgrounds",
   "3d",
+  "scheduler",
   "icons",
 ];
 const packageDir = (addon) => path.join(repoDir, "packages", addon ?? core);

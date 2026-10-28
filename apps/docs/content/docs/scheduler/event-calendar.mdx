@@ -1,0 +1,318 @@
+---
+title: EventCalendar
+description: Events in a day, a week, a month or a list. Events that overlap are set side by side, those over several days are bars across them, and a full day in a month keeps the rest behind "3 more".
+added: "2026-10-28"
+---
+
+Use an event calendar when the time something happens matters as much as what it is: a team's meetings, a clinic's appointments, bookings for a room. For dates without times, or one date to pick, [date-picker](/docs/date-picker) is enough.
+
+<Preview name="event-calendar/basic" />
+
+## Install
+
+```sh
+pnpm add @nuvui/scheduler @nuvui/date-picker @nuvui/react
+```
+
+## Import
+
+```tsx
+import { EventCalendar, type CalendarEvent } from "@nuvui/scheduler";
+```
+
+The styles come from `@nuvui/scheduler/styles.css`, which you load once for the whole app, after the core's and date-picker's. [Scheduler](/docs/scheduler) covers that.
+
+```tsx
+const events: CalendarEvent[] = [
+  {
+    id: "planning",
+    title: "Quarterly planning",
+    start: "2026-10-12T10:00",
+    end: "2026-10-12T12:00",
+  },
+  {
+    id: "offsite",
+    title: "Team offsite",
+    start: "2026-10-15",
+    end: "2026-10-16",
+    allDay: true,
+  },
+];
+
+<EventCalendar aria-label="Team calendar" events={events} />;
+```
+
+## Playground
+
+<EventCalendarPlayground />
+
+## Events
+
+An event has an `id`, a `title`, a `start` and an `end`. The rest is optional: `allDay`, `timeZone`, `color`, `description` and `className`.
+
+A date is a `Date`, or a string:
+
+- A string that ends in `Z` or an offset, such as `"2026-10-12T08:00:00Z"`, is a moment, the same everywhere.
+- A string without one, such as `"2026-10-12T10:00"`, is a time on the clock in the event's `timeZone`, or the calendar's when it has none. It stays at ten on the clock whichever side of a change to summer time it falls on.
+
+An all-day event's `start` and `end` are its first and last day, so an event on one day has the same `start` and `end`. Written as a string, `"2026-10-15"` is the 15th wherever it's read.
+
+A timed event that lasts a day or longer is drawn with the all-day events, as a bar across its days. A shorter one that crosses midnight is drawn on both days.
+
+## Views
+
+The header switches between four views. `views` limits which are offered, and in what order. `defaultView` is the one shown first, `"week"` unless you say otherwise.
+
+- **Week** and **day:** a column for each day and a row for each hour, with the all-day events in a row above. The line across today is the time now. Events that overlap are set side by side, and each widens into the space beside it that stays free.
+- **Month:** a row for each week, with events as bars across their days. A timed event on one day is a line with its time. A day with more than fits shows as many as it can and "3 more", which opens the rest. How many fit is measured, so a taller calendar shows more.
+- **Agenda:** the events as a list, day by day, `agendaDays` days at a time, 7 by default.
+
+<Preview name="event-calendar/month" />
+
+A day's number, in the week view's header and in a month, opens that day.
+
+## The agenda
+
+With days that have nothing on left out, the agenda lists only the days with events. When none of its days do, it says so, and looks up to 180 days ahead for the next day with an event, with a button that goes there.
+
+<Preview name="event-calendar/agenda" />
+
+## Hours
+
+`hours` is the part of the day the day and week views show, as two whole hours from 0 to 24, the first included and the last not. Events wholly outside it aren't drawn, and those that start or end outside it are cut at its edge, with square corners there. `scrollToHour` is the hour they open scrolled to, 7 by default.
+
+<Preview name="event-calendar/hours" />
+
+Moving to the next week keeps the scroll where it is. Switching to another view and back opens at `scrollToHour` again.
+
+## Moving through time
+
+Today goes to today, and previous and next go back and forward by the view's length: a day, a week, a month, or the agenda's days. The heading says what's shown, and a screen reader hears it each time it changes.
+
+`date` and `onDateChange` let you hold the day shown. `onDateChange` is called with the start of the day moved to, in the calendar's time zone. `defaultDate` is the day shown first, today by default.
+
+The side panel has a month to pick a day from. The button at the start of the header opens and closes it. On a calendar 1024 pixels wide or wider it's beside the days, and `defaultPanelOpen` is whether it's open at first, `true` by default. `panelOpen` and `onPanelOpenChange` let you hold that. On a narrower calendar it opens over the days, starts closed, and closes when a day is picked or <kbd>Esc</kbd> is pressed.
+
+## Time zones
+
+`timeZone` is the zone events are drawn in, such as `"Europe/Paris"`. It changes where they're drawn, not when they happen. The browser's zone is used by default.
+
+An event's own `timeZone` says which zone its clock times are in. A call written at nine in London is drawn at four in Tokyo.
+
+<Preview name="event-calendar/time-zone" />
+
+A server can't know the zone of the person reading, so without `timeZone` the calendar's days are hidden until the browser has the page. They keep their place, so nothing moves when they appear. With `timeZone` set, the server draws them.
+
+`today` sets the moment taken as now, for a screenshot or a test. The browser's clock is used by default, and moves the line across today every half minute.
+
+## Preferences
+
+The menu at the end of the header has what the person looking can change:
+
+| Preference | What it does | Default |
+| --- | --- | --- |
+| `twentyFourHours` | Times as 13:00, or 1 PM | The locale's |
+| `showWeekends` | Saturday and Sunday in the week and month views | `true` |
+| `showWeekNumbers` | Each week's number in the month view and the side panel | `false` |
+| `weekStartsOn` | The first day of the week, 0 for Sunday to 6 for Saturday | The locale's |
+| `showEmptyDays` | Days with nothing on in the agenda | `true` |
+
+`preferenceOptions` is the list offered in the menu, in order. The first day of the week isn't offered unless you add it, and an empty list takes the menu away. `defaultPreferences` sets them at first, and `preferences` with `onPreferencesChange` lets you hold them, to save them for next time:
+
+```tsx
+const [preferences, setPreferences] = useState(saved);
+
+<EventCalendar
+  events={events}
+  preferences={preferences}
+  onPreferencesChange={(next) => {
+    setPreferences(next);
+    save(next);
+  }}
+/>;
+```
+
+## Colors
+
+`color` is one of the theme's eight chart colors, `"1"` to `"8"`, or any CSS color. An event's color is its own, or the calendar's `color`, `"1"` by default. Its background is mixed from the color and the calendar's background, so text stays readable on it in every theme.
+
+## Pressing an event
+
+`onEventClick` is called with the event and the element pressed. Editing comes in a later version of the package: until then, open your own popover or page from here.
+
+## Language and dates
+
+Dates and times are written by the browser in `locale`, any locale from `@nuvui/date-picker/locale`, which also gives the first day of the week and the numbering of weeks. It's English, written the American way, by default.
+
+```tsx
+import { de } from "@nuvui/date-picker/locale";
+
+<EventCalendar events={events} locale={de} />;
+```
+
+The words the calendar writes itself are in `labels`. [Translation](/docs/translation#scheduler) lists them.
+
+## EventCalendar props
+
+<PropsTable
+  package="scheduler"
+  component="event-calendar"
+  name="EventCalendarOwnProps"
+/>
+
+It also takes the attributes of a `section`, and passes `ref` to it.
+
+## Accessibility
+
+### Keyboard
+
+| Key | What it does |
+| --- | --- |
+| <kbd>Tab</kbd> | Into a grid at its current cell, then to the events in that cell, then out of the grid. |
+| <kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd> | In a grid, to the next cell that way. From an event, to the next cell from its own. |
+| <kbd>Home</kbd> <kbd>End</kbd> | To the first or last day of the row. |
+| <kbd>Enter</kbd> or <kbd>Space</kbd> | On an event, presses it. On a day's number, opens that day. |
+| <kbd>Esc</kbd> | Closes the menu, the list or the popover that's open, and the side panel when it's over the days. |
+
+The arrows go by where things are on the screen. Where the page reads right to left the week starts at the right, and <kbd>←</kbd> goes to the next day.
+
+### What the component handles
+
+- The calendar is a region named by `aria-label`, "Calendar" by default, and the side panel a region named "Side panel". Its button says whether it's open.
+- The day, week and month views are grids. Each cell is named by its day, and in the day and week views by its hour, and only one cell at a time is in the tab order.
+- Every event is a button whose name has its title, its time or "All day", and its days.
+- Today is marked as the current date.
+- The heading with the dates shown is a live region.
+- The agenda's days are headings, each over a list of its events.
+- The times down the side, and the line at the time now, are hidden from screen readers, since each cell says its hour.
+- The buttons in the header, a day's number and an event in a list are 44 pixels on a touch screen.
+
+### What you need to handle
+
+- Name the calendar with `aria-label`, after what it shows: "Team calendar", "Appointments".
+- Give events titles that tell them apart, since a screen reader hears the title first.
+- An event's `description` is shown only in the agenda and a day's "more". If it matters, show it where the event is opened.
+
+## On small screens
+
+Narrower than 640 pixels, measured on the calendar and not the window, the week view shows three days from the day it's on, and the views are a menu. Narrower than 1024 pixels, the side panel opens over the days.
+
+An event is as tall as it lasts, so a short one is shorter than a finger. The agenda lists every event at a size a finger can press, and is the better view on a phone.
+
+## CSS variables
+
+Set any of these on an `EventCalendar`, or on anything around it.
+
+```css
+.calendar {
+  --nuv-event-calendar-height: 48rem;
+  --nuv-event-calendar-hour-height: 4rem;
+}
+```
+
+<CssVariables
+  package="scheduler"
+  component="event-calendar"
+  descriptions={{
+    "--nuv-event-calendar-height": "Height of the calendar. The views fill it.",
+    "--nuv-event-calendar-radius": "Corner radius of the calendar.",
+    "--nuv-event-calendar-bg":
+      "Background of the calendar, and what events' colors are mixed with.",
+    "--nuv-event-calendar-fg": "Color of the text.",
+    "--nuv-event-calendar-axis-width":
+      "Width of the times down the side of the day and week views.",
+    "--nuv-event-calendar-hour-height":
+      "Height of an hour in the day and week views.",
+    "--nuv-event-calendar-bar-pitch":
+      "Height of a lane of bars across days, with the gap below it.",
+    "--nuv-event-calendar-today":
+      "Color of today's date. Keep it at 4.5:1 against the calendar.",
+    "--nuv-event-calendar-today-bg": "Background of today's column.",
+    "--nuv-event-calendar-now": "Color of the line at the time now.",
+    "--nuv-event-calendar-event-radius": "Corner radius of an event.",
+    "--nuv-event-calendar-event-tint":
+      "How much of an event's color is in its background.",
+    "--nuv-event-calendar-outside-bg":
+      "Background of the days of the months either side of the one shown.",
+  }}
+/>
+
+## Classes
+
+<BemClasses
+  package="scheduler"
+  component="event-calendar"
+  descriptions={{
+    "nuv-event-calendar": "EventCalendar",
+    "nuv-event-calendar__header": "The header.",
+    "nuv-event-calendar__icon-button": "A button in the header with only an icon.",
+    "nuv-event-calendar__steps": "The previous and next buttons.",
+    "nuv-event-calendar__chevron": "The arrow in each.",
+    "nuv-event-calendar__title": "The heading with the dates shown.",
+    "nuv-event-calendar__tools": "The view switch and the preferences menu.",
+    "nuv-event-calendar__view-select": "The view switch as a menu, on a narrow calendar.",
+    "nuv-event-calendar__main": "The side panel and the view.",
+    "nuv-event-calendar__panel": "The side panel.",
+    "nuv-event-calendar__view": "The view.",
+    "nuv-event-calendar__time-grid": "The day and week views.",
+    "nuv-event-calendar__head": "The days' names and the all-day row, which stay at the top.",
+    "nuv-event-calendar__row": "A row of the day and week views.",
+    "nuv-event-calendar__axis": "The start of a row: the times, or \"All day\".",
+    "nuv-event-calendar__axis--all-day": "The start of the all-day row.",
+    "nuv-event-calendar__axis--hour": "The start of an hour's row.",
+    "nuv-event-calendar__hour": "An hour's time.",
+    "nuv-event-calendar__hour--first": "The first hour's, under the top edge.",
+    "nuv-event-calendar__column-head": "A day's name and number.",
+    "nuv-event-calendar__column-head--today": "Today's.",
+    "nuv-event-calendar__day-button": "The button in it that opens the day.",
+    "nuv-event-calendar__weekday": "The day's name in it.",
+    "nuv-event-calendar__date": "The day's number in it.",
+    "nuv-event-calendar__cell": "A cell of a grid.",
+    "nuv-event-calendar__cell--all-day": "A day in the all-day row.",
+    "nuv-event-calendar__cell--hour": "An hour of a day.",
+    "nuv-event-calendar__cell--day": "A day in the month view.",
+    "nuv-event-calendar__cell--today": "A cell of today.",
+    "nuv-event-calendar__now": "The line at the time now.",
+    "nuv-event-calendar__event": "An event.",
+    "nuv-event-calendar__event--block": "An event on the time grid.",
+    "nuv-event-calendar__event--bar": "An event as a bar across days.",
+    "nuv-event-calendar__event--line": "A timed event in a month.",
+    "nuv-event-calendar__event--item": "An event in a list.",
+    "nuv-event-calendar__event-title": "An event's title.",
+    "nuv-event-calendar__event-time": "An event's time.",
+    "nuv-event-calendar__event-description": "An event's description, in a list.",
+    "nuv-event-calendar__event-dot": "The dot of an event's color, in a month and a list.",
+    "nuv-event-calendar__month": "The month view.",
+    "nuv-event-calendar__month--numbered": "With week numbers.",
+    "nuv-event-calendar__weekdays": "The days' names over a month.",
+    "nuv-event-calendar__weekday-head": "A day's name over a month.",
+    "nuv-event-calendar__week": "A week of a month.",
+    "nuv-event-calendar__week-number": "A week's number.",
+    "nuv-event-calendar__day-number": "A day's number in a month, which opens it.",
+    "nuv-event-calendar__lanes": "The part of a day in a month that holds its events.",
+    "nuv-event-calendar__probe": "A hidden lane, measured to work out how many fit.",
+    "nuv-event-calendar__more": "The \"3 more\" button.",
+    "nuv-event-calendar__more-panel": "The popover it opens.",
+    "nuv-event-calendar__more-title": "The day at the top of it.",
+    "nuv-event-calendar__list": "A list of events.",
+    "nuv-event-calendar__agenda": "The agenda.",
+    "nuv-event-calendar__agenda-day": "A day of it.",
+    "nuv-event-calendar__agenda-day--today": "Today, in it.",
+    "nuv-event-calendar__agenda-heading": "A day's heading in it.",
+    "nuv-event-calendar__empty": "What the agenda says when nothing is on.",
+    "nuv-event-calendar__empty-text": "Its words.",
+  }}
+/>
+
+An event's color is set on it as `--nuv-event-color`. An event drawn on from an earlier day has `data-starts-before`, and one that goes on to a later day `data-ends-after`. A month's days from the months either side have `data-outside`. The calendar has `data-view` with the view shown, `data-narrow` when it's narrower than 640 pixels, and `data-panel-over` when it's narrower than 1024 and the side panel opens over the days.
+
+## Server components
+
+EventCalendar starts with `"use client"`. A server component can render it and pass it events, as long as their dates are strings, or `Date`s your framework can send to the browser.
+
+## Do and don't
+
+- **Do** write clock times without a zone when they're meant on the clock, such as a shop's opening hours, and with `Z` when they're a moment, such as a call between offices.
+- **Do** give the calendar a height that fits the page, with `--nuv-event-calendar-height`.
+- **Don't** show more than a few hundred events in one month. Narrow them first, by person or by kind.
+- **Don't** rely on color alone to tell kinds of event apart. Say it in the title too.

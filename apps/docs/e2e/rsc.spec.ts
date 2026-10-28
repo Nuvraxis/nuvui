@@ -138,6 +138,16 @@ test("components used from a server component hydrate and work", async ({
   await expect(
     compare.getByRole("slider", { name: "Before and after" }),
   ).toHaveAttribute("aria-valuenow", "30");
+  const calendar = page.getByRole("region", { name: "Server calendar" });
+  await expect(
+    calendar.getByRole("button", {
+      name: /^Meeting from the server, 10:00 AM/,
+    }),
+  ).toBeVisible();
+  await calendar.getByRole("button", { name: "Next" }).click();
+  await expect(calendar.getByRole("heading", { level: 2 })).toHaveText(
+    "October 21 – 27, 2026",
+  );
   const zoom = page.getByTestId("server-image-zoom");
   await expect(zoom).toContainText("Picture from the server");
   await zoom.getByRole("button", { name: "Zoom" }).click();

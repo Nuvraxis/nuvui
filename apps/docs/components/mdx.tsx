@@ -55,6 +55,7 @@ import { RichTextEditorPlayground } from "@/components/playground/editor";
 import { EmojiPickerPlayground } from "@/components/playground/emoji";
 import { EmojiReactionPlayground } from "@/components/playground/emoji-reaction";
 import { EmptyPlayground } from "@/components/playground/empty";
+import { EventCalendarPlayground } from "@/components/playground/event-calendar";
 import { FieldPlayground } from "@/components/playground/field";
 import { FieldsetPlayground } from "@/components/playground/fieldset";
 import { FileUploadPlayground } from "@/components/playground/file-upload";
@@ -225,6 +226,7 @@ export function getMDXComponents(components?: MDXComponents) {
     InputGroupPlayground,
     KanbanPlayground,
     FlowPlayground,
+    EventCalendarPlayground,
     RichTextEditorPlayground,
     KbdPlayground,
     LabelPlayground,

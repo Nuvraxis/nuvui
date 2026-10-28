@@ -677,10 +677,12 @@ export default function RscSmokePage() {
           three comes once the page's script has run. */}
       <ModelViewer label="Server model" src="/docs/models/chair.glb" />
       {/* Events with string dates, which a server component can pass, in
-          a time zone of its own, so the server draws the days. */}
+          a time zone of its own, so the server draws the days. Given as
+          defaultEvents, the calendar keeps them and they can be edited,
+          with no function passed from the server. */}
       <EventCalendar
         aria-label="Server calendar"
-        events={[
+        defaultEvents={[
           {
             id: "server",
             title: "Meeting from the server",

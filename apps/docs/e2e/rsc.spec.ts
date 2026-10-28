@@ -144,7 +144,17 @@ test("components used from a server component hydrate and work", async ({
       name: /^Meeting from the server, 10:00 AM/,
     }),
   ).toBeVisible();
-  await calendar.getByRole("button", { name: "Next" }).click();
+  // Edited in the browser, though the server passed it no function.
+  await calendar
+    .getByRole("button", { name: /^Meeting from the server/ })
+    .click();
+  const editor = page.getByRole("dialog");
+  await editor.getByRole("textbox", { name: "Title" }).fill("Moved meeting");
+  await editor.getByRole("button", { name: "Save" }).click();
+  await expect(
+    calendar.getByRole("button", { name: /^Moved meeting, 10:00 AM/ }),
+  ).toBeVisible();
+  await calendar.getByRole("button", { name: "Next", exact: true }).click();
   await expect(calendar.getByRole("heading", { level: 2 })).toHaveText(
     "October 21 – 27, 2026",
   );

@@ -1,4 +1,4 @@
-import { expect, type Page, test } from "@playwright/test";
+import { expect, type Locator, type Page, test } from "@playwright/test";
 import { open, press } from "./helpers";
 
 // The rendered example. The figure around it also holds the example's
@@ -110,5 +110,76 @@ test.describe("event calendar page", () => {
         page.evaluate(() => document.activeElement?.getAttribute("aria-label")),
       )
       .not.toBe(first);
+  });
+});
+
+// The examples' week is the one the page is read in, and a narrow example
+// shows three days from today. A weekday's stand-up is in every three days
+// but a weekend's, so it steps back until one is shown.
+async function showStandUps(calendar: Locator) {
+  const standUp = calendar.getByRole("button", { name: /^Stand-up/ });
+  for (let step = 0; step < 3 && (await standUp.count()) === 0; step += 1) {
+    await calendar.getByRole("button", { name: "Previous" }).click();
+  }
+  return standUp.first();
+}
+
+test.describe("editing events page", () => {
+  test.beforeEach(async ({ page }) => {
+    await open(page, "/docs/scheduler/editing");
+  });
+
+  test("a click on empty time makes an event, saved from its popover", async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(isMobile, "the week is three days on a phone, and starts today");
+    const calendar = preview(page, "event-calendar/controlled");
+    await calendar.scrollIntoViewIfNeeded();
+    await calendar
+      .getByRole("gridcell", { name: /, 7 AM$/ })
+      .first()
+      .click({ position: { x: 6, y: 4 } });
+    const form = page.getByRole("dialog");
+    await form.getByRole("textbox", { name: "Title" }).fill("Budget review");
+    await form.getByRole("button", { name: "Save" }).click();
+    await expect(
+      calendar.getByRole("button", { name: /^Budget review, 7:00 AM/ }),
+    ).toBeVisible();
+    await expect(calendar.getByRole("status").last()).toHaveText(
+      "Last change: create, Budget review.",
+    );
+  });
+
+  test("an event that's read-only opens to be read", async ({
+    page,
+    isMobile,
+  }) => {
+    const calendar = preview(page, "event-calendar/read-only");
+    await calendar.scrollIntoViewIfNeeded();
+    await press(await showStandUps(calendar), isMobile);
+    const read = page.getByRole("dialog");
+    await expect(read.getByRole("button", { name: "Close" })).toBeVisible();
+    await expect(read.getByRole("textbox")).toHaveCount(0);
+  });
+
+  test("an event is picked up and moved from the keyboard", async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(isMobile, "a phone has no keyboard");
+    const calendar = preview(page, "event-calendar/controlled");
+    await calendar.scrollIntoViewIfNeeded();
+    await (await showStandUps(calendar)).focus();
+    await page.keyboard.press("Space");
+    await page.keyboard.press("ArrowDown");
+    await page.keyboard.press("Enter");
+    await expect(page.locator(":focus")).toHaveAttribute(
+      "aria-label",
+      /^Stand-up, 9:45 AM to 10:00 AM/,
+    );
+    await expect(calendar.getByRole("status").last()).toHaveText(
+      "Last change: update, Stand-up.",
+    );
   });
 });

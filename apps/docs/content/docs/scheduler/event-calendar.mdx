@@ -48,7 +48,7 @@ const events: CalendarEvent[] = [
 
 ## Events
 
-An event has an `id`, a `title`, a `start` and an `end`. The rest is optional: `allDay`, `timeZone`, `color`, `description` and `className`.
+An event has an `id`, a `title`, a `start` and an `end`. The rest is optional: `allDay`, `timeZone`, `color`, `description` and `className`, and `readOnly`, `draggable` and `resizable` for [editing](/docs/scheduler/editing#read-only).
 
 A date is a `Date`, or a string:
 
@@ -136,9 +136,11 @@ const [preferences, setPreferences] = useState(saved);
 
 `color` is one of the theme's eight chart colors, `"1"` to `"8"`, or any CSS color. An event's color is its own, or the calendar's `color`, `"1"` by default. Its background is mixed from the color and the calendar's background, so text stays readable on it in every theme.
 
-## Pressing an event
+## Editing
 
-`onEventClick` is called with the event and the element pressed. Editing comes in a later version of the package: until then, open your own popover or page from here.
+Given `defaultEvents`, or `events` with `onEventsChange`, the calendar is edited in place: empty time is clicked or dragged across to make an event, an event opens in a popover to be changed or deleted, and it's dragged to move it or by its ends to resize it. Given `events` alone, an event opens in the popover to be read. [Editing events](/docs/scheduler/editing) has the whole of it.
+
+`onEventClick` is called with the event and the element pressed, before the popover opens. `onEditStart` comes after it, and can keep the popover closed to open your own form.
 
 ## Language and dates
 
@@ -171,8 +173,10 @@ It also takes the attributes of a `section`, and passes `ref` to it.
 | <kbd>Tab</kbd> | Into a grid at its current cell, then to the events in that cell, then out of the grid. |
 | <kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd> | In a grid, to the next cell that way. From an event, to the next cell from its own. |
 | <kbd>Home</kbd> <kbd>End</kbd> | To the first or last day of the row. |
-| <kbd>Enter</kbd> or <kbd>Space</kbd> | On an event, presses it. On a day's number, opens that day. |
-| <kbd>Esc</kbd> | Closes the menu, the list or the popover that's open, and the side panel when it's over the days. |
+| <kbd>Enter</kbd> | On an event, opens it. On a day's number, opens that day. On an empty cell, makes an event there. |
+| <kbd>Space</kbd> | On an event that can be moved, picks it up, for the arrows to move. [Editing events](/docs/scheduler/editing#from-the-keyboard) has the keys after that. |
+| <kbd>Delete</kbd> or <kbd>Backspace</kbd> | On an event, asks to delete it. |
+| <kbd>Esc</kbd> | Closes the menu, the list or the popover that's open, and the side panel when it's over the days. Puts back an event being moved. |
 
 The arrows go by where things are on the screen. Where the page reads right to left the week starts at the right, and <kbd>←</kbd> goes to the next day.
 
@@ -191,7 +195,7 @@ The arrows go by where things are on the screen. Where the page reads right to l
 
 - Name the calendar with `aria-label`, after what it shows: "Team calendar", "Appointments".
 - Give events titles that tell them apart, since a screen reader hears the title first.
-- An event's `description` is shown only in the agenda and a day's "more". If it matters, show it where the event is opened.
+- An event's `description` is shown in its popover, the agenda and a day's "more", and not on the grids.
 
 ## On small screens
 
@@ -301,10 +305,33 @@ Set any of these on an `EventCalendar`, or on anything around it.
     "nuv-event-calendar__agenda-heading": "A day's heading in it.",
     "nuv-event-calendar__empty": "What the agenda says when nothing is on.",
     "nuv-event-calendar__empty-text": "Its words.",
+    "nuv-event-calendar__event--preview": "Where an event being dragged would go.",
+    "nuv-event-calendar__handle": "An end of an event, dragged to resize it.",
+    "nuv-event-calendar__handle--start": "Its start.",
+    "nuv-event-calendar__handle--end": "Its end.",
+    "nuv-event-calendar__editor": "The popover an event opens in.",
+    "nuv-event-calendar__editor-head": "Its color and title, when it's read.",
+    "nuv-event-calendar__editor-title": "Its heading.",
+    "nuv-event-calendar__editor-text": "Its time and description, when it's read.",
+    "nuv-event-calendar__editor-footer": "Its buttons.",
+    "nuv-event-calendar__form": "Its form.",
+    "nuv-event-calendar__field": "A label and its control in it.",
+    "nuv-event-calendar__check": "All day, in it.",
+    "nuv-event-calendar__when": "When it starts or ends: a date, and a time.",
+    "nuv-event-calendar__legend": "The name of a group of controls in it.",
+    "nuv-event-calendar__time-input": "A time in it.",
+    "nuv-event-calendar__error": "What's wrong with the times.",
+    "nuv-event-calendar__colors": "The colors to choose from.",
+    "nuv-event-calendar__color": "A color.",
+    "nuv-event-calendar__color-input": "The radio under its swatch.",
+    "nuv-event-calendar__swatch": "A color's swatch.",
+    "nuv-event-calendar__delete": "The Delete button.",
+    "nuv-event-calendar__actions": "The toolbar a tap on an event shows on a touch screen.",
+    "nuv-event-calendar__announcer": "The live region that says what's moved, hidden from view.",
   }}
 />
 
-An event's color is set on it as `--nuv-event-color`. An event drawn on from an earlier day has `data-starts-before`, and one that goes on to a later day `data-ends-after`. A month's days from the months either side have `data-outside`. The calendar has `data-view` with the view shown, `data-narrow` when it's narrower than 640 pixels, and `data-panel-over` when it's narrower than 1024 and the side panel opens over the days.
+An event's color is set on it as `--nuv-event-color`. An event drawn on from an earlier day has `data-starts-before`, and one that goes on to a later day `data-ends-after`. An event that can be moved has `data-movable`, one being dragged has `data-dragging` where it was, one picked up from the keyboard has `data-picked`, and the calendar has `data-dragging` while anything is. A month's days from the months either side have `data-outside`. The calendar has `data-view` with the view shown, `data-narrow` when it's narrower than 640 pixels, and `data-panel-over` when it's narrower than 1024 and the side panel opens over the days.
 
 ## Server components
 

@@ -211,6 +211,7 @@ It also has:
 - Arrow keys move around each grid, and every event says its title, time and day to a screen reader.
 - Editing in place: a click or a drag on empty time makes an event, which opens in a popover to be changed or deleted. Events are dragged to move them and by their ends to resize them, snapped to a step, or picked up and moved from the keyboard. Something elsewhere on the page can be dropped in as an event.
 - Resources, such as rooms or people, that events are booked against. The side panel lists them, nested, with a checkbox to show or hide each, and an event's popover has one or several to choose. Events and resources can keep the app's own field names, and changes come back under them.
+- Recurring events, by an RRULE or the same as an object: daily, weekly on chosen days, monthly on a date or a weekday in its week, and yearly, with days left out. Each is worked out on its own clock, so it keeps its time across summer time. Changing or deleting one asks whether it's for that one, those after it, or all.
 - `date-fns` and `@date-fns/tz` are dependencies. `@nuvui/date-picker` is a peer dependency, for the month in the side panel and the dates in the popover.
 
 ### `@nuvui/icons`

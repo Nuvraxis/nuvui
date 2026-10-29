@@ -1,5 +1,11 @@
 {
   "title": "Scheduler",
   "defaultOpen": true,
-  "pages": ["index", "event-calendar", "editing", "resources"]
+  "pages": [
+    "index",
+    "event-calendar",
+    "editing",
+    "resources",
+    "recurring-events"
+  ]
 }

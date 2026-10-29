@@ -55,7 +55,7 @@ const events: CalendarEvent[] = [
 
 ## Events
 
-An event has an `id`, a `title`, a `start` and an `end`. The rest is optional: `allDay`, `timeZone`, `color`, `description` and `className`, `resourceIds` for the [resources](resources.md) it belongs to, and `readOnly`, `draggable` and `resizable` for [editing](editing.md#read-only). When your events have other names for these, `eventKeys` says which is which.
+An event has an `id`, a `title`, a `start` and an `end`. The rest is optional: `allDay`, `timeZone`, `color`, `description` and `className`, `resourceIds` for the [resources](resources.md) it belongs to, `recurrence` and `exceptions` for an event that [repeats](recurring-events.md), and `readOnly`, `draggable` and `resizable` for [editing](editing.md#read-only). When your events have other names for these, `eventKeys` says which is which.
 
 A date is a `Date`, or a string:
 
@@ -290,6 +290,10 @@ Given `defaultEvents`, or `events` with `onEventsChange`, the calendar is edited
 
 Given `resources`, the side panel lists them under the month, each with a checkbox to show or hide its events, and an event's popover has a resource to choose. An event belongs to the resources in its `resourceIds`, and takes its color, and whether it can be changed, from them when it doesn't say. [Resources](resources.md) has the whole of it.
 
+## Recurring events
+
+An event with a `recurrence`, an RRULE such as `"FREQ=WEEKLY;BYDAY=MO,WE"` or the same as an object, repeats, worked out on its own clock so it keeps its time across summer time. Changing or deleting one occurrence asks whether it's for that one, those after it, or all of them. [Recurring events](recurring-events.md) has the whole of it.
+
 ## Language and dates
 
 Dates and times are written by the browser in `locale`, any locale from `@nuvui/date-picker/locale`, which also gives the first day of the week and the numbering of weeks. It's English, written the American way, by default.
@@ -325,8 +329,8 @@ The words the calendar writes itself are in `labels`. [Translation](../translati
 | `createOn` | `"click" \| "doubleClick"` | `"click"` | What makes an event on empty time: a click, or a double click. |
 | `defaultDuration` | `number` | `60` | Minutes a new event lasts when it's made with a click, and an all-day one dragged onto a time. |
 | `step` | `number` | `15` | Minutes that times snap to while an event is dragged, and that the arrow keys move it by. |
-| `confirmDelete` | `boolean` | `true` | Asks before an event is deleted. |
-| `eventFields` | `readonly EventField[]` | `["title", "time", "resource", "color", "description"]` | The parts of an event's popover, in order. Leave one out to take it away. |
+| `confirmDelete` | `boolean` | `true` | Asks before an event is deleted. An event that repeats is always asked about, since which of its occurrences go is the question. |
+| `eventFields` | `readonly EventField[]` | `["title", "time", "repeat", "resource", "color", "description"]` | The parts of an event's popover, in order. Leave one out to take it away. |
 | `renderEventFields` | `((props: EventFieldsProps<TEvent>) => ReactNode)` |  | Fields of your own, shown in an event's popover after the rest. |
 | `onEditStart` | `((event: TEvent, details: EditStartDetails) => void)` |  | Called before an event's popover opens, however it's opened. Call `preventDefault` on the details to open your own form instead. |
 | `onEventDropOutside` | `((event: TEvent, details: EventDropOutsideDetails) => boolean \| undefined)` |  | Called when an event is dragged out of the calendar and let go, with what's under the pointer. Return `true` to take it off the calendar. |
@@ -475,6 +479,7 @@ Set any of these on an `EventCalendar`, or on anything around it.
 | `.nuv-event-calendar__event-resource` | An event's resources, in a list. |
 | `.nuv-event-calendar__event-time` | An event's time. |
 | `.nuv-event-calendar__event-title` | An event's title. |
+| `.nuv-event-calendar__every` | The number of days, weeks, months or years a rule repeats every, and what it counts. |
 | `.nuv-event-calendar__field` | A label and its control in it. |
 | `.nuv-event-calendar__fold` | The button that folds the resources inside one. |
 | `.nuv-event-calendar__fold-space` | Its place, kept in a resource with none inside it. |
@@ -496,9 +501,12 @@ Set any of these on an `EventCalendar`, or on anything around it.
 | `.nuv-event-calendar__more` | The "3 more" button. |
 | `.nuv-event-calendar__more-panel` | The popover it opens. |
 | `.nuv-event-calendar__more-title` | The day at the top of it. |
+| `.nuv-event-calendar__note` | What the popover says of an event repeating in a time zone of its own. |
 | `.nuv-event-calendar__now` | The line at the time now. |
+| `.nuv-event-calendar__number-input` | A field for a number in the popover. |
 | `.nuv-event-calendar__panel` | The side panel. |
 | `.nuv-event-calendar__probe` | A hidden lane, measured to work out how many fit. |
+| `.nuv-event-calendar__repeat-days` | The days of the week a weekly rule is on. |
 | `.nuv-event-calendar__resource-list` | A list of resources, or of those inside one. |
 | `.nuv-event-calendar__resource-name` | A resource's title. |
 | `.nuv-event-calendar__resource-option` | A resource in its list, set in by how deep it is. |
@@ -506,6 +514,7 @@ Set any of these on an `EventCalendar`, or on anything around it.
 | `.nuv-event-calendar__resources` | The resources in the side panel. |
 | `.nuv-event-calendar__resources-title` | Their heading. |
 | `.nuv-event-calendar__row` | A row of the day and week views. |
+| `.nuv-event-calendar__scopes` | The choice of which events of a series a change is for. |
 | `.nuv-event-calendar__steps` | The previous and next buttons. |
 | `.nuv-event-calendar__swatch` | A color's swatch. |
 | `.nuv-event-calendar__time-grid` | The day and week views. |

@@ -400,7 +400,7 @@ A model viewer's name is its `label`. The buttons' names, how to use the keys, w
 
 ## Scheduler
 
-A calendar's name is the `aria-label` you give it, and an event's is its `title`, its time, its days and its resources. Dates and times are written by the browser in the calendar's `locale`. The words it writes itself, the buttons, the views, the preferences, what the agenda says when nothing is on, the event's popover, the question before an event is deleted, what's said as events are moved and the resources in the side panel and the popover, are in one prop, `labels`:
+A calendar's name is the `aria-label` you give it, and an event's is its `title`, its time, its days and its resources. Dates and times are written by the browser in the calendar's `locale`. The words it writes itself, the buttons, the views, the preferences, what the agenda says when nothing is on, the event's popover, the question before an event is deleted, what's said as events are moved, the resources in the side panel and the popover, how an event repeats and the question of which of its occurrences a change is for, are in one prop, `labels`:
 
 | Prop | Type | Default | What it's for |
 | --- | --- | --- | --- |
@@ -460,6 +460,28 @@ A calendar's name is the `aria-label` you give it, and an event's is its `title`
 | `resourceCount` (required) | `(count: number) => string` |  | How many resources are chosen, in the popover. |
 | `resourceRequired` (required) | `string` |  | Said when an event that needs a resource has none. |
 | `resourcesIn` (required) | `(title: string) => string` |  | The button that opens and closes the resources inside one. |
+| `repeat` (required) | `string` |  | The popover's field for how an event repeats. |
+| `doesNotRepeat` (required) | `string` |  | The choice of not repeating, in that field. |
+| `frequency` (required) | `(frequency: Frequency) => string` |  | How often it repeats, as a choice in that field. |
+| `every` (required) | `string` |  | The field for every how many days, weeks, months or years. |
+| `intervalUnit` (required) | `(frequency: Frequency, count: number) => string` |  | What follows the number in that field. |
+| `repeatOn` (required) | `string` |  | The days of the week it's on, or the day of the month, in the popover. |
+| `repeatOption` (required) | `(day: RecurrenceDay) => string` |  | A choice of the day of the month or year it's on. |
+| `repeatEnds` (required) | `string` |  | The popover's field for when it stops repeating. |
+| `never` (required) | `string` |  |  |
+| `onDate` (required) | `string` |  |  |
+| `afterCount` (required) | `string` |  |  |
+| `lastDate` (required) | `string` |  | The last day it can be on, in the popover. |
+| `count` (required) | `string` |  | How many times it happens, in the popover. |
+| `repeatsIn` (required) | `(timeZone: string) => string` |  | Said in the popover of an event in a time zone other than the one shown. |
+| `recurrence` (required) | `(details: RecurrenceDetails) => string` |  | How an event repeats, in words. |
+| `repeats` (required) | `string` |  | Added to the name of an event that repeats. |
+| `changeQuestion` (required) | `(title: string) => string` |  | The question when one of a repeating event's occurrences is changed. |
+| `whichChange` (required) | `string` |  | Under the question, before the choice of which to change. |
+| `whichDelete` (required) | `string` |  | Under the question to delete one that repeats, before the choice. |
+| `thisEvent` (required) | `string` |  |  |
+| `followingEvents` (required) | `string` |  |  |
+| `allEvents` (required) | `string` |  |  |
 
 ## What isn't text
 

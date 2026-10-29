@@ -89,7 +89,7 @@ From the keyboard, <kbd>Enter</kbd> on an empty cell makes an event there.
 
 ## The popover
 
-An event opens in a popover beside it, with its title, whether it's all day, when it starts and ends, its [resource](resources.md#in-the-popover) when the calendar has resources, its color and its description. It isn't modal: a click elsewhere closes it without saving. An event that can't be changed opens with its time and description to be read.
+An event opens in a popover beside it, with its title, whether it's all day, when it starts and ends, how it [repeats](recurring-events.md#in-the-popover), its [resource](resources.md#in-the-popover) when the calendar has resources, its color and its description. It isn't modal: a click elsewhere closes it without saving. An event that can't be changed opens with its time and description to be read.
 
 `eventFields` chooses the parts and their order, and `renderEventFields` adds your own after them. Your fields are given the event, the changes made so far and `onChange`, and what's passed to `onChange` is kept on the event when it's saved.
 
@@ -143,7 +143,7 @@ export default function Example() {
 
 ## Deleting
 
-Delete is in the popover, and <kbd>Delete</kbd> or <kbd>Backspace</kbd> deletes the event that has the focus. The calendar asks first, in an alert dialog, unless `confirmDelete={false}`. The focus goes back to the cell the event was in, or to the next event in a list.
+Delete is in the popover, and <kbd>Delete</kbd> or <kbd>Backspace</kbd> deletes the event that has the focus. The calendar asks first, in an alert dialog, unless `confirmDelete={false}`. For an event that [repeats](recurring-events.md#changing-one), it asks which of its occurrences to delete instead, and always does. The focus goes back to the cell the event was in, or to the next event in a list.
 
 ## Read-only
 

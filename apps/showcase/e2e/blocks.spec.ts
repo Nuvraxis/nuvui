@@ -5354,13 +5354,17 @@ test.describe("school timetable", () => {
     if ((await panel.getAttribute("aria-expanded")) === "false") {
       await press(panel, isMobile);
     }
+    const lessons = calendar.getByRole("button", { name: /, Jonah Pike, / });
     const teacher = calendar.getByRole("checkbox", { name: "Jonah Pike" });
     await expect(teacher).toBeChecked();
+    // A lesson is shown while its teacher or its room is.
+    await press(
+      calendar.getByRole("checkbox", { name: "Rooms", exact: true }),
+      isMobile,
+    );
     await press(teacher, isMobile);
     await expect(teacher).not.toBeChecked();
-    await expect(
-      calendar.getByRole("button", { name: /, Jonah Pike, / }),
-    ).toHaveCount(0);
+    await expect(lessons).toHaveCount(0);
   });
 
   test("school timetable: a lesson moved out of a clash takes it off the list", async ({

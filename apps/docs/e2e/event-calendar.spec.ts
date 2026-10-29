@@ -186,6 +186,9 @@ test.describe("editing events page", () => {
 
 test.describe("resources page", () => {
   test.beforeEach(async ({ page }) => {
+    // The examples' events are in this week, and a narrow calendar shows the
+    // three days from today. On a Monday those are the days that have them.
+    await page.clock.setFixedTime(new Date(2026, 9, 26, 8));
     await open(page, "/docs/scheduler/resources");
   });
 

@@ -267,9 +267,12 @@ export function withTimes(
   };
 }
 
-/** Whether a part of an event can be dragged, the closest setting winning. */
+/**
+ * Whether a part of an event can be dragged, from its own settings, or
+ * those it takes from its resources.
+ */
 export function canDrag(
-  event: CalendarEvent,
+  event: Pick<CalendarEvent, "readOnly" | "draggable" | "resizable">,
   editable: boolean,
   part: "move" | "start" | "end",
 ): boolean {

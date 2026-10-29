@@ -91,15 +91,123 @@ $edge: calc(var(--nuv-border-width) + #{$gap * 2});
     min-block-size: 0;
   }
 
+  // The space for a scrollbar is kept, so a long list of resources that
+  // scrolls doesn't make the panel's content too wide for it.
   .nuv-event-calendar__panel {
     flex: none;
     padding: calc(var(--spacing) * 2);
-    overflow-y: auto;
+    overflow: hidden auto;
+    scrollbar-gutter: stable;
     border-inline-end: var(--nuv-border-width) solid var(--color-border);
 
     &[hidden] {
       display: none;
     }
+  }
+
+  // The resources under the mini calendar, each with a checkbox, and those
+  // with others inside them with a button to fold them away.
+  .nuv-event-calendar__resources {
+    display: grid;
+    gap: calc(var(--spacing) * 1);
+    margin-block-start: calc(var(--spacing) * 3);
+    padding-block-start: calc(var(--spacing) * 3);
+    border-block-start: var(--nuv-border-width) solid var(--color-border);
+  }
+
+  .nuv-event-calendar__resources-title {
+    margin: 0;
+    padding-inline: calc(var(--spacing) * 2);
+    color: var(--color-muted-foreground);
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--text-sm--line-height);
+  }
+
+  .nuv-event-calendar__resource-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    &[hidden] {
+      display: none;
+    }
+  }
+
+  .nuv-event-calendar__resource-list .nuv-event-calendar__resource-list {
+    padding-inline-start: var(--nuv-event-calendar-resource-indent, 1.25rem);
+  }
+
+  .nuv-event-calendar__resource-row {
+    display: flex;
+    gap: calc(var(--spacing) * 2);
+    align-items: center;
+
+    @include mixins.touch-target;
+
+    @include mixins.fine-pointer {
+      min-block-size: var(--nuv-control-height-sm);
+    }
+  }
+
+  .nuv-event-calendar__resource-row .nuv-event-calendar__swatch {
+    inline-size: 0.75rem;
+    block-size: 0.75rem;
+    border: 0;
+  }
+
+  .nuv-event-calendar__resource-name {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .nuv-event-calendar__fold,
+  .nuv-event-calendar__fold-space {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+
+    @include mixins.touch-target;
+
+    @include mixins.fine-pointer {
+      min-block-size: var(--nuv-control-height-sm);
+      min-inline-size: var(--nuv-control-height-sm);
+    }
+  }
+
+  .nuv-event-calendar__fold {
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-md);
+    background-color: transparent;
+    color: var(--color-muted-foreground);
+    cursor: pointer;
+
+    @include mixins.focus-ring(-2px);
+
+    @include mixins.hover {
+      background-color: var(--color-muted);
+      color: var(--color-foreground);
+    }
+  }
+
+  // It points the way the page reads, and down when what's in it shows.
+  .nuv-event-calendar__fold svg {
+    @include mixins.motion-safe {
+      transition: transform var(--nuv-duration-fast) var(--ease-out);
+    }
+
+    @include mixins.rtl {
+      transform: scaleX(-1);
+    }
+  }
+
+  .nuv-event-calendar__fold[aria-expanded="true"] svg {
+    transform: rotate(90deg);
   }
 
   // Without room for it beside the days, the panel opens over them.
@@ -352,6 +460,10 @@ $edge: calc(var(--nuv-border-width) + #{$gap * 2});
     flex: 0 1 auto;
     min-block-size: 0;
     overflow: hidden;
+  }
+
+  .nuv-event-calendar__event-resource {
+    color: var(--color-muted-foreground);
   }
 
   .nuv-event-calendar__event-description {
@@ -829,6 +941,13 @@ $edge: calc(var(--nuv-border-width) + #{$gap * 2});
     font-size: var(--text-sm);
     font-weight: var(--font-weight-medium);
     line-height: var(--text-sm--line-height);
+  }
+
+  // A resource inside another, set in under it in the popover's list.
+  .nuv-event-calendar__resource-option {
+    padding-inline-start: calc(
+      var(--spacing) * 2 + var(--nuv-resource-depth, 0) * 1rem
+    );
   }
 
   .nuv-event-calendar__error {

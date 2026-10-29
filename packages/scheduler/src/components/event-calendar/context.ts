@@ -5,6 +5,7 @@ import type { EditOptions, Times } from "../../core/edit";
 import type { CalendarEvent, EventColor, PlacedEvent } from "../../core/events";
 import type { Formatters } from "../../core/format";
 import type { SchedulerLabels } from "../../core/labels";
+import type { EventRules, ResourceIndex } from "../../core/resources";
 
 export type CalendarView = "day" | "week" | "month" | "agenda";
 
@@ -92,6 +93,16 @@ export interface CalendarContextValue {
     | ((event: CalendarEvent, element: HTMLElement) => void)
     | undefined;
   edit: EditingValue;
+  /** Every resource by its id, in the order they're listed. */
+  resources: ResourceIndex;
+  /** What an event may do, and its color, with what it takes from its resources. */
+  rules: (event: CalendarEvent) => EventRules;
+  /** Every event needs a resource. */
+  resourceRequired: boolean;
+  /** An event can be given several resources in the popover. */
+  multipleResources: boolean;
+  /** An event as the app's own object, for what the app is handed. */
+  write: (event: CalendarEvent) => object;
 }
 
 export const CalendarContext = createContext<CalendarContextValue | null>(null);

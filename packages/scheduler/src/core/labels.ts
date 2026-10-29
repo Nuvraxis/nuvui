@@ -72,6 +72,22 @@ export interface SchedulerLabels {
   /** Said when an event is added by dropping something on the calendar. */
   added: (title: string, when: string) => string;
   deleted: (title: string) => string;
+  /** The list of resources in the side panel, and the popover's field for several. */
+  resources: string;
+  /** The popover's field for one resource. */
+  resource: string;
+  /** The choice of no resource, in the popover. */
+  noResource: string;
+  /** The search field in the popover's list of resources. */
+  searchResources: string;
+  /** The popover's list of resources when the search finds none. */
+  noResourceFound: string;
+  /** How many resources are chosen, in the popover. */
+  resourceCount: (count: number) => string;
+  /** Said when an event that needs a resource has none. */
+  resourceRequired: string;
+  /** The button that opens and closes the resources inside one. */
+  resourcesIn: (title: string) => string;
 }
 
 export const englishLabels: SchedulerLabels = {
@@ -124,4 +140,12 @@ export const englishLabels: SchedulerLabels = {
   putBack: (title) => `${title} put back.`,
   added: (title, when) => `Added ${title}, ${when}.`,
   deleted: (title) => `Deleted ${title}.`,
+  resources: "Resources",
+  resource: "Resource",
+  noResource: "None",
+  searchResources: "Search resources",
+  noResourceFound: "No resource found.",
+  resourceCount: (count) => `${count} resources`,
+  resourceRequired: "Choose a resource.",
+  resourcesIn: (title) => `Resources in ${title}`,
 };

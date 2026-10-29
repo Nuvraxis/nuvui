@@ -55,7 +55,7 @@ const events: CalendarEvent[] = [
 
 ## Events
 
-An event has an `id`, a `title`, a `start` and an `end`. The rest is optional: `allDay`, `timeZone`, `color`, `description` and `className`, and `readOnly`, `draggable` and `resizable` for [editing](editing.md#read-only).
+An event has an `id`, a `title`, a `start` and an `end`. The rest is optional: `allDay`, `timeZone`, `color`, `description` and `className`, `resourceIds` for the [resources](resources.md) it belongs to, and `readOnly`, `draggable` and `resizable` for [editing](editing.md#read-only). When your events have other names for these, `eventKeys` says which is which.
 
 A date is a `Date`, or a string:
 
@@ -278,13 +278,17 @@ const [preferences, setPreferences] = useState(saved);
 
 ## Colors
 
-`color` is one of the theme's eight chart colors, `"1"` to `"8"`, or any CSS color. An event's color is its own, or the calendar's `color`, `"1"` by default. Its background is mixed from the color and the calendar's background, so text stays readable on it in every theme.
+`color` is one of the theme's eight chart colors, `"1"` to `"8"`, or any CSS color. An event's color is its own, or its first resource's, or the calendar's `color`, `"1"` by default. Its background is mixed from the color and the calendar's background, so text stays readable on it in every theme.
 
 ## Editing
 
 Given `defaultEvents`, or `events` with `onEventsChange`, the calendar is edited in place: empty time is clicked or dragged across to make an event, an event opens in a popover to be changed or deleted, and it's dragged to move it or by its ends to resize it. Given `events` alone, an event opens in the popover to be read. [Editing events](editing.md) has the whole of it.
 
 `onEventClick` is called with the event and the element pressed, before the popover opens. `onEditStart` comes after it, and can keep the popover closed to open your own form.
+
+## Resources
+
+Given `resources`, the side panel lists them under the month, each with a checkbox to show or hide its events, and an event's popover has a resource to choose. An event belongs to the resources in its `resourceIds`, and takes its color, and whether it can be changed, from them when it doesn't say. [Resources](resources.md) has the whole of it.
 
 ## Language and dates
 
@@ -302,19 +306,30 @@ The words the calendar writes itself are in `labels`. [Translation](../translati
 
 | Prop | Type | Default | What it's for |
 | --- | --- | --- | --- |
-| `events` | `readonly CalendarEvent[]` |  | The events, when you hold them. Pass `onEventsChange` too for them to be changed in the calendar: without it, they open to be read. |
-| `defaultEvents` | `readonly CalendarEvent[]` |  | The events at first, when the calendar holds them. |
-| `onEventsChange` | `((events: CalendarEvent[], change: EventChange) => void)` |  | Called with every event after one is made, changed or deleted, and what the change was. |
+| `events` | `readonly TEvent[]` |  | The events, when you hold them. Pass `onEventsChange` too for them to be changed in the calendar: without it, they open to be read. |
+| `defaultEvents` | `readonly TEvent[]` |  | The events at first, when the calendar holds them. |
+| `onEventsChange` | `((events: TEvent[], change: EventChange<TEvent>) => void)` |  | Called with every event after one is made, changed or deleted, and what the change was. |
+| `eventKeys` | `Partial<Record<keyof CalendarEvent, string>>` |  | The names your events' fields have where they aren't the calendar's, such as `{ title: "name", resourceIds: "roomId" }`. Events are read from them, and changes are written back to them, with every other field of yours kept. |
+| `resources` | `readonly TResource[]` |  | What events are booked against: rooms, people, machines. Listed in the side panel, where each can be shown or hidden, and offered in an event's popover. |
+| `resourceKeys` | `Partial<Record<keyof CalendarResource, string>>` |  | The names your resources' fields have where they aren't the calendar's. |
+| `resourceRequired` | `boolean` | `false` | Every event needs a resource. A new event is given the first one shown, and the popover offers no choice of none. |
+| `multipleResources` | `boolean` | `false` | An event can be given several resources in its popover, not just one. |
+| `hiddenResources` | `readonly string[]` |  | The ids of the resources whose events are hidden, when you control them. |
+| `defaultHiddenResources` | `readonly string[]` |  | The resources hidden at first, when you don't control them. |
+| `onHiddenResourcesChange` | `((hidden: string[]) => void)` |  | Called with the ids of every hidden resource when one is shown or hidden. |
+| `collapsedResources` | `readonly string[]` |  | The ids of the resources folded in the side panel, with those inside them out of sight, when you control them. |
+| `defaultCollapsedResources` | `readonly string[]` |  | The resources folded at first, when you don't control them. |
+| `onCollapsedResourcesChange` | `((collapsed: string[]) => void)` |  | Called with the ids of every folded resource when one folds or opens. |
 | `readOnly` | `boolean` | `false` | Events open to be read, and can't be made, changed, moved or deleted. An event's own `readOnly` wins over this. |
 | `creatable` | `boolean` | `true` | Whether new events can be made on empty time, with a click or by dragging across it. Something dropped from elsewhere on the page is still added. |
 | `createOn` | `"click" \| "doubleClick"` | `"click"` | What makes an event on empty time: a click, or a double click. |
 | `defaultDuration` | `number` | `60` | Minutes a new event lasts when it's made with a click, and an all-day one dragged onto a time. |
 | `step` | `number` | `15` | Minutes that times snap to while an event is dragged, and that the arrow keys move it by. |
 | `confirmDelete` | `boolean` | `true` | Asks before an event is deleted. |
-| `eventFields` | `readonly EventField[]` | `["title", "time", "color", "description"]` | The parts of an event's popover, in order. Leave one out to take it away. |
-| `renderEventFields` | `((props: EventFieldsProps) => ReactNode)` |  | Fields of your own, shown in an event's popover after the rest. |
-| `onEditStart` | `((event: CalendarEvent, details: EditStartDetails) => void)` |  | Called before an event's popover opens, however it's opened. Call `preventDefault` on the details to open your own form instead. |
-| `onEventDropOutside` | `((event: CalendarEvent, details: EventDropOutsideDetails) => boolean \| undefined)` |  | Called when an event is dragged out of the calendar and let go, with what's under the pointer. Return `true` to take it off the calendar. |
+| `eventFields` | `readonly EventField[]` | `["title", "time", "resource", "color", "description"]` | The parts of an event's popover, in order. Leave one out to take it away. |
+| `renderEventFields` | `((props: EventFieldsProps<TEvent>) => ReactNode)` |  | Fields of your own, shown in an event's popover after the rest. |
+| `onEditStart` | `((event: TEvent, details: EditStartDetails) => void)` |  | Called before an event's popover opens, however it's opened. Call `preventDefault` on the details to open your own form instead. |
+| `onEventDropOutside` | `((event: TEvent, details: EventDropOutsideDetails) => boolean \| undefined)` |  | Called when an event is dragged out of the calendar and let go, with what's under the pointer. Return `true` to take it off the calendar. |
 | `createId` | `(() => string)` |  | Makes the id of a new event. A random UUID by default. |
 | `view` | `"agenda" \| "day" \| "month" \| "week"` |  | The view shown, when you control it. |
 | `defaultView` | `"agenda" \| "day" \| "month" \| "week"` | `"week"` | The view shown at first, when you don't control it. |
@@ -336,10 +351,10 @@ The words the calendar writes itself are in `labels`. [Translation](../translati
 | `panelOpen` | `boolean` |  | Whether the side panel is open beside the days, when you control it. That's on a calendar 1024 pixels wide or wider. |
 | `defaultPanelOpen` | `boolean` | `true` | Whether the side panel is open at first beside the days. On a calendar narrower than 1024 pixels it opens over the days instead, and starts closed. |
 | `onPanelOpenChange` | `((open: boolean) => void)` |  | Called with whether the side panel is open beside the days. |
-| `color` | `EventColor` | `"1"` | The color of events that have none of their own. |
+| `color` | `EventColor` | `"1"` | The color of events that have none of their own, and none from a resource. |
 | `headingLevel` | `2 \| 3 \| 4 \| 5` | `2` | The level of the heading with the period shown. The agenda's days are a level below. |
 | `labels` | `Partial<SchedulerLabels>` |  | The words the calendar shows and says. Translate them with the rest of your interface. |
-| `onEventClick` | `((event: CalendarEvent, element: HTMLElement) => void)` |  | Called when an event is pressed, with the element pressed, before its popover opens. |
+| `onEventClick` | `((event: TEvent, element: HTMLElement) => void)` |  | Called when an event is pressed, with the element pressed, before its popover opens. |
 
 It also takes the attributes of a `section`, and passes `ref` to it.
 
@@ -363,7 +378,8 @@ The arrows go by where things are on the screen. Where the page reads right to l
 
 - The calendar is a region named by `aria-label`, "Calendar" by default, and the side panel a region named "Side panel". Its button says whether it's open.
 - The day, week and month views are grids. Each cell is named by its day, and in the day and week views by its hour, and only one cell at a time is in the tab order.
-- Every event is a button whose name has its title, its time or "All day", and its days.
+- Every event is a button whose name has its title, its time or "All day", its days, and its resources.
+- The resources in the side panel are checkboxes named by their titles, and the button that folds a group says whether it's open.
 - Today is marked as the current date.
 - The heading with the dates shown is a live region.
 - The agenda's days are headings, each over a list of its events.
@@ -399,6 +415,7 @@ Set any of these on an `EventCalendar`, or on anything around it.
 | `--nuv-event-calendar-radius` | `var(--radius-lg)` | Corner radius of the calendar. |
 | `--nuv-event-calendar-bg` | `var(--color-surface)` | Background of the calendar, and what events' colors are mixed with. |
 | `--nuv-event-calendar-fg` | `var(--color-surface-foreground)` | Color of the text. |
+| `--nuv-event-calendar-resource-indent` | `1.25rem` | How far a resource inside another is set in, in the side panel. |
 | `--nuv-event-calendar-axis-width` | `3.75rem` | Width of the times down the side of the day and week views. |
 | `--nuv-event-calendar-today` | `var(--color-primary)` | Background of today's date, behind --color-primary-foreground. |
 | `--nuv-event-calendar-bar-pitch` | `1.75rem`, `1.375rem` | Height of a lane of bars across days, with the gap below it. |
@@ -446,7 +463,7 @@ Set any of these on an `EventCalendar`, or on anything around it.
 | `.nuv-event-calendar__editor-title` | Its heading. |
 | `.nuv-event-calendar__empty` | What the agenda says when nothing is on. |
 | `.nuv-event-calendar__empty-text` | Its words. |
-| `.nuv-event-calendar__error` | What's wrong with the times. |
+| `.nuv-event-calendar__error` | What's wrong with the times, or a missing resource. |
 | `.nuv-event-calendar__event` | An event. |
 | `.nuv-event-calendar__event--bar` | An event as a bar across days. |
 | `.nuv-event-calendar__event--block` | An event on the time grid. |
@@ -455,9 +472,12 @@ Set any of these on an `EventCalendar`, or on anything around it.
 | `.nuv-event-calendar__event--preview` | Where an event being dragged would go. |
 | `.nuv-event-calendar__event-description` | An event's description, in a list. |
 | `.nuv-event-calendar__event-dot` | The dot of an event's color, in a month and a list. |
+| `.nuv-event-calendar__event-resource` | An event's resources, in a list. |
 | `.nuv-event-calendar__event-time` | An event's time. |
 | `.nuv-event-calendar__event-title` | An event's title. |
 | `.nuv-event-calendar__field` | A label and its control in it. |
+| `.nuv-event-calendar__fold` | The button that folds the resources inside one. |
+| `.nuv-event-calendar__fold-space` | Its place, kept in a resource with none inside it. |
 | `.nuv-event-calendar__form` | Its form. |
 | `.nuv-event-calendar__handle` | An end of an event, dragged to resize it. |
 | `.nuv-event-calendar__handle--end` | Its end. |
@@ -479,6 +499,12 @@ Set any of these on an `EventCalendar`, or on anything around it.
 | `.nuv-event-calendar__now` | The line at the time now. |
 | `.nuv-event-calendar__panel` | The side panel. |
 | `.nuv-event-calendar__probe` | A hidden lane, measured to work out how many fit. |
+| `.nuv-event-calendar__resource-list` | A list of resources, or of those inside one. |
+| `.nuv-event-calendar__resource-name` | A resource's title. |
+| `.nuv-event-calendar__resource-option` | A resource in its list, set in by how deep it is. |
+| `.nuv-event-calendar__resource-row` | A resource's fold button, checkbox, swatch and title. |
+| `.nuv-event-calendar__resources` | The resources in the side panel. |
+| `.nuv-event-calendar__resources-title` | Their heading. |
 | `.nuv-event-calendar__row` | A row of the day and week views. |
 | `.nuv-event-calendar__steps` | The previous and next buttons. |
 | `.nuv-event-calendar__swatch` | A color's swatch. |

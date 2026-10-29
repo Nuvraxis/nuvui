@@ -400,7 +400,7 @@ A model viewer's name is its `label`. The buttons' names, how to use the keys, w
 
 ## Scheduler
 
-A calendar's name is the `aria-label` you give it, and an event's is its `title`, its time and its days. Dates and times are written by the browser in the calendar's `locale`. The words it writes itself, the buttons, the views, the preferences, what the agenda says when nothing is on, the event's popover, the question before an event is deleted and what's said as events are moved, are in one prop, `labels`:
+A calendar's name is the `aria-label` you give it, and an event's is its `title`, its time, its days and its resources. Dates and times are written by the browser in the calendar's `locale`. The words it writes itself, the buttons, the views, the preferences, what the agenda says when nothing is on, the event's popover, the question before an event is deleted, what's said as events are moved and the resources in the side panel and the popover, are in one prop, `labels`:
 
 | Prop | Type | Default | What it's for |
 | --- | --- | --- | --- |
@@ -452,6 +452,14 @@ A calendar's name is the `aria-label` you give it, and an event's is its `title`
 | `putBack` (required) | `(title: string) => string` |  |  |
 | `added` (required) | `(title: string, when: string) => string` |  | Said when an event is added by dropping something on the calendar. |
 | `deleted` (required) | `(title: string) => string` |  |  |
+| `resources` (required) | `string` |  | The list of resources in the side panel, and the popover's field for several. |
+| `resource` (required) | `string` |  | The popover's field for one resource. |
+| `noResource` (required) | `string` |  | The choice of no resource, in the popover. |
+| `searchResources` (required) | `string` |  | The search field in the popover's list of resources. |
+| `noResourceFound` (required) | `string` |  | The popover's list of resources when the search finds none. |
+| `resourceCount` (required) | `(count: number) => string` |  | How many resources are chosen, in the popover. |
+| `resourceRequired` (required) | `string` |  | Said when an event that needs a resource has none. |
+| `resourcesIn` (required) | `(title: string) => string` |  | The button that opens and closes the resources inside one. |
 
 ## What isn't text
 

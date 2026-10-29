@@ -2,13 +2,13 @@
 
 # Scheduler
 
-The @nuvui/scheduler package. An event calendar with day, week, month and agenda views, edited in place, installed next to @nuvui/react and @nuvui/date-picker.
+The @nuvui/scheduler package. An event calendar with day, week, month and agenda views, edited in place and booked against resources, installed next to @nuvui/react and @nuvui/date-picker.
 
 The scheduler is a package of its own, `@nuvui/scheduler`, since working out days and times in a time zone needs a date library the core doesn't have:
 
 | Component | What it is |
 | --- | --- |
-| [EventCalendar](event-calendar.md) | Events in a day, a week, a month or a list, with a header to move through them and a month in a side panel to pick a day from. [Editing events](editing.md) covers making, changing, moving and deleting them in place. |
+| [EventCalendar](event-calendar.md) | Events in a day, a week, a month or a list, with a header to move through them and a month in a side panel to pick a day from. [Editing events](editing.md) covers making, changing, moving and deleting them in place, and [Resources](resources.md) booking them against rooms or people. |
 
 ```tsx
 "use client";
@@ -47,13 +47,14 @@ Each file opens with the same line naming the cascade layers, so the order you i
 
 ## What it keeps and what you keep
 
-The events are yours when you pass `events`, with `onEventsChange` to hear about each change, or the calendar's when you pass `defaultEvents`. It keeps which view is shown, the day it's on, what the person looking has chosen in its preferences menu, and whether its side panel is open. Each of those can be yours instead, through a prop and a callback.
+The events are yours when you pass `events`, with `onEventsChange` to hear about each change, or the calendar's when you pass `defaultEvents`. It keeps which view is shown, the day it's on, what the person looking has chosen in its preferences menu, whether its side panel is open, and which resources are hidden or folded. Each of those can be yours instead, through a prop and a callback.
+
+Events and resources can keep your own field names. `eventKeys` and `resourceKeys` say which field is which, and changes come back under the same names. [Resources](resources.md#your-own-field-names) has the details.
 
 ## What's coming
 
-The calendar's views and [editing](editing.md) are in the package. These are planned, in this order, and none is in it yet:
+The calendar's views, [editing](editing.md) and [resources](resources.md) are in the package. These are planned, in this order, and none is in it yet:
 
-- **Resources,** such as rooms or people, with a panel to show or hide each, and a resource to choose in an event's popover.
 - **Recurring events,** with this one, this and following, or all, when one is changed.
 - **A timeline,** with resources as rows and time across.
 - **Loading by range,** asking your server only for the days shown.

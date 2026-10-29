@@ -5343,6 +5343,59 @@ test.describe("shift planner", () => {
   }
 });
 
+test.describe("school timetable", () => {
+  test("school timetable: a teacher hidden in the side panel takes their lessons with them", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/blocks/view/school-timetable");
+    const calendar = page.getByRole("region", { name: "Timetable" });
+    const panel = calendar.getByRole("button", { name: "Side panel" });
+    if ((await panel.getAttribute("aria-expanded")) === "false") {
+      await press(panel, isMobile);
+    }
+    const teacher = calendar.getByRole("checkbox", { name: "Jonah Pike" });
+    await expect(teacher).toBeChecked();
+    await press(teacher, isMobile);
+    await expect(teacher).not.toBeChecked();
+    await expect(
+      calendar.getByRole("button", { name: /, Jonah Pike, / }),
+    ).toHaveCount(0);
+  });
+
+  test("school timetable: a lesson moved out of a clash takes it off the list", async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(isMobile, "a phone has no keyboard");
+    await open(page, "/blocks/view/school-timetable");
+    const clashes = page.getByRole("complementary", { name: "Clashes" });
+    await expect(clashes.getByRole("listitem")).toHaveCount(1);
+    await expect(clashes).toContainText("Room 12");
+    await page
+      .getByRole("region", { name: "Timetable" })
+      .getByRole("button", { name: /^Year 8 history/ })
+      .focus();
+    await page.keyboard.press("Space");
+    await page.keyboard.press("ArrowRight");
+    await page.keyboard.press("Enter");
+    await expect(clashes.getByRole("listitem")).toHaveCount(0);
+    await expect(clashes).toContainText("No teacher or room is booked twice.");
+  });
+
+  for (const theme of ["light", "dark"] as const) {
+    test(`school timetable: it passes axe in ${theme}`, async ({ page }) => {
+      await page.emulateMedia({ reducedMotion: "reduce" });
+      await setTheme(page, theme);
+      await open(page, "/blocks/view/school-timetable");
+      await settleStyles(page);
+      expect(
+        (await new AxeBuilder({ page }).withTags(wcag).analyze()).violations,
+      ).toEqual([]);
+    });
+  }
+});
+
 test.describe("the blocks page", () => {
   test("lists every category, and each leads to its page", async ({
     page,

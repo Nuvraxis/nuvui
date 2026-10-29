@@ -1,0 +1,9 @@
+{
+  "name": "school-timetable",
+  "title": "School timetable",
+  "description": "A school's week of lessons, each booked against a teacher and a room. The side panel shows or hides each teacher and room, lessons are moved by dragging, and a list beside the week shows where a teacher or a room is booked twice at once.",
+  "category": "calendar",
+  "files": ["school-timetable.tsx", "school-timetable.scss"],
+  "install": ["@nuvui/react", "@nuvui/date-picker", "@nuvui/scheduler"],
+  "height": 860
+}

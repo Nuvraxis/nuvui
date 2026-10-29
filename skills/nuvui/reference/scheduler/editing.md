@@ -89,7 +89,7 @@ From the keyboard, <kbd>Enter</kbd> on an empty cell makes an event there.
 
 ## The popover
 
-An event opens in a popover beside it, with its title, whether it's all day, when it starts and ends, its color and its description. It isn't modal: a click elsewhere closes it without saving. An event that can't be changed opens with its time and description to be read.
+An event opens in a popover beside it, with its title, whether it's all day, when it starts and ends, its [resource](resources.md#in-the-popover) when the calendar has resources, its color and its description. It isn't modal: a click elsewhere closes it without saving. An event that can't be changed opens with its time and description to be read.
 
 `eventFields` chooses the parts and their order, and `renderEventFields` adds your own after them. Your fields are given the event, the changes made so far and `onChange`, and what's passed to `onChange` is kept on the event when it's saved.
 
@@ -147,7 +147,7 @@ Delete is in the popover, and <kbd>Delete</kbd> or <kbd>Backspace</kbd> deletes 
 
 ## Read-only
 
-`readOnly` on the calendar makes every event open to be read. On an event, it does the same for that one, and wins over the calendar's. `draggable={false}` on an event keeps it where it is while it can still be changed in its popover, and `resizable` says which of its ends can be dragged: `true`, `false`, `"start"` or `"end"`.
+`readOnly` on the calendar makes every event open to be read. On an event, it does the same for that one. On a [resource](resources.md), it does the same for its events, unless an event says otherwise. `draggable={false}` on an event keeps it where it is while it can still be changed in its popover, and `resizable` says which of its ends can be dragged: `true`, `false`, `"start"` or `"end"`. Both can be set on a resource too, for all its events.
 
 ```tsx
 "use client";
@@ -198,7 +198,7 @@ A screen reader hears each step: picked up, its new time as it moves, and droppe
 
 ## From elsewhere on the page
 
-`eventDragProps` makes an element of your own one that can be dragged onto the calendar, where it's added as an event when it's dropped. It takes the title, and optionally `duration` in minutes, `allDay`, `color` and `description`. Anything else on it, such as your own id, is copied onto the event.
+`eventDragProps` makes an element of your own one that can be dragged onto the calendar, where it's added as an event when it's dropped. It takes the title, and optionally `duration` in minutes, `allDay`, `color`, `resourceIds` and `description`. Anything else on it, such as your own id, is copied onto the event.
 
 An event dragged out of the calendar and let go calls `onEventDropOutside` with what's under the pointer. Return `true` to take it off the calendar.
 

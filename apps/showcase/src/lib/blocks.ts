@@ -145,6 +145,9 @@ import reviews from "@/blocks/reviews/block.json" with { type: "json" };
 import roomBooking from "@/blocks/room-booking/block.json" with {
   type: "json",
 };
+import schoolTimetable from "@/blocks/school-timetable/block.json" with {
+  type: "json",
+};
 import setStatus from "@/blocks/set-status/block.json" with { type: "json" };
 import setupChecklist from "@/blocks/setup-checklist/block.json" with {
   type: "json",
@@ -267,7 +270,7 @@ export const categories: BlockCategory[] = [
     label: "Calendars",
     title: "Calendars",
     description:
-      "Events in time: a team's week with its meetings side by side, leave and releases across their days and a key to the colors, and a clinic's day of appointments in its opening hours, with the one pressed shown beside it.",
+      "Events in time: a team's week with its meetings side by side, leave and releases across their days and a key to the colors, and a clinic's day of appointments in its opening hours, with the one pressed shown beside it, a meeting room booked by the half hour, shifts planned across a week, and a school's lessons booked against teachers and rooms.",
   },
   {
     slug: "media",
@@ -364,6 +367,7 @@ export const blocks: BlockManifest[] = [
   clinicDay,
   roomBooking,
   shiftPlanner,
+  schoolTimetable,
   courseLesson,
   productDemo,
   recordingReview,

@@ -183,3 +183,51 @@ test.describe("editing events page", () => {
     );
   });
 });
+
+test.describe("resources page", () => {
+  test.beforeEach(async ({ page }) => {
+    // The examples' events are in this week, and a narrow calendar shows the
+    // three days from today. On a Monday those are the days that have them.
+    await page.clock.setFixedTime(new Date(2026, 9, 26, 8));
+    await open(page, "/docs/scheduler/resources");
+  });
+
+  test("a resource hidden in the side panel takes its events with it", async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(
+      isMobile,
+      "a phone shows three days, which may have none of them",
+    );
+    const calendar = preview(page, "event-calendar/resources");
+    await calendar.scrollIntoViewIfNeeded();
+    const inRoom = calendar.getByRole("button", { name: /, Room 4B$/ });
+    await expect(inRoom.first()).toBeVisible();
+    const panel = calendar.getByRole("button", { name: "Side panel" });
+    if ((await panel.getAttribute("aria-expanded")) === "false") {
+      await panel.click();
+    }
+    await calendar.getByRole("checkbox", { name: "Room 4B" }).click();
+    await expect(inRoom).toHaveCount(0);
+    await expect(
+      calendar.getByRole("checkbox", { name: "Rooms", exact: true }),
+    ).toHaveAttribute("aria-checked", "mixed");
+  });
+
+  test("a booking moved from the keyboard comes back with the app's names", async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(isMobile, "a phone has no keyboard");
+    const calendar = preview(page, "event-calendar/keys");
+    await calendar.scrollIntoViewIfNeeded();
+    await calendar.getByRole("button", { name: /^Interviews/ }).focus();
+    await page.keyboard.press("Space");
+    await page.keyboard.press("ArrowDown");
+    await page.keyboard.press("Enter");
+    await expect(calendar.getByRole("status").last()).toHaveText(
+      "Last change: update, Interviews, room 2A, booked by Wren Halloway.",
+    );
+  });
+});

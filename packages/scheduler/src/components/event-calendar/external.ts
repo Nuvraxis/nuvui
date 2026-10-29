@@ -19,6 +19,11 @@ export interface ExternalEvent {
   /** It takes the whole day it's dropped on, wherever it's dropped. */
   allDay?: boolean;
   color?: EventColor;
+  /**
+   * The resources it belongs to. With `resourceRequired`, the first
+   * resource shown by default.
+   */
+  resourceIds?: readonly string[];
   description?: string;
   [field: string]: unknown;
 }

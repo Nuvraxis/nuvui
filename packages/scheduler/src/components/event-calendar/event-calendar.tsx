@@ -38,7 +38,9 @@ import {
   type HTMLAttributes,
   type KeyboardEvent,
   type MouseEvent,
+  type ReactElement,
   type ReactNode,
+  type RefAttributes,
   useCallback,
   useEffect,
   useId,
@@ -80,7 +82,21 @@ import {
   placeEvents,
 } from "../../core/events";
 import { formatters, usesTwelveHours } from "../../core/format";
+import {
+  type EventKeys,
+  type ResourceKeys,
+  readEvent,
+  readResources,
+  writeChange,
+  writeEvent,
+} from "../../core/keys";
 import { englishLabels, type SchedulerLabels } from "../../core/labels";
+import {
+  type CalendarResource,
+  indexResources,
+  isShown,
+  rulesOf,
+} from "../../core/resources";
 import { cx } from "../../utils/cx";
 import { useControlled } from "../../utils/use-controlled";
 import { useWidth } from "../../utils/use-width";
@@ -104,6 +120,7 @@ import {
 import { timeOf } from "./event-button";
 import { draggedItem, type ExternalEvent, eventType } from "./external";
 import { MonthView } from "./month-view";
+import { ResourceList } from "./resource-list";
 import { TimeGrid } from "./time-grid";
 import { spotAt, useDrag } from "./use-drag";
 
@@ -150,19 +167,63 @@ export interface EventDropOutsideDetails {
   clientY: number;
 }
 
-export interface EventCalendarOwnProps {
+export interface EventCalendarOwnProps<
+  TEvent extends object = CalendarEvent,
+  TResource extends object = CalendarResource,
+> {
   /**
    * The events, when you hold them. Pass `onEventsChange` too for them to
    * be changed in the calendar: without it, they open to be read.
    */
-  events?: readonly CalendarEvent[];
+  events?: readonly TEvent[];
   /** The events at first, when the calendar holds them. */
-  defaultEvents?: readonly CalendarEvent[];
+  defaultEvents?: readonly TEvent[];
   /**
    * Called with every event after one is made, changed or deleted, and
    * what the change was.
    */
-  onEventsChange?: (events: CalendarEvent[], change: EventChange) => void;
+  onEventsChange?: (events: TEvent[], change: EventChange<TEvent>) => void;
+  /**
+   * The names your events' fields have where they aren't the calendar's,
+   * such as `{ title: "name", resourceIds: "roomId" }`. Events are read
+   * from them, and changes are written back to them, with every other
+   * field of yours kept.
+   */
+  eventKeys?: EventKeys;
+  /**
+   * What events are booked against: rooms, people, machines. Listed in the
+   * side panel, where each can be shown or hidden, and offered in an
+   * event's popover.
+   */
+  resources?: readonly TResource[];
+  /** The names your resources' fields have where they aren't the calendar's. */
+  resourceKeys?: ResourceKeys;
+  /**
+   * Every event needs a resource. A new event is given the first one shown,
+   * and the popover offers no choice of none.
+   * @default false
+   */
+  resourceRequired?: boolean;
+  /**
+   * An event can be given several resources in its popover, not just one.
+   * @default false
+   */
+  multipleResources?: boolean;
+  /** The ids of the resources whose events are hidden, when you control them. */
+  hiddenResources?: readonly string[];
+  /** The resources hidden at first, when you don't control them. */
+  defaultHiddenResources?: readonly string[];
+  /** Called with the ids of every hidden resource when one is shown or hidden. */
+  onHiddenResourcesChange?: (hidden: string[]) => void;
+  /**
+   * The ids of the resources folded in the side panel, with those inside
+   * them out of sight, when you control them.
+   */
+  collapsedResources?: readonly string[];
+  /** The resources folded at first, when you don't control them. */
+  defaultCollapsedResources?: readonly string[];
+  /** Called with the ids of every folded resource when one folds or opens. */
+  onCollapsedResourcesChange?: (collapsed: string[]) => void;
   /**
    * Events open to be read, and can't be made, changed, moved or deleted.
    * An event's own `readOnly` wins over this.
@@ -201,22 +262,22 @@ export interface EventCalendarOwnProps {
   /**
    * The parts of an event's popover, in order. Leave one out to take it
    * away.
-   * @default ["title", "time", "color", "description"]
+   * @default ["title", "time", "resource", "color", "description"]
    */
   eventFields?: readonly EventField[];
   /** Fields of your own, shown in an event's popover after the rest. */
-  renderEventFields?: (props: EventFieldsProps) => ReactNode;
+  renderEventFields?: (props: EventFieldsProps<TEvent>) => ReactNode;
   /**
    * Called before an event's popover opens, however it's opened. Call
    * `preventDefault` on the details to open your own form instead.
    */
-  onEditStart?: (event: CalendarEvent, details: EditStartDetails) => void;
+  onEditStart?: (event: TEvent, details: EditStartDetails) => void;
   /**
    * Called when an event is dragged out of the calendar and let go, with
    * what's under the pointer. Return `true` to take it off the calendar.
    */
   onEventDropOutside?: (
-    event: CalendarEvent,
+    event: TEvent,
     details: EventDropOutsideDetails,
   ) => boolean | undefined;
   /** Makes the id of a new event. A random UUID by default. */
@@ -302,7 +363,8 @@ export interface EventCalendarOwnProps {
   /** Called with whether the side panel is open beside the days. */
   onPanelOpenChange?: (open: boolean) => void;
   /**
-   * The color of events that have none of their own.
+   * The color of events that have none of their own, and none from a
+   * resource.
    * @default "1"
    */
   color?: EventColor;
@@ -321,11 +383,13 @@ export interface EventCalendarOwnProps {
    * Called when an event is pressed, with the element pressed, before its
    * popover opens.
    */
-  onEventClick?: (event: CalendarEvent, element: HTMLElement) => void;
+  onEventClick?: (event: TEvent, element: HTMLElement) => void;
 }
 
-export interface EventCalendarProps
-  extends EventCalendarOwnProps,
+export interface EventCalendarProps<
+  TEvent extends object = CalendarEvent,
+  TResource extends object = CalendarResource,
+> extends EventCalendarOwnProps<TEvent, TResource>,
     Omit<
       HTMLAttributes<HTMLElement>,
       keyof EventCalendarOwnProps | "children"
@@ -340,7 +404,16 @@ function randomId() {
   return `event-${Date.now()}-${made}`;
 }
 
-const noEvents: readonly CalendarEvent[] = [];
+const noEvents: readonly object[] = [];
+const noIds: readonly string[] = [];
+
+// The same keys for as long as they say the same, since they're often
+// written inline, and events are read again when they change.
+function useSameKeys<T extends object>(keys: T | undefined): T | undefined {
+  const text = keys ? JSON.stringify(keys) : "";
+  // biome-ignore lint/correctness/useExhaustiveDependencies: what they say, not the object
+  return useMemo(() => keys, [text]);
+}
 
 // False on the server, and in the browser while it takes over the HTML the
 // server sent. The server can't know the time zone of the person looking.
@@ -428,17 +501,25 @@ function SettingsIcon() {
   );
 }
 
-/**
- * Events in a day, a week, a month or a list. Events that overlap are set
- * side by side, those over several days are bars across them, and a full
- * day in a month keeps the rest behind "3 more".
- */
-export const EventCalendar = forwardRef<HTMLElement, EventCalendarProps>(
+type AnyProps = EventCalendarProps<object, object>;
+
+const UntypedEventCalendar = forwardRef<HTMLElement, AnyProps>(
   function EventCalendar(
     {
       events: eventsProp,
       defaultEvents = noEvents,
       onEventsChange,
+      eventKeys: eventKeysProp,
+      resources: resourcesProp = noEvents,
+      resourceKeys: resourceKeysProp,
+      resourceRequired = false,
+      multipleResources = false,
+      hiddenResources: hiddenProp,
+      defaultHiddenResources = noIds,
+      onHiddenResourcesChange,
+      collapsedResources: collapsedProp,
+      defaultCollapsedResources = noIds,
+      onCollapsedResourcesChange,
       readOnly = false,
       creatable: creatableProp = true,
       createOn = "click",
@@ -619,20 +700,91 @@ export const EventCalendar = forwardRef<HTMLElement, EventCalendarProps>(
           ? format.month(day)
           : format.range(first, last);
 
+    // The app's events and resources, read under its own names.
+    const eventKeys = useSameKeys(eventKeysProp);
+    const resourceKeys = useSameKeys(resourceKeysProp);
+    const read = useCallback(
+      (item: object) =>
+        eventKeys ? readEvent(item, eventKeys) : (item as CalendarEvent),
+      [eventKeys],
+    );
+    const resourceList = useMemo(
+      () =>
+        resourceKeys
+          ? readResources(resourcesProp, resourceKeys)
+          : (resourcesProp as readonly CalendarResource[]),
+      [resourcesProp, resourceKeys],
+    );
+    const resources = useMemo(
+      () => indexResources(resourceList),
+      [resourceList],
+    );
+    const rules = useCallback(
+      (event: CalendarEvent) => rulesOf(event, resources),
+      [resources],
+    );
+
     // The events, kept here unless the app keeps them. Changes need
     // somewhere to go: here, or to the app through onEventsChange.
-    const [ownEvents, setOwnEvents] = useState(defaultEvents);
+    const [ownEvents, setOwnEvents] = useState(() => defaultEvents.map(read));
     const eventsHeld = eventsProp !== undefined;
-    const events = eventsProp ?? ownEvents;
+    const heldEvents = useMemo(() => eventsProp?.map(read), [eventsProp, read]);
+    const events = heldEvents ?? ownEvents;
     const latestEvents = useRef(events);
     latestEvents.current = events;
+    // An app that gives each event one resource id, not a list, has new
+    // events written the same way.
+    const resourceKey = eventKeys?.resourceIds ?? "resourceIds";
+    const oneResource = (eventsProp ?? defaultEvents).some(
+      (item) =>
+        typeof (item as Record<string, unknown>)[resourceKey] === "string",
+    );
+    const write = (event: CalendarEvent): object =>
+      eventKeys ? writeEvent(event, eventKeys, oneResource) : event;
     const editable = !readOnly && (!eventsHeld || onEventsChange !== undefined);
     const creatable = editable && creatableProp;
     const commit = (change: EventChange) => {
       const next = applyChange(latestEvents.current, change);
       latestEvents.current = next;
       if (!eventsHeld) setOwnEvents(next);
-      onEventsChange?.(next, change);
+      onEventsChange?.(
+        next.map(write),
+        eventKeys ? writeChange(change, eventKeys, oneResource) : change,
+      );
+    };
+
+    // Resources whose events are hidden, and those folded in the panel.
+    const [hidden, setHidden] = useControlled<readonly string[]>(
+      hiddenProp !== undefined,
+      hiddenProp ?? noIds,
+      defaultHiddenResources,
+      onHiddenResourcesChange as
+        | ((hidden: readonly string[]) => void)
+        | undefined,
+    );
+    const [collapsed, setCollapsed] = useControlled<readonly string[]>(
+      collapsedProp !== undefined,
+      collapsedProp ?? noIds,
+      defaultCollapsedResources,
+      onCollapsedResourcesChange as
+        | ((collapsed: readonly string[]) => void)
+        | undefined,
+    );
+    const shownEvents = useMemo(() => {
+      if (hidden.length === 0 || resources.size === 0) return events;
+      const set = new Set(hidden);
+      return events.filter((event) => isShown(event, resources, set));
+    }, [events, hidden, resources]);
+    // What a new event belongs to when it has to belong to something: the
+    // first resource shown that has none inside it, or else the first shown.
+    const firstResource = () => {
+      if (!resourceRequired) return undefined;
+      const shown = [...resources.values()].filter(
+        (entry) => !hidden.includes(entry.resource.id),
+      );
+      const entry =
+        shown.find((item) => item.descendants.length === 0) ?? shown[0];
+      return entry ? [entry.resource.id] : undefined;
     };
     const options: EditOptions = { step, defaultDuration, timeZone };
 
@@ -695,13 +847,13 @@ export const EventCalendar = forwardRef<HTMLElement, EventCalendarProps>(
       // From the keyboard the event itself moves, and keeps the focus.
       const shown =
         moved && drag?.via === "keyboard"
-          ? events.map((event) => (event.id === moved.id ? moved : event))
-          : events;
+          ? shownEvents.map((event) => (event.id === moved.id ? moved : event))
+          : shownEvents;
       return placeEvents([...shown, ...previews], timeZone, first, last).map(
         (item) =>
           previews.includes(item.event) ? { ...item, preview: true } : item,
       );
-    }, [events, drag, editing, timeZone, first, last]);
+    }, [shownEvents, drag, editing, timeZone, first, last]);
 
     // A new event, written as clock times like the ones it's put among.
     const blank = (eventId: string): CalendarEvent => ({
@@ -716,7 +868,7 @@ export const EventCalendar = forwardRef<HTMLElement, EventCalendarProps>(
       details: Omit<EditStartDetails, "preventDefault">,
     ) => {
       let prevented = false;
-      onEditStart?.(event, {
+      onEditStart?.(write(event), {
         ...details,
         preventDefault: () => {
           prevented = true;
@@ -727,7 +879,12 @@ export const EventCalendar = forwardRef<HTMLElement, EventCalendarProps>(
 
     const startCreate = (times: Times, element: HTMLElement) => {
       if (!creatable) return;
-      const draft = withTimes(blank(createId()), times, timeZone);
+      const resourceIds = firstResource();
+      const draft = withTimes(
+        { ...blank(createId()), ...(resourceIds ? { resourceIds } : null) },
+        times,
+        timeZone,
+      );
       if (!allowed(draft, { isNew: true, readOnly: false, element })) return;
       returnTo.current = element;
       outside.current = false;
@@ -797,6 +954,7 @@ export const EventCalendar = forwardRef<HTMLElement, EventCalendarProps>(
       editable,
       creatable,
       find,
+      rules,
       onMove: ({ mode, placed: item, from, to }) => {
         if (!to) {
           // Out of the calendar, to be dropped on the page.
@@ -816,7 +974,7 @@ export const EventCalendar = forwardRef<HTMLElement, EventCalendarProps>(
         if (!to) {
           if (item && onEventDropOutside && mode === "move") {
             const target = document.elementFromPoint(clientX, clientY);
-            const taken = onEventDropOutside(item.event, {
+            const taken = onEventDropOutside(write(item.event), {
               target,
               clientX,
               clientY,
@@ -888,7 +1046,12 @@ export const EventCalendar = forwardRef<HTMLElement, EventCalendarProps>(
       const times = timesFor(item, spot);
       if (drag?.via === "outside" && sameTimes(drag.times, times)) return;
       setDrag({
-        base: { ...blank(""), title: item.title, color: item.color },
+        base: {
+          ...blank(""),
+          title: item.title,
+          color: item.color,
+          ...(item.resourceIds ? { resourceIds: item.resourceIds } : null),
+        },
         times,
         via: "outside",
       });
@@ -915,8 +1078,13 @@ export const EventCalendar = forwardRef<HTMLElement, EventCalendarProps>(
         return;
       }
       const { duration: _, allDay: __, ...fields } = item;
+      const resourceIds = fields.resourceIds ?? firstResource();
       const event = withTimes(
-        { ...blank(createId()), ...fields },
+        {
+          ...blank(createId()),
+          ...fields,
+          ...(resourceIds ? { resourceIds } : null),
+        },
         timesFor(item, spot),
         timeZone,
       );
@@ -931,7 +1099,7 @@ export const EventCalendar = forwardRef<HTMLElement, EventCalendarProps>(
       picked: drag?.via === "keyboard" ? drag.base.id : null,
       dragging: drag?.via === "pointer" ? drag.base.id || null : null,
       open: (event, element, by) => {
-        const readable = !editable || event.readOnly === true;
+        const readable = !editable || rules(event).readOnly;
         if (!allowed(event, { isNew: false, readOnly: readable, element })) {
           return;
         }
@@ -1011,8 +1179,15 @@ export const EventCalendar = forwardRef<HTMLElement, EventCalendarProps>(
         if (views.includes("day")) setView("day");
       },
       setDate,
-      onEventClick,
+      onEventClick: onEventClick
+        ? (event, element) => onEventClick(write(event), element)
+        : undefined,
       edit,
+      resources,
+      rules,
+      resourceRequired,
+      multipleResources,
+      write,
     };
 
     const Heading = `h${headingLevel}` as "h2";
@@ -1203,6 +1378,15 @@ export const EventCalendar = forwardRef<HTMLElement, EventCalendarProps>(
                   if (panelOver) setOpen(false);
                 }}
               />
+              {resourceList.length > 0 ? (
+                <ResourceList
+                  resources={resourceList}
+                  hidden={hidden}
+                  onHiddenChange={setHidden}
+                  collapsed={collapsed}
+                  onCollapsedChange={setCollapsed}
+                />
+              ) : null}
             </aside>
             {/* biome-ignore lint/a11y/noStaticElementInteractions: the clicks, keys and drags of the grids' cells and events, taken here once rather than on each. */}
             <div
@@ -1233,7 +1417,7 @@ export const EventCalendar = forwardRef<HTMLElement, EventCalendarProps>(
                   days={days}
                   placed={placed}
                   label={title}
-                  events={events}
+                  events={shownEvents}
                 />
               ) : (
                 <TimeGrid days={days} placed={placed} label={title} />
@@ -1246,9 +1430,19 @@ export const EventCalendar = forwardRef<HTMLElement, EventCalendarProps>(
             renderFields={renderEventFields}
             defaultDuration={defaultDuration}
             scrollToHour={scrollToHour}
-            onSave={(event) => {
+            onSave={(saved, changes) => {
               const was = editing;
               if (!was) return;
+              // The app's own fields, under its own names.
+              const event = eventKeys
+                ? readEvent(
+                    {
+                      ...writeEvent(saved, eventKeys, oneResource),
+                      ...changes,
+                    },
+                    eventKeys,
+                  )
+                : ({ ...saved, ...changes } as CalendarEvent);
               commit(
                 was.isNew
                   ? { type: "create", event }
@@ -1341,3 +1535,15 @@ export const EventCalendar = forwardRef<HTMLElement, EventCalendarProps>(
     );
   },
 );
+
+/**
+ * Events in a day, a week, a month or a list. Events that overlap are set
+ * side by side, those over several days are bars across them, and a full
+ * day in a month keeps the rest behind "3 more".
+ */
+export const EventCalendar = UntypedEventCalendar as <
+  TEvent extends object = CalendarEvent,
+  TResource extends object = CalendarResource,
+>(
+  props: EventCalendarProps<TEvent, TResource> & RefAttributes<HTMLElement>,
+) => ReactElement | null;

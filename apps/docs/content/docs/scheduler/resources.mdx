@@ -1,0 +1,123 @@
+---
+title: Resources
+description: Rooms, people or machines that events are booked against in an EventCalendar, shown or hidden from its side panel, and read from your own field names.
+added: "2026-10-29"
+---
+
+A resource is something events are booked against: a room, a person, a machine. Give an [EventCalendar](/docs/scheduler/event-calendar) its `resources`, and each event the ids of the ones it belongs to. The side panel lists them, each with a checkbox to show or hide its events.
+
+<Preview name="event-calendar/resources" />
+
+## A resource
+
+A resource has an `id` and a `title`. The rest is optional:
+
+| Field | What it does |
+| --- | --- |
+| `color` | The color of its events that have none of their own. |
+| `children` | The resources inside it, such as the rooms of a building. |
+| `readOnly` | Its events open to be read. |
+| `draggable` | Whether its events can be moved. |
+| `resizable` | Which ends of its events can be dragged: `true`, `false`, `"start"` or `"end"`. |
+
+A resource inside another takes the settings it doesn't have from the one it's in, so rooms take the color of the group they're in unless they have one of their own. Ids are unique across every level.
+
+```tsx
+const resources: CalendarResource[] = [
+  {
+    id: "rooms",
+    title: "Rooms",
+    color: "1",
+    children: [
+      { id: "room-4b", title: "Room 4B" },
+      { id: "library", title: "The library", color: "5" },
+    ],
+  },
+  { id: "ines", title: "Ines Porter", color: "6" },
+];
+```
+
+## Events on resources
+
+An event's `resourceIds` lists the resources it belongs to. An event with none, or only ids that aren't among the resources, belongs to none and is always shown.
+
+The closest setting wins. An event's own `color`, `readOnly`, `draggable` and `resizable` come first, then its resources', then the calendar's. With several resources, its color is the first one's that has a color, and a setting that holds the event back wins over one that lets it go: one read-only resource makes the event read-only.
+
+An event's name, which a screen reader hears, ends with its resources, and the agenda shows them after its title.
+
+## Showing and hiding
+
+Each resource in the side panel has a checkbox. Unchecking it hides the events of that resource and of every resource inside it. An event with several resources stays while one of them is shown. A group's checkbox is checked when everything in it is shown, unchecked when nothing is, and mixed in between, and pressing it shows everything in it, or hides everything when it was all shown.
+
+A resource with others inside it has a button to fold them away. Neither hiding nor folding changes the events.
+
+Which resources are hidden and which are folded are kept by the calendar, or by you:
+
+```tsx
+const [hidden, setHidden] = useState<string[]>([]);
+
+<EventCalendar
+  resources={resources}
+  events={events}
+  hiddenResources={hidden}
+  onHiddenResourcesChange={setHidden}
+  defaultCollapsedResources={["rooms"]}
+/>;
+```
+
+`defaultHiddenResources` and `defaultCollapsedResources` set where they start, and `collapsedResources` with `onCollapsedResourcesChange` keep the folded ones with you.
+
+## In the popover
+
+An event's popover has a resource to choose, after its times, when the calendar has resources. The list can be searched, and resources inside others are set in under them. `eventFields` without `"resource"` takes it away.
+
+- **One resource** is the default. The list has "None" at the top.
+- **`multipleResources`** lets an event have several. The list stays open while they're chosen, and the field says how many.
+- **`resourceRequired`** makes every event need one. A new event is given the first resource shown that has none inside it, "None" isn't offered, and the popover can't be saved without one.
+
+<Preview name="event-calendar/several-resources" />
+
+Something dragged in from elsewhere on the page can carry `resourceIds` too. Without them, and with `resourceRequired`, it's given the first resource shown.
+
+## Your own field names
+
+Events and resources often come from an API with names of their own. `eventKeys` and `resourceKeys` say which of your fields is which, and the calendar reads them from there, so the data can be passed as it is.
+
+<Preview name="event-calendar/keys" />
+
+```tsx
+<EventCalendar
+  events={bookings}
+  onEventsChange={(next) => setBookings(next)}
+  eventKeys={{ id: "bookingId", title: "subject", start: "from", end: "to", resourceIds: "roomCode" }}
+  resources={rooms}
+  resourceKeys={{ id: "code", title: "name", color: "tint" }}
+/>
+```
+
+- **Changes go back under your names.** `onEventsChange`, `onEditStart`, `onEventClick`, `onEventDropOutside` and `renderEventFields` are given your own objects, with every field of yours the calendar doesn't know about kept. An event that didn't change is the same object you passed.
+- **One id or a list.** A resource id on its own, such as `roomCode: "2A"`, is read as a list of one, and written back as one id. A new event is written the same way when your other events have one id each.
+- **A new event has only what the calendar knows:** its id, title, times, resources, color and description. Add the rest in `onEventsChange`, or with fields of your own in the popover.
+
+The names are compared by what they say, so they can be written inline.
+
+## Props for resources
+
+They're listed with the rest of [EventCalendar's props](/docs/scheduler/event-calendar#eventcalendar-props): `resources`, `resourceKeys`, `eventKeys`, `resourceRequired`, `multipleResources`, `hiddenResources`, `defaultHiddenResources`, `onHiddenResourcesChange`, `collapsedResources`, `defaultCollapsedResources` and `onCollapsedResourcesChange`.
+
+## Accessibility
+
+### What the component handles
+
+- The resources are a section of the side panel, under a heading, "Resources" by default, as lists inside lists.
+- Each resource's checkbox is named by its title, and a group's says when it's mixed.
+- The button that folds a group is named "Resources in", then the group's title, and says whether it's open.
+- The swatch of a resource's color is hidden from screen readers, since its title names it.
+- Each checkbox and fold button is 44 pixels on a touch screen.
+- An event's name ends with its resources.
+
+### What you need to handle
+
+- Give resources titles that tell them apart, since they're read as part of each event's name.
+- Don't tell resources apart by color alone. Two can share one, and the title is what's read.
+- Translate the words the panel and the popover use, in `labels`. [Translation](/docs/translation#scheduler) lists them.

@@ -6,7 +6,8 @@ import {
   useState,
 } from "react";
 import { canDrag, type DragMode, type Spot } from "../../core/edit";
-import type { PlacedEvent } from "../../core/events";
+import type { CalendarEvent, PlacedEvent } from "../../core/events";
+import type { EventRules } from "../../core/resources";
 
 /** How far a mouse moves before a press becomes a drag, in pixels. */
 const slop = 4;
@@ -65,6 +66,8 @@ export interface DragOptions {
   editable: boolean;
   creatable: boolean;
   find: (id: string) => PlacedEvent | undefined;
+  /** What an event may do, with what it takes from its resources. */
+  rules: (event: CalendarEvent) => EventRules;
   /** The drag has moved, or has started. */
   onMove: (update: DragUpdate) => void;
   /** Let go: `to` is where, or `null` outside the calendar. */
@@ -186,7 +189,7 @@ function dragger(
 
   function onPointerDown(event: ReactPointerEvent<HTMLElement>) {
     const node = root.current;
-    const { editable, creatable, find } = latest.current;
+    const { editable, creatable, find, rules } = latest.current;
     if (!node || !editable || session) return;
     if (event.pointerType === "mouse" && event.button !== 0) return;
     const target = event.target as HTMLElement;
@@ -205,7 +208,7 @@ function dragger(
       const handle =
         target.closest<HTMLElement>("[data-handle]")?.dataset.handle;
       mode = handle === "start" || handle === "end" ? handle : "move";
-      if (!placed || !canDrag(placed.event, editable, mode)) return;
+      if (!placed || !canDrag(rules(placed.event), editable, mode)) return;
     } else if (!creatable || target.closest("button, a, input")) {
       return;
     }

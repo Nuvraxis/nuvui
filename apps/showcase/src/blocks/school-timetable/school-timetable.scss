@@ -1,0 +1,94 @@
+@use "@nuvui/react/scss/mixins";
+
+.school-timetable {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing) * 4);
+  box-sizing: border-box;
+  inline-size: 100%;
+  min-block-size: 100svh;
+  padding: calc(var(--spacing) * 4);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+
+  @include mixins.breakpoint("md") {
+    padding: calc(var(--spacing) * 6);
+  }
+}
+
+.school-timetable__head {
+  display: grid;
+  gap: calc(var(--spacing) * 1);
+}
+
+.school-timetable__title {
+  margin: 0;
+  font-size: var(--text-xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-xl--line-height);
+}
+
+.school-timetable__meta,
+.school-timetable__hint {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+.school-timetable__layout {
+  display: grid;
+  flex: 1 1 auto;
+  gap: calc(var(--spacing) * 4);
+
+  @include mixins.breakpoint("xl") {
+    grid-template-columns: minmax(0, 1fr) 16rem;
+  }
+}
+
+.school-timetable__calendar {
+  --nuv-event-calendar-height: 44rem;
+}
+
+.school-timetable__side {
+  display: grid;
+  gap: calc(var(--spacing) * 3);
+  align-content: start;
+  align-self: start;
+  padding: calc(var(--spacing) * 4);
+  border: var(--nuv-border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-surface);
+}
+
+.school-timetable__subtitle {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-sm--line-height);
+}
+
+.school-timetable__list {
+  display: grid;
+  gap: calc(var(--spacing) * 3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.school-timetable__item {
+  display: grid;
+  gap: calc(var(--spacing) * 0.5);
+  padding-inline-start: calc(var(--spacing) * 3);
+  border-inline-start: 2px solid var(--color-danger);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+.school-timetable__item-title {
+  font-weight: var(--font-weight-medium);
+}
+
+.school-timetable__item-text {
+  color: var(--color-muted-foreground);
+}

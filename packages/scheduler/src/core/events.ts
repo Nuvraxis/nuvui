@@ -43,23 +43,27 @@ export interface CalendarEvent {
    * calendar's own by default.
    */
   timeZone?: string;
-  /** The calendar's `color` by default. */
+  /** Its first resource's color, or the calendar's `color`, by default. */
   color?: EventColor;
+  /** The ids of the resources it belongs to, from the calendar's `resources`. */
+  resourceIds?: readonly string[];
   description?: string;
   /** Added to the event's element in every view. */
   className?: string;
   /**
-   * It opens to be read, and can't be changed, moved or deleted. The
-   * calendar's `readOnly` by default.
+   * It opens to be read, and can't be changed, moved or deleted. Read-only
+   * by default when one of its resources is, or the calendar is.
    */
   readOnly?: boolean;
   /**
-   * It can be moved by dragging, or from the keyboard.
+   * It can be moved by dragging, or from the keyboard. Its resources'
+   * `draggable` by default.
    * @default true
    */
   draggable?: boolean;
   /**
-   * Which ends can be dragged to change how long it is.
+   * Which ends can be dragged to change how long it is. Its resources'
+   * `resizable` by default.
    * @default true
    */
   resizable?: boolean | "start" | "end";
@@ -198,11 +202,15 @@ export function eventsOn(
     );
 }
 
-/** What changed, passed to `onEventsChange` with the events after it. */
-export type EventChange =
-  | { type: "create"; event: CalendarEvent }
-  | { type: "update"; event: CalendarEvent; previous: CalendarEvent }
-  | { type: "delete"; event: CalendarEvent };
+/**
+ * What changed, passed to `onEventsChange` with the events after it. The
+ * events are your own objects when the calendar reads them with
+ * `eventKeys`.
+ */
+export type EventChange<TEvent = CalendarEvent> =
+  | { type: "create"; event: TEvent }
+  | { type: "update"; event: TEvent; previous: TEvent }
+  | { type: "delete"; event: TEvent };
 
 /** The events after a change. */
 export function applyChange(

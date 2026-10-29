@@ -5,6 +5,7 @@
 // item of the app's own to drag onto it.
 import {
   type CalendarEvent,
+  type CalendarResource,
   EventCalendar,
   type EventChange,
   eventDragProps,
@@ -16,6 +17,28 @@ const events: CalendarEvent[] = [
     title: "Review",
     start: "2026-10-15T09:00",
     end: "2026-10-15T10:00",
+    resourceIds: ["4b"],
+  },
+];
+
+const resources: CalendarResource[] = [
+  { id: "rooms", title: "Rooms", children: [{ id: "4b", title: "Room 4B" }] },
+];
+
+// An app's own shape, read with eventKeys, comes back in the same shape.
+interface Booking {
+  bookingId: string;
+  subject: string;
+  from: string;
+  to: string;
+}
+
+const bookings: Booking[] = [
+  {
+    bookingId: "b-1",
+    subject: "Interviews",
+    from: "2026-10-15T13:00",
+    to: "2026-10-15T14:00",
   },
 ];
 
@@ -28,6 +51,7 @@ export function Planner() {
       <EventCalendar
         aria-label="Planner"
         defaultEvents={events}
+        resources={resources}
         onEventsChange={(next: CalendarEvent[], change: EventChange) => {
           if (change.type === "delete") console.info(next.length);
         }}
@@ -35,6 +59,20 @@ export function Planner() {
         defaultDate={new Date("2026-10-15T12:00:00Z")}
         defaultPanelOpen={false}
         scrollToHour={8}
+      />
+      <EventCalendar
+        aria-label="Bookings"
+        defaultEvents={bookings}
+        eventKeys={{
+          id: "bookingId",
+          title: "subject",
+          start: "from",
+          end: "to",
+        }}
+        onEventsChange={(next: Booking[]) => console.info(next[0]?.subject)}
+        timeZone="UTC"
+        defaultDate={new Date("2026-10-15T12:00:00Z")}
+        defaultPanelOpen={false}
       />
     </>
   );

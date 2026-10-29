@@ -2,6 +2,14 @@ import { TZDate } from "@date-fns/tz";
 import { DatePicker } from "@nuvui/date-picker/date-picker";
 import { Button } from "@nuvui/react/button";
 import { Checkbox } from "@nuvui/react/checkbox";
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxItem,
+  ComboboxTrigger,
+  ComboboxValue,
+} from "@nuvui/react/combobox";
 import { Input } from "@nuvui/react/input";
 import { Label } from "@nuvui/react/label";
 import { Popover, PopoverAnchor, PopoverContent } from "@nuvui/react/popover";
@@ -17,26 +25,39 @@ import {
 import { type DayKey, dayOf, minutesOf, momentOf } from "../../core/dates";
 import { type Times, withTimes } from "../../core/edit";
 import { type CalendarEvent, place } from "../../core/events";
+import { resourcesOf } from "../../core/resources";
 import { useCalendar } from "./context";
 import { colorOf, timeOf } from "./event-button";
 
-/** A part of the event's popover, which `eventFields` can leave out. */
-export type EventField = "title" | "time" | "color" | "description";
+/**
+ * A part of the event's popover, which `eventFields` can leave out. The
+ * resource is only shown when the calendar has `resources`.
+ */
+export type EventField =
+  | "title"
+  | "time"
+  | "resource"
+  | "color"
+  | "description";
 
 export const allFields: readonly EventField[] = [
   "title",
   "time",
+  "resource",
   "color",
   "description",
 ];
 
-export interface EventFieldsProps {
-  /** The event as it was when the popover opened. */
-  event: CalendarEvent;
-  /** What's been changed with `onChange` so far, kept when it's saved. */
-  changes: Partial<CalendarEvent> & Record<string, unknown>;
+export interface EventFieldsProps<TEvent = CalendarEvent> {
+  /** The event as it was when the popover opened, as your own object. */
+  event: TEvent;
+  /**
+   * What's been changed with `onChange` so far, kept when it's saved, under
+   * your own names.
+   */
+  changes: Partial<TEvent> & Record<string, unknown>;
   /** Changes fields of the event, saved with the rest. */
-  onChange: (changes: Partial<CalendarEvent> & Record<string, unknown>) => void;
+  onChange: (changes: Partial<TEvent> & Record<string, unknown>) => void;
   /** The event opened to be read, so nothing in it can change. */
   readOnly: boolean;
 }
@@ -58,8 +79,12 @@ interface Draft {
   endDay: DayKey;
   endMinute: number;
   color: string | undefined;
+  resourceIds: string[];
   description: string;
 }
+
+// The choice of no resource, which a list of options can't hold as "".
+const noResource = "\u0000none";
 
 const timeText = (minutes: number) =>
   `${String(Math.floor(minutes / 60)).padStart(2, "0")}:${String(minutes % 60).padStart(2, "0")}`;
@@ -91,6 +116,7 @@ function draftOf(
     title: event.title,
     allDay: placed.allDay,
     color: event.color,
+    resourceIds: [...(event.resourceIds ?? [])],
     description: event.description ?? "",
   };
   if (placed.allDay) {
@@ -129,11 +155,12 @@ function Swatch({ color }: { color: string }) {
 interface EventEditorProps {
   editing: Editing | null;
   fields: readonly EventField[];
-  renderFields: ((props: EventFieldsProps) => ReactNode) | undefined;
+  renderFields: ((props: EventFieldsProps<object>) => ReactNode) | undefined;
   /** Minutes a timed event lasts when it was all day before. */
   defaultDuration: number;
   scrollToHour: number;
-  onSave: (event: CalendarEvent) => void;
+  /** The event, and the changes from the app's own fields. */
+  onSave: (event: CalendarEvent, changes: Record<string, unknown>) => void;
   onDelete: (event: CalendarEvent) => void;
   /** From the toolbar to the form. */
   onEdit: () => void;
@@ -189,7 +216,19 @@ function Panel({
   onOutside,
   onTimesChange,
 }: EventEditorProps & { editing: Editing }) {
-  const { timeZone, locale, format, labels, edit, color } = useCalendar();
+  const {
+    timeZone,
+    locale,
+    format,
+    labels,
+    edit,
+    color,
+    resources,
+    rules,
+    resourceRequired,
+    multipleResources,
+    write,
+  } = useCalendar();
   const { event, isNew, mode } = editing;
   const id = useId();
   const [draft, setDraft] = useState(() =>
@@ -198,10 +237,18 @@ function Panel({
       duration: defaultDuration,
     }),
   );
-  const [changes, setChanges] = useState<
-    Partial<CalendarEvent> & Record<string, unknown>
-  >({});
+  const [changes, setChanges] = useState<Record<string, unknown>>({});
   const times = timesOfDraft(draft, timeZone);
+  const shown = (field: EventField) => fields.includes(field);
+  const choosesResource = shown("resource") && resources.size > 0;
+  const missingResource =
+    choosesResource && resourceRequired && draft.resourceIds.length === 0;
+  // The color it has from its resource, while it has none of its own.
+  const inherited =
+    rules({ ...event, color: undefined, resourceIds: draft.resourceIds })
+      .color ??
+    color ??
+    "1";
   const heading = isNew ? labels.newEvent : event.title || labels.untitled;
   // Beside the event, where there's room for it, and below it on a narrow
   // screen, where the room beside it would squeeze the form.
@@ -258,7 +305,7 @@ function Panel({
         align="start"
       >
         <div className="nuv-event-calendar__editor-head">
-          <Swatch color={event.color ?? color ?? "1"} />
+          <Swatch color={rules(event).color ?? color ?? "1"} />
           <h2 id={`${id}-heading`} className="nuv-event-calendar__editor-title">
             {heading}
           </h2>
@@ -266,11 +313,18 @@ function Panel({
         <p className="nuv-event-calendar__editor-text">
           {timeOf(placed, format, labels)}
         </p>
+        {resourcesOf(event, resources).length > 0 ? (
+          <p className="nuv-event-calendar__editor-text">
+            {resourcesOf(event, resources)
+              .map((entry) => entry.resource.title)
+              .join(", ")}
+          </p>
+        ) : null}
         {event.description ? (
           <p className="nuv-event-calendar__editor-text">{event.description}</p>
         ) : null}
         {renderFields?.({
-          event,
+          event: write(event),
           changes: {},
           onChange: () => {},
           readOnly: true,
@@ -286,25 +340,70 @@ function Panel({
 
   const submit = (form: FormEvent) => {
     form.preventDefault();
-    if (!times) return;
-    const { description: _, ...rest } = event;
+    if (!times || missingResource) return;
+    const { description: _, resourceIds: __, ...rest } = event;
     const description = draft.description.trim();
+    const resourceIds = choosesResource
+      ? draft.resourceIds
+      : (event.resourceIds ?? []);
     onSave(
       withTimes(
         {
           ...rest,
-          ...changes,
           title: draft.title.trim() || labels.untitled,
           ...(draft.color ? { color: draft.color } : null),
+          ...(resourceIds.length > 0 ? { resourceIds } : null),
           ...(description ? { description } : null),
         },
         times,
         timeZone,
       ),
+      changes,
     );
   };
 
-  const shown = (field: EventField) => fields.includes(field);
+  const resourceText =
+    draft.resourceIds.length === 1
+      ? resources.get(draft.resourceIds[0] ?? "")?.resource.title
+      : draft.resourceIds.length > 1
+        ? labels.resourceCount(draft.resourceIds.length)
+        : undefined;
+  const resourceList = (
+    <ComboboxContent
+      label={labels.searchResources}
+      listLabel={multipleResources ? labels.resources : labels.resource}
+    >
+      <ComboboxEmpty>{labels.noResourceFound}</ComboboxEmpty>
+      {multipleResources || resourceRequired ? null : (
+        <ComboboxItem value={noResource} textValue={labels.noResource}>
+          {labels.noResource}
+        </ComboboxItem>
+      )}
+      {[...resources.values()].map((entry) => (
+        <ComboboxItem
+          key={entry.resource.id}
+          value={entry.resource.id}
+          textValue={entry.resource.title}
+          className="nuv-event-calendar__resource-option"
+          style={{ "--nuv-resource-depth": entry.depth } as CSSProperties}
+        >
+          {entry.resource.title}
+        </ComboboxItem>
+      ))}
+    </ComboboxContent>
+  );
+  const resourceTrigger = (
+    <ComboboxTrigger
+      id={`${id}-resource`}
+      aria-invalid={missingResource ? true : undefined}
+      aria-describedby={missingResource ? `${id}-resource-error` : undefined}
+    >
+      <ComboboxValue placeholder={labels.noResource}>
+        {resourceText}
+      </ComboboxValue>
+    </ComboboxTrigger>
+  );
+
   const timeStep = edit.options.step * 60;
 
   return (
@@ -402,6 +501,44 @@ function Panel({
             )}
           </>
         ) : null}
+        {choosesResource ? (
+          <div className="nuv-event-calendar__field">
+            <Label htmlFor={`${id}-resource`}>
+              {multipleResources ? labels.resources : labels.resource}
+            </Label>
+            {multipleResources ? (
+              <Combobox
+                multiple
+                value={draft.resourceIds}
+                onValueChange={(ids) => change({ resourceIds: ids })}
+              >
+                {resourceTrigger}
+                {resourceList}
+              </Combobox>
+            ) : (
+              <Combobox
+                value={draft.resourceIds[0] ?? noResource}
+                onValueChange={(picked) =>
+                  change({
+                    resourceIds:
+                      picked === noResource || picked === "" ? [] : [picked],
+                  })
+                }
+              >
+                {resourceTrigger}
+                {resourceList}
+              </Combobox>
+            )}
+            {missingResource ? (
+              <p
+                id={`${id}-resource-error`}
+                className="nuv-event-calendar__error"
+              >
+                {labels.resourceRequired}
+              </p>
+            ) : null}
+          </div>
+        ) : null}
         {shown("color") ? (
           <fieldset className="nuv-event-calendar__colors">
             <legend className="nuv-event-calendar__legend">
@@ -413,7 +550,7 @@ function Panel({
                   type="radio"
                   name={`${id}-color`}
                   value={value}
-                  checked={(draft.color ?? color ?? "1") === value}
+                  checked={(draft.color ?? inherited) === value}
                   aria-label={labels.colorName(Number(value))}
                   className="nuv-event-calendar__color-input"
                   onChange={() => change({ color: value })}
@@ -435,7 +572,7 @@ function Panel({
           </div>
         ) : null}
         {renderFields?.({
-          event,
+          event: write(event),
           changes,
           onChange: (next) => setChanges((was) => ({ ...was, ...next })),
           readOnly: false,
@@ -455,7 +592,12 @@ function Panel({
           <Button type="button" intent="secondary" size="sm" onClick={onClose}>
             {labels.cancel}
           </Button>
-          <Button type="submit" intent="primary" size="sm" disabled={!times}>
+          <Button
+            type="submit"
+            intent="primary"
+            size="sm"
+            disabled={!times || missingResource}
+          >
             {labels.save}
           </Button>
         </div>

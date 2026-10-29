@@ -8,6 +8,7 @@ import { canDrag } from "../../core/edit";
 import type { PlacedEvent } from "../../core/events";
 import type { Formatters } from "../../core/format";
 import type { SchedulerLabels } from "../../core/labels";
+import { resourcesOf } from "../../core/resources";
 import { cx } from "../../utils/cx";
 import { useCalendar } from "./context";
 
@@ -67,9 +68,14 @@ export function EventButton({
   endsAfter = false,
   style,
 }: EventButtonProps) {
-  const { format, labels, color, onEventClick, edit } = useCalendar();
+  const { format, labels, color, onEventClick, edit, resources, rules } =
+    useCalendar();
   const { event } = placed;
   const when = timeOf(placed, format, labels);
+  const rule = rules(event);
+  const resourceNames = resourcesOf(event, resources)
+    .map((entry) => entry.resource.title)
+    .join(", ");
   const time = placed.allDay ? null : format.timeSpan(placed.start, placed.end);
   // A tap opens a toolbar on a touch screen, where there's no right click.
   const pointer = useRef<string>("mouse");
@@ -81,7 +87,7 @@ export function EventButton({
     event.className,
   );
   const colored = {
-    "--nuv-event-color": colorOf(event.color ?? color),
+    "--nuv-event-color": colorOf(rule.color ?? color),
     ...style,
   } as CSSProperties;
 
@@ -101,6 +107,11 @@ export function EventButton({
           {time ?? labels.allDay}
         </span>
         <span className="nuv-event-calendar__event-title">{event.title}</span>
+        {resourceNames ? (
+          <span className="nuv-event-calendar__event-resource">
+            {resourceNames}
+          </span>
+        ) : null}
         {event.description ? (
           <span className="nuv-event-calendar__event-description">
             {event.description}
@@ -135,13 +146,13 @@ export function EventButton({
   }
 
   const picked = edit.picked === event.id;
-  const movable = canDrag(event, edit.editable, "move");
+  const movable = canDrag(rule, edit.editable, "move");
   // Handles on the ends that can be dragged, where the event ends in view.
   const resizable = look === "block" || look === "bar";
   const startHandle =
-    resizable && !startsBefore && canDrag(event, edit.editable, "start");
+    resizable && !startsBefore && canDrag(rule, edit.editable, "start");
   const endHandle =
-    resizable && !endsAfter && canDrag(event, edit.editable, "end");
+    resizable && !endsAfter && canDrag(rule, edit.editable, "end");
 
   const onKeyDown = (key: KeyboardEvent<HTMLButtonElement>) => {
     const element = key.currentTarget;
@@ -177,7 +188,7 @@ export function EventButton({
     } else if (
       (key.key === "Delete" || key.key === "Backspace") &&
       edit.editable &&
-      !event.readOnly
+      !rule.readOnly
     ) {
       key.preventDefault();
       edit.remove(event, element);
@@ -188,7 +199,11 @@ export function EventButton({
     <button
       type="button"
       tabIndex={tabbable || picked ? 0 : -1}
-      aria-label={`${event.title}, ${when}`}
+      aria-label={
+        resourceNames
+          ? `${event.title}, ${when}, ${resourceNames}`
+          : `${event.title}, ${when}`
+      }
       aria-pressed={picked ? true : undefined}
       data-event-id={event.id}
       data-dragging={edit.dragging === event.id ? "" : undefined}

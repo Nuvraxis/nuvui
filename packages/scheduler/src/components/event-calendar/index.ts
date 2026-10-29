@@ -4,7 +4,9 @@ export type {
   EventChange,
   EventColor,
 } from "../../core/events";
+export type { EventKeys, ResourceKeys } from "../../core/keys";
 export { englishLabels, type SchedulerLabels } from "../../core/labels";
+export type { CalendarResource } from "../../core/resources";
 export type { EventField, EventFieldsProps } from "./editor";
 export {
   type CalendarView,

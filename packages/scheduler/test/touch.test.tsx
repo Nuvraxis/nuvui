@@ -56,6 +56,35 @@ describe("event calendar", () => {
     expect(box(month.element()).height).toBeGreaterThanOrEqual(44);
   });
 
+  test("a resource's row and its fold button are 44px", async () => {
+    await render(
+      <EventCalendar
+        {...calendar}
+        resources={[
+          {
+            id: "rooms",
+            title: "Rooms",
+            children: [{ id: "4b", title: "Room 4B" }],
+          },
+        ]}
+      />,
+    );
+    const panel = page.getByRole("button", { name: "Side panel" });
+    if (panel.element().getAttribute("aria-expanded") === "false") {
+      await panel.click();
+    }
+    const fold = box(
+      page.getByRole("button", { name: "Resources in Rooms" }).element(),
+    );
+    expect(fold.height).toBeGreaterThanOrEqual(44);
+    expect(fold.width).toBeGreaterThanOrEqual(44);
+    const row = page
+      .getByRole("checkbox", { name: "Room 4B" })
+      .element()
+      .closest(".nuv-event-calendar__resource-row") as Element;
+    expect(box(row).height).toBeGreaterThanOrEqual(44);
+  });
+
   test("an event in the agenda is 44px tall", async () => {
     await render(<EventCalendar {...calendar} defaultView="agenda" />);
     const item = page.getByRole("button", { name: /^Design review/ }).element();

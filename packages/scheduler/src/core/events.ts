@@ -6,6 +6,7 @@ import {
   toDay,
   toMoment,
 } from "./dates";
+import { expandEvents, type Recurrence } from "./recurrence";
 
 /**
  * One of the theme's eight chart colors, `"1"` to `"8"`, or any CSS color.
@@ -67,6 +68,17 @@ export interface CalendarEvent {
    * @default true
    */
   resizable?: boolean | "start" | "end";
+  /**
+   * How it repeats: an RRULE, such as `"FREQ=WEEKLY;BYDAY=MO,WE"`, or the
+   * same as an object. Worked out in its `timeZone`, so it keeps its time
+   * on the clock across a change to or from summer time.
+   */
+  recurrence?: Recurrence;
+  /**
+   * Days a repeating event is left out on, such as `"2026-12-24"`. A
+   * moment is read as its day in the event's `timeZone`.
+   */
+  exceptions?: readonly (Date | string)[];
 }
 
 /** An event as the calendar draws it, read in the time zone it shows. */
@@ -125,7 +137,8 @@ export function place(event: CalendarEvent, timeZone: string): PlacedEvent {
 
 /**
  * The events that touch any day from `from` to `to`, in the order they're
- * drawn: by day, all-day ones first, then by start, the longer first.
+ * drawn: by day, all-day ones first, then by start, the longer first. One
+ * that repeats is there as each of its occurrences.
  */
 export function placeEvents(
   events: readonly CalendarEvent[],
@@ -133,7 +146,7 @@ export function placeEvents(
   from: DayKey,
   to: DayKey,
 ): PlacedEvent[] {
-  return events
+  return expandEvents(events, timeZone, from, to)
     .map((event) => place(event, timeZone))
     .filter((placed) => placed.lastDay >= from && placed.firstDay <= to)
     .sort(

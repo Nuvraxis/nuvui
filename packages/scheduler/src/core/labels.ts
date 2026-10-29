@@ -1,3 +1,28 @@
+import type { Frequency } from "./recurrence";
+
+/** When in a month or a year an event repeats, for the words that say it. */
+export interface RecurrenceDay {
+  /** The days of the week, written out. */
+  weekdays: readonly string[];
+  /** Which of them in the month, `1` to `5`, or `-1` for the last. */
+  week?: number;
+  /** The day of the month, or `-1` for the last. */
+  monthDay?: number;
+  /** A yearly one's month, written out. */
+  month?: string;
+}
+
+/** How an event repeats, for the words that say it. */
+export interface RecurrenceDetails extends RecurrenceDay {
+  frequency: Frequency;
+  /** Every so many days, weeks, months or years. */
+  interval: number;
+  /** The last day it can be on, written out. */
+  until?: string;
+  /** How many times it happens. */
+  count?: number;
+}
+
 /**
  * Every word the calendar shows or says. Pass some or all of them as
  * `labels` to translate it. Dates and times aren't here: they're written
@@ -88,6 +113,72 @@ export interface SchedulerLabels {
   resourceRequired: string;
   /** The button that opens and closes the resources inside one. */
   resourcesIn: (title: string) => string;
+  /** The popover's field for how an event repeats. */
+  repeat: string;
+  /** The choice of not repeating, in that field. */
+  doesNotRepeat: string;
+  /** How often it repeats, as a choice in that field. */
+  frequency: (frequency: Frequency) => string;
+  /** The field for every how many days, weeks, months or years. */
+  every: string;
+  /** What follows the number in that field. */
+  intervalUnit: (frequency: Frequency, count: number) => string;
+  /** The days of the week it's on, or the day of the month, in the popover. */
+  repeatOn: string;
+  /** A choice of the day of the month or year it's on. */
+  repeatOption: (day: RecurrenceDay) => string;
+  /** The popover's field for when it stops repeating. */
+  repeatEnds: string;
+  never: string;
+  onDate: string;
+  afterCount: string;
+  /** The last day it can be on, in the popover. */
+  lastDate: string;
+  /** How many times it happens, in the popover. */
+  count: string;
+  /** Said in the popover of an event in a time zone other than the one shown. */
+  repeatsIn: (timeZone: string) => string;
+  /** How an event repeats, in words. */
+  recurrence: (details: RecurrenceDetails) => string;
+  /** Added to the name of an event that repeats. */
+  repeats: string;
+  /** The question when one of a repeating event's occurrences is changed. */
+  changeQuestion: (title: string) => string;
+  /** Under the question, before the choice of which to change. */
+  whichChange: string;
+  /** Under the question to delete one that repeats, before the choice. */
+  whichDelete: string;
+  thisEvent: string;
+  followingEvents: string;
+  allEvents: string;
+}
+
+const ordinals = ["first", "second", "third", "fourth", "fifth"];
+
+const listOf = (items: readonly string[]) =>
+  items.length < 2
+    ? items.join("")
+    : `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}`;
+
+const units: Record<Frequency, string> = {
+  daily: "day",
+  weekly: "week",
+  monthly: "month",
+  yearly: "year",
+};
+
+// "on day 14", "on the second Tuesday of May": when in a week, a month or
+// a year it's on.
+function onText({ weekdays, week, monthDay, month }: RecurrenceDay) {
+  const of = month ? ` of ${month}` : "";
+  if (weekdays.length > 0) {
+    if (week === undefined) return `on ${listOf(weekdays)}${of}`;
+    const nth = week < 0 ? "last" : (ordinals[week - 1] ?? `${week}th`);
+    return `on the ${nth} ${listOf(weekdays)}${of}`;
+  }
+  if (monthDay === undefined) return "";
+  if (monthDay < 0) return `on the last day${of}`;
+  return month ? `on ${month} ${monthDay}` : `on day ${monthDay}`;
 }
 
 export const englishLabels: SchedulerLabels = {
@@ -148,4 +239,49 @@ export const englishLabels: SchedulerLabels = {
   resourceCount: (count) => `${count} resources`,
   resourceRequired: "Choose a resource.",
   resourcesIn: (title) => `Resources in ${title}`,
+  repeat: "Repeat",
+  doesNotRepeat: "Doesn't repeat",
+  frequency: (frequency) =>
+    ({
+      daily: "Daily",
+      weekly: "Weekly",
+      monthly: "Monthly",
+      yearly: "Yearly",
+    })[frequency],
+  every: "Every",
+  intervalUnit: (frequency, count) =>
+    count === 1 ? units[frequency] : `${units[frequency]}s`,
+  repeatOn: "On",
+  repeatOption: (day) => {
+    const text = onText(day);
+    return text.charAt(0).toUpperCase() + text.slice(1);
+  },
+  repeatEnds: "Stops repeating",
+  never: "Never",
+  onDate: "On a date",
+  afterCount: "After a number of times",
+  lastDate: "Last date",
+  count: "Number of times",
+  repeatsIn: (timeZone) => `It repeats on the clock in ${timeZone}.`,
+  recurrence: (details) => {
+    const unit = units[details.frequency];
+    const every =
+      details.interval > 1
+        ? `Every ${details.interval} ${unit}s`
+        : `Every ${unit}`;
+    const on = onText(details);
+    const end = details.until
+      ? `, until ${details.until}`
+      : details.count
+        ? `, ${details.count} ${details.count === 1 ? "time" : "times"}`
+        : "";
+    return `${every}${on ? ` ${on}` : ""}${end}`;
+  },
+  repeats: "repeats",
+  changeQuestion: (title) => `Change ${title}?`,
+  whichChange: "It repeats. Which of its events does this change?",
+  whichDelete: "It repeats. Which of its events should go?",
+  thisEvent: "This event",
+  followingEvents: "This and the following events",
+  allEvents: "All events",
 };

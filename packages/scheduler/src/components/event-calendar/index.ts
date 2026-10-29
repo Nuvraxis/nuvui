@@ -5,7 +5,18 @@ export type {
   EventColor,
 } from "../../core/events";
 export type { EventKeys, ResourceKeys } from "../../core/keys";
-export { englishLabels, type SchedulerLabels } from "../../core/labels";
+export {
+  englishLabels,
+  type RecurrenceDay,
+  type RecurrenceDetails,
+  type SchedulerLabels,
+} from "../../core/labels";
+export type {
+  Frequency,
+  Recurrence,
+  RecurrenceRule,
+  Weekday,
+} from "../../core/recurrence";
 export type { CalendarResource } from "../../core/resources";
 export type { EventField, EventFieldsProps } from "./editor";
 export {

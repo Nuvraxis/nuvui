@@ -2,12 +2,12 @@
   {
     "name": "@nuvui/scheduler",
     "path": "dist/index.js",
-    "limit": "19 kB"
+    "limit": "24 kB"
   },
   {
     "name": "@nuvui/scheduler/event-calendar",
     "path": "dist/components/event-calendar/index.js",
-    "limit": "19 kB"
+    "limit": "24 kB"
   },
   {
     "name": "styles.css",

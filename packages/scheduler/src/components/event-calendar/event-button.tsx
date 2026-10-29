@@ -8,6 +8,7 @@ import { canDrag } from "../../core/edit";
 import type { PlacedEvent } from "../../core/events";
 import type { Formatters } from "../../core/format";
 import type { SchedulerLabels } from "../../core/labels";
+import { occurrenceOf } from "../../core/recurrence";
 import { resourcesOf } from "../../core/resources";
 import { cx } from "../../utils/cx";
 import { useCalendar } from "./context";
@@ -76,6 +77,12 @@ export function EventButton({
   const resourceNames = resourcesOf(event, resources)
     .map((entry) => entry.resource.title)
     .join(", ");
+  const name = [
+    event.title,
+    when,
+    ...(occurrenceOf(event) ? [labels.repeats] : []),
+    ...(resourceNames ? [resourceNames] : []),
+  ].join(", ");
   const time = placed.allDay ? null : format.timeSpan(placed.start, placed.end);
   // A tap opens a toolbar on a touch screen, where there's no right click.
   const pointer = useRef<string>("mouse");
@@ -199,11 +206,7 @@ export function EventButton({
     <button
       type="button"
       tabIndex={tabbable || picked ? 0 : -1}
-      aria-label={
-        resourceNames
-          ? `${event.title}, ${when}, ${resourceNames}`
-          : `${event.title}, ${when}`
-      }
+      aria-label={name}
       aria-pressed={picked ? true : undefined}
       data-event-id={event.id}
       data-dragging={edit.dragging === event.id ? "" : undefined}

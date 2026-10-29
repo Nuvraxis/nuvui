@@ -950,6 +950,35 @@ $edge: calc(var(--nuv-border-width) + #{$gap * 2});
     );
   }
 
+  // "Every [2] weeks": the number and what it counts, on one line.
+  .nuv-event-calendar__every {
+    display: flex;
+    gap: calc(var(--spacing) * 2);
+    align-items: center;
+  }
+
+  .nuv-event-calendar__number-input {
+    inline-size: 5rem;
+  }
+
+  .nuv-event-calendar__repeat-days {
+    flex-wrap: wrap;
+  }
+
+  .nuv-event-calendar__note {
+    margin: 0;
+    color: var(--color-muted-foreground);
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+  }
+
+  // The choice of which of a series a change is for, one under another.
+  .nuv-event-calendar__scopes {
+    display: grid;
+    gap: calc(var(--spacing) * 2);
+    margin-block-start: calc(var(--spacing) * 4);
+  }
+
   .nuv-event-calendar__error {
     margin: 0;
     color: var(--color-danger);

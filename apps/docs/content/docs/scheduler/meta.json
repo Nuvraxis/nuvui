@@ -1,5 +1,5 @@
 {
   "title": "Scheduler",
   "defaultOpen": true,
-  "pages": ["index", "event-calendar", "editing"]
+  "pages": ["index", "event-calendar", "editing", "resources"]
 }

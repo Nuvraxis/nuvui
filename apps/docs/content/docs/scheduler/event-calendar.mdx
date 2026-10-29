@@ -48,7 +48,7 @@ const events: CalendarEvent[] = [
 
 ## Events
 
-An event has an `id`, a `title`, a `start` and an `end`. The rest is optional: `allDay`, `timeZone`, `color`, `description` and `className`, and `readOnly`, `draggable` and `resizable` for [editing](/docs/scheduler/editing#read-only).
+An event has an `id`, a `title`, a `start` and an `end`. The rest is optional: `allDay`, `timeZone`, `color`, `description` and `className`, `resourceIds` for the [resources](/docs/scheduler/resources) it belongs to, and `readOnly`, `draggable` and `resizable` for [editing](/docs/scheduler/editing#read-only). When your events have other names for these, `eventKeys` says which is which.
 
 A date is a `Date`, or a string:
 
@@ -134,13 +134,17 @@ const [preferences, setPreferences] = useState(saved);
 
 ## Colors
 
-`color` is one of the theme's eight chart colors, `"1"` to `"8"`, or any CSS color. An event's color is its own, or the calendar's `color`, `"1"` by default. Its background is mixed from the color and the calendar's background, so text stays readable on it in every theme.
+`color` is one of the theme's eight chart colors, `"1"` to `"8"`, or any CSS color. An event's color is its own, or its first resource's, or the calendar's `color`, `"1"` by default. Its background is mixed from the color and the calendar's background, so text stays readable on it in every theme.
 
 ## Editing
 
 Given `defaultEvents`, or `events` with `onEventsChange`, the calendar is edited in place: empty time is clicked or dragged across to make an event, an event opens in a popover to be changed or deleted, and it's dragged to move it or by its ends to resize it. Given `events` alone, an event opens in the popover to be read. [Editing events](/docs/scheduler/editing) has the whole of it.
 
 `onEventClick` is called with the event and the element pressed, before the popover opens. `onEditStart` comes after it, and can keep the popover closed to open your own form.
+
+## Resources
+
+Given `resources`, the side panel lists them under the month, each with a checkbox to show or hide its events, and an event's popover has a resource to choose. An event belongs to the resources in its `resourceIds`, and takes its color, and whether it can be changed, from them when it doesn't say. [Resources](/docs/scheduler/resources) has the whole of it.
 
 ## Language and dates
 
@@ -184,7 +188,8 @@ The arrows go by where things are on the screen. Where the page reads right to l
 
 - The calendar is a region named by `aria-label`, "Calendar" by default, and the side panel a region named "Side panel". Its button says whether it's open.
 - The day, week and month views are grids. Each cell is named by its day, and in the day and week views by its hour, and only one cell at a time is in the tab order.
-- Every event is a button whose name has its title, its time or "All day", and its days.
+- Every event is a button whose name has its title, its time or "All day", its days, and its resources.
+- The resources in the side panel are checkboxes named by their titles, and the button that folds a group says whether it's open.
 - Today is marked as the current date.
 - The heading with the dates shown is a live region.
 - The agenda's days are headings, each over a list of its events.
@@ -238,6 +243,8 @@ Set any of these on an `EventCalendar`, or on anything around it.
       "How much of an event's color is in its background.",
     "--nuv-event-calendar-outside-bg":
       "Background of the days of the months either side of the one shown.",
+    "--nuv-event-calendar-resource-indent":
+      "How far a resource inside another is set in, in the side panel.",
   }}
 />
 
@@ -257,6 +264,13 @@ Set any of these on an `EventCalendar`, or on anything around it.
     "nuv-event-calendar__view-select": "The view switch as a menu, on a narrow calendar.",
     "nuv-event-calendar__main": "The side panel and the view.",
     "nuv-event-calendar__panel": "The side panel.",
+    "nuv-event-calendar__resources": "The resources in the side panel.",
+    "nuv-event-calendar__resources-title": "Their heading.",
+    "nuv-event-calendar__resource-list": "A list of resources, or of those inside one.",
+    "nuv-event-calendar__resource-row": "A resource's fold button, checkbox, swatch and title.",
+    "nuv-event-calendar__resource-name": "A resource's title.",
+    "nuv-event-calendar__fold": "The button that folds the resources inside one.",
+    "nuv-event-calendar__fold-space": "Its place, kept in a resource with none inside it.",
     "nuv-event-calendar__view": "The view.",
     "nuv-event-calendar__time-grid": "The day and week views.",
     "nuv-event-calendar__head": "The days' names and the all-day row, which stay at the top.",
@@ -284,6 +298,7 @@ Set any of these on an `EventCalendar`, or on anything around it.
     "nuv-event-calendar__event--item": "An event in a list.",
     "nuv-event-calendar__event-title": "An event's title.",
     "nuv-event-calendar__event-time": "An event's time.",
+    "nuv-event-calendar__event-resource": "An event's resources, in a list.",
     "nuv-event-calendar__event-description": "An event's description, in a list.",
     "nuv-event-calendar__event-dot": "The dot of an event's color, in a month and a list.",
     "nuv-event-calendar__month": "The month view.",
@@ -320,7 +335,8 @@ Set any of these on an `EventCalendar`, or on anything around it.
     "nuv-event-calendar__when": "When it starts or ends: a date, and a time.",
     "nuv-event-calendar__legend": "The name of a group of controls in it.",
     "nuv-event-calendar__time-input": "A time in it.",
-    "nuv-event-calendar__error": "What's wrong with the times.",
+    "nuv-event-calendar__error": "What's wrong with the times, or a missing resource.",
+    "nuv-event-calendar__resource-option": "A resource in its list, set in by how deep it is.",
     "nuv-event-calendar__colors": "The colors to choose from.",
     "nuv-event-calendar__color": "A color.",
     "nuv-event-calendar__color-input": "The radio under its swatch.",

@@ -3,7 +3,7 @@ import type { CalendarEvent } from "@nuvui/scheduler";
 // Every event is put in the week the page is read in, so the calendar
 // always has something on it. Times are written without a time zone, so
 // each is on the clock wherever it's read.
-function day(offset: number): string {
+export function day(offset: number): string {
   const date = new Date();
   // Monday of this week, then the offset.
   date.setDate(date.getDate() - ((date.getDay() + 6) % 7) + offset);
@@ -11,7 +11,7 @@ function day(offset: number): string {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 }
 
-const at = (offset: number, time: string) => `${day(offset)}T${time}`;
+export const at = (offset: number, time: string) => `${day(offset)}T${time}`;
 
 const standUps: CalendarEvent[] = [0, 1, 2, 3, 4].map((offset) => ({
   id: `stand-up-${offset}`,

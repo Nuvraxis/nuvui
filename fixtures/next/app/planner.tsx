@@ -19,6 +19,14 @@ const events: CalendarEvent[] = [
     end: "2026-10-15T10:00",
     resourceIds: ["4b"],
   },
+  {
+    id: "stand-up",
+    title: "Stand-up",
+    start: "2026-10-12T09:30",
+    end: "2026-10-12T09:45",
+    recurrence: "FREQ=WEEKLY;BYDAY=MO,WE,FR",
+    exceptions: ["2026-10-16"],
+  },
 ];
 
 const resources: CalendarResource[] = [

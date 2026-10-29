@@ -53,8 +53,7 @@ Events and resources can keep your own field names. `eventKeys` and `resourceKey
 
 ## What's coming
 
-The calendar's views, [editing](editing.md) and [resources](resources.md) are in the package. These are planned, in this order, and none is in it yet:
+The calendar's views, [editing](editing.md), [resources](resources.md) and [recurring events](recurring-events.md) are in the package. These are planned, in this order, and neither is in it yet:
 
-- **Recurring events,** with this one, this and following, or all, when one is changed.
 - **A timeline,** with resources as rows and time across.
 - **Loading by range,** asking your server only for the days shown.

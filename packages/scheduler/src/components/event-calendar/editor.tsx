@@ -25,9 +25,21 @@ import {
 import { type DayKey, dayOf, minutesOf, momentOf } from "../../core/dates";
 import { type Times, withTimes } from "../../core/edit";
 import { type CalendarEvent, place } from "../../core/events";
+import {
+  occurrenceOf,
+  type RecurrenceRule,
+  ruleOf,
+} from "../../core/recurrence";
 import { resourcesOf } from "../../core/resources";
 import { useCalendar } from "./context";
 import { colorOf, timeOf } from "./event-button";
+import {
+  detailsOf,
+  type RepeatDraft,
+  RepeatFields,
+  repeatDraftOf,
+  ruleOfDraft,
+} from "./repeat";
 
 /**
  * A part of the event's popover, which `eventFields` can leave out. The
@@ -36,6 +48,7 @@ import { colorOf, timeOf } from "./event-button";
 export type EventField =
   | "title"
   | "time"
+  | "repeat"
   | "resource"
   | "color"
   | "description";
@@ -43,6 +56,7 @@ export type EventField =
 export const allFields: readonly EventField[] = [
   "title",
   "time",
+  "repeat",
   "resource",
   "color",
   "description",
@@ -81,6 +95,9 @@ interface Draft {
   color: string | undefined;
   resourceIds: string[];
   description: string;
+  repeat: RepeatDraft;
+  /** The repeat fields were changed, so the rule they give is saved. */
+  repeatChanged: boolean;
 }
 
 // The choice of no resource, which a list of options can't hold as "".
@@ -106,6 +123,18 @@ function timesOfDraft(draft: Draft, timeZone: string): Times | null {
   return end < start ? null : { allDay: false, start, end };
 }
 
+/** How an event repeats: its own rule, or its series' for an occurrence. */
+const ruleOfEvent = (event: CalendarEvent) =>
+  ruleOf(occurrenceOf(event)?.series.recurrence ?? event.recurrence);
+
+/** The day an event starts on, on its own clock, which its rule goes by. */
+function ownStartDay(event: CalendarEvent, timeZone: string): DayKey {
+  const placed = place(event, timeZone);
+  return placed.allDay
+    ? placed.firstDay
+    : dayOf(placed.start, event.timeZone ?? timeZone);
+}
+
 function draftOf(
   event: CalendarEvent,
   timeZone: string,
@@ -118,6 +147,12 @@ function draftOf(
     color: event.color,
     resourceIds: [...(event.resourceIds ?? [])],
     description: event.description ?? "",
+    repeat: repeatDraftOf(
+      ruleOfEvent(event),
+      ownStartDay(event, timeZone),
+      event.timeZone ?? timeZone,
+    ),
+    repeatChanged: false,
   };
   if (placed.allDay) {
     // Times to start from if it's made a timed event.
@@ -159,8 +194,16 @@ interface EventEditorProps {
   /** Minutes a timed event lasts when it was all day before. */
   defaultDuration: number;
   scrollToHour: number;
-  /** The event, and the changes from the app's own fields. */
-  onSave: (event: CalendarEvent, changes: Record<string, unknown>) => void;
+  /**
+   * The event, the changes from the app's own fields, and how it repeats
+   * after the change: `undefined` when that wasn't changed, and `null` when
+   * it no longer repeats.
+   */
+  onSave: (
+    event: CalendarEvent,
+    changes: Record<string, unknown>,
+    rule: RecurrenceRule | null | undefined,
+  ) => void;
   onDelete: (event: CalendarEvent) => void;
   /** From the toolbar to the form. */
   onEdit: () => void;
@@ -296,6 +339,7 @@ function Panel({
 
   if (mode === "read") {
     const placed = place(event, timeZone);
+    const rule = ruleOfEvent(event);
     return (
       <PopoverContent
         {...closing}
@@ -313,6 +357,18 @@ function Panel({
         <p className="nuv-event-calendar__editor-text">
           {timeOf(placed, format, labels)}
         </p>
+        {rule ? (
+          <p className="nuv-event-calendar__editor-text">
+            {labels.recurrence(
+              detailsOf(
+                rule,
+                ownStartDay(event, timeZone),
+                event.timeZone ?? timeZone,
+                format,
+              ),
+            )}
+          </p>
+        ) : null}
         {resourcesOf(event, resources).length > 0 ? (
           <p className="nuv-event-calendar__editor-text">
             {resourcesOf(event, resources)
@@ -346,19 +402,23 @@ function Panel({
     const resourceIds = choosesResource
       ? draft.resourceIds
       : (event.resourceIds ?? []);
+    const saved = withTimes(
+      {
+        ...rest,
+        title: draft.title.trim() || labels.untitled,
+        ...(draft.color ? { color: draft.color } : null),
+        ...(resourceIds.length > 0 ? { resourceIds } : null),
+        ...(description ? { description } : null),
+      },
+      times,
+      timeZone,
+    );
     onSave(
-      withTimes(
-        {
-          ...rest,
-          title: draft.title.trim() || labels.untitled,
-          ...(draft.color ? { color: draft.color } : null),
-          ...(resourceIds.length > 0 ? { resourceIds } : null),
-          ...(description ? { description } : null),
-        },
-        times,
-        timeZone,
-      ),
+      saved,
       changes,
+      draft.repeatChanged
+        ? ruleOfDraft(draft.repeat, ownStartDay(saved, timeZone))
+        : undefined,
     );
   };
 
@@ -500,6 +560,28 @@ function Panel({
               </p>
             )}
           </>
+        ) : null}
+        {shown("repeat") ? (
+          <RepeatFields
+            id={id}
+            draft={draft.repeat}
+            startDay={
+              times
+                ? ownStartDay(withTimes(event, times, timeZone), timeZone)
+                : draft.startDay
+            }
+            ownTimeZone={
+              event.timeZone && event.timeZone !== timeZone
+                ? event.timeZone
+                : undefined
+            }
+            onChange={(next) =>
+              change({
+                repeat: { ...draft.repeat, ...next },
+                repeatChanged: true,
+              })
+            }
+          />
         ) : null}
         {choosesResource ? (
           <div className="nuv-event-calendar__field">

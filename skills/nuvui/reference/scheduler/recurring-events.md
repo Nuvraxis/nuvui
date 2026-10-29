@@ -1,0 +1,217 @@
+<!-- Written by apps/docs/scripts/agent-skill.mjs from apps/docs/content/docs/scheduler/recurring-events.mdx. Don't edit it here: run `pnpm skill`. -->
+
+# Recurring events
+
+Events in an EventCalendar that repeat by a rule, an RRULE or an object, with days left out, worked out in their own time zone, and changed one at a time, from one on, or all together.
+
+An event repeats when it has a `recurrence`: an RRULE from [RFC 5545](https://datatracker.ietf.org/doc/html/rfc5545#section-3.3.10), the format calendars exchange, or the same as an object. The calendar draws each occurrence in the days shown, and works out only those.
+
+```tsx
+"use client";
+
+import { type CalendarEvent, EventCalendar } from "@nuvui/scheduler";
+import { at, day } from "./events";
+
+// Each starts in the week the page is read in. A rule is an RRULE or the
+// same as an object.
+const events: CalendarEvent[] = [
+  {
+    id: "stand-up",
+    title: "Stand-up",
+    start: at(0, "09:30"),
+    end: at(0, "09:45"),
+    color: "2",
+    recurrence: "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR",
+  },
+  {
+    id: "one-to-one",
+    title: "One to one with Tomas Reyna",
+    start: at(1, "14:00"),
+    end: at(1, "14:30"),
+    color: "6",
+    recurrence: { frequency: "weekly", interval: 2 },
+  },
+  {
+    id: "running",
+    title: "Running club",
+    start: at(1, "18:00"),
+    end: at(1, "19:00"),
+    color: "4",
+    recurrence: "FREQ=WEEKLY;BYDAY=TU,TH;COUNT=8",
+    // Not this Thursday.
+    exceptions: [day(3)],
+  },
+  {
+    id: "payroll",
+    title: "Payroll",
+    start: day(4),
+    end: day(4),
+    allDay: true,
+    color: "8",
+    recurrence: "FREQ=MONTHLY",
+  },
+];
+
+export default function Example() {
+  return <EventCalendar aria-label="Team calendar" defaultEvents={events} />;
+}
+```
+
+```tsx
+const events: CalendarEvent[] = [
+  {
+    id: "stand-up",
+    title: "Stand-up",
+    start: "2026-10-12T09:30",
+    end: "2026-10-12T09:45",
+    recurrence: "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR",
+  },
+  {
+    id: "one-to-one",
+    title: "One to one",
+    start: "2026-10-13T14:00",
+    end: "2026-10-13T14:30",
+    recurrence: { frequency: "weekly", interval: 2 },
+  },
+];
+```
+
+## A rule
+
+The `start` and `end` are the first occurrence's, and the rule says when the rest are. Each part of an RRULE has a field of the same meaning in the object:
+
+| RRULE | Object | What it says |
+| --- | --- | --- |
+| `FREQ` | `frequency` | `"daily"`, `"weekly"`, `"monthly"` or `"yearly"`. |
+| `INTERVAL` | `interval` | Every so many days, weeks, months or years. 1 by default. |
+| `BYDAY` | `weekdays` | The days of the week, as `"MO"` to `"SU"`. Weekly, the days in each week, the start's by default. Daily, the only days it's on. |
+| `BYDAY` with a number, `2TU` | `weekdays` with `week` | Monthly or yearly, the second Tuesday, or with `-1`, the last. |
+| `BYMONTHDAY` | `monthDay` | Monthly or yearly, the day of the month, or `-1` for the last. The start's by default. |
+| `BYMONTH` | `month` | Yearly, the month, 1 to 12. The start's by default. |
+| `UNTIL` | `until` | The last day it can be on, or the last moment it can start. |
+| `COUNT` | `count` | How many times it happens, the first included. |
+| `WKST` | `weekStart` | The day a week starts on, for a rule every two weeks or more. Monday by default. |
+
+- **The first occurrence is always the start,** as RFC 5545 has it, and counts towards `count`, even on a day the rule doesn't name.
+- **A day a month doesn't have is passed by.** On the 31st, every month skips the months with 30 days or fewer, and on 29 February, every year is every leap year. `monthDay: -1` is the last day of each month instead.
+- **The rest of RFC 5545 is left out,** with a warning in the console: `BYSETPOS`, `BYWEEKNO`, `BYYEARDAY`, `BYHOUR`, `BYMINUTE` and `BYSECOND`, and more than one day of the month. `RDATE` has no place on an event.
+
+## Days left out
+
+`exceptions` lists the days an event doesn't happen on, such as `["2026-12-24"]`. A moment is read as its day in the event's time zone. A day left out still counts towards `count`.
+
+## Time zones
+
+A rule is worked out on the event's own clock, in its `timeZone`, or the calendar's. A stand-up at 9:30 in Berlin stays at 9:30 there across the change to winter time, and is drawn an hour later in a calendar shown in UTC from that day on. When the event's zone isn't the one shown, the popover says which it repeats in.
+
+## Changing one
+
+When an occurrence is moved, resized or saved, the calendar asks which events the change is for, in an alert dialog:
+
+- **This event** leaves the occurrence out of the series, by adding its day to `exceptions`, and makes it an event of its own, with a new id.
+- **This and the following events** ends the series the day before, with `until`, and starts a new series with the change, with a new id. A `count` is shared between the two.
+- **All events** changes the series. Moved to another day, its first occurrence moves as many days, and the days of the week in its rule move with it.
+
+Deleting one asks the same, and that's the confirmation, whatever `confirmDelete` says: this one is left out, the series ends the day before, or the series goes. From the first occurrence, this and the following is all of them.
+
+```tsx
+"use client";
+
+import {
+  type CalendarEvent,
+  EventCalendar,
+  type EventChange,
+} from "@nuvui/scheduler";
+import { useState } from "react";
+import { at } from "./events";
+
+const initialEvents: CalendarEvent[] = [
+  {
+    id: "stand-up",
+    title: "Stand-up",
+    start: at(0, "09:30"),
+    end: at(0, "09:45"),
+    color: "2",
+    recurrence: "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR",
+  },
+  {
+    id: "design-review",
+    title: "Design review",
+    start: at(1, "15:00"),
+    end: at(1, "16:00"),
+    color: "3",
+    recurrence: "FREQ=WEEKLY;BYDAY=TU",
+  },
+];
+
+// A change in words: what it was, the event, and how it repeats after it.
+function describe(change: EventChange): string {
+  const { event } = change;
+  const parts = [change.type, event.title];
+  if (typeof event.recurrence === "string") parts.push(event.recurrence);
+  if (event.exceptions?.length) {
+    parts.push(`not on ${event.exceptions.join(", ")}`);
+  }
+  return parts.join(", ");
+}
+
+let made = 0;
+
+export default function Example() {
+  const [events, setEvents] = useState(initialEvents);
+  const [log, setLog] = useState<{ id: number; text: string }[]>([]);
+
+  return (
+    <div style={{ display: "grid", gap: 12, inlineSize: "100%" }}>
+      <EventCalendar
+        aria-label="Repeating meetings"
+        events={events}
+        onEventsChange={(next, change) => {
+          setEvents(next);
+          made += 1;
+          const entry = { id: made, text: describe(change) };
+          setLog((was) => [...was, entry]);
+        }}
+        defaultPanelOpen={false}
+      />
+      {/* Changing one occurrence is two changes: the series leaves it
+          out, and it's made an event of its own. */}
+      <ol aria-label="Changes" style={{ margin: 0, paddingInlineStart: 20 }}>
+        {log.length === 0 ? (
+          <li>Nothing changed yet.</li>
+        ) : (
+          log.slice(-4).map((entry) => <li key={entry.id}>{entry.text}</li>)
+        )}
+      </ol>
+    </div>
+  );
+}
+```
+
+Changing one occurrence, or one and those after it, is two changes, so `onEventsChange` is called twice: once to update the series, and once to create the new event. Each call has every event after its change.
+
+## In the popover
+
+An event's popover has a field for how it repeats, after its times. It offers every day, week, month or year, every how many, the days of the week for a weekly rule, the date or the weekday in its week for a monthly or yearly one, and when it stops: never, on a date, or after a number of times. `eventFields` without `"repeat"` takes it away.
+
+A rule changed in an occurrence's popover is for that occurrence and those after it, or for all of them, so the question doesn't offer the one alone.
+
+## Written back
+
+A rule comes back the way it was given: an RRULE as an RRULE, and an object as an object. A new rule is an RRULE, or an object when your other events have them. An `UNTIL` is a day for an event that takes whole days, and a moment in UTC for one with a time, the end of the last day on the event's clock, as RFC 5545 asks.
+
+`onEventClick`, `onEditStart`, `onEventDropOutside` and `renderEventFields` are given an occurrence as its series, with the series' `id` and rule, and the occurrence's `start` and `end`. With [`eventKeys`](resources.md#your-own-field-names), `recurrence` and `exceptions` can have names of your own like the rest.
+
+## Accessibility
+
+### What the component handles
+
+- An occurrence's name ends with "repeats", before its resources.
+- An occurrence read in its popover says how it repeats, in words: "Every week on Monday and Wednesday".
+- The question of which events a change is for is an alert dialog, with the focus on Cancel, and each choice a button. The focus goes to the event where it went, or back to the occurrence when it's cancelled.
+- Each field for how it repeats has a label. The days of the week are toggle buttons named by the whole day, and say whether they're chosen.
+
+### What you need to handle
+
+- Translate the words in `labels`, among them `recurrence`, which writes a rule in words from its parts. [Translation](../translation.md#scheduler) lists them.
+- Keep a series' start on one of the days its rule names, so the first occurrence isn't a surprise.

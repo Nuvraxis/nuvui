@@ -24,6 +24,8 @@ const eventNames: readonly (keyof CalendarEvent)[] = [
   "readOnly",
   "draggable",
   "resizable",
+  "recurrence",
+  "exceptions",
 ];
 
 const resourceNames: readonly (keyof CalendarResource)[] = [

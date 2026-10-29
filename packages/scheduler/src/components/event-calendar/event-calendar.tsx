@@ -92,11 +92,23 @@ import {
 } from "../../core/keys";
 import { englishLabels, type SchedulerLabels } from "../../core/labels";
 import {
+  expandEvents,
+  occurrenceOf,
+  type RecurrenceRule,
+  writeRule,
+} from "../../core/recurrence";
+import {
   type CalendarResource,
   indexResources,
   isShown,
   rulesOf,
 } from "../../core/resources";
+import {
+  changeOccurrence,
+  deleteOccurrence,
+  type Scope,
+  type SeriesOptions,
+} from "../../core/series";
 import { cx } from "../../utils/cx";
 import { useControlled } from "../../utils/use-controlled";
 import { useWidth } from "../../utils/use-width";
@@ -255,14 +267,15 @@ export interface EventCalendarOwnProps<
    */
   step?: number;
   /**
-   * Asks before an event is deleted.
+   * Asks before an event is deleted. An event that repeats is always asked
+   * about, since which of its occurrences go is the question.
    * @default true
    */
   confirmDelete?: boolean;
   /**
    * The parts of an event's popover, in order. Leave one out to take it
    * away.
-   * @default ["title", "time", "resource", "color", "description"]
+   * @default ["title", "time", "repeat", "resource", "color", "description"]
    */
   eventFields?: readonly EventField[];
   /** Fields of your own, shown in an event's popover after the rest. */
@@ -739,8 +752,22 @@ const UntypedEventCalendar = forwardRef<HTMLElement, AnyProps>(
       (item) =>
         typeof (item as Record<string, unknown>)[resourceKey] === "string",
     );
-    const write = (event: CalendarEvent): object =>
-      eventKeys ? writeEvent(event, eventKeys, oneResource) : event;
+    // An app that writes its rules as objects has new ones written so too.
+    const recurrenceKey = eventKeys?.recurrence ?? "recurrence";
+    const objectRules = (eventsProp ?? defaultEvents).some((item) => {
+      const rule = (item as Record<string, unknown>)[recurrenceKey];
+      return typeof rule === "object" && rule !== null;
+    });
+    const seriesOptions: SeriesOptions = { timeZone, createId, objectRules };
+    // An occurrence of a repeating event is handed over as its series, at
+    // the occurrence's own times.
+    const write = (event: CalendarEvent): object => {
+      const occurrence = occurrenceOf(event);
+      const outward = occurrence
+        ? { ...occurrence.series, start: event.start, end: event.end }
+        : event;
+      return eventKeys ? writeEvent(outward, eventKeys, oneResource) : outward;
+    };
     const editable = !readOnly && (!eventsHeld || onEventsChange !== undefined);
     const creatable = editable && creatableProp;
     const commit = (change: EventChange) => {
@@ -804,10 +831,19 @@ const UntypedEventCalendar = forwardRef<HTMLElement, AnyProps>(
       focusNext.current = null;
       find()?.focus();
     });
-    const eventElement = (eventId: string) =>
-      root.current?.querySelector<HTMLElement>(
-        `[data-event-id="${CSS.escape(eventId)}"]:not([data-preview])`,
-      ) ?? null;
+    // An event, or for one that repeats, the first of its occurrences shown.
+    const eventElement = (eventId: string) => {
+      const id = CSS.escape(eventId);
+      return (
+        root.current?.querySelector<HTMLElement>(
+          `[data-event-id="${id}"]:not([data-preview])`,
+        ) ??
+        root.current?.querySelector<HTMLElement>(
+          `[data-event-id^="${id}:"]:not([data-preview])`,
+        ) ??
+        null
+      );
+    };
 
     // An event on the move: dragged with a pointer, picked up from the
     // keyboard, or dragged in from elsewhere on the page.
@@ -823,6 +859,18 @@ const UntypedEventCalendar = forwardRef<HTMLElement, AnyProps>(
     const [deleting, setDeleting] = useState<{
       event: CalendarEvent;
       element: HTMLElement;
+    } | null>(null);
+    // An occurrence of a repeating event being changed or deleted, waiting
+    // to be told which of the series it's for.
+    const [asking, setAsking] = useState<{
+      occurrence: CalendarEvent;
+      /** Where it's going, or nothing when it's being deleted. */
+      next?: CalendarEvent;
+      /** The series' rule after the change, when that changed. */
+      rule?: RecurrenceRule | null;
+      /** It was dragged, so the drop is said in words. */
+      dropped?: boolean;
+      element: HTMLElement | null;
     } | null>(null);
     const returnTo = useRef<HTMLElement | null>(null);
     // A press on the calendar while a popover is open closes it, and
@@ -845,10 +893,11 @@ const UntypedEventCalendar = forwardRef<HTMLElement, AnyProps>(
         );
       }
       // From the keyboard the event itself moves, and keeps the focus.
+      const expanded = expandEvents(shownEvents, timeZone, first, last);
       const shown =
         moved && drag?.via === "keyboard"
-          ? shownEvents.map((event) => (event.id === moved.id ? moved : event))
-          : shownEvents;
+          ? expanded.map((event) => (event.id === moved.id ? moved : event))
+          : expanded;
       return placeEvents([...shown, ...previews], timeZone, first, last).map(
         (item) =>
           previews.includes(item.event) ? { ...item, preview: true } : item,
@@ -943,7 +992,9 @@ const UntypedEventCalendar = forwardRef<HTMLElement, AnyProps>(
 
     const requestDelete = (event: CalendarEvent, element: HTMLElement) => {
       setEditing(null);
-      if (confirmDelete) setDeleting({ event, element });
+      // Which of a series to delete is asked, and that's the confirmation.
+      if (occurrenceOf(event)) setAsking({ occurrence: event, element });
+      else if (confirmDelete) setDeleting({ event, element });
       else focusNext.current = removeNow(event, element);
     };
 
@@ -979,7 +1030,14 @@ const UntypedEventCalendar = forwardRef<HTMLElement, AnyProps>(
               clientX,
               clientY,
             });
-            if (taken === true) commit({ type: "delete", event: item.event });
+            if (taken === true) {
+              const from = occurrenceOf(item.event);
+              commit(
+                from
+                  ? deleteOccurrence(from, "one", seriesOptions)
+                  : { type: "delete", event: item.event },
+              );
+            }
           }
           return;
         }
@@ -994,6 +1052,15 @@ const UntypedEventCalendar = forwardRef<HTMLElement, AnyProps>(
         }
         if (sameTimes(times, timesOf(item))) return;
         const next = withTimes(item.event, times, timeZone);
+        if (occurrenceOf(item.event)) {
+          setAsking({
+            occurrence: item.event,
+            next,
+            dropped: true,
+            element: eventElement(item.event.id),
+          });
+          return;
+        }
         commit({ type: "update", event: next, previous: item.event });
         setAnnouncement(labels.dropped(next.title, when(next)));
       },
@@ -1092,6 +1159,69 @@ const UntypedEventCalendar = forwardRef<HTMLElement, AnyProps>(
       setAnnouncement(labels.added(event.title, when(event)));
     };
 
+    // An event given a rule to repeat by, written like the app's others,
+    // or one that no longer repeats.
+    const withRule = (
+      event: CalendarEvent,
+      rule: RecurrenceRule | null,
+    ): CalendarEvent => {
+      const { recurrence, exceptions, ...rest } = event;
+      if (!rule) return rest;
+      return {
+        ...rest,
+        ...(exceptions ? { exceptions } : null),
+        recurrence: writeRule(
+          rule,
+          recurrence,
+          objectRules,
+          event.allDay === true,
+          event.timeZone ?? timeZone,
+        ),
+      };
+    };
+
+    // The answer to which of a series a change or a delete is for.
+    const answer = (scope: Scope) => {
+      const from = asking && occurrenceOf(asking.occurrence);
+      if (!asking || !from) return;
+      const { occurrence, next, rule, dropped, element } = asking;
+      if (next) {
+        const { changes, focus } = changeOccurrence(
+          from,
+          next,
+          scope,
+          rule,
+          seriesOptions,
+        );
+        for (const change of changes) commit(change);
+        if (dropped) setAnnouncement(labels.dropped(next.title, when(next)));
+        afterDialog.current = () =>
+          eventElement(focus) ?? (element?.isConnected ? element : null);
+        return;
+      }
+      const after = element ? whereAfter(element) : null;
+      commit(deleteOccurrence(from, scope, seriesOptions));
+      setAnnouncement(labels.deleted(occurrence.title || labels.untitled));
+      afterDialog.current = after;
+    };
+    // One occurrence can't take a new rule of its own.
+    const scopes: readonly Scope[] =
+      asking?.rule === undefined
+        ? ["one", "following", "all"]
+        : ["following", "all"];
+    const scopeLabels: Record<Scope, string> = {
+      one: labels.thisEvent,
+      following: labels.followingEvents,
+      all: labels.allEvents,
+    };
+    // The alert dialogs give the focus back where the calendar says.
+    const focusAfterDialog = (closing: Event) => {
+      closing.preventDefault();
+      const find = afterDialog.current;
+      afterDialog.current = null;
+      find?.()?.focus();
+    };
+
     const edit: EditingValue = {
       editable,
       creatable,
@@ -1139,7 +1269,20 @@ const UntypedEventCalendar = forwardRef<HTMLElement, AnyProps>(
         if (drag?.via !== "keyboard") return;
         const next = withTimes(drag.base, drag.times, timeZone);
         setDrag(null);
-        if (!sameTimes(drag.times, timesOf(place(drag.base, timeZone)))) {
+        const moved = !sameTimes(
+          drag.times,
+          timesOf(place(drag.base, timeZone)),
+        );
+        if (moved && occurrenceOf(drag.base)) {
+          setAsking({
+            occurrence: drag.base,
+            next,
+            dropped: true,
+            element: eventElement(drag.base.id),
+          });
+          return;
+        }
+        if (moved) {
           commit({ type: "update", event: next, previous: drag.base });
         }
         setAnnouncement(labels.dropped(next.title, when(next)));
@@ -1430,11 +1573,11 @@ const UntypedEventCalendar = forwardRef<HTMLElement, AnyProps>(
             renderFields={renderEventFields}
             defaultDuration={defaultDuration}
             scrollToHour={scrollToHour}
-            onSave={(saved, changes) => {
+            onSave={(saved, changes, rule) => {
               const was = editing;
               if (!was) return;
               // The app's own fields, under its own names.
-              const event = eventKeys
+              const merged = eventKeys
                 ? readEvent(
                     {
                       ...writeEvent(saved, eventKeys, oneResource),
@@ -1443,6 +1586,18 @@ const UntypedEventCalendar = forwardRef<HTMLElement, AnyProps>(
                     eventKeys,
                   )
                 : ({ ...saved, ...changes } as CalendarEvent);
+              if (occurrenceOf(was.event)) {
+                setEditing(null);
+                setAsking({
+                  occurrence: was.event,
+                  next: merged,
+                  rule,
+                  element: returnTo.current,
+                });
+                return;
+              }
+              const event =
+                rule === undefined ? merged : withRule(merged, rule);
               commit(
                 was.isNew
                   ? { type: "create", event }
@@ -1494,14 +1649,7 @@ const UntypedEventCalendar = forwardRef<HTMLElement, AnyProps>(
                 element.isConnected ? element : null;
             }}
           >
-            <AlertDialogContent
-              onCloseAutoFocus={(closing) => {
-                closing.preventDefault();
-                const find = afterDialog.current;
-                afterDialog.current = null;
-                find?.()?.focus();
-              }}
-            >
+            <AlertDialogContent onCloseAutoFocus={focusAfterDialog}>
               <AlertDialogTitle>
                 {labels.deleteQuestion(
                   deleting?.event.title || labels.untitled,
@@ -1524,6 +1672,42 @@ const UntypedEventCalendar = forwardRef<HTMLElement, AnyProps>(
                 >
                   {labels.delete}
                 </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+          <AlertDialog
+            open={asking !== null}
+            onOpenChange={(open) => {
+              if (open || !asking) return;
+              const { occurrence, element } = asking;
+              setAsking(null);
+              // Cancelled: back to the occurrence, where it was.
+              afterDialog.current ??= () =>
+                element?.isConnected ? element : eventElement(occurrence.id);
+            }}
+          >
+            <AlertDialogContent onCloseAutoFocus={focusAfterDialog}>
+              <AlertDialogTitle>
+                {(asking?.next ? labels.changeQuestion : labels.deleteQuestion)(
+                  asking?.occurrence.title || labels.untitled,
+                )}
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                {asking?.next ? labels.whichChange : labels.whichDelete}
+              </AlertDialogDescription>
+              <div className="nuv-event-calendar__scopes">
+                {scopes.map((scope) => (
+                  <AlertDialogAction
+                    key={scope}
+                    intent={asking?.next ? "secondary" : "danger"}
+                    onClick={() => answer(scope)}
+                  >
+                    {scopeLabels[scope]}
+                  </AlertDialogAction>
+                ))}
+              </div>
+              <AlertDialogFooter>
+                <AlertDialogCancel>{labels.cancel}</AlertDialogCancel>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>

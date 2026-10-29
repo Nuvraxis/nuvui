@@ -231,3 +231,37 @@ test.describe("resources page", () => {
     );
   });
 });
+
+test.describe("recurring events page", () => {
+  test.beforeEach(async ({ page }) => {
+    // The examples start in this week. On a Monday, a narrow calendar's
+    // three days are its first three.
+    await page.clock.setFixedTime(new Date(2026, 9, 26, 8));
+    await open(page, "/docs/scheduler/recurring-events");
+  });
+
+  test("an occurrence moved from the keyboard asks which, and one is two changes", async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(isMobile, "a phone has no keyboard");
+    const calendar = preview(page, "event-calendar/recurring-changes");
+    await calendar.scrollIntoViewIfNeeded();
+    await calendar
+      .getByRole("button", { name: /^Stand-up, .*Tuesday.*, repeats$/ })
+      .focus();
+    await page.keyboard.press("Space");
+    await page.keyboard.press("ArrowDown");
+    await page.keyboard.press("Enter");
+    const question = page.getByRole("alertdialog", {
+      name: "Change Stand-up?",
+    });
+    await expect(question).toBeVisible();
+    await question.getByRole("button", { name: "This event" }).click();
+    const changes = calendar.getByRole("list", { name: "Changes" });
+    await expect(changes.getByRole("listitem")).toHaveText([
+      "update, Stand-up, FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR, not on 2026-10-27",
+      "create, Stand-up",
+    ]);
+  });
+});

@@ -73,6 +73,10 @@ export function formatters(locale: string, timeZone: string, hour12: boolean) {
     shortDay: dayFormat({ day: "numeric", month: "short" }),
     /** "October 2026" */
     month: dayFormat({ month: "long", year: "numeric" }),
+    /** "October" */
+    monthName: dayFormat({ month: "long" }),
+    /** "18 December 2026" */
+    longDate: dayFormat({ day: "numeric", month: "long", year: "numeric" }),
     /** "12 – 18 October 2026" */
     range: (from: DayKey, to: DayKey) =>
       plain(

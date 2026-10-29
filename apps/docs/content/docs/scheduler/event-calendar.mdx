@@ -48,7 +48,7 @@ const events: CalendarEvent[] = [
 
 ## Events
 
-An event has an `id`, a `title`, a `start` and an `end`. The rest is optional: `allDay`, `timeZone`, `color`, `description` and `className`, `resourceIds` for the [resources](/docs/scheduler/resources) it belongs to, and `readOnly`, `draggable` and `resizable` for [editing](/docs/scheduler/editing#read-only). When your events have other names for these, `eventKeys` says which is which.
+An event has an `id`, a `title`, a `start` and an `end`. The rest is optional: `allDay`, `timeZone`, `color`, `description` and `className`, `resourceIds` for the [resources](/docs/scheduler/resources) it belongs to, `recurrence` and `exceptions` for an event that [repeats](/docs/scheduler/recurring-events), and `readOnly`, `draggable` and `resizable` for [editing](/docs/scheduler/editing#read-only). When your events have other names for these, `eventKeys` says which is which.
 
 A date is a `Date`, or a string:
 
@@ -145,6 +145,10 @@ Given `defaultEvents`, or `events` with `onEventsChange`, the calendar is edited
 ## Resources
 
 Given `resources`, the side panel lists them under the month, each with a checkbox to show or hide its events, and an event's popover has a resource to choose. An event belongs to the resources in its `resourceIds`, and takes its color, and whether it can be changed, from them when it doesn't say. [Resources](/docs/scheduler/resources) has the whole of it.
+
+## Recurring events
+
+An event with a `recurrence`, an RRULE such as `"FREQ=WEEKLY;BYDAY=MO,WE"` or the same as an object, repeats, worked out on its own clock so it keeps its time across summer time. Changing or deleting one occurrence asks whether it's for that one, those after it, or all of them. [Recurring events](/docs/scheduler/recurring-events) has the whole of it.
 
 ## Language and dates
 
@@ -328,6 +332,11 @@ Set any of these on an `EventCalendar`, or on anything around it.
     "nuv-event-calendar__editor-head": "Its color and title, when it's read.",
     "nuv-event-calendar__editor-title": "Its heading.",
     "nuv-event-calendar__editor-text": "Its time and description, when it's read.",
+    "nuv-event-calendar__every": "The number of days, weeks, months or years a rule repeats every, and what it counts.",
+    "nuv-event-calendar__number-input": "A field for a number in the popover.",
+    "nuv-event-calendar__repeat-days": "The days of the week a weekly rule is on.",
+    "nuv-event-calendar__note": "What the popover says of an event repeating in a time zone of its own.",
+    "nuv-event-calendar__scopes": "The choice of which events of a series a change is for.",
     "nuv-event-calendar__editor-footer": "Its buttons.",
     "nuv-event-calendar__form": "Its form.",
     "nuv-event-calendar__field": "A label and its control in it.",

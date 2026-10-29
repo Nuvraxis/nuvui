@@ -1,7 +1,7 @@
 import "@nuvui/react/styles.css";
 import "@nuvui/date-picker/styles.css";
 import "../src/styles/index.scss";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import { page } from "vitest/browser";
 import { render } from "vitest-browser-react";
 import { type CalendarEvent, EventCalendar } from "../src";
@@ -80,5 +80,85 @@ describe("event calendar", () => {
     expect(document.documentElement.scrollWidth).toBe(
       document.documentElement.clientWidth,
     );
+  });
+});
+
+describe("editing by touch", () => {
+  const editable = {
+    ...calendar,
+    events: undefined,
+    defaultEvents: events,
+    defaultPanelOpen: false,
+    scrollToHour: 10,
+  };
+  const touch = (type: string, x: number, y: number, target: EventTarget) =>
+    target.dispatchEvent(
+      new PointerEvent(type, {
+        bubbles: true,
+        cancelable: true,
+        pointerId: 9,
+        pointerType: "touch",
+        isPrimary: true,
+        clientX: x,
+        clientY: y,
+      }),
+    );
+
+  test("a tap on an event shows a toolbar with Edit and Delete", async () => {
+    await render(<EventCalendar {...editable} />);
+    const review = page.getByRole("button", { name: /^Design review/ });
+    const box = review.element().getBoundingClientRect();
+    touch("pointerdown", box.x + 8, box.y + 8, review.element());
+    touch("pointerup", box.x + 8, box.y + 8, review.element());
+    review
+      .element()
+      .dispatchEvent(new MouseEvent("click", { bubbles: true, detail: 1 }));
+    const toolbar = page.getByRole("dialog", {
+      name: "Design review, actions",
+    });
+    await expect.element(toolbar).toBeVisible();
+    await toolbar.getByRole("button", { name: "Edit" }).click();
+    await expect
+      .element(page.getByRole("textbox", { name: "Title" }))
+      .toHaveValue("Design review");
+  });
+
+  test("an event held still is picked up, and dragged without scrolling", async () => {
+    const onEventsChange = vi.fn();
+    await render(
+      <EventCalendar {...editable} onEventsChange={onEventsChange} />,
+    );
+    const review = page.getByRole("button", { name: /^Design review/ });
+    const from = review.element().getBoundingClientRect();
+    const to = page
+      .getByRole("gridcell", { name: "Thursday, October 15, 11 AM" })
+      .element()
+      .getBoundingClientRect();
+    // Below the handle at its start, and as far into the hour it's let go
+    // in.
+    touch("pointerdown", from.x + 6, from.y + 12, review.element());
+    // Held for longer than half a second.
+    await new Promise((resolve) => setTimeout(resolve, 600));
+    touch("pointermove", to.x + 6, to.y + 11, window);
+    touch("pointerup", to.x + 6, to.y + 11, window);
+    await expect.poll(() => onEventsChange.mock.calls.length).toBe(1);
+    expect(onEventsChange.mock.calls[0]?.[1].event).toMatchObject({
+      start: "2026-10-15T11:00",
+      end: "2026-10-15T12:00",
+    });
+  });
+
+  test("a finger that moves before it's held scrolls, and moves nothing", async () => {
+    const onEventsChange = vi.fn();
+    await render(
+      <EventCalendar {...editable} onEventsChange={onEventsChange} />,
+    );
+    const review = page.getByRole("button", { name: /^Design review/ });
+    const from = review.element().getBoundingClientRect();
+    touch("pointerdown", from.x + 6, from.y + 4, review.element());
+    touch("pointermove", from.x + 6, from.y + 60, window);
+    await new Promise((resolve) => setTimeout(resolve, 600));
+    touch("pointerup", from.x + 6, from.y + 60, window);
+    expect(onEventsChange).not.toHaveBeenCalled();
   });
 });

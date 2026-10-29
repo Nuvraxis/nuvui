@@ -2,6 +2,15 @@
 
 import { TZDate } from "@date-fns/tz";
 import { Calendar, type CalendarLocale } from "@nuvui/date-picker/calendar";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogTitle,
+} from "@nuvui/react/alert-dialog";
 import { Button } from "@nuvui/react/button";
 import {
   DropdownMenu,
@@ -24,8 +33,12 @@ import {
 import { ToggleGroup, ToggleGroupItem } from "@nuvui/react/toggle-group";
 import { getWeek } from "date-fns";
 import {
+  type DragEvent,
   forwardRef,
   type HTMLAttributes,
+  type KeyboardEvent,
+  type MouseEvent,
+  type ReactNode,
   useCallback,
   useEffect,
   useId,
@@ -48,8 +61,22 @@ import {
   startOfWeek,
 } from "../../core/dates";
 import {
+  dragTo,
+  type EditOptions,
+  nudge,
+  type Spot,
+  sameTimes,
+  type Times,
+  timesAt,
+  timesOf,
+  withTimes,
+} from "../../core/edit";
+import {
+  applyChange,
   type CalendarEvent,
+  type EventChange,
   type EventColor,
+  place,
   placeEvents,
 } from "../../core/events";
 import { formatters, usesTwelveHours } from "../../core/format";
@@ -62,12 +89,23 @@ import {
   CalendarContext,
   type CalendarContextValue,
   type CalendarView,
+  type EditingValue,
   type EventCalendarPreferences,
   type PreferenceName,
   type ResolvedPreferences,
 } from "./context";
+import {
+  allFields,
+  type Editing,
+  EventEditor,
+  type EventField,
+  type EventFieldsProps,
+} from "./editor";
+import { timeOf } from "./event-button";
+import { draggedItem, type ExternalEvent, eventType } from "./external";
 import { MonthView } from "./month-view";
 import { TimeGrid } from "./time-grid";
+import { spotAt, useDrag } from "./use-drag";
 
 export type {
   CalendarView,
@@ -92,9 +130,97 @@ const narrowWidth = 640;
 // too thin to read, so the panel opens over the days, and starts closed.
 const panelWidth = 1024;
 
+/** Passed to `onEditStart`. */
+export interface EditStartDetails {
+  /** It's being made, and isn't one of the events yet. */
+  isNew: boolean;
+  /** It opens to be read, not changed. */
+  readOnly: boolean;
+  /** The element it was opened from. */
+  element: HTMLElement;
+  /** Keeps the calendar's popover closed, to open your own form instead. */
+  preventDefault: () => void;
+}
+
+/** Passed to `onEventDropOutside`. */
+export interface EventDropOutsideDetails {
+  /** The element under the pointer where it was let go. */
+  target: Element | null;
+  clientX: number;
+  clientY: number;
+}
+
 export interface EventCalendarOwnProps {
-  /** The events to show. */
-  events: readonly CalendarEvent[];
+  /**
+   * The events, when you hold them. Pass `onEventsChange` too for them to
+   * be changed in the calendar: without it, they open to be read.
+   */
+  events?: readonly CalendarEvent[];
+  /** The events at first, when the calendar holds them. */
+  defaultEvents?: readonly CalendarEvent[];
+  /**
+   * Called with every event after one is made, changed or deleted, and
+   * what the change was.
+   */
+  onEventsChange?: (events: CalendarEvent[], change: EventChange) => void;
+  /**
+   * Events open to be read, and can't be made, changed, moved or deleted.
+   * An event's own `readOnly` wins over this.
+   * @default false
+   */
+  readOnly?: boolean;
+  /**
+   * Whether new events can be made on empty time, with a click or by
+   * dragging across it. Something dropped from elsewhere on the page is
+   * still added.
+   * @default true
+   */
+  creatable?: boolean;
+  /**
+   * What makes an event on empty time: a click, or a double click.
+   * @default "click"
+   */
+  createOn?: "click" | "doubleClick";
+  /**
+   * Minutes a new event lasts when it's made with a click, and an all-day
+   * one dragged onto a time.
+   * @default 60
+   */
+  defaultDuration?: number;
+  /**
+   * Minutes that times snap to while an event is dragged, and that the
+   * arrow keys move it by.
+   * @default 15
+   */
+  step?: number;
+  /**
+   * Asks before an event is deleted.
+   * @default true
+   */
+  confirmDelete?: boolean;
+  /**
+   * The parts of an event's popover, in order. Leave one out to take it
+   * away.
+   * @default ["title", "time", "color", "description"]
+   */
+  eventFields?: readonly EventField[];
+  /** Fields of your own, shown in an event's popover after the rest. */
+  renderEventFields?: (props: EventFieldsProps) => ReactNode;
+  /**
+   * Called before an event's popover opens, however it's opened. Call
+   * `preventDefault` on the details to open your own form instead.
+   */
+  onEditStart?: (event: CalendarEvent, details: EditStartDetails) => void;
+  /**
+   * Called when an event is dragged out of the calendar and let go, with
+   * what's under the pointer. Return `true` to take it off the calendar.
+   */
+  onEventDropOutside?: (
+    event: CalendarEvent,
+    details: EventDropOutsideDetails,
+  ) => boolean | undefined;
+  /** Makes the id of a new event. A random UUID by default. */
+  createId?: () => string;
   /** The view shown, when you control it. */
   view?: CalendarView;
   /**
@@ -191,7 +317,10 @@ export interface EventCalendarOwnProps {
    * your interface.
    */
   labels?: Partial<SchedulerLabels>;
-  /** Called when an event is pressed, with the element pressed. */
+  /**
+   * Called when an event is pressed, with the element pressed, before its
+   * popover opens.
+   */
   onEventClick?: (event: CalendarEvent, element: HTMLElement) => void;
 }
 
@@ -203,6 +332,15 @@ export interface EventCalendarProps
     > {}
 
 const never = () => () => {};
+
+let made = 0;
+function randomId() {
+  if (globalThis.crypto?.randomUUID) return globalThis.crypto.randomUUID();
+  made += 1;
+  return `event-${Date.now()}-${made}`;
+}
+
+const noEvents: readonly CalendarEvent[] = [];
 
 // False on the server, and in the browser while it takes over the HTML the
 // server sent. The server can't know the time zone of the person looking.
@@ -298,7 +436,20 @@ function SettingsIcon() {
 export const EventCalendar = forwardRef<HTMLElement, EventCalendarProps>(
   function EventCalendar(
     {
-      events,
+      events: eventsProp,
+      defaultEvents = noEvents,
+      onEventsChange,
+      readOnly = false,
+      creatable: creatableProp = true,
+      createOn = "click",
+      defaultDuration = 60,
+      step = 15,
+      confirmDelete = true,
+      eventFields = allFields,
+      renderEventFields,
+      onEditStart,
+      onEventDropOutside,
+      createId = randomId,
       view: viewProp,
       defaultView = "week",
       onViewChange,
@@ -468,13 +619,376 @@ export const EventCalendar = forwardRef<HTMLElement, EventCalendarProps>(
           ? format.month(day)
           : format.range(first, last);
 
-    const placed = useMemo(
-      () => placeEvents(events, timeZone, first, last),
-      [events, timeZone, first, last],
+    // The events, kept here unless the app keeps them. Changes need
+    // somewhere to go: here, or to the app through onEventsChange.
+    const [ownEvents, setOwnEvents] = useState(defaultEvents);
+    const eventsHeld = eventsProp !== undefined;
+    const events = eventsProp ?? ownEvents;
+    const latestEvents = useRef(events);
+    latestEvents.current = events;
+    const editable = !readOnly && (!eventsHeld || onEventsChange !== undefined);
+    const creatable = editable && creatableProp;
+    const commit = (change: EventChange) => {
+      const next = applyChange(latestEvents.current, change);
+      latestEvents.current = next;
+      if (!eventsHeld) setOwnEvents(next);
+      onEventsChange?.(next, change);
+    };
+    const options: EditOptions = { step, defaultDuration, timeZone };
+
+    // Moves said in words, for those who can't see them.
+    const [announcement, setAnnouncement] = useState("");
+    const when = (event: CalendarEvent) =>
+      timeOf(place(event, timeZone), format, labels);
+
+    // What takes the focus after the next render: an event that's moved
+    // and drawn again, or what's left where one was deleted.
+    const focusNext = useRef<(() => HTMLElement | null | undefined) | null>(
+      null,
     );
+    useEffect(() => {
+      const find = focusNext.current;
+      if (!find) return;
+      focusNext.current = null;
+      find()?.focus();
+    });
+    const eventElement = (eventId: string) =>
+      root.current?.querySelector<HTMLElement>(
+        `[data-event-id="${CSS.escape(eventId)}"]:not([data-preview])`,
+      ) ?? null;
+
+    // An event on the move: dragged with a pointer, picked up from the
+    // keyboard, or dragged in from elsewhere on the page.
+    const [drag, setDrag] = useState<{
+      base: CalendarEvent;
+      times: Times;
+      via: "pointer" | "keyboard" | "outside";
+      hidden?: boolean;
+    } | null>(null);
+    const [editing, setEditing] = useState<
+      (Editing & { times?: Times }) | null
+    >(null);
+    const [deleting, setDeleting] = useState<{
+      event: CalendarEvent;
+      element: HTMLElement;
+    } | null>(null);
+    const returnTo = useRef<HTMLElement | null>(null);
+    // A press on the calendar while a popover is open closes it, and
+    // isn't also the start of a new event.
+    const closing = useRef(false);
+    const outside = useRef(false);
+
+    const placed = useMemo(() => {
+      const moved = drag ? withTimes(drag.base, drag.times, timeZone) : null;
+      // Drawn faintly where it would go, and not heard.
+      const previews: CalendarEvent[] = [];
+      if (moved && drag?.via !== "keyboard" && !drag?.hidden) {
+        previews.push(moved);
+      }
+      if (editing?.isNew) {
+        previews.push(
+          editing.times
+            ? withTimes(editing.event, editing.times, timeZone)
+            : editing.event,
+        );
+      }
+      // From the keyboard the event itself moves, and keeps the focus.
+      const shown =
+        moved && drag?.via === "keyboard"
+          ? events.map((event) => (event.id === moved.id ? moved : event))
+          : events;
+      return placeEvents([...shown, ...previews], timeZone, first, last).map(
+        (item) =>
+          previews.includes(item.event) ? { ...item, preview: true } : item,
+      );
+    }, [events, drag, editing, timeZone, first, last]);
+
+    // A new event, written as clock times like the ones it's put among.
+    const blank = (eventId: string): CalendarEvent => ({
+      id: eventId,
+      title: "",
+      start: "2000-01-01T00:00",
+      end: "2000-01-01T00:00",
+    });
+
+    const allowed = (
+      event: CalendarEvent,
+      details: Omit<EditStartDetails, "preventDefault">,
+    ) => {
+      let prevented = false;
+      onEditStart?.(event, {
+        ...details,
+        preventDefault: () => {
+          prevented = true;
+        },
+      });
+      return !prevented;
+    };
+
+    const startCreate = (times: Times, element: HTMLElement) => {
+      if (!creatable) return;
+      const draft = withTimes(blank(createId()), times, timeZone);
+      if (!allowed(draft, { isNew: true, readOnly: false, element })) return;
+      returnTo.current = element;
+      outside.current = false;
+      setEditing({
+        event: draft,
+        isNew: true,
+        mode: "edit",
+        times,
+        anchor: () =>
+          root.current?.querySelector<HTMLElement>(
+            `[data-preview][data-event-id="${CSS.escape(draft.id)}"]`,
+          ) ?? element,
+      });
+    };
+
+    const closeEditor = () => {
+      const was = editing;
+      setEditing(null);
+      // A click elsewhere closes it and leaves the focus where it went.
+      if (outside.current) return;
+      const element = returnTo.current;
+      focusNext.current = () =>
+        (was && !was.isNew ? eventElement(was.event.id) : null) ??
+        (element?.isConnected ? element : null);
+    };
+
+    // Where the focus goes when an event goes: its cell, or the event after
+    // it in a list.
+    const whereAfter = (element: HTMLElement) => {
+      const cell = element.closest<HTMLElement>('[role="gridcell"]');
+      if (cell) return () => cell;
+      const item = element.closest("li");
+      const next =
+        item?.nextElementSibling?.querySelector<HTMLElement>("button") ??
+        item?.previousElementSibling?.querySelector<HTMLElement>("button");
+      if (next) return () => next;
+      return () =>
+        root.current?.querySelector<HTMLElement>(
+          '.nuv-event-calendar__view [tabindex="0"]',
+        );
+    };
+
+    // Deletes an event, and says where the focus goes after it.
+    const removeNow = (event: CalendarEvent, element: HTMLElement) => {
+      const after = whereAfter(element);
+      commit({ type: "delete", event });
+      setAnnouncement(labels.deleted(event.title || labels.untitled));
+      return after;
+    };
+
+    // The alert dialog holds the focus until it has finished closing, so
+    // where it goes then is kept apart.
+    const afterDialog = useRef<(() => HTMLElement | null | undefined) | null>(
+      null,
+    );
+
+    const requestDelete = (event: CalendarEvent, element: HTMLElement) => {
+      setEditing(null);
+      if (confirmDelete) setDeleting({ event, element });
+      else focusNext.current = removeNow(event, element);
+    };
+
+    const find = (eventId: string) =>
+      placed.find((item) => !item.preview && item.event.id === eventId);
+
+    const onPointerDown = useDrag(root, {
+      editable,
+      creatable,
+      find,
+      onMove: ({ mode, placed: item, from, to }) => {
+        if (!to) {
+          // Out of the calendar, to be dropped on the page.
+          if (onEventDropOutside && mode === "move") {
+            setDrag((was) => was && { ...was, hidden: true });
+          }
+          return;
+        }
+        setDrag({
+          base: item?.event ?? blank(""),
+          times: dragTo(mode, item, from, to, options),
+          via: "pointer",
+        });
+      },
+      onDrop: ({ mode, placed: item, from, to, clientX, clientY }) => {
+        setDrag(null);
+        if (!to) {
+          if (item && onEventDropOutside && mode === "move") {
+            const target = document.elementFromPoint(clientX, clientY);
+            const taken = onEventDropOutside(item.event, {
+              target,
+              clientX,
+              clientY,
+            });
+            if (taken === true) commit({ type: "delete", event: item.event });
+          }
+          return;
+        }
+        const times = dragTo(mode, item, from, to, options);
+        if (mode === "create" || !item) {
+          const cell =
+            document
+              .elementFromPoint(clientX, clientY)
+              ?.closest<HTMLElement>("[data-spot-day]") ?? root.current;
+          if (cell) startCreate(times, cell);
+          return;
+        }
+        if (sameTimes(times, timesOf(item))) return;
+        const next = withTimes(item.event, times, timeZone);
+        commit({ type: "update", event: next, previous: item.event });
+        setAnnouncement(labels.dropped(next.title, when(next)));
+      },
+      onCancel: () => setDrag(null),
+    });
+
+    const spotOf = (cell: HTMLElement): Spot => ({
+      day: cell.dataset.spotDay ?? day,
+      minute:
+        cell.dataset.spotHour === undefined
+          ? null
+          : Number(cell.dataset.spotHour) * 60,
+    });
+
+    const createFromClick = (click: MouseEvent<HTMLElement>) => {
+      if (closing.current) {
+        closing.current = false;
+        return;
+      }
+      if (!creatable) return;
+      const target = click.target as HTMLElement;
+      if (target.closest("button, a, input, [data-event-id]")) return;
+      const cell = target.closest<HTMLElement>("[data-spot-day]");
+      if (!cell || !root.current) return;
+      const spot =
+        spotAt(root.current, click.clientX, click.clientY) ?? spotOf(cell);
+      startCreate(timesAt(spot, defaultDuration, options), cell);
+    };
+
+    const createFromKey = (key: KeyboardEvent<HTMLElement>) => {
+      const cell = key.target as HTMLElement;
+      if (key.key !== "Enter" || !creatable) return;
+      if (cell.dataset.spotDay === undefined) return;
+      key.preventDefault();
+      startCreate(timesAt(spotOf(cell), defaultDuration, options), cell);
+    };
+
+    // Something of the app's dragged in from elsewhere on the page.
+    const timesFor = (item: ExternalEvent, spot: Spot) =>
+      timesAt(spot, item.duration ?? defaultDuration, options, item.allDay);
+    const dragOver = (over: DragEvent<HTMLElement>) => {
+      if (!editable || !over.dataTransfer.types.includes(eventType)) return;
+      over.preventDefault();
+      over.dataTransfer.dropEffect = "copy";
+      const item = draggedItem();
+      const spot = root.current
+        ? spotAt(root.current, over.clientX, over.clientY)
+        : null;
+      if (!item || !spot) return;
+      const times = timesFor(item, spot);
+      if (drag?.via === "outside" && sameTimes(drag.times, times)) return;
+      setDrag({
+        base: { ...blank(""), title: item.title, color: item.color },
+        times,
+        via: "outside",
+      });
+    };
+    const dragLeave = (leave: DragEvent<HTMLElement>) => {
+      if (leave.currentTarget.contains(leave.relatedTarget as Node | null)) {
+        return;
+      }
+      if (drag?.via === "outside") setDrag(null);
+    };
+    const dropIn = (dropped: DragEvent<HTMLElement>) => {
+      if (!editable) return;
+      const data = dropped.dataTransfer.getData(eventType);
+      const spot = root.current
+        ? spotAt(root.current, dropped.clientX, dropped.clientY)
+        : null;
+      setDrag(null);
+      if (!data || !spot) return;
+      dropped.preventDefault();
+      let item: ExternalEvent;
+      try {
+        item = JSON.parse(data) as ExternalEvent;
+      } catch {
+        return;
+      }
+      const { duration: _, allDay: __, ...fields } = item;
+      const event = withTimes(
+        { ...blank(createId()), ...fields },
+        timesFor(item, spot),
+        timeZone,
+      );
+      commit({ type: "create", event });
+      setAnnouncement(labels.added(event.title, when(event)));
+    };
+
+    const edit: EditingValue = {
+      editable,
+      creatable,
+      options,
+      picked: drag?.via === "keyboard" ? drag.base.id : null,
+      dragging: drag?.via === "pointer" ? drag.base.id || null : null,
+      open: (event, element, by) => {
+        const readable = !editable || event.readOnly === true;
+        if (!allowed(event, { isNew: false, readOnly: readable, element })) {
+          return;
+        }
+        returnTo.current = element;
+        outside.current = false;
+        setEditing({
+          event,
+          isNew: false,
+          mode: readable ? "read" : by === "touch" ? "actions" : "edit",
+          anchor: () => eventElement(event.id) ?? element,
+        });
+      },
+      remove: requestDelete,
+      pick: (item) => {
+        setEditing(null);
+        setDrag({ base: item.event, times: timesOf(item), via: "keyboard" });
+        setAnnouncement(
+          labels.pickedUp(item.event.title, timeOf(item, format, labels)),
+        );
+      },
+      nudge: (by, resize) => {
+        if (drag?.via !== "keyboard") return;
+        const current = place(
+          withTimes(drag.base, drag.times, timeZone),
+          timeZone,
+        );
+        const times = nudge(current, by, resize, options);
+        const moved = place(withTimes(drag.base, times, timeZone), timeZone);
+        setDrag({ ...drag, times });
+        // Off the days shown, the calendar goes with it.
+        const lead = resize ? moved.lastDay : moved.firstDay;
+        if (lead < first || lead > last) setDate(lead);
+        setAnnouncement(labels.movedTo(timeOf(moved, format, labels)));
+        focusNext.current = () => eventElement(drag.base.id);
+      },
+      drop: () => {
+        if (drag?.via !== "keyboard") return;
+        const next = withTimes(drag.base, drag.times, timeZone);
+        setDrag(null);
+        if (!sameTimes(drag.times, timesOf(place(drag.base, timeZone)))) {
+          commit({ type: "update", event: next, previous: drag.base });
+        }
+        setAnnouncement(labels.dropped(next.title, when(next)));
+        focusNext.current = () => eventElement(next.id);
+      },
+      putBack: () => {
+        if (drag?.via !== "keyboard") return;
+        setDrag(null);
+        setAnnouncement(labels.putBack(drag.base.title));
+        focusNext.current = () => eventElement(drag.base.id);
+      },
+      create: startCreate,
+    };
 
     const context: CalendarContextValue = {
       timeZone,
+      locale,
       today,
       now,
       format,
@@ -498,6 +1012,7 @@ export const EventCalendar = forwardRef<HTMLElement, EventCalendarProps>(
       },
       setDate,
       onEventClick,
+      edit,
     };
 
     const Heading = `h${headingLevel}` as "h2";
@@ -689,7 +1204,22 @@ export const EventCalendar = forwardRef<HTMLElement, EventCalendarProps>(
                 }}
               />
             </aside>
-            <div className="nuv-event-calendar__view">
+            {/* biome-ignore lint/a11y/noStaticElementInteractions: the clicks, keys and drags of the grids' cells and events, taken here once rather than on each. */}
+            <div
+              className="nuv-event-calendar__view"
+              onPointerDown={(down) => {
+                closing.current = editing !== null;
+                onPointerDown(down);
+              }}
+              onClick={createOn === "click" ? createFromClick : undefined}
+              onDoubleClick={
+                createOn === "doubleClick" ? createFromClick : undefined
+              }
+              onKeyDown={createFromKey}
+              onDragOver={dragOver}
+              onDragLeave={dragLeave}
+              onDrop={dropIn}
+            >
               {view === "month" ? (
                 <MonthView
                   days={days}
@@ -709,6 +1239,102 @@ export const EventCalendar = forwardRef<HTMLElement, EventCalendarProps>(
                 <TimeGrid days={days} placed={placed} label={title} />
               )}
             </div>
+          </div>
+          <EventEditor
+            editing={editing}
+            fields={eventFields}
+            renderFields={renderEventFields}
+            defaultDuration={defaultDuration}
+            scrollToHour={scrollToHour}
+            onSave={(event) => {
+              const was = editing;
+              if (!was) return;
+              commit(
+                was.isNew
+                  ? { type: "create", event }
+                  : { type: "update", event, previous: was.event },
+              );
+              setEditing(null);
+              const element = returnTo.current;
+              focusNext.current = () =>
+                eventElement(event.id) ??
+                (element?.isConnected ? element : null);
+            }}
+            onDelete={(event) => {
+              const element =
+                returnTo.current ?? eventElement(event.id) ?? root.current;
+              if (element) requestDelete(event, element);
+            }}
+            onEdit={() => {
+              if (!editing) return;
+              const element = returnTo.current;
+              if (
+                element &&
+                !allowed(editing.event, {
+                  isNew: false,
+                  readOnly: false,
+                  element,
+                })
+              ) {
+                setEditing(null);
+                return;
+              }
+              setEditing({ ...editing, mode: "edit" });
+            }}
+            onClose={closeEditor}
+            onOutside={() => {
+              outside.current = true;
+            }}
+            onTimesChange={(times) =>
+              setEditing((was) => was && { ...was, times })
+            }
+          />
+          <AlertDialog
+            open={deleting !== null}
+            onOpenChange={(open) => {
+              if (open || !deleting) return;
+              const { element } = deleting;
+              setDeleting(null);
+              // Cancelled: back to the event.
+              afterDialog.current ??= () =>
+                element.isConnected ? element : null;
+            }}
+          >
+            <AlertDialogContent
+              onCloseAutoFocus={(closing) => {
+                closing.preventDefault();
+                const find = afterDialog.current;
+                afterDialog.current = null;
+                find?.()?.focus();
+              }}
+            >
+              <AlertDialogTitle>
+                {labels.deleteQuestion(
+                  deleting?.event.title || labels.untitled,
+                )}
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                {labels.deleteWarning}
+              </AlertDialogDescription>
+              <AlertDialogFooter>
+                <AlertDialogCancel>{labels.cancel}</AlertDialogCancel>
+                <AlertDialogAction
+                  intent="danger"
+                  onClick={() => {
+                    if (!deleting) return;
+                    afterDialog.current = removeNow(
+                      deleting.event,
+                      deleting.element,
+                    );
+                  }}
+                >
+                  {labels.delete}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+          <div role="status" className="nuv-event-calendar__announcer">
+            {announcement}
           </div>
         </CalendarContext.Provider>
       </section>

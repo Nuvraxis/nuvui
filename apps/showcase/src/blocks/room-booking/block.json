@@ -1,0 +1,9 @@
+{
+  "name": "room-booking",
+  "title": "Room booking",
+  "description": "A meeting room's week, where other teams' bookings can be read and not moved, and free time is booked with a click or a drag. Your bookings can be moved, made longer or deleted, and are listed beside the week with what's in the room.",
+  "category": "calendar",
+  "files": ["room-booking.tsx", "room-booking.scss"],
+  "install": ["@nuvui/react", "@nuvui/date-picker", "@nuvui/scheduler"],
+  "height": 820
+}

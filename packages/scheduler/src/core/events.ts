@@ -48,11 +48,31 @@ export interface CalendarEvent {
   description?: string;
   /** Added to the event's element in every view. */
   className?: string;
+  /**
+   * It opens to be read, and can't be changed, moved or deleted. The
+   * calendar's `readOnly` by default.
+   */
+  readOnly?: boolean;
+  /**
+   * It can be moved by dragging, or from the keyboard.
+   * @default true
+   */
+  draggable?: boolean;
+  /**
+   * Which ends can be dragged to change how long it is.
+   * @default true
+   */
+  resizable?: boolean | "start" | "end";
 }
 
 /** An event as the calendar draws it, read in the time zone it shows. */
 export interface PlacedEvent {
   event: CalendarEvent;
+  /**
+   * Where the event being dragged would go. Drawn faintly, and hidden from
+   * screen readers, which hear the move in words.
+   */
+  preview?: boolean;
   start: Date;
   end: Date;
   allDay: boolean;
@@ -65,7 +85,7 @@ export interface PlacedEvent {
 
 const day = 86_400_000;
 
-function place(event: CalendarEvent, timeZone: string): PlacedEvent {
+export function place(event: CalendarEvent, timeZone: string): PlacedEvent {
   const zone = event.timeZone ?? timeZone;
   if (event.allDay) {
     const firstDay = toDay(event.start, zone);
@@ -176,4 +196,27 @@ export function eventsOn(
         Number(b.spansDays) - Number(a.spansDays) ||
         a.start.getTime() - b.start.getTime(),
     );
+}
+
+/** What changed, passed to `onEventsChange` with the events after it. */
+export type EventChange =
+  | { type: "create"; event: CalendarEvent }
+  | { type: "update"; event: CalendarEvent; previous: CalendarEvent }
+  | { type: "delete"; event: CalendarEvent };
+
+/** The events after a change. */
+export function applyChange(
+  events: readonly CalendarEvent[],
+  change: EventChange,
+): CalendarEvent[] {
+  switch (change.type) {
+    case "create":
+      return [...events, change.event];
+    case "update":
+      return events.map((event) =>
+        event.id === change.event.id ? change.event : event,
+      );
+    default:
+      return events.filter((event) => event.id !== change.event.id);
+  }
 }

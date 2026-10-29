@@ -1,0 +1,9 @@
+{
+  "name": "shift-planner",
+  "title": "Shift planner",
+  "description": "A café's rota for the week, with the staff beside it. Someone is dragged onto a time to give them a shift, or added with a button, and the shifts are moved and stretched on the week while each person's hours keep count.",
+  "category": "calendar",
+  "files": ["shift-planner.tsx", "shift-planner.scss"],
+  "install": ["@nuvui/react", "@nuvui/date-picker", "@nuvui/scheduler"],
+  "height": 820
+}

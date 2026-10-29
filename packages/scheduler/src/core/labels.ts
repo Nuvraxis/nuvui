@@ -37,6 +37,41 @@ export interface SchedulerLabels {
   nextEvent: (day: string) => string;
   /** The agenda when nothing is on for 180 days. */
   nothingAhead: string;
+  /** The heading of the popover for an event being made. */
+  newEvent: string;
+  /** An event saved with no title. */
+  untitled: string;
+  /** The fields of the event's popover. */
+  eventTitle: string;
+  starts: string;
+  ends: string;
+  date: string;
+  time: string;
+  color: string;
+  /** One of the eight colors, in the popover. */
+  colorName: (color: number) => string;
+  description: string;
+  save: string;
+  cancel: string;
+  close: string;
+  edit: string;
+  delete: string;
+  /** Said when the end chosen is before the start. */
+  endsBeforeStart: string;
+  /** The question before an event is deleted. */
+  deleteQuestion: (title: string) => string;
+  deleteWarning: string;
+  /** The toolbar a tap on an event shows on a touch screen. */
+  eventActions: (title: string) => string;
+  /** Said when an event is picked up from the keyboard. */
+  pickedUp: (title: string, when: string) => string;
+  /** Said as a picked-up event is moved, with its new time. */
+  movedTo: (when: string) => string;
+  dropped: (title: string, when: string) => string;
+  putBack: (title: string) => string;
+  /** Said when an event is added by dropping something on the calendar. */
+  added: (title: string, when: string) => string;
+  deleted: (title: string) => string;
 }
 
 export const englishLabels: SchedulerLabels = {
@@ -63,4 +98,30 @@ export const englishLabels: SchedulerLabels = {
   nothingBetween: (from, to) => `Nothing on from ${from} to ${to}.`,
   nextEvent: (day) => `Go to ${day}`,
   nothingAhead: "Nothing on in the next 180 days.",
+  newEvent: "New event",
+  untitled: "Untitled",
+  eventTitle: "Title",
+  starts: "Starts",
+  ends: "Ends",
+  date: "Date",
+  time: "Time",
+  color: "Color",
+  colorName: (color) => `Color ${color}`,
+  description: "Description",
+  save: "Save",
+  cancel: "Cancel",
+  close: "Close",
+  edit: "Edit",
+  delete: "Delete",
+  endsBeforeStart: "It ends before it starts.",
+  deleteQuestion: (title) => `Delete ${title}?`,
+  deleteWarning: "You can't undo this.",
+  eventActions: (title) => `${title}, actions`,
+  pickedUp: (title, when) =>
+    `Picked up ${title}, ${when}. The arrow keys move it, Shift and the arrow keys change its length, Space drops it and Escape puts it back.`,
+  movedTo: (when) => when,
+  dropped: (title, when) => `Dropped ${title}, ${when}.`,
+  putBack: (title) => `${title} put back.`,
+  added: (title, when) => `Added ${title}, ${when}.`,
+  deleted: (title) => `Deleted ${title}.`,
 };

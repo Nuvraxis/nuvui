@@ -5,7 +5,7 @@ import { arrangeDay, packLanes } from "../../core/layout";
 import { cx } from "../../utils/cx";
 import { useIsomorphicLayoutEffect } from "../../utils/use-width";
 import { useCalendar, type ViewProps } from "./context";
-import { EventButton } from "./event-button";
+import { EventButton, keyOf } from "./event-button";
 import { useGridKeys } from "./use-grid-keys";
 
 /** The columns a bar across days covers, or `null` if none are shown. */
@@ -184,13 +184,14 @@ export function TimeGrid({ days, placed, label }: ViewProps) {
               {...keys.cell(1, column)}
               tabIndex={keys.tabIndex(1, column)}
               aria-label={`${labels.allDay}, ${format.day(day)}`}
+              data-spot-day={day}
               className="nuv-event-calendar__cell nuv-event-calendar__cell--all-day"
             >
               {bars
                 .filter((bar) => bar.first === column)
                 .map((bar) => (
                   <EventButton
-                    key={bar.item.event.id}
+                    key={keyOf(bar.item)}
                     placed={bar.item}
                     look="bar"
                     tabbable={keys.isActive(1, column)}
@@ -247,6 +248,8 @@ export function TimeGrid({ days, placed, label }: ViewProps) {
                   {...keys.cell(row, column)}
                   tabIndex={keys.tabIndex(row, column)}
                   aria-label={`${format.day(day)}, ${format.hour(hour)}`}
+                  data-spot-day={day}
+                  data-spot-hour={hour}
                   className={cx(
                     "nuv-event-calendar__cell",
                     "nuv-event-calendar__cell--hour",
@@ -255,7 +258,7 @@ export function TimeGrid({ days, placed, label }: ViewProps) {
                 >
                   {starting.map(({ item, column: lane, span, columns }) => (
                     <EventButton
-                      key={item.placed.event.id}
+                      key={keyOf(item.placed)}
                       placed={item.placed}
                       look="block"
                       tabbable={keys.isActive(row, column)}

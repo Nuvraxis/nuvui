@@ -113,6 +113,12 @@ const fixtures = {
       "the script has the calendar",
       script.includes("nuv-calendar__day"),
     );
+    expect(
+      "vite",
+      "the script has the event calendar's popover and its dragging",
+      script.includes("nuv-event-calendar__editor") &&
+        script.includes("data-spot-day"),
+    );
     // The app imports one locale, German. Hungarian for Sunday is in the
     // script only if every other locale came along with it.
     expect(
@@ -466,6 +472,12 @@ process.stdout.write(renderToStaticMarkup(createElement(ArrowRightIcon, { title:
       "the server rendered the board from a client component of the app's",
       html.includes("nuv-kanban__handle"),
     );
+    expect(
+      "next",
+      "the server rendered an editable calendar, with handles on its event and an item to drag onto it",
+      html.includes("nuv-event-calendar__handle--end") &&
+        /<div\s(?=[^>]*draggable="true")[^>]*>Write notes</.test(html),
+    );
     expect("next", "it has the codes' styles", css.includes(".nuv-barcode"));
     expect("next", "it has the charts' styles", css.includes(".nuv-chart"));
     expect(
@@ -557,11 +569,12 @@ process.stdout.write(renderToStaticMarkup(createElement(ArrowRightIcon, { title:
     );
     expect(
       "react18",
-      "the message, the prompt box, the editor, the board, the picker, the map, the diagram, the video, the audio, its transcript and the background rendered",
+      "the message, the prompt box, the editor, the board, the event calendar, the picker, the map, the diagram, the video, the audio, its transcript and the background rendered",
       html.includes("nuv-message__content") &&
         html.includes("nuv-prompt-input__textarea") &&
         html.includes("nuv-rich-text-editor__toolbar") &&
         html.includes("nuv-kanban__handle") &&
+        html.includes("nuv-event-calendar__handle--end") &&
         html.includes("nuv-emoji-picker__search") &&
         html.includes("Loading map") &&
         html.includes("nuv-flow__canvas") &&

@@ -6,7 +6,7 @@ import { packLanes, visibleRuns } from "../../core/layout";
 import { cx } from "../../utils/cx";
 import { useIsomorphicLayoutEffect } from "../../utils/use-width";
 import { useCalendar, type ViewProps } from "./context";
-import { EventButton } from "./event-button";
+import { EventButton, keyOf } from "./event-button";
 import { columnsOf } from "./time-grid";
 import { useGridKeys } from "./use-grid-keys";
 
@@ -49,11 +49,13 @@ function More({
       >
         <p className="nuv-event-calendar__more-title">{format.day(day)}</p>
         <ul className="nuv-event-calendar__list">
-          {eventsOn(placed, day).map((item) => (
-            <li key={item.event.id}>
-              <EventButton placed={item} look="item" tabbable />
-            </li>
-          ))}
+          {eventsOn(placed, day)
+            .filter((item) => !item.preview)
+            .map((item) => (
+              <li key={item.event.id}>
+                <EventButton placed={item} look="item" tabbable />
+              </li>
+            ))}
         </ul>
       </PopoverContent>
     </Popover>
@@ -225,6 +227,7 @@ export function MonthView({
                 {...keys.cell(row, column)}
                 tabIndex={keys.tabIndex(row, column)}
                 aria-label={format.day(day)}
+                data-spot-day={day}
                 aria-current={day === today ? "date" : undefined}
                 data-outside={day.slice(0, 7) === month ? undefined : ""}
                 className={cx(
@@ -249,7 +252,7 @@ export function MonthView({
                     .filter((run) => run.first === column)
                     .map((run) => (
                       <EventButton
-                        key={run.item.event.id}
+                        key={keyOf(run.item)}
                         placed={run.item}
                         look={run.item.spansDays ? "bar" : "line"}
                         tabbable={tabbable}

@@ -181,7 +181,10 @@ export default function ClinicDay() {
           defaultPanelOpen={false}
           preferenceOptions={["twentyFourHours"]}
           className="clinic-day__calendar"
-          onEventClick={(event) => {
+          // The appointment opens beside the day, not in the calendar's
+          // popover.
+          onEditStart={(event, { preventDefault }) => {
+            preventDefault();
             if (details.has(event.id)) setChosen(event.id);
           }}
         />

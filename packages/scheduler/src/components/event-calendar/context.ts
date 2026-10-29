@@ -1,5 +1,7 @@
+import type { CalendarLocale } from "@nuvui/date-picker/calendar";
 import { createContext, useContext } from "react";
 import type { DayKey } from "../../core/dates";
+import type { EditOptions, Times } from "../../core/edit";
 import type { CalendarEvent, EventColor, PlacedEvent } from "../../core/events";
 import type { Formatters } from "../../core/format";
 import type { SchedulerLabels } from "../../core/labels";
@@ -39,8 +41,36 @@ export interface ResolvedPreferences {
   showEmptyDays: boolean;
 }
 
+/** How an event was opened: by a mouse, a tap, or a key. */
+export type OpenedBy = "pointer" | "touch" | "keyboard";
+
+/** What the views need to edit events, from the calendar. */
+export interface EditingValue {
+  /** The calendar takes changes: not read-only, and somewhere to keep them. */
+  editable: boolean;
+  creatable: boolean;
+  options: EditOptions;
+  /** The event picked up from the keyboard, if one is. */
+  picked: string | null;
+  /** The event being dragged with a pointer, drawn faintly where it was. */
+  dragging: string | null;
+  /** Opens an event's popover, from the element pressed. */
+  open: (event: CalendarEvent, element: HTMLElement, by: OpenedBy) => void;
+  /** Asks to delete an event, from the element it was deleted from. */
+  remove: (event: CalendarEvent, element: HTMLElement) => void;
+  /** Picks an event up from the keyboard. */
+  pick: (placed: PlacedEvent, look: string) => void;
+  /** Moves the picked-up event, or with `resize` changes its end. */
+  nudge: (by: { minutes?: number; days?: number }, resize: boolean) => void;
+  drop: () => void;
+  putBack: () => void;
+  /** Starts a new event at the times given, from the element it's made in. */
+  create: (times: Times, element: HTMLElement) => void;
+}
+
 export interface CalendarContextValue {
   timeZone: string;
+  locale: CalendarLocale | undefined;
   /** Today, in the time zone shown, or `null` until the browser has the page. */
   today: DayKey | null;
   /** Now, or `null` until the browser has the page. */
@@ -61,6 +91,7 @@ export interface CalendarContextValue {
   onEventClick:
     | ((event: CalendarEvent, element: HTMLElement) => void)
     | undefined;
+  edit: EditingValue;
 }
 
 export const CalendarContext = createContext<CalendarContextValue | null>(null);

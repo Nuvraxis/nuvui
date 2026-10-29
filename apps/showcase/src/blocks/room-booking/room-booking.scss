@@ -1,0 +1,141 @@
+@use "@nuvui/react/scss/mixins";
+
+.room-booking {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing) * 4);
+  box-sizing: border-box;
+  inline-size: 100%;
+  min-block-size: 100svh;
+  padding: calc(var(--spacing) * 4);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+
+  @include mixins.breakpoint("md") {
+    padding: calc(var(--spacing) * 6);
+  }
+}
+
+.room-booking__head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 3);
+  align-items: end;
+  justify-content: space-between;
+}
+
+.room-booking__heading {
+  display: grid;
+  gap: calc(var(--spacing) * 1);
+}
+
+.room-booking__title {
+  margin: 0;
+  font-size: var(--text-xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-xl--line-height);
+}
+
+.room-booking__meta,
+.room-booking__hint {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+.room-booking__key {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 2) calc(var(--spacing) * 4);
+  margin: 0;
+  padding: 0;
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+  list-style: none;
+}
+
+.room-booking__key-item {
+  display: flex;
+  gap: calc(var(--spacing) * 2);
+  align-items: center;
+}
+
+.room-booking__swatch {
+  inline-size: 0.75rem;
+  block-size: 0.75rem;
+  border-radius: var(--radius-full);
+  background-color: var(--color-chart-3);
+
+  &[data-color="7"] {
+    background-color: var(--color-chart-7);
+  }
+
+  @media (forced-colors: active) {
+    background-color: canvastext;
+  }
+}
+
+.room-booking__layout {
+  display: grid;
+  flex: 1 1 auto;
+  gap: calc(var(--spacing) * 4);
+
+  @include mixins.breakpoint("lg") {
+    grid-template-columns: minmax(0, 1fr) 18rem;
+  }
+}
+
+.room-booking__calendar {
+  --nuv-event-calendar-height: 40rem;
+}
+
+.room-booking__side {
+  display: grid;
+  gap: calc(var(--spacing) * 3);
+  align-content: start;
+  align-self: start;
+  padding: calc(var(--spacing) * 4);
+  border: var(--nuv-border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-surface);
+}
+
+.room-booking__subtitle {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-sm--line-height);
+}
+
+.room-booking__list {
+  display: grid;
+  gap: calc(var(--spacing) * 2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.room-booking__item {
+  display: grid;
+  gap: calc(var(--spacing) * 0.5);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+.room-booking__item-title {
+  font-weight: var(--font-weight-medium);
+}
+
+.room-booking__item-time {
+  color: var(--color-muted-foreground);
+}
+
+.room-booking__kit {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}

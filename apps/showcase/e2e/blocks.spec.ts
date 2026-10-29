@@ -5226,6 +5226,123 @@ test.describe("clinic's day", () => {
   }
 });
 
+test.describe("room booking", () => {
+  test("room booking: free time is booked with a click, and other teams' bookings are only read", async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(
+      isMobile,
+      "a phone shows three days, and its own test covers the day",
+    );
+    await open(page, "/blocks/view/room-booking");
+    const calendar = page.getByRole("region", {
+      name: "Juniper room bookings",
+    });
+    // The first list beside the week, before what's in the room.
+    const yours = page
+      .getByRole("complementary", { name: "Your bookings" })
+      .getByRole("list")
+      .first();
+    await expect(yours.getByRole("listitem")).toHaveCount(2);
+
+    await press(
+      calendar.getByRole("button", { name: /^Finance, month-end close/ }),
+      isMobile,
+    );
+    const read = page.getByRole("dialog");
+    await expect(read.getByRole("button", { name: "Close" })).toBeVisible();
+    await expect(read.getByRole("textbox")).toHaveCount(0);
+    await read.getByRole("button", { name: "Close" }).click();
+
+    // The first hour shown on the first day, which is free.
+    await calendar
+      .getByRole("gridcell", { name: /, 8 AM$/ })
+      .first()
+      .click({ position: { x: 6, y: 4 } });
+    const form = page.getByRole("dialog");
+    await form.getByRole("textbox", { name: "Title" }).fill("Roadmap review");
+    await form.getByRole("button", { name: "Save" }).click();
+    await expect(yours.getByRole("listitem")).toHaveCount(3);
+    await expect(yours).toContainText("Roadmap review");
+    await expect(
+      calendar.getByRole("button", { name: /^Roadmap review, 8:00 AM/ }),
+    ).toBeVisible();
+  });
+
+  for (const theme of ["light", "dark"] as const) {
+    test(`room booking: it passes axe with a booking open in ${theme}`, async ({
+      page,
+    }) => {
+      await page.emulateMedia({ reducedMotion: "reduce" });
+      await setTheme(page, theme);
+      await open(page, "/blocks/view/room-booking");
+      await settleStyles(page);
+      // A new booking's form, which every day shown has room for.
+      await page
+        .getByRole("gridcell", { name: /, 8 AM$/ })
+        .first()
+        .click({ position: { x: 6, y: 4 } });
+      await expect(page.getByRole("dialog")).toBeVisible();
+      expect(
+        (await new AxeBuilder({ page }).withTags(wcag).analyze()).violations,
+      ).toEqual([]);
+    });
+  }
+});
+
+test.describe("shift planner", () => {
+  test("shift planner: Add gives someone a shift, and their hours count it", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/blocks/view/shift-planner");
+    const staff = page.getByRole("complementary", { name: "Staff" });
+    const dario = staff.getByRole("listitem").filter({ hasText: "Dario Pell" });
+    await expect(dario).toContainText("8 of 16 hours");
+    await press(
+      staff.getByRole("button", { name: "Add a morning shift for Dario Pell" }),
+      isMobile,
+    );
+    await expect(dario).toContainText("12 of 16 hours");
+  });
+
+  test("shift planner: a shift picked up from the keyboard moves on by half hours", async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(isMobile, "a phone has no keyboard");
+    await open(page, "/blocks/view/shift-planner");
+    const calendar = page.getByRole("region", { name: "Shifts this week" });
+    // Monday's, from eleven to five.
+    await calendar
+      .getByRole("button", { name: /^Wren Halloway, 11:00 AM to 5:00 PM/ })
+      .first()
+      .focus();
+    await page.keyboard.press("Space");
+    await page.keyboard.press("ArrowDown");
+    await page.keyboard.press("ArrowDown");
+    await page.keyboard.press("Enter");
+    // It keeps the focus where it's dropped, an hour later.
+    await expect(page.locator(":focus")).toHaveAttribute(
+      "aria-label",
+      /^Wren Halloway, 12:00 PM to 6:00 PM/,
+    );
+  });
+
+  for (const theme of ["light", "dark"] as const) {
+    test(`shift planner: it passes axe in ${theme}`, async ({ page }) => {
+      await page.emulateMedia({ reducedMotion: "reduce" });
+      await setTheme(page, theme);
+      await open(page, "/blocks/view/shift-planner");
+      await settleStyles(page);
+      expect(
+        (await new AxeBuilder({ page }).withTags(wcag).analyze()).violations,
+      ).toEqual([]);
+    });
+  }
+});
+
 test.describe("the blocks page", () => {
   test("lists every category, and each leads to its page", async ({
     page,

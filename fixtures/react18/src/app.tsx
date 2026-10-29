@@ -56,7 +56,11 @@ import {
   Toaster,
   toast,
 } from "@nuvui/react";
-import { EventCalendar } from "@nuvui/scheduler/event-calendar";
+import {
+  EventCalendar,
+  type EventChange,
+  eventDragProps,
+} from "@nuvui/scheduler/event-calendar";
 import { createDataTableHook, DataTable } from "@nuvui/table";
 import {
   createSortedRowModel,
@@ -216,9 +220,13 @@ export function App() {
           <Bar dataKey="seats" fill={chartFill("seats")} />
         </BarChart>
       </ChartContainer>
+      <div {...eventDragProps({ title: "Write notes", duration: 30 })}>
+        Write notes
+      </div>
       <EventCalendar
         aria-label="Team"
-        events={[
+        onEventsChange={(_, change: EventChange) => console.info(change.type)}
+        defaultEvents={[
           {
             id: "a",
             title: "Planning",

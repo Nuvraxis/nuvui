@@ -13,7 +13,9 @@ import { EventCalendar } from "@nuvui/scheduler";
 import { teamEvents } from "./events";
 
 export default function Example() {
-  return <EventCalendar aria-label="Team calendar" events={teamEvents} />;
+  return (
+    <EventCalendar aria-label="Team calendar" defaultEvents={teamEvents} />
+  );
 }
 ```
 
@@ -53,7 +55,7 @@ const events: CalendarEvent[] = [
 
 ## Events
 
-An event has an `id`, a `title`, a `start` and an `end`. The rest is optional: `allDay`, `timeZone`, `color`, `description` and `className`.
+An event has an `id`, a `title`, a `start` and an `end`. The rest is optional: `allDay`, `timeZone`, `color`, `description` and `className`, and `readOnly`, `draggable` and `resizable` for [editing](editing.md#read-only).
 
 A date is a `Date`, or a string:
 
@@ -278,9 +280,11 @@ const [preferences, setPreferences] = useState(saved);
 
 `color` is one of the theme's eight chart colors, `"1"` to `"8"`, or any CSS color. An event's color is its own, or the calendar's `color`, `"1"` by default. Its background is mixed from the color and the calendar's background, so text stays readable on it in every theme.
 
-## Pressing an event
+## Editing
 
-`onEventClick` is called with the event and the element pressed. Editing comes in a later version of the package: until then, open your own popover or page from here.
+Given `defaultEvents`, or `events` with `onEventsChange`, the calendar is edited in place: empty time is clicked or dragged across to make an event, an event opens in a popover to be changed or deleted, and it's dragged to move it or by its ends to resize it. Given `events` alone, an event opens in the popover to be read. [Editing events](editing.md) has the whole of it.
+
+`onEventClick` is called with the event and the element pressed, before the popover opens. `onEditStart` comes after it, and can keep the popover closed to open your own form.
 
 ## Language and dates
 
@@ -298,7 +302,20 @@ The words the calendar writes itself are in `labels`. [Translation](../translati
 
 | Prop | Type | Default | What it's for |
 | --- | --- | --- | --- |
-| `events` (required) | `readonly CalendarEvent[]` |  | The events to show. |
+| `events` | `readonly CalendarEvent[]` |  | The events, when you hold them. Pass `onEventsChange` too for them to be changed in the calendar: without it, they open to be read. |
+| `defaultEvents` | `readonly CalendarEvent[]` |  | The events at first, when the calendar holds them. |
+| `onEventsChange` | `((events: CalendarEvent[], change: EventChange) => void)` |  | Called with every event after one is made, changed or deleted, and what the change was. |
+| `readOnly` | `boolean` | `false` | Events open to be read, and can't be made, changed, moved or deleted. An event's own `readOnly` wins over this. |
+| `creatable` | `boolean` | `true` | Whether new events can be made on empty time, with a click or by dragging across it. Something dropped from elsewhere on the page is still added. |
+| `createOn` | `"click" \| "doubleClick"` | `"click"` | What makes an event on empty time: a click, or a double click. |
+| `defaultDuration` | `number` | `60` | Minutes a new event lasts when it's made with a click, and an all-day one dragged onto a time. |
+| `step` | `number` | `15` | Minutes that times snap to while an event is dragged, and that the arrow keys move it by. |
+| `confirmDelete` | `boolean` | `true` | Asks before an event is deleted. |
+| `eventFields` | `readonly EventField[]` | `["title", "time", "color", "description"]` | The parts of an event's popover, in order. Leave one out to take it away. |
+| `renderEventFields` | `((props: EventFieldsProps) => ReactNode)` |  | Fields of your own, shown in an event's popover after the rest. |
+| `onEditStart` | `((event: CalendarEvent, details: EditStartDetails) => void)` |  | Called before an event's popover opens, however it's opened. Call `preventDefault` on the details to open your own form instead. |
+| `onEventDropOutside` | `((event: CalendarEvent, details: EventDropOutsideDetails) => boolean \| undefined)` |  | Called when an event is dragged out of the calendar and let go, with what's under the pointer. Return `true` to take it off the calendar. |
+| `createId` | `(() => string)` |  | Makes the id of a new event. A random UUID by default. |
 | `view` | `"agenda" \| "day" \| "month" \| "week"` |  | The view shown, when you control it. |
 | `defaultView` | `"agenda" \| "day" \| "month" \| "week"` | `"week"` | The view shown at first, when you don't control it. |
 | `onViewChange` | `((view: CalendarView) => void)` |  | Called with the view chosen. |
@@ -322,7 +339,7 @@ The words the calendar writes itself are in `labels`. [Translation](../translati
 | `color` | `EventColor` | `"1"` | The color of events that have none of their own. |
 | `headingLevel` | `2 \| 3 \| 4 \| 5` | `2` | The level of the heading with the period shown. The agenda's days are a level below. |
 | `labels` | `Partial<SchedulerLabels>` |  | The words the calendar shows and says. Translate them with the rest of your interface. |
-| `onEventClick` | `((event: CalendarEvent, element: HTMLElement) => void)` |  | Called when an event is pressed, with the element pressed. |
+| `onEventClick` | `((event: CalendarEvent, element: HTMLElement) => void)` |  | Called when an event is pressed, with the element pressed, before its popover opens. |
 
 It also takes the attributes of a `section`, and passes `ref` to it.
 
@@ -335,8 +352,10 @@ It also takes the attributes of a `section`, and passes `ref` to it.
 | <kbd>Tab</kbd> | Into a grid at its current cell, then to the events in that cell, then out of the grid. |
 | <kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd> | In a grid, to the next cell that way. From an event, to the next cell from its own. |
 | <kbd>Home</kbd> <kbd>End</kbd> | To the first or last day of the row. |
-| <kbd>Enter</kbd> or <kbd>Space</kbd> | On an event, presses it. On a day's number, opens that day. |
-| <kbd>Esc</kbd> | Closes the menu, the list or the popover that's open, and the side panel when it's over the days. |
+| <kbd>Enter</kbd> | On an event, opens it. On a day's number, opens that day. On an empty cell, makes an event there. |
+| <kbd>Space</kbd> | On an event that can be moved, picks it up, for the arrows to move. [Editing events](editing.md#from-the-keyboard) has the keys after that. |
+| <kbd>Delete</kbd> or <kbd>Backspace</kbd> | On an event, asks to delete it. |
+| <kbd>Esc</kbd> | Closes the menu, the list or the popover that's open, and the side panel when it's over the days. Puts back an event being moved. |
 
 The arrows go by where things are on the screen. Where the page reads right to left the week starts at the right, and <kbd>←</kbd> goes to the next day.
 
@@ -355,7 +374,7 @@ The arrows go by where things are on the screen. Where the page reads right to l
 
 - Name the calendar with `aria-label`, after what it shows: "Team calendar", "Appointments".
 - Give events titles that tell them apart, since a screen reader hears the title first.
-- An event's `description` is shown only in the agenda and a day's "more". If it matters, show it where the event is opened.
+- An event's `description` is shown in its popover, the agenda and a day's "more", and not on the grids.
 
 ## On small screens
 
@@ -395,10 +414,12 @@ Set any of these on an `EventCalendar`, or on anything around it.
 | Class | What it's on |
 | --- | --- |
 | `.nuv-event-calendar` | EventCalendar |
+| `.nuv-event-calendar__actions` | The toolbar a tap on an event shows on a touch screen. |
 | `.nuv-event-calendar__agenda` | The agenda. |
 | `.nuv-event-calendar__agenda-day` | A day of it. |
 | `.nuv-event-calendar__agenda-day--today` | Today, in it. |
 | `.nuv-event-calendar__agenda-heading` | A day's heading in it. |
+| `.nuv-event-calendar__announcer` | The live region that says what's moved, hidden from view. |
 | `.nuv-event-calendar__axis` | The start of a row: the times, or "All day". |
 | `.nuv-event-calendar__axis--all-day` | The start of the all-day row. |
 | `.nuv-event-calendar__axis--hour` | The start of an hour's row. |
@@ -407,29 +428,47 @@ Set any of these on an `EventCalendar`, or on anything around it.
 | `.nuv-event-calendar__cell--day` | A day in the month view. |
 | `.nuv-event-calendar__cell--hour` | An hour of a day. |
 | `.nuv-event-calendar__cell--today` | A cell of today. |
+| `.nuv-event-calendar__check` | All day, in it. |
 | `.nuv-event-calendar__chevron` | The arrow in each. |
+| `.nuv-event-calendar__color` | A color. |
+| `.nuv-event-calendar__color-input` | The radio under its swatch. |
+| `.nuv-event-calendar__colors` | The colors to choose from. |
 | `.nuv-event-calendar__column-head` | A day's name and number. |
 | `.nuv-event-calendar__column-head--today` | Today's. |
 | `.nuv-event-calendar__date` | The day's number in it. |
 | `.nuv-event-calendar__day-button` | The button in it that opens the day. |
 | `.nuv-event-calendar__day-number` | A day's number in a month, which opens it. |
+| `.nuv-event-calendar__delete` | The Delete button. |
+| `.nuv-event-calendar__editor` | The popover an event opens in. |
+| `.nuv-event-calendar__editor-footer` | Its buttons. |
+| `.nuv-event-calendar__editor-head` | Its color and title, when it's read. |
+| `.nuv-event-calendar__editor-text` | Its time and description, when it's read. |
+| `.nuv-event-calendar__editor-title` | Its heading. |
 | `.nuv-event-calendar__empty` | What the agenda says when nothing is on. |
 | `.nuv-event-calendar__empty-text` | Its words. |
+| `.nuv-event-calendar__error` | What's wrong with the times. |
 | `.nuv-event-calendar__event` | An event. |
 | `.nuv-event-calendar__event--bar` | An event as a bar across days. |
 | `.nuv-event-calendar__event--block` | An event on the time grid. |
 | `.nuv-event-calendar__event--item` | An event in a list. |
 | `.nuv-event-calendar__event--line` | A timed event in a month. |
+| `.nuv-event-calendar__event--preview` | Where an event being dragged would go. |
 | `.nuv-event-calendar__event-description` | An event's description, in a list. |
 | `.nuv-event-calendar__event-dot` | The dot of an event's color, in a month and a list. |
 | `.nuv-event-calendar__event-time` | An event's time. |
 | `.nuv-event-calendar__event-title` | An event's title. |
+| `.nuv-event-calendar__field` | A label and its control in it. |
+| `.nuv-event-calendar__form` | Its form. |
+| `.nuv-event-calendar__handle` | An end of an event, dragged to resize it. |
+| `.nuv-event-calendar__handle--end` | Its end. |
+| `.nuv-event-calendar__handle--start` | Its start. |
 | `.nuv-event-calendar__head` | The days' names and the all-day row, which stay at the top. |
 | `.nuv-event-calendar__header` | The header. |
 | `.nuv-event-calendar__hour` | An hour's time. |
 | `.nuv-event-calendar__hour--first` | The first hour's, under the top edge. |
 | `.nuv-event-calendar__icon-button` | A button in the header with only an icon. |
 | `.nuv-event-calendar__lanes` | The part of a day in a month that holds its events. |
+| `.nuv-event-calendar__legend` | The name of a group of controls in it. |
 | `.nuv-event-calendar__list` | A list of events. |
 | `.nuv-event-calendar__main` | The side panel and the view. |
 | `.nuv-event-calendar__month` | The month view. |
@@ -442,7 +481,9 @@ Set any of these on an `EventCalendar`, or on anything around it.
 | `.nuv-event-calendar__probe` | A hidden lane, measured to work out how many fit. |
 | `.nuv-event-calendar__row` | A row of the day and week views. |
 | `.nuv-event-calendar__steps` | The previous and next buttons. |
+| `.nuv-event-calendar__swatch` | A color's swatch. |
 | `.nuv-event-calendar__time-grid` | The day and week views. |
+| `.nuv-event-calendar__time-input` | A time in it. |
 | `.nuv-event-calendar__title` | The heading with the dates shown. |
 | `.nuv-event-calendar__tools` | The view switch and the preferences menu. |
 | `.nuv-event-calendar__view` | The view. |
@@ -452,8 +493,9 @@ Set any of these on an `EventCalendar`, or on anything around it.
 | `.nuv-event-calendar__weekday` | The day's name in it. |
 | `.nuv-event-calendar__weekday-head` | A day's name over a month. |
 | `.nuv-event-calendar__weekdays` | The days' names over a month. |
+| `.nuv-event-calendar__when` | When it starts or ends: a date, and a time. |
 
-An event's color is set on it as `--nuv-event-color`. An event drawn on from an earlier day has `data-starts-before`, and one that goes on to a later day `data-ends-after`. A month's days from the months either side have `data-outside`. The calendar has `data-view` with the view shown, `data-narrow` when it's narrower than 640 pixels, and `data-panel-over` when it's narrower than 1024 and the side panel opens over the days.
+An event's color is set on it as `--nuv-event-color`. An event drawn on from an earlier day has `data-starts-before`, and one that goes on to a later day `data-ends-after`. An event that can be moved has `data-movable`, one being dragged has `data-dragging` where it was, one picked up from the keyboard has `data-picked`, and the calendar has `data-dragging` while anything is. A month's days from the months either side have `data-outside`. The calendar has `data-view` with the view shown, `data-narrow` when it's narrower than 640 pixels, and `data-panel-over` when it's narrower than 1024 and the side panel opens over the days.
 
 ## Server components
 

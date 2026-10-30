@@ -1,0 +1,255 @@
+---
+title: EventTimeline
+description: Resources down the side, time across, and events as bars along their rows. Only the rows and columns in view are drawn, so thousands of resources and years of days stay quick.
+added: "2026-10-30"
+---
+
+Use a timeline when the question is who or what is free: a fleet's vans, a team's people, a hospital's beds. It shows many resources at once, a row each, over hours, days, weeks, months or years. For one resource's week, or a few rooms' days, [EventCalendar](/docs/scheduler/event-calendar) is easier to read.
+
+<Preview name="event-timeline/basic" />
+
+## Install
+
+```sh
+pnpm add @nuvui/scheduler @nuvui/date-picker @nuvui/react
+```
+
+## Import
+
+```tsx
+import {
+  type CalendarEvent,
+  type CalendarResource,
+  EventTimeline,
+} from "@nuvui/scheduler";
+```
+
+The styles are in `@nuvui/scheduler/styles.css`, with the calendar's. [Scheduler](/docs/scheduler) covers loading them.
+
+```tsx
+const resources: CalendarResource[] = [
+  { id: "van-1", title: "Van 1" },
+  { id: "van-2", title: "Van 2" },
+];
+
+const events: CalendarEvent[] = [
+  {
+    id: "market",
+    title: "Market deliveries",
+    start: "2026-10-12T05:30",
+    end: "2026-10-12T13:00",
+    resourceIds: ["van-1"],
+  },
+  {
+    id: "service",
+    title: "Service",
+    start: "2026-10-13",
+    end: "2026-10-14",
+    allDay: true,
+    resourceIds: ["van-2"],
+  },
+];
+
+<EventTimeline aria-label="Fleet" resources={resources} events={events} />;
+```
+
+## Playground
+
+<EventTimelinePlayground />
+
+## Rows
+
+Each resource is a row, and the resources inside one are rows under it, set in, with a button on the one they're in to fold them away. Folding a resource hides the rows inside it and their events. Which are folded is kept by the timeline, or by you with `collapsedResources` and `onCollapsedResourcesChange`.
+
+An event is drawn in the row of each of its `resourceIds`, so one with two resources is in two rows. An event with no resource the timeline knows of is in a last row named "No resource", which is only there when such an event is. Events that overlap in a row are in lanes, and the row is as tall as its lanes.
+
+The events and resources are the same as the calendar's, with the same fields: [EventCalendar](/docs/scheduler/event-calendar#events) has the events, and [Resources](/docs/scheduler/resources#a-resource) the resources, with how an event takes its color and rules from them.
+
+`renderResource` draws what's in a row's header beside its fold button, with your own resource object. The row is still named by its title for a screen reader.
+
+<Preview name="event-timeline/people" />
+
+## Scales
+
+The scale is what each column is, and how much the timeline shows at once:
+
+| Scale | A column | Grouped by | Shows at once |
+| --- | --- | --- | --- |
+| `hours` | An hour | Day | 3 days, from the date |
+| `days` | A day | Month | 1 month |
+| `weeks` | A week, from the locale's first day | Month | 3 months |
+| `months` | A month | Year | 1 year |
+| `years` | A year | | 10 years, from a year ending in 0 |
+
+The header switches between them. `scales` limits which are offered, and with one there's no switch. `spans` changes how much a scale shows, and so how far Previous and Next go, in days for `hours`, months for `days` and `weeks`, and years for `months` and `years`:
+
+```tsx
+<EventTimeline
+  defaultScale="days"
+  scales={["days", "weeks"]}
+  spans={{ days: 3 }}
+/>
+```
+
+`scale` and `onScaleChange` keep the scale with you, and `date` and `onDateChange` the period, as on the calendar.
+
+A column is never narrower than its scale's CSS variable. When the columns would be narrower than the timeline, they widen to fill it, and when they're wider, the timeline scrolls across. It opens at now when now is in the period, with the column before it at the start.
+
+## Hours
+
+`hours` limits the hours of each day the hours scale shows, from the first to the last, which isn't included. An event that's partly outside them is cut where they end, and its square end marks the cut. An event wholly outside them isn't drawn. An all-day event takes the hours shown of its days.
+
+<Preview name="event-timeline/hours" />
+
+When now isn't in the days shown, the hours scale opens at `scrollToHour`.
+
+## Editing
+
+Everything [Editing events](/docs/scheduler/editing) says of the calendar holds here: the popover, making an event with a click or a drag on empty time, `readOnly`, `confirmDelete`, `onEditStart`, things dragged in from elsewhere on the page, and the question about a [repeating event](/docs/scheduler/recurring-events#changing-one).
+
+What's new is the row. An event dragged up or down to another row is given that row's resource in place of the one it left, and keeps any others it has. One dragged to the row for none loses the one it left. With `resourceRequired`, it can't go there. An event made on empty time is given the resource of the row it's made in.
+
+On the days, weeks, months and years scales, a drag moves an event by whole days and keeps its times on the clock, and an event made on empty time takes whole days. On the hours scale, both snap to `step`.
+
+<Preview name="event-timeline/changes" />
+
+## Many resources
+
+Only the rows and the columns in view are drawn, and a few past each edge, so the page holds the same few hundred elements however many resources and days there are. The rows and columns that aren't drawn are still counted, with `aria-rowcount` and `aria-colcount`, and a screen reader hears where it is in the whole.
+
+<Preview name="event-timeline/many" />
+
+Every event in the period is still worked out, to know how tall each row is. Tens of thousands of events are fine. For more, give the timeline the events of the period it shows, from `onDateChange` and `onScaleChange`.
+
+## Language and dates
+
+`locale` writes the dates and the times, and sets the first day of a week. The words the timeline writes itself are in `labels`, with the calendar's. [Translation](/docs/translation#scheduler) lists them.
+
+## EventTimeline props
+
+<PropsTable
+  package="scheduler"
+  component="event-timeline"
+  name="EventTimelineOwnProps"
+/>
+
+It also takes the attributes of a `section`, and passes `ref` to it.
+
+## Accessibility
+
+### Keyboard
+
+| Key | What it does |
+| --- | --- |
+| <kbd>Tab</kbd> | Into the grid at its current cell, then to the events that start in that cell, then out of the grid. |
+| <kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd> | To the next cell that way. From the first column, <kbd>←</kbd> goes to the row's resource. |
+| <kbd>Home</kbd> <kbd>End</kbd> | To the first or last column of the row. With <kbd>Ctrl</kbd>, of the first or last row. |
+| <kbd>Page Up</kbd> <kbd>Page Down</kbd> | Up or down by the rows in view. |
+| <kbd>Enter</kbd> | On an event, opens it. On an empty cell, makes an event there. On a resource with others inside it, folds or opens them. |
+| <kbd>Space</kbd> | On an event that can be moved, picks it up. |
+| <kbd>Delete</kbd> or <kbd>Backspace</kbd> | On an event, asks to delete it. |
+
+With an event picked up, <kbd>←</kbd> and <kbd>→</kbd> move it along its row, by `step` on the hours scale and by a day on the others, and <kbd>↑</kbd> and <kbd>↓</kbd> move it to the row above or below. <kbd>Shift</kbd> with <kbd>←</kbd> or <kbd>→</kbd> changes when it ends. <kbd>Space</kbd> or <kbd>Enter</kbd> drops it, and <kbd>Esc</kbd> puts it back.
+
+The arrows go by where things are on the screen. Where the page reads right to left, time runs from the right, and <kbd>←</kbd> goes later.
+
+### What the component handles
+
+- The timeline is a region named by `aria-label`, "Timeline" by default.
+- The rows and columns are a grid, with the header's rows of column headers, and each resource as the header of its row. Each cell is named by its resource and its time, and only one cell at a time is in the tab order.
+- The grid counts every row and column, and each one drawn says where it is, so a screen reader hears the whole grid though only part of it is drawn.
+- Every event is a button whose name has its title, its time or "All day", its days, and its resources.
+- The button that folds a resource says whether it's open.
+- Today is marked as the current date.
+- The heading with the period shown is a live region.
+- The line at the time now is hidden from screen readers.
+- A bar, the fold buttons and the buttons in the header are 44 pixels on a touch screen.
+
+### What you need to handle
+
+- Name the timeline with `aria-label`, after what it shows: "Fleet", "Team plan".
+- Give events titles that tell them apart, since a screen reader hears the title first.
+- What `renderResource` draws is seen, and the row is named by the resource's title, so put what a screen reader needs in the title.
+
+## On small screens
+
+Narrower than 640 pixels, measured on the timeline and not the window, the resources' column is narrower and the scales are a menu. The rows and columns scroll under it both ways, and a finger held still on an event picks it up to drag, so a swipe still scrolls.
+
+## CSS variables
+
+Set any of these on an `EventTimeline`, or on anything around it. Its events and their popover are the calendar's, and take [its variables](/docs/scheduler/event-calendar#css-variables) for events.
+
+```css
+.fleet {
+  --nuv-event-timeline-height: 48rem;
+  --nuv-event-timeline-resource-width: 16rem;
+}
+```
+
+<CssVariables
+  package="scheduler"
+  component="event-timeline"
+  descriptions={{
+    "--nuv-event-timeline-height": "Height of the timeline. The grid fills it.",
+    "--nuv-event-timeline-radius": "Corner radius of the timeline.",
+    "--nuv-event-timeline-bg": "Background of the timeline, and of what stays in place as it scrolls.",
+    "--nuv-event-timeline-fg": "Color of the text.",
+    "--nuv-event-timeline-resource-width": "Width of the resources' column. Narrower on a narrow timeline.",
+    "--nuv-event-timeline-resource-indent": "How far a resource inside another is set in.",
+    "--nuv-event-timeline-bar-pitch": "Height of a lane of bars, with the gap below a bar.",
+    "--nuv-event-timeline-hour-width": "The narrowest a column is on the hours scale.",
+    "--nuv-event-timeline-day-width": "The narrowest a column is on the days scale.",
+    "--nuv-event-timeline-week-width": "The narrowest a column is on the weeks scale.",
+    "--nuv-event-timeline-month-width": "The narrowest a column is on the months scale.",
+    "--nuv-event-timeline-year-width": "The narrowest a column is on the years scale.",
+    "--nuv-event-timeline-today": "Background of today's date, behind --color-primary-foreground.",
+    "--nuv-event-timeline-today-bg": "Background of today's column.",
+    "--nuv-event-timeline-weekend-bg": "Background of the weekends on the days scale.",
+    "--nuv-event-timeline-now": "Color of the line at the time now.",
+  }}
+/>
+
+## Classes
+
+The events, the popover and the dialogs have the calendar's classes, such as `nuv-event-calendar__event`.
+
+<BemClasses
+  package="scheduler"
+  component="event-timeline"
+  descriptions={{
+    "nuv-event-timeline": "EventTimeline",
+    "nuv-event-timeline__header": "The header.",
+    "nuv-event-timeline__icon-button": "A button in the header with only an icon.",
+    "nuv-event-timeline__steps": "The previous and next buttons.",
+    "nuv-event-timeline__chevron": "The arrow in each.",
+    "nuv-event-timeline__title": "The heading with the period shown.",
+    "nuv-event-timeline__tools": "The scale switch.",
+    "nuv-event-timeline__scale-select": "The scale switch as a menu, on a narrow timeline.",
+    "nuv-event-timeline__view": "Around the grid.",
+    "nuv-event-timeline__grid": "The grid, which scrolls both ways.",
+    "nuv-event-timeline__probe": "A hidden column and lane, measured to lay out the grid.",
+    "nuv-event-timeline__head": "The header's rows, which stay at the top.",
+    "nuv-event-timeline__head-row": "A row of the header.",
+    "nuv-event-timeline__head-row--groups": "The row of days, months or years over the columns.",
+    "nuv-event-timeline__corner": "Where the header's rows meet the resources' column.",
+    "nuv-event-timeline__group": "A day, a month or a year over its columns.",
+    "nuv-event-timeline__group-name": "Its name, which keeps to the start of what's seen of it.",
+    "nuv-event-timeline__column-head": "A column's header.",
+    "nuv-event-timeline__column-head--group-start": "The first column of a day, a month or a year.",
+    "nuv-event-timeline__column-head--today": "Today's.",
+    "nuv-event-timeline__date": "A day's number in its header.",
+    "nuv-event-timeline__body": "The rows.",
+    "nuv-event-timeline__row": "A resource's row.",
+    "nuv-event-timeline__resource": "The resource at the start of a row.",
+    "nuv-event-timeline__fold": "The button that folds the resources inside one.",
+    "nuv-event-timeline__fold-space": "Its place, kept in a resource with none inside it.",
+    "nuv-event-timeline__swatch": "The dot of a resource's color.",
+    "nuv-event-timeline__resource-name": "A resource's title, or what renderResource draws.",
+    "nuv-event-timeline__cell": "A column of a row.",
+    "nuv-event-timeline__cell--group-start": "The first column of a day, a month or a year.",
+    "nuv-event-timeline__cell--today": "Today's column.",
+    "nuv-event-timeline__cell--weekend": "A weekend's column on the days scale.",
+    "nuv-event-timeline__now": "The line at the time now.",
+    "nuv-event-timeline__event": "An event, with the calendar's classes, along its row.",
+  }}
+/>

@@ -400,7 +400,7 @@ A model viewer's name is its `label`. The buttons' names, how to use the keys, w
 
 ## Scheduler
 
-A calendar's name is the `aria-label` you give it, and an event's is its `title`, its time, its days and its resources. Dates and times are written by the browser in the calendar's `locale`. The words it writes itself, the buttons, the views, the preferences, what the agenda says when nothing is on, the event's popover, the question before an event is deleted, what's said as events are moved, the resources in the side panel and the popover, how an event repeats and the question of which of its occurrences a change is for, are in one prop, `labels`:
+A calendar's or a timeline's name is the `aria-label` you give it, and an event's is its `title`, its time, its days and its resources. Dates and times are written by the browser in the component's `locale`. The words they write themselves, the buttons, the views and the timeline's scales, the preferences, what the agenda says when nothing is on, the event's popover, the question before an event is deleted, what's said as events are moved, the resources in the side panel, the popover and the timeline's rows, how an event repeats and the question of which of its occurrences a change is for, are in one prop, `labels`:
 
 | Prop | Type | Default | What it's for |
 | --- | --- | --- | --- |
@@ -413,6 +413,10 @@ A calendar's name is the `aria-label` you give it, and an event's is its `title`
 | `week` (required) | `string` |  |  |
 | `month` (required) | `string` |  |  |
 | `agenda` (required) | `string` |  |  |
+| `timeline` (required) | `string` |  | The timeline's name, when it's given no `aria-label`. |
+| `scale` (required) | `string` |  | The name of the control that switches the timeline's scale. |
+| `scaleName` (required) | `(scale: TimelineScale) => string` |  | A scale of the timeline, in that control. |
+| `unassigned` (required) | `string` |  | The timeline's row for events that belong to no resource. |
 | `allDay` (required) | `string` |  | The row of events that take whole days, and an event's time when it's one of them. |
 | `sidePanel` (required) | `string` |  | The button that opens the side panel, and the panel's name. |
 | `preferences` (required) | `string` |  |  |

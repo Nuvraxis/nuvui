@@ -310,41 +310,36 @@ The words the calendar writes itself are in `labels`. [Translation](../translati
 
 | Prop | Type | Default | What it's for |
 | --- | --- | --- | --- |
-| `events` | `readonly TEvent[]` |  | The events, when you hold them. Pass `onEventsChange` too for them to be changed in the calendar: without it, they open to be read. |
-| `defaultEvents` | `readonly TEvent[]` |  | The events at first, when the calendar holds them. |
 | `onEventsChange` | `((events: TEvent[], change: EventChange<TEvent>) => void)` |  | Called with every event after one is made, changed or deleted, and what the change was. |
-| `eventKeys` | `Partial<Record<keyof CalendarEvent, string>>` |  | The names your events' fields have where they aren't the calendar's, such as `{ title: "name", resourceIds: "roomId" }`. Events are read from them, and changes are written back to them, with every other field of yours kept. |
-| `resources` | `readonly TResource[]` |  | What events are booked against: rooms, people, machines. Listed in the side panel, where each can be shown or hidden, and offered in an event's popover. |
-| `resourceKeys` | `Partial<Record<keyof CalendarResource, string>>` |  | The names your resources' fields have where they aren't the calendar's. |
-| `resourceRequired` | `boolean` | `false` | Every event needs a resource. A new event is given the first one shown, and the popover offers no choice of none. |
+| `eventKeys` | `Partial<Record<keyof CalendarEvent, string>>` |  | The names your events' fields have where they aren't these, such as `{ title: "name", resourceIds: "roomId" }`. Events are read from them, and changes are written back to them, with every other field of yours kept. |
+| `resourceKeys` | `Partial<Record<keyof CalendarResource, string>>` |  | The names your resources' fields have where they aren't these. |
+| `resourceRequired` | `boolean` | `false` | Every event needs a resource, and the popover offers no choice of none. On the calendar, a new event is given the first resource shown. |
 | `multipleResources` | `boolean` | `false` | An event can be given several resources in its popover, not just one. |
+| `readOnly` | `boolean` | `false` | Events open to be read, and can't be made, changed, moved or deleted. An event's own `readOnly` wins over this. |
+| `creatable` | `boolean` | `true` | Whether new events can be made on empty time, with a click or by dragging across it. Something dropped from elsewhere on the page is still added. |
+| `createOn` | `"click" \| "doubleClick"` | `"click"` | What makes an event on empty time: a click, or a double click. |
+| `defaultDuration` | `number` | `60` | Minutes a new event lasts when it's made with a click on a time, and an all-day one dragged onto a time. |
+| `step` | `number` | `15` | Minutes that times snap to while an event is dragged, and that the arrow keys move it by. |
+| `confirmDelete` | `boolean` | `true` | Asks before an event is deleted. An event that repeats is always asked about, since which of its occurrences go is the question. |
+| `eventFields` | `readonly EventField[]` | `["title", "time", "repeat", "resource", "color", "description"]` | The parts of an event's popover, in order. Leave one out to take it away. |
+| `renderEventFields` | `((props: EventFieldsProps<TEvent>) => React.ReactNode)` |  | Fields of your own, shown in an event's popover after the rest. |
+| `onEditStart` | `((event: TEvent, details: EditStartDetails) => void)` |  | Called before an event's popover opens, however it's opened. Call `preventDefault` on the details to open your own form instead. |
+| `onEventDropOutside` | `((event: TEvent, details: EventDropOutsideDetails) => boolean \| undefined)` |  | Called when an event is dragged out of the component and let go, with what's under the pointer. Return `true` to take it off. |
+| `createId` | `(() => string)` |  | Makes the id of a new event. A random UUID by default. |
+| `date` | `Date` |  | A moment in the period shown, when you control it. |
+| `defaultDate` | `Date` |  | A moment in the period shown at first, when you don't control it. Today by default. |
+| `onDateChange` | `((date: Date) => void)` |  | Called with the start of the day moved to. |
+| `resources` | `readonly TResource[]` |  | What events are booked against: rooms, people, machines. Listed in the side panel, where each can be shown or hidden, and offered in an event's popover. |
 | `hiddenResources` | `readonly string[]` |  | The ids of the resources whose events are hidden, when you control them. |
 | `defaultHiddenResources` | `readonly string[]` |  | The resources hidden at first, when you don't control them. |
 | `onHiddenResourcesChange` | `((hidden: string[]) => void)` |  | Called with the ids of every hidden resource when one is shown or hidden. |
 | `collapsedResources` | `readonly string[]` |  | The ids of the resources folded in the side panel, with those inside them out of sight, when you control them. |
 | `defaultCollapsedResources` | `readonly string[]` |  | The resources folded at first, when you don't control them. |
 | `onCollapsedResourcesChange` | `((collapsed: string[]) => void)` |  | Called with the ids of every folded resource when one folds or opens. |
-| `readOnly` | `boolean` | `false` | Events open to be read, and can't be made, changed, moved or deleted. An event's own `readOnly` wins over this. |
-| `creatable` | `boolean` | `true` | Whether new events can be made on empty time, with a click or by dragging across it. Something dropped from elsewhere on the page is still added. |
-| `createOn` | `"click" \| "doubleClick"` | `"click"` | What makes an event on empty time: a click, or a double click. |
-| `defaultDuration` | `number` | `60` | Minutes a new event lasts when it's made with a click, and an all-day one dragged onto a time. |
-| `step` | `number` | `15` | Minutes that times snap to while an event is dragged, and that the arrow keys move it by. |
-| `confirmDelete` | `boolean` | `true` | Asks before an event is deleted. An event that repeats is always asked about, since which of its occurrences go is the question. |
-| `eventFields` | `readonly EventField[]` | `["title", "time", "repeat", "resource", "color", "description"]` | The parts of an event's popover, in order. Leave one out to take it away. |
-| `renderEventFields` | `((props: EventFieldsProps<TEvent>) => ReactNode)` |  | Fields of your own, shown in an event's popover after the rest. |
-| `onEditStart` | `((event: TEvent, details: EditStartDetails) => void)` |  | Called before an event's popover opens, however it's opened. Call `preventDefault` on the details to open your own form instead. |
-| `onEventDropOutside` | `((event: TEvent, details: EventDropOutsideDetails) => boolean \| undefined)` |  | Called when an event is dragged out of the calendar and let go, with what's under the pointer. Return `true` to take it off the calendar. |
-| `createId` | `(() => string)` |  | Makes the id of a new event. A random UUID by default. |
 | `view` | `"agenda" \| "day" \| "month" \| "week"` |  | The view shown, when you control it. |
 | `defaultView` | `"agenda" \| "day" \| "month" \| "week"` | `"week"` | The view shown at first, when you don't control it. |
 | `onViewChange` | `((view: CalendarView) => void)` |  | Called with the view chosen. |
 | `views` | `readonly CalendarView[]` | `["day", "week", "month", "agenda"]` | The views offered in the header, in order. |
-| `date` | `Date` |  | A moment in the period shown, when you control it. |
-| `defaultDate` | `Date` |  | A moment in the period shown at first, when you don't control it. Today by default. |
-| `onDateChange` | `((date: Date) => void)` |  | Called with the start of the day moved to. |
-| `timeZone` | `string` |  | The time zone events are shown in, such as `"Europe/Paris"`. It changes how they're drawn, not when they happen. The browser's own by default. |
-| `locale` | `CalendarLocale` |  | The language dates and times are written in, and the first day of the week. Any locale from `@nuvui/date-picker/locale`. |
-| `today` | `Date` |  | The moment taken as now. Set it for a server, a screenshot or a test. The browser's clock by default. |
 | `hours` | `readonly [number, number]` | `[0, 24]` | The hours the day and week views show, from the first to the last, which isn't included. Whole hours from 0 to 24. |
 | `scrollToHour` | `number` | `7` | The hour the day and week views open scrolled to. |
 | `agendaDays` | `number` | `7` | How many days the agenda lists at a time. |
@@ -355,9 +350,14 @@ The words the calendar writes itself are in `labels`. [Translation](../translati
 | `panelOpen` | `boolean` |  | Whether the side panel is open beside the days, when you control it. That's on a calendar 1024 pixels wide or wider. |
 | `defaultPanelOpen` | `boolean` | `true` | Whether the side panel is open at first beside the days. On a calendar narrower than 1024 pixels it opens over the days instead, and starts closed. |
 | `onPanelOpenChange` | `((open: boolean) => void)` |  | Called with whether the side panel is open beside the days. |
-| `color` | `EventColor` | `"1"` | The color of events that have none of their own, and none from a resource. |
 | `headingLevel` | `2 \| 3 \| 4 \| 5` | `2` | The level of the heading with the period shown. The agenda's days are a level below. |
-| `labels` | `Partial<SchedulerLabels>` |  | The words the calendar shows and says. Translate them with the rest of your interface. |
+| `events` | `readonly TEvent[]` |  | The events, when you hold them. Pass `onEventsChange` too for them to be changed: without it, they open to be read. |
+| `defaultEvents` | `readonly TEvent[]` |  | The events at first, when the component holds them. |
+| `timeZone` | `string` |  | The time zone events are shown in, such as `"Europe/Paris"`. It changes how they're drawn, not when they happen. The browser's own by default. |
+| `locale` | `DayPickerLocale` |  | The language dates and times are written in, and the first day of the week. Any locale from `@nuvui/date-picker/locale`. |
+| `today` | `Date` |  | The moment taken as now. Set it for a server, a screenshot or a test. The browser's clock by default. |
+| `color` | `EventColor` | `"1"` | The color of events that have none of their own, and none from a resource. |
+| `labels` | `Partial<SchedulerLabels>` |  | The words it shows and says. Translate them with the rest of your interface. |
 | `onEventClick` | `((event: TEvent, element: HTMLElement) => void)` |  | Called when an event is pressed, with the element pressed, before its popover opens. |
 
 It also takes the attributes of a `section`, and passes `ref` to it.

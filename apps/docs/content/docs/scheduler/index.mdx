@@ -1,6 +1,6 @@
 ---
 title: Scheduler
-description: The @nuvui/scheduler package. An event calendar with day, week, month and agenda views, edited in place and booked against resources, installed next to @nuvui/react and @nuvui/date-picker.
+description: The @nuvui/scheduler package. An event calendar with day, week, month and agenda views, and a timeline of resources, edited in place and booked against resources, installed next to @nuvui/react and @nuvui/date-picker.
 added: "2026-10-28"
 ---
 
@@ -9,6 +9,7 @@ The scheduler is a package of its own, `@nuvui/scheduler`, since working out day
 | Component | What it is |
 | --- | --- |
 | [EventCalendar](/docs/scheduler/event-calendar) | Events in a day, a week, a month or a list, with a header to move through them and a month in a side panel to pick a day from. [Editing events](/docs/scheduler/editing) covers making, changing, moving and deleting them in place, and [Resources](/docs/scheduler/resources) booking them against rooms or people. |
+| [EventTimeline](/docs/scheduler/event-timeline) | Resources down the side and time across, with events as bars along their rows, over hours, days, weeks, months or years. It's edited the same way, and an event can be dragged from one resource's row to another's. |
 
 <Preview name="event-calendar/basic" />
 
@@ -34,17 +35,16 @@ import "@nuvui/date-picker/styles.css";
 import "@nuvui/scheduler/styles.css";
 ```
 
-Each file opens with the same line naming the cascade layers, so the order you import them in doesn't decide which rule wins. The calendar's styles are also on their own, at `@nuvui/scheduler/css/event-calendar.css`.
+Each file opens with the same line naming the cascade layers, so the order you import them in doesn't decide which rule wins. Each component's styles are also on their own, at `@nuvui/scheduler/css/event-calendar.css` and `@nuvui/scheduler/css/event-timeline.css`. The timeline's take in the calendar's, since its events and popover are the calendar's.
 
 ## What it keeps and what you keep
 
-The events are yours when you pass `events`, with `onEventsChange` to hear about each change, or the calendar's when you pass `defaultEvents`. It keeps which view is shown, the day it's on, what the person looking has chosen in its preferences menu, whether its side panel is open, and which resources are hidden or folded. Each of those can be yours instead, through a prop and a callback.
+The events are yours when you pass `events`, with `onEventsChange` to hear about each change, or the calendar's when you pass `defaultEvents`. It keeps which view is shown, the day it's on, what the person looking has chosen in its preferences menu, whether its side panel is open, and which resources are hidden or folded. The timeline keeps its scale, the period it's on and which resources are folded. Each of those can be yours instead, through a prop and a callback.
 
 Events and resources can keep your own field names. `eventKeys` and `resourceKeys` say which field is which, and changes come back under the same names. [Resources](/docs/scheduler/resources#your-own-field-names) has the details.
 
 ## What's coming
 
-The calendar's views, [editing](/docs/scheduler/editing), [resources](/docs/scheduler/resources) and [recurring events](/docs/scheduler/recurring-events) are in the package. These are planned, in this order, and neither is in it yet:
+The calendar's views, [editing](/docs/scheduler/editing), [resources](/docs/scheduler/resources), [recurring events](/docs/scheduler/recurring-events) and the [timeline](/docs/scheduler/event-timeline) are in the package. One more is planned, and isn't in it yet:
 
-- **A timeline,** with resources as rows and time across.
 - **Loading by range,** asking your server only for the days shown.

@@ -681,7 +681,9 @@ const UntypedEventCalendar = forwardRef<HTMLElement, AnyProps>(
                 mode="single"
                 required
                 selected={zonedDay(day)}
-                defaultMonth={zonedDay(day)}
+                // Told no month, it draws its own stand-in, whose month can't
+                // hold the day it uses to mark none as today.
+                {...(undated ? null : { defaultMonth: zonedDay(day) })}
                 {...(today ? { today: zonedDay(today) } : null)}
                 timeZone={timeZone}
                 locale={locale}

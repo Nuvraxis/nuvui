@@ -33,6 +33,15 @@ export function formatters(locale: string, timeZone: string, hour12: boolean) {
     year: "numeric",
     timeZone: "UTC",
   });
+  const months = new Intl.DateTimeFormat(locale, {
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+  const years = new Intl.DateTimeFormat(locale, {
+    year: "numeric",
+    timeZone: "UTC",
+  });
   const time = new Intl.DateTimeFormat(locale, {
     hour: "numeric",
     minute: "2-digit",
@@ -77,6 +86,24 @@ export function formatters(locale: string, timeZone: string, hour12: boolean) {
     monthName: dayFormat({ month: "long" }),
     /** "18 December 2026" */
     longDate: dayFormat({ day: "numeric", month: "long", year: "numeric" }),
+    /** "Oct" */
+    shortMonth: dayFormat({ month: "short" }),
+    /** "2026" */
+    year: dayFormat({ year: "numeric" }),
+    /** "October – December 2026", or "October 2026" for one month. */
+    monthRange: (from: DayKey, to: DayKey) =>
+      plain(
+        from.slice(0, 7) === to.slice(0, 7)
+          ? months.format(noonOf(from))
+          : months.formatRange(noonOf(from), noonOf(to)),
+      ),
+    /** "2020 – 2029", or "2026" for one year. */
+    yearRange: (from: DayKey, to: DayKey) =>
+      plain(
+        from.slice(0, 4) === to.slice(0, 4)
+          ? years.format(noonOf(from))
+          : years.formatRange(noonOf(from), noonOf(to)),
+      ),
     /** "12 – 18 October 2026" */
     range: (from: DayKey, to: DayKey) =>
       plain(

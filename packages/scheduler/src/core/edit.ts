@@ -25,6 +25,11 @@ export type Times =
 export interface Spot {
   day: DayKey;
   minute: number | null;
+  /**
+   * The resource of the timeline's row it's in, and `null` in the row of
+   * events with none. Left out on the calendar, which has no rows.
+   */
+  resource?: string | null;
 }
 
 /** What a drag does to the event it starts on. */

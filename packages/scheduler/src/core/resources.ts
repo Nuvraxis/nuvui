@@ -184,3 +184,27 @@ export function shownState(
   if (count === 0) return true;
   return count === group.length ? false : "indeterminate";
 }
+
+/**
+ * An event's resources after it's moved from one of the timeline's rows to
+ * another: the one it left swapped for the one it's put on, where it was.
+ * `null` is the row of events with no resource. Ids the timeline doesn't
+ * know are kept.
+ */
+export function moveResource(
+  ids: readonly string[] | undefined,
+  from: string | null,
+  to: string | null,
+): string[] {
+  const list = [...(ids ?? [])];
+  if (from === to) return list;
+  if (from === null) {
+    return to === null || list.includes(to) ? list : [...list, to];
+  }
+  if (to === null || list.includes(to)) {
+    return list.filter((id) => id !== from);
+  }
+  return list.includes(from)
+    ? list.map((id) => (id === from ? to : id))
+    : [...list, to];
+}

@@ -462,16 +462,31 @@ describe("editing", () => {
   test("dragged to another row, an event is given that row's resource", async () => {
     const onEventsChange = vi.fn();
     await render(<Timeline onEventsChange={onEventsChange} events={[trip]} />);
-    await userEvent.dragAndDrop(
-      event(/^Trip/).element(),
-      cell("Van 2, Wednesday, October 14").element(),
-      {
-        steps: 10,
-        sourcePosition: { x: 12, y: 8 },
-        targetPosition: { x: 24, y: 8 },
-      },
-    );
-    await expect.poll(() => onEventsChange.mock.calls.length).toBe(1);
+    // The grid opens scrolled to now, and draws other columns as it does.
+    // The last of them is there once it has, and the places are read then:
+    // a drag handed elements finds them again by where they were.
+    await expect.element(cell("Van 2, Friday, October 30")).toBeInTheDocument();
+    const source = event(/^Trip/).element();
+    const start = source.getBoundingClientRect();
+    const pointer = (type: string, x: number, y: number) =>
+      (type === "pointerdown" ? source : window).dispatchEvent(
+        new PointerEvent(type, {
+          bubbles: true,
+          pointerId: 2,
+          pointerType: "mouse",
+          button: 0,
+          clientX: x,
+          clientY: y,
+        }),
+      );
+    const target = () =>
+      cell("Van 2, Wednesday, October 14").element().getBoundingClientRect();
+    pointer("pointerdown", start.x + 12, start.y + 8);
+    pointer("pointermove", target().x + 24, target().y + 8);
+    await expect
+      .poll(() => document.querySelector("[data-preview]"))
+      .not.toBeNull();
+    pointer("pointerup", target().x + 24, target().y + 8);
     expect(changes(onEventsChange)[0]?.event).toMatchObject({
       start: "2026-10-14T09:00",
       end: "2026-10-15T17:00",
@@ -611,8 +626,10 @@ describe("accessibility", () => {
 
   test("an event with keyboard focus has a ring that stands out", async () => {
     await render(<Timeline />);
-    (event(/^Trip/).element() as HTMLElement).focus();
-    await userEvent.keyboard("{Shift>}{Tab}{/Shift}{Tab}");
+    // An event is in the tab order from the cell it starts in.
+    intoGrid();
+    await userEvent.keyboard("{ArrowDown}{Tab}");
+    await expect.poll(focusedName).toMatch(/^Trip, /);
     const style = getComputedStyle(focused() as Element);
     expect(style.outlineStyle).toBe("solid");
     expect(

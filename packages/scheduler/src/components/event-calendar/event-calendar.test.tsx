@@ -761,6 +761,10 @@ describe("translation", () => {
 });
 
 describe("on the server", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   test("without a time zone the days wait for the browser, and the page is taken over cleanly", async () => {
     const node = (
       <EventCalendar aria-label="Team calendar" events={events} today={today} />
@@ -775,6 +779,39 @@ describe("on the server", () => {
     await expect.poll(() => host.querySelector("[data-pending]")).toBeNull();
     expect(errors).not.toHaveBeenCalled();
     errors.mockRestore();
+    host.remove();
+  });
+
+  test("a page built on another day is taken over cleanly, and shows the day it's opened", async () => {
+    const node = (
+      <EventCalendar
+        aria-label="Team calendar"
+        events={events}
+        defaultView="day"
+        timeZone="UTC"
+      />
+    );
+    vi.useFakeTimers({
+      toFake: ["Date"],
+      now: new Date("2026-03-02T12:00:00Z"),
+    });
+    const html = renderToString(node);
+    expect(html).toContain("data-pending");
+    expect(html).not.toContain("March");
+    vi.setSystemTime(new Date("2026-10-14T12:00:00Z"));
+    const host = document.createElement("div");
+    host.innerHTML = html;
+    document.body.append(host);
+    const redone: unknown[] = [];
+    const root = hydrateRoot(host, node, {
+      onRecoverableError: (error) => redone.push(error),
+    });
+    await expect.poll(() => host.querySelector("[data-pending]")).toBeNull();
+    expect(redone).toEqual([]);
+    expect(
+      host.querySelector(".nuv-event-calendar__title")?.textContent,
+    ).toContain("October 14");
+    root.unmount();
     host.remove();
   });
 

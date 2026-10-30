@@ -9,7 +9,7 @@ import { renderThemed, themes } from "@nuvui/tooling/test/themed";
 import type { CSSProperties } from "react";
 import { hydrateRoot } from "react-dom/client";
 import { renderToString } from "react-dom/server";
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
 import type { CalendarEvent, EventChange } from "../../core/events";
@@ -528,6 +528,10 @@ describe("editing", () => {
 });
 
 describe("on the server", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   test("with a time zone the server draws the rows and events", () => {
     const html = renderToString(
       <EventTimeline
@@ -543,6 +547,40 @@ describe("on the server", () => {
     expect(html).toContain(
       "Trip, Wednesday, October 14 9:00 AM to Thursday, October 15 5:00 PM, Van 1",
     );
+  });
+
+  test("a page built on another day is taken over cleanly, and shows the day it's opened", async () => {
+    const node = (
+      <EventTimeline
+        aria-label="Fleet"
+        resources={resources}
+        events={[trip]}
+        defaultScale="hours"
+        timeZone="UTC"
+      />
+    );
+    vi.useFakeTimers({
+      toFake: ["Date"],
+      now: new Date("2026-03-02T12:00:00Z"),
+    });
+    const html = renderToString(node);
+    expect(html).toContain("data-pending");
+    expect(html).not.toContain("March");
+    vi.setSystemTime(new Date("2026-10-14T12:00:00Z"));
+    const host = document.createElement("div");
+    host.innerHTML = html;
+    document.body.append(host);
+    const redone: unknown[] = [];
+    const root = hydrateRoot(host, node, {
+      onRecoverableError: (error) => redone.push(error),
+    });
+    await expect.poll(() => host.querySelector("[data-pending]")).toBeNull();
+    expect(redone).toEqual([]);
+    expect(
+      host.querySelector(".nuv-event-timeline__title")?.textContent,
+    ).toContain("October 14");
+    root.unmount();
+    host.remove();
   });
 
   test("without a time zone the rows wait for the browser, and the page is taken over cleanly", async () => {

@@ -53,20 +53,43 @@ export interface EditingValue {
   options: EditOptions;
   /** The event picked up from the keyboard, if one is. */
   picked: string | null;
+  /** The timeline's row it was picked up in, and is in now. */
+  pickedRow?: string | null | undefined;
   /** The event being dragged with a pointer, drawn faintly where it was. */
   dragging: string | null;
   /** Opens an event's popover, from the element pressed. */
   open: (event: CalendarEvent, element: HTMLElement, by: OpenedBy) => void;
   /** Asks to delete an event, from the element it was deleted from. */
   remove: (event: CalendarEvent, element: HTMLElement) => void;
-  /** Picks an event up from the keyboard. */
-  pick: (placed: PlacedEvent, look: string) => void;
-  /** Moves the picked-up event, or with `resize` changes its end. */
-  nudge: (by: { minutes?: number; days?: number }, resize: boolean) => void;
+  /**
+   * Picks an event up from the keyboard, from the timeline's row it's in
+   * when it's on one.
+   */
+  pick: (placed: PlacedEvent, look: string, row?: string | null) => void;
+  /**
+   * Moves the picked-up event, or with `resize` changes its end. `rows`
+   * moves it to another of the timeline's rows.
+   */
+  nudge: (
+    by: { minutes?: number; days?: number; rows?: number },
+    resize: boolean,
+  ) => void;
   drop: () => void;
   putBack: () => void;
-  /** Starts a new event at the times given, from the element it's made in. */
-  create: (times: Times, element: HTMLElement) => void;
+  /**
+   * Starts a new event at the times given, from the element it's made in,
+   * in the timeline's row it's made in.
+   */
+  create: (
+    times: Times,
+    element: HTMLElement,
+    resource?: string | null,
+  ) => void;
+  /**
+   * On the timeline, what the arrows along a row move a picked-up event by.
+   * Up and down move it to the next resource.
+   */
+  along?: { minutes?: number; days?: number };
 }
 
 export interface CalendarContextValue {
@@ -109,7 +132,11 @@ export const CalendarContext = createContext<CalendarContextValue | null>(null);
 
 export function useCalendar(): CalendarContextValue {
   const context = useContext(CalendarContext);
-  if (!context) throw new Error("A part of EventCalendar was used outside it.");
+  if (!context) {
+    throw new Error(
+      "A part of EventCalendar or EventTimeline was used outside it.",
+    );
+  }
   return context;
 }
 

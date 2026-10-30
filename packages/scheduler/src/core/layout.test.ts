@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { arrangeDay, packLanes, visibleRuns } from "./layout";
+import { arrangeDay, packLanes, stackLanes, visibleRuns } from "./layout";
 
 const timed = (name: string, from: number, to: number) => ({
   name,
@@ -98,5 +98,40 @@ describe("bars across days", () => {
       { first: 0, last: 2 },
     ]);
     expect(visibleRuns({ lane: 2, first: 0, last: 2 }, [2, 1, 2])).toEqual([]);
+  });
+});
+
+describe("bars along a row", () => {
+  const lanes = (items: [string, number, number][]) =>
+    stackLanes(items.map(([item, start, end]) => ({ item, start, end }))).map(
+      ({ item, lane }) => [item, lane],
+    );
+
+  test("one after another share a lane, even part way into a column", () => {
+    expect(
+      lanes([
+        ["a", 0, 1.5],
+        ["b", 1.5, 3],
+      ]),
+    ).toEqual([
+      ["a", 0],
+      ["b", 0],
+    ]);
+  });
+
+  test("one that overlaps goes in the next lane, and a later one back in the first free", () => {
+    expect(
+      lanes([
+        ["a", 0, 4],
+        ["b", 1, 2],
+        ["c", 2.5, 5],
+        ["d", 4, 6],
+      ]),
+    ).toEqual([
+      ["a", 0],
+      ["b", 1],
+      ["c", 1],
+      ["d", 0],
+    ]);
   });
 });

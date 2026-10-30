@@ -4,6 +4,7 @@ import {
   type CalendarResource,
   indexResources,
   isShown,
+  moveResource,
   rulesOf,
   shownState,
   toggleResource,
@@ -143,5 +144,32 @@ describe("showing and hiding", () => {
       shownState("rooms", index, new Set(["rooms", "4b", "library"])),
     ).toBe(false);
     expect(shownState("4b", index, new Set(["4b"]))).toBe(false);
+  });
+});
+
+describe("moving an event to another row", () => {
+  test("swaps the row it left for the one it's put on, where it was", () => {
+    expect(moveResource(["4b", "ines"], "4b", "library")).toEqual([
+      "library",
+      "ines",
+    ]);
+  });
+
+  test("onto a row it's already in, it leaves the one it came from", () => {
+    expect(moveResource(["4b", "ines"], "4b", "ines")).toEqual(["ines"]);
+  });
+
+  test("from the row for none, it's given the row, and keeps ids it had", () => {
+    expect(moveResource(undefined, null, "4b")).toEqual(["4b"]);
+    expect(moveResource(["gone"], null, "4b")).toEqual(["gone", "4b"]);
+  });
+
+  test("onto the row for none, it loses the row it left", () => {
+    expect(moveResource(["4b"], "4b", null)).toEqual([]);
+    expect(moveResource(["4b", "ines"], "4b", null)).toEqual(["ines"]);
+  });
+
+  test("to the same row, nothing changes", () => {
+    expect(moveResource(["4b"], "4b", "4b")).toEqual(["4b"]);
   });
 });

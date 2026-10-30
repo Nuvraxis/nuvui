@@ -8,6 +8,10 @@ const preview = (page: Page, name: string) =>
 
 test.describe("event timeline page", () => {
   test.beforeEach(async ({ page }) => {
+    // Three times as long as other tests get. The page lays out years of
+    // bookings for two thousand machines, and Firefox on a busy machine has
+    // spent twenty-five of the thirty seconds taking it over.
+    test.slow();
     // The examples are around the week the page is read in. This one's
     // Monday is the 26th of October.
     await page.clock.setFixedTime(new Date(2026, 9, 26, 8));

@@ -206,17 +206,13 @@ export function TimelineGrid({
     return () => observer.disconnect();
   }, [axis.scale, axis.groups.length]);
 
-  const frame = useRef(0);
+  // A browser reports a scroll once a frame at most, so it needs no pacing.
   const onScroll = () => {
-    cancelAnimationFrame(frame.current);
-    frame.current = requestAnimationFrame(() => {
-      const node = grid.current;
-      if (node) {
-        setScroll({ left: Math.abs(node.scrollLeft), top: node.scrollTop });
-      }
-    });
+    const node = grid.current;
+    if (node) {
+      setScroll({ left: Math.abs(node.scrollLeft), top: node.scrollTop });
+    }
   };
-  useEffect(() => () => cancelAnimationFrame(frame.current), []);
 
   // Columns fill the width when there's room, and scroll when there isn't.
   const width = Math.max(sizes.column, (sizes.width - sizes.resources) / count);

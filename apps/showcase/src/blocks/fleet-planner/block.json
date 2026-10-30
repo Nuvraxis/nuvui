@@ -1,0 +1,9 @@
+{
+  "name": "fleet-planner",
+  "title": "Fleet planner",
+  "description": "A delivery firm's vans and trucks over this month and the next, a row each under the depot they're kept at. Jobs are dragged along a row to change their days or onto another vehicle to hand them over, and a list beside it keeps track of what's free today.",
+  "category": "calendar",
+  "files": ["fleet-planner.tsx", "fleet-planner.scss"],
+  "install": ["@nuvui/react", "@nuvui/date-picker", "@nuvui/scheduler"],
+  "height": 780
+}

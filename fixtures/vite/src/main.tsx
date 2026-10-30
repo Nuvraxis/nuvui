@@ -81,6 +81,8 @@ import {
   type EventChange,
   eventDragProps,
 } from "@nuvui/scheduler/event-calendar";
+// The timeline, from its own entry too.
+import { EventTimeline } from "@nuvui/scheduler/event-timeline";
 // The table package, with a hook made for one feature. The others, and the
 // virtual table's dependency, mustn't end up in the build: the second isn't
 // even installed here.
@@ -247,6 +249,21 @@ function App() {
             title: "Planning",
             start: "2026-10-14T10:00",
             end: "2026-10-14T11:00",
+          },
+        ]}
+        timeZone="UTC"
+        defaultDate={new Date("2026-10-14T12:00:00Z")}
+      />
+      <EventTimeline
+        aria-label="Vans"
+        resources={[{ id: "van-1", title: "Van 1" }]}
+        defaultEvents={[
+          {
+            id: "b",
+            title: "Market run",
+            start: "2026-10-14T06:00",
+            end: "2026-10-14T12:00",
+            resourceIds: ["van-1"],
           },
         ]}
         timeZone="UTC"

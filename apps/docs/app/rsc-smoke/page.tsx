@@ -181,6 +181,7 @@ import {
 } from "@nuvui/react";
 import { Button as ButtonEntry } from "@nuvui/react/button";
 import { EventCalendar } from "@nuvui/scheduler/event-calendar";
+import { EventTimeline } from "@nuvui/scheduler/event-timeline";
 // The table's elements, from their own entry. A data table isn't here: it's
 // made with a hook, and so in a client component.
 import {
@@ -694,6 +695,22 @@ export default function RscSmokePage() {
         defaultDate={new Date("2026-10-14T12:00:00Z")}
         defaultView="agenda"
         defaultPanelOpen={false}
+      />
+      {/* The same for the timeline, with a resource for the event's row. */}
+      <EventTimeline
+        aria-label="Server timeline"
+        resources={[{ id: "room", title: "Room from the server" }]}
+        defaultEvents={[
+          {
+            id: "server-row",
+            title: "Booking from the server",
+            start: "2026-10-14T10:00",
+            end: "2026-10-14T11:00",
+            resourceIds: ["room"],
+          },
+        ]}
+        timeZone="UTC"
+        defaultDate={new Date("2026-10-14T12:00:00Z")}
       />
       <DirectionProvider dir="rtl">
         <div dir="rtl">

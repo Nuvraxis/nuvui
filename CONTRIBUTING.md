@@ -124,7 +124,8 @@ packages/3d                   an add-on, published as @nuvui/3d
   scripts/make-models.mjs     makes the models the tests, the docs and the blocks show
 packages/scheduler            an add-on, published as @nuvui/scheduler
   src/core/                   days, placing events in a time zone, laying them out, the words
-  src/components/event-calendar/  the calendar and its views
+  src/components/event-calendar/  the calendar and its views, and what both components share
+  src/components/event-timeline/  the timeline and its grid
 packages/icons                the icons, published as @nuvui/icons
   svg/                        each icon in each style, fetched from Figma
   manifest.json               every icon's name, component and category

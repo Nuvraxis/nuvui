@@ -119,6 +119,11 @@ const fixtures = {
       script.includes("nuv-event-calendar__editor") &&
         script.includes("data-spot-day"),
     );
+    expect(
+      "vite",
+      "the script has the event timeline's grid",
+      script.includes("nuv-event-timeline__grid"),
+    );
     // The app imports one locale, German. Hungarian for Sunday is in the
     // script only if every other locale came along with it.
     expect(
@@ -477,6 +482,12 @@ process.stdout.write(renderToStaticMarkup(createElement(ArrowRightIcon, { title:
       "the server rendered an editable calendar, with handles on its event and an item to drag onto it",
       html.includes("nuv-event-calendar__handle--end") &&
         /<div\s(?=[^>]*draggable="true")[^>]*>Write notes</.test(html),
+    );
+    expect(
+      "next",
+      "the server rendered a timeline's rows, with an event in a resource's",
+      html.includes("nuv-event-timeline__row") &&
+        html.includes('data-resource="4b"'),
     );
     expect("next", "it has the codes' styles", css.includes(".nuv-barcode"));
     expect("next", "it has the charts' styles", css.includes(".nuv-chart"));

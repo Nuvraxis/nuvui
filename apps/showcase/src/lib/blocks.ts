@@ -75,6 +75,9 @@ import fileBrowser from "@/blocks/file-browser/block.json" with {
 import filterSheet from "@/blocks/filter-sheet/block.json" with {
   type: "json",
 };
+import fleetPlanner from "@/blocks/fleet-planner/block.json" with {
+  type: "json",
+};
 import footer from "@/blocks/footer/block.json" with { type: "json" };
 import forgotPassword from "@/blocks/forgot-password/block.json" with {
   type: "json",
@@ -126,6 +129,9 @@ import productModel from "@/blocks/product-model/block.json" with {
   type: "json",
 };
 import profileForm from "@/blocks/profile-form/block.json" with {
+  type: "json",
+};
+import quarterPlan from "@/blocks/quarter-plan/block.json" with {
   type: "json",
 };
 import queryEditor from "@/blocks/query-editor/block.json" with {
@@ -368,6 +374,8 @@ export const blocks: BlockManifest[] = [
   roomBooking,
   shiftPlanner,
   schoolTimetable,
+  fleetPlanner,
+  quarterPlan,
   courseLesson,
   productDemo,
   recordingReview,

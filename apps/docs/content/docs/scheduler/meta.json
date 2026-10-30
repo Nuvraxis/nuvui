@@ -4,6 +4,7 @@
   "pages": [
     "index",
     "event-calendar",
+    "event-timeline",
     "editing",
     "resources",
     "recurring-events"

@@ -1,0 +1,460 @@
+@use "../../styles/layers";
+@use "@nuvui/react/scss/mixins";
+
+// The events, their popover and the dialogs are the calendar's.
+@use "../event-calendar/event-calendar";
+
+// A lane of bars along a row, with the gap below a bar. A bar is as tall
+// as a finger needs, 44px, since its height doesn't say how long it lasts,
+// and denser with a mouse.
+$pitch: var(--nuv-event-timeline-bar-pitch, 2.875rem);
+$pitch-fine: var(--nuv-event-timeline-bar-pitch, 1.75rem);
+$gap: 2px;
+$line: var(--nuv-border-width) solid var(--color-border);
+
+// Where a day of hours, a month of days or a year of months starts.
+$strong-line: var(--nuv-border-width) solid var(--color-border-strong);
+
+// A line of the resources' text, and how far one inside another is set in.
+$text: calc(var(--text-sm) * var(--text-sm--line-height));
+$indent: calc(
+  var(--nuv-event-depth, 0) * var(--nuv-event-timeline-resource-indent, 1rem)
+);
+
+// Where something starts across the grid, a number of columns in.
+@function across($at) {
+  @return calc(
+    var(--nuv-event-resources) + #{$at} * var(--nuv-event-column, 2.75rem)
+  );
+}
+
+@layer components {
+  .nuv-event-timeline {
+    --nuv-event-resources: var(--nuv-event-timeline-resource-width, 12rem);
+
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    inline-size: 100%;
+    block-size: var(--nuv-event-timeline-height, 36rem);
+    overflow: hidden;
+    border: $line;
+    border-radius: var(--nuv-event-timeline-radius, var(--radius-lg));
+    background-color: var(--nuv-event-timeline-bg, var(--color-surface));
+    color: var(--nuv-event-timeline-fg, var(--color-surface-foreground));
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+  }
+
+  .nuv-event-timeline[data-narrow] {
+    --nuv-event-resources: var(--nuv-event-timeline-resource-width, 8rem);
+  }
+
+  // Drawn by a server that couldn't know the time zone of the person
+  // looking. The rows keep their place and show once the browser knows.
+  .nuv-event-timeline[data-pending] .nuv-event-timeline__view {
+    visibility: hidden;
+  }
+
+  .nuv-event-timeline[data-dragging] {
+    cursor: grabbing;
+  }
+
+  .nuv-event-timeline__header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(var(--spacing) * 2);
+    align-items: center;
+    padding: calc(var(--spacing) * 2) calc(var(--spacing) * 3);
+    border-block-end: $line;
+  }
+
+  .nuv-event-timeline__steps {
+    display: flex;
+  }
+
+  .nuv-event-timeline__title {
+    flex: 1 1 10rem;
+    min-inline-size: 0;
+    margin: 0;
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--text-base--line-height);
+  }
+
+  .nuv-event-timeline__tools {
+    display: flex;
+    gap: calc(var(--spacing) * 2);
+    align-items: center;
+    margin-inline-start: auto;
+  }
+
+  // A button with only an icon is as wide as it's tall.
+  .nuv-event-timeline__icon-button {
+    --nuv-button-padding-inline: 0;
+  }
+
+  .nuv-event-timeline__chevron {
+    @include mixins.rtl {
+      scale: -1 1;
+    }
+  }
+
+  .nuv-event-timeline__scale-select {
+    min-inline-size: 7rem;
+  }
+
+  .nuv-event-timeline__view {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-inline-size: 0;
+    min-block-size: 0;
+  }
+
+  // One element scrolls both ways. The header's rows stay at its top, and
+  // the resources' column at its start.
+  .nuv-event-timeline__grid {
+    position: relative;
+    flex: 1 1 auto;
+    min-block-size: 0;
+    overflow: auto;
+    overscroll-behavior: contain;
+    user-select: none;
+  }
+
+  // As wide as the narrowest column of the scale shown, and as tall as a
+  // lane, for the timeline to measure.
+  .nuv-event-timeline__probe {
+    position: absolute;
+    inline-size: var(--nuv-event-timeline-day-width, 2.75rem);
+    block-size: $pitch;
+    visibility: hidden;
+    pointer-events: none;
+
+    @include mixins.fine-pointer {
+      block-size: $pitch-fine;
+    }
+  }
+
+  .nuv-event-timeline[data-scale="hours"] .nuv-event-timeline__probe {
+    inline-size: var(--nuv-event-timeline-hour-width, 4rem);
+  }
+
+  .nuv-event-timeline[data-scale="weeks"] .nuv-event-timeline__probe {
+    inline-size: var(--nuv-event-timeline-week-width, 5rem);
+  }
+
+  .nuv-event-timeline[data-scale="months"] .nuv-event-timeline__probe {
+    inline-size: var(--nuv-event-timeline-month-width, 4.5rem);
+  }
+
+  .nuv-event-timeline[data-scale="years"] .nuv-event-timeline__probe {
+    inline-size: var(--nuv-event-timeline-year-width, 6rem);
+  }
+
+  .nuv-event-timeline__head {
+    position: sticky;
+    z-index: 3;
+    inset-block-start: 0;
+    border-block-end: $line;
+    background-color: var(--nuv-event-timeline-bg, var(--color-surface));
+  }
+
+  .nuv-event-timeline__head-row {
+    position: relative;
+    block-size: 2.75rem;
+  }
+
+  .nuv-event-timeline__head-row--groups {
+    block-size: 2rem;
+    border-block-end: $line;
+  }
+
+  .nuv-event-timeline__corner {
+    position: sticky;
+    z-index: 1;
+    inset-inline-start: 0;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    inline-size: var(--nuv-event-resources);
+    block-size: 100%;
+    padding-inline: calc(var(--spacing) * 3);
+    border-inline-end: $line;
+    background-color: var(--nuv-event-timeline-bg, var(--color-surface));
+    color: var(--color-muted-foreground);
+    font-size: var(--text-xs);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--text-xs--line-height);
+  }
+
+  // A day, a month or a year over its columns. Its name keeps to the start
+  // of what's seen of it as the grid scrolls.
+  .nuv-event-timeline__group {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: across(var(--nuv-event-at, 0));
+    display: flex;
+    align-items: center;
+    inline-size: calc(
+      var(--nuv-event-length, 1) * var(--nuv-event-column, 2.75rem)
+    );
+
+    // Clipped, not hidden, which would stop its name keeping in view.
+    overflow: clip;
+    border-inline-start: $strong-line;
+  }
+
+  .nuv-event-timeline__group-name {
+    position: sticky;
+    inset-inline-start: var(--nuv-event-resources);
+    padding-inline: calc(var(--spacing) * 2);
+    font-size: var(--text-xs);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--text-xs--line-height);
+    white-space: nowrap;
+  }
+
+  .nuv-event-timeline__column-head {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: across(var(--nuv-event-at, 0));
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    inline-size: var(--nuv-event-column, 2.75rem);
+    overflow: hidden;
+    border-inline-start: $line;
+    color: var(--color-muted-foreground);
+    font-size: var(--text-xs);
+    line-height: var(--text-xs--line-height);
+    white-space: nowrap;
+  }
+
+  .nuv-event-timeline__column-head--group-start {
+    border-inline-start: $strong-line;
+  }
+
+  .nuv-event-timeline__date {
+    box-sizing: border-box;
+    min-inline-size: 1.5rem;
+    padding-inline: calc(var(--spacing) * 1);
+    border-radius: var(--radius-full);
+    color: var(--color-foreground);
+    font-weight: var(--font-weight-semibold);
+    text-align: center;
+  }
+
+  // The primary color is only sure to be readable behind its own
+  // foreground, so today is a filled pill.
+  .nuv-event-timeline__column-head--today .nuv-event-timeline__date {
+    background-color: var(--nuv-event-timeline-today, var(--color-primary));
+    color: var(--color-primary-foreground);
+
+    @media (forced-colors: active) {
+      outline: 2px solid canvastext;
+    }
+  }
+
+  .nuv-event-timeline__body {
+    position: relative;
+  }
+
+  .nuv-event-timeline__row {
+    position: absolute;
+    inset-inline: 0;
+  }
+
+  // A resource at the start of its row. It sits over the cells as they
+  // scroll under it.
+  .nuv-event-timeline__resource {
+    position: sticky;
+    z-index: 2;
+    inset-inline-start: 0;
+    display: flex;
+    gap: calc(var(--spacing) * 1.5);
+    align-items: flex-start;
+    box-sizing: border-box;
+    inline-size: var(--nuv-event-resources);
+    block-size: 100%;
+    padding-block: #{$gap};
+    padding-inline: calc(var(--spacing) * 1 + #{$indent})
+      calc(var(--spacing) * 2);
+    border-inline-end: $line;
+    background-color: var(--nuv-event-timeline-bg, var(--color-surface));
+    box-shadow: inset 0 calc(var(--nuv-border-width) * -1) 0
+      var(--color-border);
+    outline: none;
+
+    &:focus-visible {
+      box-shadow: inset 0 0 0 var(--nuv-focus-ring-width, 2px)
+        var(--nuv-focus-ring-color, var(--color-ring));
+    }
+  }
+
+  // The fold button, and its place in a resource with none inside it, are
+  // as tall as a finger, and as the first lane with a mouse.
+  .nuv-event-timeline__fold,
+  .nuv-event-timeline__fold-space {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+
+    @include mixins.touch-target;
+
+    @include mixins.fine-pointer {
+      min-block-size: calc(#{$pitch-fine} - #{$gap});
+      min-inline-size: calc(#{$pitch-fine} - #{$gap});
+    }
+  }
+
+  .nuv-event-timeline__fold {
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-md);
+    background-color: transparent;
+    color: var(--color-muted-foreground);
+    cursor: pointer;
+
+    @include mixins.focus-ring(-2px);
+
+    @include mixins.hover {
+      background-color: var(--color-muted);
+      color: var(--color-foreground);
+    }
+  }
+
+  // It points the way the page reads, and down when what's in it shows.
+  .nuv-event-timeline__fold svg {
+    @include mixins.motion-safe {
+      transition: transform var(--nuv-duration-fast) var(--ease-out);
+    }
+
+    @include mixins.rtl {
+      transform: scaleX(-1);
+    }
+  }
+
+  .nuv-event-timeline__fold[aria-expanded="true"] svg {
+    transform: rotate(90deg);
+  }
+
+  .nuv-event-timeline__swatch {
+    flex: none;
+    align-self: center;
+    inline-size: 0.625rem;
+    block-size: 0.625rem;
+    border-radius: var(--radius-full);
+    background-color: var(--nuv-event-color);
+
+    @media (forced-colors: active) {
+      background-color: canvastext;
+    }
+  }
+
+  // With one lane, the swatch is centred beside the name. With more, it
+  // keeps to the first.
+  .nuv-event-timeline__fold ~ .nuv-event-timeline__swatch,
+  .nuv-event-timeline__fold-space ~ .nuv-event-timeline__swatch {
+    align-self: flex-start;
+    margin-block-start: calc((#{$pitch} - #{$gap} - 0.625rem) / 2);
+
+    @include mixins.fine-pointer {
+      margin-block-start: calc((#{$pitch-fine} - #{$gap} - 0.625rem) / 2);
+    }
+  }
+
+  // Centred in the first lane, and cut short with an ellipsis.
+  .nuv-event-timeline__resource-name {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    padding-block: calc((#{$pitch} - #{$gap} - #{$text}) / 2);
+    overflow: hidden;
+    font-weight: var(--font-weight-medium);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    @include mixins.fine-pointer {
+      padding-block: calc((#{$pitch-fine} - #{$gap} - #{$text}) / 2);
+    }
+  }
+
+  .nuv-event-timeline__cell {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: across(var(--nuv-event-at, 0));
+    box-sizing: border-box;
+    inline-size: var(--nuv-event-column, 2.75rem);
+    border-inline-start: $line;
+    box-shadow: inset 0 calc(var(--nuv-border-width) * -1) 0
+      var(--color-border);
+    outline: none;
+
+    &:focus-visible {
+      box-shadow: inset 0 0 0 var(--nuv-focus-ring-width, 2px)
+        var(--nuv-focus-ring-color, var(--color-ring));
+    }
+  }
+
+  .nuv-event-timeline__cell--group-start {
+    border-inline-start: $strong-line;
+  }
+
+  .nuv-event-timeline__cell--weekend {
+    background-color: var(
+      --nuv-event-timeline-weekend-bg,
+      color-mix(in oklab, var(--color-muted) 50%, transparent)
+    );
+  }
+
+  .nuv-event-timeline__cell--today {
+    background-color: var(
+      --nuv-event-timeline-today-bg,
+      color-mix(in oklab, var(--color-primary) 4%, transparent)
+    );
+  }
+
+  .nuv-event-timeline__now {
+    position: absolute;
+    z-index: 1;
+    inset-block: 0;
+    inset-inline-start: across(var(--nuv-event-at, 0));
+    inline-size: 2px;
+    background-color: var(--nuv-event-timeline-now, var(--color-danger));
+    pointer-events: none;
+  }
+
+  // An event, along its row from when it starts, in its lane. The rest of
+  // how it looks is the calendar's.
+  .nuv-event-timeline__event {
+    inset-block-start: calc(var(--nuv-event-lane, 0) * #{$pitch} + #{$gap});
+    inset-inline-start: calc(
+      var(--nuv-event-start, 0) * var(--nuv-event-column, 2.75rem) + 1px
+    );
+    inline-size: calc(
+      var(--nuv-event-length, 1) * var(--nuv-event-column, 2.75rem) - 2px
+    );
+    block-size: calc(#{$pitch} - #{$gap});
+
+    // Clipped, not hidden, so the title can keep to the start of what's
+    // seen of a bar that began further back.
+    overflow: clip;
+
+    @include mixins.fine-pointer {
+      inset-block-start: calc(
+        var(--nuv-event-lane, 0) * #{$pitch-fine} + #{$gap}
+      );
+      block-size: calc(#{$pitch-fine} - #{$gap});
+    }
+  }
+
+  .nuv-event-timeline__event .nuv-event-calendar__event-title {
+    position: sticky;
+    inset-inline-start: calc(var(--nuv-event-resources) + var(--spacing) * 2);
+  }
+}

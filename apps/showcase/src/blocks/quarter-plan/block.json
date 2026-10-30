@@ -1,0 +1,9 @@
+{
+  "name": "quarter-plan",
+  "title": "Quarter plan",
+  "description": "A product team's people over a quarter, in weeks, grouped by discipline, with their work and their leave. Work no one has yet waits in a row of its own, to be dragged onto someone, and a count in the header says how much is left.",
+  "category": "calendar",
+  "files": ["quarter-plan.tsx", "quarter-plan.scss"],
+  "install": ["@nuvui/react", "@nuvui/date-picker", "@nuvui/scheduler"],
+  "height": 720
+}

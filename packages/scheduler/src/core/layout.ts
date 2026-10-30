@@ -107,6 +107,24 @@ export function packLanes<T>(
 }
 
 /**
+ * Bars along a row, each in the first lane where the bar before it has
+ * ended by the time it starts. `start` and `end` can be anywhere between
+ * columns. They're taken in the order given.
+ */
+export function stackLanes<T>(
+  items: readonly { item: T; start: number; end: number }[],
+): { item: T; lane: number }[] {
+  // Where each lane is taken up to so far.
+  const lanes: number[] = [];
+  return items.map(({ item, start, end }) => {
+    let lane = lanes.findIndex((taken) => taken <= start);
+    if (lane === -1) lane = lanes.length;
+    lanes[lane] = end;
+    return { item, lane };
+  });
+}
+
+/**
  * Runs of columns where a bar is shown, given how many lanes each column
  * has room for. A bar in a lane past a column's room is left out of that
  * column and counted in its "more".

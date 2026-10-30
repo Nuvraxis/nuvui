@@ -211,6 +211,7 @@ It also has:
 - Arrow keys move around each grid, and every event says its title, time and day to a screen reader.
 - Editing in place: a click or a drag on empty time makes an event, which opens in a popover to be changed or deleted. Events are dragged to move them and by their ends to resize them, snapped to a step, or picked up and moved from the keyboard. Something elsewhere on the page can be dropped in as an event.
 - Resources, such as rooms or people, that events are booked against. The side panel lists them, nested, with a checkbox to show or hide each, and an event's popover has one or several to choose. Events and resources can keep the app's own field names, and changes come back under them.
+- `EventTimeline`, resources down the side and time across, with events as bars along their rows, over hours, days, weeks, months or years. Only the rows and columns in view are drawn, so thousands of resources stay quick. It's edited like the calendar, and an event dragged to another row moves to that resource.
 - Recurring events, by an RRULE or the same as an object: daily, weekly on chosen days, monthly on a date or a weekday in its week, and yearly, with days left out. Each is worked out on its own clock, so it keeps its time across summer time. Changing or deleting one asks whether it's for that one, those after it, or all.
 - `date-fns` and `@date-fns/tz` are dependencies. `@nuvui/date-picker` is a peer dependency, for the month in the side panel and the dates in the popover.
 
@@ -232,7 +233,7 @@ It also has:
 
 [nuvui.nuvraxis.com](https://nuvui.nuvraxis.com) is built with the library's own tokens, and the docs sit under `/docs` of the same site.
 
-- **[93 blocks](https://nuvui.nuvraxis.com/blocks)** in twelve groups. A block is a part of an app, such as a sign-in screen, a dashboard or a pricing table, as a TSX file and an SCSS file to copy. The site also serves them as a registry for shadcn's command line tool, at `/r`.
+- **[95 blocks](https://nuvui.nuvraxis.com/blocks)** in twelve groups. A block is a part of an app, such as a sign-in screen, a dashboard or a pricing table, as a TSX file and an SCSS file to copy. The site also serves them as a registry for shadcn's command line tool, at `/r`.
 - **[39 charts](https://nuvui.nuvraxis.com/charts)** in ten families, each one file to copy.
 - **[A theme builder](https://nuvui.nuvraxis.com/themes).**
 - **[Docs](https://nuvui.nuvraxis.com/docs)** with a page for each component, covering its parts, props, examples, CSS variables and classes, and what it leaves to you for accessibility. Search runs in the browser.

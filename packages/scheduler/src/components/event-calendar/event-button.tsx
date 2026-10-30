@@ -58,6 +58,12 @@ export interface EventButtonProps {
   startsBefore?: boolean;
   /** It goes on after the part of it drawn here. */
   endsAfter?: boolean;
+  /**
+   * The timeline's row it's drawn in: its resource, or `null` for the row
+   * of events with none.
+   */
+  row?: string | null;
+  className?: string;
   style?: CSSProperties;
 }
 
@@ -67,6 +73,8 @@ export function EventButton({
   tabbable,
   startsBefore = false,
   endsAfter = false,
+  row,
+  className: ownClassName,
   style,
 }: EventButtonProps) {
   const { format, labels, color, onEventClick, edit, resources, rules } =
@@ -91,8 +99,12 @@ export function EventButton({
     "nuv-event-calendar__event",
     `nuv-event-calendar__event--${look}`,
     placed.allDay && "nuv-event-calendar__event--all-day",
+    ownClassName,
     event.className,
   );
+  // The timeline's bars have room for the time after the title.
+  const along = edit.along;
+  const resource = row === undefined ? undefined : (row ?? "");
   const colored = {
     "--nuv-event-color": colorOf(rule.color ?? color),
     ...style,
@@ -128,7 +140,7 @@ export function EventButton({
     ) : (
       <>
         <span className="nuv-event-calendar__event-title">{event.title}</span>
-        {time && look === "block" ? (
+        {time && (look === "block" || along) ? (
           <span className="nuv-event-calendar__event-time">{time}</span>
         ) : null}
       </>
@@ -141,6 +153,7 @@ export function EventButton({
       <div
         aria-hidden="true"
         data-event-id={event.id}
+        data-resource={resource}
         data-preview=""
         data-starts-before={startsBefore ? "" : undefined}
         data-ends-after={endsAfter ? "" : undefined}
@@ -152,7 +165,12 @@ export function EventButton({
     );
   }
 
-  const picked = edit.picked === event.id;
+  // On the timeline, only where it is of the rows it's drawn in.
+  const picked =
+    edit.picked === event.id &&
+    (row === undefined ||
+      edit.pickedRow === undefined ||
+      edit.pickedRow === row);
   const movable = canDrag(rule, edit.editable, "move");
   // Handles on the ends that can be dragged, where the event ends in view.
   const resizable = look === "block" || look === "bar";
@@ -170,16 +188,31 @@ export function EventButton({
         return;
       }
       // Day by day across the grid, and the time up and down on the time
-      // grid, or a week at a time everywhere else.
+      // grid, or a week at a time everywhere else. Along its row on the
+      // timeline, and up and down to the next resource.
       const ahead = getComputedStyle(element).direction === "rtl" ? -1 : 1;
       const timed = look === "block";
       const step = edit.options.step;
-      const moves: Record<string, { minutes?: number; days?: number }> = {
-        ArrowUp: timed ? { minutes: -step } : { days: -7 },
-        ArrowDown: timed ? { minutes: step } : { days: 7 },
-        ArrowLeft: { days: -ahead },
-        ArrowRight: { days: ahead },
-      };
+      const back = (by: { minutes?: number; days?: number }, sign: number) => ({
+        ...(by.minutes ? { minutes: by.minutes * sign } : null),
+        ...(by.days ? { days: by.days * sign } : null),
+      });
+      const moves: Record<
+        string,
+        { minutes?: number; days?: number; rows?: number }
+      > = along
+        ? {
+            ArrowUp: { rows: -1 },
+            ArrowDown: { rows: 1 },
+            ArrowLeft: back(along, -ahead),
+            ArrowRight: back(along, ahead),
+          }
+        : {
+            ArrowUp: timed ? { minutes: -step } : { days: -7 },
+            ArrowDown: timed ? { minutes: step } : { days: 7 },
+            ArrowLeft: { days: -ahead },
+            ArrowRight: { days: ahead },
+          };
       const move = moves[key.key];
       if (move) edit.nudge(move, key.shiftKey);
       else if (key.key === " " || key.key === "Enter") edit.drop();
@@ -191,7 +224,7 @@ export function EventButton({
     }
     if (key.key === " " && movable) {
       key.preventDefault();
-      edit.pick(placed, look);
+      edit.pick(placed, look, row);
     } else if (
       (key.key === "Delete" || key.key === "Backspace") &&
       edit.editable &&
@@ -209,6 +242,7 @@ export function EventButton({
       aria-label={name}
       aria-pressed={picked ? true : undefined}
       data-event-id={event.id}
+      data-resource={resource}
       data-dragging={edit.dragging === event.id ? "" : undefined}
       data-picked={picked ? "" : undefined}
       data-movable={movable ? "" : undefined}

@@ -5,7 +5,7 @@ import { emulateMedia } from "@nuvui/tooling/test/media";
 import { beforeEach, describe, expect, test } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
-import { type CalendarEvent, EventCalendar } from "../src";
+import { type CalendarEvent, EventCalendar, EventTimeline } from "../src";
 
 // Forced-colors mode is what Windows high contrast turns on. The browser
 // replaces every color with one from a short system palette and stops
@@ -102,6 +102,47 @@ describe("editing", () => {
       .nextElementSibling as Element;
     expect(getComputedStyle(chosen).borderTopColor).not.toBe(
       getComputedStyle(other).borderTopColor,
+    );
+  });
+});
+
+describe("event timeline", () => {
+  const timeline = {
+    ...calendar,
+    "aria-label": "Fleet",
+    resources: [{ id: "van-1", title: "Van 1" }],
+    events: events.map((event) => ({ ...event, resourceIds: ["van-1"] })),
+  };
+
+  test("every bar has an edge all the way round", async () => {
+    await render(<EventTimeline {...timeline} />);
+    for (const name of [/^Design review/, /^Offsite/]) {
+      const style = getComputedStyle(
+        page.getByRole("button", { name }).element(),
+      );
+      for (const side of ["Top", "Right", "Bottom", "Left"] as const) {
+        expect(style[`border${side}Style`], `${name} ${side}`).toBe("solid");
+      }
+    }
+  });
+
+  test("today's date is outlined, since its fill is gone", async () => {
+    await render(<EventTimeline {...timeline} />);
+    const date = page
+      .getByRole("columnheader", { name: "Wednesday, October 14" })
+      .element()
+      .querySelector(".nuv-event-timeline__date") as Element;
+    expect(getComputedStyle(date).outlineStyle).toBe("solid");
+  });
+
+  test("a resource's swatch keeps a color of its own", async () => {
+    await render(<EventTimeline {...timeline} />);
+    const swatch = page
+      .getByRole("rowheader", { name: "Van 1" })
+      .element()
+      .querySelector(".nuv-event-timeline__swatch") as Element;
+    expect(getComputedStyle(swatch).backgroundColor).not.toBe(
+      "rgba(0, 0, 0, 0)",
     );
   });
 });

@@ -1,4 +1,5 @@
 import type { Frequency } from "./recurrence";
+import type { TimelineScale } from "./timeline";
 
 /** When in a month or a year an event repeats, for the words that say it. */
 export interface RecurrenceDay {
@@ -40,6 +41,14 @@ export interface SchedulerLabels {
   week: string;
   month: string;
   agenda: string;
+  /** The timeline's name, when it's given no `aria-label`. */
+  timeline: string;
+  /** The name of the control that switches the timeline's scale. */
+  scale: string;
+  /** A scale of the timeline, in that control. */
+  scaleName: (scale: TimelineScale) => string;
+  /** The timeline's row for events that belong to no resource. */
+  unassigned: string;
   /** The row of events that take whole days, and an event's time when it's one of them. */
   allDay: string;
   /** The button that opens the side panel, and the panel's name. */
@@ -191,6 +200,17 @@ export const englishLabels: SchedulerLabels = {
   week: "Week",
   month: "Month",
   agenda: "Agenda",
+  timeline: "Timeline",
+  scale: "Scale",
+  scaleName: (scale) =>
+    ({
+      hours: "Hours",
+      days: "Days",
+      weeks: "Weeks",
+      months: "Months",
+      years: "Years",
+    })[scale],
+  unassigned: "No resource",
   allDay: "All day",
   sidePanel: "Side panel",
   preferences: "Preferences",

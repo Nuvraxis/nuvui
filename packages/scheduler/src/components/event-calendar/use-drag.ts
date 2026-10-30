@@ -68,6 +68,10 @@ export interface DragOptions {
   find: (id: string) => PlacedEvent | undefined;
   /** What an event may do, with what it takes from its resources. */
   rules: (event: CalendarEvent) => EventRules;
+  /** The spot under a point. */
+  locate: (root: HTMLElement, x: number, y: number) => Spot | null;
+  /** Scrolls the view when the pointer is near its edges. */
+  scrollNear: (root: HTMLElement, x: number, y: number) => void;
   /** The drag has moved, or has started. */
   onMove: (update: DragUpdate) => void;
   /** Let go: `to` is where, or `null` outside the calendar. */
@@ -84,7 +88,7 @@ function swallowClick(click: MouseEvent) {
 }
 
 // Near the top or bottom of the time grid's hours, it scrolls to show more.
-function scrollNear(root: HTMLElement, y: number) {
+export function scrollTimeGrid(root: HTMLElement, _x: number, y: number) {
   const grid = root.querySelector<HTMLElement>(
     ".nuv-event-calendar__time-grid",
   );
@@ -120,8 +124,8 @@ function dragger(
     if (!node) return;
     current.clientX = x;
     current.clientY = y;
-    current.to = spotAt(node, x, y);
-    scrollNear(node, y);
+    current.to = latest.current.locate(node, x, y);
+    latest.current.scrollNear(node, x, y);
     latest.current.onMove({ ...current });
   }
 
@@ -189,11 +193,11 @@ function dragger(
 
   function onPointerDown(event: ReactPointerEvent<HTMLElement>) {
     const node = root.current;
-    const { editable, creatable, find, rules } = latest.current;
+    const { editable, creatable, find, rules, locate } = latest.current;
     if (!node || !editable || session) return;
     if (event.pointerType === "mouse" && event.button !== 0) return;
     const target = event.target as HTMLElement;
-    const from = spotAt(node, event.clientX, event.clientY);
+    const from = locate(node, event.clientX, event.clientY);
     if (!from) return;
 
     let mode: DragMode = "create";

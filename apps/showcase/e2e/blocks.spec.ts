@@ -5400,6 +5400,102 @@ test.describe("school timetable", () => {
   }
 });
 
+test.describe("fleet planner", () => {
+  test("fleet planner: a job handed to a free van takes it off the free list", async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(isMobile, "a phone has no keyboard");
+    await open(page, "/blocks/view/fleet-planner");
+    const free = page.getByRole("complementary", { name: "Free today" });
+    await expect(free.getByText("Van 03", { exact: true })).toBeVisible();
+    const timeline = page.getByRole("region", { name: "Fleet" });
+    // Today's market run on Van 01, moved down two rows to Van 03.
+    await timeline
+      .getByRole("button", { name: /^Market run, .*, Van 01$/ })
+      .focus();
+    await page.keyboard.press("Space");
+    await page.keyboard.press("ArrowDown");
+    await page.keyboard.press("ArrowDown");
+    await page.keyboard.press("Enter");
+    await expect(page.locator(":focus")).toHaveAttribute(
+      "aria-label",
+      /^Market run, .*, Van 03$/,
+    );
+    await expect(free.getByText("Van 03", { exact: true })).toHaveCount(0);
+    await expect(free.getByText("Van 01", { exact: true })).toBeVisible();
+  });
+
+  for (const theme of ["light", "dark"] as const) {
+    test(`fleet planner: it passes axe in ${theme}`, async ({ page }) => {
+      await page.emulateMedia({ reducedMotion: "reduce" });
+      await setTheme(page, theme);
+      await open(page, "/blocks/view/fleet-planner");
+      await settleStyles(page);
+      expect(
+        (await new AxeBuilder({ page }).withTags(wcag).analyze()).violations,
+      ).toEqual([]);
+    });
+  }
+});
+
+test.describe("quarter plan", () => {
+  test("quarter plan: work given to someone leaves the row for no one, and the count", async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(isMobile, "a phone has no keyboard");
+    await open(page, "/blocks/view/quarter-plan");
+    await expect(
+      page.getByText("2 pieces of work with no one on them"),
+    ).toBeVisible();
+    const timeline = page.getByRole("region", { name: "Quarter plan" });
+    await timeline
+      .getByRole("button", { name: /^Onboarding emails, / })
+      .focus();
+    await page.keyboard.press("Space");
+    await page.keyboard.press("ArrowUp");
+    await page.keyboard.press("Enter");
+    await expect(page.locator(":focus")).toHaveAttribute(
+      "aria-label",
+      /^Onboarding emails, .*, Odile Marsh$/,
+    );
+    await expect(
+      page.getByText("1 piece of work with no one on it"),
+    ).toBeVisible();
+  });
+
+  test("quarter plan: folding a group hides its people's rows", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/blocks/view/quarter-plan");
+    const timeline = page.getByRole("region", { name: "Quarter plan" });
+    await expect(
+      timeline.getByRole("rowheader", { name: "Tomas Reyna" }),
+    ).toBeVisible();
+    await press(
+      timeline.getByRole("button", { name: "Resources in Engineering" }),
+      isMobile,
+    );
+    await expect(
+      timeline.getByRole("rowheader", { name: "Tomas Reyna" }),
+    ).toHaveCount(0);
+  });
+
+  for (const theme of ["light", "dark"] as const) {
+    test(`quarter plan: it passes axe in ${theme}`, async ({ page }) => {
+      await page.emulateMedia({ reducedMotion: "reduce" });
+      await setTheme(page, theme);
+      await open(page, "/blocks/view/quarter-plan");
+      await settleStyles(page);
+      expect(
+        (await new AxeBuilder({ page }).withTags(wcag).analyze()).violations,
+      ).toEqual([]);
+    });
+  }
+});
+
 test.describe("the blocks page", () => {
   test("lists every category, and each leads to its page", async ({
     page,

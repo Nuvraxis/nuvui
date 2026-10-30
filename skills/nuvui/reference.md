@@ -212,8 +212,9 @@ A file for each page of the docs. Read the one for a component before using it: 
 
 ## @nuvui/scheduler
 
-- [Scheduler](reference/scheduler/index.md): The @nuvui/scheduler package. An event calendar with day, week, month and agenda views, edited in place and booked against resources, installed next to @nuvui/react and @nuvui/date-picker.
+- [Scheduler](reference/scheduler/index.md): The @nuvui/scheduler package. An event calendar with day, week, month and agenda views, and a timeline of resources, edited in place and booked against resources, installed next to @nuvui/react and @nuvui/date-picker.
 - [EventCalendar](reference/scheduler/event-calendar.md): Events in a day, a week, a month or a list. Events that overlap are set side by side, those over several days are bars across them, and a full day in a month keeps the rest behind "3 more".
+- [EventTimeline](reference/scheduler/event-timeline.md): Resources down the side, time across, and events as bars along their rows. Only the rows and columns in view are drawn, so thousands of resources and years of days stay quick.
 - [Editing events](reference/scheduler/editing.md): Making, changing, moving and deleting events in an EventCalendar, with a pointer, a finger or the keyboard.
 - [Resources](reference/scheduler/resources.md): Rooms, people or machines that events are booked against in an EventCalendar, shown or hidden from its side panel, and read from your own field names.
 - [Recurring events](reference/scheduler/recurring-events.md): Events in an EventCalendar that repeat by a rule, an RRULE or an object, with days left out, worked out in their own time zone, and changed one at a time, from one on, or all together.

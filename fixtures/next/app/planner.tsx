@@ -8,6 +8,7 @@ import {
   type CalendarResource,
   EventCalendar,
   type EventChange,
+  EventTimeline,
   eventDragProps,
 } from "@nuvui/scheduler";
 
@@ -81,6 +82,13 @@ export function Planner() {
         timeZone="UTC"
         defaultDate={new Date("2026-10-15T12:00:00Z")}
         defaultPanelOpen={false}
+      />
+      <EventTimeline
+        aria-label="Rooms over the month"
+        defaultEvents={events}
+        resources={resources}
+        timeZone="UTC"
+        defaultDate={new Date("2026-10-15T12:00:00Z")}
       />
     </>
   );

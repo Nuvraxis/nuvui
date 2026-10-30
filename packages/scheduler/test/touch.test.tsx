@@ -4,7 +4,7 @@ import "../src/styles/index.scss";
 import { describe, expect, test, vi } from "vitest";
 import { page } from "vitest/browser";
 import { render } from "vitest-browser-react";
-import { type CalendarEvent, EventCalendar } from "../src";
+import { type CalendarEvent, EventCalendar, EventTimeline } from "../src";
 
 // This file runs in a browser context of its own, one that reports a touch
 // screen. What the parts measure with a mouse is checked next to the
@@ -189,5 +189,52 @@ describe("editing by touch", () => {
     await new Promise((resolve) => setTimeout(resolve, 600));
     touch("pointerup", from.x + 6, from.y + 60, window);
     expect(onEventsChange).not.toHaveBeenCalled();
+  });
+});
+
+describe("event timeline", () => {
+  const timeline = {
+    ...calendar,
+    "aria-label": "Fleet",
+    resources: [
+      {
+        id: "north",
+        title: "North depot",
+        children: [{ id: "van-1", title: "Van 1" }],
+      },
+    ],
+    events: [{ ...events[0], resourceIds: ["van-1"] }] as CalendarEvent[],
+  };
+
+  test("every button in the header is at least 44px each way", async () => {
+    await render(<EventTimeline {...timeline} />);
+    for (const name of ["Today", "Previous", "Next"]) {
+      const button = box(page.getByRole("button", { name }).element());
+      expect(button.height, name).toBeGreaterThanOrEqual(44);
+      expect(button.width, name).toBeGreaterThanOrEqual(44);
+    }
+  });
+
+  test("a bar is 44px tall, and so is a resource's fold button", async () => {
+    await render(<EventTimeline {...timeline} />);
+    const bar = box(
+      page.getByRole("button", { name: /^Design review/ }).element(),
+    );
+    expect(bar.height).toBeGreaterThanOrEqual(44);
+    const fold = box(
+      page.getByRole("button", { name: "Resources in North depot" }).element(),
+    );
+    expect(fold.height).toBeGreaterThanOrEqual(44);
+    expect(fold.width).toBeGreaterThanOrEqual(44);
+  });
+
+  test("a day's column is 44px wide", async () => {
+    await render(<EventTimeline {...timeline} style={{ inlineSize: 360 }} />);
+    const cell = box(
+      page
+        .getByRole("gridcell", { name: "Van 1, Wednesday, October 14" })
+        .element(),
+    );
+    expect(cell.width).toBeGreaterThanOrEqual(44);
   });
 });

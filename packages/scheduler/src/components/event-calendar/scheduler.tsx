@@ -271,6 +271,13 @@ export function useHydrated() {
   );
 }
 
+/**
+ * The day drawn while it isn't known which to show. Left to itself that's
+ * today, and a page built ahead of time has the day it was built, with the
+ * browser's day to put over it. Starting from this one, the two agree.
+ */
+export const noDate = new Date(0);
+
 export function validHours(
   hours: readonly [number, number],
 ): readonly [number, number] {

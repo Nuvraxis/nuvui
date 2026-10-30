@@ -52,8 +52,10 @@ $indent: calc(
   }
 
   // Drawn by a server that couldn't know the time zone of the person
-  // looking. The rows keep their place and show once the browser knows.
-  .nuv-event-timeline[data-pending] .nuv-event-timeline__view {
+  // looking, or the day. The rows and the heading keep their place and show
+  // once the browser knows.
+  .nuv-event-timeline[data-pending] .nuv-event-timeline__view,
+  .nuv-event-timeline[data-pending] .nuv-event-timeline__title {
     visibility: hidden;
   }
 

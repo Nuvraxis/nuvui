@@ -1,7 +1,7 @@
 {
   "name": "@nuvui/scheduler",
   "version": "0.4.0",
-  "description": "An event calendar for @nuvui/react, with day, week, month and agenda views.",
+  "description": "An event calendar and a resource timeline for @nuvui/react.",
   "license": "MIT",
   "author": "Nuvraxis",
   "homepage": "https://nuvui.nuvraxis.com",
@@ -45,6 +45,16 @@
       "require": {
         "types": "./dist/components/event-calendar/index.d.cts",
         "default": "./dist/components/event-calendar/index.cjs"
+      }
+    },
+    "./event-timeline": {
+      "import": {
+        "types": "./dist/components/event-timeline/index.d.ts",
+        "default": "./dist/components/event-timeline/index.js"
+      },
+      "require": {
+        "types": "./dist/components/event-timeline/index.d.cts",
+        "default": "./dist/components/event-timeline/index.cjs"
       }
     },
     "./styles.css": "./dist/styles.css",

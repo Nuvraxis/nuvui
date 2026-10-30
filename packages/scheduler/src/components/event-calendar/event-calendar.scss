@@ -35,8 +35,10 @@ $edge: calc(var(--nuv-border-width) + #{$gap * 2});
   }
 
   // Drawn by a server that couldn't know the time zone of the person
-  // looking. The days keep their place and show once the browser knows.
-  .nuv-event-calendar[data-pending] .nuv-event-calendar__main {
+  // looking, or the day. The days and the heading keep their place and show
+  // once the browser knows.
+  .nuv-event-calendar[data-pending] .nuv-event-calendar__main,
+  .nuv-event-calendar[data-pending] .nuv-event-calendar__title {
     visibility: hidden;
   }
 

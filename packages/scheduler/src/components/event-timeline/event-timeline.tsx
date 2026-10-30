@@ -54,6 +54,7 @@ import {
 import { allFields } from "../event-calendar/editor";
 import { Chevron } from "../event-calendar/icons";
 import {
+  noDate,
   noEvents,
   noIds,
   type SchedulerOwnProps,
@@ -247,11 +248,13 @@ const UntypedEventTimeline = forwardRef<HTMLElement, AnyProps>(
     );
     const [date, setDateValue] = useControlled<Date>(
       dateProp !== undefined,
-      dateProp ?? new Date(0),
+      dateProp ?? noDate,
       defaultDate ?? todayProp ?? new Date(),
       onDateChange,
     );
-    const day = dayOf(date, timeZone);
+    const undated =
+      !hydrated && (dateProp ?? defaultDate ?? todayProp) === undefined;
+    const day = dayOf(undated ? noDate : date, timeZone);
     const setDate = useCallback(
       (next: DayKey) => setDateValue(momentOf(next, 0, timeZone)),
       [setDateValue, timeZone],
@@ -395,8 +398,9 @@ const UntypedEventTimeline = forwardRef<HTMLElement, AnyProps>(
         data-scale={scale}
         data-narrow={narrow ? "" : undefined}
         // Drawn by a server that can't know the time zone of the person
-        // looking. It keeps its place and shows the days once it does.
-        data-pending={!timeZoneProp && !hydrated ? "" : undefined}
+        // looking, or the day they're looking on. It keeps its place and
+        // shows the days once it does.
+        data-pending={!hydrated && (!timeZoneProp || undated) ? "" : undefined}
         className={cx("nuv-event-timeline", className)}
         {...rest}
       >

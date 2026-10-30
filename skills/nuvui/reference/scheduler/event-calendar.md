@@ -176,18 +176,11 @@ import { useState } from "react";
 
 const zones = ["Europe/London", "America/New_York", "Asia/Tokyo"];
 
-// Today in London, written out, and nine o'clock there as a moment.
-const london = new TZDate(Date.now(), "Europe/London");
-const pad = (value: number) => String(value).padStart(2, "0");
-const today = `${london.getFullYear()}-${pad(london.getMonth() + 1)}-${pad(london.getDate())}`;
-const nine = new TZDate(
-  london.getFullYear(),
-  london.getMonth(),
-  london.getDate(),
-  9,
-  0,
-  "Europe/London",
-);
+// A day written out, and nine o'clock on it in London as a moment. A date
+// given to the calendar is drawn by the server, so it can't be today's: a
+// page built ahead of time would have another day to the browser.
+const day = "2026-10-14";
+const nine = new TZDate(2026, 9, 14, 9, 0, "Europe/London");
 
 // A call at nine in London, and a deadline at five in New York. Each is
 // written with its own zone, and drawn in the one chosen.
@@ -195,16 +188,16 @@ const events: CalendarEvent[] = [
   {
     id: "call",
     title: "Call with the London office",
-    start: `${today}T09:00`,
-    end: `${today}T10:00`,
+    start: `${day}T09:00`,
+    end: `${day}T10:00`,
     timeZone: "Europe/London",
     color: "3",
   },
   {
     id: "deadline",
     title: "Filing deadline, New York",
-    start: `${today}T17:00`,
-    end: `${today}T17:30`,
+    start: `${day}T17:00`,
+    end: `${day}T17:30`,
     timeZone: "America/New_York",
     color: "8",
   },
@@ -245,7 +238,7 @@ export default function Example() {
 }
 ```
 
-A server can't know the zone of the person reading, so without `timeZone` the calendar's days are hidden until the browser has the page. They keep their place, so nothing moves when they appear. With `timeZone` set, the server draws them.
+A server can't know the zone of the person reading, or the day they're reading on, so the calendar's days and heading are hidden until the browser has the page. They keep their place, so nothing moves when they appear. With `timeZone` set, and a `date`, `defaultDate` or `today` to say which day to show, the server draws them.
 
 `today` sets the moment taken as now, for a screenshot or a test. The browser's clock is used by default, and moves the line across today every half minute. A server marks no day as today, since a page built ahead of time would keep the day it was built, and the browser marks it once it has the page.
 

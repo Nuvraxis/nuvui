@@ -7,15 +7,25 @@ const preview = (page: Page, name: string) =>
   page.locator(`[data-preview="${name}"] > div:first-child`);
 
 test.describe("event timeline page", () => {
+  let pageErrors: string[] = [];
+
   test.beforeEach(async ({ page }) => {
-    // Three times as long as other tests get. The page lays out years of
-    // bookings for two thousand machines, and Firefox on a busy machine has
-    // spent twenty-five of the thirty seconds taking it over.
+    // Three times as long as other tests get. The page lays out a year
+    // of bookings for two thousand machines, and Firefox on a busy machine
+    // has spent twenty-five of the thirty seconds taking it over.
     test.slow();
+    pageErrors = [];
+    page.on("pageerror", (error) => pageErrors.push(error.message));
     // The examples are around the week the page is read in. This one's
     // Monday is the 26th of October.
     await page.clock.setFixedTime(new Date(2026, 9, 26, 8));
     await open(page, "/docs/scheduler/event-timeline");
+  });
+
+  // The site was built on another day than the one set above, as a page
+  // is built on another day than it's read.
+  test("a page built on another day is taken over without an error", async () => {
+    expect(pageErrors).toEqual([]);
   });
 
   test("the vans are rows, and next and today move through the months", async ({

@@ -68,6 +68,7 @@ import { Chevron } from "./icons";
 import { MonthView } from "./month-view";
 import { ResourceList } from "./resource-list";
 import {
+  noDate,
   noIds,
   type SchedulerOwnProps,
   useHydrated,
@@ -332,11 +333,13 @@ const UntypedEventCalendar = forwardRef<HTMLElement, AnyProps>(
     );
     const [date, setDateValue] = useControlled<Date>(
       dateProp !== undefined,
-      dateProp ?? new Date(0),
+      dateProp ?? noDate,
       defaultDate ?? todayProp ?? new Date(),
       onDateChange,
     );
-    const day = dayOf(date, timeZone);
+    const undated =
+      !hydrated && (dateProp ?? defaultDate ?? todayProp) === undefined;
+    const day = dayOf(undated ? noDate : date, timeZone);
     const setDate = useCallback(
       (next: DayKey) => setDateValue(momentOf(next, 0, timeZone)),
       [setDateValue, timeZone],
@@ -508,8 +511,9 @@ const UntypedEventCalendar = forwardRef<HTMLElement, AnyProps>(
         data-narrow={narrow ? "" : undefined}
         data-panel-over={panelOver ? "" : undefined}
         // Drawn by a server that can't know the time zone of the person
-        // looking. It keeps its place and shows the days once it does.
-        data-pending={!timeZoneProp && !hydrated ? "" : undefined}
+        // looking, or the day they're looking on. It keeps its place and
+        // shows the days once it does.
+        data-pending={!hydrated && (!timeZoneProp || undated) ? "" : undefined}
         className={cx("nuv-event-calendar", className)}
         {...rest}
       >
@@ -677,7 +681,9 @@ const UntypedEventCalendar = forwardRef<HTMLElement, AnyProps>(
                 mode="single"
                 required
                 selected={zonedDay(day)}
-                defaultMonth={zonedDay(day)}
+                // Told no month, it draws its own stand-in, whose month can't
+                // hold the day it uses to mark none as today.
+                {...(undated ? null : { defaultMonth: zonedDay(day) })}
                 {...(today ? { today: zonedDay(today) } : null)}
                 timeZone={timeZone}
                 locale={locale}

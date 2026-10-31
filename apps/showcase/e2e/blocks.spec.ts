@@ -5138,6 +5138,9 @@ test.describe("team calendar", () => {
     page,
     isMobile,
   }) => {
+    // The block's events are in this week, and a phone shows the three days
+    // from today. On a Monday those are the days that have them.
+    await page.clock.setFixedTime(new Date(2026, 9, 26, 8));
     await open(page, "/blocks/view/team-calendar");
     const calendar = page.getByRole("region", {
       name: "Product team calendar",

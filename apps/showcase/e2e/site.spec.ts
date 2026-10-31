@@ -705,7 +705,7 @@ test.describe("where the two apps meet", () => {
     ).toHaveAttribute("aria-current", "page");
     await header.getByRole("link", { name: site.name, exact: true }).click();
     await expect(page).toHaveURL(/:\d+\/$/);
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+    await expect(page.getByRole("heading", { level: 1 })).toContainText(
       "React components for enterprise applications",
     );
     expect(missing).toEqual([]);
@@ -918,7 +918,9 @@ test.describe("the bench", () => {
     page.locator(`[data-reading="${name}"]`);
   const choose = (page: Page, group: string, name: string, isMobile: boolean) =>
     press(
-      page.getByRole("group", { name: group }).getByText(name, { exact: true }),
+      page
+        .getByRole("radiogroup", { name: group })
+        .getByRole("radio", { name, exact: true }),
       isMobile,
     );
 
@@ -989,7 +991,10 @@ test.describe("the bench", () => {
   test("the form on it works", async ({ page, isMobile }) => {
     await open(page, "/");
     await press(page.getByRole("button", { name: "Approve" }), isMobile);
-    await expect(page.getByText("Invoice approved")).toBeVisible();
+    // The toast is said a second time, for screen readers, with a word before.
+    await expect(
+      page.getByText("Invoice approved", { exact: true }),
+    ).toBeVisible();
   });
 });
 

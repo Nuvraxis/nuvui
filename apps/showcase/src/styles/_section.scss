@@ -71,8 +71,8 @@
   text-wrap: pretty;
 }
 
-// A frame around something shown off, drawn as a window: a bar with three
-// dots, and the thing under it.
+// A frame around something shown off: a bar that says what it's made from,
+// and the thing under it.
 .site-window {
   overflow: hidden;
   border: var(--nuv-border-width) solid var(--color-border);
@@ -84,19 +84,15 @@
 }
 
 .site-window__bar {
-  display: flex;
-  gap: calc(var(--spacing) * 2);
-  align-items: center;
+  margin: 0;
   padding: calc(var(--spacing) * 3) calc(var(--spacing) * 4);
   border-block-end: var(--nuv-border-width) solid var(--color-border);
   background-color: var(--color-muted);
-}
-
-.site-window__dot {
-  inline-size: calc(var(--spacing) * 2.5);
-  block-size: calc(var(--spacing) * 2.5);
-  border: var(--nuv-border-width) solid var(--color-border-strong);
-  border-radius: var(--radius-full);
+  color: var(--color-muted-foreground);
+  font-family: var(--site-font-reading);
+  font-size: var(--text-xs);
+  font-stretch: 87.5%;
+  line-height: var(--text-xs--line-height);
 }
 
 .site-window__body {
@@ -105,68 +101,6 @@
   @include mixins.breakpoint("md") {
     padding: calc(var(--spacing) * 6);
   }
-}
-
-// What the library is built on, as a grid of short statements. The lines
-// between them are the grid's own background, showing through its gaps.
-.site-features {
-  display: grid;
-  gap: var(--nuv-border-width);
-  grid-template-columns: minmax(0, 1fr);
-  overflow: hidden;
-  margin: 0;
-  padding: 0;
-  border: var(--nuv-border-width) solid var(--color-border);
-  border-radius: var(--radius-xl);
-  background-color: var(--color-border);
-  list-style: none;
-
-  @include mixins.breakpoint("md") {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  @include mixins.breakpoint("lg") {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
-.site-features__item {
-  display: grid;
-  gap: calc(var(--spacing) * 3);
-  align-content: start;
-  padding: calc(var(--spacing) * 7);
-  background-color: var(--color-background);
-
-  @include mixins.breakpoint("md") {
-    padding: calc(var(--spacing) * 9);
-  }
-}
-
-.site-features__icon {
-  display: grid;
-  place-items: center;
-  inline-size: calc(var(--spacing) * 10);
-  block-size: calc(var(--spacing) * 10);
-  margin-block-end: calc(var(--spacing) * 2);
-  border: var(--nuv-border-width) solid var(--color-border);
-  border-radius: var(--radius-lg);
-  background-color: var(--color-surface);
-  box-shadow: var(--shadow-xs);
-  color: var(--color-surface-foreground);
-}
-
-.site-features__title {
-  margin: 0;
-  font-size: var(--text-lg);
-  font-weight: var(--font-weight-semibold);
-  line-height: var(--leading-snug);
-  letter-spacing: var(--tracking-tight);
-}
-
-.site-features__text {
-  margin: 0;
-  color: var(--color-muted-foreground);
-  line-height: var(--leading-relaxed);
 }
 
 // A box that's a link to somewhere: a part of the site, a family of charts,
@@ -285,12 +219,9 @@
 
 // The end of the home page: what to do next, in a panel.
 .site-cta {
-  position: relative;
-  isolation: isolate;
   display: grid;
   gap: calc(var(--spacing) * 5);
   justify-items: center;
-  overflow: hidden;
   padding: calc(var(--spacing) * 12) calc(var(--spacing) * 6);
   border: var(--nuv-border-width) solid var(--color-border);
   border-radius: var(--radius-xl);
@@ -300,24 +231,5 @@
 
   @include mixins.breakpoint("md") {
     padding: calc(var(--spacing) * 20) calc(var(--spacing) * 10);
-  }
-
-  &::before {
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    background: radial-gradient(
-      ellipse 40rem 18rem at 50% 0%,
-      color-mix(in oklab, var(--color-primary) 12%, transparent),
-      transparent 70%
-    );
-    content: "";
-    pointer-events: none;
-  }
-
-  @media (forced-colors: active) {
-    &::before {
-      display: none;
-    }
   }
 }

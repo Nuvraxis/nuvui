@@ -34,6 +34,9 @@ const toolsOnly = new Set([
   "CC-BY-4.0",
   // argparse, a command line parser a tool depends on.
   "Python-2.0",
+  // The website's two fonts. The license is made for fonts, and they go out
+  // with the site, in no package of ours.
+  "OFL-1.1",
 ]);
 
 // A package whose manifest doesn't name its license the way the lists do,

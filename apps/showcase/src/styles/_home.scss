@@ -1,0 +1,643 @@
+@use "@nuvui/react/scss/mixins";
+@use "layout";
+
+// The home page is drawn as a sheet from a drawing office: a part at its real
+// size with calipers on it, a title block, a specification and a parts list.
+// Every color is a token, since the bench puts the library's presets on the
+// whole page. The two faces are the page's own. The body stays the system's,
+// which is what an app gets from the library.
+$touch-gutter: calc(var(--spacing) * 13);
+
+@mixin display {
+  font-family: var(--site-font-display);
+  font-stretch: 125%;
+  font-weight: var(--font-weight-semibold);
+}
+
+// A figure or a label read off an instrument.
+@mixin reading {
+  font-family: var(--site-font-reading);
+  font-stretch: 87.5%;
+  font-variant-numeric: tabular-nums;
+}
+
+@mixin caption {
+  @include reading;
+
+  color: var(--color-muted-foreground);
+  font-size: var(--text-xs);
+  line-height: var(--text-xs--line-height);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.site-home {
+  --site-font-display: "Archivo Variable", var(--font-sans);
+  --site-font-reading: "Martian Mono Variable", var(--font-mono);
+}
+
+.site-home__title {
+  @include display;
+
+  max-inline-size: none;
+  letter-spacing: -0.025em;
+}
+
+// The top of the page: what it is, then the sheet.
+.site-lead {
+  @include layout.container;
+
+  display: grid;
+  gap: calc(var(--spacing) * 6);
+  grid-template-columns: minmax(0, 1fr);
+  padding-block-start: calc(var(--spacing) * 10);
+
+  @include mixins.breakpoint("md") {
+    gap: calc(var(--spacing) * 8);
+    padding-block-start: calc(var(--spacing) * 16);
+  }
+}
+
+.site-lead__status {
+  @include reading;
+
+  display: flex;
+  gap: calc(var(--spacing) * 2);
+  align-items: center;
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-xs);
+  line-height: var(--text-xs--line-height);
+}
+
+.site-lead__dot {
+  flex: none;
+  inline-size: calc(var(--spacing) * 2);
+  block-size: calc(var(--spacing) * 2);
+  border-radius: var(--radius-full);
+  background-color: var(--color-success);
+}
+
+.site-lead__title {
+  @include display;
+
+  max-inline-size: 22ch;
+  margin: 0;
+  font-size: clamp(2.5rem, 1rem + 6.2vw, 5.75rem);
+  line-height: 1;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+
+// The first line of the h1: what the page is, in the words people search
+// for. Set small, in the instrument face, over the headline.
+.site-lead__kicker {
+  @include reading;
+
+  display: block;
+  margin-block-end: calc(var(--spacing) * 4);
+  color: var(--color-muted-foreground);
+  font-size: clamp(0.8125rem, 0.7rem + 0.5vw, 1rem);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--leading-snug);
+  letter-spacing: 0;
+}
+
+.site-lead__foot {
+  display: grid;
+  gap: calc(var(--spacing) * 6);
+  grid-template-columns: minmax(0, 1fr);
+
+  @include mixins.breakpoint("lg") {
+    gap: calc(var(--spacing) * 12);
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+  }
+}
+
+.site-lead__text {
+  max-inline-size: 62ch;
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-lg);
+  line-height: var(--leading-relaxed);
+  text-wrap: pretty;
+}
+
+.site-lead__actions,
+.site-cta__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 3);
+}
+
+// The drawing and its title block. The lines between the title block's cells
+// are the grid's own background, showing through its gaps.
+.site-sheet {
+  overflow: hidden;
+  border: var(--nuv-border-width) solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background-color: var(--color-background);
+  box-shadow: var(--shadow-xl);
+}
+
+.site-sheet__block {
+  display: grid;
+  gap: var(--nuv-border-width);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+  border-block-start: var(--nuv-border-width) solid var(--color-border);
+  background-color: var(--color-border);
+
+  @include mixins.breakpoint("md") {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  @include mixins.breakpoint("lg") {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+  }
+}
+
+.site-sheet__cell {
+  display: grid;
+  gap: calc(var(--spacing) * 1);
+  align-content: start;
+  padding: calc(var(--spacing) * 3) calc(var(--spacing) * 4);
+  background-color: var(--color-background);
+}
+
+.site-sheet__label {
+  @include caption;
+}
+
+.site-sheet__value {
+  @include reading;
+
+  overflow-wrap: anywhere;
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--text-sm--line-height);
+}
+
+// The bench: the controls across the top, the part on the grid, and what the
+// calipers read at the side.
+.site-bench {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+
+  @include mixins.breakpoint("lg") {
+    grid-template-columns: minmax(0, 1fr) 19rem;
+  }
+}
+
+.site-bench__controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 3) calc(var(--spacing) * 8);
+  justify-content: space-between;
+  padding: calc(var(--spacing) * 3) calc(var(--spacing) * 4);
+  border-block-end: var(--nuv-border-width) solid var(--color-border);
+
+  @include mixins.breakpoint("lg") {
+    grid-column: 1 / -1;
+  }
+}
+
+.site-bench__control {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 2) calc(var(--spacing) * 3);
+  align-items: center;
+  min-inline-size: 0;
+}
+
+.site-bench__control-name {
+  @include caption;
+}
+
+// Six presets are wider than a phone.
+.site-bench__choices {
+  flex-wrap: wrap;
+}
+
+.site-bench__grid {
+  --nuv-grid-background-cell: 1.5rem;
+  --nuv-grid-background-color: color-mix(
+    in oklab,
+    var(--color-border) 70%,
+    transparent
+  );
+}
+
+// The room around the form is where the calipers stand. On a phone there's
+// just enough for a figure on each side.
+.site-bench__stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  padding: calc(var(--spacing) * 16) $touch-gutter calc(var(--spacing) * 10);
+
+  @include mixins.breakpoint("md") {
+    padding: calc(var(--spacing) * 20) calc(var(--spacing) * 24)
+      calc(var(--spacing) * 16);
+  }
+}
+
+.site-bench__specimen {
+  display: grid;
+  gap: calc(var(--spacing) * 5);
+  inline-size: 100%;
+  max-inline-size: 24rem;
+  padding: calc(var(--spacing) * 5);
+  border: var(--nuv-border-width) solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-lg);
+  color: var(--color-surface-foreground);
+}
+
+.site-bench__heading {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 2);
+  align-items: center;
+  justify-content: space-between;
+}
+
+.site-bench__title {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--leading-snug);
+  letter-spacing: var(--tracking-tight);
+}
+
+.site-bench__switch {
+  display: flex;
+  gap: calc(var(--spacing) * 3);
+  align-items: center;
+  font-size: var(--text-sm);
+}
+
+.site-bench__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 2);
+  justify-content: flex-end;
+}
+
+// A dimension line, with an extension line from each of its ends back to the
+// edge it's measuring. Drawn with borders, which a forced-colors theme keeps
+// and a background wouldn't be.
+.site-bench__caliper {
+  position: absolute;
+  z-index: 1;
+  color: var(--color-primary);
+  pointer-events: none;
+
+  &::before,
+  &::after {
+    position: absolute;
+    content: "";
+  }
+
+  @include mixins.motion-safe {
+    animation: site-caliper-in var(--nuv-duration-slow) var(--ease-out) both;
+    transition:
+      top var(--nuv-duration-slow) var(--ease-out),
+      left var(--nuv-duration-slow) var(--ease-out),
+      inline-size var(--nuv-duration-slow) var(--ease-out),
+      block-size var(--nuv-duration-slow) var(--ease-out);
+  }
+}
+
+@keyframes site-caliper-in {
+  from {
+    opacity: 0;
+  }
+}
+
+.site-bench__caliper--top {
+  border-block-start: var(--nuv-border-width) solid currentcolor;
+
+  &::before,
+  &::after {
+    inset-block-start: 0;
+    block-size: var(--site-reach);
+    border-inline-start: var(--nuv-border-width) solid currentcolor;
+  }
+
+  &::before {
+    inset-inline-start: 0;
+  }
+
+  &::after {
+    inset-inline-end: 0;
+  }
+}
+
+.site-bench__caliper--start,
+.site-bench__caliper--end {
+  &::before,
+  &::after {
+    inline-size: var(--site-reach);
+    border-block-start: var(--nuv-border-width) solid currentcolor;
+  }
+
+  &::before {
+    inset-block-start: 0;
+  }
+
+  &::after {
+    inset-block-end: 0;
+  }
+}
+
+.site-bench__caliper--start {
+  border-inline-start: var(--nuv-border-width) solid currentcolor;
+
+  &::before,
+  &::after {
+    inset-inline-start: 0;
+  }
+}
+
+.site-bench__caliper--end {
+  border-inline-end: var(--nuv-border-width) solid currentcolor;
+
+  &::before,
+  &::after {
+    inset-inline-end: 0;
+  }
+}
+
+.site-bench__caliper-label {
+  @include reading;
+
+  position: absolute;
+  color: var(--color-foreground);
+  font-size: var(--text-xs);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.site-bench__caliper--top .site-bench__caliper-label {
+  inset-block-end: calc(var(--spacing) * 2);
+  inset-inline-start: 50%;
+  transform: translateX(-50%);
+}
+
+.site-bench__caliper--start .site-bench__caliper-label {
+  inset-block-start: 50%;
+  inset-inline-end: calc(var(--spacing) * 2);
+  transform: translateY(-50%);
+}
+
+.site-bench__caliper--end .site-bench__caliper-label {
+  inset-block-start: 50%;
+  inset-inline-start: calc(var(--spacing) * 2);
+  transform: translateY(-50%);
+}
+
+// There's no room for the unit beside a figure on a phone, and the list
+// under the form says it.
+.site-bench__caliper-unit {
+  display: none;
+
+  @include mixins.breakpoint("md") {
+    display: inline;
+  }
+}
+
+.site-bench__readout {
+  display: grid;
+  gap: calc(var(--spacing) * 5);
+  align-content: space-between;
+  padding: calc(var(--spacing) * 5) calc(var(--spacing) * 4);
+  border-block-start: var(--nuv-border-width) solid var(--color-border);
+
+  @include mixins.breakpoint("lg") {
+    border-block-start: 0;
+    border-inline-start: var(--nuv-border-width) solid var(--color-border);
+  }
+}
+
+.site-bench__readings {
+  display: grid;
+  margin: 0;
+}
+
+.site-bench__reading {
+  display: flex;
+  gap: calc(var(--spacing) * 3);
+  align-items: baseline;
+  justify-content: space-between;
+  padding-block: calc(var(--spacing) * 3);
+  border-block-end: var(--nuv-border-width) solid var(--color-border);
+
+  &:first-child {
+    padding-block-start: 0;
+  }
+}
+
+.site-bench__name {
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+.site-bench__value {
+  @include reading;
+
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--text-lg--line-height);
+  white-space: nowrap;
+}
+
+.site-bench__note {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+}
+
+// The specification beside the road to 1.0.
+.site-spec {
+  display: grid;
+  gap: calc(var(--spacing) * 10);
+  grid-template-columns: minmax(0, 1fr);
+
+  @include mixins.breakpoint("lg") {
+    gap: calc(var(--spacing) * 16);
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    align-items: start;
+  }
+}
+
+.site-spec__list {
+  display: grid;
+  margin: 0;
+  border-block-start: var(--nuv-border-width) solid var(--color-foreground);
+}
+
+.site-spec__row {
+  display: grid;
+  gap: calc(var(--spacing) * 1) calc(var(--spacing) * 6);
+  grid-template-columns: minmax(0, 1fr);
+  padding-block: calc(var(--spacing) * 4);
+  border-block-end: var(--nuv-border-width) solid var(--color-border);
+
+  @include mixins.breakpoint("md") {
+    grid-template-columns: 9rem minmax(0, 1fr);
+  }
+}
+
+.site-spec__name {
+  @include caption;
+
+  padding-block-start: 0.2em;
+}
+
+.site-spec__text {
+  margin: 0;
+  line-height: var(--leading-relaxed);
+}
+
+.site-road {
+  display: grid;
+  gap: calc(var(--spacing) * 3);
+  padding: calc(var(--spacing) * 6);
+  border: var(--nuv-border-width) solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background-color: var(--color-muted);
+  color: var(--color-foreground);
+}
+
+.site-road__title {
+  @include display;
+
+  margin: 0;
+  font-size: var(--text-xl);
+  line-height: var(--text-xl--line-height);
+  letter-spacing: -0.02em;
+}
+
+.site-road__summary {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+}
+
+.site-road__list {
+  display: grid;
+  gap: calc(var(--spacing) * 4);
+  margin: calc(var(--spacing) * 3) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.site-road__item {
+  display: grid;
+  gap: calc(var(--spacing) * 3);
+  grid-template-columns: 3rem minmax(0, 1fr);
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+}
+
+.site-road__mark {
+  @include caption;
+
+  padding-block-start: 0.25em;
+}
+
+.site-road__mark--done {
+  color: var(--color-foreground);
+  font-weight: var(--font-weight-semibold);
+}
+
+.site-road__text {
+  min-inline-size: 0;
+}
+
+// The packages, as two columns of rows that each go to their docs.
+.site-parts {
+  display: grid;
+  gap: 0 calc(var(--spacing) * 12);
+  grid-template-columns: minmax(0, 1fr);
+  margin: 0;
+  padding: 0;
+  border-block-start: var(--nuv-border-width) solid var(--color-foreground);
+  list-style: none;
+
+  @include mixins.breakpoint("lg") {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.site-parts__item {
+  border-block-end: var(--nuv-border-width) solid var(--color-border);
+}
+
+.site-parts__link {
+  @include mixins.focus-ring;
+
+  display: grid;
+  gap: calc(var(--spacing) * 1) calc(var(--spacing) * 3);
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  padding: calc(var(--spacing) * 3) calc(var(--spacing) * 2);
+  color: inherit;
+  text-decoration: none;
+
+  @include mixins.hover {
+    background-color: var(--color-muted);
+  }
+}
+
+.site-parts__name {
+  @include reading;
+
+  grid-column: 1;
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--text-sm--line-height);
+}
+
+.site-parts__text {
+  grid-column: 1;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+.site-parts__arrow {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  color: var(--color-muted-foreground);
+}
+
+// The command at the end of the page, large enough to be its last word.
+.site-install {
+  display: flex;
+  gap: calc(var(--spacing) * 2);
+  align-items: center;
+  max-inline-size: 100%;
+  padding: calc(var(--spacing) * 2) calc(var(--spacing) * 3)
+    calc(var(--spacing) * 2) calc(var(--spacing) * 5);
+  border: var(--nuv-border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-background);
+}
+
+.site-install__command {
+  @include reading;
+
+  overflow-wrap: anywhere;
+  color: var(--color-foreground);
+  font-size: clamp(0.8125rem, 0.65rem + 0.8vw, 1.125rem);
+  line-height: var(--leading-snug);
+}

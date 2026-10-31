@@ -4,7 +4,11 @@
   "tasks": {
     "build": {
       "dependsOn": ["$TURBO_EXTENDS$", "@nuvui/docs#build"],
-      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/scripts/fix-next-export.mjs"]
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/scripts/fix-next-export.mjs",
+        "$TURBO_ROOT$/README.md"
+      ]
     },
     "test:e2e": {
       "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/scripts/serve-static.mjs"]

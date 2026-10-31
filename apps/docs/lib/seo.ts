@@ -21,7 +21,7 @@ export const baseMetadata: Metadata = {
   metadataBase: new URL(site.url),
   title: {
     default: title,
-    template: `%s | ${site.name}`,
+    template: `%s | ${site.name} React components`,
   },
   description: site.description,
   applicationName: site.name,
@@ -31,6 +31,7 @@ export const baseMetadata: Metadata = {
   category: "technology",
   keywords: [
     "React components",
+    "React component library",
     "React UI library",
     "enterprise UI components",
     "business applications",

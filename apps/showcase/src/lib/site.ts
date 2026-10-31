@@ -11,7 +11,7 @@ export const site = {
   name: "Nuvui",
   packageName: "@nuvui/react",
   description:
-    "An open source React library for business software: data tables, forms, charts and dashboards, tested for accessibility and themed with CSS variables.",
+    "Open source React components for business software: data tables, forms, charts and dashboards, tested for accessibility and themed with CSS variables.",
   // No trailing slash. Canonical URLs, the sitemap and OG images are all
   // built from this. The docs app's lib/site.ts has the same value, and a
   // test holds the two together.
@@ -69,7 +69,7 @@ export const pages = [
   {
     path: blocksHome,
     title: "Blocks",
-    description: `${blockCount} blocks built from the library's components, each a TSX file and an SCSS file to copy: sign-in screens, app layouts and dashboards.`,
+    description: `${blockCount} blocks built from the library's React components, each a TSX file and an SCSS file to copy: sign-in screens, app layouts and dashboards.`,
   },
   ...categories.map((category) => ({
     path: categoryPath(category),
@@ -79,7 +79,7 @@ export const pages = [
   {
     path: chartsHome,
     title: "Charts",
-    description: `${chartCount} charts built with Recharts and the library's chart parts, each with its code to copy.`,
+    description: `${chartCount} React charts built with Recharts and the library's chart parts, each with its code to copy.`,
   },
   ...families.map((family) => ({
     path: familyPath(family),
@@ -90,12 +90,12 @@ export const pages = [
     path: iconsHome,
     title: "Icons",
     description:
-      "317 line icons drawn for the library, in three styles. Search them, see each at the sizes it's used at, and copy it as a React import or as SVG.",
+      "317 React icons drawn for the library, in three styles. Search them, see each at the sizes it's used at, and copy it as a React import or as SVG.",
   },
   {
     path: themesHome,
     title: "Themes",
     description:
-      "Make a theme from a brand color, a base color, a radius and a density, see it on real components in light and dark, and copy it as CSS.",
+      "Make a theme from a brand color, a base color, a radius and a density, see it on real React components in light and dark, and copy it as CSS.",
   },
 ];

@@ -2,7 +2,7 @@ export const site = {
   name: "Nuvui",
   packageName: "@nuvui/react",
   description:
-    "An open source React library for business software: data tables, forms, charts and dashboards, tested for accessibility and themed with CSS variables.",
+    "Open source React components for business software: data tables, forms, charts and dashboards, tested for accessibility and themed with CSS variables.",
   // No trailing slash. Canonical URLs, the sitemap and OG images are all
   // built from this.
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://nuvui.nuvraxis.com",

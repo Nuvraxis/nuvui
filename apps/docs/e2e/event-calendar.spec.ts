@@ -8,6 +8,10 @@ const preview = (page: Page, name: string) =>
 
 test.describe("event calendar page", () => {
   test.beforeEach(async ({ page }) => {
+    // The examples' events are in this week, and a narrow calendar shows the
+    // three days from today. From a Wednesday those have stand-ups, and the
+    // three after them reach next Monday's sprint review.
+    await page.clock.setFixedTime(new Date(2026, 9, 28, 8));
     await open(page, "/docs/scheduler/event-calendar");
   });
 

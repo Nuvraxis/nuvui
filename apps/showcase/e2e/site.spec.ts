@@ -1,7 +1,7 @@
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import AxeBuilder from "@axe-core/playwright";
-import { expect, test } from "@playwright/test";
+import { expect, type Page, test } from "@playwright/test";
 import {
   navigation as docsNavigation,
   site as docsSite,
@@ -705,7 +705,7 @@ test.describe("where the two apps meet", () => {
     ).toHaveAttribute("aria-current", "page");
     await header.getByRole("link", { name: site.name, exact: true }).click();
     await expect(page).toHaveURL(/:\d+\/$/);
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+    await expect(page.getByRole("heading", { level: 1 })).toContainText(
       "React components for enterprise applications",
     );
     expect(missing).toEqual([]);
@@ -864,31 +864,177 @@ test("the home page says which version there is, or that there's none yet", asyn
     ),
   );
   await open(page, "/");
-  await expect(page.locator(".site-hero__eyebrow")).toHaveText(
+  await expect(page.locator(".site-lead__status")).toHaveText(
     version === "0.0.0"
       ? "Open source, and early: nothing is on npm yet"
       : `Open source, and early: version ${version}`,
   );
 });
 
-test("the home page's hero is over a grid that lights under the pointer", async ({
+test("the bench is over a grid that lights under the pointer", async ({
   page,
   isMobile,
 }) => {
   test.skip(isMobile, "a phone has no pointer to hover with");
   await open(page, "/");
-  const grid = page.locator(".site-hero-grid");
+  const grid = page.locator(".site-bench__grid");
   await expect(grid).toHaveClass(/nuv-grid-background/);
-  await expect(grid.locator(".site-hero")).toBeVisible();
+  await expect(grid.locator(".site-bench__specimen")).toBeVisible();
   // Drawn for the eye only.
   await expect(grid.locator(".nuv-background__layer")).toHaveAttribute(
     "aria-hidden",
     "true",
   );
 
-  await page.getByRole("heading", { level: 1 }).hover();
+  await grid.hover();
 
   await expect(grid).toHaveAttribute("data-lit", "");
+});
+
+test("the home page's main heading and share image say what it is", async ({
+  page,
+  request,
+}) => {
+  await open(page, "/");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText(
+    "React components for enterprise applications",
+  );
+  await expect(page).toHaveTitle(/React components/);
+  await expect(page.locator('meta[property="og:image:alt"]')).toHaveAttribute(
+    "content",
+    /React components/,
+  );
+  const image = await request.get("/og/home.png");
+  expect(image.headers()["content-type"]).toBe("image/png");
+});
+
+test("a page's title carries the same words", async ({ page }) => {
+  await open(page, "/blocks");
+  await expect(page).toHaveTitle(/\| Nuvui React components$/);
+});
+
+test.describe("the bench", () => {
+  const reading = (page: Page, name: string) =>
+    page.locator(`[data-reading="${name}"]`);
+  const choose = (page: Page, group: string, name: string, isMobile: boolean) =>
+    press(
+      page
+        .getByRole("radiogroup", { name: group })
+        .getByRole("radio", { name, exact: true }),
+      isMobile,
+    );
+
+  test("what it reads is the height of the button, at each density", async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(isMobile, "a finger gets the touch size at every density");
+    await open(page, "/");
+    const button = page.getByRole("button", { name: "Approve" });
+    for (const [density, height] of [
+      ["Compact", "36"],
+      ["Comfortable", "44"],
+      ["Default", "40"],
+    ] as const) {
+      await choose(page, "Density", density, isMobile);
+      await expect(reading(page, "button")).toHaveAttribute(
+        "data-value",
+        height,
+      );
+      expect((await button.boundingBox())?.height).toBe(Number(height));
+    }
+    await expect(page.locator(".site-home")).toHaveAttribute(
+      "data-density",
+      "default",
+    );
+  });
+
+  test("on a touch screen a control stays at the touch size", async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(!isMobile, "a mouse gets the density's height");
+    await open(page, "/");
+    await choose(page, "Density", "Compact", isMobile);
+    await expect(reading(page, "touch")).toHaveAttribute("data-value", "44");
+    await expect(reading(page, "button")).toHaveAttribute("data-value", "44");
+  });
+
+  test("a preset goes on the whole page, and the contrast is read again", async ({
+    page,
+    isMobile,
+  }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await open(page, "/");
+    const contrast = reading(page, "contrast");
+    await expect(contrast).not.toHaveAttribute("data-value", "");
+    const before = await contrast.getAttribute("data-value");
+
+    await choose(page, "Preset", "High contrast", isMobile);
+
+    await expect(page.locator(".site-home")).toHaveAttribute(
+      "data-preset",
+      "high-contrast",
+    );
+    await expect(contrast).not.toHaveAttribute("data-value", before ?? "");
+    expect(
+      Number(await contrast.getAttribute("data-value")),
+    ).toBeGreaterThanOrEqual(4.5);
+
+    await choose(page, "Preset", "Nuvui", isMobile);
+    await expect(page.locator(".site-home")).not.toHaveAttribute(
+      "data-preset",
+      /.+/,
+    );
+  });
+
+  test("the form on it works", async ({ page, isMobile }) => {
+    await open(page, "/");
+    await press(page.getByRole("button", { name: "Approve" }), isMobile);
+    // The toast is said a second time, for screen readers, with a word before.
+    await expect(
+      page.getByText("Invoice approved", { exact: true }),
+    ).toBeVisible();
+  });
+});
+
+test("the parts list has every package that's published", async ({ page }) => {
+  const folder = path.join(import.meta.dirname, "..", "..", "..", "packages");
+  const published = readdirSync(folder)
+    .map(
+      (name) =>
+        JSON.parse(
+          readFileSync(path.join(folder, name, "package.json"), "utf8"),
+        ) as { name: string; private?: boolean },
+    )
+    .filter((manifest) => !manifest.private)
+    .map((manifest) => manifest.name)
+    .sort();
+
+  await open(page, "/");
+  const names = await page.locator(".site-parts__name").allTextContents();
+  expect(names.sort()).toEqual(published);
+  await expect(
+    page.getByRole("heading", {
+      name: `${published.length} packages. Install the ones you use.`,
+    }),
+  ).toBeVisible();
+});
+
+test("the road to 1.0 is the README's list, with what's left", async ({
+  page,
+}) => {
+  const readme = readFileSync(
+    path.join(import.meta.dirname, "..", "..", "..", "README.md"),
+    "utf8",
+  );
+  await open(page, "/");
+  await expect(page.locator(".site-road__item")).toHaveCount(
+    [...readme.matchAll(/^- \[( |x)\] /gm)].length,
+  );
+  await expect(
+    page.locator(".site-road__mark", { hasText: "Done" }),
+  ).toHaveCount([...readme.matchAll(/^- \[x\] /gm)].length);
 });
 
 test.describe("telemetry", () => {

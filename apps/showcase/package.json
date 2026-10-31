@@ -12,6 +12,8 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@fontsource-variable/archivo": "^5.3.0",
+    "@fontsource-variable/martian-mono": "^5.3.0",
     "@nuvui/3d": "workspace:*",
     "@nuvui/ask-panel": "workspace:*",
     "@nuvui/backgrounds": "workspace:*",

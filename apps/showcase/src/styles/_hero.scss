@@ -50,29 +50,6 @@
   }
 }
 
-// The home page's hero, over a grid that lights under the pointer, from
-// @nuvui/backgrounds. The wash of the brand color and the faint lines are
-// the backdrop's, so the text over them keeps its contrast.
-.site-hero-grid {
-  --nuv-grid-background-cell: 4rem;
-  --nuv-grid-background-color: color-mix(
-    in oklab,
-    var(--color-border) 55%,
-    transparent
-  );
-
-  background-image: radial-gradient(
-    ellipse 50rem 26rem at 50% -6rem,
-    color-mix(in oklab, var(--color-primary) 14%, transparent),
-    transparent 72%
-  );
-
-  // A forced-colors theme has its own page color and wants nothing over it.
-  @media (forced-colors: active) {
-    background-image: none;
-  }
-}
-
 .site-hero {
   @include layout.container;
 
@@ -86,31 +63,6 @@
     gap: calc(var(--spacing) * 7);
     padding-block: calc(var(--spacing) * 24) calc(var(--spacing) * 16);
   }
-}
-
-// The line above the title: a small pill with a dot.
-.site-hero__eyebrow {
-  display: inline-flex;
-  gap: calc(var(--spacing) * 2);
-  align-items: center;
-  margin: 0;
-  padding: calc(var(--spacing) * 1.5) calc(var(--spacing) * 3.5);
-  border: var(--nuv-border-width) solid var(--color-border);
-  border-radius: var(--radius-full);
-  background-color: var(--color-surface);
-  box-shadow: var(--shadow-xs);
-  color: var(--color-muted-foreground);
-  font-size: var(--text-sm);
-  line-height: var(--text-sm--line-height);
-  text-align: start;
-}
-
-.site-hero__dot {
-  flex: none;
-  inline-size: calc(var(--spacing) * 2);
-  block-size: calc(var(--spacing) * 2);
-  border-radius: var(--radius-full);
-  background-color: var(--color-success);
 }
 
 .site-hero__title {
@@ -141,43 +93,4 @@
   flex-wrap: wrap;
   gap: calc(var(--spacing) * 3);
   justify-content: center;
-}
-
-// The library in four numbers, under the buttons.
-.site-facts {
-  display: grid;
-  gap: calc(var(--spacing) * 6) calc(var(--spacing) * 4);
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  inline-size: 100%;
-  max-inline-size: 52rem;
-  margin: calc(var(--spacing) * 6) 0 0;
-  padding-block-start: calc(var(--spacing) * 8);
-  border-block-start: var(--nuv-border-width) solid var(--color-border);
-
-  @include mixins.breakpoint("md") {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-}
-
-// The number is drawn above its label, and comes after it in the markup,
-// where a description list wants it.
-.site-facts__item {
-  display: flex;
-  flex-direction: column-reverse;
-  gap: calc(var(--spacing) * 1);
-}
-
-.site-facts__label {
-  color: var(--color-muted-foreground);
-  font-size: var(--text-sm);
-  line-height: var(--text-sm--line-height);
-}
-
-.site-facts__value {
-  margin: 0;
-  font-size: clamp(1.75rem, 1.4rem + 1.4vw, 2.5rem);
-  font-weight: var(--font-weight-semibold);
-  line-height: 1.1;
-  letter-spacing: var(--tracking-tight);
-  font-variant-numeric: tabular-nums;
 }

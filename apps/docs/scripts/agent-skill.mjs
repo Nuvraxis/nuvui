@@ -815,7 +815,7 @@ async function build() {
   const index = [
     "# nuvui",
     "",
-    "> An open source React library for business software: data tables, forms, charts and dashboards, tested for accessibility and themed with CSS variables. Fifteen packages, MIT licensed. Styling is SCSS with BEM classes and CSS variables, in cascade layers, and needs no Tailwind.",
+    "> Open source React components for business software: data tables, forms, charts and dashboards, tested for accessibility and themed with CSS variables. Fifteen packages, MIT licensed. Styling is SCSS with BEM classes and CSS variables, in cascade layers, and needs no Tailwind.",
     "",
     `Each page below is plain Markdown. All of them in one file: ${siteUrl}/docs/llms-full.txt. A skill for coding agents, with the rules that are easy to get wrong: ${repoUrl}/tree/main/skills/nuvui, installed with \`pnpm dlx skills add Nuvraxis/nuvui\`.`,
     "",

@@ -28,7 +28,7 @@ FROM pnpm-$BUILDARCH AS pnpm
 
 # The build runs on the machine's own architecture whatever the image is
 # for. What it makes is HTML, CSS and JavaScript, the same for every one.
-FROM --platform=$BUILDPLATFORM node:26.12.1-bookworm-slim@sha256:28147155d47dc31abe0a46e0d12b59b2fb3d0a2dcc5dc65fce76a074180b16fe AS build
+FROM --platform=$BUILDPLATFORM node:26.13-bookworm-slim@sha256:bc0a2afd3b74ce12222fc8bab99271e66257f021078f5f4a5d687a77d280c1d9 AS build
 
 ENV CI=true \
     NEXT_TELEMETRY_DISABLED=1 \

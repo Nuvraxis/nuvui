@@ -5,8 +5,9 @@ import type { CalendarEvent } from "@nuvui/scheduler";
 // each is on the clock wherever it's read.
 export function day(offset: number): string {
   const date = new Date();
-  // Monday of this week, then the offset.
-  date.setDate(date.getDate() - ((date.getDay() + 6) % 7) + offset);
+  // The Monday of the week the calendar shows. Its week starts on Sunday,
+  // so on a Sunday that's tomorrow.
+  date.setDate(date.getDate() - date.getDay() + 1 + offset);
   const pad = (value: number) => String(value).padStart(2, "0");
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 }

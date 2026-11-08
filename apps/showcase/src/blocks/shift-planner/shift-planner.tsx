@@ -12,7 +12,9 @@ import "./shift-planner.scss";
 // The days are this week's, so the rota has shifts whenever it's opened.
 function day(offset: number) {
   const date = new Date();
-  date.setDate(date.getDate() - ((date.getDay() + 6) % 7) + offset);
+  // The Monday of the week the calendar shows. Its week starts on Sunday,
+  // so on a Sunday that's tomorrow.
+  date.setDate(date.getDate() - date.getDay() + 1 + offset);
   const pad = (value: number) => String(value).padStart(2, "0");
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 }

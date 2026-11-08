@@ -5346,6 +5346,26 @@ test.describe("shift planner", () => {
   }
 });
 
+// A calendar's week starts on a Sunday. On one, the blocks' events have to be
+// in the week that starts that day, not in the one that's just ended.
+test.describe("the calendar blocks on a Sunday", () => {
+  for (const [block, name] of [
+    ["team-calendar", "Product team calendar"],
+    ["room-booking", "Juniper room bookings"],
+    ["shift-planner", "Shifts this week"],
+    ["school-timetable", "Timetable"],
+  ] as const) {
+    test(`${block}: the days shown have events in them`, async ({ page }) => {
+      await page.clock.setFixedTime(new Date(2026, 10, 1, 8));
+      await open(page, `/blocks/view/${block}`);
+      const calendar = page.getByRole("region", { name });
+      await expect(
+        calendar.locator(".nuv-event-calendar__event").first(),
+      ).toBeVisible();
+    });
+  }
+});
+
 test.describe("school timetable", () => {
   test("school timetable: a teacher hidden in the side panel takes their lessons with them", async ({
     page,

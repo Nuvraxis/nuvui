@@ -25,7 +25,7 @@ FROM pnpm-$BUILDARCH AS pnpm
 # The build runs on the machine's own architecture. What it makes is
 # JavaScript and JSON, and no dependency of the service has a native part,
 # so the same files run on either.
-FROM --platform=$BUILDPLATFORM node:26.12.1-bookworm-slim@sha256:28147155d47dc31abe0a46e0d12b59b2fb3d0a2dcc5dc65fce76a074180b16fe AS build
+FROM --platform=$BUILDPLATFORM node:26.13-bookworm-slim@sha256:bc0a2afd3b74ce12222fc8bab99271e66257f021078f5f4a5d687a77d280c1d9 AS build
 
 ENV CI=true \
     TURBO_TELEMETRY_DISABLED=1 \
@@ -51,7 +51,7 @@ RUN pnpm --filter @nuvui/ask build
 # metadata again, to check its age against the workspace's policy.
 RUN pnpm --filter @nuvui/ask deploy --prod /deploy
 
-FROM node:26.12.1-bookworm-slim@sha256:28147155d47dc31abe0a46e0d12b59b2fb3d0a2dcc5dc65fce76a074180b16fe
+FROM node:26.13-bookworm-slim@sha256:bc0a2afd3b74ce12222fc8bab99271e66257f021078f5f4a5d687a77d280c1d9
 
 # What to call this build in its traces, such as the commit.
 ARG SERVICE_VERSION=""

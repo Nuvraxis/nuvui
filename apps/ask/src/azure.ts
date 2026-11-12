@@ -177,7 +177,9 @@ export async function* streamChat(
       // The last chunk says how many tokens the question and the answer
       // took, for the counts.
       stream_options: { include_usage: true },
-      max_tokens: maxTokens,
+      // max_completion_tokens, not max_tokens: GPT-5 deployments refuse
+      // max_tokens with a 400, and the GPT-4.1 ones take either.
+      max_completion_tokens: maxTokens,
       temperature: 0.2,
       ...(tools && tools.length > 0
         ? { tools, tool_choice: toolChoice ?? "auto" }

@@ -78,7 +78,8 @@ describe("streamChat", () => {
     );
     const sent = JSON.parse(String(seen.init?.body));
     assert.equal(sent.stream, true);
-    assert.equal(sent.max_tokens, 800);
+    assert.equal(sent.max_completion_tokens, 800);
+    assert.equal(sent.max_tokens, undefined);
     assert.deepEqual(events, [
       { type: "text", text: "Use " },
       { type: "text", text: "Button." },

@@ -2,7 +2,7 @@
 
 # Blocks
 
-A block is a part of an app, such as a sign-in screen or a table with a toolbar, built from the library's components: one TSX file and one SCSS file, to copy into an app and change. There are 95. Each is shown at https://nuvui.nuvraxis.com/blocks.
+A block is a part of an app, such as a sign-in screen or a table with a toolbar, built from the library's components: one TSX file and one SCSS file, to copy into an app and change. There are 97. Each is shown at https://nuvui.nuvraxis.com/blocks.
 
 Before building a screen from nothing, look here for one that's close. To add one, with the packages it needs:
 
@@ -91,6 +91,11 @@ A block's SCSS uses the library's mixins, `@use "@nuvui/react/scss/mixins"`, so 
 - **Shipping label** (`shipping-label`): A parcel's label: who it's from and who it's for, the service and the weight, the tracking number as a barcode with the number under it, a QR code that opens the tracking page, and buttons that save the barcode as a file. Needs `@nuvui/barcodes`, `@nuvui/react`.
 - **Table with a toolbar** (`table-toolbar`): A table to work in: search, a filter by status, a column chooser, a menu on each row, and actions for the rows that are ticked. Needs `@nuvui/react`, `@nuvui/table`, `@tanstack/react-table`, `lucide-react`.
 - **Task board** (`task-board`): A plan's tasks in four columns. A card is dragged to another column or moved there with the keyboard, each card has a menu that moves it for anyone who'd sooner not drag, the review column takes only so many, and a line under the heading says what was moved. Needs `@nuvui/kanban`, `@nuvui/react`.
+
+## Developer
+
+- **Review changes** (`change-review`): A change to three files under review: the files in a list with the lines each adds and removes, and a diff editor for the one chosen, side by side or in one column, with unchanged lines folded away. Each change is kept or undone beside it, the counts follow, and merging waits until every one has been decided. Needs `@nuvui/react`, `@nuvui/editor`.
+- **Code playground** (`code-playground`): A small site's three files in a tree, the open ones in tabs, and one code editor that keeps each file's own history, with problems found by a check of its own and a formatter. The page is drawn in a sandboxed frame beside it a moment after typing stops, and what it logs comes back to a console under it. Needs `@nuvui/react`, `@nuvui/editor`.
 
 ## Editor
 

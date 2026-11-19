@@ -34,10 +34,16 @@ import callToAction from "@/blocks/call-to-action/block.json" with {
 import caseStudies from "@/blocks/case-studies/block.json" with {
   type: "json",
 };
+import changeReview from "@/blocks/change-review/block.json" with {
+  type: "json",
+};
 import chargingMap from "@/blocks/charging-map/block.json" with {
   type: "json",
 };
 import clinicDay from "@/blocks/clinic-day/block.json" with { type: "json" };
+import codePlayground from "@/blocks/code-playground/block.json" with {
+  type: "json",
+};
 import commentThread from "@/blocks/comment-thread/block.json" with {
   type: "json",
 };
@@ -300,6 +306,13 @@ export const categories: BlockCategory[] = [
       "Formatted text, written and read: a page of a knowledge base with an outline that follows its headings, an announcement shown beside the form as it will be read, and comments under a record with a small editor of their own.",
   },
   {
+    slug: "developer",
+    label: "Developer tools",
+    title: "Developer tools",
+    description:
+      "Code, written and reviewed: a playground of a small site's files, each keeping its own history, with problems marked as they're typed and the page drawn in a sandboxed frame beside them, and a change to three files under review, kept or undone one change at a time.",
+  },
+  {
     slug: "settings",
     label: "Settings",
     title: "Settings and admin",
@@ -389,6 +402,8 @@ export const blocks: BlockManifest[] = [
   documentEditor,
   announcementEditor,
   commentThread,
+  codePlayground,
+  changeReview,
   profileForm,
   setStatus,
   appearance,

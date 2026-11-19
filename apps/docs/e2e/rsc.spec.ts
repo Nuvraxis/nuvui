@@ -158,6 +158,18 @@ test("components used from a server component hydrate and work", async ({
   await expect(calendar.getByRole("heading", { level: 2 })).toHaveText(
     "October 21 – 27, 2026",
   );
+  // The code was in the server's HTML, and can be written once the editor
+  // has taken it over.
+  const code = page.getByRole("textbox", { name: "Code from the server" });
+  await expect(code).toContainText("SELECT store FROM orders;");
+  await code.click();
+  await page.keyboard.type("-- ok ");
+  await expect(code).toContainText("-- ok");
+  await expect(
+    page
+      .getByRole("group", { name: "Changes from the server" })
+      .locator(".nuv-diff-editor__status"),
+  ).toHaveText("1 change, 1 line added, 1 removed");
   const zoom = page.getByTestId("server-image-zoom");
   await expect(zoom).toContainText("Picture from the server");
   await zoom.getByRole("button", { name: "Zoom" }).click();

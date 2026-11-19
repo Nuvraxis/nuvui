@@ -39,6 +39,8 @@ import { DatePicker, type DateRange } from "@nuvui/date-picker";
 // An entry of the add-on's own, and one locale out of all it has.
 import { Calendar } from "@nuvui/date-picker/calendar";
 import { de } from "@nuvui/date-picker/locale";
+// The code editors, from their own entry.
+import { CodeEditor, DiffEditor } from "@nuvui/editor/code";
 // The editor, from the entry of its one component.
 import { RichTextEditor } from "@nuvui/editor/rich-text-editor";
 // The picker, from the entry of its one component.
@@ -175,6 +177,8 @@ function App() {
       </PromptInput>
       <Barcode value="590123412345" type="ean13" aria-label="Item 5901234" />
       <RichTextEditor aria-label="Notes" defaultValue="<p>Hello</p>" />
+      <CodeEditor aria-label="Query" language="sql" defaultValue="SELECT 1;" />
+      <DiffEditor aria-label="Changes" original="a" defaultModified="b" />
       <EmojiPicker onEmojiSelect={(emoji) => toast(emoji)} />
       <EmojiReaction emoji="👍" label="thumbs up" count={3} />
       <MapView

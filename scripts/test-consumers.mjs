@@ -261,6 +261,14 @@ const fixtures = {
     );
     expect(
       "vite",
+      "it has the code editors' styles, and the script has both",
+      css.includes(".nuv-code-editor") &&
+        css.includes(".nuv-diff-editor") &&
+        script.includes("nuv-code-editor__code") &&
+        script.includes("nuv-diff-editor__chunk-button"),
+    );
+    expect(
+      "vite",
       "the script has the board's card",
       script.includes("nuv-kanban__handle"),
     );
@@ -471,6 +479,14 @@ process.stdout.write(renderToStaticMarkup(createElement(ArrowRightIcon, { title:
       "the server rendered the editor's toolbar and the field a form is sent",
       html.includes("nuv-rich-text-editor__toolbar") &&
         /<input\s(?=[^>]*type="hidden")(?=[^>]*name="notes")/.test(html),
+    );
+    expect(
+      "next",
+      "the server rendered the code in a <pre>, the field it's sent in, and the diff's text",
+      html.includes("nuv-code-editor__fallback") &&
+        html.includes("SELECT 1;") &&
+        /<input\s(?=[^>]*type="hidden")(?=[^>]*name="query")/.test(html) &&
+        html.includes("nuv-diff-editor__fallback"),
     );
     expect(
       "next",

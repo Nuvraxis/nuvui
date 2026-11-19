@@ -241,6 +241,39 @@ test.describe("under the Content Security Policy the docs give", () => {
   });
 });
 
+test.describe("the code editor under the policy", () => {
+  // CodeMirror writes its styles in <style> elements as it runs, with class
+  // names that start with ͼ or cm-. A static site has no nonce to give them, so
+  // they're what's blocked here: what the page tells you to pass `nonce` for.
+  const codeMirrors = (violation: string) =>
+    /^style-src-elem inline .*(ͼ|cm-)/.test(violation);
+  const sitesOwn = (violation: string) =>
+    /^style-src-elem inline (\*,\*::before|\[data-radix-scroll-area-viewport\])/.test(
+      violation,
+    );
+
+  test("only CodeMirror's own styles are blocked, and the code can still be read and written", async ({
+    page,
+  }) => {
+    await servePolicy(page, policy);
+    await recordViolations(page);
+    await open(page, "/docs/editor/code-editor");
+    const code = page.getByRole("textbox", { name: "Packing script" });
+    await expect(code).toBeVisible();
+    await code.click();
+    await page.keyboard.type("// read");
+    await expect(code).toContainText("// read");
+
+    const blocked = await violations(page);
+    expect(blocked.some(codeMirrors)).toBe(true);
+    expect(
+      blocked.filter(
+        (violation) => !codeMirrors(violation) && !sitesOwn(violation),
+      ),
+    ).toEqual([]);
+  });
+});
+
 test.describe("the 3D viewer under the policy", () => {
   const sitesOwn = (violation: string) =>
     !/^style-src-elem inline (\*,\*::before|\[data-radix-scroll-area-viewport\])/.test(

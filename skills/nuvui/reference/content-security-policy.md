@@ -24,7 +24,7 @@ worker-src 'self' blob:;
 | Line | What it's for |
 | --- | --- |
 | `style-src 'self'` | The packages' stylesheets, served from your site. |
-| `'nonce-{nonce}'` | The one `<style>` element in the library, written by `ScrollArea`. Pass it the same value: `<ScrollArea nonce={nonce}>`. No other component writes a `<style>` element. |
+| `'nonce-{nonce}'` | The `<style>` elements the library writes: the one `ScrollArea` writes, and the ones CodeMirror writes for `CodeEditor` and `DiffEditor`. Pass each the same value: `<ScrollArea nonce={nonce}>`, `<CodeEditor nonce={nonce}>`. No other component writes a `<style>` element. |
 | `style-src-attr 'unsafe-inline'` | `style` attributes in the HTML. See below. |
 | `img-src blob:` | A picture of a file before it's sent, in `PromptInput`, and saving a barcode or a QR code as a PNG. Leave it out if you use neither. |
 | `worker-src blob:` | Where MapLibre starts its worker from, for `@nuvui/map`. With `setMapWorkerUrl` pointing at a file on your site, `'self'` is enough. |
@@ -57,6 +57,7 @@ A `style` attribute can only style the element it's on. It can't select other el
 
 - **`@nuvui/map`:** the tiles and the style come from a provider. Add its address to `connect-src`.
 - **`@nuvui/chat`:** what your app sends a model and gets back is your app's own requests, under your `connect-src`.
+- **`@nuvui/editor`:** the rich text editor needs nothing, since its styles are in the stylesheet. The code and diff editors are drawn by CodeMirror, which writes its styles in `<style>` elements as it runs: give them the nonce, as above.
 - **`@nuvui/flow`:** nothing. Every position is an SVG attribute, so a diagram sent by a server is drawn whole under a policy without `style-src-attr 'unsafe-inline'`.
 - **`@nuvui/media`:** a file needs nothing more than its own origin in `media-src`, and a thumbnails picture its origin in `img-src`. A stream played through hls.js or dashjs plays from `blob:` addresses, so add `media-src blob:`. hls.js also starts a worker from a `blob:` address, so add `worker-src blob:`, or pass `hlsConfig={{ enableWorker: false }}`. `computePeaks` fetches the file it measures, so add that file's origin to `connect-src`. Nothing the players or the transcript draw needs a `style` attribute.
 - **`@nuvui/backgrounds`:** nothing. Nothing is drawn with a `style` attribute, and what follows the pointer is set from script, which such a policy allows. A background on a canvas draws on it from script, and needs nothing else.

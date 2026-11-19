@@ -165,8 +165,10 @@ A file for each page of the docs. Read the one for a component before using it: 
 
 ## @nuvui/editor
 
-- [Editor](reference/editor/index.md): The @nuvui/editor package. A rich text editor on Tiptap, installed next to @nuvui/react, with a toolbar, a menu on the selection, links, a character count, and HTML as its value.
+- [Editor](reference/editor/index.md): The @nuvui/editor package. A rich text editor on Tiptap, and a code editor and a diff editor on CodeMirror, installed next to @nuvui/react.
 - [RichTextEditor](reference/editor/rich-text-editor.md): A box to write formatted text in. Bold and italic, headings, lists, quotes, code and links, from a toolbar, from the keyboard, or from a small menu over selected text. Its value is HTML.
+- [CodeEditor](reference/editor/code-editor.md): A box to write code in, on CodeMirror. Colored as CodeBlock colors code, with line numbers, folding, search, completion and problems marked in the code, and a file's own history when it's one of a set.
+- [DiffEditor](reference/editor/diff-editor.md): Two texts and what changed between them, side by side or in one column, on CodeMirror. Unchanged lines are folded away, and each change can be kept or undone.
 
 ## @nuvui/emoji
 

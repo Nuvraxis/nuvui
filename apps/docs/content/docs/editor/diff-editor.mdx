@@ -1,0 +1,221 @@
+---
+title: DiffEditor
+description: Two texts and what changed between them, side by side or in one column, on CodeMirror. Unchanged lines are folded away, and each change can be kept or undone.
+added: "2026-11-19"
+---
+
+Use it to show what changed: a review of a change to a file, a config before and after, two versions of a template. Each change is marked with + and − as well as its color, and the toolbar moves from one to the next.
+
+<Preview name="diff-editor/split" />
+
+## Install
+
+```sh
+pnpm add @nuvui/editor @nuvui/react
+```
+
+## Import
+
+```tsx
+import { DiffEditor } from "@nuvui/editor/code";
+```
+
+It's imported from `@nuvui/editor/code`, as [CodeEditor](/docs/editor/code-editor) is, and colors code the same way.
+
+```tsx
+<DiffEditor
+  aria-label="Changes to shipping.ts"
+  original={before}
+  defaultModified={after}
+  language="typescript"
+/>
+```
+
+## Playground
+
+<DiffEditorPlayground />
+
+## Parts
+
+By itself `DiffEditor` draws a toolbar, the two texts and a status bar. Give it children to choose the parts yourself.
+
+| Part | What it is |
+| --- | --- |
+| `DiffEditor` | The box. It keeps the changed text. |
+| `DiffEditorToolbar` | The row over the texts: the layout, the previous and next change, keeping and undoing a change, and opening what's folded. Your own controls go after them as children. |
+| `DiffEditorContent` | The two texts. |
+| `DiffEditorStatus` | The line under them: how many changes there are, and how many lines were added and removed. |
+
+## The two texts
+
+`original` is the text before, and `modified` the text after, with `onModifiedChange` when you keep it, or `defaultModified` when the editor does. Both are read only by default, for a review: they can be selected, searched and copied.
+
+`onModifiedChange` is called with the text and a summary: how many `changes` there are, and how many lines were `added` and `removed`. The status bar says the same in words.
+
+## Layout
+
+`layout` is `"split"`, the two side by side, or `"unified"`, one column with what was removed over what replaced it. The toolbar switches between them: with `layout` and `onLayoutChange` the layout is yours, and with `defaultLayout` the editor keeps it.
+
+<Preview name="diff-editor/unified" />
+
+A split layout narrower than `minSplitWidth`, 720 pixels by default, is drawn in one column. It's measured on the box, not the window, so a diff editor in a narrow panel is in one column on a wide screen.
+
+## Unchanged lines
+
+`collapseUnchanged` folds long stretches of unchanged lines away, and it's on by default. Three lines around each change stay in view, and a stretch of fewer than four isn't folded: give `{ margin, minSize }` for other numbers, or `false` to show everything. A fold says how many lines it holds, and pressing it opens it. The toolbar's Show unchanged lines opens them all.
+
+<Preview name="diff-editor/folded" />
+
+## Moving between changes
+
+The toolbar's Previous change and Next change, and <kbd>Alt</kbd> <kbd>↑</kbd> and <kbd>Alt</kbd> <kbd>↓</kbd> in the text, move the cursor to a change. A screen reader is told which, "Change 2 of 5".
+
+## Keeping and undoing a change
+
+With `editable`, the changed text can be edited, and each change has two buttons beside it: Keep change, and Undo change. Undoing writes the original's lines back. Keeping writes the change into the original shown, so it's no longer a change. The toolbar has the same two for the change the cursor is in.
+
+<Preview name="diff-editor/editable" />
+
+`onModifiedChange` is called after each, with what's left. Keeping a change also calls `onOriginalChange`, with the original the change is now written into. Give that back as `original`, as this example does, so a change that was kept stays kept when the editor is drawn again. The text to save is the one `onModifiedChange` gives you. Any other new `original` from you replaces the one shown.
+
+## From outside
+
+`editorRef` gives a handle on the diff editor:
+
+| Method | What it does |
+| --- | --- |
+| `focus()` | Puts the cursor in the changed text. |
+| `getModified()` | The changed text now. |
+| `nextChange()`, `previousChange()` | Moves to a change, and says which it is. |
+
+## DiffEditor props
+
+<PropsTable
+  package="editor"
+  component="diff-editor"
+  name="DiffEditorOwnProps"
+/>
+
+It also takes the attributes of a `div`, and passes `ref` to it. `DiffEditorToolbar` takes `children`, controls of your own after its own, and `DiffEditorContent` and `DiffEditorStatus` take the attributes of a `div`.
+
+## Translation
+
+Every name a screen reader hears, and the words in the toolbar and the status bar, are in `labels`, in English until you give others.
+
+<PropsTable
+  package="editor"
+  component="diff-editor"
+  name="DiffEditorLabels"
+/>
+
+```tsx
+<DiffEditor
+  labels={{
+    keep: "Wijziging houden",
+    undo: "Wijziging ongedaan maken",
+    position: (current, total) => `Wijziging ${current} van ${total}`,
+  }}
+/>
+```
+
+## Accessibility
+
+### Keyboard
+
+| Key | What it does |
+| --- | --- |
+| <kbd>Tab</kbd> | To the toolbar, then the texts, then the buttons beside each change, then out. |
+| <kbd>Alt</kbd> <kbd>↓</kbd> <kbd>↑</kbd> | In a text, the next and the previous change. |
+| <kbd>Space</kbd> or <kbd>Enter</kbd> | On a button beside a change, presses it. |
+| <kbd>Ctrl</kbd> <kbd>F</kbd> | Searches the text, as in CodeEditor. |
+| <kbd>→</kbd> <kbd>←</kbd> | In the toolbar, the next and the previous control. |
+
+### What the component handles
+
+- The box is a group with the name you give it. Each text is a textbox named Original or Changed, and read only unless `editable` is set.
+- A change is never shown by color alone. The gutter has + and −, a screen reader hears "added" or "removed" at the start of each changed line, and in forced colors each changed line has a border.
+- Moving to a change says which it is. The status bar counts the changes and the lines added and removed.
+- The buttons beside a change work with a press of a key, not only a click. Each is 44 pixels on a touch screen.
+- The texts are always left to right, in a page that's right to left. The toolbar and the status bar follow the page.
+
+### What you need to handle
+
+- Name it, with `aria-label` or `aria-labelledby`: what changed, and in which file.
+- Save the text `onModifiedChange` gives you. The editor doesn't know where the change came from or where it goes.
+
+## On small screens
+
+A split layout is in one column below `minSplitWidth`, measured on the box. Long lines scroll sideways inside it, or wrap with `wrap`.
+
+## Content security policy
+
+As in CodeEditor, CodeMirror writes its styles in `<style>` elements. Give the policy's nonce to `nonce`.
+
+## CSS variables
+
+The box, the toolbar and the status bar read these from the stylesheet:
+
+<CssVariables
+  package="editor"
+  component="diff-editor"
+  descriptions={{
+    "--nuv-diff-editor-border":
+      "Color of the box's border, and of the lines inside it.",
+    "--nuv-diff-editor-radius": "Corner radius of the box.",
+    "--nuv-diff-editor-max-height":
+      "The most the texts' height can be. They scroll inside it. 32rem by default.",
+    "--nuv-diff-editor-status-fg": "Color of the status bar. Keep it at 4.5:1.",
+  }}
+/>
+
+The texts are drawn by CodeMirror, which reads these, and CodeEditor's for the code itself:
+
+| Variable | What it is |
+| --- | --- |
+| `--nuv-diff-editor-inserted-bg` | Background of a line that's new. Mixed from `--color-success`. |
+| `--nuv-diff-editor-deleted-bg` | Background of a line that's gone. Mixed from `--color-danger`. |
+| `--nuv-diff-editor-inserted-text-bg` and `--nuv-diff-editor-deleted-text-bg` | The stronger color for the words that changed inside a line. |
+| `--nuv-diff-editor-inserted-fg` and `--nuv-diff-editor-deleted-fg` | Color of the + and − in the gutter. |
+| `--nuv-diff-editor-folded-bg` and `--nuv-diff-editor-folded-fg` | A stretch of unchanged lines that's folded. |
+| `--nuv-diff-editor-controls-width` | Width of the column between the two texts, where the buttons beside each change are. |
+
+## Classes
+
+<BemClasses
+  package="editor"
+  component="diff-editor"
+  descriptions={{
+    "nuv-diff-editor": "DiffEditor, with data-layout and data-editable.",
+    "nuv-diff-editor__toolbar": "DiffEditorToolbar, next to nuv-toolbar.",
+    "nuv-diff-editor__group": "The switch between the layouts.",
+    "nuv-diff-editor__item": "One button in the toolbar.",
+    "nuv-diff-editor__body": "DiffEditorContent, the part that scrolls.",
+    "nuv-diff-editor__view": "Where CodeMirror draws the texts.",
+    "nuv-diff-editor__code": "Each text itself, a textbox.",
+    "nuv-diff-editor__fallback":
+      "The changed text before CodeMirror has taken over.",
+    "nuv-diff-editor__status": "DiffEditorStatus",
+    "nuv-diff-editor__chunk-controls":
+      "The two buttons beside a change, side by side.",
+    "nuv-diff-editor__chunk-button": "One of them.",
+  }}
+/>
+
+`data-layout` is the layout that's drawn, so a split that's too narrow says `unified`.
+
+## Server components
+
+DiffEditor starts with `"use client"`. A server component can render it with `original` and `defaultModified`. Until the page is in a browser, the changed text is shown in a `<pre>`, and the changes are marked once CodeMirror takes over.
+
+## Do and don't
+
+**Do**
+
+- Name it after what changed, so a screen reader knows which review it's in.
+- Keep `collapseUnchanged` on for long files, so a change isn't lost in what didn't change.
+- Save what `onModifiedChange` gives you, which has every change that was kept.
+
+**Don't**
+
+- Don't use color alone to say what changed elsewhere on the page, as the editor doesn't.
+- Don't make a review `editable` where the reviewer can't change the file, as with a change someone else is proposing.

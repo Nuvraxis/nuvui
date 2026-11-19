@@ -167,8 +167,10 @@ Each page below is plain Markdown. All of them in one file: https://nuvui.nuvrax
 
 ## @nuvui/editor
 
-- [Editor](https://nuvui.nuvraxis.com/docs/llms/editor/index.md): The @nuvui/editor package. A rich text editor on Tiptap, installed next to @nuvui/react, with a toolbar, a menu on the selection, links, a character count, and HTML as its value.
+- [Editor](https://nuvui.nuvraxis.com/docs/llms/editor/index.md): The @nuvui/editor package. A rich text editor on Tiptap, and a code editor and a diff editor on CodeMirror, installed next to @nuvui/react.
 - [RichTextEditor](https://nuvui.nuvraxis.com/docs/llms/editor/rich-text-editor.md): A box to write formatted text in. Bold and italic, headings, lists, quotes, code and links, from a toolbar, from the keyboard, or from a small menu over selected text. Its value is HTML.
+- [CodeEditor](https://nuvui.nuvraxis.com/docs/llms/editor/code-editor.md): A box to write code in, on CodeMirror. Colored as CodeBlock colors code, with line numbers, folding, search, completion and problems marked in the code, and a file's own history when it's one of a set.
+- [DiffEditor](https://nuvui.nuvraxis.com/docs/llms/editor/diff-editor.md): Two texts and what changed between them, side by side or in one column, on CodeMirror. Unchanged lines are folded away, and each change can be kept or undone.
 
 ## @nuvui/emoji
 

@@ -1,0 +1,231 @@
+@use "../../styles/layers";
+@use "@nuvui/react/scss/mixins";
+
+// What CodeMirror draws is styled from its theme in code-editor/theme.ts,
+// since it puts its own styles in the page outside any layer. This is the
+// box around it, its toolbar, status and search, and the code shown before
+// it has taken over.
+@layer components {
+  .nuv-code-editor {
+    display: flex;
+    position: relative;
+    flex-direction: column;
+    min-inline-size: 0;
+    border: var(--nuv-border-width, 1px) solid
+      var(--nuv-code-editor-border, var(--color-border));
+    border-radius: var(--nuv-code-editor-radius, var(--radius-lg));
+    background-color: var(--nuv-code-editor-bg, var(--color-surface));
+    color: var(--nuv-code-editor-fg, var(--color-surface-foreground));
+
+    &:has(.nuv-code-editor__code:focus-visible) {
+      outline: var(--nuv-focus-ring-width, 2px) solid
+        var(--nuv-focus-ring-color, var(--color-ring));
+      outline-offset: var(--nuv-focus-ring-offset, 2px);
+    }
+
+    &[data-invalid] {
+      border-color: var(--nuv-code-editor-invalid-border, var(--color-danger));
+    }
+
+    &[data-disabled] {
+      opacity: var(--nuv-disabled-opacity);
+      cursor: not-allowed;
+    }
+  }
+
+  // The core's toolbar, as the top of the box and not a box of its own.
+  .nuv-code-editor__toolbar {
+    --nuv-toolbar-border: transparent;
+    --nuv-toolbar-radius: 0;
+    --nuv-toolbar-bg: transparent;
+
+    flex-wrap: wrap;
+    border-block-end: var(--nuv-border-width, 1px) solid
+      var(--nuv-code-editor-border, var(--color-border));
+    border-start-start-radius: inherit;
+    border-start-end-radius: inherit;
+  }
+
+  // Square, since each holds one drawing.
+  .nuv-code-editor__item {
+    --nuv-toolbar-item-padding-inline: 0;
+  }
+
+  .nuv-code-editor__language {
+    gap: calc(var(--spacing) * 1);
+    padding-inline: calc(var(--spacing) * 2);
+    font-size: var(--text-sm);
+  }
+
+  .nuv-code-editor__language-name {
+    padding-inline: calc(var(--spacing) * 2);
+    color: var(--color-muted-foreground);
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+  }
+
+  .nuv-code-editor__body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-inline-size: 0;
+  }
+
+  .nuv-code-editor__view {
+    display: contents;
+  }
+
+  // The code before CodeMirror has taken over, in its font and at its
+  // height, with the line numbers where its gutter will be.
+  .nuv-code-editor__fallback {
+    display: flex;
+    overflow: auto;
+    font-family: var(--nuv-code-editor-font, var(--font-mono));
+    font-size: max(1rem, var(--nuv-code-editor-font-size, var(--text-sm)));
+    line-height: var(--nuv-code-editor-line-height, 1.5);
+
+    @include mixins.fine-pointer {
+      font-size: var(--nuv-code-editor-font-size, var(--text-sm));
+    }
+  }
+
+  .nuv-code-editor__fallback-gutter,
+  .nuv-code-editor__fallback-code {
+    margin: 0;
+    padding-block: var(
+      --nuv-code-editor-padding-block,
+      calc(var(--spacing) * 2)
+    );
+    font: inherit;
+  }
+
+  .nuv-code-editor__fallback-gutter {
+    flex: none;
+    min-inline-size: calc(2ch + var(--spacing) * 4);
+    padding-inline: calc(var(--spacing) * 3) calc(var(--spacing) * 1);
+    color: var(--nuv-code-editor-gutter-fg, var(--color-muted-foreground));
+    text-align: end;
+  }
+
+  .nuv-code-editor__fallback-code {
+    flex: 1;
+    min-inline-size: 0;
+    padding-inline: var(
+      --nuv-code-editor-padding-inline,
+      calc(var(--spacing) * 3)
+    );
+    white-space: pre;
+  }
+
+  .nuv-code-editor__status {
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(var(--spacing) * 1) calc(var(--spacing) * 4);
+    padding: calc(var(--spacing) * 1.5) calc(var(--spacing) * 3);
+    border-block-start: var(--nuv-border-width, 1px) solid
+      var(--nuv-code-editor-border, var(--color-border));
+    color: var(--nuv-code-editor-status-fg, var(--color-muted-foreground));
+    font-size: var(--text-xs);
+    font-variant-numeric: tabular-nums;
+    line-height: var(--text-xs--line-height);
+  }
+
+  .nuv-code-editor__status-item[data-language] {
+    margin-inline-start: auto;
+  }
+
+  .nuv-code-editor__status-item[data-problems] {
+    color: var(--nuv-code-editor-status-problems-fg, var(--color-foreground));
+  }
+
+  // The search panel, in the place CodeMirror makes for it over the code.
+  .nuv-code-editor__search {
+    padding: calc(var(--spacing) * 2);
+    font-family: var(--font-sans);
+  }
+
+  .nuv-code-editor__search-form {
+    display: grid;
+    gap: calc(var(--spacing) * 2);
+  }
+
+  .nuv-code-editor__search-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(var(--spacing) * 1);
+    align-items: center;
+  }
+
+  .nuv-code-editor__search-field {
+    flex: 1 1 12rem;
+    min-inline-size: 0;
+  }
+
+  .nuv-code-editor__matches {
+    min-inline-size: 4rem;
+    color: var(--color-muted-foreground);
+    font-size: var(--text-xs);
+    font-variant-numeric: tabular-nums;
+    line-height: var(--text-xs--line-height);
+    text-align: center;
+  }
+
+  .nuv-code-editor__search-button {
+    @include mixins.touch-target;
+
+    padding: 0;
+
+    @include mixins.fine-pointer {
+      min-block-size: var(--nuv-control-height-sm);
+      min-inline-size: var(--nuv-control-height-sm);
+    }
+  }
+
+  .nuv-code-editor__search-option {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+  }
+
+  .nuv-code-editor__whole-word {
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  // A problem in its tooltip: its kind as a word and an icon, then what's
+  // wrong.
+  .nuv-code-editor__problem {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: calc(var(--spacing) * 2);
+    align-items: baseline;
+  }
+
+  .nuv-code-editor__severity {
+    display: inline-flex;
+    gap: calc(var(--spacing) * 1);
+    align-items: center;
+    font-weight: var(--font-weight-semibold);
+
+    svg {
+      inline-size: 1em;
+      block-size: 1em;
+      flex: none;
+    }
+
+    &[data-severity="error"] {
+      color: var(--nuv-code-editor-error, var(--color-danger));
+    }
+
+    &[data-severity="warning"] {
+      color: var(--nuv-code-editor-warning, var(--color-warning));
+    }
+
+    &[data-severity="info"] {
+      color: var(--nuv-code-editor-info, var(--color-primary));
+    }
+
+    &[data-severity="hint"] {
+      color: var(--nuv-code-editor-hint, var(--color-muted-foreground));
+    }
+  }
+}

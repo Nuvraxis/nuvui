@@ -292,7 +292,7 @@
       "type": "object",
       "properties": {
         "category": {
-          "description": "One of: 3d, accounts, calendar, chat, dashboard, data, editor, flows, layout, marketing, media, settings.",
+          "description": "One of: 3d, accounts, calendar, chat, dashboard, data, developer, editor, flows, layout, marketing, media, settings.",
           "type": "string",
           "maxLength": 40
         },

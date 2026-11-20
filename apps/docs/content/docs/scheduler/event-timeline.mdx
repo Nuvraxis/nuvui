@@ -113,6 +113,10 @@ On the days, weeks, months and years scales, a drag moves an event by whole days
 
 <Preview name="event-timeline/changes" />
 
+## Loading from a server
+
+A `dataSource` loads the events of the period shown, and of each period moved to, and saves each change, as [Loading from a server](/docs/scheduler/loading-by-range) explains for both components.
+
 ## Many resources
 
 Only the rows and the columns in view are drawn, and a few past each edge, so the page holds the same few hundred elements however many resources and days there are. The rows and columns that aren't drawn are still counted, with `aria-rowcount` and `aria-colcount`, and a screen reader hears where it is in the whole.

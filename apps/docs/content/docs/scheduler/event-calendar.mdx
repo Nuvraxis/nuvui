@@ -59,6 +59,8 @@ An all-day event's `start` and `end` are its first and last day, so an event on 
 
 A timed event that lasts a day or longer is drawn with the all-day events, as a bar across its days. A shorter one that crosses midnight is drawn on both days.
 
+Events that live on a server can be loaded a range of days at a time with a `dataSource`, which [Loading from a server](/docs/scheduler/loading-by-range) covers.
+
 ## Views
 
 The header switches between four views. `views` limits which are offered, and in what order. `defaultView` is the one shown first, `"week"` unless you say otherwise.
@@ -264,6 +266,8 @@ Set any of these on an `EventCalendar`, or on anything around it.
     "nuv-event-calendar__steps": "The previous and next buttons.",
     "nuv-event-calendar__chevron": "The arrow in each.",
     "nuv-event-calendar__title": "The heading with the dates shown.",
+    "nuv-event-calendar__status": "Whether the days shown are loading from a `dataSource`, or couldn't be loaded or saved, with Try again. Its `data-state` is `loading`, `failed`, `unsaved` or `idle`.",
+    "nuv-event-calendar__status-text": "What it says, a live region.",
     "nuv-event-calendar__tools": "The view switch and the preferences menu.",
     "nuv-event-calendar__view-select": "The view switch as a menu, on a narrow calendar.",
     "nuv-event-calendar__main": "The side panel and the view.",

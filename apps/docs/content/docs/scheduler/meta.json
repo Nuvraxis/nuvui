@@ -7,6 +7,7 @@
     "event-timeline",
     "editing",
     "resources",
-    "recurring-events"
+    "recurring-events",
+    "loading-by-range"
   ]
 }

@@ -34,8 +34,12 @@ const source = async (block: string, file: string) =>
     .replaceAll("\r\n", "\n")
     .trim();
 
+// The script runs in every frame. A sandboxed one, such as the code
+// playground's preview, has no storage, and reading it there throws.
 const setTheme = (page: Page, theme: "light" | "dark") =>
-  page.addInitScript((value) => localStorage.setItem("theme", value), theme);
+  page.addInitScript((value) => {
+    if (window === window.top) localStorage.setItem("theme", value);
+  }, theme);
 
 // A phone's width, whatever the project's own screen is.
 const phone = { width: 390, height: 800 };

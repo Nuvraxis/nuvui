@@ -257,6 +257,10 @@ const UntypedEventTimeline = forwardRef<HTMLElement, AnyProps>(
     const undated =
       !hydrated && (dateProp ?? defaultDate ?? todayProp) === undefined;
     const day = dayOf(undated ? noDate : date, timeZone);
+    // Drawn by a server that can't know the time zone of the person
+    // looking, or the day they're looking on. It keeps its place and shows
+    // the days once it does.
+    const pending = !hydrated && (!timeZoneProp || undated);
     const setDate = useCallback(
       (next: DayKey) => setDateValue(momentOf(next, 0, timeZone)),
       [setDateValue, timeZone],
@@ -316,6 +320,7 @@ const UntypedEventTimeline = forwardRef<HTMLElement, AnyProps>(
         first: axis.first,
         last: axis.last,
         hidden: noIds,
+        pending,
         scrollToHour,
         locate: timelineSpotAt(axis),
         scrollNear: scrollTimeline,
@@ -399,10 +404,7 @@ const UntypedEventTimeline = forwardRef<HTMLElement, AnyProps>(
         aria-label={ariaLabel ?? labels.timeline}
         data-scale={scale}
         data-narrow={narrow ? "" : undefined}
-        // Drawn by a server that can't know the time zone of the person
-        // looking, or the day they're looking on. It keeps its place and
-        // shows the days once it does.
-        data-pending={!hydrated && (!timeZoneProp || undated) ? "" : undefined}
+        data-pending={pending ? "" : undefined}
         className={cx("nuv-event-timeline", className)}
         {...rest}
       >

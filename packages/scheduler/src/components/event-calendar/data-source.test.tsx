@@ -4,6 +4,8 @@ import "../../styles/index.scss";
 import { axe, outsideLandmarks } from "@nuvui/tooling/test/axe";
 import { setViewport } from "@nuvui/tooling/test/media";
 import { renderThemed, themes } from "@nuvui/tooling/test/themed";
+import { hydrateRoot } from "react-dom/client";
+import { renderToString } from "react-dom/server";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
@@ -426,5 +428,33 @@ describe("the timeline", () => {
     await page.getByRole("button", { name: "Next" }).click();
     await expect.poll(() => getEvents.mock.calls.length).toBe(2);
     expect(ranges(getEvents)[1]).toEqual(["2026-11-01", "2026-11-30"]);
+  });
+});
+
+describe("on the server", () => {
+  test("drawn with no day given, nothing is loaded until the browser knows the day", async () => {
+    const getEvents = vi.fn(from([]));
+    const node = (
+      <EventCalendar
+        aria-label="Server calendar"
+        timeZone="UTC"
+        dataSource={{ getEvents }}
+        defaultPanelOpen={false}
+        style={{ inlineSize: 1100 }}
+      />
+    );
+    const html = renderToString(node);
+    expect(html).toContain("data-pending");
+    const host = document.createElement("div");
+    host.innerHTML = html;
+    document.body.append(host);
+    hydrateRoot(host, node);
+    await expect.poll(() => getEvents.mock.calls.length).toBe(1);
+    // The week the browser is on, and not the stand-in drawn before it knew.
+    const { from: first, to: last } = getEvents.mock
+      .calls[0]?.[0] as EventRange;
+    const now = new Date().toISOString().slice(0, 10);
+    expect(first <= now && now <= last).toBe(true);
+    host.remove();
   });
 });

@@ -343,6 +343,10 @@ const UntypedEventCalendar = forwardRef<HTMLElement, AnyProps>(
     const undated =
       !hydrated && (dateProp ?? defaultDate ?? todayProp) === undefined;
     const day = dayOf(undated ? noDate : date, timeZone);
+    // Drawn by a server that can't know the time zone of the person
+    // looking, or the day they're looking on. It keeps its place and shows
+    // the days once it does.
+    const pending = !hydrated && (!timeZoneProp || undated);
     const setDate = useCallback(
       (next: DayKey) => setDateValue(momentOf(next, 0, timeZone)),
       [setDateValue, timeZone],
@@ -459,6 +463,7 @@ const UntypedEventCalendar = forwardRef<HTMLElement, AnyProps>(
         first,
         last,
         hidden,
+        pending,
         scrollToHour,
         locate: spotAt,
         scrollNear: scrollTimeGrid,
@@ -529,10 +534,7 @@ const UntypedEventCalendar = forwardRef<HTMLElement, AnyProps>(
         data-view={view}
         data-narrow={narrow ? "" : undefined}
         data-panel-over={panelOver ? "" : undefined}
-        // Drawn by a server that can't know the time zone of the person
-        // looking, or the day they're looking on. It keeps its place and
-        // shows the days once it does.
-        data-pending={!hydrated && (!timeZoneProp || undated) ? "" : undefined}
+        data-pending={pending ? "" : undefined}
         className={cx("nuv-event-calendar", className)}
         {...rest}
       >

@@ -92,6 +92,11 @@ interface Options {
   write: (event: CalendarEvent) => object;
   /** A save failed, and these changes undid it. */
   onUndo: (events: CalendarEvent[], changes: EventChange[]) => void;
+  /**
+   * The component doesn't yet know the day or the time zone to show, and
+   * draws a stand-in. Nothing is loaded for it.
+   */
+  paused: boolean;
 }
 
 /** The change that takes another back. */
@@ -152,7 +157,7 @@ export function useEventSource(
   dataSource: EventDataSource<object> | undefined,
   options: Options,
 ) {
-  const { timeZone, first, last } = options;
+  const { timeZone, first, last, paused } = options;
   const latest = useRef(options);
   latest.current = options;
 
@@ -235,7 +240,7 @@ export function useEventSource(
   const load = useCallback(
     (range: DayRange) => {
       const from = sourceRef.current;
-      if (!from) return;
+      if (!from || latest.current.paused) return;
       const busy = [
         ...loaded.current,
         ...requests.current.map((request) => request.range),
@@ -306,8 +311,8 @@ export function useEventSource(
   // The days shown, whenever they change, and again after Try again.
   // biome-ignore lint/correctness/useExhaustiveDependencies: attempt asks for the same days again
   useEffect(() => {
-    if (source) load({ from: first, to: last });
-  }, [source, timeZone, first, last, attempt, load]);
+    if (source && !paused) load({ from: first, to: last });
+  }, [source, timeZone, first, last, attempt, load, paused]);
 
   // Nothing is asked for once the component has gone.
   useEffect(

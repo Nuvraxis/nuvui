@@ -341,6 +341,11 @@ export interface SchedulerSetup {
   last: DayKey;
   /** Resources whose events are hidden. */
   hidden: readonly string[];
+  /**
+   * Drawn before the browser knows the day or the time zone to show, with
+   * a stand-in day. Nothing is loaded from a data source for it.
+   */
+  pending: boolean;
   /** The hour a timed event starts at when an all-day one is made timed. */
   scrollToHour: number;
   /** The spot under a point. */
@@ -472,6 +477,7 @@ export function useScheduler(props: SharedProps, setup: SchedulerSetup) {
     timeZone,
     first,
     last,
+    paused: setup.pending,
     read: (item) => {
       look(item);
       return read(item);

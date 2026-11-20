@@ -7,14 +7,22 @@ import { useCalendar, type ViewProps } from "./context";
 import { EventButton } from "./event-button";
 
 /** How far ahead an empty agenda looks for the next day with an event. */
-const ahead = 180;
+export const ahead = 180;
 
 interface AgendaViewProps extends ViewProps {
   events: readonly CalendarEvent[];
+  /** Events are still being loaded, so what's ahead isn't known yet. */
+  searching?: boolean;
 }
 
 /** The events as a list, day by day. */
-export function AgendaView({ days, placed, label, events }: AgendaViewProps) {
+export function AgendaView({
+  days,
+  placed,
+  label,
+  events,
+  searching = false,
+}: AgendaViewProps) {
   const {
     timeZone,
     today,
@@ -61,7 +69,7 @@ export function AgendaView({ days, placed, label, events }: AgendaViewProps) {
             </Button>
           ) : (
             <p className="nuv-event-calendar__empty-text">
-              {labels.nothingAhead}
+              {searching ? labels.loading : labels.nothingAhead}
             </p>
           )}
         </div>

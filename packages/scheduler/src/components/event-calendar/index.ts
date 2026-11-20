@@ -18,6 +18,12 @@ export type {
   Weekday,
 } from "../../core/recurrence";
 export type { CalendarResource } from "../../core/resources";
+export type {
+  EventChanges,
+  EventDataSource,
+  EventRange,
+  SavedEvents,
+} from "./data-source";
 export type { EventField, EventFieldsProps } from "./editor";
 export {
   type CalendarView,

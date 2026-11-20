@@ -51,6 +51,7 @@ import {
   type CalendarContextValue,
   type ResolvedPreferences,
 } from "../event-calendar/context";
+import { DataStatus } from "../event-calendar/data-status";
 import { allFields } from "../event-calendar/editor";
 import { Chevron } from "../event-calendar/icons";
 import {
@@ -191,6 +192,7 @@ const UntypedEventTimeline = forwardRef<HTMLElement, AnyProps>(
       onEventDropOutside: _onEventDropOutside,
       createId: _createId,
       onEventClick: _onEventClick,
+      dataSource: _dataSource,
       // The timeline's own.
       collapsedResources: collapsedProp,
       defaultCollapsedResources = noIds,
@@ -442,6 +444,7 @@ const UntypedEventTimeline = forwardRef<HTMLElement, AnyProps>(
             <Heading className="nuv-event-timeline__title" aria-live="polite">
               {title}
             </Heading>
+            <DataStatus source={scheduler.source} labels={labels} />
             {scales.length < 2 ? null : (
               <div className="nuv-event-timeline__tools">
                 {narrow ? (
@@ -484,7 +487,11 @@ const UntypedEventTimeline = forwardRef<HTMLElement, AnyProps>(
             )}
           </div>
           {/* The clicks, keys and drags of the grid's cells and events, taken here once rather than on each. */}
-          <div className="nuv-event-timeline__view" {...scheduler.viewHandlers}>
+          <div
+            className="nuv-event-timeline__view"
+            aria-busy={scheduler.source.loading || undefined}
+            {...scheduler.viewHandlers}
+          >
             <TimelineGrid
               axis={axis}
               rows={rows}

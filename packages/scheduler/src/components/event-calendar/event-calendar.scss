@@ -64,6 +64,34 @@ $edge: calc(var(--nuv-border-width) + #{$gap * 2});
     line-height: var(--text-base--line-height);
   }
 
+  // Loading, or what went wrong, with a data source. The text is a live
+  // region, so it stays in the page with nothing in it.
+  .nuv-event-calendar__status {
+    display: flex;
+    gap: calc(var(--spacing) * 2);
+    align-items: center;
+    color: var(--color-muted-foreground);
+  }
+
+  .nuv-event-calendar__status[data-state="idle"] {
+    display: contents;
+  }
+
+  .nuv-event-calendar__status[data-state="failed"],
+  .nuv-event-calendar__status[data-state="unsaved"] {
+    color: var(--color-danger);
+  }
+
+  .nuv-event-calendar__status-text {
+    display: inline-flex;
+    gap: calc(var(--spacing) * 1.5);
+    align-items: center;
+  }
+
+  .nuv-event-calendar__view[aria-busy="true"] {
+    cursor: progress;
+  }
+
   .nuv-event-calendar__tools {
     display: flex;
     gap: calc(var(--spacing) * 2);

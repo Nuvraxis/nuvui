@@ -222,6 +222,7 @@ Each page below is plain Markdown. All of them in one file: https://nuvui.nuvrax
 - [Editing events](https://nuvui.nuvraxis.com/docs/llms/scheduler/editing.md): Making, changing, moving and deleting events in an EventCalendar, with a pointer, a finger or the keyboard.
 - [Resources](https://nuvui.nuvraxis.com/docs/llms/scheduler/resources.md): Rooms, people or machines that events are booked against in an EventCalendar, shown or hidden from its side panel, and read from your own field names.
 - [Recurring events](https://nuvui.nuvraxis.com/docs/llms/scheduler/recurring-events.md): Events in an EventCalendar that repeat by a rule, an RRULE or an object, with days left out, worked out in their own time zone, and changed one at a time, from one on, or all together.
+- [Loading from a server](https://nuvui.nuvraxis.com/docs/llms/scheduler/loading-by-range.md): An EventCalendar or EventTimeline that asks your server only for the days shown, keeps what it has loaded, and saves each change, drawn at once and taken back if the save fails.
 
 ## @nuvui/icons
 

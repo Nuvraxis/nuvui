@@ -1,6 +1,7 @@
 import "@nuvui/react/styles.css";
 import "../../styles/index.scss";
 import { LanguageSupport, StreamLanguage } from "@codemirror/language";
+import { DirectionProvider } from "@nuvui/react/direction";
 import { axe, behindOpenList } from "@nuvui/tooling/test/axe";
 import { emulateMedia, setViewport } from "@nuvui/tooling/test/media";
 import { renderThemed, themes } from "@nuvui/tooling/test/themed";
@@ -292,7 +293,9 @@ describe("read only and disabled", () => {
           )}
           maxLines={5}
           readOnly
-        />
+        >
+          <CodeEditorContent />
+        </CodeEditor>
       </>,
     );
     await expect.element(code()).toBeInTheDocument();
@@ -370,7 +373,11 @@ describe("languages", () => {
     (picker.element() as HTMLElement).focus();
     await userEvent.keyboard("{Enter}");
     await expect.element(page.getByRole("listbox")).toBeVisible();
-    await userEvent.keyboard("{ArrowDown}{Enter}");
+    // Radix moves focus into the list a moment after it opens.
+    await expect.poll(() => document.activeElement?.textContent).toBe("CSS");
+    await userEvent.keyboard("{ArrowDown}");
+    await expect.poll(() => document.activeElement?.textContent).toBe("SCSS");
+    await userEvent.keyboard("{Enter}");
     // The one after CSS in the list is SCSS.
     await expect.poll(status).toContain("SCSS");
   });
@@ -645,6 +652,8 @@ describe("its look", () => {
     expect(getComputedStyle(line()).backgroundColor).toBe("rgba(0, 0, 0, 0)");
 
     await userEvent.click(code().element());
+    // Back to the first line, wherever the click put the cursor.
+    await userEvent.keyboard("{Control>}{Home}{/Control}");
     await expect
       .poll(() => getComputedStyle(line()).backgroundColor)
       .not.toBe("rgba(0, 0, 0, 0)");
@@ -658,8 +667,10 @@ describe("its look", () => {
     const line = Number.parseFloat(getComputedStyle(content()).lineHeight);
     expect(rect(scroller()).height).toBeGreaterThanOrEqual(line * 4);
 
+    // Another editor: defaultValue is only read when one is made.
     await rerender(
       <CodeEditor
+        key="long"
         aria-label="Script"
         defaultValue={Array.from({ length: 40 }, (_, i) => `line ${i}`).join(
           "\n",
@@ -736,11 +747,23 @@ describe("its look", () => {
     await emulateMedia({ reducedMotion: null });
   });
 
-  test("in a page written right to left, the code is still left to right, and the toolbar follows the page", async () => {
+  test("with a mouse, the code is the size its variable says", async () => {
     await render(
-      <div dir="rtl">
+      <div style={{ "--nuv-code-editor-font-size": "12px" } as never}>
         <CodeEditor aria-label="Script" defaultValue="a = 1" />
       </div>,
+    );
+    await expect.element(code()).toBeInTheDocument();
+    expect(getComputedStyle(content()).fontSize).toBe("12px");
+  });
+
+  test("in a page written right to left, the code is still left to right, and the toolbar follows the page", async () => {
+    await render(
+      <DirectionProvider dir="rtl">
+        <div dir="rtl">
+          <CodeEditor aria-label="Script" defaultValue="a = 1" />
+        </div>
+      </DirectionProvider>,
     );
     await expect.element(code()).toBeInTheDocument();
     expect(getComputedStyle(content()).direction).toBe("ltr");

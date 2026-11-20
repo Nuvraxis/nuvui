@@ -31,8 +31,11 @@ test("what's selected is the system's highlight", async () => {
   await expect.element(code()).toBeInTheDocument();
   await userEvent.click(code().element());
   await userEvent.keyboard("{Control>}a{/Control}");
+  // CodeMirror draws the selection when it next measures the page.
+  await expect
+    .poll(() => document.querySelector(".cm-selectionBackground"))
+    .not.toBeNull();
   const layer = document.querySelector(".cm-selectionBackground");
-  expect(layer).not.toBeNull();
   const probe = document.createElement("span");
   probe.style.backgroundColor = "Highlight";
   probe.style.forcedColorAdjust = "none";

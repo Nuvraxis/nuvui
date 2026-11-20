@@ -25,6 +25,12 @@ const changed = page.getByRole("textbox", { name: "Changed" });
 const toolbar = () => page.getByRole("toolbar", { name: "Changes" });
 const button = (name: string) =>
   page.getByRole("button", { name, exact: true });
+// The two layouts are a choice of one, so each is a radio.
+const layout = (name: string) => page.getByRole("radio", { name, exact: true });
+// The toolbar's own buttons, apart from the ones beside each change that
+// have the same names.
+const tool = (name: string) =>
+  toolbar().getByRole("button", { name, exact: true });
 const status = () => one(".nuv-diff-editor__status").textContent ?? "";
 const said = () =>
   all(".nuv-diff-editor [aria-live]")
@@ -42,7 +48,7 @@ type Props = Partial<ComponentProps<typeof DiffEditor>>;
 
 // Wide enough to be side by side, and CodeMirror takes over once the page
 // has drawn.
-async function mount(props: Props = {}) {
+async function mount(props: Props = {}, changedName = "Changed") {
   const result = await render(
     <div style={{ inlineSize: 900 }}>
       <DiffEditor
@@ -54,7 +60,9 @@ async function mount(props: Props = {}) {
       />
     </div>,
   );
-  await expect.element(changed).toBeInTheDocument();
+  await expect
+    .element(page.getByRole("textbox", { name: changedName }))
+    .toBeInTheDocument();
   return result;
 }
 
@@ -113,7 +121,7 @@ describe("layout", () => {
   test("the toolbar switches to one column, and says so", async () => {
     const onLayoutChange = vi.fn();
     await mount({ onLayoutChange });
-    await button("In one column").click();
+    await layout("In one column").click();
     expect(onLayoutChange).toHaveBeenCalledWith("unified");
     await expect
       .poll(() => one(".nuv-diff-editor").dataset.layout)
@@ -307,16 +315,16 @@ describe("keeping and undoing a change", () => {
     const onChange = vi.fn();
     await render(<Review onChange={onChange} />);
     await expect.element(changed).toBeInTheDocument();
-    await button("In one column").click();
+    await layout("In one column").click();
     await expect
       .poll(() => one(".nuv-diff-editor").dataset.layout)
       .toBe("unified");
 
     await button("Next change").click();
-    await button("Undo change").click();
+    await tool("Undo change").click();
     await expect.poll(() => onChange.mock.lastCall?.[0]?.changes).toBe(1);
     await button("Next change").click();
-    await button("Keep change").click();
+    await tool("Keep change").click();
     await expect.poll(status).toBe("No changes");
   });
 
@@ -324,7 +332,7 @@ describe("keeping and undoing a change", () => {
     const onOriginalChange = vi.fn();
     await mount({ editable: true, onOriginalChange });
     await button("Next change").click();
-    await button("Keep change").click();
+    await tool("Keep change").click();
     await expect
       .poll(() => onOriginalChange.mock.lastCall?.[0])
       .toBe("one\n2\nthree\nfour\nfive\n");
@@ -371,17 +379,20 @@ describe("from outside", () => {
 
 describe("words", () => {
   test("every name can be given in another language", async () => {
-    await mount({
-      editable: true,
-      labels: {
-        toolbar: "Wijzigingen",
-        nextChange: "Volgende wijziging",
-        keep: "Houden",
-        original: "Oud",
-        modified: "Nieuw",
-        summary: ({ changes }) => `${changes} wijzigingen`,
+    await mount(
+      {
+        editable: true,
+        labels: {
+          toolbar: "Wijzigingen",
+          nextChange: "Volgende wijziging",
+          keep: "Houden",
+          original: "Oud",
+          modified: "Nieuw",
+          summary: ({ changes }) => `${changes} wijzigingen`,
+        },
       },
-    });
+      "Nieuw",
+    );
     expect(
       page.getByRole("toolbar", { name: "Wijzigingen" }).elements(),
     ).toHaveLength(1);
@@ -441,7 +452,7 @@ describe.each(themes)("accessibility in %s", (theme) => {
     await expect.element(changed).toBeInTheDocument();
     expect(await axe(container)).toHaveNoViolations();
 
-    await button("In one column").click();
+    await layout("In one column").click();
     await expect
       .poll(() => one(".nuv-diff-editor").dataset.layout)
       .toBe("unified");

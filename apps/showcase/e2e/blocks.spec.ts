@@ -34,8 +34,12 @@ const source = async (block: string, file: string) =>
     .replaceAll("\r\n", "\n")
     .trim();
 
+// The script runs in every frame. A sandboxed one, such as the code
+// playground's preview, has no storage, and reading it there throws.
 const setTheme = (page: Page, theme: "light" | "dark") =>
-  page.addInitScript((value) => localStorage.setItem("theme", value), theme);
+  page.addInitScript((value) => {
+    if (window === window.top) localStorage.setItem("theme", value);
+  }, theme);
 
 // A phone's width, whatever the project's own screen is.
 const phone = { width: 390, height: 800 };
@@ -221,6 +225,15 @@ for (const block of blocks) {
       // A few presses more than there are stops, so a stop that's skipped
       // shows as a count that's short.
       for (let index = 0; index < expected + 3; index += 1) {
+        // A code editor keeps Tab for indenting. Escape lets the next Tab
+        // leave it.
+        if (
+          await page.evaluate(
+            () => document.activeElement?.matches(".cm-content") ?? false,
+          )
+        ) {
+          await page.keyboard.press("Escape");
+        }
         await page.keyboard.press("Tab");
         const stop = await page.evaluate(() => {
           const element = document.activeElement;
@@ -6736,4 +6749,160 @@ test.describe("3D models", () => {
     await page.keyboard.press("Escape");
     await expect(dialog).toBeHidden();
   });
+});
+
+test.describe("code playground", () => {
+  test("code playground: what's typed is drawn in the sandboxed frame, and what it logs comes back", async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(isMobile, "typing at the end of a file is done with the keys");
+    await open(page, "/blocks/view/code-playground");
+    const frame = page.locator(".code-playground__frame");
+    await expect(frame).toHaveAttribute("sandbox", "allow-scripts");
+    const log = page.getByRole("list", { name: "Console" });
+    await expect(log).toContainText("The banner is ready");
+
+    const code = page.getByRole("textbox", { name: "app.js" });
+    await code.click();
+    await page.keyboard.press("ControlOrMeta+End");
+    await page.keyboard.type('console.log("from the test");');
+    await expect(log).toContainText("from the test");
+  });
+
+  test("code playground: a var is warned about, and each file keeps its own undo", async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(isMobile, "undo is done with the keys");
+    await open(page, "/blocks/view/code-playground");
+    const status = page.locator(".nuv-code-editor__status");
+    await expect(status).toContainText("1 problem");
+
+    const code = page.getByRole("textbox", { name: "app.js" });
+    await code.click();
+    await page.keyboard.press("ControlOrMeta+End");
+    await page.keyboard.type("// one");
+    await page.getByRole("tab", { name: "index.html" }).click();
+    const html = page.getByRole("textbox", { name: "index.html" });
+    await html.click();
+    await page.keyboard.press("ControlOrMeta+End");
+    await page.keyboard.type("<!-- two -->");
+    await page.getByRole("tab", { name: "app.js" }).click();
+    await page.getByRole("textbox", { name: "app.js" }).click();
+    await page.keyboard.press("ControlOrMeta+z");
+    await expect(
+      page.getByRole("textbox", { name: "app.js" }),
+    ).not.toContainText("// one");
+    await page.getByRole("tab", { name: "index.html" }).click();
+    await expect(
+      page.getByRole("textbox", { name: "index.html" }),
+    ).toContainText("<!-- two -->");
+  });
+
+  test("code playground: a file opened from the tree gets a tab", async ({
+    page,
+  }) => {
+    await open(page, "/blocks/view/code-playground");
+    await page.getByRole("treeitem", { name: "styles.css" }).click();
+    await expect(page.getByRole("tab", { name: "styles.css" })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+    await expect(
+      page.getByRole("textbox", { name: "styles.css" }),
+    ).toBeVisible();
+  });
+
+  for (const theme of ["light", "dark"] as const) {
+    test(`code playground: it passes axe in ${theme}`, async ({ page }) => {
+      await page.emulateMedia({ reducedMotion: "reduce" });
+      await setTheme(page, theme);
+      await open(page, "/blocks/view/code-playground");
+      await expect(page.getByRole("textbox", { name: "app.js" })).toBeVisible();
+      await settleStyles(page);
+      expect(
+        (await new AxeBuilder({ page }).withTags(wcag).analyze()).violations,
+      ).toEqual([]);
+    });
+  }
+});
+
+test.describe("review changes", () => {
+  test("review changes: deciding every change in every file lets it be merged", async ({
+    page,
+  }) => {
+    await open(page, "/blocks/view/change-review");
+    const merge = page.getByRole("button", { name: "Merge" });
+    await expect(merge).toBeDisabled();
+    await expect(page.getByText("3 files changed")).toBeVisible();
+
+    const files = page.getByRole("navigation", { name: "Changed files" });
+    for (const name of [
+      "src/checkout/shipping.ts",
+      "src/checkout/summary.css",
+      "config/stores.yaml",
+    ]) {
+      await files.getByRole("button", { name: new RegExp(name) }).click();
+      const diff = page.getByRole("group", { name: `Changes to ${name}` });
+      await expect(
+        diff.getByRole("textbox", { name: "Changed" }),
+      ).toBeVisible();
+      const keep = diff.locator(
+        '.nuv-diff-editor__chunk-button[aria-label="Keep change"]',
+      );
+      while ((await keep.count()) > 0) {
+        await keep.first().click();
+      }
+      await expect(diff.locator(".nuv-diff-editor__status")).toHaveText(
+        "No changes",
+      );
+    }
+    await expect(
+      page.getByText("Every change has been kept or undone."),
+    ).toBeVisible();
+    await expect(merge).toBeEnabled();
+  });
+
+  test("review changes: a change that was kept is still kept when its file is opened again", async ({
+    page,
+  }) => {
+    await open(page, "/blocks/view/change-review");
+    const diff = page.getByRole("group", {
+      name: "Changes to src/checkout/shipping.ts",
+    });
+    await expect(diff.locator(".nuv-diff-editor__status")).toContainText(
+      "2 changes",
+    );
+    await diff
+      .locator('.nuv-diff-editor__chunk-button[aria-label="Keep change"]')
+      .first()
+      .click();
+    await expect(diff.locator(".nuv-diff-editor__status")).toContainText(
+      "1 change",
+    );
+    const files = page.getByRole("navigation", { name: "Changed files" });
+    await files.getByRole("button", { name: /summary\.css/ }).click();
+    await files.getByRole("button", { name: /shipping\.ts/ }).click();
+    await expect(
+      page
+        .getByRole("group", { name: "Changes to src/checkout/shipping.ts" })
+        .locator(".nuv-diff-editor__status"),
+    ).toContainText("1 change");
+  });
+
+  for (const theme of ["light", "dark"] as const) {
+    test(`review changes: it passes axe in ${theme}`, async ({ page }) => {
+      await page.emulateMedia({ reducedMotion: "reduce" });
+      await setTheme(page, theme);
+      await open(page, "/blocks/view/change-review");
+      await expect(
+        page.getByRole("textbox", { name: "Changed" }).first(),
+      ).toBeVisible();
+      await settleStyles(page);
+      expect(
+        (await new AxeBuilder({ page }).withTags(wcag).analyze()).violations,
+      ).toEqual([]);
+    });
+  }
 });

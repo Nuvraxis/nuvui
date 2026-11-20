@@ -1,7 +1,7 @@
 {
   "name": "@nuvui/editor",
   "version": "0.1.6",
-  "description": "A rich text editor for @nuvui/react, on Tiptap: a toolbar, a menu on the selection, links and a character count, with HTML as its value.",
+  "description": "Editors for @nuvui/react: a rich text editor on Tiptap, and a code editor and a diff editor on CodeMirror.",
   "license": "MIT",
   "author": "Nuvraxis",
   "homepage": "https://nuvui.nuvraxis.com",
@@ -37,6 +37,36 @@
         "default": "./dist/index.cjs"
       }
     },
+    "./code": {
+      "import": {
+        "types": "./dist/code.d.ts",
+        "default": "./dist/code.js"
+      },
+      "require": {
+        "types": "./dist/code.d.cts",
+        "default": "./dist/code.cjs"
+      }
+    },
+    "./code-editor": {
+      "import": {
+        "types": "./dist/components/code-editor/index.d.ts",
+        "default": "./dist/components/code-editor/index.js"
+      },
+      "require": {
+        "types": "./dist/components/code-editor/index.d.cts",
+        "default": "./dist/components/code-editor/index.cjs"
+      }
+    },
+    "./diff-editor": {
+      "import": {
+        "types": "./dist/components/diff-editor/index.d.ts",
+        "default": "./dist/components/diff-editor/index.js"
+      },
+      "require": {
+        "types": "./dist/components/diff-editor/index.d.cts",
+        "default": "./dist/components/diff-editor/index.cjs"
+      }
+    },
     "./rich-text-editor": {
       "import": {
         "types": "./dist/components/rich-text-editor/index.d.ts",
@@ -67,6 +97,16 @@
     "react-dom": "^18.2.0 || ^19.0.0"
   },
   "dependencies": {
+    "@codemirror/autocomplete": "^6.20.4",
+    "@codemirror/commands": "^6.11.1",
+    "@codemirror/language": "^6.13.1",
+    "@codemirror/language-data": "^6.5.2",
+    "@codemirror/lint": "^6.9.8",
+    "@codemirror/merge": "^6.12.3",
+    "@codemirror/search": "^6.7.2",
+    "@codemirror/state": "^6.7.6",
+    "@codemirror/view": "^6.43.15",
+    "@lezer/highlight": "^1.2.5",
     "@tiptap/core": "^3.31.4",
     "@tiptap/extension-bubble-menu": "^3.31.4",
     "@tiptap/extensions": "^3.31.4",

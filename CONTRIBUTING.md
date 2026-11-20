@@ -100,6 +100,9 @@ packages/kanban               an add-on, published as @nuvui/kanban
   src/components/kanban/      the board and its parts, in one file
 packages/editor               an add-on, published as @nuvui/editor
   src/components/rich-text-editor/  the editor and its parts, in one file
+  src/components/code-editor/  the code editor, its theme, languages and search
+  src/components/diff-editor/  the diff editor, on the code editor's theme
+  src/code.ts                 @nuvui/editor/code, the two that bring CodeMirror
 packages/emoji                an add-on, published as @nuvui/emoji
   src/components/emoji-picker/  the picker
   src/data/                   the list of emoji, written by scripts/generate-data.mjs

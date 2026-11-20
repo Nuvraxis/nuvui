@@ -35,7 +35,9 @@ jobs:
       # The runner's own user, not root: Firefox won't start as root in a
       # home folder that root doesn't own.
       options: --user 1001
-    timeout-minutes: 30
+    # Every package's tests in three browsers take most of half an hour on
+    # the runner, and runs at 30 minutes were stopped before they finished.
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 

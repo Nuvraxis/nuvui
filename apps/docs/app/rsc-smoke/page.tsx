@@ -45,6 +45,7 @@ import { Markdown } from "@nuvui/chat/markdown";
 import { Calendar, DatePicker } from "@nuvui/date-picker";
 // One import from an entry of the add-on's own, to check those resolve too.
 import { DateRangePicker } from "@nuvui/date-picker/date-picker";
+import { CodeEditor, DiffEditor } from "@nuvui/editor/code";
 import { Flow } from "@nuvui/flow/flow";
 import { AudioPlayer } from "@nuvui/media/audio-player";
 import { VideoPlayer } from "@nuvui/media/video-player";
@@ -711,6 +712,19 @@ export default function RscSmokePage() {
         ]}
         timeZone="UTC"
         defaultDate={new Date("2026-10-14T12:00:00Z")}
+      />
+      {/* The code is in the server's HTML, and the editor takes it over. */}
+      <CodeEditor
+        aria-label="Code from the server"
+        name="server-code"
+        language="sql"
+        defaultValue={"SELECT store FROM orders;\n"}
+      />
+      <DiffEditor
+        aria-label="Changes from the server"
+        original={"days: 5\n"}
+        defaultModified={"days: 3\n"}
+        language="yaml"
       />
       <DirectionProvider dir="rtl">
         <div dir="rtl">

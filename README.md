@@ -75,7 +75,7 @@ Each add-on is installed next to `@nuvui/react`, with the library it's built on 
 | [`@nuvui/barcodes`](https://www.npmjs.com/package/@nuvui/barcodes) | Barcodes and QR codes, drawn as SVG | `pnpm add @nuvui/barcodes` |
 | [`@nuvui/chat`](https://www.npmjs.com/package/@nuvui/chat) | The parts of a conversation with an assistant | `pnpm add @nuvui/chat` |
 | [`@nuvui/kanban`](https://www.npmjs.com/package/@nuvui/kanban) | A board of columns with cards that are moved between them | `pnpm add @nuvui/kanban` |
-| [`@nuvui/editor`](https://www.npmjs.com/package/@nuvui/editor) | A rich text editor on Tiptap, with HTML as its value | `pnpm add @nuvui/editor` |
+| [`@nuvui/editor`](https://www.npmjs.com/package/@nuvui/editor) | A rich text editor on Tiptap, and a code editor and a diff editor on CodeMirror | `pnpm add @nuvui/editor` |
 | [`@nuvui/emoji`](https://www.npmjs.com/package/@nuvui/emoji) | An emoji picker and a reaction button | `pnpm add @nuvui/emoji` |
 | [`@nuvui/map`](https://www.npmjs.com/package/@nuvui/map) | A map on MapLibre, with markers, popups, controls, routes and clusters | `pnpm add @nuvui/map maplibre-gl` |
 | [`@nuvui/flow`](https://www.npmjs.com/package/@nuvui/flow) | Flow diagrams that pan, zoom and can be edited | `pnpm add @nuvui/flow` |
@@ -152,6 +152,9 @@ It also has:
 - From a toolbar, from the keyboard, or from a small menu over selected text.
 - A character limit and a count.
 - Its value is HTML, and it's sent with a form like any field's.
+- `CodeEditor` and `DiffEditor`, on CodeMirror, from `@nuvui/editor/code`.
+- Code colored as `CodeBlock` colors it, with search, completion, problems marked in the code, and a file's own undo history when it's one of a set.
+- Two texts side by side or in one column, with unchanged lines folded away and each change kept or undone.
 
 ### `@nuvui/emoji`
 
@@ -233,7 +236,7 @@ It also has:
 
 [nuvui.nuvraxis.com](https://nuvui.nuvraxis.com) is built with the library's own tokens, and the docs sit under `/docs` of the same site.
 
-- **[95 blocks](https://nuvui.nuvraxis.com/blocks)** in twelve groups. A block is a part of an app, such as a sign-in screen, a dashboard or a pricing table, as a TSX file and an SCSS file to copy. The site also serves them as a registry for shadcn's command line tool, at `/r`.
+- **[97 blocks](https://nuvui.nuvraxis.com/blocks)** in thirteen groups. A block is a part of an app, such as a sign-in screen, a dashboard or a pricing table, as a TSX file and an SCSS file to copy. The site also serves them as a registry for shadcn's command line tool, at `/r`.
 - **[39 charts](https://nuvui.nuvraxis.com/charts)** in ten families, each one file to copy.
 - **[A theme builder](https://nuvui.nuvraxis.com/themes).**
 - **[Docs](https://nuvui.nuvraxis.com/docs)** with a page for each component, covering its parts, props, examples, CSS variables and classes, and what it leaves to you for accessibility. Search runs in the browser.

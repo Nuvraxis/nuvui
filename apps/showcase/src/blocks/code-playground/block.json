@@ -1,0 +1,9 @@
+{
+  "name": "code-playground",
+  "title": "Code playground",
+  "description": "A small site's three files in a tree, the open ones in tabs, and one code editor that keeps each file's own history, with problems found by a check of its own and a formatter. The page is drawn in a sandboxed frame beside it a moment after typing stops, and what it logs comes back to a console under it.",
+  "category": "developer",
+  "files": ["code-playground.tsx", "code-playground.scss"],
+  "install": ["@nuvui/react", "@nuvui/editor"],
+  "height": 820
+}

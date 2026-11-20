@@ -1,2 +1,4 @@
 @use "layers";
+@use "../components/code-editor/code-editor";
+@use "../components/diff-editor/diff-editor";
 @use "../components/rich-text-editor/rich-text-editor";

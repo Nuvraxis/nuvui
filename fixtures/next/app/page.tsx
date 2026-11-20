@@ -21,6 +21,7 @@ import { Calendar, DatePicker } from "@nuvui/date-picker";
 // A client component with plain props: a server component renders it,
 // and the text is written in once the page is in a browser.
 import { RichTextEditor } from "@nuvui/editor";
+import { CodeEditor, DiffEditor } from "@nuvui/editor/code";
 import { EmojiPicker } from "@nuvui/emoji";
 import { Flow } from "@nuvui/flow";
 import { ArrowRightIcon } from "@nuvui/icons";
@@ -116,6 +117,13 @@ export default function Page() {
         name="notes"
         defaultValue="<p>Hello</p>"
       />
+      <CodeEditor
+        aria-label="Query"
+        name="query"
+        language="sql"
+        defaultValue="SELECT 1;"
+      />
+      <DiffEditor aria-label="Changes" original="a" defaultModified="b" />
       <EmojiPicker />
       {/* A style with nothing to fetch. The server draws the box, and the
           map is drawn in a browser. */}

@@ -1,0 +1,139 @@
+@use "../../styles/layers";
+@use "@nuvui/react/scss/mixins";
+
+// The colors of what changed, and what CodeMirror draws, are styled from
+// the themes in diff-editor/theme.ts and code-editor/theme.ts. This is the
+// box around the two texts, its toolbar and status, and the buttons beside
+// a change.
+@layer components {
+  .nuv-diff-editor {
+    display: flex;
+    flex-direction: column;
+    min-inline-size: 0;
+    border: var(--nuv-border-width, 1px) solid
+      var(--nuv-diff-editor-border, var(--color-border));
+    border-radius: var(--nuv-diff-editor-radius, var(--radius-lg));
+    background-color: var(--nuv-code-editor-bg, var(--color-surface));
+    color: var(--nuv-code-editor-fg, var(--color-surface-foreground));
+
+    // The width of the column between the two texts: room for the two
+    // buttons beside a change, side by side. It's read on the column,
+    // which CodeMirror sizes with a style of its own.
+    --nuv-diff-editor-two-buttons: calc(var(--nuv-touch-size, 2.75rem) * 2 + 0.625rem);
+
+    @include mixins.fine-pointer {
+      --nuv-diff-editor-two-buttons: 3.625rem;
+    }
+
+    &:has(.nuv-diff-editor__code:focus-visible) {
+      outline: var(--nuv-focus-ring-width, 2px) solid
+        var(--nuv-focus-ring-color, var(--color-ring));
+      outline-offset: var(--nuv-focus-ring-offset, 2px);
+    }
+  }
+
+  .nuv-diff-editor__toolbar {
+    --nuv-toolbar-border: transparent;
+    --nuv-toolbar-radius: 0;
+    --nuv-toolbar-bg: transparent;
+
+    flex-wrap: wrap;
+    border-block-end: var(--nuv-border-width, 1px) solid
+      var(--nuv-diff-editor-border, var(--color-border));
+  }
+
+  .nuv-diff-editor__group {
+    display: flex;
+    gap: var(--nuv-toolbar-gap, var(--spacing));
+  }
+
+  .nuv-diff-editor__item {
+    --nuv-toolbar-item-padding-inline: 0;
+  }
+
+  // The two texts scroll together inside the box, which stops growing at
+  // its height.
+  .nuv-diff-editor__body {
+    max-block-size: var(--nuv-diff-editor-max-height, 32rem);
+    overflow: auto;
+  }
+
+  .nuv-diff-editor__view {
+    display: contents;
+  }
+
+  .nuv-diff-editor__fallback {
+    margin: 0;
+    padding: calc(var(--spacing) * 2) calc(var(--spacing) * 3);
+    overflow: auto;
+    font-family: var(--nuv-code-editor-font, var(--font-mono));
+    font-size: max(1rem, var(--nuv-code-editor-font-size, var(--text-sm)));
+    line-height: var(--nuv-code-editor-line-height, 1.5);
+    white-space: pre;
+
+    @include mixins.fine-pointer {
+      font-size: var(--nuv-code-editor-font-size, var(--text-sm));
+    }
+  }
+
+  .nuv-diff-editor__status {
+    padding: calc(var(--spacing) * 1.5) calc(var(--spacing) * 3);
+    border-block-start: var(--nuv-border-width, 1px) solid
+      var(--nuv-diff-editor-border, var(--color-border));
+    color: var(--nuv-diff-editor-status-fg, var(--color-muted-foreground));
+    font-size: var(--text-xs);
+    font-variant-numeric: tabular-nums;
+    line-height: var(--text-xs--line-height);
+  }
+
+  // Keep and undo, beside each change, between the two texts. Side by
+  // side, so they're one button tall: the next change is at least two
+  // lines further down, and its buttons don't cover these.
+  .nuv-diff-editor__chunk-controls {
+    display: flex;
+    position: absolute;
+    gap: 2px;
+    inset-inline: 0;
+    justify-content: center;
+  }
+
+  .nuv-diff-editor__chunk-button {
+    @include mixins.touch-target;
+    @include mixins.focus-ring;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: var(--nuv-border-width, 1px) solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background-color: var(--color-surface);
+    color: var(--color-surface-foreground);
+    cursor: pointer;
+
+    @include mixins.fine-pointer {
+      min-block-size: 1.5rem;
+      min-inline-size: 1.5rem;
+    }
+
+    @include mixins.hover {
+      background-color: var(--color-muted);
+    }
+  }
+
+  // CodeMirror styles every button in the column between the texts, from
+  // a style outside any layer: each the column's width, placed on top of
+  // the one before. Only an important declaration in a layer comes before
+  // that.
+  .nuv-diff-editor__chunk-controls > .nuv-diff-editor__chunk-button {
+    position: static !important;
+    display: inline-flex !important;
+    inline-size: auto !important;
+    border: var(--nuv-border-width, 1px) solid var(--color-border) !important;
+    background-color: var(--color-surface) !important;
+
+    @include mixins.hover {
+      background-color: var(--color-muted) !important;
+    }
+  }
+}

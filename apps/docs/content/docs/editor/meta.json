@@ -1,5 +1,5 @@
 {
   "title": "Editor",
   "defaultOpen": true,
-  "pages": ["index", "rich-text-editor"]
+  "pages": ["index", "rich-text-editor", "code-editor", "diff-editor"]
 }

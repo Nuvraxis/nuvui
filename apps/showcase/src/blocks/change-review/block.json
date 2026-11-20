@@ -1,0 +1,9 @@
+{
+  "name": "change-review",
+  "title": "Review changes",
+  "description": "A change to three files under review: the files in a list with the lines each adds and removes, and a diff editor for the one chosen, side by side or in one column, with unchanged lines folded away. Each change is kept or undone beside it, the counts follow, and merging waits until every one has been decided.",
+  "category": "developer",
+  "files": ["change-review.tsx", "change-review.scss"],
+  "install": ["@nuvui/react", "@nuvui/editor"],
+  "height": 760
+}

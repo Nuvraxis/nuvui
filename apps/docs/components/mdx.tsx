@@ -37,6 +37,10 @@ import {
 } from "@/components/playground/chat";
 import { CheckboxPlayground } from "@/components/playground/checkbox";
 import { ChoiceCardPlayground } from "@/components/playground/choice-card";
+import {
+  CodeEditorPlayground,
+  DiffEditorPlayground,
+} from "@/components/playground/code-editor";
 import { CollapsiblePlayground } from "@/components/playground/collapsible";
 import { ColorPickerPlayground } from "@/components/playground/color-picker";
 import { ComboboxPlayground } from "@/components/playground/combobox";
@@ -229,6 +233,8 @@ export function getMDXComponents(components?: MDXComponents) {
     FlowPlayground,
     EventCalendarPlayground,
     EventTimelinePlayground,
+    CodeEditorPlayground,
+    DiffEditorPlayground,
     RichTextEditorPlayground,
     KbdPlayground,
     LabelPlayground,

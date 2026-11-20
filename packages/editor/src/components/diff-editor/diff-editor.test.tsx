@@ -274,6 +274,35 @@ describe("keeping and undoing a change", () => {
     expect(status()).toBe("No changes");
   });
 
+  test("side by side, the two buttons beside a change are in a row, neither covers the other, and each takes a click", async () => {
+    const onChange = vi.fn();
+    await render(<Review onChange={onChange} />);
+    await expect.element(changed).toBeInTheDocument();
+    await expect
+      .poll(() => all(".nuv-diff-editor__chunk-button").length)
+      .toBe(4);
+    for (const controls of all(".nuv-diff-editor__chunk-controls")) {
+      const [keep, undo] = [...controls.children].map((child) =>
+        child.getBoundingClientRect(),
+      );
+      expect(keep?.top).toBe(undo?.top);
+      expect(keep?.right ?? 0).toBeLessThanOrEqual(undo?.left ?? 0);
+    }
+    for (const control of all(".nuv-diff-editor__chunk-button")) {
+      const box = control.getBoundingClientRect();
+      const there = document.elementFromPoint(
+        box.left + box.width / 2,
+        box.top + box.height / 2,
+      );
+      expect(there?.closest("button")).toBe(control);
+    }
+
+    await userEvent.click(
+      one('.nuv-diff-editor__chunk-button[aria-label="Keep change"]'),
+    );
+    await expect.poll(() => onChange.mock.lastCall?.[0]?.changes).toBe(1);
+  });
+
   test("the toolbar keeps or undoes the change the cursor is in, in one column too", async () => {
     const onChange = vi.fn();
     await render(<Review onChange={onChange} />);

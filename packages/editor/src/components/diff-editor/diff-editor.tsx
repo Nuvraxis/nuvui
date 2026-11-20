@@ -659,6 +659,8 @@ export const DiffEditor = forwardRef<HTMLDivElement, DiffEditorProps>(
           dir: "ltr",
           "aria-label": side === "original" ? words.original : words.modified,
           "aria-multiline": "true",
+          // A tab stop already, as the code editor's is.
+          tabindex: "0",
           ...(side === "original" || !editable
             ? { "aria-readonly": "true" }
             : {}),
@@ -736,7 +738,8 @@ export const DiffEditor = forwardRef<HTMLDivElement, DiffEditorProps>(
         // any layer, so it's set on the element.
         const gap = merge.dom.querySelector<HTMLElement>(".cm-merge-revert");
         if (gap) {
-          gap.style.width = "var(--nuv-diff-editor-controls-width, 2.875rem)";
+          gap.style.width =
+            "var(--nuv-diff-editor-controls-width, var(--nuv-diff-editor-two-buttons))";
         }
         next = { layout: "split", modified: merge.b, original: merge.a, merge };
       } else {

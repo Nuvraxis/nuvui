@@ -281,8 +281,30 @@ describe("read only and disabled", () => {
     await expect.poll(() => document.activeElement?.textContent).toBe("After");
   });
 
+  test("read only, a long text that scrolls is reached with Tab, so it can be scrolled from the keyboard", async () => {
+    await render(
+      <>
+        <button type="button">Before</button>
+        <CodeEditor
+          aria-label="Script"
+          defaultValue={Array.from({ length: 40 }, (_, i) => `line ${i}`).join(
+            "\n",
+          )}
+          maxLines={5}
+          readOnly
+        />
+      </>,
+    );
+    await expect.element(code()).toBeInTheDocument();
+    expect(content().getAttribute("tabindex")).toBe("0");
+    page.getByRole("button", { name: "Before" }).element().focus();
+    await userEvent.keyboard("{Tab}");
+    await expect.poll(() => document.activeElement).toBe(content());
+  });
+
   test("disabled, it can't be focused or written in, its toolbar is off, and it says so", async () => {
     await mount({ disabled: true, defaultLanguage: "css" });
+    expect(content().hasAttribute("tabindex")).toBe(false);
     expect(content().getAttribute("contenteditable")).toBe("false");
     expect(content().getAttribute("aria-disabled")).toBe("true");
     expect(one(".nuv-code-editor").hasAttribute("data-disabled")).toBe(true);
@@ -608,6 +630,28 @@ describe("from outside", () => {
 });
 
 describe("its look", () => {
+  test("the line the cursor is on is marked only while it's being edited, with the code's colors kept readable on it", async () => {
+    await mount({
+      language: "javascript",
+      defaultValue: "const a = 1;\nlet b;",
+    });
+    const line = () => one(".cm-activeLine") as HTMLElement;
+    const keyword = () =>
+      [...line().querySelectorAll("span")].find(
+        (span) => span.textContent === "const",
+      ) as HTMLElement;
+    await expect.poll(() => keyword()).toBeTruthy();
+    const plain = getComputedStyle(keyword()).color;
+    expect(getComputedStyle(line()).backgroundColor).toBe("rgba(0, 0, 0, 0)");
+
+    await userEvent.click(code().element());
+    await expect
+      .poll(() => getComputedStyle(line()).backgroundColor)
+      .not.toBe("rgba(0, 0, 0, 0)");
+    // Mixed toward the text's color, and so not the color it has elsewhere.
+    expect(getComputedStyle(keyword()).color).not.toBe(plain);
+  });
+
   test("it's at least four lines tall, and maxLines stops it growing", async () => {
     const { rerender } = await mount({ defaultValue: "" });
     const scroller = () => one(".cm-scroller");

@@ -1,16 +1,18 @@
 import { EditorView } from "@codemirror/view";
-import { forced, lifted } from "../code-editor/theme";
+import { forced, lifted, tinted } from "../code-editor/theme";
 
 // Mixed from the theme's success and danger colors, a light wash for a
 // changed line and a stronger one for the words that changed inside it.
+// Both are light enough for the code's colors, mixed as they are on a
+// tint, to keep a contrast of 4.5 to 1 in the light and the dark theme.
 const inserted =
-  "var(--nuv-diff-editor-inserted-bg, color-mix(in oklab, var(--color-success) 14%, transparent))";
+  "var(--nuv-diff-editor-inserted-bg, color-mix(in oklab, var(--color-success) 12%, transparent))";
 const deleted =
-  "var(--nuv-diff-editor-deleted-bg, color-mix(in oklab, var(--color-danger) 14%, transparent))";
+  "var(--nuv-diff-editor-deleted-bg, color-mix(in oklab, var(--color-danger) 12%, transparent))";
 const insertedText =
-  "var(--nuv-diff-editor-inserted-text-bg, color-mix(in oklab, var(--color-success) 34%, transparent))";
+  "var(--nuv-diff-editor-inserted-text-bg, color-mix(in oklab, var(--color-success) 18%, transparent))";
 const deletedText =
-  "var(--nuv-diff-editor-deleted-text-bg, color-mix(in oklab, var(--color-danger) 34%, transparent))";
+  "var(--nuv-diff-editor-deleted-text-bg, color-mix(in oklab, var(--color-danger) 18%, transparent))";
 const plus = "var(--nuv-diff-editor-inserted-fg, var(--color-success))";
 const minus = "var(--nuv-diff-editor-deleted-fg, var(--color-danger))";
 
@@ -38,10 +40,12 @@ export function diffTheme(added: string, removed: string) {
     lifted({
       "&.cm-merge-a .cm-changedLine, .cm-deletedChunk": {
         backgroundColor: deleted,
+        ...tinted,
         [forced]: { borderLeft: "2px solid CanvasText" },
       },
       "&.cm-merge-b .cm-changedLine, .cm-inlineChangedLine": {
         backgroundColor: inserted,
+        ...tinted,
         [forced]: { borderLeft: "2px solid CanvasText" },
       },
       "&.cm-merge-a .cm-changedText, .cm-deletedChunk .cm-deletedText": {

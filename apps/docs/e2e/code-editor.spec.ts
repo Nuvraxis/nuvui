@@ -158,11 +158,17 @@ test.describe("diff editor page", () => {
     await expect(
       example.getByRole("textbox", { name: "Changed" }),
     ).toBeVisible();
-    await example.getByRole("button", { name: "Undo change" }).first().click();
+    // The buttons beside a change. The toolbar has its own, for the change
+    // that's been moved to.
+    const beside = (name: string) =>
+      example
+        .locator(`.nuv-diff-editor__chunk-button[aria-label="${name}"]`)
+        .first();
+    await beside("Undo change").click();
     await expect(example.locator(".nuv-diff-editor__status")).toContainText(
       "1 change",
     );
-    await example.getByRole("button", { name: "Keep change" }).first().click();
+    await beside("Keep change").click();
     await expect(example.locator(".nuv-diff-editor__status")).toHaveText(
       "No changes",
     );

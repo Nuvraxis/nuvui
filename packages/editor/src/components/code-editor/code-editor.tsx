@@ -529,6 +529,9 @@ export const CodeEditor = forwardRef<HTMLDivElement, CodeEditorProps>(
         "aria-placeholder": placeholder,
         "aria-readonly": readOnly ? "true" : undefined,
         "aria-disabled": disabled ? "true" : undefined,
+        // It's a tab stop already, being editable. Saying so lets a checker
+        // see that the box it scrolls in can be reached from the keyboard.
+        tabindex: disabled ? undefined : "0",
       };
       for (const [key, set] of Object.entries(optional)) {
         if (set !== undefined && set !== false) all[key] = String(set);

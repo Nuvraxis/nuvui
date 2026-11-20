@@ -16,6 +16,15 @@
     background-color: var(--nuv-code-editor-bg, var(--color-surface));
     color: var(--nuv-code-editor-fg, var(--color-surface-foreground));
 
+    // The width of the column between the two texts: room for the two
+    // buttons beside a change, side by side. It's read on the column,
+    // which CodeMirror sizes with a style of its own.
+    --nuv-diff-editor-two-buttons: calc(var(--nuv-touch-size, 2.75rem) * 2 + 0.625rem);
+
+    @include mixins.fine-pointer {
+      --nuv-diff-editor-two-buttons: 3.625rem;
+    }
+
     &:has(.nuv-diff-editor__code:focus-visible) {
       outline: var(--nuv-focus-ring-width, 2px) solid
         var(--nuv-focus-ring-color, var(--color-ring));
@@ -77,15 +86,15 @@
     line-height: var(--text-xs--line-height);
   }
 
-  // Keep and undo, beside each change. Between the two texts side by side,
-  // and at the end of the line in one column.
+  // Keep and undo, beside each change, between the two texts. Side by
+  // side, so they're one button tall: the next change is at least two
+  // lines further down, and its buttons don't cover these.
   .nuv-diff-editor__chunk-controls {
     display: flex;
     position: absolute;
-    flex-direction: column;
     gap: 2px;
     inset-inline: 0;
-    align-items: center;
+    justify-content: center;
   }
 
   .nuv-diff-editor__chunk-button {
@@ -109,6 +118,22 @@
 
     @include mixins.hover {
       background-color: var(--color-muted);
+    }
+  }
+
+  // CodeMirror styles every button in the column between the texts, from
+  // a style outside any layer: each the column's width, placed on top of
+  // the one before. Only an important declaration in a layer comes before
+  // that.
+  .nuv-diff-editor__chunk-controls > .nuv-diff-editor__chunk-button {
+    position: static !important;
+    display: inline-flex !important;
+    inline-size: auto !important;
+    border: var(--nuv-border-width, 1px) solid var(--color-border) !important;
+    background-color: var(--color-surface) !important;
+
+    @include mixins.hover {
+      background-color: var(--color-muted) !important;
     }
   }
 }

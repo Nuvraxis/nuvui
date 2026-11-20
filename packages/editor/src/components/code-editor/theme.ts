@@ -9,10 +9,15 @@ import { tags as t } from "@lezer/highlight";
 // A token's color: the editor's own variable, then CodeBlock's, then the
 // color CodeBlock falls back to. Code looks the same written as it does
 // shown, and an app that recolors one recolors both.
-const token = (name: string, fallback: string) =>
-  `var(--nuv-code-editor-token-${name}, var(--nuv-code-block-token-${name}, ${fallback}))`;
+const colors = new Map<string, string>();
+const token = (name: string, fallback: string) => {
+  const color = `var(--nuv-code-editor-token-${name}, var(--nuv-code-block-token-${name}, ${fallback}))`;
+  colors.set(name, color);
+  return `var(--nuv-code-ink-${name}, ${color})`;
+};
 
 const muted = "var(--color-muted-foreground)";
+const text = "var(--nuv-code-editor-fg, var(--color-surface-foreground))";
 
 const highlightStyle = HighlightStyle.define([
   {
@@ -83,6 +88,19 @@ const highlightStyle = HighlightStyle.define([
 
 /** The colors of the code, the same as `CodeBlock`'s. */
 export const codeHighlighting = syntaxHighlighting(highlightStyle);
+
+/**
+ * For a line with a background of its own, such as the line being edited
+ * or one that changed. The code's colors are only sure to be readable on
+ * the editor's background, so on a tint each is mixed a third of the way
+ * to the text's color.
+ */
+export const tinted: Record<string, string> = Object.fromEntries(
+  [...colors].map(([name, color]) => [
+    `--nuv-code-ink-${name}`,
+    `color-mix(in oklab, ${color} 65%, ${text})`,
+  ]),
+);
 
 const border = "var(--nuv-border-width, 1px) solid";
 const edge = "var(--nuv-code-editor-border, var(--color-border))";
@@ -194,8 +212,12 @@ export const editorTheme = EditorView.theme(
       backgroundColor: selection,
       [forced]: { backgroundColor: "Highlight", color: "HighlightText" },
     },
-    ".cm-activeLine": {
+    // Only while the cursor is in it: an editor that isn't being used has
+    // no line it's on.
+    ".cm-activeLine": { backgroundColor: "transparent" },
+    "&.cm-focused .cm-activeLine": {
       backgroundColor: activeLine,
+      ...tinted,
       [forced]: { outline: "1px solid CanvasText", outlineOffset: "-1px" },
     },
     ".cm-gutters": {
@@ -205,7 +227,8 @@ export const editorTheme = EditorView.theme(
       borderStartStartRadius: "inherit",
       borderEndStartRadius: "inherit",
     },
-    ".cm-activeLineGutter": {
+    ".cm-activeLineGutter": { backgroundColor: "transparent" },
+    "&.cm-focused .cm-activeLineGutter": {
       backgroundColor: activeLine,
       color: "var(--nuv-code-editor-gutter-active-fg, var(--color-foreground))",
     },
@@ -220,6 +243,7 @@ export const editorTheme = EditorView.theme(
     "&.cm-focused .cm-matchingBracket": {
       backgroundColor: "var(--nuv-code-editor-bracket-bg, var(--color-muted))",
       outline: `1px solid var(--nuv-code-editor-bracket-border, var(--color-border-strong))`,
+      ...tinted,
       [forced]: { outline: "1px solid CanvasText" },
     },
     "&.cm-focused .cm-nonmatchingBracket": {
@@ -242,6 +266,7 @@ export const editorTheme = EditorView.theme(
         "var(--nuv-code-editor-match-bg, color-mix(in oklab, var(--color-warning) 25%, transparent))",
       outline:
         "1px solid var(--nuv-code-editor-match-border, color-mix(in oklab, var(--color-warning) 70%, transparent))",
+      ...tinted,
       [forced]: { outline: "1px solid Highlight" },
     },
     ".cm-searchMatch.cm-searchMatch-selected": {

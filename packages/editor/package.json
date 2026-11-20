@@ -1,6 +1,6 @@
 {
   "name": "@nuvui/editor",
-  "version": "0.1.6",
+  "version": "0.2.0",
   "description": "Editors for @nuvui/react: a rich text editor on Tiptap, and a code editor and a diff editor on CodeMirror.",
   "license": "MIT",
   "author": "Nuvraxis",

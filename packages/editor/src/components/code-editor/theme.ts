@@ -118,6 +118,36 @@ type Rule = Record<string, unknown>;
 type Spec = Parameters<typeof EditorView.theme>[0];
 
 /**
+ * A selector that starts at the editor, with "&", written without it.
+ * Inside a media query CodeMirror doesn't put the editor's class where the
+ * "&" is, and the rule would match nothing. What's said of the editor goes
+ * on the first part after it instead: "&.cm-focused .cm-activeLine" is
+ * ".cm-activeLine:is(.cm-focused *)".
+ */
+export function withoutEditor(selector: string) {
+  return selector
+    .split(/,\s*/)
+    .map((part) => {
+      const found = /^&(\S*)\s*(>\s*)?(.*)$/.exec(part.trim());
+      if (!found) return part;
+      const [, own = "", child, rest = ""] = found;
+      if (!rest) {
+        throw new Error(
+          `A rule for the editor itself can't be in a media query: ${selector}`,
+        );
+      }
+      if (!own) return rest;
+      const first = /^[^\s>+~]+/.exec(rest)?.[0] ?? "";
+      // A pseudo-element comes last in its part, after what's added.
+      const at = first.indexOf("::");
+      const element = at === -1 ? first : first.slice(0, at);
+      const pseudo = at === -1 ? "" : first.slice(at);
+      return `${element}:is(${own} ${child ? "> " : ""}*)${pseudo}${rest.slice(first.length)}`;
+    })
+    .join(", ");
+}
+
+/**
  * A theme's rules, with what changes under a media query written inside
  * the rule it changes. CodeMirror takes a media query only around rules,
  * so each is moved out to one, after the rules it overrides.
@@ -130,7 +160,7 @@ export function lifted(rules: Record<string, Rule>): Spec {
     for (const [key, value] of Object.entries(rule)) {
       if (key.startsWith("@") && value && typeof value === "object") {
         queries[key] ??= {};
-        queries[key][selector] = value as Rule;
+        queries[key][withoutEditor(selector)] = value as Rule;
       } else {
         own[key] = value;
       }
@@ -177,11 +207,15 @@ export const editorTheme = EditorView.theme(
       color: "var(--nuv-code-editor-fg, var(--color-surface-foreground))",
       backgroundColor: "var(--nuv-code-editor-bg, var(--color-surface))",
       // 16px on a touch screen, so iOS doesn't zoom the page when the code
-      // is tapped, and smaller with a mouse.
+      // is tapped, and smaller with a mouse, below.
       fontSize: "max(1rem, var(--nuv-code-editor-font-size, var(--text-sm)))",
       fontFamily: "var(--nuv-code-editor-font, var(--font-mono))",
       lineHeight: "var(--nuv-code-editor-line-height, 1.5)",
       borderRadius: "inherit",
+    },
+    // On what's inside the editor, as a rule in a media query can't be on
+    // the editor itself.
+    ".cm-scroller, .cm-panels": {
       "@media (pointer: fine)": {
         fontSize: "var(--nuv-code-editor-font-size, var(--text-sm))",
       },

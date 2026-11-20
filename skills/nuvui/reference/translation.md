@@ -431,6 +431,10 @@ A calendar's or a timeline's name is the `aria-label` you give it, and an event'
 | `nothingBetween` (required) | `(from: string, to: string) => string` |  | The agenda when nothing is on in the days it shows. |
 | `nextEvent` (required) | `(day: string) => string` |  | The button in an empty agenda that goes to the next day with an event. |
 | `nothingAhead` (required) | `string` |  | The agenda when nothing is on for 180 days. |
+| `loading` (required) | `string` |  | Said while events are loaded from a `dataSource`. |
+| `loadFailed` (required) | `string` |  | Said when the events of the days shown couldn't be loaded. |
+| `tryAgain` (required) | `string` |  | The button that loads them again. |
+| `saveFailed` (required) | `string` |  | Said when a change couldn't be saved, and was taken back. |
 | `newEvent` (required) | `string` |  | The heading of the popover for an event being made. |
 | `untitled` (required) | `string` |  | An event saved with no title. |
 | `eventTitle` (required) | `string` |  | The fields of the event's popover. |

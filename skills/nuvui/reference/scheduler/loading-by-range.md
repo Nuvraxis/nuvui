@@ -1,0 +1,159 @@
+<!-- Written by apps/docs/scripts/agent-skill.mjs from apps/docs/content/docs/scheduler/loading-by-range.mdx. Don't edit it here: run `pnpm skill`. -->
+
+# Loading from a server
+
+An EventCalendar or EventTimeline that asks your server only for the days shown, keeps what it has loaded, and saves each change, drawn at once and taken back if the save fails.
+
+When the events live on a server, there are often too many to send at once. Give an [EventCalendar](event-calendar.md) or an [EventTimeline](event-timeline.md) a `dataSource` instead of `events`. It asks for the events of the days shown, and again when the days shown change, for the days it doesn't have yet.
+
+```tsx
+"use client";
+
+import { EventCalendar } from "@nuvui/scheduler";
+import { useMemo } from "react";
+import { makeServer } from "./server";
+
+export default function Example() {
+  // Made once, so what's loaded is kept from one render to the next.
+  const dataSource = useMemo(() => makeServer({ delay: 800 }), []);
+  return (
+    <EventCalendar
+      aria-label="Team calendar"
+      dataSource={dataSource}
+      defaultPanelOpen={false}
+    />
+  );
+}
+```
+
+```tsx
+import { EventCalendar, type EventDataSource } from "@nuvui/scheduler";
+
+const dataSource: EventDataSource = {
+  getEvents: async ({ start, end, signal }) => {
+    const query = new URLSearchParams({
+      from: start.toISOString(),
+      to: end.toISOString(),
+    });
+    const response = await fetch(`/api/events?${query}`, { signal });
+    if (!response.ok) throw new Error(response.statusText);
+    return response.json();
+  },
+  saveEvents: async (changes) => {
+    const response = await fetch("/api/events", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(changes),
+    });
+    if (!response.ok) throw new Error(response.statusText);
+  },
+};
+
+export function TeamCalendar() {
+  return <EventCalendar aria-label="Team calendar" dataSource={dataSource} />;
+}
+```
+
+`events` and `defaultEvents` aren't read while there's a `dataSource`.
+
+## Loading
+
+`getEvents` is called with a range of days:
+
+| Field | What it is |
+| --- | --- |
+| `from` | The first day, as `yyyy-MM-dd`, in the time zone shown. |
+| `to` | The last day, included. |
+| `start` | The moment the first day starts, in the time zone shown. |
+| `end` | The moment the day after the last one starts, so the range is `start` up to but not including `end`. |
+| `signal` | An `AbortSignal`, aborted when the events are no longer wanted. Pass it to `fetch`. |
+
+It returns, or resolves with, the events that touch any of those days, under your own field names if you use [`eventKeys`](resources.md#your-own-field-names).
+
+- **Only what's missing is asked for.** Moving to the next week asks for that week. Going back asks for nothing. Switching from a week to its month asks for the days of the month on either side of the week, in two calls.
+- **What's loaded is kept.** An event that comes back in a second range takes the place of the one with the same id.
+- **An event that repeats** is returned as its series whenever any of its occurrences is in the range. The calendar works out the occurrences, as it does for [recurring events](recurring-events.md) passed in `events`.
+- **Another time zone loads again,** since a day there covers other moments. A new `getEvents` or `saveEvents` starts again from nothing, so make the data source once: outside the component, or with `useMemo` with what the events depend on, such as a filter.
+- **The agenda** with empty days left out looks ahead for the next day with something on. With a data source it loads the 180 days after the ones shown for that, once the days shown have loaded and have nothing on.
+
+While the days shown load, the header says "Loading events", with a spinner, and the view has `aria-busy`. Events already loaded for those days are shown meanwhile.
+
+## When a load fails
+
+When `getEvents` throws or its promise is rejected, the header says the events couldn't be loaded, with a Try again button that asks for the same days again. The days stay unloaded, so coming back to them later asks again too.
+
+```tsx
+"use client";
+
+import { EventCalendar } from "@nuvui/scheduler";
+import { useMemo } from "react";
+import { makeServer } from "./server";
+
+export default function Example() {
+  const dataSource = useMemo(() => {
+    // The first load fails, to show Try again, and so does every save, to
+    // show a change being taken back.
+    let loads = 0;
+    return makeServer({
+      delay: 600,
+      fails: (kind) => {
+        if (kind === "save") return true;
+        loads += 1;
+        return loads === 1;
+      },
+    });
+  }, []);
+  return (
+    <EventCalendar
+      aria-label="Team calendar"
+      dataSource={dataSource}
+      defaultPanelOpen={false}
+    />
+  );
+}
+```
+
+## Saving
+
+With `saveEvents`, events can be made, changed, moved and deleted as in [Editing events](editing.md). Each change is drawn at once, and `saveEvents` is called with what changed:
+
+```ts
+interface EventChanges<TEvent> {
+  created: TEvent[];
+  updated: TEvent[];
+  deleted: TEvent[];
+}
+```
+
+- **Changes made together are sent together.** Changing one occurrence of a series and the ones after it ends the series and starts another, and both go in one call. An event made and then changed in the same moment is sent as made, as it ended.
+- **A failed save is taken back.** When the promise is rejected, the calendar puts the events back as they were before the change, and says so in the header and to a screen reader. The message has a Close button.
+- **The server's own version** can come back. Resolve with `{ created, updated }`, each in the order they were sent, and they take the place of what was sent: an id the server gave a new event, or a field it worked out.
+- **A load doesn't undo a change on its way.** An event with a save still waiting isn't put back as it was by a range that loads meanwhile.
+
+Without `saveEvents`, the events open to be read, as `events` without `onEventsChange` do. `onEventsChange` is still called with each change and the events after it, when it's passed, and with the change that takes it back when a save fails. Passing it without `saveEvents` makes the events editable in the browser only.
+
+## The timeline
+
+[EventTimeline](event-timeline.md) takes the same `dataSource`. It asks for the days of its period: a month on the `days` scale, three days on `hours`, and so on, and the next period when Previous or Next move it.
+
+```tsx
+<EventTimeline aria-label="Fleet" resources={vans} dataSource={dataSource} />
+```
+
+## Types
+
+`EventDataSource`, `EventRange`, `EventChanges` and `SavedEvents` are exported from `@nuvui/scheduler`, `@nuvui/scheduler/event-calendar` and `@nuvui/scheduler/event-timeline`.
+
+## Accessibility
+
+### What the component handles
+
+- What the header says about loading and saving is a live region, so "Loading events", a failed load and a failed save are each said as they happen.
+- The view has `aria-busy` while the days shown load.
+- A change taken back after a failed save is said in words, and the events are drawn as they were.
+- Try again and Close are 44 pixels on a touch screen, like the header's other buttons.
+
+### What you need to handle
+
+- Translate `loading`, `loadFailed`, `tryAgain` and `saveFailed` with the rest of the `labels`. [Translation](../translation.md#scheduler) lists them.
+- Say more where it helps. The calendar says that a change couldn't be saved, and not why. If your server says why, show it elsewhere on the page.

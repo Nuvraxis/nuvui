@@ -2,7 +2,7 @@
 
 # Blocks
 
-A block is a part of an app, such as a sign-in screen or a table with a toolbar, built from the library's components: one TSX file and one SCSS file, to copy into an app and change. There are 97. Each is shown at https://nuvui.nuvraxis.com/blocks.
+A block is a part of an app, such as a sign-in screen or a table with a toolbar, built from the library's components: one TSX file and one SCSS file, to copy into an app and change. There are 98. Each is shown at https://nuvui.nuvraxis.com/blocks.
 
 Before building a screen from nothing, look here for one that's close. To add one, with the packages it needs:
 
@@ -50,6 +50,7 @@ A block's SCSS uses the library's mixins, `@use "@nuvui/react/scss/mixins"`, so 
 - **School timetable** (`school-timetable`): A school's week of lessons, each booked against a teacher and a room. The side panel shows or hides each teacher and room, lessons are moved by dragging, and a list beside the week shows where a teacher or a room is booked twice at once. Needs `@nuvui/react`, `@nuvui/date-picker`, `@nuvui/scheduler`.
 - **Shift planner** (`shift-planner`): A café's rota for the week, with the staff beside it. Someone is dragged onto a time to give them a shift, or added with a button, and the shifts are moved and stretched on the week while each person's hours keep count. Needs `@nuvui/react`, `@nuvui/date-picker`, `@nuvui/scheduler`.
 - **Team calendar** (`team-calendar`): A team's week: meetings that overlap set side by side, leave and an offsite as bars across their days, and a key to the colors that says which calendar each is from, with day, month and agenda views a click away. Needs `@nuvui/react`, `@nuvui/date-picker`, `@nuvui/scheduler`.
+- **Workshop bookings** (`workshop-bookings`): A car workshop's week, loaded from a slow made-up server one range of days at a time and kept as it's loaded. The header says while it loads, a switch makes the next request fail so the error and Try again can be seen, and a change that can't be saved is taken back. Each request is listed beside the calendar. Needs `@nuvui/react`, `@nuvui/date-picker`, `@nuvui/scheduler`.
 
 ## Chat
 

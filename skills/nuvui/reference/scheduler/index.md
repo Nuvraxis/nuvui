@@ -48,12 +48,10 @@ Each file opens with the same line naming the cascade layers, so the order you i
 
 ## What it keeps and what you keep
 
-The events are yours when you pass `events`, with `onEventsChange` to hear about each change, or the calendar's when you pass `defaultEvents`. It keeps which view is shown, the day it's on, what the person looking has chosen in its preferences menu, whether its side panel is open, and which resources are hidden or folded. The timeline keeps its scale, the period it's on and which resources are folded. Each of those can be yours instead, through a prop and a callback.
+The events are yours when you pass `events`, with `onEventsChange` to hear about each change, or the calendar's when you pass `defaultEvents`. When they live on a server, a `dataSource` loads only the days shown and saves each change, as [Loading from a server](loading-by-range.md) explains. It keeps which view is shown, the day it's on, what the person looking has chosen in its preferences menu, whether its side panel is open, and which resources are hidden or folded. The timeline keeps its scale, the period it's on and which resources are folded. Each of those can be yours instead, through a prop and a callback.
 
 Events and resources can keep your own field names. `eventKeys` and `resourceKeys` say which field is which, and changes come back under the same names. [Resources](resources.md#your-own-field-names) has the details.
 
-## What's coming
+## What's in it
 
-The calendar's views, [editing](editing.md), [resources](resources.md), [recurring events](recurring-events.md) and the [timeline](event-timeline.md) are in the package. One more is planned, and isn't in it yet:
-
-- **Loading by range,** asking your server only for the days shown.
+The calendar's views, [editing](editing.md), [resources](resources.md), [recurring events](recurring-events.md), the [timeline](event-timeline.md) and [loading from a server](loading-by-range.md).

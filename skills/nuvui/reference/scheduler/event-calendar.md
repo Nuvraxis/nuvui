@@ -66,6 +66,8 @@ An all-day event's `start` and `end` are its first and last day, so an event on 
 
 A timed event that lasts a day or longer is drawn with the all-day events, as a bar across its days. A shorter one that crosses midnight is drawn on both days.
 
+Events that live on a server can be loaded a range of days at a time with a `dataSource`, which [Loading from a server](loading-by-range.md) covers.
+
 ## Views
 
 The header switches between four views. `views` limits which are offered, and in what order. `defaultView` is the one shown first, `"week"` unless you say otherwise.
@@ -303,6 +305,7 @@ The words the calendar writes itself are in `labels`. [Translation](../translati
 
 | Prop | Type | Default | What it's for |
 | --- | --- | --- | --- |
+| `dataSource` | `EventDataSource<TEvent>` |  | Where the events come from when they live on a server. They're loaded a range of days at a time as the days shown change, and each change is sent back to be saved. `events` and `defaultEvents` aren't read. Make it once, outside the component or with `useMemo`: new functions load everything again. |
 | `onEventsChange` | `((events: TEvent[], change: EventChange<TEvent>) => void)` |  | Called with every event after one is made, changed or deleted, and what the change was. |
 | `eventKeys` | `Partial<Record<keyof CalendarEvent, string>>` |  | The names your events' fields have where they aren't these, such as `{ title: "name", resourceIds: "roomId" }`. Events are read from them, and changes are written back to them, with every other field of yours kept. |
 | `resourceKeys` | `Partial<Record<keyof CalendarResource, string>>` |  | The names your resources' fields have where they aren't these. |
@@ -318,10 +321,6 @@ The words the calendar writes itself are in `labels`. [Translation](../translati
 | `renderEventFields` | `((props: EventFieldsProps<TEvent>) => React.ReactNode)` |  | Fields of your own, shown in an event's popover after the rest. |
 | `onEditStart` | `((event: TEvent, details: EditStartDetails) => void)` |  | Called before an event's popover opens, however it's opened. Call `preventDefault` on the details to open your own form instead. |
 | `onEventDropOutside` | `((event: TEvent, details: EventDropOutsideDetails) => boolean \| undefined)` |  | Called when an event is dragged out of the component and let go, with what's under the pointer. Return `true` to take it off. |
-| `createId` | `(() => string)` |  | Makes the id of a new event. A random UUID by default. |
-| `date` | `Date` |  | A moment in the period shown, when you control it. |
-| `defaultDate` | `Date` |  | A moment in the period shown at first, when you don't control it. Today by default. |
-| `onDateChange` | `((date: Date) => void)` |  | Called with the start of the day moved to. |
 | `resources` | `readonly TResource[]` |  | What events are booked against: rooms, people, machines. Listed in the side panel, where each can be shown or hidden, and offered in an event's popover. |
 | `hiddenResources` | `readonly string[]` |  | The ids of the resources whose events are hidden, when you control them. |
 | `defaultHiddenResources` | `readonly string[]` |  | The resources hidden at first, when you don't control them. |
@@ -346,6 +345,10 @@ The words the calendar writes itself are in `labels`. [Translation](../translati
 | `headingLevel` | `2 \| 3 \| 4 \| 5` | `2` | The level of the heading with the period shown. The agenda's days are a level below. |
 | `events` | `readonly TEvent[]` |  | The events, when you hold them. Pass `onEventsChange` too for them to be changed: without it, they open to be read. |
 | `defaultEvents` | `readonly TEvent[]` |  | The events at first, when the component holds them. |
+| `createId` | `(() => string)` |  | Makes the id of a new event. A random UUID by default. |
+| `date` | `Date` |  | A moment in the period shown, when you control it. |
+| `defaultDate` | `Date` |  | A moment in the period shown at first, when you don't control it. Today by default. |
+| `onDateChange` | `((date: Date) => void)` |  | Called with the start of the day moved to. |
 | `timeZone` | `string` |  | The time zone events are shown in, such as `"Europe/Paris"`. It changes how they're drawn, not when they happen. The browser's own by default. |
 | `locale` | `DayPickerLocale` |  | The language dates and times are written in, and the first day of the week. Any locale from `@nuvui/date-picker/locale`. |
 | `today` | `Date` |  | The moment taken as now. Set it for a server, a screenshot or a test. The browser's clock by default. |
@@ -508,6 +511,8 @@ Set any of these on an `EventCalendar`, or on anything around it.
 | `.nuv-event-calendar__resources-title` | Their heading. |
 | `.nuv-event-calendar__row` | A row of the day and week views. |
 | `.nuv-event-calendar__scopes` | The choice of which events of a series a change is for. |
+| `.nuv-event-calendar__status` | Whether the days shown are loading from a `dataSource`, or couldn't be loaded or saved, with Try again. Its `data-state` is `loading`, `failed`, `unsaved` or `idle`. |
+| `.nuv-event-calendar__status-text` | What it says, a live region. |
 | `.nuv-event-calendar__steps` | The previous and next buttons. |
 | `.nuv-event-calendar__swatch` | A color's swatch. |
 | `.nuv-event-calendar__time-grid` | The day and week views. |

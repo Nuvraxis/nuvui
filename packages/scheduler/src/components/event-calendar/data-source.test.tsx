@@ -451,10 +451,9 @@ describe("on the server", () => {
     hydrateRoot(host, node);
     await expect.poll(() => getEvents.mock.calls.length).toBe(1);
     // The week the browser is on, and not the stand-in drawn before it knew.
-    const { from: first, to: last } = getEvents.mock
-      .calls[0]?.[0] as EventRange;
+    const range = getEvents.mock.calls[0]?.[0] as EventRange;
     const now = new Date().toISOString().slice(0, 10);
-    expect(first <= now && now <= last).toBe(true);
+    expect(range.from <= now && now <= range.to).toBe(true);
     host.remove();
   });
 });

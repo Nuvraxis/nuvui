@@ -221,6 +221,15 @@ for (const block of blocks) {
       // A few presses more than there are stops, so a stop that's skipped
       // shows as a count that's short.
       for (let index = 0; index < expected + 3; index += 1) {
+        // A code editor keeps Tab for indenting. Escape lets the next Tab
+        // leave it.
+        if (
+          await page.evaluate(
+            () => document.activeElement?.matches(".cm-content") ?? false,
+          )
+        ) {
+          await page.keyboard.press("Escape");
+        }
         await page.keyboard.press("Tab");
         const stop = await page.evaluate(() => {
           const element = document.activeElement;

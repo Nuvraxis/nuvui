@@ -36,7 +36,10 @@
 }
 
 // The panes fill what's left of the screen, and each scrolls on its own.
+// A grid, because the panes are as tall as the body when they're one above
+// another, and a percentage of a grid area's height is one that's known.
 .code-playground__body {
+  display: grid;
   flex: 1;
   min-block-size: 40rem;
   overflow: hidden;

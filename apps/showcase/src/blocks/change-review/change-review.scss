@@ -112,12 +112,14 @@
   font-variant-numeric: tabular-nums;
 }
 
+// Mixed a quarter of the way to the text's color, to stay readable on the
+// current file's background.
 .change-review__added {
-  color: var(--color-success);
+  color: color-mix(in oklab, var(--color-success) 75%, var(--color-foreground));
 }
 
 .change-review__removed {
-  color: var(--color-danger);
+  color: color-mix(in oklab, var(--color-danger) 75%, var(--color-foreground));
 }
 
 .change-review__diff {

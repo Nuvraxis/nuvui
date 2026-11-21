@@ -126,7 +126,7 @@ interface EventChanges<TEvent> {
 ```
 
 - **Changes made together are sent together.** Changing one occurrence of a series and the ones after it ends the series and starts another, and both go in one call. An event made and then changed in the same moment is sent as made, as it ended.
-- **A failed save is taken back.** When the promise is rejected, the calendar puts the events back as they were before the change, and says so in the header and to a screen reader. The message has a Close button.
+- **A failed save is taken back.** When the promise is rejected, the calendar puts the events back as they were before the change, and says so in the header, which a screen reader hears too. The message has a Close button.
 - **The server's own version** can come back. Resolve with `{ created, updated }`, each in the order they were sent, and they take the place of what was sent: an id the server gave a new event, or a field it worked out.
 - **A load doesn't undo a change on its way.** An event with a save still waiting isn't put back as it was by a range that loads meanwhile.
 

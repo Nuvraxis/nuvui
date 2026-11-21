@@ -485,10 +485,10 @@ export function useScheduler(props: SharedProps, setup: SchedulerSetup) {
     write,
     onUndo: (next, undo) => {
       latestEvents.current = next;
+      // The header says so, in a live region of its own.
       for (const change of undo) {
         onEventsChange?.(next.map(write), writeOut(change));
       }
-      setAnnouncement(labels.saveFailed);
     },
   });
 

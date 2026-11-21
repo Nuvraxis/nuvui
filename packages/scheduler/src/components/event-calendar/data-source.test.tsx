@@ -291,9 +291,8 @@ describe("saving", () => {
     await expect
       .poll(status)
       .toBe("The change couldn't be saved, so it was undone.");
-    await expect
-      .poll(said)
-      .toBe("The change couldn't be saved, so it was undone.");
+    // The header's line is a live region, so it isn't said twice.
+    expect(said()).not.toContain("couldn't be saved");
     // The app hears about the change, and then the one that undid it.
     expect(onEventsChange.mock.calls.map((call) => call[1].type)).toEqual([
       "delete",

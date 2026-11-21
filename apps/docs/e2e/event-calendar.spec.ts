@@ -269,3 +269,60 @@ test.describe("recurring events page", () => {
     ]);
   });
 });
+
+test.describe("loading from a server page", () => {
+  test.beforeEach(async ({ page }) => {
+    // The examples' events are in this week. From a Wednesday, a narrow
+    // calendar's three days have stand-ups.
+    await page.clock.setFixedTime(new Date(2026, 9, 28, 8));
+    await open(page, "/docs/scheduler/loading-by-range");
+  });
+
+  test("the week loads with a word in the header, and Next loads the next", async ({
+    page,
+    isMobile,
+  }) => {
+    const calendar = preview(page, "event-calendar/data-source");
+    await calendar.scrollIntoViewIfNeeded();
+    await expect(
+      calendar.getByRole("button", { name: /^Stand-up/ }).first(),
+    ).toBeVisible();
+    await expect(calendar.getByText("Loading events")).toHaveCount(0);
+    await press(
+      calendar.getByRole("button", { name: "Next", exact: true }),
+      isMobile,
+    );
+    await expect(calendar.getByText("Loading events")).toBeVisible();
+    await expect(
+      calendar.getByRole("button", { name: /^Sprint review/ }),
+    ).toBeVisible();
+  });
+
+  test("a failed load has Try again, and a failed save is taken back", async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(isMobile, "a phone has no keyboard");
+    const calendar = preview(page, "event-calendar/data-source-errors");
+    await calendar.scrollIntoViewIfNeeded();
+    await expect(
+      calendar.getByText("The events couldn't be loaded."),
+    ).toBeVisible();
+    await calendar.getByRole("button", { name: "Try again" }).click();
+    const standUp = calendar.getByRole("button", { name: /^Stand-up/ });
+    await expect(standUp.first()).toBeVisible();
+    const count = await standUp.count();
+
+    await standUp.first().focus();
+    await page.keyboard.press("Delete");
+    await page
+      .getByRole("alertdialog")
+      .getByRole("button", { name: "Delete" })
+      .click();
+    await expect(standUp).toHaveCount(count - 1);
+    await expect(
+      calendar.getByText("The change couldn't be saved, so it was undone."),
+    ).toBeVisible();
+    await expect(standUp).toHaveCount(count);
+  });
+});

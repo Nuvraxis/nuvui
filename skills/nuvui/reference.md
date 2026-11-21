@@ -220,6 +220,7 @@ A file for each page of the docs. Read the one for a component before using it: 
 - [Editing events](reference/scheduler/editing.md): Making, changing, moving and deleting events in an EventCalendar, with a pointer, a finger or the keyboard.
 - [Resources](reference/scheduler/resources.md): Rooms, people or machines that events are booked against in an EventCalendar, shown or hidden from its side panel, and read from your own field names.
 - [Recurring events](reference/scheduler/recurring-events.md): Events in an EventCalendar that repeat by a rule, an RRULE or an object, with days left out, worked out in their own time zone, and changed one at a time, from one on, or all together.
+- [Loading from a server](reference/scheduler/loading-by-range.md): An EventCalendar or EventTimeline that asks your server only for the days shown, keeps what it has loaded, and saves each change, drawn at once and taken back if the save fails.
 
 ## @nuvui/icons
 

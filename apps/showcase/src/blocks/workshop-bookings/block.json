@@ -1,0 +1,9 @@
+{
+  "name": "workshop-bookings",
+  "title": "Workshop bookings",
+  "description": "A car workshop's week, loaded from a slow made-up server one range of days at a time and kept as it's loaded. The header says while it loads, a switch makes the next request fail so the error and Try again can be seen, and a change that can't be saved is taken back. Each request is listed beside the calendar.",
+  "category": "calendar",
+  "files": ["workshop-bookings.tsx", "workshop-bookings.scss"],
+  "install": ["@nuvui/react", "@nuvui/date-picker", "@nuvui/scheduler"],
+  "height": 820
+}

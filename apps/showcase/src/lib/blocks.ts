@@ -205,6 +205,9 @@ import whatsNew from "@/blocks/whats-new/block.json" with { type: "json" };
 import workflowBuilder from "@/blocks/workflow-builder/block.json" with {
   type: "json",
 };
+import workshopBookings from "@/blocks/workshop-bookings/block.json" with {
+  type: "json",
+};
 
 /** A block's `block.json`, the file that says what the block is. */
 export interface BlockManifest {
@@ -282,7 +285,7 @@ export const categories: BlockCategory[] = [
     label: "Calendars",
     title: "Calendars",
     description:
-      "Events in time: a team's week with its meetings side by side, leave and releases across their days and a key to the colors, and a clinic's day of appointments in its opening hours, with the one pressed shown beside it, a meeting room booked by the half hour, shifts planned across a week, and a school's lessons booked against teachers and rooms.",
+      "Events in time: a team's week with its meetings side by side, leave and releases across their days and a key to the colors, and a clinic's day of appointments in its opening hours, with the one pressed shown beside it, a meeting room booked by the half hour, shifts planned across a week, a school's lessons booked against teachers and rooms, a fleet's vans over a month, a team's people over a quarter, and a workshop's bookings loaded from a server as the weeks are shown.",
   },
   {
     slug: "media",
@@ -389,6 +392,7 @@ export const blocks: BlockManifest[] = [
   schoolTimetable,
   fleetPlanner,
   quarterPlan,
+  workshopBookings,
   courseLesson,
   productDemo,
   recordingReview,

@@ -71,6 +71,14 @@ export interface SchedulerLabels {
   nextEvent: (day: string) => string;
   /** The agenda when nothing is on for 180 days. */
   nothingAhead: string;
+  /** Said while events are loaded from a `dataSource`. */
+  loading: string;
+  /** Said when the events of the days shown couldn't be loaded. */
+  loadFailed: string;
+  /** The button that loads them again. */
+  tryAgain: string;
+  /** Said when a change couldn't be saved, and was taken back. */
+  saveFailed: string;
   /** The heading of the popover for an event being made. */
   newEvent: string;
   /** An event saved with no title. */
@@ -225,6 +233,10 @@ export const englishLabels: SchedulerLabels = {
   nothingBetween: (from, to) => `Nothing on from ${from} to ${to}.`,
   nextEvent: (day) => `Go to ${day}`,
   nothingAhead: "Nothing on in the next 180 days.",
+  loading: "Loading events",
+  loadFailed: "The events couldn't be loaded.",
+  tryAgain: "Try again",
+  saveFailed: "The change couldn't be saved, so it was undone.",
   newEvent: "New event",
   untitled: "Untitled",
   eventTitle: "Title",

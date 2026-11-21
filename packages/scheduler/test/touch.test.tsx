@@ -2,7 +2,7 @@ import "@nuvui/react/styles.css";
 import "@nuvui/date-picker/styles.css";
 import "../src/styles/index.scss";
 import { describe, expect, test, vi } from "vitest";
-import { page } from "vitest/browser";
+import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
 import { type CalendarEvent, EventCalendar, EventTimeline } from "../src";
 
@@ -189,6 +189,43 @@ describe("editing by touch", () => {
     await new Promise((resolve) => setTimeout(resolve, 600));
     touch("pointerup", from.x + 6, from.y + 60, window);
     expect(onEventsChange).not.toHaveBeenCalled();
+  });
+
+  test("Try again and Close, after a failed load or save, are 44px", async () => {
+    await render(
+      <EventCalendar
+        today={today}
+        timeZone="UTC"
+        aria-label="Team"
+        dataSource={{
+          getEvents: async () => events,
+          saveEvents: () => Promise.reject(new Error("Conflict")),
+        }}
+      />,
+    );
+    const review = page.getByRole("button", { name: /^Design review/ });
+    await expect.element(review).toBeVisible();
+    (review.element() as HTMLElement).focus();
+    await userEvent.keyboard("{Delete}");
+    await page
+      .getByRole("alertdialog")
+      .getByRole("button", { name: "Delete" })
+      .click();
+    const close = page.getByRole("button", { name: "Close" });
+    await expect.element(close).toBeVisible();
+    expect(box(close.element()).height).toBeGreaterThanOrEqual(44);
+
+    await render(
+      <EventCalendar
+        today={today}
+        timeZone="UTC"
+        aria-label="Failed"
+        dataSource={{ getEvents: () => Promise.reject(new Error("Down")) }}
+      />,
+    );
+    const again = page.getByRole("button", { name: "Try again" });
+    await expect.element(again).toBeVisible();
+    expect(box(again.element()).height).toBeGreaterThanOrEqual(44);
   });
 });
 

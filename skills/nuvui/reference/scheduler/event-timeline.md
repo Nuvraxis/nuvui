@@ -263,6 +263,10 @@ export default function Example() {
 }
 ```
 
+## Loading from a server
+
+A `dataSource` loads the events of the period shown, and of each period moved to, and saves each change, as [Loading from a server](loading-by-range.md) explains for both components.
+
 ## Many resources
 
 Only the rows and the columns in view are drawn, and a few past each edge, so the page holds the same few hundred elements however many resources and days there are. The rows and columns that aren't drawn are still counted, with `aria-rowcount` and `aria-colcount`, and a screen reader hears where it is in the whole.
@@ -326,14 +330,13 @@ Every event in the period is still worked out, to know how tall each row is. Ten
 | --- | --- | --- | --- |
 | `events` | `readonly TEvent[]` |  | The events, when you hold them. Pass `onEventsChange` too for them to be changed: without it, they open to be read. |
 | `defaultEvents` | `readonly TEvent[]` |  | The events at first, when the component holds them. |
+| `dataSource` | `EventDataSource<TEvent>` |  | Where the events come from when they live on a server. They're loaded a range of days at a time as the days shown change, and each change is sent back to be saved. `events` and `defaultEvents` aren't read. Make it once, outside the component or with `useMemo`: new functions load everything again. |
 | `onEventsChange` | `((events: TEvent[], change: EventChange<TEvent>) => void)` |  | Called with every event after one is made, changed or deleted, and what the change was. |
 | `eventKeys` | `Partial<Record<keyof CalendarEvent, string>>` |  | The names your events' fields have where they aren't these, such as `{ title: "name", resourceIds: "roomId" }`. Events are read from them, and changes are written back to them, with every other field of yours kept. |
 | `resourceKeys` | `Partial<Record<keyof CalendarResource, string>>` |  | The names your resources' fields have where they aren't these. |
 | `resourceRequired` | `boolean` | `false` | Every event needs a resource, and the popover offers no choice of none. On the calendar, a new event is given the first resource shown. |
 | `multipleResources` | `boolean` | `false` | An event can be given several resources in its popover, not just one. |
 | `readOnly` | `boolean` | `false` | Events open to be read, and can't be made, changed, moved or deleted. An event's own `readOnly` wins over this. |
-| `creatable` | `boolean` | `true` | Whether new events can be made on empty time, with a click or by dragging across it. Something dropped from elsewhere on the page is still added. |
-| `createOn` | `"click" \| "doubleClick"` | `"click"` | What makes an event on empty time: a click, or a double click. |
 | `resources` | `readonly TResource[]` |  | What events are booked against, a row each: vehicles, people, rooms. Those inside a resource are rows under it, which fold away. An event is drawn in the row of each of its resources. |
 | `collapsedResources` | `readonly string[]` |  | The ids of the folded resources, when you control them. |
 | `defaultCollapsedResources` | `readonly string[]` |  | The resources folded at first, when you don't control them. |
@@ -347,6 +350,8 @@ Every event in the period is still worked out, to know how tall each row is. Ten
 | `scrollToHour` | `number` | `7` | The hour the hours scale opens scrolled to, when now isn't in the days shown. |
 | `renderResource` | `((resource: TResource) => ReactNode)` |  | What a resource's row shows beside its fold button: its title by default. The row is still named by the title. |
 | `headingLevel` | `2 \| 3 \| 4 \| 5` | `2` | The level of the heading with the period shown. |
+| `creatable` | `boolean` | `true` | Whether new events can be made on empty time, with a click or by dragging across it. Something dropped from elsewhere on the page is still added. |
+| `createOn` | `"click" \| "doubleClick"` | `"click"` | What makes an event on empty time: a click, or a double click. |
 | `defaultDuration` | `number` | `60` | Minutes a new event lasts when it's made with a click on a time, and an all-day one dragged onto a time. |
 | `step` | `number` | `15` | Minutes that times snap to while an event is dragged, and that the arrow keys move it by. |
 | `confirmDelete` | `boolean` | `true` | Asks before an event is deleted. An event that repeats is always asked about, since which of its occurrences go is the question. |

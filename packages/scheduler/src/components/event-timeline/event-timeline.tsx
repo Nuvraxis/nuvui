@@ -51,6 +51,7 @@ import {
   type CalendarContextValue,
   type ResolvedPreferences,
 } from "../event-calendar/context";
+import { DataStatus } from "../event-calendar/data-status";
 import { allFields } from "../event-calendar/editor";
 import { Chevron } from "../event-calendar/icons";
 import {
@@ -191,6 +192,7 @@ const UntypedEventTimeline = forwardRef<HTMLElement, AnyProps>(
       onEventDropOutside: _onEventDropOutside,
       createId: _createId,
       onEventClick: _onEventClick,
+      dataSource: _dataSource,
       // The timeline's own.
       collapsedResources: collapsedProp,
       defaultCollapsedResources = noIds,
@@ -255,6 +257,10 @@ const UntypedEventTimeline = forwardRef<HTMLElement, AnyProps>(
     const undated =
       !hydrated && (dateProp ?? defaultDate ?? todayProp) === undefined;
     const day = dayOf(undated ? noDate : date, timeZone);
+    // Drawn by a server that can't know the time zone of the person
+    // looking, or the day they're looking on. It keeps its place and shows
+    // the days once it does.
+    const pending = !hydrated && (!timeZoneProp || undated);
     const setDate = useCallback(
       (next: DayKey) => setDateValue(momentOf(next, 0, timeZone)),
       [setDateValue, timeZone],
@@ -314,6 +320,7 @@ const UntypedEventTimeline = forwardRef<HTMLElement, AnyProps>(
         first: axis.first,
         last: axis.last,
         hidden: noIds,
+        pending,
         scrollToHour,
         locate: timelineSpotAt(axis),
         scrollNear: scrollTimeline,
@@ -397,10 +404,7 @@ const UntypedEventTimeline = forwardRef<HTMLElement, AnyProps>(
         aria-label={ariaLabel ?? labels.timeline}
         data-scale={scale}
         data-narrow={narrow ? "" : undefined}
-        // Drawn by a server that can't know the time zone of the person
-        // looking, or the day they're looking on. It keeps its place and
-        // shows the days once it does.
-        data-pending={!hydrated && (!timeZoneProp || undated) ? "" : undefined}
+        data-pending={pending ? "" : undefined}
         className={cx("nuv-event-timeline", className)}
         {...rest}
       >
@@ -442,6 +446,7 @@ const UntypedEventTimeline = forwardRef<HTMLElement, AnyProps>(
             <Heading className="nuv-event-timeline__title" aria-live="polite">
               {title}
             </Heading>
+            <DataStatus source={scheduler.source} labels={labels} />
             {scales.length < 2 ? null : (
               <div className="nuv-event-timeline__tools">
                 {narrow ? (
@@ -484,7 +489,11 @@ const UntypedEventTimeline = forwardRef<HTMLElement, AnyProps>(
             )}
           </div>
           {/* The clicks, keys and drags of the grid's cells and events, taken here once rather than on each. */}
-          <div className="nuv-event-timeline__view" {...scheduler.viewHandlers}>
+          <div
+            className="nuv-event-timeline__view"
+            aria-busy={scheduler.source.loading || undefined}
+            {...scheduler.viewHandlers}
+          >
             <TimelineGrid
               axis={axis}
               rows={rows}

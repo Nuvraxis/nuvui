@@ -29,6 +29,7 @@ import {
   type ReactElement,
   type RefAttributes,
   useCallback,
+  useEffect,
   useId,
   useMemo,
   useRef,
@@ -54,7 +55,7 @@ import type { CalendarResource } from "../../core/resources";
 import { cx } from "../../utils/cx";
 import { useControlled } from "../../utils/use-controlled";
 import { useWidth } from "../../utils/use-width";
-import { AgendaView } from "./agenda-view";
+import { AgendaView, ahead } from "./agenda-view";
 import {
   CalendarContext,
   type CalendarContextValue,
@@ -63,6 +64,7 @@ import {
   type PreferenceName,
   type ResolvedPreferences,
 } from "./context";
+import { DataStatus } from "./data-status";
 import { allFields } from "./editor";
 import { Chevron } from "./icons";
 import { MonthView } from "./month-view";
@@ -265,6 +267,7 @@ const UntypedEventCalendar = forwardRef<HTMLElement, AnyProps>(
       onEventDropOutside: _onEventDropOutside,
       createId: _createId,
       onEventClick: _onEventClick,
+      dataSource: _dataSource,
       // The calendar's own.
       hiddenResources: hiddenProp,
       defaultHiddenResources = noIds,
@@ -340,6 +343,10 @@ const UntypedEventCalendar = forwardRef<HTMLElement, AnyProps>(
     const undated =
       !hydrated && (dateProp ?? defaultDate ?? todayProp) === undefined;
     const day = dayOf(undated ? noDate : date, timeZone);
+    // Drawn by a server that can't know the time zone of the person
+    // looking, or the day they're looking on. It keeps its place and shows
+    // the days once it does.
+    const pending = !hydrated && (!timeZoneProp || undated);
     const setDate = useCallback(
       (next: DayKey) => setDateValue(momentOf(next, 0, timeZone)),
       [setDateValue, timeZone],
@@ -456,6 +463,7 @@ const UntypedEventCalendar = forwardRef<HTMLElement, AnyProps>(
         first,
         last,
         hidden,
+        pending,
         scrollToHour,
         locate: spotAt,
         scrollNear: scrollTimeGrid,
@@ -463,6 +471,22 @@ const UntypedEventCalendar = forwardRef<HTMLElement, AnyProps>(
       },
     );
     const { placed } = scheduler;
+
+    // An agenda that leaves out empty days, and has none with anything on,
+    // looks ahead for the next. Events from a data source are loaded for
+    // that once the days shown are.
+    const { source } = scheduler;
+    const lookAhead =
+      source.active &&
+      view === "agenda" &&
+      !preferences.showEmptyDays &&
+      !source.loading &&
+      !placed.some((item) => !item.preview);
+    useEffect(() => {
+      if (lookAhead) {
+        source.load({ from: addDays(last, 1), to: addDays(last, ahead) });
+      }
+    }, [lookAhead, last, source.load]);
 
     const context: CalendarContextValue = {
       timeZone,
@@ -510,10 +534,7 @@ const UntypedEventCalendar = forwardRef<HTMLElement, AnyProps>(
         data-view={view}
         data-narrow={narrow ? "" : undefined}
         data-panel-over={panelOver ? "" : undefined}
-        // Drawn by a server that can't know the time zone of the person
-        // looking, or the day they're looking on. It keeps its place and
-        // shows the days once it does.
-        data-pending={!hydrated && (!timeZoneProp || undated) ? "" : undefined}
+        data-pending={pending ? "" : undefined}
         className={cx("nuv-event-calendar", className)}
         {...rest}
       >
@@ -566,6 +587,7 @@ const UntypedEventCalendar = forwardRef<HTMLElement, AnyProps>(
             <Heading className="nuv-event-calendar__title" aria-live="polite">
               {title}
             </Heading>
+            <DataStatus source={scheduler.source} labels={labels} />
             <div className="nuv-event-calendar__tools">
               {views.length < 2 ? null : narrow ? (
                 <Select
@@ -708,6 +730,7 @@ const UntypedEventCalendar = forwardRef<HTMLElement, AnyProps>(
             {/* The clicks, keys and drags of the grids' cells and events, taken here once rather than on each. */}
             <div
               className="nuv-event-calendar__view"
+              aria-busy={scheduler.source.loading || undefined}
               {...scheduler.viewHandlers}
             >
               {view === "month" ? (
@@ -724,6 +747,7 @@ const UntypedEventCalendar = forwardRef<HTMLElement, AnyProps>(
                   placed={placed}
                   label={title}
                   events={scheduler.shownEvents}
+                  searching={scheduler.source.busy}
                 />
               ) : (
                 <TimeGrid days={days} placed={placed} label={title} />

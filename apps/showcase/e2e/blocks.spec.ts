@@ -5367,6 +5367,7 @@ test.describe("the calendar blocks on a Sunday", () => {
     ["room-booking", "Juniper room bookings"],
     ["shift-planner", "Shifts this week"],
     ["school-timetable", "Timetable"],
+    ["workshop-bookings", "Workshop bookings"],
   ] as const) {
     test(`${block}: the days shown have events in them`, async ({ page }) => {
       await page.clock.setFixedTime(new Date(2026, 10, 1, 8));
@@ -5525,6 +5526,92 @@ test.describe("quarter plan", () => {
       await setTheme(page, theme);
       await open(page, "/blocks/view/quarter-plan");
       await settleStyles(page);
+      expect(
+        (await new AxeBuilder({ page }).withTags(wcag).analyze()).violations,
+      ).toEqual([]);
+    });
+  }
+});
+
+test.describe("workshop bookings", () => {
+  // The made-up server waits a second and a half by default.
+  const loaded = { timeout: 10_000 };
+
+  test("workshop bookings: a week is loaded once, and the next when it's shown", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/blocks/view/workshop-bookings");
+    const calendar = page.getByRole("region", { name: "Workshop bookings" });
+    const log = page
+      .getByRole("complementary", { name: "Requests" })
+      .getByRole("listitem");
+    await expect(calendar.getByText("Loading events")).toBeVisible();
+    await expect(log.filter({ hasText: /^Loaded / })).toHaveCount(1, loaded);
+    await expect(
+      calendar.locator(".nuv-event-calendar__event").first(),
+    ).toBeVisible();
+    await press(calendar.getByRole("button", { name: "Next" }), isMobile);
+    await expect(log.filter({ hasText: /^Loaded / })).toHaveCount(2, loaded);
+    await press(calendar.getByRole("button", { name: "Previous" }), isMobile);
+    await expect(
+      calendar.locator(".nuv-event-calendar__event").first(),
+    ).toBeVisible();
+    await expect(log.filter({ hasText: /^Loaded / })).toHaveCount(2);
+  });
+
+  test("workshop bookings: a load that fails says so, and Try again loads it", async ({
+    page,
+    isMobile,
+  }) => {
+    await open(page, "/blocks/view/workshop-bookings");
+    const calendar = page.getByRole("region", { name: "Workshop bookings" });
+    const log = page
+      .getByRole("complementary", { name: "Requests" })
+      .getByRole("listitem");
+    await expect(log.filter({ hasText: /^Loaded / })).toHaveCount(1, loaded);
+    await press(
+      page.getByRole("switch", { name: "Fail the next request" }),
+      isMobile,
+    );
+    await press(calendar.getByRole("button", { name: "Next" }), isMobile);
+    await expect(
+      calendar.getByText("The events couldn't be loaded."),
+    ).toBeVisible(loaded);
+    await expect(log.first()).toHaveText(/^Couldn't load /);
+    await expect(
+      page.getByRole("switch", { name: "Fail the next request" }),
+    ).not.toBeChecked();
+    await press(calendar.getByRole("button", { name: "Try again" }), isMobile);
+    await expect(log.filter({ hasText: /^Loaded / })).toHaveCount(2, loaded);
+    await expect(
+      calendar.getByRole("button", { name: "Try again" }),
+    ).toHaveCount(0);
+  });
+
+  for (const theme of ["light", "dark"] as const) {
+    test(`workshop bookings: it passes axe with a failed load in ${theme}`, async ({
+      page,
+      isMobile,
+    }) => {
+      await page.emulateMedia({ reducedMotion: "reduce" });
+      await setTheme(page, theme);
+      await open(page, "/blocks/view/workshop-bookings");
+      await settleStyles(page);
+      const calendar = page.getByRole("region", {
+        name: "Workshop bookings",
+      });
+      await expect(
+        calendar.locator(".nuv-event-calendar__event").first(),
+      ).toBeVisible(loaded);
+      await press(
+        page.getByRole("switch", { name: "Fail the next request" }),
+        isMobile,
+      );
+      await press(calendar.getByRole("button", { name: "Next" }), isMobile);
+      await expect(
+        calendar.getByRole("button", { name: "Try again" }),
+      ).toBeVisible(loaded);
       expect(
         (await new AxeBuilder({ page }).withTags(wcag).analyze()).violations,
       ).toEqual([]);

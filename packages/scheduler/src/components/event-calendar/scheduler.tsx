@@ -74,6 +74,7 @@ import {
   type SeriesOptions,
 } from "../../core/series";
 import type { EditingValue } from "./context";
+import { type EventDataSource, useEventSource } from "./data-source";
 import {
   type Editing,
   EventEditor,
@@ -113,6 +114,14 @@ export interface SchedulerOwnProps<TEvent extends object = CalendarEvent> {
   events?: readonly TEvent[];
   /** The events at first, when the component holds them. */
   defaultEvents?: readonly TEvent[];
+  /**
+   * Where the events come from when they live on a server. They're loaded
+   * a range of days at a time as the days shown change, and each change is
+   * sent back to be saved. `events` and `defaultEvents` aren't read. Make
+   * it once, outside the component or with `useMemo`: new functions load
+   * everything again.
+   */
+  dataSource?: EventDataSource<TEvent>;
   /**
    * Called with every event after one is made, changed or deleted, and
    * what the change was.
@@ -332,6 +341,11 @@ export interface SchedulerSetup {
   last: DayKey;
   /** Resources whose events are hidden. */
   hidden: readonly string[];
+  /**
+   * Drawn before the browser knows the day or the time zone to show, with
+   * a stand-in day. Nothing is loaded from a data source for it.
+   */
+  pending: boolean;
   /** The hour a timed event starts at when an all-day one is made timed. */
   scrollToHour: number;
   /** The spot under a point. */
@@ -420,27 +434,28 @@ export function useScheduler(props: SharedProps, setup: SchedulerSetup) {
     [resources],
   );
 
-  // The events, kept here unless the app keeps them. Changes need
-  // somewhere to go: here, or to the app through onEventsChange.
-  const [ownEvents, setOwnEvents] = useState(() => defaultEvents.map(read));
-  const eventsHeld = eventsProp !== undefined;
-  const heldEvents = useMemo(() => eventsProp?.map(read), [eventsProp, read]);
-  const events = heldEvents ?? ownEvents;
-  const latestEvents = useRef(events);
-  latestEvents.current = events;
   // An app that gives each event one resource id, not a list, has new
-  // events written the same way.
+  // events written the same way, and one that writes its rules as objects
+  // has new ones written so too. Events from a data source are looked at
+  // as they're loaded.
   const resourceKey = eventKeys?.resourceIds ?? "resourceIds";
-  const oneResource = (eventsProp ?? defaultEvents).some(
-    (item) =>
-      typeof (item as Record<string, unknown>)[resourceKey] === "string",
-  );
-  // An app that writes its rules as objects has new ones written so too.
   const recurrenceKey = eventKeys?.recurrence ?? "recurrence";
-  const objectRules = (eventsProp ?? defaultEvents).some((item) => {
-    const rule = (item as Record<string, unknown>)[recurrenceKey];
-    return typeof rule === "object" && rule !== null;
-  });
+  const seen = useRef({ oneResource: false, objectRules: false });
+  const look = (item: object) => {
+    const fields = item as Record<string, unknown>;
+    if (typeof fields[resourceKey] === "string") {
+      seen.current.oneResource = true;
+    }
+    const rule = fields[recurrenceKey];
+    if (typeof rule === "object" && rule !== null) {
+      seen.current.objectRules = true;
+    }
+  };
+  const dataSource = props.dataSource as EventDataSource<object> | undefined;
+  for (const item of dataSource ? noEvents : (eventsProp ?? defaultEvents)) {
+    look(item);
+  }
+  const { oneResource, objectRules } = seen.current;
   const seriesOptions: SeriesOptions = { timeZone, createId, objectRules };
   // An occurrence of a repeating event is handed over as its series, at
   // the occurrence's own times.
@@ -451,16 +466,56 @@ export function useScheduler(props: SharedProps, setup: SchedulerSetup) {
       : event;
     return eventKeys ? writeEvent(outward, eventKeys, oneResource) : outward;
   };
-  const editable = !readOnly && (!eventsHeld || onEventsChange !== undefined);
+  const writeOut = (change: EventChange) =>
+    eventKeys ? writeChange(change, eventKeys, oneResource) : change;
+
+  // Moves said in words, for those who can't see them.
+  const [announcement, setAnnouncement] = useState("");
+
+  // Events loaded from the app's data source, a range of days at a time.
+  const source = useEventSource(dataSource, {
+    timeZone,
+    first,
+    last,
+    paused: setup.pending,
+    read: (item) => {
+      look(item);
+      return read(item);
+    },
+    write,
+    onUndo: (next, undo) => {
+      latestEvents.current = next;
+      // The header says so, in a live region of its own.
+      for (const change of undo) {
+        onEventsChange?.(next.map(write), writeOut(change));
+      }
+    },
+  });
+
+  // The events, kept here unless the app keeps them or they're loaded.
+  // Changes need somewhere to go: here, to the data source, or to the app
+  // through onEventsChange.
+  const [ownEvents, setOwnEvents] = useState(() =>
+    dataSource ? [] : defaultEvents.map(read),
+  );
+  const eventsHeld = eventsProp !== undefined;
+  const heldEvents = useMemo(() => eventsProp?.map(read), [eventsProp, read]);
+  const events = source.active ? source.events : (heldEvents ?? ownEvents);
+  const latestEvents = useRef(events);
+  latestEvents.current = events;
+  const editable =
+    !readOnly &&
+    (source.active
+      ? source.canSave || onEventsChange !== undefined
+      : !eventsHeld || onEventsChange !== undefined);
   const creatable = editable && creatableProp;
   const commit = (change: EventChange) => {
-    const next = applyChange(latestEvents.current, change);
+    const next = source.active
+      ? source.apply(change)
+      : applyChange(latestEvents.current, change);
     latestEvents.current = next;
-    if (!eventsHeld) setOwnEvents(next);
-    onEventsChange?.(
-      next.map(write),
-      eventKeys ? writeChange(change, eventKeys, oneResource) : change,
-    );
+    if (!source.active && !eventsHeld) setOwnEvents(next);
+    onEventsChange?.(next.map(write), writeOut(change));
   };
 
   const shownEvents = useMemo(() => {
@@ -484,8 +539,6 @@ export function useScheduler(props: SharedProps, setup: SchedulerSetup) {
     resource ? [resource] : firstResource();
   const options: EditOptions = { step, defaultDuration, timeZone };
 
-  // Moves said in words, for those who can't see them.
-  const [announcement, setAnnouncement] = useState("");
   const when = (event: CalendarEvent) =>
     timeOf(place(event, timeZone), format, labels);
 
@@ -1238,5 +1291,6 @@ export function useScheduler(props: SharedProps, setup: SchedulerSetup) {
     edit,
     viewHandlers,
     dialogs,
+    source,
   };
 }

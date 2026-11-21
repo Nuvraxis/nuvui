@@ -113,8 +113,10 @@ jobs:
     #
     # The last docs slice is mostly Firefox, the slowest engine here. In
     # October 2026 it was some 2,200 tests, and with every slice on the one
-    # laptop it got through 1,900 in ninety minutes.
-    timeout-minutes: 120
+    # laptop it got through 1,900 in ninety minutes. In November it was
+    # some 2,400 tests and took 112 and then 116 minutes, and was cut off
+    # at 120 with ninety left.
+    timeout-minutes: 150
     strategy:
       # One slice failing says nothing about the others. Let them finish, so
       # one run shows everything that's wrong.

@@ -2,9 +2,9 @@
 
 # Icons
 
-The @nuvui/icons package. 317 line icons drawn for nuvui, in three styles, each a React component in the color of the text around it and an SVG file.
+The @nuvui/icons package. 338 line icons drawn for nuvui, in three styles, each a React component in the color of the text around it and an SVG file.
 
-`@nuvui/icons` is a set of 317 line icons drawn for this library, on a 24 pixel grid, in three styles. Each one is a React component and an SVG file. They're MIT licensed like the rest of nuvui: they were drawn for it, and none was traced or adapted from another set.
+`@nuvui/icons` is a set of 338 line icons drawn for this library, on a 24 pixel grid, in three styles. Each one is a React component and an SVG file. They're MIT licensed like the rest of nuvui: they were drawn for it, and none was traced or adapted from another set.
 
 The components in `@nuvui/react` don't use this package. They draw their few icons themselves, so the core doesn't depend on it, and you install it only if you want the icons.
 
@@ -85,7 +85,7 @@ Icons have no state and no `"use client"`. A server component renders them as ma
 
 Each icon is a module of its own, and the package says it has no side effects, so a bundler leaves out every icon a page doesn't import. One icon is under half a kilobyte, compressed.
 
-Without that pruning, in a development server, importing from the package loads all 317. Next.js prunes during development too for packages listed in `experimental.optimizePackageImports`:
+Without that pruning, in a development server, importing from the package loads all 338. Next.js prunes during development too for packages listed in `experimental.optimizePackageImports`:
 
 ```js title="next.config.mjs"
 export default {
@@ -128,6 +128,7 @@ Every icon also ships as an SVG file, for an email, a slide or a page that isn't
 | Commerce | `ShoppingCartIcon`, `ShoppingBagIcon`, `CreditCardIcon`, `DollarSignIcon`, `EuroSignIcon`, `PercentIcon`, `GiftIcon`, `PackageIcon`, `TruckIcon`, `ReceiptIcon`, `WalletIcon`, `StoreIcon`, `BanknoteIcon`, `CoinsIcon`, `BarcodeIcon`, `QrCodeIcon`, `ScaleIcon`, `BuildingIcon`, `BriefcaseIcon` |
 | Data & charts | `BarChartIcon`, `BarChartHorizontalIcon`, `LineChartIcon`, `AreaChartIcon`, `PieChartIcon`, `DonutChartIcon`, `TrendingUpIcon`, `TrendingDownIcon`, `DatabaseIcon`, `ServerIcon`, `TableIcon`, `ColumnsIcon`, `RowsIcon`, `LayersIcon`, `SortAscIcon`, `SortDescIcon`, `SigmaIcon`, `GaugeIcon`, `ScatterChartIcon`, `KanbanIcon`, `CalculatorIcon`, `NetworkIcon`, `WorkflowIcon`, `FilterXIcon`, `FilterPlusIcon`, `FilterCheckIcon`, `FilterActiveIcon`, `FilterOffIcon`, `FilterListIcon`, `SearchFilterIcon`, `TableFilterIcon`, `SlidersVerticalIcon` |
 | Developer | `CodeIcon`, `CodeSlashIcon`, `TerminalIcon`, `TerminalWindowIcon`, `GitBranchIcon`, `GitCommitIcon`, `GitMergeIcon`, `GitPullRequestIcon`, `CpuIcon`, `HardDriveIcon`, `BugIcon`, `BracesIcon`, `BracketsIcon`, `KeyboardIcon`, `MonitorIcon`, `SmartphoneIcon`, `TabletIcon`, `LaptopIcon`, `KeyIcon`, `RocketIcon`, `PlugIcon`, `ScanLineIcon`, `FlaskIcon`, `BotIcon`, `SparklesIcon`, `GitForkIcon`, `GitCompareIcon`, `GitGraphIcon`, `GitCherryPickIcon`, `GitStashIcon`, `DiffIcon`, `RepositoryIcon`, `IssueOpenIcon`, `IssueClosedIcon`, `GitPullRequestDraftIcon`, `GitPullRequestClosedIcon` |
+| IDE | `FolderCodeIcon`, `RunIcon`, `DebugPauseIcon`, `DebugContinueIcon`, `DebugStopIcon`, `DebugRestartIcon`, `BreakpointIcon`, `DebugStepOverIcon`, `DebugStepIntoIcon`, `DebugStepOutIcon`, `ExtensionsIcon`, `SplitEditorIcon`, `PanelBottomIcon`, `CommandIcon`, `SymbolMethodIcon`, `FileTreeIcon`, `SearchCodeIcon`, `SnippetIcon`, `MinimapIcon`, `CallStackIcon`, `LivePreviewIcon` |
 | Text editing | `BoldIcon`, `ItalicIcon`, `UnderlineIcon`, `StrikethroughIcon`, `AlignLeftIcon`, `AlignCenterIcon`, `AlignRightIcon`, `AlignJustifyIcon`, `ListChecksIcon`, `HeadingIcon`, `QuoteIcon`, `TypeIcon`, `IndentIcon`, `OutdentIcon`, `TextCursorIcon`, `PilcrowIcon`, `EraserIcon`, `SpellCheckIcon`, `WrapTextIcon`, `RemoveFormattingIcon` |
 | Objects | `MapPinIcon`, `MapIcon`, `CompassIcon`, `NavigationIcon`, `PaletteIcon`, `DropletIcon`, `ThermometerIcon`, `FlameIcon`, `LeafIcon`, `AwardIcon`, `TrophyIcon`, `CrownIcon`, `UmbrellaIcon`, `CoffeeIcon`, `CarIcon`, `AnchorIcon`, `ScissorsIcon`, `TargetIcon`, `CrosshairIcon`, `LanguagesIcon`, `AccessibilityIcon`, `GemIcon`, `GraduationCapIcon`, `BookIcon`, `BookOpenIcon`, `WatchIcon`, `UtensilsIcon`, `SunIcon`, `MoonIcon` |
 

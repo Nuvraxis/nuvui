@@ -1,10 +1,10 @@
 ---
 title: Icons
-description: The @nuvui/icons package. 317 line icons drawn for nuvui, in three styles, each a React component in the color of the text around it and an SVG file.
+description: The @nuvui/icons package. 338 line icons drawn for nuvui, in three styles, each a React component in the color of the text around it and an SVG file.
 added: "2026-10-14"
 ---
 
-`@nuvui/icons` is a set of 317 line icons drawn for this library, on a 24 pixel grid, in three styles. Each one is a React component and an SVG file. They're MIT licensed like the rest of nuvui: they were drawn for it, and none was traced or adapted from another set.
+`@nuvui/icons` is a set of 338 line icons drawn for this library, on a 24 pixel grid, in three styles. Each one is a React component and an SVG file. They're MIT licensed like the rest of nuvui: they were drawn for it, and none was traced or adapted from another set.
 
 The components in `@nuvui/react` don't use this package. They draw their few icons themselves, so the core doesn't depend on it, and you install it only if you want the icons.
 
@@ -87,7 +87,7 @@ Icons have no state and no `"use client"`. A server component renders them as ma
 
 Each icon is a module of its own, and the package says it has no side effects, so a bundler leaves out every icon a page doesn't import. One icon is under half a kilobyte, compressed.
 
-Without that pruning, in a development server, importing from the package loads all 317. Next.js prunes during development too for packages listed in `experimental.optimizePackageImports`:
+Without that pruning, in a development server, importing from the package loads all 338. Next.js prunes during development too for packages listed in `experimental.optimizePackageImports`:
 
 ```js title="next.config.mjs"
 export default {

@@ -90,7 +90,7 @@ export const pages = [
     path: iconsHome,
     title: "Icons",
     description:
-      "317 React icons drawn for the library, in three styles. Search them, see each at the sizes it's used at, and copy it as a React import or as SVG.",
+      "338 React icons drawn for the library, in three styles. Search them, see each at the sizes it's used at, and copy it as a React import or as SVG.",
   },
   {
     path: themesHome,

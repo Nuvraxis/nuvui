@@ -1343,6 +1343,111 @@
       "category": "Developer"
     },
     {
+      "name": "folder-code",
+      "component": "FolderCodeIcon",
+      "category": "IDE"
+    },
+    {
+      "name": "run",
+      "component": "RunIcon",
+      "category": "IDE"
+    },
+    {
+      "name": "debug-pause",
+      "component": "DebugPauseIcon",
+      "category": "IDE"
+    },
+    {
+      "name": "debug-continue",
+      "component": "DebugContinueIcon",
+      "category": "IDE"
+    },
+    {
+      "name": "debug-stop",
+      "component": "DebugStopIcon",
+      "category": "IDE"
+    },
+    {
+      "name": "debug-restart",
+      "component": "DebugRestartIcon",
+      "category": "IDE"
+    },
+    {
+      "name": "breakpoint",
+      "component": "BreakpointIcon",
+      "category": "IDE"
+    },
+    {
+      "name": "debug-step-over",
+      "component": "DebugStepOverIcon",
+      "category": "IDE"
+    },
+    {
+      "name": "debug-step-into",
+      "component": "DebugStepIntoIcon",
+      "category": "IDE"
+    },
+    {
+      "name": "debug-step-out",
+      "component": "DebugStepOutIcon",
+      "category": "IDE"
+    },
+    {
+      "name": "extensions",
+      "component": "ExtensionsIcon",
+      "category": "IDE"
+    },
+    {
+      "name": "split-editor",
+      "component": "SplitEditorIcon",
+      "category": "IDE"
+    },
+    {
+      "name": "panel-bottom",
+      "component": "PanelBottomIcon",
+      "category": "IDE"
+    },
+    {
+      "name": "command",
+      "component": "CommandIcon",
+      "category": "IDE"
+    },
+    {
+      "name": "symbol-method",
+      "component": "SymbolMethodIcon",
+      "category": "IDE"
+    },
+    {
+      "name": "file-tree",
+      "component": "FileTreeIcon",
+      "category": "IDE"
+    },
+    {
+      "name": "search-code",
+      "component": "SearchCodeIcon",
+      "category": "IDE"
+    },
+    {
+      "name": "snippet",
+      "component": "SnippetIcon",
+      "category": "IDE"
+    },
+    {
+      "name": "minimap",
+      "component": "MinimapIcon",
+      "category": "IDE"
+    },
+    {
+      "name": "call-stack",
+      "component": "CallStackIcon",
+      "category": "IDE"
+    },
+    {
+      "name": "live-preview",
+      "component": "LivePreviewIcon",
+      "category": "IDE"
+    },
+    {
       "name": "bold",
       "component": "BoldIcon",
       "category": "Text editing"

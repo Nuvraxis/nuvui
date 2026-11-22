@@ -1,5 +1,13 @@
 # @nuvui/icons
 
+## 0.2.0
+
+### Minor Changes
+
+- [#128](https://github.com/Nuvraxis/nuvui/pull/128) [`f9c9738`](https://github.com/Nuvraxis/nuvui/commit/f9c973852a650b30a6c754689f7cf707312ab4c9) Thanks [@sajanv88](https://github.com/sajanv88)! - 21 icons for a code editor or a developer tool, in a new IDE category, in all three styles: `FolderCodeIcon`, `RunIcon`, `DebugPauseIcon`, `DebugContinueIcon`, `DebugStopIcon`, `DebugRestartIcon`, `BreakpointIcon`, `DebugStepOverIcon`, `DebugStepIntoIcon`, `DebugStepOutIcon`, `ExtensionsIcon`, `SplitEditorIcon`, `PanelBottomIcon`, `CommandIcon`, `SymbolMethodIcon`, `FileTreeIcon`, `SearchCodeIcon`, `SnippetIcon`, `MinimapIcon`, `CallStackIcon` and `LivePreviewIcon`. That makes 338.
+  
+  Some of the SVG files are written differently, with lines that share a style in one `<path>`, as Figma now exports them. They draw the same.
+
 ## 0.1.0
 
 ### Minor Changes

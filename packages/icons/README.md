@@ -1,6 +1,6 @@
 # @nuvui/icons
 
-317 line icons drawn for [nuvui](https://nuvui.nuvraxis.com), on a 24 pixel grid, in three styles. Each is a React component and an SVG file.
+338 line icons drawn for [nuvui](https://nuvui.nuvraxis.com), on a 24 pixel grid, in three styles. Each is a React component and an SVG file.
 
 This is early: the package is on npm as a 0.x version, and before 1.0 a minor version may rename or remove things. The [changelog](https://nuvui.nuvraxis.com/docs/changelog) says where one does.
 

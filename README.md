@@ -83,7 +83,7 @@ Each add-on is installed next to `@nuvui/react`, with the library it's built on 
 | [`@nuvui/backgrounds`](https://www.npmjs.com/package/@nuvui/backgrounds) | Moving backgrounds for a hero, a sign-in page or an empty state | `pnpm add @nuvui/backgrounds` |
 | [`@nuvui/3d`](https://www.npmjs.com/package/@nuvui/3d) | A 3D model viewer for glTF, GLB and STL files, on react-three-fiber. It needs React 19 | `pnpm add @nuvui/3d three @react-three/fiber` |
 | [`@nuvui/scheduler`](https://www.npmjs.com/package/@nuvui/scheduler) | An event calendar with day, week, month and agenda views, edited in place | `pnpm add @nuvui/scheduler @nuvui/date-picker` |
-| [`@nuvui/icons`](https://www.npmjs.com/package/@nuvui/icons) | 317 line icons in three styles. It needs only React | `pnpm add @nuvui/icons` |
+| [`@nuvui/icons`](https://www.npmjs.com/package/@nuvui/icons) | 338 line icons in three styles. It needs only React | `pnpm add @nuvui/icons` |
 
 ## Components
 
@@ -220,7 +220,7 @@ It also has:
 
 ### `@nuvui/icons`
 
-- 317 line icons drawn for nuvui on a 24 pixel grid, in Standard, Rounded and Sharp, with the same names in each.
+- 338 line icons drawn for nuvui on a 24 pixel grid, in Standard, Rounded and Sharp, with the same names in each.
 - Each is a React component, such as `ArrowRightIcon`, and an SVG file.
 - Icons take the color of the text around them, and are hidden from screen readers unless they have a `title`.
 - Each icon is a module of its own, so a page carries only the icons it imports.

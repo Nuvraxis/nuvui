@@ -19,6 +19,7 @@ const manifest = JSON.parse(
   ),
 ) as {
   icons: { name: string; component: string; category: string }[];
+  fileTypes: { name: string; component: string; description: string }[];
 };
 
 const grid = (page: Page) => page.locator("[data-icon-grid]");
@@ -160,6 +161,77 @@ test.describe("icons page", () => {
     expect(box?.width).toBeGreaterThanOrEqual(44);
     expect(box?.height).toBeGreaterThanOrEqual(44);
     // The drawing is hidden, and the name is the words under it.
+    await expect(tile.locator("svg")).toHaveAttribute("aria-hidden", "true");
+  });
+});
+
+const fileTypeGrid = (page: Page) => page.locator("[data-file-type-grid]");
+const fileTypeTiles = (page: Page) =>
+  fileTypeGrid(page).locator("button[data-file-type]");
+
+test.describe("icons page, file types", () => {
+  test("the file types grid has every file type in the package, in its colors", async ({
+    page,
+  }) => {
+    await open(page, "/docs/icons");
+
+    await expect(fileTypeTiles(page)).toHaveCount(manifest.fileTypes.length);
+    // Kept apart from the line icons' grid, which counts only its own.
+    await expect(tiles(page)).toHaveCount(manifest.icons.length);
+    const first = manifest.fileTypes[0];
+    if (!first) throw new Error("the manifest lists no file types");
+    const svg = fileTypeGrid(page)
+      .locator(`button[data-file-type="${first.name}"]`)
+      .locator("svg");
+    await expect(svg).toHaveAttribute("viewBox", "0 0 32 32");
+    const fills = await svg.evaluate((element) =>
+      [...element.children].map((shape) => getComputedStyle(shape).fill),
+    );
+    expect(fills.filter((fill) => fill !== "none").length).toBeGreaterThan(1);
+  });
+
+  test("pressing a file type copies its import", async ({
+    page,
+    browserName,
+    isMobile,
+  }) => {
+    test.skip(
+      browserName !== "chromium",
+      "Only Chromium lets a test read the clipboard back.",
+    );
+    await open(page, "/docs/icons");
+    const first = manifest.fileTypes[0];
+    if (!first) throw new Error("the manifest lists no file types");
+    const line = `import { ${first.component} } from "@nuvui/icons/file-types";`;
+
+    await press(
+      fileTypeGrid(page).locator(`button[data-file-type="${first.name}"]`),
+      isMobile,
+    );
+
+    await expect(fileTypeGrid(page).locator("[aria-live]")).toHaveText(
+      `Copied ${line}`,
+    );
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(
+      line,
+    );
+  });
+
+  test("each file type's button is named by its component and big enough to press", async ({
+    page,
+  }) => {
+    await open(page, "/docs/icons");
+    const first = manifest.fileTypes[0];
+    if (!first) throw new Error("the manifest lists no file types");
+    const tile = fileTypeGrid(page).getByRole("button", {
+      name: first.component,
+      exact: true,
+    });
+
+    await expect(tile).toBeVisible();
+    const box = await tile.boundingBox();
+    expect(box?.width).toBeGreaterThanOrEqual(44);
+    expect(box?.height).toBeGreaterThanOrEqual(44);
     await expect(tile.locator("svg")).toHaveAttribute("aria-hidden", "true");
   });
 });

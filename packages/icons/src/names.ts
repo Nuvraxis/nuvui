@@ -15,3 +15,9 @@ export function componentName(name: string): string {
     .map((word) => (word[0] ?? "").toUpperCase() + word.slice(1));
   return `${words.join("")}Icon`;
 }
+
+// A file type is named by its extension, and `ts` is `TsFileIcon`, so it
+// can't be taken for an icon of the set.
+export function fileTypeComponentName(extension: string): string {
+  return componentName(extension).replace(/Icon$/, "FileIcon");
+}

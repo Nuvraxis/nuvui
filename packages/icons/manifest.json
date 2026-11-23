@@ -1692,5 +1692,127 @@
       "component": "MoonIcon",
       "category": "Objects"
     }
+  ],
+  "fileTypes": [
+    {
+      "name": "ts",
+      "component": "TsFileIcon",
+      "description": ".ts file"
+    },
+    {
+      "name": "tsx",
+      "component": "TsxFileIcon",
+      "description": ".tsx file"
+    },
+    {
+      "name": "js",
+      "component": "JsFileIcon",
+      "description": ".js file"
+    },
+    {
+      "name": "jsx",
+      "component": "JsxFileIcon",
+      "description": ".jsx file"
+    },
+    {
+      "name": "json",
+      "component": "JsonFileIcon",
+      "description": ".json file"
+    },
+    {
+      "name": "html",
+      "component": "HtmlFileIcon",
+      "description": ".html file"
+    },
+    {
+      "name": "css",
+      "component": "CssFileIcon",
+      "description": ".css file"
+    },
+    {
+      "name": "scss",
+      "component": "ScssFileIcon",
+      "description": ".scss file"
+    },
+    {
+      "name": "md",
+      "component": "MdFileIcon",
+      "description": ".md file"
+    },
+    {
+      "name": "py",
+      "component": "PyFileIcon",
+      "description": ".py file"
+    },
+    {
+      "name": "go",
+      "component": "GoFileIcon",
+      "description": ".go file"
+    },
+    {
+      "name": "java",
+      "component": "JavaFileIcon",
+      "description": ".java file"
+    },
+    {
+      "name": "rs",
+      "component": "RsFileIcon",
+      "description": ".rs file"
+    },
+    {
+      "name": "c",
+      "component": "CFileIcon",
+      "description": ".c file"
+    },
+    {
+      "name": "cpp",
+      "component": "CppFileIcon",
+      "description": ".cpp file"
+    },
+    {
+      "name": "cs",
+      "component": "CsFileIcon",
+      "description": ".cs file"
+    },
+    {
+      "name": "php",
+      "component": "PhpFileIcon",
+      "description": ".php file"
+    },
+    {
+      "name": "rb",
+      "component": "RbFileIcon",
+      "description": ".rb file"
+    },
+    {
+      "name": "sh",
+      "component": "ShFileIcon",
+      "description": ".sh file"
+    },
+    {
+      "name": "sql",
+      "component": "SqlFileIcon",
+      "description": ".sql file"
+    },
+    {
+      "name": "yml",
+      "component": "YmlFileIcon",
+      "description": ".yml file"
+    },
+    {
+      "name": "xml",
+      "component": "XmlFileIcon",
+      "description": ".xml file"
+    },
+    {
+      "name": "vue",
+      "component": "VueFileIcon",
+      "description": ".vue file"
+    },
+    {
+      "name": "env",
+      "component": "EnvFileIcon",
+      "description": ".env file"
+    }
   ]
 }

@@ -104,6 +104,47 @@ for (const style of manifest.styles) {
 }
 passed.push(`${svgs} SVG files`);
 
+// 5. The file types: their entry has every one and nothing else, each is
+// a module of its own, and each has its SVG.
+{
+  const expected = manifest.fileTypes.map((icon) => icon.component).sort();
+  const esm = await import(pathToFileURL(join(dist, "file-types.js")).href);
+  const cjs = require(join(dist, "file-types.cjs"));
+  for (const [format, module] of [
+    ["ESM", esm],
+    ["CommonJS", cjs],
+  ]) {
+    const icons = Object.keys(module).sort();
+    const missing = expected.filter((name) => !icons.includes(name));
+    const extra = icons.filter((name) => !expected.includes(name));
+    if (missing.length > 0) {
+      problems.push(`file-types (${format}) lacks ${missing.join(", ")}`);
+    }
+    if (extra.length > 0) {
+      problems.push(
+        `file-types (${format}) has ${extra.join(", ")}, not in the manifest`,
+      );
+    }
+  }
+  for (const types of ["file-types.d.ts", "file-types.d.cts"]) {
+    if (!existsSync(join(dist, types)))
+      problems.push(`dist/${types} is missing`);
+  }
+  if (!budgets.some(({ path }) => path === "dist/file-types.js")) {
+    problems.push(".size-limit.json has no size budget for dist/file-types.js");
+  }
+  for (const { name } of manifest.fileTypes) {
+    for (const file of [
+      join(dist, "generated", "file-types", `${name}.js`),
+      join(dist, "generated", "file-types", `${name}.cjs`),
+      join(root, "svg", "file-types", `${name}.svg`),
+    ]) {
+      if (!existsSync(file)) problems.push(`${display(file)} is missing`);
+    }
+  }
+  passed.push(`the file-types entry has the manifest's ${expected.length}`);
+}
+
 if (problems.length > 0) {
   console.error(
     `check-dist failed:\n${problems.map((p) => `  - ${p}`).join("\n")}`,

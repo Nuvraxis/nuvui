@@ -43,6 +43,44 @@ export function normalize(svg) {
   }\n`;
 }
 
+// A file type's page is drawn in the ink, and follows the text around it
+// like the set's icons do, so it's seen on a dark page too. Its tag keeps
+// the colors it was drawn in, the label on it included, since the label
+// is read against the tag and not against the page.
+const outlineInCurrentColor = {
+  name: "outlineInCurrentColor",
+  fn: () => ({
+    element: {
+      enter(node) {
+        const value = node.attributes.stroke;
+        if (value === undefined || value === "none") return;
+        if (value === "currentColor") return;
+        if (!ink.test(value)) {
+          throw new Error(`a stroke of ${value}, where the page has #111827`);
+        }
+        node.attributes.stroke = "currentColor";
+      },
+    },
+  }),
+};
+
+/**
+ * A file type icon as Figma exports it: as `normalize` makes an icon of the
+ * set, except that only the page's line is put in `currentColor`. The tag's
+ * fills are kept.
+ *
+ * @param {string} svg
+ */
+export function normalizeFileType(svg) {
+  return `${
+    optimize(svg, {
+      multipass: true,
+      floatPrecision: 2,
+      plugins: ["preset-default", "removeDimensions", outlineInCurrentColor],
+    }).data
+  }\n`;
+}
+
 /**
  * The SVG's elements as a tree, read and left as they are.
  *

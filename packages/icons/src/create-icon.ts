@@ -45,6 +45,28 @@ export type IconComponent = ForwardRefExoticComponent<
 >;
 
 /**
+ * Hidden from screen readers, or a picture with a name: what an icon has
+ * on its `<svg>` for the `title` and ARIA props it was given.
+ */
+export function named(
+  title: string | undefined,
+  props: { "aria-label"?: string; "aria-labelledby"?: string },
+) {
+  const isNamed =
+    title !== undefined ||
+    props["aria-label"] !== undefined ||
+    props["aria-labelledby"] !== undefined;
+  // Safari doesn't name a picture by its <title>, so a button with only
+  // a titled icon in it would be read with no name. The title is the
+  // name as well, unless one is given. The <title> stays, for the
+  // tooltip.
+  const label = props["aria-labelledby"] === undefined ? title : undefined;
+  return isNamed
+    ? { role: "img", "aria-label": label }
+    : { "aria-hidden": true };
+}
+
+/**
  * An icon component drawn the way the set's own icons are: in the color of
  * the text around it, on a 24 by 24 grid, with lines ended and joined as
  * `style` has them.
@@ -64,15 +86,6 @@ export function createIcon(
     },
     ref,
   ) {
-    const named =
-      title !== undefined ||
-      rest["aria-label"] !== undefined ||
-      rest["aria-labelledby"] !== undefined;
-    // Safari doesn't name a picture by its <title>, so a button with only
-    // a titled icon in it would be read with no name. The title is the
-    // name as well, unless one is given. The <title> stays, for the
-    // tooltip.
-    const label = rest["aria-labelledby"] === undefined ? title : undefined;
     return createElement(
       "svg",
       {
@@ -84,9 +97,7 @@ export function createIcon(
         stroke: "currentColor",
         strokeWidth,
         ...strokes[style],
-        ...(named
-          ? { role: "img", "aria-label": label }
-          : { "aria-hidden": true }),
+        ...named(title, rest),
         ...rest,
       },
       title === undefined ? null : createElement("title", null, title),

@@ -148,6 +148,17 @@ import "@nuvui/<package>/styles.css";
 - Its height is `--nuv-event-calendar-height`, 40rem by default.
 - `onEventsChange` gets every event and the change: `{ type: "create" | "update" | "delete", event }`. Send the change to your server from there.
 - Dates come back the way they went in: a clock time stays a clock time, a `Date` a `Date`. All-day dates come back as `"yyyy-MM-dd"`.
+
+## @nuvui/org-chart
+
+- Nothing else to install. `people` is a flat list: each person has an `id` and the `managerId` of the person they report to, none at the top. The chart lays itself out.
+- `aria-label` is required. A card is named from `name`, `title`, `department` and `badge`, so fill them. `vacant: true` is an open position, with no name.
+- Every team is open at first. A large company is easier to read with `defaultExpanded={[topId]}`, and the find box opens the rest. `expanded` with `onExpandedChange` keeps them in state.
+- `selected` with `onSelectedChange` is the person chosen, for a panel of details beside the chart. `handleRef` has `reveal(id)`, which opens the way to someone and centers them.
+- `renderCard` draws inside every card, at `cardSize`, 240 by 76 by default. Words on a card stay on one line and are cut short, so keep to the size. A card drawn this way is named by what it renders.
+- A function prop such as `renderCard` can't cross from a server component, so a chart with one goes in a file with `"use client"`.
+- `avatar` is an address. Initials show while it loads or when it doesn't.
+- The frame's height is `--nuv-org-chart-height`, 32rem by default.
 - For your own form instead of the popover, call `preventDefault` on the details `onEditStart` gets. For fields of your own in the popover, use `renderEventFields`.
 - `eventDragProps(item)` makes your own element draggable onto the calendar. It's the browser's drag and drop, so give a button that does the same too.
 - Resources, recurring events and a timeline aren't in it yet.

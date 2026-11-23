@@ -222,6 +222,11 @@ A file for each page of the docs. Read the one for a component before using it: 
 - [Recurring events](reference/scheduler/recurring-events.md): Events in an EventCalendar that repeat by a rule, an RRULE or an object, with days left out, worked out in their own time zone, and changed one at a time, from one on, or all together.
 - [Loading from a server](reference/scheduler/loading-by-range.md): An EventCalendar or EventTimeline that asks your server only for the days shown, keeps what it has loaded, and saves each change, drawn at once and taken back if the save fails.
 
+## @nuvui/org-chart
+
+- [Org charts](reference/org-chart/index.md): The @nuvui/org-chart package. People under their managers, with teams that open and close, a box that finds a person, and a view that pans and zooms.
+- [OrgChart](reference/org-chart/org-chart.md): People under their managers, laid out from a list of who reports to whom, in a frame that pans and zooms. Teams open and close, a box finds a person, and the keyboard follows the lines.
+
 ## @nuvui/icons
 
 - [Icons](reference/icons/index.md): The @nuvui/icons package. 338 line icons drawn for nuvui, in three styles, each a React component in the color of the text around it and an SVG file, and 24 icons for types of file.

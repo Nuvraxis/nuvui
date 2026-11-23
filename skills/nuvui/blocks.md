@@ -2,7 +2,7 @@
 
 # Blocks
 
-A block is a part of an app, such as a sign-in screen or a table with a toolbar, built from the library's components: one TSX file and one SCSS file, to copy into an app and change. There are 98. Each is shown at https://nuvui.nuvraxis.com/blocks.
+A block is a part of an app, such as a sign-in screen or a table with a toolbar, built from the library's components: one TSX file and one SCSS file, to copy into an app and change. There are 100. Each is shown at https://nuvui.nuvraxis.com/blocks.
 
 Before building a screen from nothing, look here for one that's close. To add one, with the packages it needs:
 
@@ -145,6 +145,11 @@ A block's SCSS uses the library's mixins, `@use "@nuvui/react/scss/mixins"`, so 
 - **Product demo** (`product-demo`): A product's page with its demo video under the headline: only the poster and a play button until the first press, so visitors who don't watch load no video, then the video with captions and a glow around it in its own colors. Needs `@nuvui/media`, `@nuvui/react`.
 - **Recording review** (`recording-review`): A recorded meeting with comments pinned to its moments: each comment is a mark along the seek bar and a line beside the video, a press on its time goes to that moment, and a new comment is pinned to wherever the video is. Needs `@nuvui/media`, `@nuvui/react`.
 - **Voice messages** (`voice-messages`): A team's chat with voice messages among the text: each one a play button, its waveform, its length and a press for the speed, in the colors of its bubble. They load nothing until played, starting one pauses the one playing, and the next voice message plays when one ends. A message typed in the box is added to the thread. Needs `@nuvui/media`, `@nuvui/react`.
+
+## Org charts
+
+- **Company org chart** (`company-chart`): A company's people under their managers, with only the top team open at first, a box that finds anyone and opens the way to them, and a panel for the person chosen: who they report to, their direct reports, when they joined and how they work, each name a button that shows that person in the chart. Needs `@nuvui/org-chart`, `@nuvui/react`.
+- **Reporting lines** (`reporting-lines`): The companies of a group, one at a time, each as a chart that grows from the left, starting with only the top team open. Buttons open and close every team at once, and the chart keeps which teams are open where the page can change them. Needs `@nuvui/org-chart`, `@nuvui/react`.
 
 ## Settings
 

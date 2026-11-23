@@ -52,6 +52,7 @@ const addons = [
   "backgrounds",
   "3d",
   "scheduler",
+  "org-chart",
   "icons",
 ];
 const packageDir = (addon) => path.join(repoDir, "packages", addon ?? core);
@@ -674,10 +675,11 @@ async function blocksPage() {
     "A block's SCSS uses the library's mixins, `@use \"@nuvui/react/scss/mixins\"`, so the app needs Sass. In an app without it, write the same rules as plain CSS: rules/styling.md says what each mixin stands for. Its classes begin with the block's own name, and its colors are the theme's tokens.",
   ];
   for (const category of categories) {
-    // "3d" is written "3D".
-    const heading = /^\d/.test(category)
-      ? category.toUpperCase()
-      : `${category[0].toUpperCase()}${category.slice(1)}`;
+    // "3d" is written "3D", and "org-charts" "Org charts".
+    const words = category.replaceAll("-", " ");
+    const heading = /^\d/.test(words)
+      ? words.toUpperCase()
+      : `${words[0].toUpperCase()}${words.slice(1)}`;
     out.push("", `## ${heading}`, "");
     for (const block of blocks.filter((one) => one.category === category)) {
       out.push(
@@ -815,7 +817,7 @@ async function build() {
   const index = [
     "# nuvui",
     "",
-    "> Open source React components for business software: data tables, forms, charts and dashboards, tested for accessibility and themed with CSS variables. Fifteen packages, MIT licensed. Styling is SCSS with BEM classes and CSS variables, in cascade layers, and needs no Tailwind.",
+    "> Open source React components for business software: data tables, forms, charts and dashboards, tested for accessibility and themed with CSS variables. Seventeen packages, MIT licensed. Styling is SCSS with BEM classes and CSS variables, in cascade layers, and needs no Tailwind.",
     "",
     `Each page below is plain Markdown. All of them in one file: ${siteUrl}/docs/llms-full.txt. A skill for coding agents, with the rules that are easy to get wrong: ${repoUrl}/tree/main/skills/nuvui, installed with \`pnpm dlx skills add Nuvraxis/nuvui\`.`,
     "",

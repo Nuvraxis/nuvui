@@ -292,7 +292,7 @@
       "type": "object",
       "properties": {
         "category": {
-          "description": "One of: 3d, accounts, calendar, chat, dashboard, data, developer, editor, flows, layout, marketing, media, settings.",
+          "description": "One of: 3d, accounts, calendar, chat, dashboard, data, developer, editor, flows, layout, marketing, media, org-charts, settings.",
           "type": "string",
           "maxLength": 40
         },
@@ -343,7 +343,7 @@
       "type": "object",
       "properties": {
         "package": {
-          "description": "A package, such as @nuvui/table or table. One of: @nuvui/react, @nuvui/date-picker, @nuvui/table, @nuvui/charts, @nuvui/barcodes, @nuvui/chat, @nuvui/kanban, @nuvui/editor, @nuvui/emoji, @nuvui/map, @nuvui/flow, @nuvui/media, @nuvui/backgrounds, @nuvui/3d, @nuvui/scheduler, @nuvui/icons.",
+          "description": "A package, such as @nuvui/table or table. One of: @nuvui/react, @nuvui/date-picker, @nuvui/table, @nuvui/charts, @nuvui/barcodes, @nuvui/chat, @nuvui/kanban, @nuvui/editor, @nuvui/emoji, @nuvui/map, @nuvui/flow, @nuvui/media, @nuvui/backgrounds, @nuvui/3d, @nuvui/scheduler, @nuvui/org-chart, @nuvui/icons.",
           "type": "string",
           "maxLength": 40
         },

@@ -1,0 +1,147 @@
+@use "@nuvui/react/scss/mixins";
+
+.company-chart {
+  display: grid;
+  gap: calc(var(--spacing) * 4);
+  align-content: start;
+  inline-size: 100%;
+  min-block-size: 100svh;
+  padding: calc(var(--spacing) * 6) calc(var(--spacing) * 4);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+
+  @include mixins.breakpoint("md") {
+    padding: calc(var(--spacing) * 8);
+  }
+}
+
+.company-chart__head {
+  display: grid;
+  gap: calc(var(--spacing) * 1);
+}
+
+.company-chart__title {
+  margin: 0;
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-2xl--line-height);
+  letter-spacing: var(--tracking-tight);
+}
+
+.company-chart__text {
+  max-inline-size: 60ch;
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+// The chart, and the person chosen beside it on a wide screen and under it
+// on a phone.
+.company-chart__body {
+  display: grid;
+  gap: calc(var(--spacing) * 4);
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+
+  @include mixins.breakpoint("lg") {
+    grid-template-columns: minmax(0, 1fr) 20rem;
+  }
+}
+
+.company-chart__chart {
+  --nuv-org-chart-height: 36rem;
+}
+
+.company-chart__panel {
+  display: grid;
+  gap: calc(var(--spacing) * 4);
+  margin: 0;
+  padding: calc(var(--spacing) * 4);
+  border: var(--nuv-border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-surface);
+  color: var(--color-surface-foreground);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+.company-chart__person {
+  display: flex;
+  gap: calc(var(--spacing) * 3);
+  align-items: center;
+}
+
+.company-chart__name {
+  margin: 0;
+  font-size: var(--text-base);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-base--line-height);
+}
+
+.company-chart__role,
+.company-chart__status {
+  margin: 0;
+}
+
+.company-chart__role,
+.company-chart__muted {
+  color: var(--color-muted-foreground);
+}
+
+.company-chart__facts {
+  display: grid;
+  gap: calc(var(--spacing) * 2) calc(var(--spacing) * 4);
+  grid-template-columns: max-content minmax(0, 1fr);
+  align-items: center;
+  margin: 0;
+
+  dt {
+    color: var(--color-muted-foreground);
+  }
+
+  dd {
+    margin: 0;
+  }
+}
+
+// The addresses are long and have no spaces to break at.
+.company-chart__email {
+  overflow-wrap: anywhere;
+}
+
+// A name that chooses that person: a button that reads as a link.
+.company-chart__link {
+  --nuv-button-padding-inline: calc(var(--spacing) * 1);
+
+  margin-inline-start: calc(var(--spacing) * -1);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.company-chart__reports {
+  display: grid;
+  gap: calc(var(--spacing) * 2);
+}
+
+.company-chart__subtitle {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-sm--line-height);
+}
+
+.company-chart__list {
+  display: grid;
+  gap: calc(var(--spacing) * 1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 calc(var(--spacing) * 2);
+    align-items: center;
+  }
+}

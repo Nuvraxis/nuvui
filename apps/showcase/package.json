@@ -28,6 +28,7 @@
     "@nuvui/kanban": "workspace:*",
     "@nuvui/map": "workspace:*",
     "@nuvui/media": "workspace:*",
+    "@nuvui/org-chart": "workspace:*",
     "@nuvui/react": "workspace:*",
     "@nuvui/scheduler": "workspace:*",
     "@nuvui/table": "workspace:*",

@@ -1,0 +1,64 @@
+@use "@nuvui/react/scss/mixins";
+
+.reporting-lines {
+  display: grid;
+  gap: calc(var(--spacing) * 4);
+  align-content: start;
+  inline-size: 100%;
+  min-block-size: 100svh;
+  padding: calc(var(--spacing) * 6) calc(var(--spacing) * 4);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+
+  @include mixins.breakpoint("md") {
+    padding: calc(var(--spacing) * 8);
+  }
+}
+
+// The title, and the company and the buttons after it on a wide screen
+// and under it on a phone.
+.reporting-lines__head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 4);
+  align-items: end;
+  justify-content: space-between;
+}
+
+.reporting-lines__title {
+  margin: 0;
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-2xl--line-height);
+  letter-spacing: var(--tracking-tight);
+}
+
+.reporting-lines__text,
+.reporting-lines__note {
+  max-inline-size: 60ch;
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+.reporting-lines__text {
+  margin-block-start: calc(var(--spacing) * 1);
+}
+
+.reporting-lines__tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing) * 2);
+  align-items: center;
+}
+
+.reporting-lines__label {
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--text-sm--line-height);
+}
+
+.reporting-lines__chart {
+  --nuv-org-chart-height: 34rem;
+}

@@ -226,7 +226,7 @@ Each page below is plain Markdown. All of them in one file: https://nuvui.nuvrax
 
 ## @nuvui/icons
 
-- [Icons](https://nuvui.nuvraxis.com/docs/llms/icons/index.md): The @nuvui/icons package. 338 line icons drawn for nuvui, in three styles, each a React component in the color of the text around it and an SVG file.
+- [Icons](https://nuvui.nuvraxis.com/docs/llms/icons/index.md): The @nuvui/icons package. 338 line icons drawn for nuvui, in three styles, each a React component in the color of the text around it and an SVG file, and 24 icons for types of file.
 
 ## Optional
 

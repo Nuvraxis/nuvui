@@ -2,9 +2,9 @@
 
 # Icons
 
-The @nuvui/icons package. 338 line icons drawn for nuvui, in three styles, each a React component in the color of the text around it and an SVG file.
+The @nuvui/icons package. 338 line icons drawn for nuvui, in three styles, each a React component in the color of the text around it and an SVG file, and 24 icons for types of file.
 
-`@nuvui/icons` is a set of 338 line icons drawn for this library, on a 24 pixel grid, in three styles. Each one is a React component and an SVG file. They're MIT licensed like the rest of nuvui: they were drawn for it, and none was traced or adapted from another set.
+`@nuvui/icons` is a set of 338 line icons drawn for this library, on a 24 pixel grid, in three styles. Each one is a React component and an SVG file. They're MIT licensed like the rest of nuvui: they were drawn for it, and none was traced or adapted from another set. Beside them are 24 [icons for types of file](#file-types), with the extension on a colored tag.
 
 The components in `@nuvui/react` don't use this package. They draw their few icons themselves, so the core doesn't depend on it, and you install it only if you want the icons.
 
@@ -49,7 +49,7 @@ Rounded and Standard only differ at a corner where two lines meet. An icon witho
 
 An icon is 24 pixels square unless `size` says otherwise. A number is pixels, and a string is any CSS length, so `size="1em"` follows the text's size.
 
-The line is the color of the text around it (`currentColor`), so an icon in a button or a link takes that color, in every theme, on hover and when disabled. No color is written into an icon.
+The line is the color of the text around it (`currentColor`), so an icon in a button or a link takes that color, in every theme, on hover and when disabled. No color is written into a line icon. The [file types](#file-types) are the one exception.
 
 The line is 1.5 units thick on the 24 unit grid, and it grows and shrinks with the icon. At 16 pixels it's a pixel wide. `strokeWidth` changes it, in the same units.
 
@@ -111,9 +111,9 @@ The first argument names it in React's developer tools. The second is the style 
 
 ## SVG files and the list of icons
 
-Every icon also ships as an SVG file, for an email, a slide or a page that isn't React: `@nuvui/icons/svg/standard/arrow-right.svg`, with `rounded` and `sharp` beside `standard`. The files draw in `currentColor` too, which is black where nothing sets a color.
+Every icon also ships as an SVG file, for an email, a slide or a page that isn't React: `@nuvui/icons/svg/standard/arrow-right.svg`, with `rounded` and `sharp` beside `standard`, and `file-types` for the [file types](#file-types). The files draw in `currentColor` too, which is black where nothing sets a color.
 
-`@nuvui/icons/manifest.json` lists every icon's name, its component's name and its category. The grid below is built from it.
+`@nuvui/icons/manifest.json` lists every icon's name, its component's name and its category, and under `fileTypes` each file type's extension, component and description. The grids on this page are built from it.
 
 ## All the icons
 
@@ -142,12 +142,50 @@ Each icon takes these, and anything an `<svg>` element takes. Its `ref` is the `
 | `strokeWidth` | `string \| number` | `1.5` | How thick the lines are, in the units of the 24 by 24 grid the icon is drawn on, so it grows and shrinks with `size`. |
 | `title` | `string` |  | What the icon means, for a screen reader, when nothing next to it says so. Without it, or an `aria-label`, the icon is hidden from screen readers, which is right for one beside text that says the same. |
 
+## File types
+
+`@nuvui/icons/file-types` has 24 icons for files by their extension, for a file tree, a list of attachments or an editor's tabs. Each is a page with the extension on a colored tag, so files of different types can be told apart at a glance.
+
+```tsx
+import { JsonFileIcon, TsFileIcon } from "@nuvui/icons/file-types";
+
+export function Files() {
+  return (
+    <ul>
+      <li>
+        <TsFileIcon size={24} /> invoice-list.tsx
+      </li>
+      <li>
+        <JsonFileIcon size={24} /> package.json
+      </li>
+    </ul>
+  );
+}
+```
+
+Each is named for its extension with `FileIcon` at the end: `ts` is `TsFileIcon`, and `cpp` is `CppFileIcon`.
+
+They aren't drawn the way the line icons are:
+
+- **One style,** on a 32 unit grid, and 32 pixels unless `size` says otherwise. The extension on the tag is hard to read below 24.
+- **Colors of their own.** The page is drawn in `currentColor`, like the line icons, so it shows on a dark page as well as a light one. The tag and its label keep their colors in every theme, and where the browser forces its own colors. These are the only icons in the package with colors written into them.
+- **No `strokeWidth`.** The tag's label is drawn as shapes, and a thicker page line would only crowd it.
+
+Like a line icon, one is hidden from screen readers unless it has a `title` or an `aria-label`. Beside a file's name it adds nothing, since the name has the extension in it. Give it a name when it's alone, such as on a tab that shows only icons.
+
+_The docs page shows this as a table: https://nuvui.nuvraxis.com/docs/icons_
+
+| Prop | Type | Default | What it's for |
+| --- | --- | --- | --- |
+| `size` | `string \| number` | `32` | Width and height. A number is in pixels. The extension on the tag is hard to read below 24. |
+| `title` | `string` |  | What the icon means, for a screen reader, when nothing next to it says so. Without it, or an `aria-label`, the icon is hidden from screen readers, which is right for one beside the file's name. |
+
 ## The Figma file
 
-The icons are drawn in Figma, and the file is yours to download: [NuvUI_Icons_Figma_File.fig](https://nuvui.nuvraxis.com/docs/NuvUI_Icons_Figma_File.fig). Import it from Figma's file browser, or drag it in. Each icon is a component with a variant for each style, so a design made with them uses the same icons, by the same names, as the code. It's MIT licensed like the package.
+The icons are drawn in Figma, and the file is yours to download: [NuvUI_Icons_Figma_File.fig](https://nuvui.nuvraxis.com/docs/NuvUI_Icons_Figma_File.fig). Import it from Figma's file browser, or drag it in. Each icon is a component with a variant for each style, so a design made with them uses the same icons, by the same names, as the code. The file types are on a page of their own, each a component named `FileType/` and its extension. It's MIT licensed like the package.
 
 The download is a copy, saved when the icons last changed. It has the icons and nothing else of the file's: no comments and no version history.
 
 ## Where they come from
 
-The icons are drawn in a Figma file, one component for each with a variant for each style. A script in the repository exports them as SVG, makes every file the same, and fails if one breaks the set's rules: a size other than 24 by 24, a color other than the set's ink, or a name that isn't lower case words joined by hyphens. The SVG files are committed, and the components are generated from them when the package is built.
+The icons are drawn in a Figma file, one component for each with a variant for each style. A script in the repository exports them as SVG, makes every file the same, and fails if one breaks the set's rules: a size other than 24 by 24, a color other than the set's ink, or a name that isn't lower case words joined by hyphens. A file type is a component of its own, 32 by 32, and only its page's line has to be in the ink. The SVG files are committed, and the components are generated from them when the package is built.

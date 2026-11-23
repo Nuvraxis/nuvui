@@ -224,4 +224,4 @@ A file for each page of the docs. Read the one for a component before using it: 
 
 ## @nuvui/icons
 
-- [Icons](reference/icons/index.md): The @nuvui/icons package. 338 line icons drawn for nuvui, in three styles, each a React component in the color of the text around it and an SVG file.
+- [Icons](reference/icons/index.md): The @nuvui/icons package. 338 line icons drawn for nuvui, in three styles, each a React component in the color of the text around it and an SVG file, and 24 icons for types of file.

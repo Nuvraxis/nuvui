@@ -36,7 +36,7 @@ Three things are different from the libraries you may expect, and most mistakes 
 | `@nuvui/backgrounds` | `GradientBackground`, `GridBackground`, `StarsBackground`, `TopographyBackground`, `HexagonBackground`, `FireworksBackground`, `HoleBackground`, `GlyphBackground` | |
 | `@nuvui/3d` | `ModelViewer`, a glTF, GLB or STL model to turn and zoom, from an address or picked files. Needs React 19 | `three`, `@react-three/fiber` |
 | `@nuvui/scheduler` | `EventCalendar`, events in day, week, month and agenda views | `@nuvui/date-picker` |
-| `@nuvui/icons` | 338 line icons in three styles, such as `ArrowRightIcon` | |
+| `@nuvui/icons` | 338 line icons in three styles, such as `ArrowRightIcon`, and 24 for types of file in `@nuvui/icons/file-types`, such as `TsFileIcon` | |
 
 Every add-on but `@nuvui/icons` needs `@nuvui/react` beside it, and its own stylesheet after the core's:
 
@@ -130,7 +130,7 @@ Each links to a file with the reasons and the code. Read the file before working
 
 A core component's file is `reference/components/<name>.md`, with the name in lower case and hyphens: `reference/components/alert-dialog.md`.
 
-Icons are in [`@nuvui/icons`](skills/nuvui/reference/icons/index.md): 338 line icons in three styles, each named for what it shows with `Icon` at the end, such as `ArrowRightIcon`. The reference lists every name. Don't guess one. An app that already has an icon set keeps using it. The blocks use `lucide-react`.
+Icons are in [`@nuvui/icons`](skills/nuvui/reference/icons/index.md): 338 line icons in three styles, each named for what it shows with `Icon` at the end, such as `ArrowRightIcon`. For a file by its extension, such as in a file tree, `@nuvui/icons/file-types` has icons such as `TsFileIcon`, with the extension on a colored tag. The reference lists every name. Don't guess one. An app that already has an icon set keeps using it. The blocks use `lucide-react`.
 
 ## Start from a block
 

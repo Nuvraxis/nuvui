@@ -12,6 +12,7 @@ import "@nuvui/flow/styles.css";
 import "@nuvui/media/styles.css";
 import "@nuvui/backgrounds/styles.css";
 import "@nuvui/scheduler/styles.css";
+import "@nuvui/org-chart/styles.css";
 import { setMapWorkerUrl } from "@nuvui/map/map";
 import { DirectionProvider } from "@nuvui/react/direction";
 import mapWorkerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?url";

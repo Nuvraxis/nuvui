@@ -58,6 +58,7 @@ const published = {
   "@nuvui/backgrounds": "backgrounds",
   "@nuvui/3d": "3d",
   "@nuvui/scheduler": "scheduler",
+  "@nuvui/org-chart": "org-chart",
   "@nuvui/icons": "icons",
 };
 
@@ -169,6 +170,11 @@ const fixtures = {
       css.includes(".nuv-emoji-picker"),
     );
     expect("vite", "it has the diagram's styles", css.includes(".nuv-flow"));
+    expect(
+      "vite",
+      "it has the org chart's styles, and the script has the chart",
+      css.includes(".nuv-org-chart") && script.includes("nuv-org-chart__card"),
+    );
     expect(
       "vite",
       "it has the video player's styles, and the script has the player",
@@ -418,6 +424,13 @@ process.stdout.write(renderToStaticMarkup(createElement(ArrowRightIcon, { title:
     expect("next", "it has the diagram's styles", css.includes(".nuv-flow"));
     expect(
       "next",
+      "the server laid the org chart out, as a tree with both people in place",
+      css.includes(".nuv-org-chart") &&
+        /<div[^>]*role="tree"[^>]*aria-label="Team"/.test(html) &&
+        (html.match(/role="treeitem"/g) ?? []).length === 2,
+    );
+    expect(
+      "next",
       "the server sent the video, named, with the browser's own controls until the script runs",
       css.includes(".nuv-video-player") &&
         html.includes('<section aria-label="Intro"') &&
@@ -596,7 +609,7 @@ process.stdout.write(renderToStaticMarkup(createElement(ArrowRightIcon, { title:
     );
     expect(
       "react18",
-      "the message, the prompt box, the editor, the board, the event calendar, the picker, the map, the diagram, the video, the audio, its transcript and the background rendered",
+      "the message, the prompt box, the editor, the board, the event calendar, the picker, the map, the diagram, the org chart, the video, the audio, its transcript and the background rendered",
       html.includes("nuv-message__content") &&
         html.includes("nuv-prompt-input__textarea") &&
         html.includes("nuv-rich-text-editor__toolbar") &&
@@ -605,6 +618,7 @@ process.stdout.write(renderToStaticMarkup(createElement(ArrowRightIcon, { title:
         html.includes("nuv-emoji-picker__search") &&
         html.includes("Loading map") &&
         html.includes("nuv-flow__canvas") &&
+        html.includes("nuv-org-chart__card") &&
         html.includes("nuv-video-player__media") &&
         html.includes("nuv-audio-player__media") &&
         html.includes("nuv-media-transcript") &&

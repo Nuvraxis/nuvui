@@ -13,6 +13,7 @@ import "@nuvui/flow/styles.css";
 import "@nuvui/media/styles.css";
 import "@nuvui/backgrounds/styles.css";
 import "@nuvui/scheduler/styles.css";
+import "@nuvui/org-chart/styles.css";
 import "@nuvui/3d/styles.css";
 // The model viewer, from the entry of its one component.
 import { ModelViewer } from "@nuvui/3d/model-viewer";
@@ -62,6 +63,7 @@ import { MapMarker, MapView, setMapWorkerUrl } from "@nuvui/map/map";
 import { AudioPlayer, type MediaPlayerHandle } from "@nuvui/media/audio-player";
 import { MediaTranscript } from "@nuvui/media/media-transcript";
 import { VideoPlayer } from "@nuvui/media/video-player";
+import { OrgChart } from "@nuvui/org-chart/org-chart";
 import {
   Button,
   type ButtonProps,
@@ -194,6 +196,13 @@ function App() {
           { id: "b", label: "Review", position: { x: 220, y: -4 } },
         ]}
         edges={[{ id: "a-b", from: "a", to: "b" }]}
+      />
+      <OrgChart
+        aria-label="Team"
+        people={[
+          { id: "a", name: "Ada Quill", title: "Head" },
+          { id: "b", managerId: "a", name: "Bo Ferro", title: "Report" },
+        ]}
       />
       <VideoPlayer title="Intro" src="/intro.mp4" poster="/intro.jpg" />
       <StarsBackground scrim="soft">

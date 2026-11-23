@@ -1,0 +1,7 @@
+{
+  "extends": "@nuvui/typescript-config/react-library.json",
+  "compilerOptions": {
+    "types": ["node", "@nuvui/tooling/styles"]
+  },
+  "include": ["src", "test", "scripts", "*.config.ts", "*.config.mjs"]
+}

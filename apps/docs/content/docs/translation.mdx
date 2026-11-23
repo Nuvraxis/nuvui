@@ -404,6 +404,17 @@ A calendar's or a timeline's name is the `aria-label` you give it, and an event'
   name="SchedulerLabels"
 />
 
+## Org chart
+
+A chart's name is the `aria-label` you give it, and a card's is the person's name, title, department and badge. The rest, what an open position is called, how many report to someone, the team buttons, the find box and its count, the zoom buttons, the keyboard's instructions and what's said when someone is found, is in one prop, `labels`:
+
+<PropsTable
+  package="org-chart"
+  component="org-chart"
+  file="labels.ts"
+  name="OrgChartLabels"
+/>
+
 ## What isn't text
 
 - A [field](/docs/components/field) marks a required label with `*`, which `FieldLabel` changes with `requiredIndicator`. Screen readers don't hear it. They hear "required" from the control, in the browser's own language.

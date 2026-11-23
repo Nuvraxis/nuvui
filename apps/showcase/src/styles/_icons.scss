@@ -62,7 +62,9 @@
   list-style: none;
 }
 
-.site-icons__tile {
+// A tile with an icon and its name under it. The file types below the
+// browser are tiles too.
+@mixin tile {
   display: flex;
   flex-direction: column;
   gap: calc(var(--spacing) * 2);
@@ -83,6 +85,10 @@
   @include mixins.hover {
     background-color: var(--color-muted);
   }
+}
+
+.site-icons__tile {
+  @include tile;
 }
 
 // A long name breaks where it has to rather than widen the tile.

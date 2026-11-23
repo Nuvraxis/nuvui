@@ -1,0 +1,284 @@
+@use "../../styles/layers";
+@use "@nuvui/react/scss/mixins";
+
+@layer components {
+  .nuv-org-chart {
+    position: relative;
+    inline-size: 100%;
+    color: var(--nuv-org-chart-fg, var(--color-foreground));
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+  }
+
+  // The find box and the buttons, above the frame. They wrap onto two
+  // lines on a narrow screen.
+  .nuv-org-chart__bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(var(--spacing) * 2);
+    align-items: center;
+    justify-content: space-between;
+    margin-block-end: calc(var(--spacing) * 2);
+  }
+
+  .nuv-org-chart__find {
+    display: flex;
+    flex: 1 1 16rem;
+    gap: calc(var(--spacing) * 1);
+    align-items: center;
+    min-inline-size: 0;
+  }
+
+  .nuv-org-chart__find-input {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    max-inline-size: 20rem;
+  }
+
+  .nuv-org-chart__matches {
+    flex: none;
+    color: var(--color-muted-foreground);
+    font-size: var(--text-xs);
+    line-height: var(--text-xs--line-height);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .nuv-org-chart__controls {
+    display: flex;
+    gap: calc(var(--spacing) * 1);
+  }
+
+  // Square. The core's variable and not a padding of its own, so it holds
+  // whichever stylesheet is loaded last.
+  .nuv-org-chart__control {
+    --nuv-button-padding-inline: 0;
+  }
+
+  .nuv-org-chart__icon {
+    flex: none;
+    inline-size: 1rem;
+    block-size: 1rem;
+  }
+
+  // The window onto the chart. Its height is the app's to set. Nothing in
+  // it scrolls: a card that takes focus is brought into view by a pan,
+  // and a scrolled frame would put the cards somewhere the pan doesn't
+  // know of.
+  .nuv-org-chart__frame {
+    position: relative;
+    block-size: var(--nuv-org-chart-height, 32rem);
+    overflow: clip;
+    border: var(--nuv-border-width) solid
+      var(--nuv-org-chart-border, var(--color-border));
+    border-radius: var(--nuv-org-chart-radius, var(--radius-lg));
+    background-color: var(--nuv-org-chart-bg, var(--color-background));
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+
+    &:active {
+      cursor: grabbing;
+    }
+  }
+
+  // The chart at its own size, moved and scaled as a whole. Its corner is
+  // the page's top left, as the view's numbers are, whichever way the page
+  // reads.
+  .nuv-org-chart__layer {
+    position: absolute;
+    transform-origin: 0 0;
+  }
+
+  .nuv-org-chart__lines {
+    position: absolute;
+    inset: 0;
+    overflow: visible;
+    pointer-events: none;
+
+    path {
+      fill: none;
+      stroke: var(--nuv-org-chart-line, var(--color-border-strong));
+      stroke-width: 1.5;
+    }
+  }
+
+  .nuv-org-chart__tree {
+    position: absolute;
+    inset: 0;
+  }
+
+  // A card. Its size is the chart's to set, in its own units, so the words
+  // in it are a fixed size too, on one line each, and are cut short where
+  // they don't fit.
+  .nuv-org-chart__card {
+    position: absolute;
+    display: flex;
+    box-sizing: border-box;
+    gap: 12px;
+    align-items: center;
+    padding: 12px;
+    overflow: hidden;
+    color: var(--nuv-org-chart-card-fg, var(--color-surface-foreground));
+    font-size: 14px;
+    line-height: 20px;
+    white-space: nowrap;
+    background-color: var(--nuv-org-chart-card-bg, var(--color-surface));
+    border: 1px solid var(--nuv-org-chart-card-border, var(--color-border));
+    border-radius: var(--nuv-org-chart-card-radius, var(--radius-md));
+    box-shadow: var(--shadow-xs);
+    cursor: pointer;
+    outline: none;
+
+    @include mixins.focus-ring;
+
+    @include mixins.hover {
+      border-color: var(--nuv-org-chart-card-border-hover, var(--color-border-strong));
+    }
+
+    @include mixins.motion-safe {
+      transition: border-color 0.15s ease;
+    }
+
+    // Chosen: an edge in the ring's color, as heavy as the focus ring.
+    &[data-selected] {
+      border-color: var(--nuv-org-chart-selected-border, var(--color-ring));
+      box-shadow: 0 0 0 1px var(--nuv-org-chart-selected-border, var(--color-ring));
+    }
+
+    // Found by the box: a tint on every match, and the one shown also
+    // gets the ring's edge.
+    &[data-match] {
+      background-color: var(--nuv-org-chart-match-bg, var(--color-muted));
+    }
+
+    &[data-current-match] {
+      border-color: var(--nuv-org-chart-selected-border, var(--color-ring));
+      border-style: dashed;
+    }
+
+    // An open position: a dashed edge, and no photo.
+    &[data-vacant] {
+      background-color: var(--nuv-org-chart-vacant-bg, var(--color-background));
+      border-style: dashed;
+    }
+  }
+
+  .nuv-org-chart__avatar {
+    flex: none;
+  }
+
+  .nuv-org-chart__seat {
+    box-sizing: border-box;
+    flex: none;
+    inline-size: 40px;
+    block-size: 40px;
+    border: 1.5px dashed var(--color-border-strong);
+    border-radius: var(--radius-full);
+  }
+
+  .nuv-org-chart__text {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-inline-size: 0;
+  }
+
+  .nuv-org-chart__name,
+  .nuv-org-chart__title,
+  .nuv-org-chart__department {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .nuv-org-chart__name {
+    font-weight: var(--font-weight-semibold);
+  }
+
+  .nuv-org-chart__card[data-vacant] .nuv-org-chart__name {
+    color: var(--color-muted-foreground);
+    font-weight: var(--font-weight-medium);
+  }
+
+  .nuv-org-chart__title,
+  .nuv-org-chart__meta {
+    color: var(--color-muted-foreground);
+    font-size: 12px;
+    line-height: 16px;
+  }
+
+  .nuv-org-chart__meta {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    min-inline-size: 0;
+  }
+
+  .nuv-org-chart__badge {
+    flex: none;
+  }
+
+  // A manager's button, on the edge of their card that faces their
+  // reports. It looks small, and takes a finger's tap around it.
+  .nuv-org-chart__toggle {
+    position: absolute;
+    z-index: 1;
+    display: inline-flex;
+    box-sizing: border-box;
+    gap: 2px;
+    align-items: center;
+    block-size: 22px;
+    padding-inline: 8px 5px;
+    color: var(--nuv-org-chart-toggle-fg, var(--color-muted-foreground));
+    font: inherit;
+    font-size: 12px;
+    font-weight: var(--font-weight-medium);
+    line-height: 16px;
+    font-variant-numeric: tabular-nums;
+    background-color: var(--nuv-org-chart-toggle-bg, var(--color-surface));
+    border: 1px solid var(--nuv-org-chart-toggle-border, var(--color-border-strong));
+    border-radius: var(--radius-full);
+    transform: translate(-50%, -50%);
+    cursor: pointer;
+
+    @include mixins.touch-area;
+    @include mixins.focus-ring;
+
+    @include mixins.hover {
+      color: var(--color-foreground);
+      background-color: var(--color-muted);
+    }
+  }
+
+  .nuv-org-chart__chevron {
+    inline-size: 14px;
+    block-size: 14px;
+  }
+
+  .nuv-org-chart__hidden {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  // Where the browser forces its own colors, the lines are drawn in the
+  // text's, and the chosen card's edge in the highlight's.
+  @media (forced-colors: active) {
+    .nuv-org-chart__lines path {
+      stroke: CanvasText;
+    }
+
+    .nuv-org-chart__card[data-selected],
+    .nuv-org-chart__card[data-current-match] {
+      border-color: Highlight;
+      box-shadow: none;
+      outline: 2px solid Highlight;
+    }
+  }
+}

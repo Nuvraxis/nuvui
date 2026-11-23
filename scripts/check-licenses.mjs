@@ -73,6 +73,7 @@ const published = [
   "backgrounds",
   "3d",
   "scheduler",
+  "org-chart",
   "icons",
 ];
 

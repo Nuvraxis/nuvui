@@ -1,0 +1,9 @@
+{
+  "name": "reporting-lines",
+  "title": "Reporting lines",
+  "description": "The companies of a group, one at a time, each as a chart that grows from the left, starting with only the top team open. Buttons open and close every team at once, and the chart keeps which teams are open where the page can change them.",
+  "category": "org-charts",
+  "files": ["reporting-lines.tsx", "reporting-lines.scss", "companies.ts"],
+  "install": ["@nuvui/org-chart", "@nuvui/react"],
+  "height": 760
+}

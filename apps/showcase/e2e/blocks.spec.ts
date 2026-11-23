@@ -6255,6 +6255,155 @@ test.describe("workflow builder", () => {
   }
 });
 
+test.describe("company org chart", () => {
+  const chart = (page: Page) =>
+    page.getByRole("tree", {
+      name: "Rolfson, Fritsch and Maggio, who reports to whom",
+    });
+  const panel = (page: Page) =>
+    page.getByRole("region", { name: /./ }).filter({ has: page.locator("dl") });
+
+  test("company org chart: only the top team is open, and the head is chosen, with their reports in the panel", async ({
+    page,
+  }) => {
+    await open(page, "/blocks/view/company-chart");
+    await expect(chart(page).getByRole("treeitem")).toHaveCount(5);
+    await expect(
+      chart(page).getByRole("treeitem", { name: /^Erma Rutherford/ }),
+    ).toHaveAttribute("aria-selected", "true");
+    await expect(
+      page.getByRole("heading", { name: "Erma Rutherford", level: 2 }),
+    ).toBeVisible();
+    await expect(panel(page)).toContainText("4 direct reports");
+    await expect(
+      page.getByText("18 people and 2 open positions"),
+    ).toBeVisible();
+  });
+
+  test("company org chart: finding someone opens their manager's team and marks their card", async ({
+    page,
+  }) => {
+    await open(page, "/blocks/view/company-chart");
+    await page
+      .getByRole("searchbox", { name: "Find a person" })
+      .fill("katelin");
+    const found = chart(page).getByRole("treeitem", { name: /^Katelin Dare/ });
+    await expect(found).toHaveAttribute("data-current-match", "");
+    await expect(
+      chart(page).getByRole("treeitem", { name: /^Josiane Hintz/ }),
+    ).toHaveAttribute("aria-expanded", "true");
+    await expect(found).toBeInViewport();
+  });
+
+  test("company org chart: a name in the panel chooses that person and shows them in the chart", async ({
+    page,
+  }) => {
+    await open(page, "/blocks/view/company-chart");
+    await panel(page).getByRole("button", { name: "Julio Rodriguez" }).click();
+    await expect(
+      page.getByRole("heading", { name: "Julio Rodriguez", level: 2 }),
+    ).toBeVisible();
+    await expect(panel(page)).toContainText("Head of Sales");
+    await panel(page).getByRole("button", { name: "Hudson Sanford" }).click();
+    await expect(
+      chart(page).getByRole("treeitem", { name: /^Hudson Sanford/ }),
+    ).toHaveAttribute("aria-selected", "true");
+    await expect(panel(page)).toContainText("Reports to");
+  });
+
+  test("company org chart: on a phone the panel is under the chart, and the page doesn't scroll sideways", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 320, height: 640 });
+    await open(page, "/blocks/view/company-chart");
+    const frame = await page.locator(".nuv-org-chart__frame").boundingBox();
+    const person = await page.locator(".company-chart__panel").boundingBox();
+    expect(person?.y ?? 0).toBeGreaterThan(
+      (frame?.y ?? 0) + (frame?.height ?? 0),
+    );
+    expect(await overflow(page)).toBe(0);
+  });
+
+  for (const theme of ["light", "dark"] as const) {
+    test(`company org chart: it passes axe in ${theme}, with a match found`, async ({
+      page,
+    }) => {
+      await setTheme(page, theme);
+      await open(page, "/blocks/view/company-chart");
+      await settleStyles(page);
+      expect(
+        (await new AxeBuilder({ page }).withTags(wcag).analyze()).violations,
+      ).toEqual([]);
+      await page
+        .getByRole("searchbox", { name: "Find a person" })
+        .fill("legal");
+      expect(
+        (await new AxeBuilder({ page }).withTags(wcag).analyze()).violations,
+      ).toEqual([]);
+    });
+  }
+});
+
+test.describe("reporting lines", () => {
+  const cards = (page: Page) =>
+    page.locator(".nuv-org-chart").getByRole("treeitem");
+
+  test("reporting lines: a company starts with its top team open, and the buttons open and close every team", async ({
+    page,
+  }) => {
+    await open(page, "/blocks/view/reporting-lines");
+    await expect(
+      page.getByRole("tree", {
+        name: "Beahan, Lang-Welch and Miller, who reports to whom",
+      }),
+    ).toBeVisible();
+    await expect(cards(page)).toHaveCount(5);
+    await page.getByRole("button", { name: "Open every team" }).click();
+    await expect(cards(page)).toHaveCount(20);
+    await expect(
+      page.getByRole("button", { name: "Open every team" }),
+    ).toBeDisabled();
+    await page.getByRole("button", { name: "Close every team" }).click();
+    await expect(cards(page)).toHaveCount(1);
+  });
+
+  test("reporting lines: another company is a new chart, with its own top team open", async ({
+    page,
+  }) => {
+    await open(page, "/blocks/view/reporting-lines");
+    await page.getByRole("button", { name: "Open every team" }).click();
+    await page
+      .getByLabel("Company")
+      .selectOption({ label: "Williamson - Nicolas" });
+    await expect(
+      page.getByRole("tree", {
+        name: "Williamson - Nicolas, who reports to whom",
+      }),
+    ).toBeVisible();
+    await expect(cards(page)).toHaveCount(5);
+  });
+
+  test("reporting lines: the chart grows from the left, so a head's reports are to the right of them", async ({
+    page,
+  }) => {
+    await open(page, "/blocks/view/reporting-lines");
+    const top = await cards(page).first().boundingBox();
+    const report = await cards(page).nth(1).boundingBox();
+    expect(report?.x ?? 0).toBeGreaterThan((top?.x ?? 0) + (top?.width ?? 0));
+  });
+
+  for (const theme of ["light", "dark"] as const) {
+    test(`reporting lines: it passes axe in ${theme}`, async ({ page }) => {
+      await setTheme(page, theme);
+      await open(page, "/blocks/view/reporting-lines");
+      await settleStyles(page);
+      expect(
+        (await new AxeBuilder({ page }).withTags(wcag).analyze()).violations,
+      ).toEqual([]);
+    });
+  }
+});
+
 test.describe("course lesson", () => {
   const time = (page: Page) =>
     page.locator("video").evaluate((v: HTMLVideoElement) => v.currentTime);

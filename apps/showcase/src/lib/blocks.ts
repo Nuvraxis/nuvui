@@ -47,6 +47,9 @@ import codePlayground from "@/blocks/code-playground/block.json" with {
 import commentThread from "@/blocks/comment-thread/block.json" with {
   type: "json",
 };
+import companyChart from "@/blocks/company-chart/block.json" with {
+  type: "json",
+};
 import courseLesson from "@/blocks/course-lesson/block.json" with {
   type: "json",
 };
@@ -151,6 +154,9 @@ import recordingReview from "@/blocks/recording-review/block.json" with {
   type: "json",
 };
 import releaseNotes from "@/blocks/release-notes/block.json" with {
+  type: "json",
+};
+import reportingLines from "@/blocks/reporting-lines/block.json" with {
   type: "json",
 };
 import reviews from "@/blocks/reviews/block.json" with { type: "json" };
@@ -281,6 +287,13 @@ export const categories: BlockCategory[] = [
       "Steps joined by arrows: a purchase request's way through its approvals, with the step it waits at and a panel for the one that's selected, and an automation built in place, with steps that are added, dragged, joined, renamed and removed.",
   },
   {
+    slug: "org-charts",
+    label: "Org charts",
+    title: "Org charts",
+    description:
+      "Who reports to whom: a company's people under their managers, with only the top team open at first, a box that finds anyone and a panel for the person chosen, and the reporting lines of a group's companies, one company at a time, growing from the left.",
+  },
+  {
     slug: "calendar",
     label: "Calendars",
     title: "Calendars",
@@ -385,6 +398,8 @@ export const blocks: BlockManifest[] = [
   maintenance,
   approvalFlow,
   workflowBuilder,
+  companyChart,
+  reportingLines,
   teamCalendar,
   clinicDay,
   roomBooking,

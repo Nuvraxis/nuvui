@@ -1,0 +1,9 @@
+{
+  "name": "company-chart",
+  "title": "Company org chart",
+  "description": "A company's people under their managers, with only the top team open at first, a box that finds anyone and opens the way to them, and a panel for the person chosen: who they report to, their direct reports, when they joined and how they work, each name a button that shows that person in the chart.",
+  "category": "org-charts",
+  "files": ["company-chart.tsx", "company-chart.scss", "people.ts"],
+  "install": ["@nuvui/org-chart", "@nuvui/react"],
+  "height": 820
+}

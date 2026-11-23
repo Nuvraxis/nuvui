@@ -52,6 +52,11 @@ export const packages = [
     href: "/docs/flow",
   },
   {
+    name: "@nuvui/org-chart",
+    text: "An org chart, with teams that open and close and a box that finds a person",
+    href: "/docs/org-chart",
+  },
+  {
     name: "@nuvui/media",
     text: "Video and audio players, with HLS and DASH streams",
     href: "/docs/media",

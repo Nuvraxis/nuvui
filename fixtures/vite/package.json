@@ -19,6 +19,7 @@
     "@nuvui/backgrounds": "file:../../packages/backgrounds",
     "@nuvui/icons": "file:../../packages/icons",
     "@nuvui/map": "file:../../packages/map",
+    "@nuvui/org-chart": "file:../../packages/org-chart",
     "maplibre-gl": "^6.4.1",
     "@nuvui/kanban": "file:../../packages/kanban",
     "@nuvui/react": "file:../../packages/ui",

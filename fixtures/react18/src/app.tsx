@@ -32,6 +32,7 @@ import { MapMarker, MapView } from "@nuvui/map/map";
 import { AudioPlayer, type MediaPlayerHandle } from "@nuvui/media/audio-player";
 import { MediaTranscript } from "@nuvui/media/media-transcript";
 import { VideoPlayer } from "@nuvui/media/video-player";
+import { OrgChart } from "@nuvui/org-chart/org-chart";
 import {
   Button,
   Checkbox,
@@ -149,6 +150,13 @@ export function App() {
           { id: "b", label: "Review", position: { x: 220, y: -4 } },
         ]}
         edges={[{ id: "a-b", from: "a", to: "b" }]}
+      />
+      <OrgChart
+        aria-label="Team"
+        people={[
+          { id: "a", name: "Ada Quill", title: "Head" },
+          { id: "b", managerId: "a", name: "Bo Ferro", title: "Report" },
+        ]}
       />
       <VideoPlayer title="Intro" src="/intro.mp4" poster="/intro.jpg" />
       <StarsBackground scrim="soft">

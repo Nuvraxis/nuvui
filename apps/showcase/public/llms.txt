@@ -1,6 +1,6 @@
 # nuvui
 
-> Open source React components for business software: data tables, forms, charts and dashboards, tested for accessibility and themed with CSS variables. Fifteen packages, MIT licensed. Styling is SCSS with BEM classes and CSS variables, in cascade layers, and needs no Tailwind.
+> Open source React components for business software: data tables, forms, charts and dashboards, tested for accessibility and themed with CSS variables. Seventeen packages, MIT licensed. Styling is SCSS with BEM classes and CSS variables, in cascade layers, and needs no Tailwind.
 
 Each page below is plain Markdown. All of them in one file: https://nuvui.nuvraxis.com/docs/llms-full.txt. A skill for coding agents, with the rules that are easy to get wrong: https://github.com/Nuvraxis/nuvui/tree/main/skills/nuvui, installed with `pnpm dlx skills add Nuvraxis/nuvui`.
 
@@ -223,6 +223,11 @@ Each page below is plain Markdown. All of them in one file: https://nuvui.nuvrax
 - [Resources](https://nuvui.nuvraxis.com/docs/llms/scheduler/resources.md): Rooms, people or machines that events are booked against in an EventCalendar, shown or hidden from its side panel, and read from your own field names.
 - [Recurring events](https://nuvui.nuvraxis.com/docs/llms/scheduler/recurring-events.md): Events in an EventCalendar that repeat by a rule, an RRULE or an object, with days left out, worked out in their own time zone, and changed one at a time, from one on, or all together.
 - [Loading from a server](https://nuvui.nuvraxis.com/docs/llms/scheduler/loading-by-range.md): An EventCalendar or EventTimeline that asks your server only for the days shown, keeps what it has loaded, and saves each change, drawn at once and taken back if the save fails.
+
+## @nuvui/org-chart
+
+- [Org charts](https://nuvui.nuvraxis.com/docs/llms/org-chart/index.md): The @nuvui/org-chart package. People under their managers, with teams that open and close, a box that finds a person, and a view that pans and zooms.
+- [OrgChart](https://nuvui.nuvraxis.com/docs/llms/org-chart/org-chart.md): People under their managers, laid out from a list of who reports to whom, in a frame that pans and zooms. Teams open and close, a box finds a person, and the keyboard follows the lines.
 
 ## @nuvui/icons
 

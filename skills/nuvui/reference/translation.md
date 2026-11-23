@@ -491,6 +491,30 @@ A calendar's or a timeline's name is the `aria-label` you give it, and an event'
 | `followingEvents` (required) | `string` |  |  |
 | `allEvents` (required) | `string` |  |  |
 
+## Org chart
+
+A chart's name is the `aria-label` you give it, and a card's is the person's name, title, department and badge. The rest, what an open position is called, how many report to someone, the team buttons, the find box and its count, the zoom buttons, the keyboard's instructions and what's said when someone is found, is in one prop, `labels`:
+
+| Prop | Type | Default | What it's for |
+| --- | --- | --- | --- |
+| `roleDescription` | `string` |  | What kind of thing the chart is, read after its name. |
+| `instructions` | `((orientation: OrgChartOrientation) => string)` |  | How to get around the chart with the keyboard, for each way it grows. |
+| `vacant` | `string` |  | Where a name would be, on the card of an open position. |
+| `reports` | `((count: number) => string)` |  | How many report to someone, read after their name and shown on their card's button. |
+| `showReports` | `((name: string, count: number) => string)` |  | The name of the button that shows someone's reports. |
+| `hideReports` | `((name: string, count: number) => string)` |  | The name of the button that hides them. |
+| `controls` | `string` |  | The name of the group of buttons. |
+| `zoomIn` | `string` |  |  |
+| `zoomOut` | `string` |  |  |
+| `fit` | `string` |  |  |
+| `find` | `string` |  | The name of the box that finds a person. |
+| `findPlaceholder` | `string` |  | What the box shows while it's empty. |
+| `findNext` | `string` |  |  |
+| `findPrevious` | `string` |  |  |
+| `matches` | `((index: number, count: number) => string)` |  | Which match is shown, of how many. Shown beside the box. |
+| `noMatches` | `string` |  | Said when the box finds no one. |
+| `found` | `((name: string, index: number, count: number) => string)` |  | Said when a match is shown, with the name the card is read by. |
+
 ## What isn't text
 
 - A [field](components/field.md) marks a required label with `*`, which `FieldLabel` changes with `requiredIndicator`. Screen readers don't hear it. They hear "required" from the control, in the browser's own language.

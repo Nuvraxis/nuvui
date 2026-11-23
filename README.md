@@ -83,6 +83,7 @@ Each add-on is installed next to `@nuvui/react`, with the library it's built on 
 | [`@nuvui/backgrounds`](https://www.npmjs.com/package/@nuvui/backgrounds) | Moving backgrounds for a hero, a sign-in page or an empty state | `pnpm add @nuvui/backgrounds` |
 | [`@nuvui/3d`](https://www.npmjs.com/package/@nuvui/3d) | A 3D model viewer for glTF, GLB and STL files, on react-three-fiber. It needs React 19 | `pnpm add @nuvui/3d three @react-three/fiber` |
 | [`@nuvui/scheduler`](https://www.npmjs.com/package/@nuvui/scheduler) | An event calendar with day, week, month and agenda views, edited in place | `pnpm add @nuvui/scheduler @nuvui/date-picker` |
+| [`@nuvui/org-chart`](https://www.npmjs.com/package/@nuvui/org-chart) | An org chart, with teams that open and close and a box that finds a person | `pnpm add @nuvui/org-chart` |
 | [`@nuvui/icons`](https://www.npmjs.com/package/@nuvui/icons) | 338 line icons in three styles, and 24 for types of file. It needs only React | `pnpm add @nuvui/icons` |
 
 ## Components
@@ -218,6 +219,16 @@ It also has:
 - Recurring events, by an RRULE or the same as an object: daily, weekly on chosen days, monthly on a date or a weekday in its week, and yearly, with days left out. Each is worked out on its own clock, so it keeps its time across summer time. Changing or deleting one asks whether it's for that one, those after it, or all.
 - `date-fns` and `@date-fns/tz` are dependencies. `@nuvui/date-picker` is a peer dependency, for the month in the side panel and the dates in the popover.
 
+### `@nuvui/org-chart`
+
+- `OrgChart`, people under their managers, laid out from a list of who reports to whom, in a view that pans and zooms.
+- Top to bottom, with a manager's last level of reports in a column so a large company stays narrow, or sideways, and mirrored where the page reads right to left.
+- A card has the person's photo, or their initials, their name, title, department and a badge, and an open position has a card of its own. `renderCard` draws one of your own.
+- Each manager's team opens and closes, and the card stays where it was while the chart moves around it.
+- A box finds people by name, title or department, opens the way to them and says what it found.
+- A screen reader hears a tree, at each person's level, and the arrow keys follow the lines.
+- No dependencies.
+
 ### `@nuvui/icons`
 
 - 338 line icons drawn for nuvui on a 24 pixel grid, in Standard, Rounded and Sharp, with the same names in each.
@@ -335,7 +346,7 @@ pnpm playwright:install   # the browsers the tests run in
 | Path | What it is |
 | --- | --- |
 | `packages/ui` | The core library, published as `@nuvui/react` |
-| `packages/date-picker`, `table`, `charts`, `barcodes`, `chat`, `kanban`, `editor`, `emoji`, `map`, `flow`, `media`, `backgrounds`, `3d`, `scheduler`, `icons` | The add-ons, each published under its folder's name |
+| `packages/date-picker`, `table`, `charts`, `barcodes`, `chat`, `kanban`, `editor`, `emoji`, `map`, `flow`, `media`, `backgrounds`, `3d`, `scheduler`, `org-chart`, `icons` | The add-ons, each published under its folder's name |
 | `packages/theme` | The theme generator: turns a brand color, base color, radius and density into token values and checks their contrast. It writes the presets. Not published |
 | `packages/tooling` | What the published packages are built, checked and tested with. Not published |
 | `packages/telemetry` | Sends the site's web vitals to an OpenTelemetry collector. Not published |

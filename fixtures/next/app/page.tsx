@@ -27,6 +27,7 @@ import { Flow } from "@nuvui/flow";
 import { ArrowRightIcon } from "@nuvui/icons";
 import { MapView } from "@nuvui/map";
 import { AudioPlayer, VideoPlayer } from "@nuvui/media";
+import { OrgChart } from "@nuvui/org-chart";
 import {
   Button,
   Dialog,
@@ -140,6 +141,14 @@ export default function Page() {
           { id: "b", label: "Review", position: { x: 220, y: -4 } },
         ]}
         edges={[{ id: "a-b", from: "a", to: "b" }]}
+      />
+      {/* The server lays the chart out, and sends every card in place. */}
+      <OrgChart
+        aria-label="Team"
+        people={[
+          { id: "a", name: "Ada Quill", title: "Head" },
+          { id: "b", managerId: "a", name: "Bo Ferro", title: "Report" },
+        ]}
       />
       {/* The server sends the video with the browser's own controls, and
           the player's take over once the script runs. */}

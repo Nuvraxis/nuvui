@@ -26,7 +26,8 @@
     "check:audit": "pnpm audit --audit-level high",
     "skill": "pnpm --filter @nuvui/docs run skill",
     "check:skill": "pnpm --filter @nuvui/docs run skill --check",
-    "icons:fetch": "pnpm --filter @nuvui/icons run icons:fetch"
+    "icons:fetch": "pnpm --filter @nuvui/icons run icons:fetch",
+    "org-chart:fetch": "node scripts/fetch-org-chart.mjs"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.15",

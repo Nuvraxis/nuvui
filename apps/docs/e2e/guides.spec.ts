@@ -511,6 +511,7 @@ test.describe("support policy page", () => {
       ["backgrounds", "@nuvui/backgrounds"],
       ["3d", "@nuvui/3d"],
       ["scheduler", "@nuvui/scheduler"],
+      ["org-chart", "@nuvui/org-chart"],
       ["icons", "@nuvui/icons"],
     ] as const) {
       const oldest = manifest(folder).engines.node.replace(">=", "");
@@ -540,6 +541,7 @@ test.describe("the notice that a package isn't published", () => {
     ["backgrounds", "@nuvui/backgrounds", "/docs/backgrounds"],
     ["3d", "@nuvui/3d", "/docs/3d"],
     ["scheduler", "@nuvui/scheduler", "/docs/scheduler"],
+    ["org-chart", "@nuvui/org-chart", "/docs/org-chart"],
     ["icons", "@nuvui/icons", "/docs/icons"],
   ] as const) {
     test(`is on ${address} only while ${name} has never been released`, async ({

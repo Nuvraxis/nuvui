@@ -8,7 +8,11 @@
 import { mkdirSync, readdirSync, unlinkSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { componentName, fileTypeComponentName } from "../src/names.ts";
+import {
+  componentName,
+  fileTypeComponentName,
+  fileTypeDescription,
+} from "../src/names.ts";
 import { fileTypeSize, iconSize, iconStyles } from "../src/strokes.ts";
 import { normalize, normalizeFileType, parse } from "./svg.mjs";
 
@@ -72,7 +76,13 @@ function collectFileType(node) {
   }
   // The file keeps components' descriptions beside the tree, not on the node.
   const description = (file.components?.[node.id]?.description ?? "").trim();
-  if (description === "") problems.push(`${node.name} has no description`);
+  if (description === "") {
+    problems.push(`${node.name} has no description`);
+  } else if (!fileTypeDescription.test(description)) {
+    problems.push(
+      `${node.name}'s description has more than plain words in it: ${JSON.stringify(description)}`,
+    );
+  }
   fileTypes.push({ name, component, description, id: node.id });
 }
 

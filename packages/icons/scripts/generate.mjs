@@ -13,7 +13,11 @@ import {
 } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { componentName, fileTypeComponentName } from "../src/names.ts";
+import {
+  componentName,
+  fileTypeComponentName,
+  fileTypeDescription,
+} from "../src/names.ts";
 import {
   fileTypeSize,
   iconSize,
@@ -296,6 +300,12 @@ for (const style of iconStyles) {
   const exports = [];
 
   for (const { name, component, description } of manifest.fileTypes) {
+    // It goes into a comment below, so it can't be let end one.
+    if (!fileTypeDescription.test(description)) {
+      throw new Error(
+        `manifest.json describes the ${name} file type as ${JSON.stringify(description)}, which is more than plain words`,
+      );
+    }
     if (fileTypeComponentName(name) !== component) {
       throw new Error(`manifest.json names the ${name} file type ${component}`);
     }

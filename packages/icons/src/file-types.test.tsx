@@ -7,7 +7,7 @@ import { render } from "vitest-browser-react";
 import manifest from "../manifest.json";
 import * as fileTypes from "./file-types";
 import { type FileTypeIconProps, JsFileIcon, TsFileIcon } from "./file-types";
-import { fileTypeComponentName } from "./names";
+import { fileTypeComponentName, fileTypeDescription } from "./names";
 
 // The order a plain sort() gives, as the set's tests have it, the same on
 // Windows and on Linux.
@@ -24,7 +24,8 @@ describe("the file types", () => {
     expect(new Set(names).size).toBe(names.length);
     for (const icon of manifest.fileTypes) {
       expect(icon.component).toBe(fileTypeComponentName(icon.name));
-      expect(icon.description).not.toBe("");
+      // Plain words, since each is written into a generated comment.
+      expect(icon.description).toMatch(fileTypeDescription);
     }
   });
 

@@ -1,7 +1,7 @@
 {
   "name": "@nuvui/icons",
   "version": "0.2.0",
-  "description": "338 line icons drawn for nuvui, in three styles: Rounded, Standard and Sharp. Each is a React component in the color of the text around it, and an SVG file.",
+  "description": "338 line icons drawn for nuvui, in three styles: Rounded, Standard and Sharp, and 24 icons for types of file. Each is a React component, and an SVG file.",
   "license": "MIT",
   "author": "Nuvraxis",
   "homepage": "https://nuvui.nuvraxis.com",
@@ -55,6 +55,16 @@
       "require": {
         "types": "./dist/sharp.d.cts",
         "default": "./dist/sharp.cjs"
+      }
+    },
+    "./file-types": {
+      "import": {
+        "types": "./dist/file-types.d.ts",
+        "default": "./dist/file-types.js"
+      },
+      "require": {
+        "types": "./dist/file-types.d.cts",
+        "default": "./dist/file-types.cjs"
       }
     },
     "./manifest.json": "./manifest.json",

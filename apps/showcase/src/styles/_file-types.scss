@@ -1,0 +1,46 @@
+@use "icons";
+@use "layout";
+
+// The file type icons, under the icon browser: a heading, a line on what
+// they are, and a tile for each that copies its import.
+.site-file-types {
+  @include layout.container(layout.$width-wide);
+
+  display: grid;
+  gap: calc(var(--spacing) * 3);
+  padding-block-end: calc(var(--spacing) * 16);
+}
+
+.site-file-types__heading {
+  margin: 0;
+  font-size: var(--text-xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-xl--line-height);
+}
+
+.site-file-types__text {
+  margin: 0;
+  max-inline-size: 42rem;
+  color: var(--color-muted-foreground);
+}
+
+.site-file-types__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(6.5rem, 1fr));
+  gap: calc(var(--spacing) * 2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.site-file-types__tile {
+  @include icons.tile;
+}
+
+.site-file-types__name {
+  color: var(--color-muted-foreground);
+  font-size: var(--text-xs);
+  line-height: var(--text-xs--line-height);
+  text-align: center;
+  overflow-wrap: anywhere;
+}

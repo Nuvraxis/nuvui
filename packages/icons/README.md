@@ -32,6 +32,8 @@ It needs React 18.2 or newer and nothing else: no stylesheet, and not `@nuvui/re
 
 The three have the same icons by the same names.
 
+`@nuvui/icons/file-types` has 24 icons for files by their extension, such as `TsFileIcon`: a page in the color of the text, with the extension on a colored tag, 32 pixels unless `size` says otherwise. They're the only icons here with colors of their own.
+
 ## How an icon behaves
 
 - **Its name** is the icon's name in the set with `Icon` at the end: `arrow-right` is `ArrowRightIcon`. That's its only name.
@@ -41,7 +43,7 @@ The three have the same icons by the same names.
 - **In a server component** it renders as markup. It has no state and no `"use client"`.
 - **In a bundle** only the icons a page imports are kept. Each is a module of its own.
 
-`createIcon` makes an icon of your own that's drawn the same way. Every icon is also an SVG file, such as `@nuvui/icons/svg/standard/arrow-right.svg`, and `@nuvui/icons/manifest.json` lists every icon with its category.
+`createIcon` makes an icon of your own that's drawn the same way. Every icon is also an SVG file, such as `@nuvui/icons/svg/standard/arrow-right.svg`, and `@nuvui/icons/manifest.json` lists every icon with its category, and the file types under `fileTypes`.
 
 The [docs page](https://nuvui.nuvraxis.com/docs/icons) shows every icon, with a search.
 

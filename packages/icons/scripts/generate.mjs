@@ -13,8 +13,13 @@ import {
 } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { componentName } from "../src/names.ts";
 import {
+  componentName,
+  fileTypeComponentName,
+  fileTypeDescription,
+} from "../src/names.ts";
+import {
+  fileTypeSize,
   iconSize,
   iconStrokeWidth,
   iconStyles,
@@ -129,6 +134,79 @@ function shapes(svg, style, label) {
   return out;
 }
 
+// A file type's shapes, each with the paint it was drawn in: the page in
+// currentColor, the tag and its label in colors of their own.
+const paints = [
+  "fill",
+  "fill-rule",
+  "clip-rule",
+  "stroke",
+  "stroke-width",
+  "stroke-linecap",
+  "stroke-linejoin",
+  "stroke-miterlimit",
+];
+const color = /^(none|currentColor|#[0-9a-f]{3}|#[0-9a-f]{6})$/i;
+
+function fileTypeShapes(svg, label) {
+  const element = parse(svg);
+  const viewBox = `0 0 ${fileTypeSize} ${fileTypeSize}`;
+  if (element.attributes.viewBox !== viewBox) {
+    throw new Error(
+      `${label} has a viewBox of "${element.attributes.viewBox}"`,
+    );
+  }
+  const out = [];
+
+  function visit(node, inherited) {
+    const painted = { ...inherited };
+    const allowed = new Set(paints);
+    if (node.name === "svg") allowed.add("viewBox").add("xmlns");
+    for (const key of geometry[node.name] ?? []) allowed.add(key);
+    for (const [key, value] of Object.entries(node.attributes)) {
+      if (!allowed.has(key)) {
+        throw new Error(`${label} has a <${node.name}> with ${key}="${value}"`);
+      }
+      if ((key === "fill" || key === "stroke") && !color.test(value)) {
+        throw new Error(`${label} is painted with ${key}="${value}"`);
+      }
+      if (key === "stroke" && value !== "none" && value !== "currentColor") {
+        throw new Error(`${label} has a line in ${value}, not the page's`);
+      }
+      // The <svg>'s own fill="none" is what createFileTypeIcon puts there.
+      if (paints.includes(key) && node.name !== "svg") painted[key] = value;
+    }
+
+    if (node.name === "svg" || node.name === "g") {
+      for (const child of node.children) {
+        if (child.type !== "element") {
+          throw new Error(`${label} has ${child.type} content in it`);
+        }
+        visit(child, painted);
+      }
+      return;
+    }
+    if (!geometry[node.name]) {
+      throw new Error(
+        `${label} has a <${node.name}>, which the file types don't use`,
+      );
+    }
+
+    const attributes = {};
+    for (const key of geometry[node.name]) {
+      if (key in node.attributes) attributes[key] = node.attributes[key];
+    }
+    for (const [key, value] of Object.entries(painted)) {
+      attributes[camel(key)] = value;
+    }
+    out.push([node.name, attributes]);
+  }
+
+  visit(element, {});
+  if (out.length === 0) throw new Error(`${label} draws nothing`);
+  return out;
+}
+
 // For the editor: hovering an icon's name shows it.
 function preview(svg) {
   const shown = svg
@@ -215,11 +293,61 @@ for (const style of iconStyles) {
   }
 }
 
+{
+  const dir = join(root, "src", "generated", "file-types");
+  mkdirSync(dir, { recursive: true });
+  const files = new Set(["index.ts"]);
+  const exports = [];
+
+  for (const { name, component, description } of manifest.fileTypes) {
+    // It goes into a comment below, so it can't be let end one.
+    if (!fileTypeDescription.test(description)) {
+      throw new Error(
+        `manifest.json describes the ${name} file type as ${JSON.stringify(description)}, which is more than plain words`,
+      );
+    }
+    if (fileTypeComponentName(name) !== component) {
+      throw new Error(`manifest.json names the ${name} file type ${component}`);
+    }
+    const source = join(root, "svg", "file-types", `${name}.svg`);
+    if (!existsSync(source))
+      throw new Error(`svg/file-types/${name}.svg is missing`);
+    const svg = readFileSync(source, "utf8");
+    const nodes = fileTypeShapes(svg, `svg/file-types/${name}.svg`);
+
+    files.add(`${name}.ts`);
+    exports.push(`export { ${component} } from "./${name}";`);
+    write(
+      join(dir, `${name}.ts`),
+      [
+        `// Written by scripts/generate.mjs from svg/file-types/${name}.svg.`,
+        `import { createFileTypeIcon } from "../../create-file-type-icon";`,
+        "",
+        "/**",
+        ` * The icon for a ${description}.`,
+        " *",
+        ` * ![${name}](${preview(svg)})`,
+        " */",
+        `export const ${component} = /* @__PURE__ */ createFileTypeIcon(${JSON.stringify(component)}, ${JSON.stringify(nodes)});`,
+        "",
+      ].join("\n"),
+    );
+  }
+
+  write(
+    join(dir, "index.ts"),
+    `// Written by scripts/generate.mjs.\n${exports.join("\n")}\n`,
+  );
+  for (const old of readdirSync(dir)) {
+    if (!files.has(old)) unlinkSync(join(dir, old));
+  }
+}
+
 rmSync(scratch, { recursive: true, force: true });
 
 const count = manifest.icons.length;
 console.log(
-  `icons:generate: ${count} icons in ${iconStyles.length} styles, ${count * iconStyles.length} modules.`,
+  `icons:generate: ${count} icons in ${iconStyles.length} styles and ${manifest.fileTypes.length} file types, ${count * iconStyles.length + manifest.fileTypes.length} modules.`,
 );
 if (own.size > 0) {
   console.log(

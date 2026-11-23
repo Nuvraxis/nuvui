@@ -20,7 +20,10 @@ const manifest = JSON.parse(
     ),
     "utf8",
   ),
-) as { icons: { name: string; component: string; category: string }[] };
+) as {
+  icons: { name: string; component: string; category: string }[];
+  fileTypes: { name: string; component: string; description: string }[];
+};
 
 const first = manifest.icons[0];
 if (!first) throw new Error("the manifest lists no icons");
@@ -209,5 +212,47 @@ test.describe("icons page", () => {
 
     const results = await new AxeBuilder({ page }).withTags(wcag).analyze();
     expect(results.violations).toEqual([]);
+  });
+});
+
+const fileTypeTiles = (page: Page) => page.locator(".site-file-types__tile");
+
+test.describe("icons page, file types", () => {
+  test("has every file type in the package, under the icons", async ({
+    page,
+  }) => {
+    await open(page, "/icons");
+
+    await expect(
+      page.getByRole("heading", { level: 2, name: "File types" }),
+    ).toBeVisible();
+    await expect(fileTypeTiles(page)).toHaveCount(manifest.fileTypes.length);
+    // Not counted with the icons, whose tiles and headings are their own.
+    await expect(tiles(page)).toHaveCount(manifest.icons.length);
+  });
+
+  test("pressing one copies its import", async ({
+    page,
+    browserName,
+    isMobile,
+  }) => {
+    test.skip(
+      browserName !== "chromium",
+      "Only Chromium lets a test read the clipboard back.",
+    );
+    const fileType = manifest.fileTypes[0];
+    if (!fileType) throw new Error("the manifest lists no file types");
+    const line = `import { ${fileType.component} } from "@nuvui/icons/file-types";`;
+    await open(page, "/icons");
+
+    await press(
+      page.locator(`.site-file-types__tile[data-file-type="${fileType.name}"]`),
+      isMobile,
+    );
+
+    await expect(page.locator(".site-file-types [aria-live]")).toHaveText(
+      `Copied ${line}`,
+    );
+    expect(await clipboard(page)).toBe(line);
   });
 });

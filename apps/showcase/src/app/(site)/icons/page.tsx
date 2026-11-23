@@ -1,6 +1,7 @@
 import { Button } from "@nuvui/react/button";
 import { Download } from "lucide-react";
 import type { Metadata } from "next";
+import { FileTypes } from "@/components/icons/file-types";
 import { IconBrowser } from "@/components/icons/icon-browser";
 import { JsonLd } from "@/components/json-ld";
 import { share } from "@/lib/seo";
@@ -42,7 +43,8 @@ export default function IconsPage() {
           <p className="site-intro__lead">
             Line icons drawn for the library on a 24 pixel grid, in three
             styles: Standard, Rounded and Sharp. Each is a React component in
-            the color of the text around it, and an SVG file.
+            the color of the text around it, and an SVG file. Below them are
+            icons for types of file, with the extension on a colored tag.
           </p>
           <p className="site-intro__text">
             Press one to see it in each style and at each size, and to copy it.
@@ -64,6 +66,7 @@ export default function IconsPage() {
         </section>
       </div>
       <IconBrowser />
+      <FileTypes />
     </>
   );
 }

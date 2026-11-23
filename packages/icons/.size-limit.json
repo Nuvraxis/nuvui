@@ -25,5 +25,16 @@
     "name": "@nuvui/icons/sharp, every icon",
     "path": "dist/sharp.js",
     "limit": "12 kB"
+  },
+  {
+    "name": "one icon from @nuvui/icons/file-types",
+    "path": "dist/file-types.js",
+    "import": "{ TsFileIcon }",
+    "limit": "800 B"
+  },
+  {
+    "name": "@nuvui/icons/file-types, every icon",
+    "path": "dist/file-types.js",
+    "limit": "4 kB"
   }
 ]

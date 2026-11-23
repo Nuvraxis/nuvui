@@ -20,3 +20,7 @@ export const strokes = {
 // The grid every icon is drawn on, and the weight of its line.
 export const iconSize = 24;
 export const iconStrokeWidth = 1.5;
+
+// The file type icons are a page with a colored tag on it, drawn larger, so
+// the extension on the tag can be read.
+export const fileTypeSize = 32;

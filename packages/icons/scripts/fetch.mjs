@@ -1,15 +1,20 @@
 // Fetches the icons from the Figma file they're drawn in and writes each
-// style's SVGs and the manifest. Run it with `pnpm icons:fetch` when the
-// file has changed, and commit what it writes: nothing else needs Figma.
+// style's SVGs, the file types' SVGs and the manifest. Run it with
+// `pnpm icons:fetch` when the file has changed, and commit what it writes:
+// nothing else needs Figma.
 //
 // It needs a Figma token that can read the file, in FIGMA_TOKEN or in a
 // .env.local at the root of the repository, which git ignores.
 import { mkdirSync, readdirSync, unlinkSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { componentName } from "../src/names.ts";
-import { iconSize, iconStyles } from "../src/strokes.ts";
-import { normalize, parse } from "./svg.mjs";
+import {
+  componentName,
+  fileTypeComponentName,
+  fileTypeDescription,
+} from "../src/names.ts";
+import { fileTypeSize, iconSize, iconStyles } from "../src/strokes.ts";
+import { normalize, normalizeFileType, parse } from "./svg.mjs";
 
 const fileKey = "zJXmLZTLY57dhyhVSmZD1I";
 const root = fileURLToPath(new URL("..", import.meta.url));
@@ -49,10 +54,37 @@ async function figma(path) {
   }
 }
 
-// Every component set named Icon/<name>, the page it's on as its category.
+// Every component set named Icon/<name>, the page it's on as its category,
+// and every component named FileType/<extension>, which has one style.
 const file = await figma(`files/${fileKey}`);
 const icons = [];
+const fileTypes = [];
 const problems = [];
+
+function collectFileType(node) {
+  const name = node.name.slice("FileType/".length);
+  let component;
+  try {
+    component = fileTypeComponentName(name);
+  } catch (error) {
+    problems.push(`${node.name}: ${error.message}`);
+    return;
+  }
+  const { width, height } = node.absoluteBoundingBox ?? {};
+  if (width !== fileTypeSize || height !== fileTypeSize) {
+    problems.push(`${node.name} is ${width} by ${height}`);
+  }
+  // The file keeps components' descriptions beside the tree, not on the node.
+  const description = (file.components?.[node.id]?.description ?? "").trim();
+  if (description === "") {
+    problems.push(`${node.name} has no description`);
+  } else if (!fileTypeDescription.test(description)) {
+    problems.push(
+      `${node.name}'s description has more than plain words in it: ${JSON.stringify(description)}`,
+    );
+  }
+  fileTypes.push({ name, component, description, id: node.id });
+}
 
 function collect(set, category) {
   const name = set.name.slice("Icon/".length);
@@ -90,14 +122,23 @@ function walk(node, category) {
     if (node.name.startsWith("Icon/")) collect(node, category);
     return;
   }
+  if (node.type === "COMPONENT" && node.name.startsWith("FileType/")) {
+    collectFileType(node);
+    return;
+  }
   for (const child of node.children ?? []) walk(child, category);
 }
 
 for (const page of file.document.children) walk(page, page.name);
 
-for (const key of ["name", "component"]) {
+for (const [key, list] of [
+  ["name", icons],
+  ["component", icons],
+  ["name", fileTypes],
+  ["component", fileTypes],
+]) {
   const seen = new Set();
-  for (const icon of icons) {
+  for (const icon of list) {
     if (seen.has(icon[key])) problems.push(`two icons are ${icon[key]}`);
     seen.add(icon[key]);
   }
@@ -107,7 +148,10 @@ for (const key of ["name", "component"]) {
 // frame's own bounds, not what's drawn: a sharp corner's miter can reach
 // past the frame, and Figma would widen the picture to take it in, which
 // would make that one icon smaller than the rest.
-const ids = icons.flatMap((icon) => Object.values(icon.variants));
+const ids = [
+  ...icons.flatMap((icon) => Object.values(icon.variants)),
+  ...fileTypes.map((fileType) => fileType.id),
+];
 const addresses = {};
 for (let start = 0; start < ids.length; start += 100) {
   const chunk = ids.slice(start, start + 100).join(",");
@@ -119,9 +163,12 @@ for (let start = 0; start < ids.length; start += 100) {
 }
 
 const svgs = new Map();
-const jobs = icons.flatMap((icon) =>
-  iconStyles.map((style) => ({ icon, style, id: icon.variants[style] })),
-);
+const jobs = [
+  ...icons.flatMap((icon) =>
+    iconStyles.map((style) => ({ icon, style, id: icon.variants[style] })),
+  ),
+  ...fileTypes.map((icon) => ({ icon, style: "file-types", id: icon.id })),
+];
 async function work() {
   for (let job = jobs.shift(); job; job = jobs.shift()) {
     const { icon, style, id } = job;
@@ -137,9 +184,12 @@ async function work() {
       continue;
     }
     try {
-      const svg = normalize(await response.text());
+      const fileType = style === "file-types";
+      const text = await response.text();
+      const svg = fileType ? normalizeFileType(text) : normalize(text);
+      const size = fileType ? fileTypeSize : iconSize;
       const { viewBox } = parse(svg).attributes;
-      if (viewBox !== `0 0 ${iconSize} ${iconSize}`) {
+      if (viewBox !== `0 0 ${size} ${size}`) {
         throw new Error(`the SVG's viewBox is "${viewBox}"`);
       }
       svgs.set(`${style}/${icon.name}`, svg);
@@ -173,6 +223,21 @@ for (const style of iconStyles) {
   }
 }
 
+{
+  const dir = join(root, "svg", "file-types");
+  mkdirSync(dir, { recursive: true });
+  const names = new Set(fileTypes.map((icon) => `${icon.name}.svg`));
+  for (const old of readdirSync(dir)) {
+    if (!names.has(old)) unlinkSync(join(dir, old));
+  }
+  for (const icon of fileTypes) {
+    writeFileSync(
+      join(dir, `${icon.name}.svg`),
+      svgs.get(`file-types/${icon.name}`),
+    );
+  }
+}
+
 const manifest = {
   source: `https://www.figma.com/design/${fileKey}`,
   styles: iconStyles,
@@ -180,6 +245,11 @@ const manifest = {
     name,
     component,
     category,
+  })),
+  fileTypes: fileTypes.map(({ name, component, description }) => ({
+    name,
+    component,
+    description,
   })),
 };
 writeFileSync(
@@ -189,5 +259,5 @@ writeFileSync(
 
 const categories = new Set(icons.map((icon) => icon.category));
 console.log(
-  `icons:fetch: ${icons.length} icons on ${categories.size} pages of "${file.name}", ${svgs.size} SVGs.`,
+  `icons:fetch: ${icons.length} icons on ${categories.size} pages of "${file.name}", ${fileTypes.length} file types, ${svgs.size} SVGs.`,
 );

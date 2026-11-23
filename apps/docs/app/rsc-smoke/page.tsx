@@ -49,6 +49,7 @@ import { CodeEditor, DiffEditor } from "@nuvui/editor/code";
 import { Flow } from "@nuvui/flow/flow";
 import { AudioPlayer } from "@nuvui/media/audio-player";
 import { VideoPlayer } from "@nuvui/media/video-player";
+import { OrgChart } from "@nuvui/org-chart/org-chart";
 import {
   Alert,
   AlertDescription,
@@ -646,6 +647,16 @@ export default function RscSmokePage() {
             { id: "check", label: "Checked", position: { x: 220, y: -4 } },
           ]}
           edges={[{ id: "in-check", from: "in", to: "check" }]}
+        />
+      </div>
+      {/* The same, for an org chart: the server lays it out. */}
+      <div className="w-full">
+        <OrgChart
+          aria-label="Server org chart"
+          people={[
+            { id: "head", name: "Ada Quill", title: "Head of Support" },
+            { id: "lead", managerId: "head", name: "Bo Ferro", title: "Lead" },
+          ]}
         />
       </div>
       {/* A client component with its source from this server component.

@@ -431,6 +431,16 @@ test("components used from a server component hydrate and work", async ({
   await page.keyboard.press("ArrowRight");
   await expect(flow).toHaveAttribute("aria-activedescendant", /-n1$/);
 
+  // The org chart was laid out by the server, and the arrows follow its
+  // lines once it has hydrated.
+  const chart = page.getByRole("tree", { name: "Server org chart" });
+  await expect(chart.getByRole("treeitem")).toHaveCount(2);
+  await chart.getByRole("treeitem", { name: /^Ada Quill/ }).focus();
+  await page.keyboard.press("ArrowDown");
+  await expect(
+    chart.getByRole("treeitem", { name: /^Bo Ferro/ }),
+  ).toBeFocused();
+
   // The server sent the video with the browser's own controls. Once it has
   // hydrated, the player's own take over, and its play button plays it.
   const video = page.getByRole("region", { name: "Server video" });

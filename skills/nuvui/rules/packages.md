@@ -148,6 +148,12 @@ import "@nuvui/<package>/styles.css";
 - Its height is `--nuv-event-calendar-height`, 40rem by default.
 - `onEventsChange` gets every event and the change: `{ type: "create" | "update" | "delete", event }`. Send the change to your server from there.
 - Dates come back the way they went in: a clock time stays a clock time, a `Date` a `Date`. All-day dates come back as `"yyyy-MM-dd"`.
+- For your own form instead of the popover, call `preventDefault` on the details `onEditStart` gets. For fields of your own in the popover, use `renderEventFields`.
+- `eventDragProps(item)` makes your own element draggable onto the calendar. It's the browser's drag and drop, so give a button that does the same too.
+- `resources` are the rooms, people or machines events are booked against, and an event's `resourceIds` says which. On `EventCalendar` the side panel shows and hides them. `resourceKeys` and `eventKeys` read your own field names.
+- `EventTimeline` is the choice when the question is who or what is free: a row for each resource, time across, on a `scale` of `hours`, `days`, `weeks`, `months` or `years`. For one resource's week, use `EventCalendar`.
+- An event repeats with a `recurrence`, an RRULE or the same as an object, and `exceptions` for the days left out. Changing one occurrence, or one and those after it, calls `onEventsChange` twice: an update to the series and a new event.
+- With many events on a server, give either component a `dataSource` instead of `events`. It loads only the days shown and saves each change.
 
 ## @nuvui/org-chart
 
@@ -159,9 +165,6 @@ import "@nuvui/<package>/styles.css";
 - A function prop such as `renderCard` can't cross from a server component, so a chart with one goes in a file with `"use client"`.
 - `avatar` is an address. Initials show while it loads or when it doesn't.
 - The frame's height is `--nuv-org-chart-height`, 32rem by default.
-- For your own form instead of the popover, call `preventDefault` on the details `onEditStart` gets. For fields of your own in the popover, use `renderEventFields`.
-- `eventDragProps(item)` makes your own element draggable onto the calendar. It's the browser's drag and drop, so give a button that does the same too.
-- Resources, recurring events and a timeline aren't in it yet.
 
 ## @nuvui/barcodes
 

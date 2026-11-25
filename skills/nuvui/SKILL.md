@@ -38,7 +38,7 @@ Three things are different from the libraries you may expect, and most mistakes 
 | `@nuvui/media` | `VideoPlayer`, `AudioPlayer`, `MediaTranscript` and their parts: captions, chapters, qualities, a waveform, streams | `hls.js` or `dashjs`, only for streams |
 | `@nuvui/backgrounds` | `GradientBackground`, `GridBackground`, `StarsBackground`, `TopographyBackground`, `HexagonBackground`, `FireworksBackground`, `HoleBackground`, `GlyphBackground` | |
 | `@nuvui/3d` | `ModelViewer`, a glTF, GLB or STL model to turn and zoom, from an address or picked files. Needs React 19 | `three`, `@react-three/fiber` |
-| `@nuvui/scheduler` | `EventCalendar`, events in day, week, month and agenda views | `@nuvui/date-picker` |
+| `@nuvui/scheduler` | `EventCalendar`, events in day, week, month and agenda views, and `EventTimeline`, resources in rows over time. Both have resources, recurring events and loading from a server | `@nuvui/date-picker` |
 | `@nuvui/org-chart` | `OrgChart`, people under their managers, with teams that open and close and a box that finds a person | |
 | `@nuvui/icons` | 338 line icons in three styles, such as `ArrowRightIcon`, and 24 for types of file in `@nuvui/icons/file-types`, such as `TsFileIcon` | |
 

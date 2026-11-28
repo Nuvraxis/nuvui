@@ -66,6 +66,12 @@ async function call(
   };
 }
 
+// Input the schema refuses comes back as a tool's error, which the model can
+// read and correct, rather than as an error of the protocol.
+function refused(message: RegExp) {
+  return { error: true, text: expect.stringMatching(message) };
+}
+
 describe("the server", () => {
   test("says what it is and how to start", async () => {
     const client = await connect();
@@ -135,9 +141,9 @@ describe("get_rules", () => {
   test("a topic that isn't one is refused before it's looked up", async () => {
     const client = await connect();
 
-    await expect(call(client, "get_rules", { topic: "nope" })).rejects.toThrow(
-      /topic/,
-    );
+    await expect(
+      call(client, "get_rules", { topic: "nope" }),
+    ).resolves.toMatchObject(refused(/topic/));
   });
 });
 
@@ -202,9 +208,10 @@ describe("get_page", () => {
       "",
       "a".repeat(101),
     ]) {
-      await expect(call(client, "get_page", { page }), page).rejects.toThrow(
-        /validation/,
-      );
+      await expect(
+        call(client, "get_page", { page }),
+        page,
+      ).resolves.toMatchObject(refused(/validation/));
     }
   });
 });
@@ -336,9 +343,9 @@ describe("get_tokens", () => {
     expect((await call(client, "get_tokens", { prefix: "nope-" })).error).toBe(
       true,
     );
-    await expect(call(client, "get_tokens", { prefix: "}{" })).rejects.toThrow(
-      /validation/,
-    );
+    await expect(
+      call(client, "get_tokens", { prefix: "}{" }),
+    ).resolves.toMatchObject(refused(/validation/));
   });
 });
 
@@ -558,7 +565,7 @@ describe("versions", () => {
       await expect(
         call(client, "get_page", { page: "compare", version }),
         version,
-      ).rejects.toThrow(/validation/);
+      ).resolves.toMatchObject(refused(/validation/));
     }
   });
 });
@@ -635,7 +642,7 @@ describe("get_changes", () => {
       call(await connect(), "get_changes", {
         installed: { "@nuvui/react": "latest" },
       }),
-    ).rejects.toThrow(/validation/);
+    ).resolves.toMatchObject(refused(/validation/));
   });
 });
 

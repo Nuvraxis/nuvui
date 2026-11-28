@@ -234,6 +234,11 @@ jobs:
         with:
           name: built
 
+      # The three-floor app is opened in Chromium. Its Playwright is the
+      # workspace's, and the runner's image can have another version's.
+      - name: Install Playwright's browsers
+        run: node scripts/playwright-browsers.mjs --with-deps
+
       - run: pnpm test:consumers
 
   # One job that says how all of it went, to name in a branch protection

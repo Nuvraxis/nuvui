@@ -483,6 +483,27 @@ describe("search", () => {
     expect(document.querySelector(".nuv-code-editor__search-form")).toBeNull();
   });
 
+  test("the options are named in words and show their letters, drawn by the stylesheet", async () => {
+    await mount({ defaultValue: "box" });
+    await userEvent.click(content());
+    await userEvent.keyboard("{Control>}f{/Control}");
+
+    for (const [name, glyph] of [
+      ["Match case", '"Aa"'],
+      ["Whole word", '"ab"'],
+      ["Regular expression", '".*"'],
+    ]) {
+      const option = page.getByRole("button", { name, exact: true });
+      await expect.element(option).toBeVisible();
+      const drawn = option.element().querySelector(".nuv-code-editor__glyph");
+      // Not text, so not words on the button that its name leaves out.
+      expect(drawn?.textContent).toBe("");
+      expect(getComputedStyle(drawn as Element, "::before").content).toBe(
+        glyph,
+      );
+    }
+  });
+
   test("replace all replaces every match, and a read-only editor has no replace", async () => {
     const onValueChange = vi.fn();
     const { rerender } = await mount({ defaultValue: "a a a", onValueChange });

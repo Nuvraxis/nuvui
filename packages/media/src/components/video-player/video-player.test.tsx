@@ -217,12 +217,10 @@ describe("playing", () => {
       .toHaveAttribute("aria-valuetext", "3 seconds of 6 seconds");
     expect(shownTime()?.replace(/\s/g, "")).toBe("0:03/0:06");
     // Named by the time it shows, then what a press does. A narrow player
-    // leaves the length out, and then the name does too.
+    // leaves the length out, and browsers space the parts differently.
     await expect
       .element(
-        page.getByRole("button", {
-          name: /^0:03( \/ 0:06)?, Show the time left$/,
-        }),
+        page.getByRole("button", { name: /^0:03\b.*Show the time left$/ }),
       )
       .toBeVisible();
   });
@@ -231,10 +229,10 @@ describe("playing", () => {
     await render(<Player />);
     await loaded();
     video().currentTime = 2;
-    await page.getByRole("button", { name: /, Show the time left$/ }).click();
+    await page.getByRole("button", { name: /Show the time left$/ }).click();
     await expect.poll(() => shownTime()?.trim()).toBe("-0:04");
     await expect
-      .element(page.getByRole("button", { name: /, Show the time played$/ }))
+      .element(page.getByRole("button", { name: /Show the time played$/ }))
       .toBeVisible();
   });
 

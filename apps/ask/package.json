@@ -15,9 +15,9 @@
     "test": "node --test \"src/**/*.test.ts\""
   },
   "dependencies": {
-    "@azure/identity": "^4.14.0",
-    "@hono/node-server": "^2.1.9",
-    "hono": "^4.13.19",
+    "@azure/identity": "^4.14.1",
+    "@hono/node-server": "^2.1.11",
+    "hono": "^4.13.23",
     "zod": "^4.6.7"
   },
   "devDependencies": {

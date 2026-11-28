@@ -19,38 +19,29 @@ allowBuilds:
 # with braces nested very deep. It comes in through Stylelint, which only
 # gets the patterns written in this repository's own scripts, and no
 # version has the fix yet. Take this out when one does.
-#
-# GHSA-xcx6-jx8p-x3h5: MSAL Node's authorization code flow can send its
-# parameters to an endpoint an attacker controls. It comes in through
-# @azure/identity in apps/ask, which signs in with DefaultAzureCredential,
-# by workload identity in the cluster and the Azure CLI on a machine. That
-# never takes the authorization code flow. The fix is in @azure/msal-node 7,
-# and @azure/identity, 4.14.0 and its beta alike, still asks for 6. Take
-# this out when it asks for 7.
 auditConfig:
   ignoreGhsas:
     - GHSA-vfj7-8cjw-p6xm
-    - GHSA-xcx6-jx8p-x3h5
 
 catalog:
   "@arethetypeswrong/cli": ^0.18.5
-  "@playwright/test": 1.63.0
-  "@size-limit/preset-small-lib": 14.1.0
-  "@types/node": ^24.0.0
-  "@types/react": ^19.3.0
+  "@playwright/test": 1.65.1
+  "@size-limit/preset-small-lib": 14.3.0
+  "@types/node": ^26.6.11
+  "@types/react": ^19.3.3
   "@types/react-dom": ^19.3.0
-  "@vitest/browser-playwright": ^5.0.5
-  axe-core: ^4.13.0
-  playwright: 1.63.0
+  "@vitest/browser-playwright": ^5.1.2
+  axe-core: ^4.14.1
+  playwright: 1.65.1
   publint: ^0.3.25
-  react: ^19.3.0
-  react-dom: ^19.3.0
-  react-is: ^19.3.0
-  sass-embedded: ^1.105.1
-  size-limit: 14.1.0
-  stylelint: ^17.16.0
-  stylelint-config-standard-scss: ^17.0.0
-  tsdown: 0.23.0
+  react: ^19.3.1
+  react-dom: ^19.3.1
+  react-is: ^19.3.1
+  sass-embedded: ^1.108.2
+  size-limit: 14.3.0
+  stylelint: ^18.1.0
+  stylelint-config-standard-scss: ^18.0.0
+  tsdown: 0.23.7
   typescript: ^7.0.2
-  vitest: ^5.0.5
+  vitest: ^5.1.2
   vitest-browser-react: ^2.3.0

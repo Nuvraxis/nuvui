@@ -20,24 +20,24 @@
     "@nuvui/icons": "file:../../packages/icons",
     "@nuvui/map": "file:../../packages/map",
     "@nuvui/org-chart": "file:../../packages/org-chart",
-    "maplibre-gl": "^6.4.1",
+    "maplibre-gl": "^6.19.0",
     "@nuvui/kanban": "file:../../packages/kanban",
     "@nuvui/react": "file:../../packages/ui",
     "@nuvui/scheduler": "file:../../packages/scheduler",
     "@nuvui/table": "file:../../packages/table",
-    "@tanstack/react-table": "^9.2.6",
-    "react": "^19.3.0",
-    "react-dom": "^19.3.0",
-    "react-is": "^19.3.0",
-    "recharts": "^3.10.1",
+    "@tanstack/react-table": "^9.3.1",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "react-is": "^19.3.1",
+    "recharts": "^3.11.1",
     "@react-three/fiber": "^9.8.2",
-    "three": "^0.186.1"
+    "three": "^0.187.0"
   },
   "devDependencies": {
-    "@types/react": "^19.3.0",
+    "@types/react": "^19.3.3",
     "@types/react-dom": "^19.3.0",
-    "@vitejs/plugin-react": "^6.1.2",
+    "@vitejs/plugin-react": "^6.3.0",
     "typescript": "^7.0.2",
-    "vite": "^8.3.3"
+    "vite": "^8.4.0"
   }
 }

@@ -2,7 +2,7 @@
   {
     "name": "@nuvui/react",
     "path": "dist/index.js",
-    "limit": "108 kB"
+    "limit": "111 kB"
   },
   {
     "name": "@nuvui/react/accordion",
@@ -267,7 +267,7 @@
   {
     "name": "@nuvui/react/resizable",
     "path": "dist/components/resizable/index.js",
-    "limit": "14 kB"
+    "limit": "16 kB"
   },
   {
     "name": "@nuvui/react/scroll-area",

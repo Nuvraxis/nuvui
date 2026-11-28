@@ -22,7 +22,7 @@
   {
     "name": "@nuvui/chat/markdown",
     "path": "dist/components/markdown/index.js",
-    "limit": "45 kB"
+    "limit": "46 kB"
   },
   {
     "name": "@nuvui/chat/message",

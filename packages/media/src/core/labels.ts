@@ -38,9 +38,15 @@ export interface MediaLabels {
   large: string;
   skipBack: (seconds: number) => string;
   skipAhead: (seconds: number) => string;
-  /** The time button's name while it shows the time played. */
+  /**
+   * What a press on the time does while it shows the time played. It's
+   * read after the time, which starts the button's name.
+   */
   showRemaining: string;
-  /** The time button's name while it shows the time left. */
+  /**
+   * What a press on the time does while it shows the time left. It's read
+   * after the time, which starts the button's name.
+   */
   showElapsed: string;
   live: string;
   loading: string;

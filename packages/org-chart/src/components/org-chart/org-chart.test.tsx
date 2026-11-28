@@ -185,9 +185,13 @@ describe("rendering", () => {
       .poll(() => card("ada")?.querySelector("img")?.getAttribute("src"))
       .toBe(photo);
     expect(card("ada")?.querySelector("img")?.getAttribute("alt")).toBe("");
-    expect(
-      card("bo")?.querySelector(".nuv-avatar__fallback")?.textContent,
-    ).toBe("BF");
+    // Drawn by the stylesheet, so they aren't words of the card's own that
+    // its name leaves out.
+    const fallback = card("bo")?.querySelector(".nuv-avatar__fallback");
+    expect(fallback?.textContent).toBe("");
+    expect(getComputedStyle(fallback as Element, "::before").content).toBe(
+      '"BF"',
+    );
     expect(
       card("ed")?.querySelector(".nuv-org-chart__badge")?.textContent,
     ).toBe("On leave");

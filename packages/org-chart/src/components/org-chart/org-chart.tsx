@@ -1332,7 +1332,11 @@ const Card = memo(function Card({
           ) : (
             <Avatar className="nuv-org-chart__avatar" aria-hidden="true">
               {person.avatar && <AvatarImage src={person.avatar} alt="" />}
-              <AvatarFallback>{initials(person.name)}</AvatarFallback>
+              {/* The initials are drawn by the stylesheet, from the
+                  attribute. As text they'd be words on the card that the
+                  card's name doesn't have, which WCAG's label in name asks
+                  against, and the name says who it is already. */}
+              <AvatarFallback data-initials={initials(person.name)} />
             </Avatar>
           )}
           <span className="nuv-org-chart__text">

@@ -169,6 +169,10 @@
     flex: none;
   }
 
+  .nuv-org-chart__avatar .nuv-avatar__fallback::before {
+    content: attr(data-initials);
+  }
+
   .nuv-org-chart__seat {
     box-sizing: border-box;
     flex: none;

@@ -206,13 +206,16 @@ $backdrop: var(--nuv-chart-backdrop, var(--color-background));
     outline: none;
   }
 
+  // Since recharts 3.11, every text it draws has its fill in a style
+  // attribute, #666 on an axis and #808080 elsewhere, which only an
+  // important declaration comes before.
   .nuv-chart .recharts-text {
-    fill: currentcolor;
+    fill: currentcolor !important;
   }
 
   // A label written onto the chart, on a bar or in the middle of a ring.
   .nuv-chart .recharts-label {
-    fill: var(--nuv-chart-label-fg, var(--color-foreground));
+    fill: var(--nuv-chart-label-fg, var(--color-foreground)) !important;
   }
 
   .nuv-chart .recharts-cartesian-grid line,

@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.5.15/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.6.9/schema.json",
   "vcs": {
     "enabled": true,
     "clientKind": "git",
@@ -13,7 +13,11 @@
       "!apps/mcp/tools.json",
       "!apps/mcp/versions",
       "!apps/*/public/clips/*.peaks.json",
-      "!packages/icons/svg"
+      "!packages/icons/svg",
+      "!**/*.scss",
+      "!**/*.md",
+      "!**/*.yml",
+      "!**/*.yaml"
     ]
   },
   "formatter": {
@@ -22,7 +26,16 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "preset": "recommended"
+      "preset": "recommended",
+      "complexity": {
+        "useMathMinMax": "off"
+      },
+      "correctness": {
+        "noComponentHookFactories": "off"
+      },
+      "performance": {
+        "useDomNodeTextContent": "off"
+      }
     }
   },
   "assist": {

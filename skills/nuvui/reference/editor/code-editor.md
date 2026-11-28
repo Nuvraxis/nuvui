@@ -621,6 +621,7 @@ The toolbar is the core's [Toolbar](../components/toolbar.md#css-variables), and
 | `.nuv-code-editor__fallback` | The code before CodeMirror has taken over, on a server and as the page starts. |
 | `.nuv-code-editor__fallback-code` | Its code. |
 | `.nuv-code-editor__fallback-gutter` | Its line numbers. |
+| `.nuv-code-editor__glyph` | The letters on an option, drawn from its data-glyph attribute. |
 | `.nuv-code-editor__item` | One button in the toolbar. |
 | `.nuv-code-editor__language` | The language picker. |
 | `.nuv-code-editor__language-name` | The language's name, where the toolbar can't change it. |

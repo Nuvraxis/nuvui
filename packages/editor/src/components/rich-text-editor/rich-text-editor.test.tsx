@@ -105,6 +105,27 @@ describe("rendering", () => {
     );
   });
 
+  test("a format known by a letter shows it, drawn by the stylesheet and not written in the button", async () => {
+    await mount();
+
+    for (const [name, letter] of [
+      ["Bold", '"B"'],
+      ["Italic", '"I"'],
+      ["Underline", '"U"'],
+      ["Strikethrough", '"S"'],
+      ["Heading 2", '"H2"'],
+    ] as const) {
+      const glyph = button(name)
+        .element()
+        .querySelector(".nuv-rich-text-editor__glyph");
+      // Not text, so not a word on the button that its name leaves out.
+      expect(glyph?.textContent, name).toBe("");
+      expect(getComputedStyle(glyph as Element, "::before").content, name).toBe(
+        letter,
+      );
+    }
+  });
+
   test("headingLevels chooses which headings there are", async () => {
     await mount({ headingLevels: [1, 4] });
 

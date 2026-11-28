@@ -186,6 +186,10 @@
     font-size: var(--text-xs);
   }
 
+  .nuv-code-editor__glyph::before {
+    content: attr(data-glyph);
+  }
+
   .nuv-code-editor__whole-word {
     text-decoration: underline;
     text-underline-offset: 0.2em;

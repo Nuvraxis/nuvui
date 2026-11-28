@@ -42,6 +42,12 @@ const said = () =>
     ?.textContent?.replace(/ /g, "") ?? "";
 const captionText = () =>
   document.querySelector(".nuv-video-player__captions")?.textContent ?? "";
+// The time on the button, without the words only a screen reader gets.
+const shownTime = () =>
+  Array.from(document.querySelector(".nuv-media-time")?.children ?? [])
+    .filter((part) => !part.classList.contains("nuv-media-hidden"))
+    .map((part) => part.textContent)
+    .join("");
 
 async function loaded() {
   await expect
@@ -209,23 +215,25 @@ describe("playing", () => {
     await expect
       .element(seek)
       .toHaveAttribute("aria-valuetext", "3 seconds of 6 seconds");
-    expect(
-      document
-        .querySelector(".nuv-media-time")
-        ?.textContent?.replace(/\s/g, ""),
-    ).toBe("0:03/0:06");
+    expect(shownTime()?.replace(/\s/g, "")).toBe("0:03/0:06");
+    // Named by the time it shows, then what a press does. A narrow player
+    // leaves the length out, and browsers space the parts differently.
+    await expect
+      .element(
+        page.getByRole("button", { name: /^0:03\b.*Show the time left$/ }),
+      )
+      .toBeVisible();
   });
 
   test("a press on the time shows the time left", async () => {
     await render(<Player />);
     await loaded();
     video().currentTime = 2;
-    await page.getByRole("button", { name: "Show the time left" }).click();
+    await page.getByRole("button", { name: /Show the time left$/ }).click();
+    await expect.poll(() => shownTime()?.trim()).toBe("-0:04");
     await expect
-      .poll(() =>
-        document.querySelector(".nuv-media-time")?.textContent?.trim(),
-      )
-      .toBe("-0:04");
+      .element(page.getByRole("button", { name: /Show the time played$/ }))
+      .toBeVisible();
   });
 
   test("the keys: k plays, numbers go to a tenth of the way, arrows and j and l skip, m mutes, up and down set the volume", async () => {

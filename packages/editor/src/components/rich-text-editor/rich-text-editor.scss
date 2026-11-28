@@ -82,6 +82,10 @@
     }
   }
 
+  .nuv-rich-text-editor__glyph::before {
+    content: attr(data-letter);
+  }
+
   .nuv-rich-text-editor__body {
     display: flex;
     flex: 1;

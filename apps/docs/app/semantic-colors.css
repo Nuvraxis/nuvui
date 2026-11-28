@@ -7,7 +7,7 @@
  * The Tailwind guide prints this block from the library's token list, and
  * the build fails if a line is missing here.
  *
- * It has a file to itself because Biome 2.5 can't parse two options after
+ * It has a file to itself because Biome 2.6 can't parse two options after
  * @theme. biome.json leaves this one file out.
  */
 @theme inline reference {

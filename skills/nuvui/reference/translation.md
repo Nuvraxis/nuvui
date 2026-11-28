@@ -343,8 +343,8 @@ A player's name is its `title`, or the `aria-label` you give it. Every button's 
 | `large` (required) | `string` |  |  |
 | `skipBack` (required) | `(seconds: number) => string` |  |  |
 | `skipAhead` (required) | `(seconds: number) => string` |  |  |
-| `showRemaining` (required) | `string` |  | The time button's name while it shows the time played. |
-| `showElapsed` (required) | `string` |  | The time button's name while it shows the time left. |
+| `showRemaining` (required) | `string` |  | What a press on the time does while it shows the time played. It's read after the time, which starts the button's name. |
+| `showElapsed` (required) | `string` |  | What a press on the time does while it shows the time left. It's read after the time, which starts the button's name. |
 | `live` (required) | `string` |  |  |
 | `loading` (required) | `string` |  |  |
 | `errorNetwork` (required) | `string` |  |  |

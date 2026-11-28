@@ -217,19 +217,24 @@ export function MediaTime({ className, ...props }: MediaTimeProps) {
       </span>
     );
   }
+  // Named by the time it shows and then what a press does, so the words on
+  // it are in its name, as WCAG's label in name asks: a person using voice
+  // control says what they see.
   return (
     <button
       {...props}
       type="button"
-      aria-label={remaining ? labels.showElapsed : labels.showRemaining}
       className={cx("nuv-media-time", className)}
       onClick={() => store.set({ showRemaining: !remaining })}
     >
-      <span aria-hidden="true">
+      <span>
         <span ref={current}>0:00</span>
         <span ref={total} className="nuv-media-time__total">
           {" / 0:00"}
         </span>
+      </span>
+      <span className="nuv-media-hidden">
+        , {remaining ? labels.showElapsed : labels.showRemaining}
       </span>
     </button>
   );

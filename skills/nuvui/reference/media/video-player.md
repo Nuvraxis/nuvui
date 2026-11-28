@@ -440,8 +440,8 @@ Every word the player shows or says is in `labels`, in English until you give an
 | `large` (required) | `string` |  |  |
 | `skipBack` (required) | `(seconds: number) => string` |  |  |
 | `skipAhead` (required) | `(seconds: number) => string` |  |  |
-| `showRemaining` (required) | `string` |  | The time button's name while it shows the time played. |
-| `showElapsed` (required) | `string` |  | The time button's name while it shows the time left. |
+| `showRemaining` (required) | `string` |  | What a press on the time does while it shows the time played. It's read after the time, which starts the button's name. |
+| `showElapsed` (required) | `string` |  | What a press on the time does while it shows the time left. It's read after the time, which starts the button's name. |
 | `live` (required) | `string` |  |  |
 | `loading` (required) | `string` |  |  |
 | `errorNetwork` (required) | `string` |  |  |

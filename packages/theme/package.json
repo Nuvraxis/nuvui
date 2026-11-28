@@ -27,7 +27,7 @@
   "devDependencies": {
     "@nuvui/typescript-config": "workspace:*",
     "@types/node": "catalog:",
-    "tailwindcss": "^4.3.3",
+    "tailwindcss": "^4.3.5",
     "tsdown": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"

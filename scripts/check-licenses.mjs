@@ -32,8 +32,10 @@ const toolsOnly = new Set([
   "MPL-2.0",
   // caniuse-lite's data, read by the build tools.
   "CC-BY-4.0",
-  // argparse, a command line parser a tool depends on.
+  // argparse, a command line parser a tool depends on. Version 2 names the
+  // Python license stack, and version 3 its first part, the PSF's, alone.
   "Python-2.0",
+  "PSF-2.0",
   // The website's two fonts. The license is made for fonts, and they go out
   // with the site, in no package of ours.
   "OFL-1.1",

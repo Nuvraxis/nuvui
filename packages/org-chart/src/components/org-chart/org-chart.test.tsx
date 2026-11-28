@@ -185,9 +185,13 @@ describe("rendering", () => {
       .poll(() => card("ada")?.querySelector("img")?.getAttribute("src"))
       .toBe(photo);
     expect(card("ada")?.querySelector("img")?.getAttribute("alt")).toBe("");
-    expect(
-      card("bo")?.querySelector(".nuv-avatar__fallback")?.textContent,
-    ).toBe("BF");
+    // Drawn by the stylesheet, so they aren't words of the card's own that
+    // its name leaves out.
+    const fallback = card("bo")?.querySelector(".nuv-avatar__fallback");
+    expect(fallback?.textContent).toBe("");
+    expect(getComputedStyle(fallback as Element, "::before").content).toBe(
+      '"BF"',
+    );
     expect(
       card("ed")?.querySelector(".nuv-org-chart__badge")?.textContent,
     ).toBe("On leave");
@@ -198,6 +202,10 @@ describe("rendering", () => {
     expect(
       card("bo")?.querySelector(".nuv-avatar")?.getAttribute("aria-hidden"),
     ).toBe("true");
+    // Read as text, the parts are words of their own, the words of the
+    // card's name in its order, so what's on it is in its name.
+    expect(card("ed")?.textContent).toBe("Ed Marsh Account Manager On leave");
+    expect(card("gus")?.textContent).toBe("Open position Senior Designer");
   });
 
   test("an open position says so where a name would be, with a dashed edge and no photo", async () => {

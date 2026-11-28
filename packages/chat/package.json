@@ -208,7 +208,7 @@
     "react": "catalog:",
     "react-dom": "catalog:",
     "sass-embedded": "catalog:",
-    "shiki": "^4.5.0",
+    "shiki": "^4.6.0",
     "size-limit": "catalog:",
     "stylelint": "catalog:",
     "tsdown": "catalog:",

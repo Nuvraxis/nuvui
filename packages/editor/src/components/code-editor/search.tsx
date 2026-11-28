@@ -14,13 +14,7 @@ import type { EditorState } from "@codemirror/state";
 import { Button } from "@nuvui/react/button";
 import { Input } from "@nuvui/react/input";
 import { Toggle } from "@nuvui/react/toggle";
-import {
-  type FormEvent,
-  type KeyboardEvent,
-  type ReactNode,
-  useEffect,
-  useRef,
-} from "react";
+import { type FormEvent, type KeyboardEvent, useEffect, useRef } from "react";
 import { useCodeEditor, useViewValue } from "./context";
 
 // Counted up to this many. Past it, the count says "1000+" rather than go
@@ -67,16 +61,21 @@ function Glyph({ path }: { path: string }) {
   );
 }
 
+// The letters on an option are a picture of what it does, and the stylesheet
+// draws them from the attribute. As text they'd be words on the button that
+// its name doesn't have, which WCAG's label in name asks against.
 function Option({
   label,
   pressed,
   onChange,
-  children,
+  glyph,
+  className = "nuv-code-editor__glyph",
 }: {
   label: string;
   pressed: boolean;
   onChange: (pressed: boolean) => void;
-  children: ReactNode;
+  glyph: string;
+  className?: string;
 }) {
   return (
     <Toggle
@@ -87,7 +86,7 @@ function Option({
       onPressedChange={onChange}
       className="nuv-code-editor__search-option"
     >
-      {children}
+      <span className={className} data-glyph={glyph} aria-hidden="true" />
     </Toggle>
   );
 }
@@ -241,23 +240,21 @@ export function SearchPanel() {
           label={labels.matchCase}
           pressed={query.caseSensitive}
           onChange={(caseSensitive) => change({ caseSensitive })}
-        >
-          Aa
-        </Option>
+          glyph="Aa"
+        />
         <Option
           label={labels.wholeWord}
           pressed={query.wholeWord}
           onChange={(wholeWord) => change({ wholeWord })}
-        >
-          <span className="nuv-code-editor__whole-word">ab</span>
-        </Option>
+          glyph="ab"
+          className="nuv-code-editor__glyph nuv-code-editor__whole-word"
+        />
         <Option
           label={labels.regexp}
           pressed={query.regexp}
           onChange={(regexp) => change({ regexp })}
-        >
-          .*
-        </Option>
+          glyph=".*"
+        />
         <Button
           type="button"
           intent="ghost"

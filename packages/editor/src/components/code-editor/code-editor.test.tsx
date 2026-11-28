@@ -492,7 +492,7 @@ describe("search", () => {
       ["Match case", '"Aa"'],
       ["Whole word", '"ab"'],
       ["Regular expression", '".*"'],
-    ]) {
+    ] as const) {
       const option = page.getByRole("button", { name, exact: true });
       await expect.element(option).toBeVisible();
       const drawn = option.element().querySelector(".nuv-code-editor__glyph");

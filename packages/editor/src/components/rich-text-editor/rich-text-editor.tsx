@@ -264,7 +264,9 @@ const paths: Record<string, string> = {
 };
 
 // A letter where a letter is what's known, B for bold, and a drawing
-// for the rest.
+// for the rest. The stylesheet draws the letter from data-letter: as text
+// it would be a word on the button that its name doesn't have, which
+// WCAG's label in name asks against.
 const letters: Record<string, string> = {
   bold: "B",
   italic: "I",
@@ -280,10 +282,9 @@ function Glyph({ name }: { name: string }) {
       <span
         aria-hidden="true"
         data-glyph={level ? "heading" : name}
+        data-letter={letter}
         className="nuv-rich-text-editor__glyph"
-      >
-        {letter}
-      </span>
+      />
     );
   }
   return (

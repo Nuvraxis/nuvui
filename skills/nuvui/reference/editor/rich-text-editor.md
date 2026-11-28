@@ -557,7 +557,7 @@ The toolbar is the core's [Toolbar](../components/toolbar.md#css-variables), and
 | `.nuv-rich-text-editor__bubble-toolbar` | The toolbar inside it. |
 | `.nuv-rich-text-editor__content` | The text itself, the textbox. |
 | `.nuv-rich-text-editor__count` | RichTextEditorCount |
-| `.nuv-rich-text-editor__glyph` | The letter on a control that has one. |
+| `.nuv-rich-text-editor__glyph` | The letter on a control that has one, drawn from its data-letter attribute. |
 | `.nuv-rich-text-editor__group` | RichTextEditorFormats and RichTextEditorActions. |
 | `.nuv-rich-text-editor__item` | One control in a toolbar. |
 | `.nuv-rich-text-editor__link` | The form in the box for a link. |

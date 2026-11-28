@@ -1339,22 +1339,34 @@ const Card = memo(function Card({
               <AvatarFallback data-initials={initials(person.name)} />
             </Avatar>
           )}
+          {/* A space between the parts, which a flex box doesn't draw, so
+              their text doesn't run together as one word where it's read
+              as text, as axe reads it to compare with the name. */}
           <span className="nuv-org-chart__text">
             <span className="nuv-org-chart__name">{name}</span>
             {person.title && (
-              <span className="nuv-org-chart__title">{person.title}</span>
+              <>
+                {" "}
+                <span className="nuv-org-chart__title">{person.title}</span>
+              </>
             )}
             {(person.department || person.badge) && (
-              <span className="nuv-org-chart__meta">
-                {person.department && (
-                  <span className="nuv-org-chart__department">
-                    {person.department}
-                  </span>
-                )}
-                {person.badge && (
-                  <Badge className="nuv-org-chart__badge">{person.badge}</Badge>
-                )}
-              </span>
+              <>
+                {" "}
+                <span className="nuv-org-chart__meta">
+                  {person.department && (
+                    <span className="nuv-org-chart__department">
+                      {person.department}
+                    </span>
+                  )}
+                  {person.department && person.badge && " "}
+                  {person.badge && (
+                    <Badge className="nuv-org-chart__badge">
+                      {person.badge}
+                    </Badge>
+                  )}
+                </span>
+              </>
             )}
           </span>
         </>

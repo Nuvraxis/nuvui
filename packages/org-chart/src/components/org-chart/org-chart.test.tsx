@@ -202,6 +202,10 @@ describe("rendering", () => {
     expect(
       card("bo")?.querySelector(".nuv-avatar")?.getAttribute("aria-hidden"),
     ).toBe("true");
+    // Read as text, the parts are words of their own, the words of the
+    // card's name in its order, so what's on it is in its name.
+    expect(card("ed")?.textContent).toBe("Ed Marsh Account Manager On leave");
+    expect(card("gus")?.textContent).toBe("Open position Senior Designer");
   });
 
   test("an open position says so where a name would be, with a dashed edge and no photo", async () => {
